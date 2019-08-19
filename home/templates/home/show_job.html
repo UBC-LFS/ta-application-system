@@ -1,0 +1,65 @@
+{% extends 'ta_app/base.html' %}
+{% block content %}
+
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item">
+      <a href="{% url 'home:index' %}">Home</a>
+    </li>
+    <li class="breadcrumb-item">
+      <a href="{% url 'home:show_session' session.slug %}">Session Details</a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">Job Details</li>
+  </ol>
+</nav>
+
+
+{% if messages %}
+	{% for message in messages %}
+		<div>{{ message }}</div>
+	{% endfor %}
+{% endif %}
+
+<h1>Job Details</h1>
+
+<ul>
+  <li>Job Code: {{ job.course.code.name }}</li>
+  <li>Job Number: {{ job.course.number.name }}</li>
+  <li>Job Section: {{ job.course.section.name }}</li>
+  <li>Job Name: {{ job.course.name }}</li>
+  <li>
+    Intstructors:
+    {% for instructor in job.instructors.all %}
+      {{ instructor.username }},
+    {% empty %}
+      No instructors
+    {% endfor %}
+  </li>
+</ul>
+
+<p>Job Title:</p>
+<p>{{ job.title }}</p>
+
+<p>Job Description:</p>
+<p>{{ job.description }}</p>
+
+<p>Job Qalification:</p>
+<p>{{ job.qualification }}</p>
+
+<p>Job Note:</p>
+<p>{{ job.note }}</p>
+
+<hr />
+
+{% if has_applied_job %}
+  <p>You have already applied for this job.</p>
+
+{% else %}
+  <form action="" method="post">
+    {% csrf_token %}
+    <table>{{ form.as_table }} </table>
+    <input type="submit" value="Apply">
+  </form>
+{% endif %}
+
+{% endblock %}

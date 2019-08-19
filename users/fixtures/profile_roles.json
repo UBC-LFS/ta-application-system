@@ -1,0 +1,242 @@
+[
+  {
+    "model": "users.profile_roles",
+    "pk": 1,
+    "fields": {
+      "profile_id": 1,
+      "role_id": 4
+    }
+  },
+  {
+    "model": "users.profile_roles",
+    "pk": 2,
+    "fields": {
+     "profile_id": 2,
+     "role_id": 5
+    }
+  },
+  {
+    "model": "users.profile_roles",
+    "pk": 3,
+    "fields": {
+      "profile_id": 3,
+      "role_id": 3
+    }
+  },
+  {
+    "model": "users.profile_roles",
+    "pk": 4,
+    "fields": {
+      "profile_id": 4,
+      "role_id": 2
+    }
+  },
+  {
+    "model": "users.profile_roles",
+    "pk": 5,
+    "fields": {
+      "profile_id": 5,
+      "role_id": 2
+    }
+  },
+  {
+    "model": "users.profile_roles",
+    "pk": 6,
+    "fields": {
+      "profile_id": 6,
+      "role_id": 2
+    }
+  },
+  {
+    "model": "users.profile_roles",
+    "pk": 7,
+    "fields": {
+      "profile_id": 7,
+      "role_id": 2
+    }
+  },
+  {
+    "model": "users.profile_roles",
+    "pk": 8,
+    "fields": {
+      "profile_id": 8,
+      "role_id": 2
+    }
+  },
+  {
+    "model": "users.profile_roles",
+    "pk": 9,
+    "fields": {
+      "profile_id": 9,
+      "role_id": 1
+    }
+  },
+  {
+    "model": "users.profile_roles",
+    "pk": 10,
+    "fields": {
+      "profile_id": 10,
+      "role_id": 1
+    }
+  },
+  {
+    "model": "users.profile_roles",
+    "pk": 11,
+    "fields": {
+      "profile_id": 11,
+      "role_id": 1
+    }
+  },
+  {
+    "model": "users.profile_roles",
+    "pk": 12,
+    "fields": {
+      "profile_id": 12,
+      "role_id": 1
+    }
+  },
+  {
+    "model": "users.profile_roles",
+    "pk": 13,
+    "fields": {
+      "profile_id": 13,
+      "role_id": 1
+    }
+  },
+  {
+    "model": "users.profile_roles",
+    "pk": 14,
+    "fields": {
+      "profile_id": 14,
+      "role_id": 1
+    }
+  },
+  {
+    "model": "users.profile_roles",
+    "pk": 15,
+    "fields": {
+      "profile_id": 15,
+      "role_id": 1
+    }
+  },
+  {
+    "model": "users.profile_roles",
+    "pk": 16,
+    "fields": {
+      "profile_id": 16,
+      "role_id": 1
+    }
+  },
+  {
+    "model": "users.profile_roles",
+    "pk": 17,
+    "fields": {
+      "profile_id": 17,
+      "role_id": 1
+    }
+  },
+  {
+    "model": "users.profile_roles",
+    "pk": 18,
+    "fields": {
+      "profile_id": 18,
+      "role_id": 1
+    }
+  },
+  {
+    "model": "users.profile_roles",
+    "pk": 19,
+    "fields": {
+      "profile_id": 19,
+      "role_id": 1
+    }
+  },
+  {
+    "model": "users.profile_roles",
+    "pk": 20,
+    "fields": {
+      "profile_id": 20,
+      "role_id": 1
+    }
+  },
+  {
+    "model": "users.profile_roles",
+    "pk": 21,
+    "fields": {
+      "profile_id": 21,
+      "role_id": 1
+    }
+  },
+  {
+    "model": "users.profile_roles",
+    "pk": 22,
+    "fields": {
+      "profile_id": 22,
+      "role_id": 1
+    }
+  },
+  {
+    "model": "users.profile_roles",
+    "pk": 23,
+    "fields": {
+      "profile_id": 23,
+      "role_id": 1
+    }
+  },
+  {
+    "model": "users.profile_roles",
+    "pk": 24,
+    "fields": {
+      "profile_id": 24,
+      "role_id": 1
+    }
+  },
+  {
+    "model": "users.profile_roles",
+    "pk": 25,
+    "fields": {
+      "profile_id": 25,
+      "role_id": 1
+    }
+  },
+  {
+    "model": "users.profile_roles",
+    "pk": 26,
+    "fields": {
+      "profile_id": 26,
+      "role_id": 1
+    }
+  },
+  {
+    "model": "users.profile_roles",
+    "pk": 27,
+    "fields": {
+      "profile_id": 27,
+      "role_id": 1
+    }
+  },
+  {
+    "model": "users.profile_roles",
+    "pk": 28,
+    "fields": {
+      "profile_id": 28,
+      "role_id": 1
+    }
+  },
+  {
+    "model": "users.profile_roles",
+    "pk": 29,
+    "fields": {
+      "profile_id": 29,
+      "role_id": 1
+    }
+  },
+  {
+    "model": "users.profile_roles",
+    "pk": 30,
+    "fields": {
+      "profile_id": 30,
+      "role_id": 1
+    }
+  }
+]

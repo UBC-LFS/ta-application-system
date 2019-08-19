@@ -1,0 +1,35 @@
+{% extends 'ta_app/base.html' %}
+{% block content %}
+
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item">
+      <a href="{% url 'department:index' %}">Department</a>
+    </li>
+    <li class="breadcrumb-item">
+      <a href="{% url 'department:courses' %}">Courses</a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">Course Details</li>
+  </ol>
+</nav>
+
+{% if messages %}
+	{% for message in messages %}
+		<div>{{ message }}</div>
+	{% endfor %}
+{% endif %}
+
+<h3>Course Details</h3>
+
+<ul>
+  <li>Course Code: {{ course.code }}</li>
+  <li>Course Number: {{ course.number }}</li>
+  <li>Course Section: {{ course.section }}</li>
+  <li>Course Name: {{ course.name }}</li>
+  <li>Term: {{ course.term.name }} ({{ course.term.code }})</li>
+</ul>
+
+<a href="{% url 'department:courses' %}">Courses</a> |
+<a href="{% url 'department:edit_course' course.slug %}">Edit</a>
+
+{% endblock %}

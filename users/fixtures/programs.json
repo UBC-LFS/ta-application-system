@@ -1,0 +1,66 @@
+[
+  {
+    "model": "users.program",
+    "pk": 1,
+    "fields": {
+      "name": "Master of Science in Applied Animal Biology (MSc)",
+      "slug": "master-of-science-in-applied-animal-biology-msc"
+    }
+  },
+  {
+    "model": "users.program",
+    "pk": 2,
+    "fields": {
+      "name": "Doctor of Philosophy in Applied Animal Biology (PhD)",
+      "slug": "doctor-of-philosophy-in-applied-animal-biology-phd"
+    }
+  },
+  {
+    "model": "users.program",
+    "pk": 3,
+    "fields": {
+      "name": "Master of Science in Food Science (MSc)",
+      "slug": "master-of-science-in-food-science-msc"
+    }
+  },
+  {
+    "model": "users.program",
+    "pk": 4,
+    "fields": {
+      "name": "Doctor of Philosophy in Food Science (PhD)",
+      "slug": "doctor-of-philosophy-in-food-science-phd"
+    }
+  },
+  {
+    "model": "users.program",
+    "pk": 5,
+    "fields": {
+      "name": "Master of Science in Human Nutrition (MSc)",
+      "slug": "master-of-science-in-human-nutrition-msc"
+    }
+  },
+  {
+    "model": "users.program",
+    "pk": 6,
+    "fields": {
+      "name": "Master of Science in Integrated Studies in Land and Food Systems (MSc)",
+      "slug": "master-of-science-in-integrated-studies-in-land-and-food-systems-msc"
+    }
+  },
+  {
+    "model": "users.program",
+    "pk": 7,
+    "fields": {
+      "name": "Doctor of Philosophy in Integrated Studies in Land and Food Systems (PhD)",
+      "slug": "doctor-of-philosophy-in-integrated-studies-in-land-and-food-systems-phd"
+    }
+  },
+  {
+    "model": "users.program",
+    "pk": 8,
+    "fields": {
+      "name": "Master of Land and Water Systems (MLWS)",
+      "slug": "master-of-land-and-water-systems-mlws"
+    }
+  }
+]

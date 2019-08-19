@@ -1,0 +1,42 @@
+[
+  {
+    "model": "department.job_instructors",
+    "pk": 1,
+    "fields": {
+      "job_id": 1,
+      "user_id": 4
+    }
+  },
+  {
+    "model": "department.job_instructors",
+    "pk": 2,
+    "fields": {
+      "job_id": 1,
+      "user_id": 5
+    }
+  },
+  {
+    "model": "department.job_instructors",
+    "pk": 3,
+    "fields": {
+      "job_id": 2,
+      "user_id": 6
+    }
+  },
+  {
+    "model": "department.job_instructors",
+    "pk": 4,
+    "fields": {
+      "job_id": 3,
+      "user_id": 7
+    }
+  },
+  {
+    "model": "department.job_instructors",
+    "pk": 5,
+    "fields": {
+      "job_id": 4,
+      "user_id": 8
+    }
+  }
+]

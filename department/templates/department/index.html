@@ -1,0 +1,96 @@
+{% extends 'ta_app/base.html' %}
+{% block content %}
+
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item active" aria-current="page">Department</li>
+  </ol>
+</nav>
+
+
+{% if messages %}
+	{% for message in messages %}
+		<div>{{ message }}</div>
+	{% endfor %}
+{% endif %}
+
+
+<h1>Department</h1>
+
+<a href="{% url 'department:sessions' %}">Sessions</a> |
+<a href="{% url 'department:jobs' %}">Jobs</a> |
+<a href="{% url 'department:applications' %}">Applications</a> |
+<a href="{% url 'users:index' %}">Users</a> |
+
+
+<div class="dropdown">
+  <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    Dropdown button
+  </button>
+  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+    <a class="dropdown-item" href="{% url 'department:terms' %}">Terms</a>
+    <div class="dropdown-divider"></div>
+    <a class="dropdown-item" href="{% url 'department:courses' %}">Courses</a>
+    <a class="dropdown-item" href="{% url 'department:course_codes' %}">Course Codes</a>
+    <a class="dropdown-item" href="{% url 'department:course_numbers' %}">Course Numbers</a>
+    <a class="dropdown-item" href="{% url 'department:course_sections' %}">Course Sections</a>
+    <div class="dropdown-divider"></div>
+    <a class="dropdown-item" href="{% url 'users:roles' %}">Roles</a>
+    <a class="dropdown-item" href="{% url 'users:programs' %}">Programs</a>
+    <a class="dropdown-item" href="{% url 'users:statuses' %}">Statuses</a>
+    <a class="dropdown-item" href="{% url 'users:degrees' %}">Degrees</a>
+    <a class="dropdown-item" href="{% url 'users:trainings' %}">Trainings</a>
+  </div>
+</div>
+
+
+
+
+
+
+
+<h3>Overview</h3>
+
+<h4>Active Sessions</h4>
+<table>
+  <thead>
+    <tr>
+      <th>TA Application</th>
+      <th>Jobs</th>
+      <th>Active</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for session in active_sessions %}
+      <tr>
+        <td>
+          <a href="{% url 'department:show_session' session.slug %}">
+            {{ session.year }} {{ session.term.name }} {{ session.title }}
+          </a>
+        </td>
+        <td>{{ session.job_set.count }}</td>
+        <td>{{ session.is_active }}</td>
+      </tr>
+    {% empty %}
+      <tr>
+        <td colspan="4">No sessions found</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<ul>
+  <li>Active Sessions: {{ active_sessions.count }}</li>
+  <li>Inactive Sessions: {{ inactive_sessions.count }}</li>
+  <li>Total Sessions: {{ active_sessions.count|add:inactive_sessions.count }}</li>
+</ul>
+
+<h4>Jobs</h4>
+
+<h4>Courses</h4>
+<ul>
+  <li>Courses: {{ courses.count }}</li>
+</ul>
+
+
+{% endblock %}

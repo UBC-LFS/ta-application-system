@@ -1,0 +1,40 @@
+{% extends 'ta_app/base.html' %}
+{% block content %}
+
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item">
+      <a href="{% url 'department:index' %}">Department</a>
+    </li>
+    <li class="breadcrumb-item">
+      <a href="{% url 'department:sessions' %}">Sessions</a>
+    </li>
+    <li class="breadcrumb-item">
+      <a href="{% url 'department:show_session' session.slug %}">Session Details</a>
+    </li>
+    <li class="breadcrumb-item">
+      <a href="{% url 'department:show_job' session_slug=session.slug job_slug=job.course.slug %}">Job Details</a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">Edit Job</li>
+  </ol>
+</nav>
+
+{% if messages %}
+	{% for message in messages %}
+		<div>{{ message }}</div>
+	{% endfor %}
+{% endif %}
+
+
+<h1>Edit Job</h1>
+
+
+<form action="" method="post">
+  {% csrf_token %}
+  <table>{{ form.as_table }}</table>
+  <input type="submit" value="Update">
+</form>
+
+
+
+{% endblock %}

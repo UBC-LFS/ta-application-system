@@ -1,0 +1,40 @@
+{% extends 'ta_app/base.html' %}
+{% block content %}
+
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item">
+      <a href="{% url 'department:index' %}">Department</a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">Sessions</li>
+  </ol>
+</nav>
+
+
+{% if messages %}
+	{% for message in messages %}
+		<div>{{ message }}</div>
+	{% endfor %}
+{% endif %}
+
+
+<h1>Sessions</h1>
+
+<nav>
+  <div class="nav nav-tabs" id="nav-tab" role="tablist">
+    <a class="nav-item nav-link active" id="nav-active-sessions-tab" data-toggle="tab" href="#nav-active-sessions" role="tab" aria-controls="nav-active-sessions" aria-selected="true">Active Sessions</a>
+    <a class="nav-item nav-link" id="nav-inactive-sessions-tab" data-toggle="tab" href="#nav-inactive-sessions" role="tab" aria-controls="nav-inactive-sessions" aria-selected="false">Inactive Sessions</a>
+  </div>
+</nav>
+<div class="tab-content" id="nav-tabContent">
+  <div class="tab-pane fade show active" id="nav-active-sessions" role="tabpanel" aria-labelledby="nav-active-sessions-tab">
+    {% include "department/sessions/_active_sessions.html" %}
+  </div>
+  <div class="tab-pane fade" id="nav-inactive-sessions" role="tabpanel" aria-labelledby="nav-inactive-sessions-tab">
+    {% include "department/sessions/_inactive_sessions.html" %}
+  </div>
+</div>
+
+
+
+{% endblock %}

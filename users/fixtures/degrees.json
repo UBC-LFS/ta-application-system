@@ -1,0 +1,90 @@
+[
+  {
+    "model": "users.degree",
+    "pk": 1,
+    "fields": {
+      "name": "Bachelor of Arts",
+      "slug": "bachelor-of-arts"
+    }
+  },
+  {
+    "model": "users.degree",
+    "pk": 2,
+    "fields": {
+      "name": "Bachelor of Science",
+      "slug": "bachelor-of-science"
+    }
+  },
+  {
+    "model": "users.degree",
+    "pk": 3,
+    "fields": {
+      "name": "Bachelor of Engineering",
+      "slug": "bachelor-of-engineering"
+    }
+  },
+  {
+    "model": "users.degree",
+    "pk": 4,
+    "fields": {
+      "name": "Master of Arts",
+      "slug": "master-of-arts"
+    }
+  },
+  {
+    "model": "users.degree",
+    "pk": 5,
+    "fields": {
+      "name": "Master of Science",
+      "slug": "master-of-science"
+    }
+  },
+  {
+    "model": "users.degree",
+    "pk": 6,
+    "fields": {
+      "name": "Master of Engineering",
+      "slug": "master-of-engineering"
+    }
+  },
+  {
+    "model": "users.degree",
+    "pk": 7,
+    "fields": {
+      "name": "Doctor of Arts",
+      "slug": "doctor-of-arts"
+    }
+  },
+  {
+    "model": "users.degree",
+    "pk": 8,
+    "fields": {
+      "name": "doctor-of-science",
+      "slug": ""
+    }
+  },
+  {
+    "model": "users.degree",
+    "pk": 9,
+    "fields": {
+      "name": "Doctor of Engineering",
+      "slug": "doctor-of-engineering"
+    }
+  },
+  {
+    "model": "users.degree",
+    "pk": 10,
+    "fields": {
+      "name": "Professional Degree",
+      "slug": "professional-degree"
+    }
+  },
+  {
+    "model": "users.degree",
+    "pk": 11,
+    "fields": {
+      "name": "Other",
+      "slug": "other"
+    }
+  }
+]

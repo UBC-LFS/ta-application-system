@@ -1,0 +1,33 @@
+{% extends 'ta_app/base.html' %}
+{% block content %}
+
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item">
+      <a href="{% url 'department:index' %}">Department</a>
+    </li>
+    <li class="breadcrumb-item">
+      <a href="{% url 'users:trainings' %}">Trainings</a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">Training Details</li>
+  </ol>
+</nav>
+
+
+{% if messages %}
+	{% for message in messages %}
+		<div>{{ message }}</div>
+	{% endfor %}
+{% endif %}
+
+<h1>Training Details</h1>
+
+<div class="">
+  Training Name: {{ training.name }}
+</div>
+
+<a href="{% url 'users:trainings' %}">Back to Trainings</a>
+
+
+
+{% endblock %}

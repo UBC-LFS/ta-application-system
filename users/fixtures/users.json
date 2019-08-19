@@ -1,0 +1,332 @@
+[
+  {
+    "model": "auth.user",
+    "pk": 1,
+    "fields": {
+      "password": "12",
+      "username": "admin",
+      "first_name": "ad",
+      "last_name": "min",
+      "email": "<email address>"
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 2,
+    "fields": {
+      "password": "12",
+      "username": "admin2",
+      "first_name": "ad2",
+      "last_name": "min2",
+      "email": "<email address>"
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 3,
+    "fields": {
+      "password": "12",
+      "username": "admin3",
+      "first_name": "ad3",
+      "last_name": "min3",
+      "email": "<email address>"
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 4,
+    "fields": {
+      "password": "12",
+      "username": "test.user4",
+      "first_name": "test4",
+      "last_name": "user4",
+      "email": "<email address>"
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 5,
+    "fields": {
+      "password": "12",
+      "username": "test.user5",
+      "first_name": "test5",
+      "last_name": "user5",
+      "email": "<email address>"
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 6,
+    "fields": {
+      "password": "12",
+      "username": "test.user6",
+      "first_name": "test6",
+      "last_name": "user6",
+      "email": "<email address>"
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 7,
+    "fields": {
+      "password": "12",
+      "username": "test.user7",
+      "first_name": "test7",
+      "last_name": "user7",
+      "email": "<email address>"
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 8,
+    "fields": {
+      "password": "12",
+      "username": "test.user8",
+      "first_name": "test8",
+      "last_name": "user8",
+      "email": "<email address>"
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 9,
+    "fields": {
+      "password": "12",
+      "username": "test.user9",
+      "first_name": "test9",
+      "last_name": "user9",
+      "email": "<email address>"
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 10,
+    "fields": {
+      "password": "12",
+      "username": "test.user10",
+      "first_name": "test10",
+      "last_name": "user10",
+      "email": "<email address>"
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 11,
+    "fields": {
+      "password": "12",
+      "username": "test.user11",
+      "first_name": "test11",
+      "last_name": "user11",
+      "email": "<email address>"
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 12,
+    "fields": {
+      "password": "12",
+      "username": "test.user12",
+      "first_name": "test12",
+      "last_name": "user12",
+      "email": "<email address>"
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 13,
+    "fields": {
+      "password": "12",
+      "username": "test.user13",
+      "first_name": "test13",
+      "last_name": "user13",
+      "email": "<email address>"
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 14,
+    "fields": {
+      "password": "12",
+      "username": "test.user14",
+      "first_name": "test14",
+      "last_name": "user14",
+      "email": "<email address>"
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 15,
+    "fields": {
+      "password": "12",
+      "username": "test.user15",
+      "first_name": "test15",
+      "last_name": "user15",
+      "email": "<email address>"
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 16,
+    "fields": {
+      "password": "12",
+      "username": "test.user16",
+      "first_name": "test16",
+      "last_name": "user16",
+      "email": "<email address>"
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 17,
+    "fields": {
+      "password": "12",
+      "username": "test.user17",
+      "first_name": "test17",
+      "last_name": "user17",
+      "email": "<email address>"
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 18,
+    "fields": {
+      "password": "12",
+      "username": "test.user18",
+      "first_name": "test18",
+      "last_name": "user18",
+      "email": "<email address>"
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 19,
+    "fields": {
+      "password": "12",
+      "username": "test.user19",
+      "first_name": "test19",
+      "last_name": "user19",
+      "email": "<email address>"
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 20,
+    "fields": {
+      "password": "12",
+      "username": "test.user20",
+      "first_name": "test20",
+      "last_name": "user20",
+      "email": "<email address>"
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 21,
+    "fields": {
+      "password": "12",
+      "username": "test.user21",
+      "first_name": "test21",
+      "last_name": "user21",
+      "email": "<email address>"
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 22,
+    "fields": {
+      "password": "12",
+      "username": "test.user22",
+      "first_name": "test22",
+      "last_name": "user22",
+      "email": "<email address>"
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 23,
+    "fields": {
+      "password": "12",
+      "username": "test.user23",
+      "first_name": "test23",
+      "last_name": "user23",
+      "email": "<email address>"
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 24,
+    "fields": {
+      "password": "12",
+      "username": "test.user24",
+      "first_name": "test24",
+      "last_name": "user24",
+      "email": "<email address>"
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 25,
+    "fields": {
+      "password": "12",
+      "username": "test.user25",
+      "first_name": "test25",
+      "last_name": "user25",
+      "email": "<email address>"
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 26,
+    "fields": {
+      "password": "12",
+      "username": "test.user26",
+      "first_name": "test26",
+      "last_name": "user26",
+      "email": "<email address>"
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 27,
+    "fields": {
+      "password": "12",
+      "username": "test.user27",
+      "first_name": "test27",
+      "last_name": "user27",
+      "email": "<email address>"
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 28,
+    "fields": {
+      "password": "12",
+      "username": "test.user28",
+      "first_name": "test28",
+      "last_name": "user28",
+      "email": "<email address>"
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 29,
+    "fields": {
+      "password": "12",
+      "username": "test.user29",
+      "first_name": "test29",
+      "last_name": "user29",
+      "email": "<email address>"
+    }
+  },
+  {
+    "model": "auth.user",
+    "pk": 30,
+    "fields": {
+      "password": "12",
+      "username": "test.user30",
+      "first_name": "test30",
+      "last_name": "user30",
+      "email": "<email address>"
+    }
+  }
+]

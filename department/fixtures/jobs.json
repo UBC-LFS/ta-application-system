@@ -1,0 +1,341 @@
+[
+  {
+    "model": "department.job",
+    "pk": 1,
+    "fields": {
+      "title": "Job Title 2018",
+      "description": "Job Description 2018",
+      "qualification": "Job Quallification 2018",
+      "note": "Job Note 2018",
+      "ta_hours": 0,
+      "session_id": 1,
+      "course_id": 1,
+      "is_active": true,
+      "created_at": "2018-01-01",
+      "updated_at": "2018-01-01"
+    }
+  },
+  {
+    "model": "department.job",
+    "pk": 2,
+    "fields": {
+      "title": "Job Title",
+      "description": "Job Description",
+      "qualification": "Job Quallification",
+      "note": "Job Note",
+      "ta_hours": 0,
+      "session_id": 1,
+      "course_id": 2,
+      "is_active": true,
+      "created_at": "2018-01-01",
+      "updated_at": "2018-01-01"
+    }
+  },
+  {
+    "model": "department.job",
+    "pk": 3,
+    "fields": {
+      "title": "Job Title",
+      "description": "Job Description",
+      "qualification": "Job Quallification",
+      "note": "Job Note",
+      "ta_hours": 0,
+      "session_id": 1,
+      "course_id": 3,
+      "is_active": true,
+      "created_at": "2018-01-01",
+      "updated_at": "2018-01-01"
+    }
+  },
+  {
+    "model": "department.job",
+    "pk": 4,
+    "fields": {
+      "title": "Job Title",
+      "description": "Job Description",
+      "qualification": "Job Quallification",
+      "note": "Job Note",
+      "ta_hours": 0,
+      "session_id": 2,
+      "course_id": 9,
+      "is_active": true,
+      "created_at": "2018-01-01",
+      "updated_at": "2018-01-01"
+    }
+  },
+  {
+    "model": "department.job",
+    "pk": 5,
+    "fields": {
+      "title": "Job Title",
+      "description": "Job Description",
+      "qualification": "Job Quallification",
+      "note": "Job Note",
+      "ta_hours": 0,
+      "session_id": 2,
+      "course_id": 10,
+      "is_active": true,
+      "created_at": "2018-01-01",
+      "updated_at": "2018-01-01"
+    }
+  },
+  {
+    "model": "department.job",
+    "pk": 6,
+    "fields": {
+      "title": "Job Title",
+      "description": "Job Description",
+      "qualification": "Job Quallification",
+      "note": "Job Note",
+      "ta_hours": 0,
+      "session_id": 3,
+      "course_id": 18,
+      "is_active": true,
+      "created_at": "2018-01-01",
+      "updated_at": "2018-01-01"
+    }
+  },
+
+
+
+  {
+    "model": "department.job",
+    "pk": 7,
+    "fields": {
+      "title": "Job Title",
+      "description": "Job Description",
+      "qualification": "Job Quallification",
+      "note": "Job Note",
+      "ta_hours": 0,
+      "session_id": 4,
+      "course_id": 1,
+      "is_active": true,
+      "created_at": "2019-01-01",
+      "updated_at": "2019-01-01"
+    }
+  },
+  {
+    "model": "department.job",
+    "pk": 8,
+    "fields": {
+      "title": "Job Title",
+      "description": "Job Description",
+      "qualification": "Job Quallification",
+      "note": "Job Note",
+      "ta_hours": 0,
+      "session_id": 4,
+      "course_id": 2,
+      "is_active": true,
+      "created_at": "2019-01-01",
+      "updated_at": "2019-01-01"
+    }
+  },
+  {
+    "model": "department.job",
+    "pk": 9,
+    "fields": {
+      "title": "Job Title",
+      "description": "Job Description",
+      "qualification": "Job Quallification",
+      "note": "Job Note",
+      "ta_hours": 0,
+      "session_id": 4,
+      "course_id": 3,
+      "is_active": true,
+      "created_at": "2019-01-01",
+      "updated_at": "2019-01-01"
+    }
+  },
+  {
+    "model": "department.job",
+    "pk": 10,
+    "fields": {
+      "title": "Job Title",
+      "description": "Job Description",
+      "qualification": "Job Quallification",
+      "note": "Job Note",
+      "ta_hours": 0,
+      "session_id": 4,
+      "course_id": 4,
+      "is_active": true,
+      "created_at": "2019-01-01",
+      "updated_at": "2019-01-01"
+    }
+  },
+  {
+    "model": "department.job",
+    "pk": 11,
+    "fields": {
+      "title": "Job Title",
+      "description": "Job Description",
+      "qualification": "Job Quallification",
+      "note": "Job Note",
+      "ta_hours": 0,
+      "session_id": 5,
+      "course_id": 7,
+      "is_active": true,
+      "created_at": "2019-01-01",
+      "updated_at": "2019-01-01"
+    }
+  },
+  {
+    "model": "department.job",
+    "pk": 12,
+    "fields": {
+      "title": "Job Title",
+      "description": "Job Description",
+      "qualification": "Job Quallification",
+      "note": "Job Note",
+      "ta_hours": 0,
+      "session_id": 5,
+      "course_id": 8,
+      "is_active": true,
+      "created_at": "2019-01-01",
+      "updated_at": "2019-01-01"
+    }
+  },
+  {
+    "model": "department.job",
+    "pk": 13,
+    "fields": {
+      "title": "Job Title",
+      "description": "Job Description",
+      "qualification": "Job Quallification",
+      "note": "Job Note",
+      "ta_hours": 0,
+      "session_id": 5,
+      "course_id": 9,
+      "is_active": true,
+      "created_at": "2019-01-01",
+      "updated_at": "2019-01-01"
+    }
+  },
+  {
+    "model": "department.job",
+    "pk": 14,
+    "fields": {
+      "title": "Job Title",
+      "description": "Job Description",
+      "qualification": "Job Quallification",
+      "note": "Job Note",
+      "ta_hours": 0,
+      "session_id": 5,
+      "course_id": 10,
+      "is_active": true,
+      "created_at": "2019-01-01",
+      "updated_at": "2019-01-01"
+    }
+  },
+  {
+    "model": "department.job",
+    "pk": 15,
+    "fields": {
+      "title": "Job Title",
+      "description": "Job Description",
+      "qualification": "Job Quallification",
+      "note": "Job Note",
+      "ta_hours": 0,
+      "session_id": 5,
+      "course_id": 11,
+      "is_active": true,
+      "created_at": "2019-01-01",
+      "updated_at": "2019-01-01"
+    }
+  },
+  {
+    "model": "department.job",
+    "pk": 16,
+    "fields": {
+      "title": "Job Title",
+      "description": "Job Description",
+      "qualification": "Job Quallification",
+      "note": "Job Note",
+      "ta_hours": 0,
+      "session_id": 6,
+      "course_id": 13,
+      "is_active": true,
+      "created_at": "2019-01-01",
+      "updated_at": "2019-01-01"
+    }
+  },
+  {
+    "model": "department.job",
+    "pk": 17,
+    "fields": {
+      "title": "Job Title",
+      "description": "Job Description",
+      "qualification": "Job Quallification",
+      "note": "Job Note",
+      "ta_hours": 0,
+      "session_id": 6,
+      "course_id": 14,
+      "is_active": true,
+      "created_at": "2019-01-01",
+      "updated_at": "2019-01-01"
+    }
+  },
+  {
+    "model": "department.job",
+    "pk": 18,
+    "fields": {
+      "title": "Job Title",
+      "description": "Job Description",
+      "qualification": "Job Quallification",
+      "note": "Job Note",
+      "ta_hours": 0,
+      "session_id": 6,
+      "course_id": 15,
+      "is_active": true,
+      "created_at": "2019-01-01",
+      "updated_at": "2019-01-01"
+    }
+  },
+  {
+    "model": "department.job",
+    "pk": 19,
+    "fields": {
+      "title": "Job Title",
+      "description": "Job Description",
+      "qualification": "Job Quallification",
+      "note": "Job Note",
+      "ta_hours": 0,
+      "session_id": 6,
+      "course_id": 16,
+      "is_active": true,
+      "created_at": "2019-01-01",
+      "updated_at": "2019-01-01"
+    }
+  },
+  {
+    "model": "department.job",
+    "pk": 20,
+    "fields": {
+      "title": "Job Title",
+      "description": "Job Description",
+      "qualification": "Job Quallification",
+      "note": "Job Note",
+      "ta_hours": 0,
+      "session_id": 6,
+      "course_id": 17,
+      "is_active": true,
+      "created_at": "2019-01-01",
+      "updated_at": "2019-01-01"
+    }
+  },
+  {
+    "model": "department.job",
+    "pk": 21,
+    "fields": {
+      "title": "Job Title",
+      "description": "Job Description",
+      "qualification": "Job Quallification",
+      "note": "Job Note",
+      "ta_hours": 0,
+      "session_id": 6,
+      "course_id": 18,
+      "is_active": true,
+      "created_at": "2019-01-01",
+      "updated_at": "2019-01-01"
+    }
+  }
+]

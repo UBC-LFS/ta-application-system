@@ -1,0 +1,72 @@
+{% extends "ta_app/base.html" %}
+
+{% block content %}
+
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item">
+      <a href="{% url 'department:index' %}">Department</a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">Users</li>
+  </ol>
+</nav>
+
+{% if messages %}
+	{% for message in messages %}
+		<div>{{ message }}</div>
+	{% endfor %}
+{% endif %}
+
+<h1>Users</h1>
+
+<table class="table table-sm">
+	<thead>
+		<tr>
+			<th>CWL</th>
+			<th>First Name</th>
+			<th>Last Name</th>
+			<th>Email</th>
+			<th>UBC Number</th>
+			<th>Role</th>
+			<th>Profile Created</th>
+			<th>Profile Updated</th>
+			<th>Actions</th>
+		</tr>
+	</thead>
+  <tbody>
+  {% for user in users %}
+		<tr>
+    	<td>
+				<a href="{% url 'users:show_user' user.username %}">{{ user.username }}</a>
+			</td>
+			<td>{{ user.first_name }}</td>
+			<td>{{ user.last_name }}</td>
+			<td>{{ user.email }}</td>
+			<td>{{ user.profile.ubc_number }}</td>
+			<td>
+        {% for role in user.profile.roles.all %}
+          {{ role.name }},
+        {% endfor %}
+      </td>
+			<td>{{ user.profile.created_at }}</td>
+			<td>{{ user.profile.updated_at }}</td>
+			<td>
+				<form action="{% url 'users:delete_user' %}" method="post" onsubmit="return confirm('Are you sure to delete {{ user.username }}?');">
+					{% csrf_token %}
+          <input type="hidden" name="user" value="{{ user.id }}">
+					<input type="submit" value="Delete" />
+				</form>
+			</td>
+		</tr>
+  {% endfor %}
+	</tbody>
+</table>
+
+<h3>Create a user</h3>
+<form action="" method="post">
+  {% csrf_token %}
+  <table>{{ form.as_table }}</table>
+	<input type="submit" value="Create User"/>
+</form>
+
+{% endblock %}

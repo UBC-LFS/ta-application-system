@@ -1,0 +1,36 @@
+<h4 class="page-title">Inactive Sessions</h4>
+
+<table class="table table-sm">
+  <thead>
+    <tr>
+      <th>Session</th>
+      <th>Number of Jobs</th>
+      <th>Active</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for session in inactive_sessions %}
+      <tr>
+        <td>
+          <a href="{% url 'department:show_session' session.slug %}">
+            {{ session.year }} {{ session.term.name }} {{ session.title }}
+          </a>
+        </td>
+        <td>{{ session.job_set.count }}</td>
+        <td>{{ session.is_active }}</td>
+        <td>
+          <form action="{% url 'department:delete_session' %}" method="post" onsubmit="return confirm('Are you sure to delete {{ session.year }} {{ session.term }} - {{ session.title }}?');">
+            {% csrf_token %}
+            <input type="hidden" name="session" value="{{ session.id }}">
+            <input type="submit" value="Delete" />
+          </form>
+        </td>
+      </tr>
+    {% empty %}
+      <tr>
+        <td colspan="4">No inactive sessions found</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>

@@ -1,0 +1,113 @@
+{% extends 'ta_app/base.html' %}
+{% block content %}
+
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item">
+      <a href="{% url 'department:index' %}">Department</a>
+    </li>
+    <li class="breadcrumb-item">
+      <a href="{% url 'department:sessions' %}">Sessions</a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">Session Details</li>
+  </ol>
+</nav>
+
+{% if messages %}
+	{% for message in messages %}
+		<div>{{ message }}</div>
+	{% endfor %}
+{% endif %}
+
+
+<h1>Session Details</h1>
+
+<div class="">
+  Created at: {{ session.created_at }}
+</div>
+
+<div class="">
+  Updated at: {{ session.updated_at }}
+</div>
+
+<div class="">
+  Is active: {{ session.is_active }}
+</div>
+
+<div class="">
+  Year: {{ session.year }}
+</div>
+
+
+<div class="">
+  Term: {{ session.term.name }} ({{ session.term.code }})
+</div>
+
+
+<div class="">
+  Title: {{ session.title }}
+</div>
+
+<div class="">
+  Description: {{ session.description }}
+</div>
+
+<div class="">
+  Note: {{ session.note }}
+</div>
+
+<a href="{% url 'department:edit_session' session.slug %}">Edit</a>
+
+<hr />
+
+<h3>Jobs</h3>
+<table>
+  <thead>
+    <tr>
+      <th>Job</th>
+      <th>Term</th>
+      <th>Title</th>
+      <th>Instructors</th>
+      <th>Applications</th>
+      <th>TA Hours</th>
+      <th>Created at</th>
+      <th>Updated at</th>
+      <th>Is active</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for job in session.job_set.all %}
+      <tr>
+        <td>
+          <a href="{% url 'department:show_job' session_slug=session.slug job_slug=job.course.slug %}">
+            {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}
+          </a>
+        </td>
+        <td>{{ job.course.term.code }}</td>
+        <td>{{ job.title }}</td>
+        <td>
+          {% for instructor in job.instructors.all %}
+            {{ instructor.first_name }} {{ instructor.last_name }},
+          {% empty %}
+            None
+          {% endfor %}
+        </td>
+        <td>{{ job.application_set.count }}</td>
+        <td>{{ job.ta_hours }}</td>
+        <td>{{ job.created_at }}</td>
+        <td>{{ job.updated_at }}</td>
+        <td>{{ job.is_active }}</td>
+        <td>
+          <a href="{% url 'department:edit_job' session_slug=session.slug job_slug=job.course.slug %}">Edit</a>
+        </td>
+      </tr>
+    {% empty %}
+      <tr>
+        <td>No jobs found.</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}

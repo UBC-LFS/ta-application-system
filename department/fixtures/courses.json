@@ -1,0 +1,218 @@
+[
+  {
+    "model": "department.course",
+    "pk": 1,
+    "fields": {
+      "code_id": 4,
+      "number_id": 1,
+      "section_id": 1,
+      "term_id": 2,
+      "name": "Introduction to Land, Food and Community",
+      "slug": "lfs-100-001-introduction-to-land-food-and-community-w1"
+    }
+  },
+  {
+    "model": "department.course",
+    "pk": 2,
+    "fields": {
+      "code_id": 4,
+      "number_id": 4,
+      "section_id": 1,
+      "term_id": 2,
+      "name": "Scholarly Writing and Argumentation in Land and Food Systems",
+      "slug": "lfs-150-001-scholarly-writing-and-argumentation-in-land-and-food-systems-w1"
+    }
+  },
+  {
+    "model": "department.course",
+    "pk": 3,
+    "fields": {
+      "code_id": 4,
+      "number_id": 5,
+      "section_id": 1,
+      "term_id": 2,
+      "name": "Land, Food and Community I: Introduction to Food Systems and Sustainability",
+      "slug": "lfs-250-001-land-food-and-community-i-introduction-to-food-systems-and-sustainability-w1"
+    }
+  },
+  {
+    "model": "department.course",
+    "pk": 4,
+    "fields": {
+      "code_id": 4,
+      "number_id": 6,
+      "section_id": 1,
+      "term_id": 2,
+      "name": "Land, Food, and Community: Quantitative Data Analysis",
+      "slug": "lfs-252-001-land-food-and-community-quantitative-data-analysis-w1"
+    }
+  },
+  {
+    "model": "department.course",
+    "pk": 5,
+    "fields": {
+      "code_id": 4,
+      "number_id": 7,
+      "section_id": 1,
+      "term_id": 2,
+      "name": "International Field Studies - INTERNL FLD STD",
+      "slug": "lfs-302a-001-international-field-studies-internl-fld-std-w1"
+    }
+  },
+  {
+    "model": "department.course",
+    "pk": 6,
+    "fields": {
+      "code_id": 4,
+      "number_id": 9,
+      "section_id": 1,
+      "term_id": 2,
+      "name": "Land, Food, and Community II: Principles and Practice of Community Food Security",
+      "slug": "lfs-350-001-land-food-and-community-ii-principles-and-practice-of-community-food-security-w1"
+    }
+  },
+  {
+    "model": "department.course",
+    "pk": 7,
+    "fields": {
+      "code_id": 4,
+      "number_id": 1,
+      "section_id": 1,
+      "term_id": 3,
+      "name": "Introduction to Land, Food and Community",
+      "slug": "lfs-100-001-introduction-to-land-food-and-community-w2"
+    }
+  },
+  {
+    "model": "department.course",
+    "pk": 8,
+    "fields": {
+      "code_id": 4,
+      "number_id": 4,
+      "section_id": 1,
+      "term_id": 3,
+      "name": "Scholarly Writing and Argumentation in Land and Food Systems",
+      "slug": "lfs-150-001-scholarly-writing-and-argumentation-in-land-and-food-systems-w2"
+    }
+  },
+  {
+    "model": "department.course",
+    "pk": 9,
+    "fields": {
+      "code_id": 4,
+      "number_id": 5,
+      "section_id": 1,
+      "term_id": 3,
+      "name": "Land, Food and Community I: Introduction to Food Systems and Sustainability",
+      "slug": "lfs-250-001-land-food-and-community-i-introduction-to-food-systems-and-sustainability-w2"
+    }
+  },
+  {
+    "model": "department.course",
+    "pk": 10,
+    "fields": {
+      "code_id": 4,
+      "number_id": 6,
+      "section_id": 1,
+      "term_id": 3,
+      "name": "Land, Food, and Community: Quantitative Data Analysis",
+      "slug": "lfs-252-001-land-food-and-community-quantitative-data-analysis-w2"
+    }
+  },
+  {
+    "model": "department.course",
+    "pk": 11,
+    "fields": {
+      "code_id": 4,
+      "number_id": 7,
+      "section_id": 1,
+      "term_id": 3,
+      "name": "International Field Studies - INTERNL FLD STD",
+      "slug": "lfs-302a-001-international-field-studies-internl-fld-std-w2"
+    }
+  },
+  {
+    "model": "department.course",
+    "pk": 12,
+    "fields": {
+      "code_id": 4,
+      "number_id": 9,
+      "section_id": 1,
+      "term_id": 3,
+      "name": "Land, Food, and Community II: Principles and Practice of Community Food Security",
+      "slug": "lfs-350-001-land-food-and-community-ii-principles-and-practice-of-community-food-security-w2"
+    }
+  },
+  {
+    "model": "department.course",
+    "pk": 13,
+    "fields": {
+      "code_id": 4,
+      "number_id": 1,
+      "section_id": 1,
+      "term_id": 6,
+      "name": "Introduction to Land, Food and Community",
+      "slug": "lfs-100-001-introduction-to-land-food-and-community-s"
+    }
+  },
+  {
+    "model": "department.course",
+    "pk": 14,
+    "fields": {
+      "code_id": 4,
+      "number_id": 4,
+      "section_id": 1,
+      "term_id": 6,
+      "name": "Scholarly Writing and Argumentation in Land and Food Systems",
+      "slug": "lfs-150-001-scholarly-writing-and-argumentation-in-land-and-food-systems-s"
+    }
+  },
+  {
+    "model": "department.course",
+    "pk": 15,
+    "fields": {
+      "code_id": 4,
+      "number_id": 5,
+      "section_id": 1,
+      "term_id": 6,
+      "name": "Land, Food and Community I: Introduction to Food Systems and Sustainability",
+      "slug": "lfs-250-001-land-food-and-community-i-introduction-to-food-systems-and-sustainability-s"
+    }
+  },
+  {
+    "model": "department.course",
+    "pk": 16,
+    "fields": {
+      "code_id": 4,
+      "number_id": 6,
+      "section_id": 1,
+      "term_id": 6,
+      "name": "Land, Food, and Community: Quantitative Data Analysis",
+      "slug": "lfs-252-001-land-food-and-community-quantitative-data-analysis-s"
+    }
+  },
+  {
+    "model": "department.course",
+    "pk": 17,
+    "fields": {
+      "code_id": 4,
+      "number_id": 7,
+      "section_id": 1,
+      "term_id": 6,
+      "name": "International Field Studies - INTERNL FLD STD",
+      "slug": "lfs-302a-001-international-field-studies-internl-fld-std-s"
+    }
+  },
+  {
+    "model": "department.course",
+    "pk": 18,
+    "fields": {
+      "code_id": 4,
+      "number_id": 9,
+      "section_id": 1,
+      "term_id": 6,
+      "name": "Land, Food, and Community II: Principles and Practice of Community Food Security",
+      "slug": "lfs-350-001-land-food-and-community-ii-principles-and-practice-of-community-food-security-s"
+    }
+  }
+]

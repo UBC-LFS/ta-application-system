@@ -1,0 +1,125 @@
+{% extends "ta_app/base.html" %}
+{% block content %}
+
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item">
+      <a href="{% url 'users:show_student' user.username %}">Student Profile</a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">Student Jobs</li>
+  </ol>
+</nav>
+
+{% if messages %}
+	{% for message in messages %}
+		<div>{{ message }}</div>
+	{% endfor %}
+{% endif %}
+
+<h1>Student: Applied Jobs</h1>
+
+<div class="">
+  Session: {{ job.session.year }} {{ job.session.term.name }} {{ job.session.title }}
+</div>
+<div class="">
+  Title: {{ job.title }}
+</div>
+<div class="">
+  description: {{ job.description }}
+</div>
+<div class="">
+  qualification: {{ job.qualification }}
+</div>
+<div class="">
+  note: {{ job.note }}
+</div>
+<div class="">
+  Is active: {{ job.is_active }}
+</div>
+<div class="">
+  Created at: {{ job.created_at }}
+</div>
+<div class="">
+  Updated at: {{ job.updated_at }}
+</div>
+
+<h5>Instructors</h5>
+<ul>
+  {% for instructor in job.instructors.all %}
+    <li>{{ instructor.first_name }} {{ instructor.last_name }}</li>
+  {% empty %}
+    No instructors found.
+  {% endfor %}
+</ul>
+
+<h5>Application</h5>
+
+<div class="">
+  Applicant: {{ application.applicant.username }}
+</div>
+
+<div class="">
+  Created at: {{ application.created_at }}
+</div>
+
+<div class="">
+  Updated_at: {{ application.updated_at }}
+</div>
+<div class="">
+  Status:
+  <ul>
+    {% for st in application.status.all %}
+      <li>{{ st.get_assigned_display }} - {{ st.assigned_hours }} hours - {{ st.created_at }}</li>
+    {% endfor %}
+  </ul>
+</div>
+
+<div class="">
+  Supervisor Approval: {{ application.supervisor_approval }}
+</div>
+
+<div class="">
+  How qualified: {{ application.how_qualified }}
+</div>
+
+<div class="">
+  How interested: {{ application.how_interested }}
+</div>
+
+<hr />
+
+{% if get_offered and not get_accepted and not get_declined %}
+
+<h5>You get a job offer!</h5>
+<p>You are assigned {{ get_offered.assigned_hours }} hours for this job.</p>
+
+<form action="{% url 'users:accept_offer' username=user.username session_slug=session.slug job_slug=job.course.slug %}" method="post">
+  {% csrf_token %}
+  {{ status_accept_form.field.as_hidden }}
+  <input type="hidden" name="application" value="{{ application.id }}" />
+  <input type="hidden" name="assigned_hours" value="{{ get_offered.assigned_hours }}" />
+  <input type="submit" value="Accept" />
+</form>
+
+
+<form action="{% url 'users:decline_offer' username=user.username session_slug=session.slug job_slug=job.course.slug %}" method="post">
+  {% csrf_token %}
+  <input type="hidden" name="application" value="{{ application.id }}" />
+  <input type="submit" value="Decline" />
+</form>
+
+{% endif %}
+
+{% if get_accepted and not get_declined %}
+
+<p>You accpeted a job offer.</p>
+
+{% endif %}
+
+{% if not get_accepted and get_declined %}
+
+<p>You declined a job offer.</p>
+
+{% endif %}
+
+{% endblock %}

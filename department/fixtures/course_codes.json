@@ -1,0 +1,37 @@
+[
+  {
+    "model": "department.coursecode",
+    "pk": 1,
+    "fields": {
+      "name": "AANB"
+    }
+  },
+  {
+    "model": "department.coursecode",
+    "pk": 2,
+    "fields": {
+      "name": "BIOC"
+    }
+  },
+  {
+    "model": "department.coursecode",
+    "pk": 3,
+    "fields": {
+      "name": "DES"
+    }
+  },
+  {
+    "model": "department.coursecode",
+    "pk": 4,
+    "fields": {
+      "name": "LFS"
+    }
+  },
+  {
+    "model": "department.coursecode",
+    "pk": 5,
+    "fields": {
+      "name": "LIBE"
+    }
+  }
+]

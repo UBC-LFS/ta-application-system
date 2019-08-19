@@ -1,0 +1,12 @@
+footer {
+  height: 100px;
+}
+
+.page-title {
+  margin-top: 70px;
+}
+
+.edit-session-form #id_year,
+.edit-session-form #id_term {
+
+}

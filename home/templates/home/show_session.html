@@ -1,0 +1,105 @@
+{% extends "ta_app/base.html" %}
+{% block content %}
+
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item">
+      <a href="{% url 'home:index' %}">Home</a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">Session Details</li>
+  </ol>
+</nav>
+
+{% if messages %}
+	{% for message in messages %}
+		<div>{{ message }}</div>
+	{% endfor %}
+{% endif %}
+
+
+<h1>Session Details</h1>
+<h3>{{ session.year }} {{ session.term.name }} {{ session.title }}</h3>
+
+<h3>Available Jobs</h3>
+
+<table>
+  <thead>
+    <tr>
+      <td>Job</td>
+      <td>Title</td>
+      <td>Instructors</td>
+      <td>Actions</td>
+    </tr>
+  </thead>
+  <tbody>
+    {% for job in jobs %}
+      {% if job.is_active %}
+        <tr>
+          <td>{{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</td>
+          <td>
+            <a href="{% url 'home:show_job' session_slug=session.slug job_slug=job.course.slug %}">{{ job.course.name }}</a>
+          </td>
+          <td>
+            {% for instructor in job.instructors.all %}
+              {{ instructor.first_name }} {{ instructor.last_name }}
+            {% endfor %}
+          </td>
+          <td>
+            <button type="button" class="btn btn-sm" data-toggle="modal" data-target="#job-list-modal-{{ job.id }}">View Details</button>
+            {% if job.has_applied %}
+              Applied
+            {% else %}
+              Available
+            {% endif %}
+          </td>
+        </tr>
+        <div class="modal fade" id="course-list-modal-{{ course.id }}" tabindex="-1" role="dialog" aria-labelledby="course-list-modal-label-{{ course.id }}" aria-hidden="true">
+          <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="job-list-modal-label-{{ job.id }}">Job Details</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <ul>
+                  <li>Job Code: {{ job.course.code.name }}</li>
+                  <li>Job Number: {{ job.course.number.name }}</li>
+                  <li>Job Section: {{ job.course.section.name }}</li>
+                  <li>Job Name: {{ job.course.name }}</li>
+                  <li>
+                    Intstructors:
+                    {% for instructor in job.instructors.all %}
+                      {{ instructor.username }},
+                    {% empty %}
+                      No instructors
+                    {% endfor %}
+                  </li>
+                </ul>
+
+                <p>Job Title:</p>
+                <p>{{ job.title }}</p>
+
+                <p>Job Description:</p>
+                <p>{{ job.description }}</p>
+
+                <p>Job Qalification:</p>
+                <p>{{ job.qualification }}</p>
+
+                <p>Job Note:</p>
+                <p>{{ job.note }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+    {% empty %}
+      No jobs available yet.
+    {% endfor %}
+  </tbody>
+</table>
+
+
+
+{% endblock %}

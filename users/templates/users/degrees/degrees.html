@@ -1,0 +1,85 @@
+{% extends 'ta_app/base.html' %}
+{% block content %}
+
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item">
+      <a href="{% url 'department:index' %}">Department</a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">Degrees</li>
+  </ol>
+</nav>
+
+
+{% if messages %}
+	{% for message in messages %}
+		<div>{{ message }}</div>
+	{% endfor %}
+{% endif %}
+
+<h1>Degrees</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Degree</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for degree in degrees %}
+      <tr>
+        <td>
+          <a href="{% url 'users:show_degree' degree.name %}">{{ degree.name }}</a>
+        </td>
+        <td>
+          <button type="button" data-toggle="modal" data-target="#degree-edit-modal-{{ degree.id }}">
+            Edit
+          </button>
+
+          <form action="{% url 'users:delete_degree' %}" method="post" onsubmit="return confirm('Are you sure to delete this degree - {{ degree.name }} ?')">
+            {% csrf_token %}
+            <input type="hidden" name="degree" value="{{ degree.id }}" />
+            <input type="submit" value="Delete">
+          </form>
+        </td>
+      </tr>
+
+      <div class="modal fade" id="degree-edit-modal-{{ degree.id }}" tabindex="-1" role="dialog" aria-labelledby="degree-edit-modal-label-{{ degree.id }}" aria-hidden="true">
+			  <div class="modal-dialog modal-lg" role="document">
+			    <div class="modal-content">
+			      <div class="modal-header">
+			        <h5 class="modal-title" id="degree-edit-modal-label-{{ degree.id }}">Degrees: Edit</h5>
+			        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			          <span aria-hidden="true">&times;</span>
+			        </button>
+			      </div>
+			      <div class="modal-body">
+							<form action="{% url 'users:edit_degree' degree.name %}" method="post">
+								{% csrf_token %}
+                <input type="text" name="name" value="{{ degree.name }}" />
+								<input type="submit" value="Update"/>
+							</form>
+			      </div>
+			    </div>
+			  </div>
+			</div>
+    {% empty %}
+      <tr>
+        <td colspan="2">No degrees found.</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<hr />
+
+<h3>Create a degree</h3>
+<form action="{% url 'users:degrees' %}" method="post">
+  {% csrf_token %}
+  <table>{{ form.as_table }}</table>
+  <input type="submit" value="Create" />
+</form>
+
+
+{% endblock %}

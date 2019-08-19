@@ -1,0 +1,74 @@
+[
+  {
+    "model": "users.status",
+    "pk": 1,
+    "fields": {
+      "name": "Undergraduate student",
+      "slug": "undergraduate-student"
+    }
+  },
+  {
+    "model": "users.status",
+    "pk": 2,
+    "fields": {
+      "name": "Master student",
+      "slug": "master-student"
+    }
+  },
+  {
+    "model": "users.status",
+    "pk": 3,
+    "fields": {
+      "name": "Ph.D student",
+      "slug": "phd-student"
+    }
+  },
+  {
+    "model": "users.status",
+    "pk": 4,
+    "fields": {
+      "name": "Postdoctoral",
+      "slug": "postdoctoral"
+    }
+  },
+  {
+    "model": "users.status",
+    "pk": 5,
+    "fields": {
+      "name": "Lecturer",
+      "slug": "lecturer"
+    }
+  },
+  {
+    "model": "users.status",
+    "pk": 6,
+    "fields": {
+      "name": "Assistance Professor",
+      "slug": "assistance-professor"
+    }
+  },
+  {
+    "model": "users.status",
+    "pk": 7,
+    "fields": {
+      "name": "Associate Professor",
+      "slug": "associate-professor"
+    }
+  },
+  {
+    "model": "users.status",
+    "pk": 8,
+    "fields": {
+      "name": "Professor",
+      "slug": "professor"
+    }
+  },
+  {
+    "model": "users.status",
+    "pk": 9,
+    "fields": {
+      "name": "Other",
+      "slug": "other"
+    }
+  }
+]

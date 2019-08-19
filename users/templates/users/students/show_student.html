@@ -1,0 +1,246 @@
+{% extends "ta_app/base.html" %}
+{% block content %}
+
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item active" aria-current="page">Student Profile</li>
+  </ol>
+</nav>
+
+{% if messages %}
+	{% for message in messages %}
+		<div>{{ message }}</div>
+	{% endfor %}
+{% endif %}
+
+<h1>Student Profile</h1>
+
+<h3>Infomation</h3>
+
+<ul>
+  <li>First Name: {{ user.first_name }}</li>
+  <li>Last Name: {{ user.last_name }}</li>
+  <li>CWL: {{ user.username }}</li>
+  <li>Email: {{ user.email }}</li>
+  <li>UBC Number: {{ user.profile.ubc_number }}</li>
+  <li>Date Joined: {{ user.date_joined }}</li>
+  <li>Last Login: {{ user.last_login }}</li>
+</ul>
+
+<hr />
+
+<h3>Profile</h3>
+<div>Created at: {{ user.profile.created_at }}</div>
+<div>Updated at: {{ user.profile.updated_at }}</div>
+
+<div class="">
+  Qualifications: {{ user.profile.qualifications }}
+</div>
+
+<div class="">
+  Prior Employment: {{ user.profile.prior_employment }}
+</div>
+
+<div class="">
+  Special Considerations: {{ user.profile.special_considerations }}
+</div>
+
+<div class="">
+  Status: {{ user.profile.status }}
+</div>
+
+<div class="">
+  Program: {{ user.profile.program }}
+</div>
+
+<div class="">
+  Graduation Date: {{ user.profile.graduation_date }}
+</div>
+
+<div class="">
+  Degrees:
+  <ul>
+    {% for degree in user.profile.degrees.all %}
+      <li>{{ degree.name }}</li>
+    {% empty %}
+      None
+    {% endfor %}
+  </ul>
+</div>
+
+<div class="">
+  Trainings:
+  <ul>
+    {% for degree in user.profile.trainings.all %}
+      <li>{{ degree.name }}</li>
+    {% empty %}
+      None
+    {% endfor %}
+  </ul>
+</div>
+
+<div class="">
+  LFS TA Training: {{ user.profile.get_lfs_ta_training_display }}
+  <p>Details: {{ user.profile.lfs_ta_training_details }}</p>
+</div>
+
+<div class="">
+  Previous TA Experience: {{ user.profile.get_ta_experience_display }}
+  <p>Details: {{ user.profile.ta_experience_details }}</p>
+</div>
+
+<a href="{% url 'users:edit_student' user.username %}">Edit</a>
+
+<hr />
+
+<h3>Upload a resume</h3>
+
+Resume:
+{% if resume_name %}
+  <a href="{% url 'users:download_user_resume' username=user.username filename=resume_name %}" target="_blank">
+    {{ resume_name }}
+  </a>
+  - {{ user.resume.created_at }}
+
+<form action="{% url 'users:delete_user_resume' %}" method="post" onsubmit="return confirm('Are you sure to delete this resume?')">
+  {% csrf_token %}
+  <input type="hidden" name="user" value="{{ user.username }}">
+  <input type="submit" value="Delete" />
+</form>
+
+{% else %}
+  No resume
+{% endif %}
+
+<p>Valid file types: jpg, jpeg, png, pdf, doc, docx</p>
+<form action="" method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  <table>{{ resume_form.as_table }}</table>
+  <input type="submit" value="Upload" />
+</form>
+
+
+
+
+<hr />
+
+<h3>Applied Jobs</h3>
+<table>
+  <thead>
+    <tr>
+      <th>Year</th>
+      <th>Term</th>
+      <th>Job</th>
+      <th>Status</th>
+      <th>Title</th>
+      <th>Instructors</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for job in student_jobs %}
+      <tr>
+        <td>{{ job.session.year }}</td>
+        <td>{{ job.session.term.code }}</td>
+        <td>
+          <a href="{% url 'users:show_student_job' username=user.username session_slug=job.session.slug job_slug=job.course.slug %}">
+            {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}
+          </a>
+        </td>
+        <td>
+          {% for app in job.application_set.all %}
+            {% if app.applicant.id == user.id %}
+              <ul>
+                {% for st in app.status.all %}
+                  <li>{{ st.get_assigned_display }} - {{ st.assigned_hours }} hours - {{ st.created_at }}</li>
+                {% endfor %}
+              </ul>
+            {% endif %}
+          {% endfor %}
+        </td>
+        <td>{{ job.course.name }}</td>
+        <td>
+          {% for instructor in job.instructors.all %}
+            {{ instructor.first_name }} {{ instructor.last_name }}
+          {% endfor %}
+        </td>
+      </tr>
+    {% empty %}
+      <tr>
+        <td colspan="5">No jobs applied yet</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+
+<hr />
+
+
+<h3>Offered Jobs</h3>
+{% for year, year_items in offered_jobs.items %}
+  <div>Year: {{ year }}</div>
+
+  {% for term_item in year_items %}
+    {% for term, job_items in term_item.items %}
+      <div>Term: {{ term }}</div>
+      <ul>
+        {% for item in job_items.jobs %}
+          <li>{{ item.job }} - {{ item.assigned_hours }} hours - {{ item.created_at }}</li>
+        {% endfor %}
+      </ul>
+      <div>Total hours: {{ job_items.total_hours }} hours</div>
+    {% endfor %}
+  {% endfor %}
+
+{% empty %}
+  No jobs found
+{% endfor %}
+
+<hr />
+
+
+
+<h3>Accepted Jobs</h3>
+{% for year, year_items in accepted_jobs.items %}
+  <div>Year: {{ year }}</div>
+
+  {% for term_item in year_items %}
+    {% for term, job_items in term_item.items %}
+      <div>Term: {{ term }}</div>
+      <ul>
+        {% for item in job_items.jobs %}
+          <li>{{ item.job }} - {{ item.assigned_hours }} hours - {{ item.created_at }}</li>
+        {% endfor %}
+      </ul>
+      <div>Total hours: {{ job_items.total_hours }} hours</div>
+    {% endfor %}
+  {% endfor %}
+
+{% empty %}
+  No jobs found
+{% endfor %}
+
+<hr />
+
+
+<h3>Declined Jobs</h3>
+{% for year, year_items in declined_jobs.items %}
+  <div>Year: {{ year }}</div>
+
+  {% for term_item in year_items %}
+    {% for term, job_items in term_item.items %}
+      <div>Term: {{ term }}</div>
+      <ul>
+        {% for item in job_items.jobs %}
+          <li>{{ item.job }} - {{ item.created_at }}</li>
+        {% endfor %}
+      </ul>
+    {% endfor %}
+  {% endfor %}
+
+{% empty %}
+  No jobs found
+{% endfor %}
+
+
+{% endblock %}

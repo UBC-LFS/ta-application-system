@@ -1,0 +1,602 @@
+[
+  {
+    "model": "users.profile",
+    "pk": 1,
+    "fields": {
+      "user_id": 1,
+      "ubc_number": "123456789",
+      "qualifications": null,
+      "prior_employment": null,
+      "special_considerations": null,
+      "graduation_date": null,
+      "lfs_ta_training": null,
+      "lfs_ta_training_details": null,
+      "ta_experience": null,
+      "ta_experience_details": null,
+      "created_at": "2019-05-27",
+      "updated_at": "2019-05-27",
+      "program_id": null,
+      "status_id": null
+    }
+  },
+  {
+    "model": "users.profile",
+    "pk": 2,
+    "fields": {
+      "user_id": 2,
+      "ubc_number": "223456789",
+      "qualifications": null,
+      "prior_employment": null,
+      "special_considerations": null,
+      "graduation_date": null,
+      "lfs_ta_training": null,
+      "lfs_ta_training_details": null,
+      "ta_experience": null,
+      "ta_experience_details": null,
+      "created_at": "2019-05-27",
+      "updated_at": "2019-05-27",
+      "program_id": null,
+      "status_id": null
+    }
+  },
+  {
+    "model": "users.profile",
+    "pk": 3,
+    "fields": {
+      "user_id": 3,
+      "ubc_number": "323456789",
+      "qualifications": null,
+      "prior_employment": null,
+      "special_considerations": null,
+      "graduation_date": null,
+      "lfs_ta_training": null,
+      "lfs_ta_training_details": null,
+      "ta_experience": null,
+      "ta_experience_details": null,
+      "created_at": "2019-05-28",
+      "updated_at": "2019-05-28",
+      "program_id": null,
+      "status_id": null
+    }
+  },
+  {
+    "model": "users.profile",
+    "pk": 4,
+    "fields": {
+      "user_id": 4,
+      "ubc_number": "423456789",
+      "qualifications": null,
+      "prior_employment": null,
+      "special_considerations": null,
+      "graduation_date": null,
+      "lfs_ta_training": null,
+      "lfs_ta_training_details": null,
+      "ta_experience": null,
+      "ta_experience_details": null,
+      "created_at": "2019-05-29",
+      "updated_at": "2019-05-29",
+      "program_id": null,
+      "status_id": null
+    }
+  },
+  {
+    "model": "users.profile",
+    "pk": 5,
+    "fields": {
+      "user_id": 5,
+      "ubc_number": "523456789",
+      "qualifications": null,
+      "prior_employment": null,
+      "special_considerations": null,
+      "graduation_date": null,
+      "lfs_ta_training": null,
+      "lfs_ta_training_details": null,
+      "ta_experience": null,
+      "ta_experience_details": null,
+      "created_at": "2019-05-30",
+      "updated_at": "2019-05-30",
+      "program_id": null,
+      "status_id": null
+    }
+  },
+  {
+    "model": "users.profile",
+    "pk": 6,
+    "fields": {
+      "user_id": 6,
+      "ubc_number": "623456789",
+      "qualifications": null,
+      "prior_employment": null,
+      "special_considerations": null,
+      "graduation_date": null,
+      "lfs_ta_training": null,
+      "lfs_ta_training_details": null,
+      "ta_experience": null,
+      "ta_experience_details": null,
+      "created_at": "2019-05-30",
+      "updated_at": "2019-05-30",
+      "program_id": null,
+      "status_id": null
+    }
+  },
+  {
+    "model": "users.profile",
+    "pk": 7,
+    "fields": {
+      "user_id": 7,
+      "ubc_number": "723456789",
+      "qualifications": null,
+      "prior_employment": null,
+      "special_considerations": null,
+      "graduation_date": null,
+      "lfs_ta_training": null,
+      "lfs_ta_training_details": null,
+      "ta_experience": null,
+      "ta_experience_details": null,
+      "created_at": "2019-06-02",
+      "updated_at": "2019-06-02",
+      "program_id": null,
+      "status_id": null
+    }
+  },
+  {
+    "model": "users.profile",
+    "pk": 8,
+    "fields": {
+      "user_id": 8,
+      "ubc_number": "823456789",
+      "qualifications": null,
+      "prior_employment": null,
+      "special_considerations": null,
+      "graduation_date": null,
+      "lfs_ta_training": null,
+      "lfs_ta_training_details": null,
+      "ta_experience": null,
+      "ta_experience_details": null,
+      "created_at": "2019-06-05",
+      "updated_at": "2019-06-05",
+      "program_id": null,
+      "status_id": null
+    }
+  },
+  {
+    "model": "users.profile",
+    "pk": 9,
+    "fields": {
+      "user_id": 9,
+      "ubc_number": "923456789",
+      "qualifications": null,
+      "prior_employment": null,
+      "special_considerations": null,
+      "graduation_date": null,
+      "lfs_ta_training": null,
+      "lfs_ta_training_details": null,
+      "ta_experience": null,
+      "ta_experience_details": null,
+      "created_at": "2019-06-06",
+      "updated_at": "2019-06-06",
+      "program_id": null,
+      "status_id": null
+    }
+  },
+  {
+    "model": "users.profile",
+    "pk": 10,
+    "fields": {
+      "user_id": 10,
+      "ubc_number": "123456780",
+      "qualifications": null,
+      "prior_employment": null,
+      "special_considerations": null,
+      "graduation_date": null,
+      "lfs_ta_training": null,
+      "lfs_ta_training_details": null,
+      "ta_experience": null,
+      "ta_experience_details": null,
+      "created_at": "2019-06-10",
+      "updated_at": "2019-06-10",
+      "program_id": null,
+      "status_id": null
+    }
+  },
+  {
+    "model": "users.profile",
+    "pk": 11,
+    "fields": {
+      "user_id": 11,
+      "ubc_number": "123456781",
+      "qualifications": null,
+      "prior_employment": null,
+      "special_considerations": null,
+      "graduation_date": null,
+      "lfs_ta_training": null,
+      "lfs_ta_training_details": null,
+      "ta_experience": null,
+      "ta_experience_details": null,
+      "created_at": "2019-06-12",
+      "updated_at": "2019-06-12",
+      "program_id": null,
+      "status_id": null
+    }
+  },
+  {
+    "model": "users.profile",
+    "pk": 12,
+    "fields": {
+      "user_id": 12,
+      "ubc_number": "123456782",
+      "qualifications": null,
+      "prior_employment": null,
+      "special_considerations": null,
+      "graduation_date": null,
+      "lfs_ta_training": null,
+      "lfs_ta_training_details": null,
+      "ta_experience": null,
+      "ta_experience_details": null,
+      "created_at": "2019-06-17",
+      "updated_at": "2019-06-17",
+      "program_id": null,
+      "status_id": null
+    }
+  },
+  {
+    "model": "users.profile",
+    "pk": 13,
+    "fields": {
+      "user_id": 13,
+      "ubc_number": "123456783",
+      "qualifications": null,
+      "prior_employment": null,
+      "special_considerations": null,
+      "graduation_date": null,
+      "lfs_ta_training": null,
+      "lfs_ta_training_details": null,
+      "ta_experience": null,
+      "ta_experience_details": null,
+      "created_at": "2019-06-27",
+      "updated_at": "2019-06-27",
+      "program_id": null,
+      "status_id": null
+    }
+  },
+  {
+    "model": "users.profile",
+    "pk": 14,
+    "fields": {
+      "user_id": 14,
+      "ubc_number": "123456784",
+      "qualifications": null,
+      "prior_employment": null,
+      "special_considerations": null,
+      "graduation_date": null,
+      "lfs_ta_training": null,
+      "lfs_ta_training_details": null,
+      "ta_experience": null,
+      "ta_experience_details": null,
+      "created_at": "2019-06-27",
+      "updated_at": "2019-06-27",
+      "program_id": null,
+      "status_id": null
+    }
+  },
+  {
+    "model": "users.profile",
+    "pk": 15,
+    "fields": {
+      "user_id": 15,
+      "ubc_number": "123456785",
+      "qualifications": null,
+      "prior_employment": null,
+      "special_considerations": null,
+      "graduation_date": null,
+      "lfs_ta_training": null,
+      "lfs_ta_training_details": null,
+      "ta_experience": null,
+      "ta_experience_details": null,
+      "created_at": "2019-06-27",
+      "updated_at": "2019-06-27",
+      "program_id": null,
+      "status_id": null
+    }
+  },
+  {
+    "model": "users.profile",
+    "pk": 16,
+    "fields": {
+      "user_id": 16,
+      "ubc_number": "1234567896",
+      "qualifications": null,
+      "prior_employment": null,
+      "special_considerations": null,
+      "graduation_date": null,
+      "lfs_ta_training": null,
+      "lfs_ta_training_details": null,
+      "ta_experience": null,
+      "ta_experience_details": null,
+      "created_at": "2019-05-27",
+      "updated_at": "2019-05-27",
+      "program_id": null,
+      "status_id": null
+    }
+  },
+  {
+    "model": "users.profile",
+    "pk": 17,
+    "fields": {
+      "user_id": 17,
+      "ubc_number": "22345678917",
+      "qualifications": null,
+      "prior_employment": null,
+      "special_considerations": null,
+      "graduation_date": null,
+      "lfs_ta_training": null,
+      "lfs_ta_training_details": null,
+      "ta_experience": null,
+      "ta_experience_details": null,
+      "created_at": "2019-05-27",
+      "updated_at": "2019-05-27",
+      "program_id": null,
+      "status_id": null
+    }
+  },
+  {
+    "model": "users.profile",
+    "pk": 18,
+    "fields": {
+      "user_id": 18,
+      "ubc_number": "32345678918",
+      "qualifications": null,
+      "prior_employment": null,
+      "special_considerations": null,
+      "graduation_date": null,
+      "lfs_ta_training": null,
+      "lfs_ta_training_details": null,
+      "ta_experience": null,
+      "ta_experience_details": null,
+      "created_at": "2019-05-28",
+      "updated_at": "2019-05-28",
+      "program_id": null,
+      "status_id": null
+    }
+  },
+  {
+    "model": "users.profile",
+    "pk": 19,
+    "fields": {
+      "user_id": 19,
+      "ubc_number": "42345678919",
+      "qualifications": null,
+      "prior_employment": null,
+      "special_considerations": null,
+      "graduation_date": null,
+      "lfs_ta_training": null,
+      "lfs_ta_training_details": null,
+      "ta_experience": null,
+      "ta_experience_details": null,
+      "created_at": "2019-05-29",
+      "updated_at": "2019-05-29",
+      "program_id": null,
+      "status_id": null
+    }
+  },
+  {
+    "model": "users.profile",
+    "pk": 20,
+    "fields": {
+      "user_id": 20,
+      "ubc_number": "52345678920",
+      "qualifications": null,
+      "prior_employment": null,
+      "special_considerations": null,
+      "graduation_date": null,
+      "lfs_ta_training": null,
+      "lfs_ta_training_details": null,
+      "ta_experience": null,
+      "ta_experience_details": null,
+      "created_at": "2019-05-30",
+      "updated_at": "2019-05-30",
+      "program_id": null,
+      "status_id": null
+    }
+  },
+  {
+    "model": "users.profile",
+    "pk": 21,
+    "fields": {
+      "user_id": 21,
+      "ubc_number": "62345678921",
+      "qualifications": null,
+      "prior_employment": null,
+      "special_considerations": null,
+      "graduation_date": null,
+      "lfs_ta_training": null,
+      "lfs_ta_training_details": null,
+      "ta_experience": null,
+      "ta_experience_details": null,
+      "created_at": "2019-05-30",
+      "updated_at": "2019-05-30",
+      "program_id": null,
+      "status_id": null
+    }
+  },
+  {
+    "model": "users.profile",
+    "pk": 22,
+    "fields": {
+      "user_id": 22,
+      "ubc_number": "72345678922",
+      "qualifications": null,
+      "prior_employment": null,
+      "special_considerations": null,
+      "graduation_date": null,
+      "lfs_ta_training": null,
+      "lfs_ta_training_details": null,
+      "ta_experience": null,
+      "ta_experience_details": null,
+      "created_at": "2019-06-02",
+      "updated_at": "2019-06-02",
+      "program_id": null,
+      "status_id": null
+    }
+  },
+  {
+    "model": "users.profile",
+    "pk": 23,
+    "fields": {
+      "user_id": 23,
+      "ubc_number": "82345678923",
+      "qualifications": null,
+      "prior_employment": null,
+      "special_considerations": null,
+      "graduation_date": null,
+      "lfs_ta_training": null,
+      "lfs_ta_training_details": null,
+      "ta_experience": null,
+      "ta_experience_details": null,
+      "created_at": "2019-06-05",
+      "updated_at": "2019-06-05",
+      "program_id": null,
+      "status_id": null
+    }
+  },
+  {
+    "model": "users.profile",
+    "pk": 24,
+    "fields": {
+      "user_id": 24,
+      "ubc_number": "92345678924",
+      "qualifications": null,
+      "prior_employment": null,
+      "special_considerations": null,
+      "graduation_date": null,
+      "lfs_ta_training": null,
+      "lfs_ta_training_details": null,
+      "ta_experience": null,
+      "ta_experience_details": null,
+      "created_at": "2019-06-06",
+      "updated_at": "2019-06-06",
+      "program_id": null,
+      "status_id": null
+    }
+  },
+  {
+    "model": "users.profile",
+    "pk": 25,
+    "fields": {
+      "user_id": 25,
+      "ubc_number": "12345678025",
+      "qualifications": null,
+      "prior_employment": null,
+      "special_considerations": null,
+      "graduation_date": null,
+      "lfs_ta_training": null,
+      "lfs_ta_training_details": null,
+      "ta_experience": null,
+      "ta_experience_details": null,
+      "created_at": "2019-06-10",
+      "updated_at": "2019-06-10",
+      "program_id": null,
+      "status_id": null
+    }
+  },
+  {
+    "model": "users.profile",
+    "pk": 26,
+    "fields": {
+      "user_id": 26,
+      "ubc_number": "12345678126",
+      "qualifications": null,
+      "prior_employment": null,
+      "special_considerations": null,
+      "graduation_date": null,
+      "lfs_ta_training": null,
+      "lfs_ta_training_details": null,
+      "ta_experience": null,
+      "ta_experience_details": null,
+      "created_at": "2019-06-12",
+      "updated_at": "2019-06-12",
+      "program_id": null,
+      "status_id": null
+    }
+  },
+  {
+    "model": "users.profile",
+    "pk": 27,
+    "fields": {
+      "user_id": 27,
+      "ubc_number": "12345678227",
+      "qualifications": null,
+      "prior_employment": null,
+      "special_considerations": null,
+      "graduation_date": null,
+      "lfs_ta_training": null,
+      "lfs_ta_training_details": null,
+      "ta_experience": null,
+      "ta_experience_details": null,
+      "created_at": "2019-06-17",
+      "updated_at": "2019-06-17",
+      "program_id": null,
+      "status_id": null
+    }
+  },
+  {
+    "model": "users.profile",
+    "pk": 28,
+    "fields": {
+      "user_id": 28,
+      "ubc_number": "12345678283",
+      "qualifications": null,
+      "prior_employment": null,
+      "special_considerations": null,
+      "graduation_date": null,
+      "lfs_ta_training": null,
+      "lfs_ta_training_details": null,
+      "ta_experience": null,
+      "ta_experience_details": null,
+      "created_at": "2019-06-27",
+      "updated_at": "2019-06-27",
+      "program_id": null,
+      "status_id": null
+    }
+  },
+  {
+    "model": "users.profile",
+    "pk": 29,
+    "fields": {
+      "user_id": 29,
+      "ubc_number": "12345678429",
+      "qualifications": null,
+      "prior_employment": null,
+      "special_considerations": null,
+      "graduation_date": null,
+      "lfs_ta_training": null,
+      "lfs_ta_training_details": null,
+      "ta_experience": null,
+      "ta_experience_details": null,
+      "created_at": "2019-06-27",
+      "updated_at": "2019-06-27",
+      "program_id": null,
+      "status_id": null
+    }
+  },
+  {
+    "model": "users.profile",
+    "pk": 30,
+    "fields": {
+      "user_id": 30,
+      "ubc_number": "12345678530",
+      "qualifications": null,
+      "prior_employment": null,
+      "special_considerations": null,
+      "graduation_date": null,
+      "lfs_ta_training": null,
+      "lfs_ta_training_details": null,
+      "ta_experience": null,
+      "ta_experience_details": null,
+      "created_at": "2019-06-27",
+      "updated_at": "2019-06-27",
+      "program_id": null,
+      "status_id": null
+    }
+  }
+]

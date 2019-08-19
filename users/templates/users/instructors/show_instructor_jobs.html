@@ -1,0 +1,96 @@
+{% extends "ta_app/base.html" %}
+{% block content %}
+
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item">
+      <a href="{% url 'users:show_instructor' user.username %}">Instructor Profile</a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">Instructor Job Details</li>
+  </ol>
+</nav>
+
+{% if messages %}
+	{% for message in messages %}
+		<div>{{ message }}</div>
+	{% endfor %}
+{% endif %}
+
+<h1>Instructor Job Details</h1>
+
+<h3>Instructor Information</h3>
+<ul>
+  <li>First Name: {{ user.first_name }}</li>
+  <li>Last Name: {{ user.last_name }}</li>
+  <li>Email: {{ user.email }}</li>
+  <li>UBC Number: {{ user.profile.ubc_number }}</li>
+</ul>
+
+<h3>Job Information</h3>
+
+<ul>
+  <li>Year: {{ job.session.year }}</li>
+  <li>Term: {{ job.session.term.name }}</li>
+  <li>Created at: {{ job.created_at }}</li>
+  <li>Updated at: {{ job.updated_at }}</li>
+  <li>Job Code: {{ job.course.code.name }}</li>
+  <li>Job Number: {{ job.course.number.name }}</li>
+  <li>Job Section: {{ job.course.section.name }}</li>
+  <li>
+    Intstructors:
+    {% for instructor in job.instructors.all %}
+      {{ instructor.username }},
+    {% endfor %}
+  </li>
+</ul>
+
+
+<p>Job Title:</p>
+<p>{{ job.title }}</p>
+
+<p>Job Description:</p>
+<p>{{ job.description }}</p>
+
+<p>Job Qualification:</p>
+<p>{{ job.qualification }}</p>
+
+<p>Note:</p>
+<p>{{ job.note }}</p>
+
+<a href="{% url 'users:show_instructor' user.username %}">Instructor Profile</a> |
+<a href="{% url 'users:edit_instructor_jobs' username=user.username session_slug=session.slug job_slug=job.course.slug %}">Edit</a>
+
+<h3>Applications</h3>
+<table>
+  <thead>
+    <tr>
+      <th>Applicant</th>
+      <th>CWL</th>
+      <th>Status</th>
+      <th>Instructor Preference</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for app in job.application_set.all %}
+      <tr>
+        <td>{{ app.applicant.first_name }} {{ app.applicant.last_name }}</td>
+        <td>{{ app.applicant.username }}</td>
+        <td>
+          {% for st in app.status.all %}
+            {{ st.get_assigned_display }} - {{ st.assigned_hours }} hours
+          {% endfor %}
+        </td>
+        <td>
+          <form action="" method="post" onsubmit="return confirm('Are you sure to select this preference?');">
+            {% csrf_token %}
+            <table>{{ form.as_table }}</table>
+            <input type="hidden" name="application" value="{{ app.id }}" />
+            <input type="submit" value="Select" />
+          </form>
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}

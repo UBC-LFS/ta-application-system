@@ -1,0 +1,42 @@
+[
+  {
+    "model": "users.role",
+    "pk": 1,
+    "fields": {
+      "name": "Student",
+      "slug": "student"
+    }
+  },
+  {
+    "model": "users.role",
+    "pk": 2,
+    "fields": {
+      "name": "Instructor",
+      "slug": "instructor"
+    }
+  },
+  {
+    "model": "users.role",
+    "pk": 3,
+    "fields": {
+      "name": "HR",
+      "slug": "hr"
+    }
+  },
+  {
+    "model": "users.role",
+    "pk": 4,
+    "fields": {
+      "name": "Admin",
+      "slug": "admin"
+    }
+  },
+  {
+    "model": "users.role",
+    "pk": 5,
+    "fields": {
+      "name": "Superadmin",
+      "slug": "superadmin"
+    }
+  }
+]

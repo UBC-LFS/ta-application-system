@@ -1,0 +1,72 @@
+[
+  {
+    "model": "department.coursenumber",
+    "pk": 1,
+    "fields": {
+      "name": "100"
+    }
+  },
+  {
+    "model": "department.coursenumber",
+    "pk": 2,
+    "fields": {
+      "name": "101"
+    }
+  },
+  {
+    "model": "department.coursenumber",
+    "pk": 3,
+    "fields": {
+      "name": "110"
+    }
+  },
+  {
+    "model": "department.coursenumber",
+    "pk": 4,
+    "fields": {
+      "name": "150"
+    }
+  },
+  {
+    "model": "department.coursenumber",
+    "pk": 5,
+    "fields": {
+      "name": "250"
+    }
+  },
+  {
+    "model": "department.coursenumber",
+    "pk": 6,
+    "fields": {
+      "name": "252"
+    }
+  },
+  {
+    "model": "department.coursenumber",
+    "pk": 7,
+    "fields": {
+      "name": "302A"
+    }
+  },
+  {
+    "model": "department.coursenumber",
+    "pk": 8,
+    "fields": {
+      "name": "302B"
+    }
+  },
+  {
+    "model": "department.coursenumber",
+    "pk": 9,
+    "fields": {
+      "name": "350"
+    }
+  },
+  {
+    "model": "department.coursenumber",
+    "pk": 10,
+    "fields": {
+      "name": "400"
+    }
+  }
+]

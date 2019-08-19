@@ -1,0 +1,28 @@
+{% extends 'ta_app/base.html' %}
+{% block content %}
+
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'department:index' %}">Department</a></li>
+    <li class="breadcrumb-item">
+      <a href="{% url 'department:sessions' %}">Sessions</a>
+    </li>
+    <li class="breadcrumb-item">
+      <a href="{% url 'department:show_session' session.slug %}">Session Details</a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">Edit Session</li>
+  </ol>
+</nav>
+
+<h1>Edit Session</h1>
+
+<h3>{{ session.year }} {{ session.term.name }} {{ session.title }}</h3>
+
+<form class="edit-session-form" action="" method="post">
+  {% csrf_token %}
+  <table>{{ form.as_table }}</table>
+  <input type="submit" value="Update" />
+</form>
+
+
+{% endblock %}

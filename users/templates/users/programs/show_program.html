@@ -1,0 +1,33 @@
+{% extends 'ta_app/base.html' %}
+{% block content %}
+
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item">
+      <a href="{% url 'department:index' %}">Department</a>
+    </li>
+    <li class="breadcrumb-item">
+      <a href="{% url 'users:programs' %}">Programs</a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">Program Details</li>
+  </ol>
+</nav>
+
+
+{% if messages %}
+	{% for message in messages %}
+		<div>{{ message }}</div>
+	{% endfor %}
+{% endif %}
+
+<h1>Program Details</h1>
+
+<div class="">
+  Program Name: {{ program.name }}
+</div>
+
+<a href="{% url 'users:programs' %}">Back to Programs</a>
+
+
+
+{% endblock %}

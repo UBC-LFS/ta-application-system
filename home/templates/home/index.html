@@ -1,0 +1,31 @@
+{% extends "ta_app/base.html" %}
+{% block content %}
+
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item active" aria-current="page">Home</li>
+  </ol>
+</nav>
+
+
+{% if messages %}
+	{% for message in messages %}
+		<div>{{ message }}</div>
+	{% endfor %}
+{% endif %}
+
+
+<h1>Apply now!</h1>
+
+{% for session in active_sessions %}
+	<div class="">
+		<p>Description: {{ session.description }}</p>
+		<a href="{% url 'home:show_session' session.slug %}">{{ session.year }} {{ session.term.name }} {{ session.title }}</a>
+		<p>Note: {{ session.note }}</p>
+	</div>
+{% empty %}
+	No active sessions found.
+{% endfor %}
+
+
+{% endblock %}

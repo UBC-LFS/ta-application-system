@@ -1,0 +1,85 @@
+{% extends 'ta_app/base.html' %}
+{% block content %}
+
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item">
+      <a href="{% url 'department:index' %}">Department</a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">Statuses</li>
+  </ol>
+</nav>
+
+
+{% if messages %}
+	{% for message in messages %}
+		<div>{{ message }}</div>
+	{% endfor %}
+{% endif %}
+
+<h1>Statuses</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Status</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for status in statuses %}
+      <tr>
+        <td>
+          <a href="{% url 'users:show_status' status.name %}">{{ status.name }}</a>
+        </td>
+        <td>
+          <button type="button" data-toggle="modal" data-target="#status-edit-modal-{{ status.id }}">
+            Edit
+          </button>
+
+          <form action="{% url 'users:delete_status' %}" method="post" onsubmit="return confirm('Are you sure to delete this status - {{ status.name }} ?')">
+            {% csrf_token %}
+            <input type="hidden" name="status" value="{{ status.id }}" />
+            <input type="submit" value="Delete">
+          </form>
+        </td>
+      </tr>
+
+      <div class="modal fade" id="status-edit-modal-{{ status.id }}" tabindex="-1" role="dialog" aria-labelledby="status-edit-modal-label-{{ status.id }}" aria-hidden="true">
+			  <div class="modal-dialog modal-lg" role="document">
+			    <div class="modal-content">
+			      <div class="modal-header">
+			        <h5 class="modal-title" id="status-edit-modal-label-{{ status.id }}">Statuses: Edit</h5>
+			        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			          <span aria-hidden="true">&times;</span>
+			        </button>
+			      </div>
+			      <div class="modal-body">
+							<form action="{% url 'users:edit_status' status.name %}" method="post">
+								{% csrf_token %}
+                <input type="text" name="name" value="{{ status.name }}" />
+								<input type="submit" value="Update"/>
+							</form>
+			      </div>
+			    </div>
+			  </div>
+			</div>
+    {% empty %}
+      <tr>
+        <td colspan="2">No statuses found.</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<hr />
+
+<h3>Create a status</h3>
+<form action="{% url 'users:statuses' %}" method="post">
+  {% csrf_token %}
+  <table>{{ form.as_table }}</table>
+  <input type="submit" value="Create" />
+</form>
+
+
+{% endblock %}

@@ -1,0 +1,74 @@
+[
+  {
+    "model": "department.term",
+    "pk": 1,
+    "fields": {
+      "code": "W",
+      "name": "Winter Term"
+    }
+  },
+  {
+    "model": "department.term",
+    "pk": 2,
+    "fields": {
+      "code": "W1",
+      "name": "Winter Term 1"
+    }
+  },
+  {
+    "model": "department.term",
+    "pk": 3,
+    "fields": {
+      "code": "W2",
+      "name": "Winter Term 2"
+    }
+  },
+  {
+    "model": "department.term",
+    "pk": 4,
+    "fields": {
+      "code": "WA",
+      "name": "Winter Term A"
+    }
+  },
+  {
+    "model": "department.term",
+    "pk": 5,
+    "fields": {
+      "code": "WC",
+      "name": "Winter Term C"
+    }
+  },
+  {
+    "model": "department.term",
+    "pk": 6,
+    "fields": {
+      "code": "S",
+      "name": "Summer Term"
+    }
+  },
+  {
+    "model": "department.term",
+    "pk": 7,
+    "fields": {
+      "code": "S1",
+      "name": "Summer Term 1"
+    }
+  },
+  {
+    "model": "department.term",
+    "pk": 8,
+    "fields": {
+      "code": "S2",
+      "name": "Summer Term 2"
+    }
+  },
+  {
+    "model": "department.term",
+    "pk": 9,
+    "fields": {
+      "code": "SA",
+      "name": "Summer Term A"
+    }
+  }
+]

@@ -1,0 +1,42 @@
+[
+  {
+    "model": "users.training",
+    "pk": 1,
+    "fields": {
+      "name": "NA",
+      "slug": "na"
+    }
+  },
+  {
+    "model": "users.training",
+    "pk": 2,
+    "fields": {
+      "name": "Instructional Skills Workshops for Grad Students",
+      "slug": "instructional-skills-workshops-for-grad-students"
+    }
+  },
+  {
+    "model": "users.training",
+    "pk": 3,
+    "fields": {
+      "name": "Background to Educational Leadership",
+      "slug": "background-to-educational-leadership"
+    }
+  },
+  {
+    "model": "users.training",
+    "pk": 4,
+    "fields": {
+      "name": "An Educational Leadership Mapping (ELM) tool for teaching and educational leadership",
+      "slug": "an-educational-leadership-mapping-elm-tool-for-teaching-and-educational-leadership"
+    }
+  },
+  {
+    "model": "users.training",
+    "pk": 5,
+    "fields": {
+      "name": "Teaching in a Blended Learning Environment (T-BLE)",
+      "slug": "teaching-in-a-blended-learning-environment-t-ble"
+    }
+  }
+]
