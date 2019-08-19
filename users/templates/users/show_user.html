@@ -185,7 +185,11 @@
           </td>
         </tr>
       {% empty %}
-        No applied courses found
+        <tr>
+          <td colspan="6">
+            No applied courses found
+          </td>
+        </tr>
       {% endfor %}
     </tbody>
   </table>
@@ -243,6 +247,18 @@
 <hr />
 
 <h3>Offered Jobs</h3>
+
+<ul>
+  {% for job in offered_jobs %}
+    <li>{{ job.year }} {{ job.term }} - {{ job.course_code }} {{ job.course_number }} {{ job.course_section }}: {{ job.assigned_status }} {{ job.assigned_hours }} hours</li>
+  {% empty %}
+    <li>No offered jobs found</li>
+  {% endfor %}
+</ul>
+
+
+<hr />
+
 {% for year, year_items in offered_jobs.items %}
   <div>Year: {{ year }}</div>
 

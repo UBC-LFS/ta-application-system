@@ -179,6 +179,7 @@ class JobTest(TestCase):
         self.assertEqual(job.is_active, eval(data['is_active']))
 
     def apply_jobs(self, user, active_sessions):
+        """ Students apply jobs """
         num_applications = 0
         num = 0
         for session in active_sessions:
@@ -201,15 +202,12 @@ class JobTest(TestCase):
                 num += 1
         return num_applications
 
-    def offer_jobs(self):
-        self.login('admin', '12')
-        response = self.client.get( reverse('department:applications') )
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context['loggedin_user']['username'], 'admin')
+    def offer_jobs(self, applications):
+        """ Admins send a job offer """
 
         num = 0
         num_offers = 0
-        for app in response.context['applications']:
+        for app in applications:
             if num % 2 == 1:
                 data = {
                     'applicant': str(app.applicant.id),
@@ -260,10 +258,145 @@ class JobTest(TestCase):
         self.assertEqual(response.context['loggedin_user']['username'], user.username)
         active_sessions = response.context['active_sessions']
 
-        # a student has applied
-        num_applications = self.apply_jobs(user, active_sessions)
-        print('\nnum_applications: ', num_applications)
+        num_applications = self.apply_jobs(user, active_sessions) # a student has applied
+        applications = api.get_applications_applied_by_student(user)
+        self.assertEquals( len(applications),  num_applications )
 
-        # an admin has offered
-        num_offers = self.offer_jobs()
-        print('\nnum_offers: ', num_offers)
+        # Login with an admin
+        self.login('admin', '12')
+        response = self.client.get( reverse('department:applications') )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['loggedin_user']['username'], 'admin')
+        applications = response.context['applications']
+
+        # send job offers
+        num_offers = self.offer_jobs(applications) # an admin has offered
+        offers = api.get_offered_applications()
+        self.assertEquals( len(offers),  num_offers )
+
+    def test_accept_jobs(self):
+        """ Test: accept job offers """
+
+        # Login with a student
+        user_id = '15'
+        user = userApi.get_user(user_id)
+        self.login(user.username, '12')
+        response = self.client.get( reverse('home:index') )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['loggedin_user']['username'], user.username)
+        active_sessions = response.context['active_sessions']
+
+        num_applications = self.apply_jobs(user, active_sessions) # a student has applied
+        applications = api.get_applications_applied_by_student(user)
+        self.assertEquals( len(applications),  num_applications )
+
+        # Login with an admin
+        self.login('admin', '12')
+        response = self.client.get( reverse('department:applications') )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['loggedin_user']['username'], 'admin')
+        applications = response.context['applications']
+
+        # send job offers
+        num_offers = self.offer_jobs(applications) # an admin has offered
+        offers = api.get_offered_applications()
+        self.assertEquals( len(offers),  num_offers )
+
+        # Login with a student again
+        self.login(user.username, '12')
+
+        # accept job offers
+        for offer in offers:
+            session_slug = offer.job.session.slug
+            job_slug = offer.job.course.slug
+            response = self.client.get( reverse('users:show_student_job', args=[user.username, session_slug, job_slug]) )
+            get_offered = response.context['get_offered']
+            get_accepted = response.context['get_accepted']
+            get_declined  = response.context['get_declined']
+
+            self.assertEquals( get_offered.assigned, ApplicationStatus.OFFERED)
+            self.assertEquals( get_offered.assigned_hours, 30.0)
+            self.assertFalse(get_accepted)
+            self.assertFalse(get_declined)
+
+            data = {
+                'application': offer.id,
+                'assigned_hours': get_offered.assigned_hours
+            }
+            response = self.client.post( reverse('users:accept_offer', args=[user.username, session_slug, job_slug]), data=urlencode(data), content_type=ContentType )
+            self.assertEqual(response.status_code, 302)
+
+            response = self.client.get( reverse('users:show_student_job', args=[user.username, session_slug, job_slug]) )
+            application = response.context['application']
+            get_accepted = response.context['get_accepted']
+            get_declined  = response.context['get_declined']
+
+            self.assertEqual(get_accepted.assigned, ApplicationStatus.ACCEPTED)
+            self.assertEqual(get_accepted.assigned_hours, 30.0)
+            self.assertEqual(application.job.ta_hours, 30.0)
+            self.assertFalse(get_declined)
+
+
+
+    def test_decline_jobs(self):
+        """ Test: decline job offers """
+
+        # Login with a student
+        user_id = '15'
+        user = userApi.get_user(user_id)
+        self.login(user.username, '12')
+        response = self.client.get( reverse('home:index') )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['loggedin_user']['username'], user.username)
+        active_sessions = response.context['active_sessions']
+
+        num_applications = self.apply_jobs(user, active_sessions) # a student has applied
+        applications = api.get_applications_applied_by_student(user)
+        self.assertEquals( len(applications),  num_applications )
+
+        # Login with an admin
+        self.login('admin', '12')
+        response = self.client.get( reverse('department:applications') )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['loggedin_user']['username'], 'admin')
+        applications = response.context['applications']
+
+        # send job offers
+        num_offers = self.offer_jobs(applications) # an admin has offered
+        offers = api.get_offered_applications()
+        self.assertEquals( len(offers),  num_offers )
+
+        # Login with a student again
+        self.login(user.username, '12')
+
+        # accept job offers
+        for offer in offers:
+            session_slug = offer.job.session.slug
+            job_slug = offer.job.course.slug
+            response = self.client.get( reverse('users:show_student_job', args=[user.username, session_slug, job_slug]) )
+            get_offered = response.context['get_offered']
+            get_accepted = response.context['get_accepted']
+            get_declined  = response.context['get_declined']
+
+            self.assertEquals( get_offered.assigned, ApplicationStatus.OFFERED)
+            self.assertEquals( get_offered.assigned_hours, 30.0)
+            self.assertFalse(get_accepted)
+            self.assertFalse(get_declined)
+
+            data = {
+                'application': offer.id,
+                'assigned_hours': get_offered.assigned_hours
+            }
+            response = self.client.post( reverse('users:decline_offer', args=[user.username, session_slug, job_slug]), data=urlencode(data), content_type=ContentType )
+            self.assertEqual(response.status_code, 302)
+
+            response = self.client.get( reverse('users:show_student_job', args=[user.username, session_slug, job_slug]) )
+            application = response.context['application']
+            get_accepted = response.context['get_accepted']
+            get_declined  = response.context['get_declined']
+
+            self.assertFalse(get_accepted)
+            self.assertEqual(application.job.ta_hours, 0.0)
+
+            self.assertEqual(get_declined.assigned, ApplicationStatus.DECLINED)
+            self.assertEqual(get_declined.assigned_hours, 0.0)

@@ -435,7 +435,27 @@ def get_declined(application):
         return application.status.get(assigned=ApplicationStatus.DECLINED)
     return False
 
+
 def get_offered_jobs_by_student(user, student_jobs):
+    jobs = []
+    for job in student_jobs:
+        for app in job.application_set.all():
+            if app.applicant.id == user.id:
+                if app.status.filter(assigned=ApplicationStatus.OFFERED).exists():
+                    status = app.status.get(assigned=ApplicationStatus.OFFERED)
+                    jobs.append({
+                        'year': job.session.year,
+                        'term': job.session.term.code,
+                        'course_code': job.course.code.name,
+                        'course_number': job.course.number.name,
+                        'course_section': job.course.section.name,
+                        'assigned_status': 'Offered',
+                        'assigned_hours': status.assigned_hours
+                    })
+    return jobs
+
+
+def get_offered_jobs_by_student2(user, student_jobs):
     jobs = {}
     for job in student_jobs:
         year = job.session.year

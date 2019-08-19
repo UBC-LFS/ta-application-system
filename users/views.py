@@ -319,31 +319,44 @@ def edit_student(request, username):
     })
 
 
-#checked
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
 def show_student_job(request, username, session_slug, job_slug):
     """ Dispaly student's jobs """
+
+    if not api.is_valid_user(request.user):
+        raise PermissionDenied
+
+    loggedin_user = api.loggedin_user(request.user)
+
     user = api.get_user_by_username(username)
     session = departmentApi.get_session_by_slug(session_slug)
     job = departmentApi.get_job_applied_by_student(user, session_slug, job_slug)
     application = departmentApi.get_application_by_student_job(user, job)
-    get_offered = departmentApi.get_offered(application)
-    get_accepted = departmentApi.get_accepted(application)
-    get_declined = departmentApi.get_declined(application)
-    print("get_offered ", get_offered)
-    print("get_offered ", get_accepted)
-    print("get_offered ", get_declined)
     return render(request, 'users/students/show_student_job.html', {
-        'loggedin_user': api.loggedin_user(request.user),
+        'loggedin_user': loggedin_user,
         'user': user,
         'session': session,
         'job': job,
         'application': application,
-        'get_offered': get_offered,
-        'get_accepted': get_accepted,
-        'get_declined': get_declined
+        'get_offered': departmentApi.get_offered(application),
+        'get_accepted': departmentApi.get_accepted(application),
+        'get_declined': departmentApi.get_declined(application)
     })
 
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['POST'])
 def accept_offer(request, username, session_slug, job_slug):
+    """ Students accept job offers """
+
+    if not api.is_valid_user(request.user):
+        raise PermissionDenied
+
+    loggedin_user = api.loggedin_user(request.user)
+
     if request.method == 'POST':
         application_id = request.POST.get('application')
         assigned_hours = request.POST.get('assigned_hours')
@@ -370,7 +383,18 @@ def accept_offer(request, username, session_slug, job_slug):
 
     return HttpResponseRedirect( reverse('users:show_student_job', args=[username, session_slug, job_slug]) )
 
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['POST'])
 def decline_offer(request, username, session_slug, job_slug):
+    """ Students decline job offers """
+
+    if not api.is_valid_user(request.user):
+        raise PermissionDenied
+
+    loggedin_user = api.loggedin_user(request.user)
+
     if request.method == 'POST':
         application_id = request.POST.get('application')
         #assigned_hours = request.POST.get('assigned_hours')
