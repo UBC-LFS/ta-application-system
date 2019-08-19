@@ -225,23 +225,43 @@ def show_student(request, username):
         raise PermissionDenied
 
     loggedin_user = api.loggedin_user(request.user)
-    
+    if 'Student' not in loggedin_user['roles']:
+        raise PermissionDenied
+
     user = api.get_user_by_username(username)
     student_jobs = departmentApi.get_jobs_applied_by_student(user)
 
-    offered_jobs = departmentApi.get_offered_jobs_by_student(user, student_jobs)
-    accepted_jobs = departmentApi.get_accepted_jobs_by_student(user, student_jobs)
-    declined_jobs = departmentApi.get_declined_jobs_by_student(user, student_jobs)
-    #print("offered_jobs ", offered_jobs)
-    #print("accepted_jobs ", accepted_jobs)
-    #print("declined_jobs ", declined_jobs)
     resume_name = None
     if user.resume.file != None:
         resume_name = os.path.basename(user.resume.file.name)
+    
+    return render(request, 'users/students/show_student.html', {
+        'loggedin_user': loggedin_user,
+        'user': user,
+        'resume_name': resume_name,
+        'student_jobs': departmentApi.get_jobs_applied_by_student(user),
+        'offered_jobs': departmentApi.get_offered_jobs_by_student(user, student_jobs),
+        'accepted_jobs': departmentApi.get_accepted_jobs_by_student(user, student_jobs),
+        'declined_jobs': departmentApi.get_declined_jobs_by_student(user, student_jobs),
+        'resume_form': ResumeForm(initial={ 'user': user })
+    })
 
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['POST'])
+def upload_resume(request, username):
+    """ Upload user's resume """
+
+    if not api.is_valid_user(request.user):
+        raise PermissionDenied
+
+    loggedin_user = api.loggedin_user(request.user)
+    if 'Student' not in loggedin_user['roles']:
+        raise PermissionDenied
+
+    user = api.get_user_by_username(username)
     if request.method == 'POST':
         form = ResumeForm(request.POST, request.FILES, instance=user.resume)
-
         if form.is_valid():
             files = request.FILES
             resume = form.save(commit=False)
@@ -250,34 +270,39 @@ def show_student(request, username):
             resume.created_at = datetime.now()
             resume.save()
             if resume:
-                messages.success(request, 'Success!')
-                return HttpResponseRedirect( reverse('users:show_student', args=[username]) )
+                messages.success(request, 'Success! {0} - resume uploaded'.format(user.username))
             else:
                 messages.error(request, 'Error!')
         else:
             messages.error(request, 'Error! Form is invalid')
 
-    return render(request, 'users/students/show_student.html', {
-        'loggedin_user': loggedin_user,
-        'user': user,
-        'resume_name': resume_name,
-        'student_jobs': departmentApi.get_jobs_applied_by_student(user),
-        'offered_jobs': offered_jobs,
-        'accepted_jobs': accepted_jobs,
-        'declined_jobs': declined_jobs,
-        'resume_form': ResumeForm(initial={ 'user': user })
-    })
+    return HttpResponseRedirect( reverse('users:show_student', args=[username]) )
 
-def download_user_resume(request, username, filename):
+
+def download_resume(request, username, filename):
+    """ Download user's resume """
     path = 'users/{0}/resume/{1}/'.format(username, filename)
     return serve(request, path, document_root=settings.MEDIA_ROOT)
 
-def delete_user_resume(request):
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['POST'])
+def delete_resume(request):
+    """ Delete user's resume """
+
+    if not api.is_valid_user(request.user):
+        raise PermissionDenied
+
+    loggedin_user = api.loggedin_user(request.user)
+    if 'Student' not in loggedin_user['roles']:
+        raise PermissionDenied
+
     if request.method == 'POST':
         username = request.POST.get('user')
         resume = api.delete_user_resume(username)
         if resume:
-            messages.success(request, 'Success!')
+            messages.success(request, 'Success! {0} - resume deleted'.format(username))
         else:
             messages.error(request, 'Error!')
     else:
@@ -285,12 +310,21 @@ def delete_user_resume(request):
     return HttpResponseRedirect( reverse('users:show_student', args=[username]) )
 
 
-
-#checked
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET', 'POST'])
 def edit_student(request, username):
     """ Edit student's profile """
+
+    if not api.is_valid_user(request.user):
+        raise PermissionDenied
+
+    loggedin_user = api.loggedin_user(request.user)
+    if 'Student' not in loggedin_user['roles']:
+        raise PermissionDenied
+
     user = api.get_user_by_username(username)
-    profile = api.get_profile(user)
+    profile = user.profile
 
     profile_degrees = profile.degrees.all()
     profile_trainings = profile.trainings.all()
@@ -306,7 +340,7 @@ def edit_student(request, username):
             if updated_profile:
                 updated = api.update_student_profile_degrees_trainings(updated_profile, profile_degrees, profile_trainings, data)
                 if updated:
-                    messages.success(request, 'Success!')
+                    messages.success(request, 'Success! {0} - profile updated'.format(user.username))
                     return HttpResponseRedirect( reverse('users:show_student', args=[username]) )
                 else:
                     messages.error(request, 'Error!')
@@ -316,7 +350,7 @@ def edit_student(request, username):
             messages.error(request, 'Error! Form is invalid')
 
     return render(request, 'users/students/edit_student.html', {
-        'loggedin_user': api.loggedin_user(request.user),
+        'loggedin_user': loggedin_user,
         'user': user,
         'form': StudentProfileForm(data=None, instance=profile, initial={
             'degrees': profile_degrees,
@@ -335,15 +369,16 @@ def show_student_job(request, username, session_slug, job_slug):
         raise PermissionDenied
 
     loggedin_user = api.loggedin_user(request.user)
+    if 'Student' not in loggedin_user['roles']:
+        raise PermissionDenied
 
     user = api.get_user_by_username(username)
-    session = departmentApi.get_session_by_slug(session_slug)
     job = departmentApi.get_job_applied_by_student(user, session_slug, job_slug)
     application = departmentApi.get_application_by_student_job(user, job)
     return render(request, 'users/students/show_student_job.html', {
         'loggedin_user': loggedin_user,
         'user': user,
-        'session': session,
+        'session': departmentApi.get_session_by_slug(session_slug),
         'job': job,
         'application': application,
         'get_offered': departmentApi.get_offered(application),
@@ -427,20 +462,75 @@ def decline_offer(request, username, session_slug, job_slug):
 
 # Instructor Profile
 
-#checked
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
 def show_instructor(request, username):
     """ Display instructor's details """
-    user = api.get_user_by_username(username)
+
+    if not api.is_valid_user(request.user):
+        raise PermissionDenied
+
+    loggedin_user = api.loggedin_user(request.user)
+    if 'Instructor' not in loggedin_user['roles']:
+        raise PermissionDenied
+
     return render(request, 'users/instructors/show_instructor.html', {
-        'loggedin_user': api.loggedin_user(request.user),
-        'user': user
+        'loggedin_user': loggedin_user,
+        'user': api.get_user_by_username(username)
     })
 
-# checked
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET', 'POST'])
+def edit_instructor(request, username):
+    """ Edit an instructor """
+
+    if not api.is_valid_user(request.user):
+        raise PermissionDenied
+
+    loggedin_user = api.loggedin_user(request.user)
+    if 'Instructor' not in loggedin_user['roles']:
+        raise PermissionDenied
+
+    user = api.get_user_by_username(username)
+    if request.method == 'POST':
+        form = InstructorProfileForm(request.POST, instance=user.profile)
+        if form.is_valid():
+            updated_profile = form.save(commit=False)
+            updated_profile.updated_at = datetime.now()
+            updated_profile.save()
+            if updated_profile:
+                messages.success(request, 'Success!')
+                return HttpResponseRedirect( reverse('users:show_instructor', args=[username]) )
+            else:
+                messages.error(request, 'Error!')
+        else:
+            messages.error(request, 'Error! Form is invalid')
+
+    return render(request, 'users/instructors/edit_instructor.html', {
+        'loggedin_user': api.loggedin_user(request.user),
+        'user': user,
+        'jobs': user.job_set.all(),
+        'form': InstructorProfileForm(data=None, instance=user.profile)
+    })
+
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET', 'POST'])
 def show_instructor_jobs(request, username, session_slug, job_slug):
     """ Display instructor's jobs """
+
+    if not api.is_valid_user(request.user):
+        raise PermissionDenied
+
+    loggedin_user = api.loggedin_user(request.user)
+    if 'Instructor' not in loggedin_user['roles']:
+        raise PermissionDenied
+
     job = departmentApi.get_session_job_by_slug(session_slug, job_slug)
-    #instructor_preference = [ app.instructor_preference for app in job.applications.all() ]
     instructor_preference = [ app.instructor_preference for app in job.application_set.all() ]
     if request.method == 'POST':
         form = InstructorApplicationForm(request.POST)
@@ -467,42 +557,22 @@ def show_instructor_jobs(request, username, session_slug, job_slug):
         })
     })
 
-#checked
-def edit_instructor(request, username):
-    """ Edit an instructor """
-    user = api.get_user_by_username(username)
 
-    if request.method == 'POST':
-        form = InstructorProfileForm(request.POST, instance=user.profile)
-        if form.is_valid():
-            updated_profile = form.save(commit=False)
-            updated_profile.updated_at = datetime.now()
-            updated_profile.save()
-            if updated_profile:
-                messages.success(request, 'Success!')
-                return HttpResponseRedirect( reverse('users:show_instructor', args=[username]) )
-            else:
-                messages.error(request, 'Error!')
-        else:
-            messages.error(request, 'Error! Form is invalid')
-
-    return render(request, 'users/instructors/edit_instructor.html', {
-        'loggedin_user': api.loggedin_user(request.user),
-        'user': user,
-        'jobs': user.job_set.all(),
-        'form': InstructorProfileForm(data=None, instance=user.profile)
-    })
-
-
-
-
-#checked
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET', 'POST'])
 def edit_instructor_jobs(request, username, session_slug, job_slug):
     """ Edit instructor's jobs"""
-    user = api.get_user_by_username(username)
-    session = departmentApi.get_session_by_slug(session_slug)
-    job = departmentApi.get_session_job_by_slug(session_slug, job_slug)
 
+    if not api.is_valid_user(request.user):
+        raise PermissionDenied
+
+    loggedin_user = api.loggedin_user(request.user)
+    if 'Instructor' not in loggedin_user['roles']:
+        raise PermissionDenied
+
+    user = api.get_user_by_username(username)
+    job = departmentApi.get_session_job_by_slug(session_slug, job_slug)
     if request.method == 'POST':
         form = InstructorJobForm(request.POST, instance=job)
         if form.is_valid():
@@ -510,7 +580,7 @@ def edit_instructor_jobs(request, username, session_slug, job_slug):
             job.updated_at = datetime.now()
             job.save()
             if job:
-                messages.success(request, 'Success!')
+                messages.success(request, 'Success! {0} - job details updated'.format(user.username))
                 return HttpResponseRedirect( reverse('users:show_instructor_jobs', args=[username, session_slug, job_slug]) )
             else:
                 messages.error(request, 'Error!')
@@ -520,7 +590,7 @@ def edit_instructor_jobs(request, username, session_slug, job_slug):
     return render(request, 'users/instructors/edit_instructor_jobs.html', {
         'loggedin_user': api.loggedin_user(request.user),
         'user': user,
-        'session': session,
+        'session': departmentApi.get_session_by_slug(session_slug),
         'job': job,
         'form': InstructorJobForm(data=None, instance=job)
     })
@@ -528,11 +598,26 @@ def edit_instructor_jobs(request, username, session_slug, job_slug):
 
 # HR
 
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET', 'POST'])
 def hr(request):
-    user_list = api.get_users()
-    total_users = len(user_list)
+    """ Display HR's page """
+
+    if not api.is_valid_user(request.user):
+        raise PermissionDenied
+
+    loggedin_user = api.loggedin_user(request.user)
+    if 'HR' not in loggedin_user['roles']:
+        raise PermissionDenied
+
+    users = api.get_users()
+    total_users = len(users)
 
     # Pagination enables
+    """
+    user_list = api.get_users()
+    total_users = len(user_list)
     query = request.GET.get('q')
     if query:
         user_list = User.objects.filter(
@@ -547,6 +632,7 @@ def hr(request):
         users = paginator.page(1)
     except EmptyPage:
         users = paginator.page(paginator.num_pages)
+    """
 
 
     return render(request, 'users/hr/hr.html', {

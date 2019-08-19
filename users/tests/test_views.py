@@ -6,25 +6,24 @@ from urllib.parse import urlencode
 
 from users.models import *
 from users import api
+from department.tests.test_views import DATA, ContentType
+from django.core.files.uploadedfile import SimpleUploadedFile
 
 from django.utils.crypto import get_random_string
 
 
+"""
+Superadmin: 2
+Admin: 1
+HR: 3
+Instructor: 4 ~ 8
+Student: 9 ~ 30
+
+"""
 
 
 class UserTest(TestCase):
-    fixtures = [
-        'users/fixtures/confidentialities.json',
-        'users/fixtures/degrees.json',
-        'users/fixtures/profile_roles.json',
-        'users/fixtures/profiles.json',
-        'users/fixtures/programs.json',
-        'users/fixtures/resumes.json',
-        'users/fixtures/roles.json',
-        'users/fixtures/statuses.json',
-        'users/fixtures/trainings.json',
-        'users/fixtures/users.json'
-    ]
+    fixtures = DATA
 
     @classmethod
     def setUpTestData(cls):
@@ -88,10 +87,12 @@ class UserTest(TestCase):
         self.assertFalse(api.resume_exists_by_username(data['username'])) # Check user's resume
         self.assertFalse(api.confidentiality_exists_by_username(data['username'])) # Check user's confidentiality
 
-        response = self.client.post('/users/', data=urlencode(data), content_type='application/x-www-form-urlencoded')
+        response = self.client.post('/users/', data=urlencode(data), content_type=ContentType)
         messages = [m.message for m in get_messages(response.wsgi_request)]
         self.assertTrue('Success' in messages[0]) # Check a success message
         self.assertEqual(response.status_code, 302) # Redirect to users index
+        self.assertRedirects(response, response.url)
+
         user = api.get_user_by_username('test.user100')
         self.assertEqual(user.username, 'test.user100') # Equals to the new user
         self.assertTrue(api.profile_exists_by_username(user.username)) # Check user's profile
@@ -144,7 +145,7 @@ class UserTest(TestCase):
             'username': 'test.user5',
             'password': '12'
         }
-        response = self.client.post('/users/', data=urlencode(data), content_type='application/x-www-form-urlencoded')
+        response = self.client.post('/users/', data=urlencode(data), content_type=ContentType)
         messages = [m.message for m in get_messages(response.wsgi_request)]
         self.assertTrue( 'Error' in messages[0] ) # Check a error message
 
@@ -156,11 +157,12 @@ class UserTest(TestCase):
         user_id = '25'
         username = 'test.user25'
         data = { 'user': user_id }
-        response = self.client.post(reverse('users:delete_user'), data=urlencode(data), content_type='application/x-www-form-urlencoded')
+        response = self.client.post(reverse('users:delete_user'), data=urlencode(data), content_type=ContentType)
 
         messages = [m.message for m in get_messages(response.wsgi_request)]
         self.assertTrue('Success' in messages[0]) # Check a success message
         self.assertEqual(response.status_code, 302) # Redirect to users index
+        self.assertRedirects(response, response.url)
 
         user = api.get_user(user_id)
         self.assertEqual(user, None)
@@ -188,9 +190,10 @@ class UserTest(TestCase):
             'ta_experience': '1',
             'ta_experience_details': 'ta experience details text'
         }
-        response = self.client.post(reverse('users:edit_profile', args=['test.user20']), data=urlencode(data, True), content_type='application/x-www-form-urlencoded')
+        response = self.client.post(reverse('users:edit_profile', args=['test.user20']), data=urlencode(data, True), content_type=ContentType)
 
         self.assertEqual(response.status_code, 302) # Redirect to user details
+        self.assertRedirects(response, response.url)
         messages = [m.message for m in get_messages(response.wsgi_request)]
         self.assertTrue('Success' in messages[0]) # Check a success message
 
@@ -223,9 +226,10 @@ class UserTest(TestCase):
             'visa': '1',
             'work_permit': True
         }
-        response = self.client.post(reverse('users:edit_confidentiality', args=['test.user20']), data=urlencode(data), content_type='application/x-www-form-urlencoded')
+        response = self.client.post(reverse('users:edit_confidentiality', args=['test.user20']), data=urlencode(data), content_type=ContentType)
 
         self.assertEqual(response.status_code, 302) # Redirect to user details
+        self.assertRedirects(response, response.url)
         messages = [m.message for m in get_messages(response.wsgi_request)]
         self.assertTrue('Success' in messages[0]) # Check a success message
 
@@ -235,3 +239,265 @@ class UserTest(TestCase):
         self.assertEquals(user.confidentiality.employee_number, '0012345')
         self.assertEquals(user.confidentiality.get_visa_display(), 'Type 1')
         self.assertEquals(user.confidentiality.work_permit, True)
+
+
+class StudentProfileTest(TestCase):
+    fixtures = DATA
+
+    @classmethod
+    def setUpTestData(cls):
+        print('\nStudentProfile testing has started ==>')
+
+    def login(self, username, password):
+        self.client.post('/accounts/local_login/', data={'username': username, 'password': password})
+
+    def test_view_url_exists_at_desired_location(self):
+        """ Test: land student profile pages"""
+
+        # login with a student
+        username = 'test.user11'
+        self.login(username, '12')
+        response = self.client.get( reverse('users:show_student', args=[username]) )
+        self.assertEqual(response.status_code, 200) # success
+
+        # login with an instructor
+        username = 'test.user5'
+        self.login(username, '12')
+        response = self.client.get( reverse('users:show_student', args=[username]) )
+        self.assertEqual(response.status_code, 403) # permission denied
+
+
+    def test_show_student(self):
+        """ Test: display student's details """
+
+        user_id = '15'
+        user = api.get_user(user_id)
+        self.login(user.username, '12')
+        response = self.client.get( reverse('users:show_student', args=[user.username]) )
+        self.assertEqual(response.status_code, 200)
+
+        loggedin_user = response.context['loggedin_user']
+        res_user = response.context['user']
+        resume_name = response.context['resume_name']
+        student_jobs = response.context['student_jobs']
+        offered_jobs = response.context['offered_jobs']
+        accepted_jobs = response.context['accepted_jobs']
+        declined_jobs = response.context['declined_jobs']
+        self.assertEqual(loggedin_user['username'], user.username)
+        self.assertEqual(res_user.id, int(user_id))
+        self.assertEqual(resume_name, '')
+        self.assertEqual( len(student_jobs), 0 )
+        self.assertEqual( len(offered_jobs), 0 )
+        self.assertEqual( len(accepted_jobs), 0 )
+        self.assertEqual( len(declined_jobs), 0 )
+
+
+    def test_edit_student_profile(self):
+        """ Test: edit student's profile """
+        user_id = '15'
+        user = api.get_user(user_id)
+        self.login(user.username, '12')
+
+        data = {
+            'qualifications': 'updated qualifications',
+            'prior_employment': 'updated prior_employment', 
+            'special_considerations': 'updated special_considerations',
+            'status': '5', 
+            'program': '7', 
+            'graduation_date': '2020-05-25', 
+            'degrees': ['4', '6'], 
+            'trainings': ['2', '3'],
+            'lfs_ta_training': '1', 
+            'lfs_ta_training_details': 'updated lfs_ta_training_details', 
+            'ta_experience': '2',
+            'ta_experience_details': 'updated ta_experience_details'
+        }
+
+        response = self.client.post( reverse('users:edit_student', args=[user.username]), data=urlencode(data, True), content_type=ContentType )
+        self.assertEqual(response.status_code, 302) # redirect to the student details page
+        self.assertRedirects(response, response.url)
+        messages = [m.message for m in get_messages(response.wsgi_request)]
+        self.assertTrue('Success' in messages[0]) # Check a success message
+
+        response = self.client.get( reverse('users:show_student', args=[user.username]) )
+        user = response.context['user']
+        
+        self.assertEqual(user.profile.qualifications, data['qualifications'])
+        self.assertEqual(user.profile.prior_employment, data['prior_employment'])
+        self.assertEqual(user.profile.special_considerations, data['special_considerations'])
+        self.assertEqual(user.profile.status.id, int(data['status']))
+        self.assertEqual(user.profile.program.id, int(data['program']))
+        self.assertEqual(user.profile.graduation_date.strftime('%Y-%m-%d'), data['graduation_date'])
+        self.assertEqual( [str(degree.id) for degree in user.profile.degrees.all()], data['degrees'] )
+        self.assertEqual( [str(training.id) for training in user.profile.trainings.all()], data['trainings'] )
+        self.assertEqual(user.profile.lfs_ta_training, data['lfs_ta_training'])
+        self.assertEqual(user.profile.lfs_ta_training_details, data['lfs_ta_training_details'])
+        self.assertEqual(user.profile.ta_experience, data['ta_experience'])
+        self.assertEqual(user.profile.ta_experience_details, data['ta_experience_details'])
+
+
+    def test_upload_user_resume(self):
+        """ Test: upload user's resume """
+
+        user_id = '11'
+        user = api.get_user(user_id)
+        self.login(user.username, '12')
+
+        resume_name = 'resume.pdf'
+        data = {
+            'user': user_id,
+            'resume': SimpleUploadedFile(resume_name, b'file_content', content_type='application/pdf')
+        }
+        response = self.client.post( reverse('users:upload_resume', args=[user.username]), data=data, format='multipart')
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+        messages = [m.message for m in get_messages(response.wsgi_request)]
+        self.assertTrue('Success' in messages[0]) # Check a success message
+
+        #response = self.client.get( reverse('users:show_student', args=[user.username]) )
+        #self.assertEqual(response.context['resume_name'], resume_name)
+        #print(response.context['user'].resume.created_at)
+
+
+    def test_replace_user_resume(self):
+        """ Test: replace user's resume """
+
+        user_id = '11'
+        user = api.get_user(user_id)
+        self.login(user.username, '12')
+
+        resume_name = 'resume.pdf'
+        data = {
+            'user': user_id,
+            'resume': SimpleUploadedFile(resume_name, b'file_content', content_type='application/pdf')
+        }
+        response = self.client.post( reverse('users:upload_resume', args=[user.username]), data=data)
+        self.assertEqual(response.status_code, 302)
+        messages = [m.message for m in get_messages(response.wsgi_request)]
+        self.assertTrue('Success' in messages[0]) # Check a success message
+
+
+        updated_resume_name = 'updated_resume.pdf'
+        updated_data = {
+            'user': user_id,
+            'resume': SimpleUploadedFile(updated_resume_name, b'file_content', content_type='application/pdf')
+        }
+        response = self.client.post( reverse('users:upload_resume', args=[user.username]), data=updated_data)
+        self.assertEqual(response.status_code, 302)
+        messages = [m.message for m in get_messages(response.wsgi_request)]
+        self.assertTrue('Success' in messages[0]) # Check a success message
+
+    
+    def test_delete_user_resume(self):
+        """ Test: delete user's resume """
+        pass
+
+
+
+
+class InstructorProfileTest(TestCase):
+    fixtures = DATA
+
+    @classmethod
+    def setUpTestData(cls):
+        print('\nInstructorProfile testing has started ==>')
+
+    def login(self, username, password):
+        self.client.post('/accounts/local_login/', data={'username': username, 'password': password})
+
+    def test_view_url_exists_at_desired_location(self):
+        """ Test: land student profile pages"""
+
+
+        # login with an instructor
+        username = 'test.user5'
+        self.login(username, '12')
+        response = self.client.get( reverse('users:show_instructor', args=[username]) )
+        self.assertEqual(response.status_code, 200) # success
+
+        # login with a student
+        username = 'test.user11'
+        self.login(username, '12')
+        response = self.client.get( reverse('users:show_instructor', args=[username]) )
+        self.assertEqual(response.status_code, 403) # permission denied
+
+
+    def test_show_instructor(self):
+        """ Test: display instructor's details """
+
+        user_id = '5'
+        user = api.get_user(user_id)
+        self.login(user.username, '12')
+        response = self.client.get( reverse('users:show_instructor', args=[user.username]) )
+        self.assertEqual(response.status_code, 200)
+
+        loggedin_user = response.context['loggedin_user']
+        res_user = response.context['user']
+        jobs = res_user.job_set.all()
+        
+        self.assertEqual(loggedin_user['username'], user.username)
+        self.assertEqual(res_user.id, int(user_id))
+        self.assertEqual( len(jobs), 1 )
+
+    def test_edit_instructor_profile(self):
+        """ Test: edit instructor's profile """
+        user_id = '5'
+        user = api.get_user(user_id)
+        self.login(user.username, '12')
+
+        data = {
+            'status': '8', 
+            'program': '4'
+        }
+        response = self.client.post( reverse('users:edit_instructor', args=[user.username]), data=urlencode(data), content_type=ContentType )
+        self.assertEqual(response.status_code, 302) # redirect to the instructor details page
+        messages = [m.message for m in get_messages(response.wsgi_request)]
+        self.assertTrue('Success' in messages[0]) # Check a success message
+
+        response = self.client.get( reverse('users:show_instructor', args=[user.username]) )
+        user = response.context['user']
+        
+        self.assertEqual(user.profile.status.id, int(data['status']))
+        self.assertEqual(user.profile.program.id, int(data['program']))
+
+class HRPageTest(TestCase):
+    fixtures = DATA
+
+    @classmethod
+    def setUpTestData(cls):
+        print('\nHR page testing has started ==>')
+
+    def login(self, username, password):
+        self.client.post('/accounts/local_login/', data={'username': username, 'password': password})
+
+    def test_view_url_exists_at_desired_location(self):
+        user_id = '3'
+        user = api.get_user(user_id)
+        self.login(user.username, '12')
+        response = self.client.get( reverse('users:hr' ) )
+        self.assertEqual(response.status_code, 200) # success
+
+        user_id = '1'
+        user = api.get_user(user_id)
+        self.login(user.username, '12')
+        response = self.client.get( reverse('users:hr' ) )
+        self.assertEqual(response.status_code, 403) # permissino denied
+
+        user_id = '11'
+        user = api.get_user(user_id)
+        self.login(user.username, '12')
+        response = self.client.get( reverse('users:hr' ) )
+        self.assertEqual(response.status_code, 403) # permissino denied
+
+
+    def test_show_hr_page(self):
+        """ Test: display hr page """
+        user_id = '3'
+        user = api.get_user(user_id)
+        self.login(user.username, '12')
+        response = self.client.get( reverse('users:hr' ) )
+        self.assertEqual(response.status_code, 200) # success
+
+        self.assertEqual( len(response.context['users']), 30)
+
+

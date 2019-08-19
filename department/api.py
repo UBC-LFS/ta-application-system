@@ -90,6 +90,7 @@ def get_jobs():
     """ Get all jobs """
     return Job.objects.all()
 
+
 # checked
 def get_session_job_by_slug(session_slug, job_slug):
     """ Get a job by session slug and job slug """
@@ -99,15 +100,7 @@ def get_session_job_by_slug(session_slug, job_slug):
             return job
     return None
 
-#checked
-def get_jobs_of_instructor(user):
-    """ Get jobs of an instructor """
-    jobs = []
-    for job in get_jobs():
-        found = job.instructors.filter(id=user.id)
-        if found.count() > 0:
-            jobs.append( job )
-    return jobs
+
 
 # checked
 def get_jobs_with_student_applied(session_slug, user):
@@ -776,3 +769,15 @@ def delete_course_section(course_section_id):
         return course_section
     except CourseSection.DoesNotExist:
         return None
+
+
+
+# to be removed
+def get_jobs_of_instructor(user):
+    """ Get jobs of an instructor """
+    jobs = []
+    for job in get_jobs():
+        found = job.instructors.filter(id=user.id)
+        if found.count() > 0:
+            jobs.append( job )
+    return jobs
