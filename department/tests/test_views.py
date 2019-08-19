@@ -6,7 +6,6 @@ from urllib.parse import urlencode
 from department.models import *
 from department import api
 from users import api as userApi
-from users.tests.test_views import UserTest
 
 ContentType='application/x-www-form-urlencoded'
 
@@ -18,8 +17,18 @@ DATA = [
     'department/fixtures/job_instructors.json',
     'department/fixtures/jobs.json',
     'department/fixtures/sessions.json',
-    'department/fixtures/terms.json'
-] + UserTest.fixtures
+    'department/fixtures/terms.json',
+    'users/fixtures/confidentialities.json',
+    'users/fixtures/degrees.json',
+    'users/fixtures/profile_roles.json',
+    'users/fixtures/profiles.json',
+    'users/fixtures/programs.json',
+    'users/fixtures/resumes.json',
+    'users/fixtures/roles.json',
+    'users/fixtures/statuses.json',
+    'users/fixtures/trainings.json',
+    'users/fixtures/users.json'
+]
 
 
 class SessionTest(TestCase):

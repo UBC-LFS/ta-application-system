@@ -130,12 +130,7 @@ def delete_users():
 
 # Profile CRUD
 
-#checked
-def get_profile(user):
-    try:
-        return Profile.objects.get(user_id=user.id)
-    except Profile.DoesNotExist:
-        return None
+
 
 #checked
 def update_user_profile(profile, new_roles, new_degrees, new_trainings, data):
@@ -372,4 +367,15 @@ def delete_status(status_id):
         status.delete()
         return status
     except Status.DoesNotExist:
+        return None
+
+
+
+# to be removed
+
+
+def get_profile(user):
+    try:
+        return Profile.objects.get(user_id=user.id)
+    except Profile.DoesNotExist:
         return None
