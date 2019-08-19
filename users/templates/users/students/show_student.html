@@ -97,12 +97,12 @@
 
 Resume:
 {% if resume_name %}
-  <a href="{% url 'users:download_user_resume' username=user.username filename=resume_name %}" target="_blank">
+  <a href="{% url 'users:download_resume' username=user.username filename=resume_name %}" target="_blank">
     {{ resume_name }}
   </a>
   - {{ user.resume.created_at }}
 
-<form action="{% url 'users:delete_user_resume' %}" method="post" onsubmit="return confirm('Are you sure to delete this resume?')">
+<form action="{% url 'users:delete_resume' %}" method="post" onsubmit="return confirm('Are you sure to delete this resume?')">
   {% csrf_token %}
   <input type="hidden" name="user" value="{{ user.username }}">
   <input type="submit" value="Delete" />
@@ -113,7 +113,7 @@ Resume:
 {% endif %}
 
 <p>Valid file types: jpg, jpeg, png, pdf, doc, docx</p>
-<form action="" method="post" enctype="multipart/form-data">
+<form action="{% url 'users:upload_resume' user.username %}" method="post" enctype="multipart/form-data">
   {% csrf_token %}
   <table>{{ resume_form.as_table }}</table>
   <input type="submit" value="Upload" />

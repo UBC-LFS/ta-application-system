@@ -230,32 +230,13 @@ def show_student(request, username):
     if 'Student' not in loggedin_user['roles']:
         raise PermissionDenied
 
-    
     user = api.get_user_by_username(username)
     student_jobs = departmentApi.get_jobs_applied_by_student(user)
 
     resume_name = None
     if user.resume.file != None:
         resume_name = os.path.basename(user.resume.file.name)
-
-    if request.method == 'POST':
-        form = ResumeForm(request.POST, request.FILES, instance=user.resume)
-
-        if form.is_valid():
-            files = request.FILES
-            resume = form.save(commit=False)
-            resume.delete_existing_file()
-            resume.file = files.get('file')
-            resume.created_at = datetime.now()
-            resume.save()
-            if resume:
-                messages.success(request, 'Success!')
-                return HttpResponseRedirect( reverse('users:show_student', args=[username]) )
-            else:
-                messages.error(request, 'Error!')
-        else:
-            messages.error(request, 'Error! Form is invalid')
-
+    
     return render(request, 'users/students/show_student.html', {
         'loggedin_user': loggedin_user,
         'user': user,
@@ -267,16 +248,63 @@ def show_student(request, username):
         'resume_form': ResumeForm(initial={ 'user': user })
     })
 
-def download_user_resume(request, username, filename):
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['POST'])
+def upload_resume(request, username):
+    """ Upload user's resume """
+
+    if not api.is_valid_user(request.user):
+        raise PermissionDenied
+
+    loggedin_user = api.loggedin_user(request.user)
+    if 'Student' not in loggedin_user['roles']:
+        raise PermissionDenied
+
+    user = api.get_user_by_username(username)
+    if request.method == 'POST':
+        form = ResumeForm(request.POST, request.FILES, instance=user.resume)
+        if form.is_valid():
+            files = request.FILES
+            resume = form.save(commit=False)
+            resume.delete_existing_file()
+            resume.file = files.get('file')
+            resume.created_at = datetime.now()
+            resume.save()
+            if resume:
+                messages.success(request, 'Success! {0} - resume uploaded'.format(user.username))
+            else:
+                messages.error(request, 'Error!')
+        else:
+            messages.error(request, 'Error! Form is invalid')
+
+    return HttpResponseRedirect( reverse('users:show_student', args=[username]) )
+
+
+def download_resume(request, username, filename):
+    """ Download user's resume """
     path = 'users/{0}/resume/{1}/'.format(username, filename)
     return serve(request, path, document_root=settings.MEDIA_ROOT)
 
-def delete_user_resume(request):
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['POST'])
+def delete_resume(request):
+    """ Delete user's resume """
+
+    if not api.is_valid_user(request.user):
+        raise PermissionDenied
+
+    loggedin_user = api.loggedin_user(request.user)
+    if 'Student' not in loggedin_user['roles']:
+        raise PermissionDenied
+
     if request.method == 'POST':
         username = request.POST.get('user')
         resume = api.delete_user_resume(username)
         if resume:
-            messages.success(request, 'Success!')
+            messages.success(request, 'Success! {0} - resume deleted'.format(username))
         else:
             messages.error(request, 'Error!')
     else:

@@ -16,8 +16,10 @@ urlpatterns = [
     path('students/<str:username>/applied/sessions/<str:session_slug>/jobs/<str:job_slug>/', views.show_student_job, name='show_student_job'),
     path('students/<str:username>/applied/sessions/<str:session_slug>/jobs/<str:job_slug>/accept_offer/', views.accept_offer, name='accept_offer'),
     path('students/<str:username>/applied/sessions/<str:session_slug>/jobs/<str:job_slug>/decline_offer/', views.decline_offer, name='decline_offer'),
-    path('students/<str:username>/resume/<str:filename>/download/', views.download_user_resume, name='download_user_resume'),
-    path('delete_user_resume/', views.delete_user_resume, name='delete_user_resume'),
+
+    path('students/<str:username>/upload_resume', views.upload_resume, name='upload_resume'),
+    path('students/<str:username>/resume/<str:filename>/download/', views.download_resume, name='download_resume'),
+    path('delete_resume/', views.delete_resume, name='delete_resume'),
 
     path('instructors/<str:username>/', views.show_instructor, name='show_instructor'),
     path('instructors/<str:username>/edit/', views.edit_instructor, name='edit_instructor'),

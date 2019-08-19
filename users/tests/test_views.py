@@ -7,6 +7,7 @@ from urllib.parse import urlencode
 from users.models import *
 from users import api
 from department.tests.test_views import DATA, ContentType
+from django.core.files.uploadedfile import SimpleUploadedFile
 
 from django.utils.crypto import get_random_string
 
@@ -317,6 +318,64 @@ class StudentProfileTest(TestCase):
         self.assertEqual(user.profile.lfs_ta_training_details, data['lfs_ta_training_details'])
         self.assertEqual(user.profile.ta_experience, data['ta_experience'])
         self.assertEqual(user.profile.ta_experience_details, data['ta_experience_details'])
+
+
+    def test_upload_user_resume(self):
+        """ Test: upload user's resume """
+
+        user_id = '11'
+        user = api.get_user(user_id)
+        self.login(user.username, '12')
+
+        resume_name = 'resume.pdf'
+        data = {
+            'user': user_id,
+            'resume': SimpleUploadedFile(resume_name, b'file_content', content_type='application/pdf')
+        }
+        response = self.client.post( reverse('users:upload_resume', args=[user.username]), data=data, format='multipart')
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+        messages = [m.message for m in get_messages(response.wsgi_request)]
+        self.assertTrue('Success' in messages[0]) # Check a success message
+
+        #response = self.client.get( reverse('users:show_student', args=[user.username]) )
+        #self.assertEqual(response.context['resume_name'], resume_name)
+        #print(response.context['user'].resume.created_at)
+
+
+    def test_replace_user_resume(self):
+        """ Test: replace user's resume """
+
+        user_id = '11'
+        user = api.get_user(user_id)
+        self.login(user.username, '12')
+
+        resume_name = 'resume.pdf'
+        data = {
+            'user': user_id,
+            'resume': SimpleUploadedFile(resume_name, b'file_content', content_type='application/pdf')
+        }
+        response = self.client.post( reverse('users:upload_resume', args=[user.username]), data=data)
+        self.assertEqual(response.status_code, 302)
+        messages = [m.message for m in get_messages(response.wsgi_request)]
+        self.assertTrue('Success' in messages[0]) # Check a success message
+
+
+        updated_resume_name = 'updated_resume.pdf'
+        updated_data = {
+            'user': user_id,
+            'resume': SimpleUploadedFile(updated_resume_name, b'file_content', content_type='application/pdf')
+        }
+        response = self.client.post( reverse('users:upload_resume', args=[user.username]), data=updated_data)
+        self.assertEqual(response.status_code, 302)
+        messages = [m.message for m in get_messages(response.wsgi_request)]
+        self.assertTrue('Success' in messages[0]) # Check a success message
+
+    
+    def test_delete_user_resume(self):
+        """ Test: delete user's resume """
+        pass
+
 
 
 
