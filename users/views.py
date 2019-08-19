@@ -23,8 +23,6 @@ from department.models import Course, ApplicationStatus
 
 from django.forms.models import model_to_dict
 
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-
 
 # Users
 
@@ -65,20 +63,9 @@ def index(request):
         else:
             messages.error(request, 'Error! form invalid')
 
-    user_list = api.get_users()
-    page = request.GET.get('page', 1)
-
-    paginator = Paginator(user_list, 20)
-    try:
-        users = paginator.page(page)
-    except PageNotAnInteger:
-        users = paginator.page(1)
-    except EmptyPage:
-        users = paginator.page(paginator.num_pages)
-
     return render(request, 'users/index.html', {
         'loggedin_user': loggedin_user,
-        'users': users,
+        'users': api.get_users(),
         'form': UserForm()
     })
 
