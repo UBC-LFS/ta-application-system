@@ -217,9 +217,17 @@ def edit_confidentiality(request, username):
 
 # Student Profile
 
-#checked
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET', 'POST'])
 def show_student(request, username):
     """ Display student details """
+
+    if not api.is_valid_user(request.user):
+        raise PermissionDenied
+
+    loggedin_user = api.loggedin_user(request.user)
+    
     user = api.get_user_by_username(username)
     student_jobs = departmentApi.get_jobs_applied_by_student(user)
 
@@ -252,7 +260,7 @@ def show_student(request, username):
             messages.error(request, 'Error! Form is invalid')
 
     return render(request, 'users/students/show_student.html', {
-        'loggedin_user': api.loggedin_user(request.user),
+        'loggedin_user': loggedin_user,
         'user': user,
         'resume_name': resume_name,
         'student_jobs': departmentApi.get_jobs_applied_by_student(user),

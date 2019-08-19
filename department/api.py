@@ -454,7 +454,44 @@ def get_offered_jobs_by_student(user, student_jobs):
                     })
     return jobs
 
+def get_accepted_jobs_by_student(user, student_jobs):
+    jobs = []
+    for job in student_jobs:
+        for app in job.application_set.all():
+            if app.applicant.id == user.id:
+                if app.status.filter(assigned=ApplicationStatus.ACCEPTED).exists():
+                    status = app.status.get(assigned=ApplicationStatus.ACCEPTED)
+                    jobs.append({
+                        'year': job.session.year,
+                        'term': job.session.term.code,
+                        'course_code': job.course.code.name,
+                        'course_number': job.course.number.name,
+                        'course_section': job.course.section.name,
+                        'assigned_status': 'Accepted',
+                        'assigned_hours': status.assigned_hours
+                    })
+    return jobs
 
+
+def get_declined_jobs_by_student(user, student_jobs):
+    jobs = []
+    for job in student_jobs:
+        for app in job.application_set.all():
+            if app.applicant.id == user.id:
+                if app.status.filter(assigned=ApplicationStatus.DECLINED).exists():
+                    status = app.status.get(assigned=ApplicationStatus.DECLINED)
+                    jobs.append({
+                        'year': job.session.year,
+                        'term': job.session.term.code,
+                        'course_code': job.course.code.name,
+                        'course_number': job.course.number.name,
+                        'course_section': job.course.section.name,
+                        'assigned_status': 'Declined',
+                        'assigned_hours': status.assigned_hours
+                    })
+    return jobs
+
+"""
 def get_offered_jobs_by_student2(user, student_jobs):
     jobs = {}
     for job in student_jobs:
@@ -487,7 +524,10 @@ def get_offered_jobs_by_student2(user, student_jobs):
 
     return jobs
 
-def get_accepted_jobs_by_student(user, student_jobs):
+
+
+
+def get_accepted_jobs_by_student2(user, student_jobs):
     jobs = {}
     for job in student_jobs:
         year = job.session.year
@@ -520,7 +560,7 @@ def get_accepted_jobs_by_student(user, student_jobs):
     return jobs
 
 
-def get_declined_jobs_by_student(user, student_jobs):
+def get_declined_jobs_by_student2(user, student_jobs):
     jobs = {}
     for job in student_jobs:
         year = job.session.year
@@ -576,7 +616,7 @@ def get_accepted_jobs_by_student2(student_jobs):
                     accepted_jobs[year][term]['total_hours'] += st.assigned_hours
 
     return accepted_jobs
-
+"""
 
 
 def get_offered_jobs():
@@ -585,8 +625,6 @@ def get_offered_jobs():
         year = job.session.year
         term = job.session.term.code
         print(year, term, job)
-
-
     return jobs
 
 

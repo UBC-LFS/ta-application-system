@@ -132,7 +132,6 @@ Resume:
       <th>Term</th>
       <th>Job</th>
       <th>Status</th>
-      <th>Title</th>
       <th>Instructors</th>
     </tr>
   </thead>
@@ -157,7 +156,6 @@ Resume:
             {% endif %}
           {% endfor %}
         </td>
-        <td>{{ job.course.name }}</td>
         <td>
           {% for instructor in job.instructors.all %}
             {{ instructor.first_name }} {{ instructor.last_name }}
@@ -177,70 +175,38 @@ Resume:
 
 
 <h3>Offered Jobs</h3>
-{% for year, year_items in offered_jobs.items %}
-  <div>Year: {{ year }}</div>
-
-  {% for term_item in year_items %}
-    {% for term, job_items in term_item.items %}
-      <div>Term: {{ term }}</div>
-      <ul>
-        {% for item in job_items.jobs %}
-          <li>{{ item.job }} - {{ item.assigned_hours }} hours - {{ item.created_at }}</li>
-        {% endfor %}
-      </ul>
-      <div>Total hours: {{ job_items.total_hours }} hours</div>
-    {% endfor %}
+<ul>
+  {% for job in offered_jobs %}
+    <li>{{ job.year }} {{ job.term }} - {{ job.course_code }} {{ job.course_number }} {{ job.course_section }}: {{ job.assigned_status }} {{ job.assigned_hours }} hours</li>
+  {% empty %}
+    <li>No offered jobs found</li>
   {% endfor %}
-
-{% empty %}
-  No jobs found
-{% endfor %}
+</ul>
 
 <hr />
 
 
 
 <h3>Accepted Jobs</h3>
-{% for year, year_items in accepted_jobs.items %}
-  <div>Year: {{ year }}</div>
-
-  {% for term_item in year_items %}
-    {% for term, job_items in term_item.items %}
-      <div>Term: {{ term }}</div>
-      <ul>
-        {% for item in job_items.jobs %}
-          <li>{{ item.job }} - {{ item.assigned_hours }} hours - {{ item.created_at }}</li>
-        {% endfor %}
-      </ul>
-      <div>Total hours: {{ job_items.total_hours }} hours</div>
-    {% endfor %}
+<ul>
+  {% for job in accepted_jobs %}
+    <li>{{ job.year }} {{ job.term }} - {{ job.course_code }} {{ job.course_number }} {{ job.course_section }}: {{ job.assigned_status }} {{ job.assigned_hours }} hours</li>
+  {% empty %}
+    <li>No accepted jobs found</li>
   {% endfor %}
-
-{% empty %}
-  No jobs found
-{% endfor %}
+</ul>
 
 <hr />
 
 
 <h3>Declined Jobs</h3>
-{% for year, year_items in declined_jobs.items %}
-  <div>Year: {{ year }}</div>
-
-  {% for term_item in year_items %}
-    {% for term, job_items in term_item.items %}
-      <div>Term: {{ term }}</div>
-      <ul>
-        {% for item in job_items.jobs %}
-          <li>{{ item.job }} - {{ item.created_at }}</li>
-        {% endfor %}
-      </ul>
-    {% endfor %}
+<ul>
+  {% for job in declined_jobs %}
+    <li>{{ job.year }} {{ job.term }} - {{ job.course_code }} {{ job.course_number }} {{ job.course_section }}: {{ job.assigned_status }} {{ job.assigned_hours }} hours</li>
+  {% empty %}
+    <li>No declined jobs found</li>
   {% endfor %}
-
-{% empty %}
-  No jobs found
-{% endfor %}
+</ul>
 
 
 {% endblock %}

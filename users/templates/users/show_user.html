@@ -150,53 +150,7 @@
 
 
 {% if 'Student' in roles %}
-  <h3>Applied Jobs</h3>
-  <table>
-    <thead>
-      <tr>
-        <th>Year</th>
-        <th>Term</th>
-        <th>Job</th>
-        <th>Status</th>
-        <th>Created at</th>
-        <th>Updated at</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for job in job_application_applied_by_student %}
-        <tr>
-          <td>{{ job.details.session.year }}</td>
-          <td>{{ job.details.session.term.code }}</td>
-          <td>
-            {{ job.details.course.code.name }} {{ job.details.course.number.name }} {{ job.details.course.section.name }}
-          </td>
-          <td>
-            <ul>
-              {% for st in job.application.status.all %}
-                <li>{{ st.get_assigned_display }} - {{ st.assigned_hours }} hours - {{ st.created_at }}</li>
-              {% endfor %}
-            </ul>
-          </td>
-          <td>
-            {{ job.application.created_at }}
-          </td>
-          <td>
-            {{ job.application.updated_at }}
-          </td>
-        </tr>
-      {% empty %}
-        <tr>
-          <td colspan="6">
-            No applied courses found
-          </td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-{% endif %}
 
-
-<hr />
 
 <h3>Applied Jobs</h3>
 <table>
@@ -259,74 +213,32 @@
 
 <hr />
 
-{% for year, year_items in offered_jobs.items %}
-  <div>Year: {{ year }}</div>
-
-  {% for term_item in year_items %}
-    {% for term, job_items in term_item.items %}
-      <div>Term: {{ term }}</div>
-      <ul>
-        {% for item in job_items.jobs %}
-          <li>{{ item.job }} - {{ item.assigned_hours }} hours - {{ item.created_at }}</li>
-        {% endfor %}
-      </ul>
-      <div>Total hours: {{ job_items.total_hours }} hours</div>
-    {% endfor %}
-  {% endfor %}
-
-
-{% empty %}
-  No jobs found
-
-{% endfor %}
-
-<hr />
-
 
 <h3>Accepted Jobs</h3>
-{% for year, year_items in accepted_jobs.items %}
-  <div>Year: {{ year }}</div>
 
-  {% for term_item in year_items %}
-    {% for term, job_items in term_item.items %}
-      <div>Term: {{ term }}</div>
-      <ul>
-        {% for item in job_items.jobs %}
-          <li>{{ item.job }} - {{ item.assigned_hours }} hours - {{ item.created_at }}</li>
-        {% endfor %}
-      </ul>
-      <div>Total hours: {{ job_items.total_hours }} hours</div>
-    {% endfor %}
+<ul>
+  {% for job in accepted_jobs %}
+    <li>{{ job.year }} {{ job.term }} - {{ job.course_code }} {{ job.course_number }} {{ job.course_section }}: {{ job.assigned_status }} {{ job.assigned_hours }} hours</li>
+  {% empty %}
+    <li>No accepted jobs found</li>
   {% endfor %}
-
-
-{% empty %}
-  No jobs found
-
-{% endfor %}
+</ul>
 
 <hr />
 
 
 <h3>Declined Jobs</h3>
-{% for year, year_items in declined_jobs.items %}
-  <div>Year: {{ year }}</div>
-
-  {% for term_item in year_items %}
-    {% for term, job_items in term_item.items %}
-      <div>Term: {{ term }}</div>
-      <ul>
-        {% for item in job_items.jobs %}
-          <li>{{ item.job }} - {{ item.created_at }}</li>
-        {% endfor %}
-      </ul>
-    {% endfor %}
+<ul>
+  {% for job in declined_jobs %}
+    <li>{{ job.year }} {{ job.term }} - {{ job.course_code }} {{ job.course_number }} {{ job.course_section }}: {{ job.assigned_status }} {{ job.assigned_hours }} hours</li>
+  {% empty %}
+    <li>No declined jobs found</li>
   {% endfor %}
+</ul>
 
-{% empty %}
-  No jobs found
 
-{% endfor %}
+
+{% endif %}
 
 
 {% endblock %}
