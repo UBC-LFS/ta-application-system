@@ -519,11 +519,20 @@ def edit_instructor(request, username):
     })
 
 
-# checked
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET', 'POST'])
 def show_instructor_jobs(request, username, session_slug, job_slug):
     """ Display instructor's jobs """
+
+    if not api.is_valid_user(request.user):
+        raise PermissionDenied
+
+    loggedin_user = api.loggedin_user(request.user)
+    if 'Instructor' not in loggedin_user['roles']:
+        raise PermissionDenied
+
     job = departmentApi.get_session_job_by_slug(session_slug, job_slug)
-    #instructor_preference = [ app.instructor_preference for app in job.applications.all() ]
     instructor_preference = [ app.instructor_preference for app in job.application_set.all() ]
     if request.method == 'POST':
         form = InstructorApplicationForm(request.POST)
@@ -551,16 +560,21 @@ def show_instructor_jobs(request, username, session_slug, job_slug):
     })
 
 
-
-
-
-#checked
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET', 'POST'])
 def edit_instructor_jobs(request, username, session_slug, job_slug):
     """ Edit instructor's jobs"""
-    user = api.get_user_by_username(username)
-    session = departmentApi.get_session_by_slug(session_slug)
-    job = departmentApi.get_session_job_by_slug(session_slug, job_slug)
 
+    if not api.is_valid_user(request.user):
+        raise PermissionDenied
+
+    loggedin_user = api.loggedin_user(request.user)
+    if 'Instructor' not in loggedin_user['roles']:
+        raise PermissionDenied
+
+    user = api.get_user_by_username(username)
+    job = departmentApi.get_session_job_by_slug(session_slug, job_slug)
     if request.method == 'POST':
         form = InstructorJobForm(request.POST, instance=job)
         if form.is_valid():
@@ -568,7 +582,7 @@ def edit_instructor_jobs(request, username, session_slug, job_slug):
             job.updated_at = datetime.now()
             job.save()
             if job:
-                messages.success(request, 'Success!')
+                messages.success(request, 'Success! {0} - job details updated'.format(user.username))
                 return HttpResponseRedirect( reverse('users:show_instructor_jobs', args=[username, session_slug, job_slug]) )
             else:
                 messages.error(request, 'Error!')
@@ -578,7 +592,7 @@ def edit_instructor_jobs(request, username, session_slug, job_slug):
     return render(request, 'users/instructors/edit_instructor_jobs.html', {
         'loggedin_user': api.loggedin_user(request.user),
         'user': user,
-        'session': session,
+        'session': departmentApi.get_session_by_slug(session_slug),
         'job': job,
         'form': InstructorJobForm(data=None, instance=job)
     })
@@ -586,11 +600,26 @@ def edit_instructor_jobs(request, username, session_slug, job_slug):
 
 # HR
 
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET', 'POST'])
 def hr(request):
-    user_list = api.get_users()
-    total_users = len(user_list)
+    """ Display HR's page """
+
+    if not api.is_valid_user(request.user):
+        raise PermissionDenied
+
+    loggedin_user = api.loggedin_user(request.user)
+    if 'HR' not in loggedin_user['roles']:
+        raise PermissionDenied
+
+    users = api.get_users()
+    total_users = len(users)
 
     # Pagination enables
+    """
+    user_list = api.get_users()
+    total_users = len(user_list)
     query = request.GET.get('q')
     if query:
         user_list = User.objects.filter(
@@ -605,6 +634,7 @@ def hr(request):
         users = paginator.page(1)
     except EmptyPage:
         users = paginator.page(paginator.num_pages)
+    """
 
 
     return render(request, 'users/hr/hr.html', {

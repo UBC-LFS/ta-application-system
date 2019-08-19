@@ -12,6 +12,16 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.utils.crypto import get_random_string
 
 
+"""
+Superadmin: 2
+Admin: 1
+HR: 3
+Instructor: 4 ~ 8
+Student: 9 ~ 30
+
+"""
+
+
 class UserTest(TestCase):
     fixtures = DATA
 
@@ -81,6 +91,8 @@ class UserTest(TestCase):
         messages = [m.message for m in get_messages(response.wsgi_request)]
         self.assertTrue('Success' in messages[0]) # Check a success message
         self.assertEqual(response.status_code, 302) # Redirect to users index
+        self.assertRedirects(response, response.url)
+
         user = api.get_user_by_username('test.user100')
         self.assertEqual(user.username, 'test.user100') # Equals to the new user
         self.assertTrue(api.profile_exists_by_username(user.username)) # Check user's profile
@@ -150,6 +162,7 @@ class UserTest(TestCase):
         messages = [m.message for m in get_messages(response.wsgi_request)]
         self.assertTrue('Success' in messages[0]) # Check a success message
         self.assertEqual(response.status_code, 302) # Redirect to users index
+        self.assertRedirects(response, response.url)
 
         user = api.get_user(user_id)
         self.assertEqual(user, None)
@@ -180,6 +193,7 @@ class UserTest(TestCase):
         response = self.client.post(reverse('users:edit_profile', args=['test.user20']), data=urlencode(data, True), content_type=ContentType)
 
         self.assertEqual(response.status_code, 302) # Redirect to user details
+        self.assertRedirects(response, response.url)
         messages = [m.message for m in get_messages(response.wsgi_request)]
         self.assertTrue('Success' in messages[0]) # Check a success message
 
@@ -215,6 +229,7 @@ class UserTest(TestCase):
         response = self.client.post(reverse('users:edit_confidentiality', args=['test.user20']), data=urlencode(data), content_type=ContentType)
 
         self.assertEqual(response.status_code, 302) # Redirect to user details
+        self.assertRedirects(response, response.url)
         messages = [m.message for m in get_messages(response.wsgi_request)]
         self.assertTrue('Success' in messages[0]) # Check a success message
 
@@ -236,7 +251,7 @@ class StudentProfileTest(TestCase):
     def login(self, username, password):
         self.client.post('/accounts/local_login/', data={'username': username, 'password': password})
 
-    def test_sessions_view_url_exists_at_desired_location(self):
+    def test_view_url_exists_at_desired_location(self):
         """ Test: land student profile pages"""
 
         # login with a student
@@ -300,6 +315,7 @@ class StudentProfileTest(TestCase):
 
         response = self.client.post( reverse('users:edit_student', args=[user.username]), data=urlencode(data, True), content_type=ContentType )
         self.assertEqual(response.status_code, 302) # redirect to the student details page
+        self.assertRedirects(response, response.url)
         messages = [m.message for m in get_messages(response.wsgi_request)]
         self.assertTrue('Success' in messages[0]) # Check a success message
 
@@ -389,7 +405,7 @@ class InstructorProfileTest(TestCase):
     def login(self, username, password):
         self.client.post('/accounts/local_login/', data={'username': username, 'password': password})
 
-    def test_sessions_view_url_exists_at_desired_location(self):
+    def test_view_url_exists_at_desired_location(self):
         """ Test: land student profile pages"""
 
 
@@ -443,3 +459,45 @@ class InstructorProfileTest(TestCase):
         
         self.assertEqual(user.profile.status.id, int(data['status']))
         self.assertEqual(user.profile.program.id, int(data['program']))
+
+class HRPageTest(TestCase):
+    fixtures = DATA
+
+    @classmethod
+    def setUpTestData(cls):
+        print('\nHR page testing has started ==>')
+
+    def login(self, username, password):
+        self.client.post('/accounts/local_login/', data={'username': username, 'password': password})
+
+    def test_view_url_exists_at_desired_location(self):
+        user_id = '3'
+        user = api.get_user(user_id)
+        self.login(user.username, '12')
+        response = self.client.get( reverse('users:hr' ) )
+        self.assertEqual(response.status_code, 200) # success
+
+        user_id = '1'
+        user = api.get_user(user_id)
+        self.login(user.username, '12')
+        response = self.client.get( reverse('users:hr' ) )
+        self.assertEqual(response.status_code, 403) # permissino denied
+
+        user_id = '11'
+        user = api.get_user(user_id)
+        self.login(user.username, '12')
+        response = self.client.get( reverse('users:hr' ) )
+        self.assertEqual(response.status_code, 403) # permissino denied
+
+
+    def test_show_hr_page(self):
+        """ Test: display hr page """
+        user_id = '3'
+        user = api.get_user(user_id)
+        self.login(user.username, '12')
+        response = self.client.get( reverse('users:hr' ) )
+        self.assertEqual(response.status_code, 200) # success
+
+        self.assertEqual( len(response.context['users']), 30)
+
+
