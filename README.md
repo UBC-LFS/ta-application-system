@@ -1,5 +1,7 @@
 # TA Application System
 
+This project is a web-based TA hiring process system.
+
 
 
 ## Summary of Deployment
