@@ -53,8 +53,8 @@
 			<td>
 				<form action="{% url 'users:delete_user' %}" method="post" onsubmit="return confirm('Are you sure to delete {{ user.username }}?');">
 					{% csrf_token %}
-          <input type="hidden" name="user" value="{{ user.id }}">
-					<input type="submit" value="Delete" />
+          			<input type="hidden" name="user" value="{{ user.id }}">
+					<input class="btn btn-danger" type="submit" value="Delete" />
 				</form>
 			</td>
 		</tr>
