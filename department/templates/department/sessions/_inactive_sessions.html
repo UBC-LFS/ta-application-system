@@ -1,11 +1,10 @@
 <h4 class="page-title">Inactive Sessions</h4>
 
-<table class="table table-sm">
+<table class="table table-sm table-striped" data-toggle="table" data-sortable="true" data-classes="" data-pagination="true" data-search="true">
   <thead>
     <tr>
-      <th>Session</th>
-      <th>Number of Jobs</th>
-      <th>Active</th>
+      <th data-sortable="true">Session</th>
+      <th data-sortable="true">Number of Jobs</th>
       <th>Actions</th>
     </tr>
   </thead>
@@ -18,12 +17,11 @@
           </a>
         </td>
         <td>{{ session.job_set.count }}</td>
-        <td>{{ session.is_active }}</td>
         <td>
           <form action="{% url 'department:delete_session' %}" method="post" onsubmit="return confirm('Are you sure to delete {{ session.year }} {{ session.term }} - {{ session.title }}?');">
             {% csrf_token %}
             <input type="hidden" name="session" value="{{ session.id }}">
-            <input type="submit" value="Delete" />
+            <input type="submit" value="Delete" class="btn btn-danger"/>
           </form>
         </td>
       </tr>

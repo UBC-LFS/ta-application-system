@@ -20,15 +20,15 @@
 <h1>Jobs</h1>
 <small>Total {{ jobs.count }}</small>
 
-<table>
+<table class="table table-sm table-striped" data-toggle="table" data-sortable="true" data-classes="" data-pagination="true" data-search="true">
   <thead>
     <tr>
-      <th>Year</th>
-      <th>Term</th>
-      <th>Job</th>
-      <th>Applications</th>
-      <th>TA Hours</th>
-      <th>Active</th>
+      <th data-sortable="true">Year</th>
+      <th data-sortable="true">Term</th>
+      <th data-sortable="true">Job</th>
+      <th data-sortable="true">Applications</th>
+      <th data-sortable="true">TA Hours</th>
+      <th data-sortable="true">Active</th>
       <th>Created at</th>
       <th>Updated at</th>
       <th>Actions</th>
@@ -41,7 +41,7 @@
         <td>{{ job.session.term.code }}</td>
         <td>
           {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}
-          <button type="button" data-toggle="modal" data-target="#job-details-modal-{{ job.id }}">
+          <button type="button" data-toggle="modal" data-target="#job-details-modal-{{ job.id }}" class="btn btn-secondary float-right">
             Details
           </button>
 
