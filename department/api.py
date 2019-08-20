@@ -431,6 +431,7 @@ def get_declined(application):
 
 def get_offered_jobs_by_student(user, student_jobs):
     jobs = []
+    summary = {}
     for job in student_jobs:
         for app in job.application_set.all():
             if app.applicant.id == user.id:
@@ -445,10 +446,16 @@ def get_offered_jobs_by_student(user, student_jobs):
                         'assigned_status': 'Offered',
                         'assigned_hours': status.assigned_hours
                     })
-    return jobs
+                    year_term = '{0}-{1}'.format(job.session.year, job.session.term.code)
+                    if year_term in summary.keys():
+                        summary[year_term] += status.assigned_hours
+                    else:
+                        summary[year_term] = status.assigned_hours
+    return jobs, summary
 
 def get_accepted_jobs_by_student(user, student_jobs):
     jobs = []
+    summary = {}
     for job in student_jobs:
         for app in job.application_set.all():
             if app.applicant.id == user.id:
@@ -463,7 +470,12 @@ def get_accepted_jobs_by_student(user, student_jobs):
                         'assigned_status': 'Accepted',
                         'assigned_hours': status.assigned_hours
                     })
-    return jobs
+                    year_term = '{0}-{1}'.format(job.session.year, job.session.term.code)
+                    if year_term in summary.keys():
+                        summary[year_term] += status.assigned_hours
+                    else:
+                        summary[year_term] = status.assigned_hours
+    return jobs, summary
 
 
 def get_declined_jobs_by_student(user, student_jobs):

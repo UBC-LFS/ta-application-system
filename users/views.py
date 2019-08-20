@@ -86,11 +86,15 @@ def show_user(request, username):
         raise PermissionDenied
 
     user = api.get_user_by_username(username)
+    student_jobs = departmentApi.get_jobs_applied_by_student(user)
+    offered_jobs, offered_summary = departmentApi.get_offered_jobs_by_student(user, student_jobs)
+    accepted_jobs, accepted_summary = departmentApi.get_accepted_jobs_by_student(user, student_jobs)
+
     resume_name = None
     if user.resume.file != None:
         resume_name = os.path.basename(user.resume.file.name)
 
-    student_jobs = departmentApi.get_jobs_applied_by_student(user)
+    
     return render(request, 'users/show_user.html', {
         'loggedin_user': loggedin_user,
         'user': user,
@@ -99,8 +103,10 @@ def show_user(request, username):
         #'job_application_applied_by_student': departmentApi.get_job_application_applied_by_student(user),
         'applications': departmentApi.get_applications_by_student(user),
         'student_jobs': student_jobs,
-        'offered_jobs': departmentApi.get_offered_jobs_by_student(user, student_jobs),
-        'accepted_jobs': departmentApi.get_accepted_jobs_by_student(user, student_jobs),
+        'offered_jobs': offered_jobs,
+        'offered_summary': offered_summary,
+        'accepted_jobs': accepted_jobs,
+        'accepted_summary': accepted_summary,
         'declined_jobs': departmentApi.get_declined_jobs_by_student(user, student_jobs),
         'resume_name': resume_name,
         'confidentiality': user.confidentiality
@@ -232,6 +238,8 @@ def show_student(request, username):
 
     user = api.get_user_by_username(username)
     student_jobs = departmentApi.get_jobs_applied_by_student(user)
+    offered_jobs, offered_summary = departmentApi.get_offered_jobs_by_student(user, student_jobs)
+    accepted_jobs, accepted_summary = departmentApi.get_accepted_jobs_by_student(user, student_jobs)
 
     resume_name = None
     if user.resume.file != None:
@@ -242,8 +250,10 @@ def show_student(request, username):
         'user': user,
         'resume_name': resume_name,
         'student_jobs': departmentApi.get_jobs_applied_by_student(user),
-        'offered_jobs': departmentApi.get_offered_jobs_by_student(user, student_jobs),
-        'accepted_jobs': departmentApi.get_accepted_jobs_by_student(user, student_jobs),
+        'offered_jobs': offered_jobs,
+        'offered_summary': offered_summary,
+        'accepted_jobs': accepted_jobs,
+        'accepted_summary': accepted_summary,
         'declined_jobs': departmentApi.get_declined_jobs_by_student(user, student_jobs),
         'resume_form': ResumeForm(initial={ 'user': user })
     })
