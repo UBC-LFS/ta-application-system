@@ -10,6 +10,9 @@ from users import api as userApi
 ContentType='application/x-www-form-urlencoded'
 
 DATA = [
+    'department/fixtures/application_status.json',
+    'department/fixtures/applications.json',
+    'department/fixtures/applicationstatus.json',
     'department/fixtures/course_codes.json',
     'department/fixtures/course_numbers.json',
     'department/fixtures/course_sections.json',
@@ -42,9 +45,8 @@ class SessionTest(TestCase):
         self.client.post('/accounts/local_login/', data={'username': username, 'password': password})
 
     def test_view_url_exists_at_desired_location(self):
-        """ Test: land department pages"""
         self.login('admin', '12')
-        response = self.client.get('/department/sessions/')
+        response = self.client.get( reverse('department:sessions') )
         self.assertEqual(response.status_code, 200)
 
     def test_create_session(self):
@@ -143,8 +145,59 @@ class JobTest(TestCase):
     def login(self, username, password):
         self.client.post('/accounts/local_login/', data={'username': username, 'password': password})
 
+    def apply_jobs(self, user, active_sessions):
+        """ Students apply jobs """
+        num_applications = 0
+        num = 0
+        for session in active_sessions:
+            for job in session.job_set.all():
+                if num % 2 == 0:
+                    data = {
+                        'applicant': user.id,
+                        'job': str(job.id),
+                        'supervisor_approval': 'True',
+                        'how_qualified': '4',
+                        'how_interested': '4',
+                        'availability': 'True',
+                        'availability_note': 'good'
+                    }
+                    response = self.client.post(reverse('home:show_job', args=[session.slug, job.course.slug]), data=urlencode(data, True), content_type=ContentType)
+                    self.assertEqual(response.status_code, 302) # Redirect to session details
+                    #self.assertRedirects(response, response.url)
+                    messages = [m.message for m in get_messages(response.wsgi_request)]
+                    self.assertTrue('Success' in messages[num_applications]) # Check a success message
+                    num_applications += 1
+                num += 1
+        return num_applications
+
+    def offer_jobs(self, applications):
+        """ Admins send a job offer """
+
+        num = 0
+        num_offers = 0
+        for app in applications:
+            if num % 2 == 1:
+                data = {
+                    'applicant': str(app.applicant.id),
+                    'assigned': ApplicationStatus.OFFERED,
+                    'assigned_hours': '30.0'
+                }
+                response = self.client.post(reverse('department:offer_job', args=[app.job.session.slug, app.job.course.slug]), data=urlencode(data), content_type=ContentType)
+                self.assertEqual(response.status_code, 302)
+                #self.assertRedirects(response, response.url)
+                messages = [m.message for m in get_messages(response.wsgi_request)]
+                self.assertTrue('Success' in messages[num_offers]) # Check a success message
+
+                # Check status of the application
+                for st in app.status.all():
+                    if st.assigned == ApplicationStatus.OFFERED:
+                        self.assertEqual(st.assigned, data['assigned'])
+                        self.assertEqual(st.assigned_hours, float(data['assigned_hours']))
+                num_offers += 1
+            num += 1
+        return num_offers
+
     def test_view_url_exists_at_desired_location(self):
-        """ Test: land department pages"""
         self.login('admin', '12')
         response = self.client.get( reverse('department:jobs') )
         self.assertEqual(response.status_code, 200)
@@ -191,61 +244,6 @@ class JobTest(TestCase):
         self.assertEqual( [instructor.username for instructor in job.instructors.all()], ['test.user8'] )
         self.assertEqual(job.is_active, eval(data['is_active']))
 
-    def apply_jobs(self, user, active_sessions):
-        """ Students apply jobs """
-        num_applications = 0
-        num = 0
-        for session in active_sessions:
-            for job in session.job_set.all():
-                if num % 2 == 0:
-                    data = {
-                        'applicant': user.id,
-                        'job': str(job.id),
-                        'supervisor_approval': 'True',
-                        'how_qualified': '4',
-                        'how_interested': '4',
-                        'availability': 'True',
-                        'availability_note': 'good'
-                    }
-                    response = self.client.post(reverse('home:show_job', args=[session.slug, job.course.slug]), data=urlencode(data, True), content_type=ContentType)
-                    self.assertEqual(response.status_code, 302) # Redirect to session details
-                    #self.assertRedirects(response, response.url)
-                    messages = [m.message for m in get_messages(response.wsgi_request)]
-                    self.assertTrue('Success' in messages[num_applications]) # Check a success message
-                    num_applications += 1
-                num += 1
-        return num_applications
-
-    def offer_jobs(self, applications):
-        """ Admins send a job offer """
-
-        num = 0
-        num_offers = 0
-        for app in applications:
-            if num % 2 == 1:
-                data = {
-                    'applicant': str(app.applicant.id),
-                    'assigned': ApplicationStatus.OFFERED,
-                    'assigned_hours': '30.0'
-                }
-                response = self.client.post(
-                    reverse('department:offer_job', args=[app.job.session.slug, app.job.course.slug]),
-                    data=urlencode(data),
-                    content_type=ContentType
-                )
-                self.assertEqual(response.status_code, 302)
-                #self.assertRedirects(response, response.url)
-                messages = [m.message for m in get_messages(response.wsgi_request)]
-                self.assertTrue('Success' in messages[num_offers]) # Check a success message
-
-                # Check status of the application
-                for st in app.status.all():
-                    if st.assigned == ApplicationStatus.OFFERED:
-                        self.assertEqual(st.assigned, data['assigned'])
-                        self.assertEqual(st.assigned_hours, float(data['assigned_hours']))
-                num_offers += 1
-            num += 1
-        return num_offers
 
     def test_create_applications(self):
         """ Test: applicants can apply to each job """
@@ -259,6 +257,7 @@ class JobTest(TestCase):
         num_applications = self.apply_jobs(user, active_sessions) # Apply
         applications = api.get_applications_applied_by_student(user)
         self.assertEquals( len(applications),  num_applications )
+
 
 
     def test_offer_job(self):
@@ -279,15 +278,13 @@ class JobTest(TestCase):
 
         # Login with an admin
         self.login('admin', '12')
-        response = self.client.get( reverse('department:applications') )
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context['loggedin_user']['username'], 'admin')
-        applications = response.context['applications']
+        user_applications = api.get_applications_applied_by_student(user)
 
         # send job offers
-        num_offers = self.offer_jobs(applications) # an admin has offered
-        offers = api.get_offered_applications()
+        num_offers = self.offer_jobs(user_applications) # an admin has offered
+        offers = api.get_offered_applications_by_student(user)
         self.assertEquals( len(offers),  num_offers )
+
 
     def test_accept_jobs(self):
         """ Test: accept job offers """
@@ -307,14 +304,11 @@ class JobTest(TestCase):
 
         # Login with an admin
         self.login('admin', '12')
-        response = self.client.get( reverse('department:applications') )
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context['loggedin_user']['username'], 'admin')
-        applications = response.context['applications']
+        user_applications = api.get_applications_applied_by_student(user)
 
         # send job offers
-        num_offers = self.offer_jobs(applications) # an admin has offered
-        offers = api.get_offered_applications()
+        num_offers = self.offer_jobs(user_applications) # an admin has offered
+        offers = api.get_offered_applications_by_student(user)
         self.assertEquals( len(offers),  num_offers )
 
         # Login with a student again
@@ -372,14 +366,11 @@ class JobTest(TestCase):
 
         # Login with an admin
         self.login('admin', '12')
-        response = self.client.get( reverse('department:applications') )
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context['loggedin_user']['username'], 'admin')
-        applications = response.context['applications']
+        user_applications = api.get_applications_applied_by_student(user)
 
         # send job offers
-        num_offers = self.offer_jobs(applications) # an admin has offered
-        offers = api.get_offered_applications()
+        num_offers = self.offer_jobs(user_applications) # an admin has offered
+        offers = api.get_offered_applications_by_student(user)
         self.assertEquals( len(offers),  num_offers )
 
         # Login with a student again
@@ -417,6 +408,7 @@ class JobTest(TestCase):
 
             self.assertEqual(get_declined.assigned, ApplicationStatus.DECLINED)
             self.assertEqual(get_declined.assigned_hours, 0.0)
+
 
 
     def test_show_instructor_details(self):

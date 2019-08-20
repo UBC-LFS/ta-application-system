@@ -59,8 +59,8 @@
     "model": "users.degree",
     "pk": 8,
     "fields": {
-      "name": "doctor-of-science",
-      "slug": ""
+      "name": "Doctor of Science",
+      "slug": "doctor-of-science"
     }
   },
   {

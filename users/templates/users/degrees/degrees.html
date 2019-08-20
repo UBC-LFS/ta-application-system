@@ -30,7 +30,7 @@
     {% for degree in degrees %}
       <tr>
         <td>
-          <a href="{% url 'users:show_degree' degree.name %}">{{ degree.name }}</a>
+          <a href="{% url 'users:show_degree' degree.slug %}">{{ degree.name }}</a>
         </td>
         <td>
           <button type="button" data-toggle="modal" data-target="#degree-edit-modal-{{ degree.id }}">
@@ -55,7 +55,7 @@
 			        </button>
 			      </div>
 			      <div class="modal-body">
-							<form action="{% url 'users:edit_degree' degree.name %}" method="post">
+							<form action="{% url 'users:edit_degree' degree.slug %}" method="post">
 								{% csrf_token %}
                 <input type="text" name="name" value="{{ degree.name }}" />
 								<input type="submit" value="Update"/>
