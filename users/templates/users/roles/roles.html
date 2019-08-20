@@ -30,7 +30,7 @@
     {% for role in roles %}
       <tr>
         <td>
-          <a href="{% url 'users:show_role' role.name %}">{{ role.name }}</a>
+          <a href="{% url 'users:show_role' role.slug %}">{{ role.name }}</a>
         </td>
         <td>
           <button type="button" data-toggle="modal" data-target="#role-edit-modal-{{ role.id }}">
@@ -55,7 +55,7 @@
 			        </button>
 			      </div>
 			      <div class="modal-body">
-							<form action="{% url 'users:edit_role' role.name %}" method="post">
+							<form action="{% url 'users:edit_role' role.slug %}" method="post">
 								{% csrf_token %}
                 <input type="text" name="name" value="{{ role.name }}" />
 								<input type="submit" value="Update"/>

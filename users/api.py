@@ -275,9 +275,9 @@ def create_confidentiality(user):
 def get_trainings():
     return Training.objects.all()
 
-def get_training(name):
+def get_training(slug):
     try:
-        return Training.objects.get(name=name)
+        return Training.objects.get(slug=slug)
     except Training.DoesNotExist:
         return None
 
@@ -295,9 +295,9 @@ def delete_training(training_id):
 def get_programs():
     return Program.objects.all()
 
-def get_program(name):
+def get_program(slug):
     try:
-        return Program.objects.get(name=name)
+        return Program.objects.get(slug=slug)
     except Program.DoesNotExist:
         return None
 
@@ -315,9 +315,9 @@ def delete_program(program_id):
 def get_degrees():
     return Degree.objects.all()
 
-def get_degree(name):
+def get_degree(slug):
     try:
-        return Degree.objects.get(name=name)
+        return Degree.objects.get(slug=slug)
     except Degree.DoesNotExist:
         return None
 
@@ -335,9 +335,9 @@ def delete_degree(degree_id):
 def get_roles():
     return Role.objects.all()
 
-def get_role(name):
+def get_role(slug):
     try:
-        return Role.objects.get(name=name)
+        return Role.objects.get(slug=slug)
     except Role.DoesNotExist:
         return None
 
@@ -355,9 +355,9 @@ def delete_role(role_id):
 def get_statuses():
     return Status.objects.all()
 
-def get_status(name):
+def get_status(slug):
     try:
-        return Status.objects.get(name=name)
+        return Status.objects.get(slug=slug)
     except Status.DoesNotExist:
         return None
 

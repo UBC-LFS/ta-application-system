@@ -377,6 +377,13 @@ def get_offered_applications():
         if ret: applications.append(app)
     return applications
 
+def get_offered_applications_by_student(user):
+    applications = []
+    for app in get_applications_applied_by_student(user):
+        ret = get_offered(app)
+        if ret: applications.append(app)
+    return applications
+
 
 def get_accepted_applications():
     applications = []

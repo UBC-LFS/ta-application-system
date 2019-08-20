@@ -474,19 +474,19 @@ class HRPageTest(TestCase):
         user_id = '3'
         user = api.get_user(user_id)
         self.login(user.username, '12')
-        response = self.client.get( reverse('users:hr' ) )
+        response = self.client.get( reverse('users:hr') )
         self.assertEqual(response.status_code, 200) # success
 
         user_id = '1'
         user = api.get_user(user_id)
         self.login(user.username, '12')
-        response = self.client.get( reverse('users:hr' ) )
+        response = self.client.get( reverse('users:hr') )
         self.assertEqual(response.status_code, 403) # permissino denied
 
         user_id = '11'
         user = api.get_user(user_id)
         self.login(user.username, '12')
-        response = self.client.get( reverse('users:hr' ) )
+        response = self.client.get( reverse('users:hr') )
         self.assertEqual(response.status_code, 403) # permissino denied
 
 
@@ -495,9 +495,454 @@ class HRPageTest(TestCase):
         user_id = '3'
         user = api.get_user(user_id)
         self.login(user.username, '12')
-        response = self.client.get( reverse('users:hr' ) )
+        response = self.client.get( reverse('users:hr') )
         self.assertEqual(response.status_code, 200) # success
 
         self.assertEqual( len(response.context['users']), 30)
 
 
+class DegreeTest(TestCase):
+    fixtures = DATA
+
+    @classmethod
+    def setUpTestData(cls):
+        print('\nDegree CRUD testing has started ==>')
+
+    def login(self, username, password):
+        self.client.post('/accounts/local_login/', data={'username': username, 'password': password})
+
+    def test_view_url_exists_at_desired_location(self):
+        user_id = '1'
+        user = api.get_user(user_id)
+        self.login(user.username, '12')
+        response = self.client.get( reverse('users:degrees') )
+        self.assertEqual(response.status_code, 200) # success
+
+        user_id = '5'
+        user = api.get_user(user_id)
+        self.login(user.username, '12')
+        response = self.client.get( reverse('users:degrees') )
+        self.assertEqual(response.status_code, 403) # permission denied
+
+    def test_show_all_degrees(self):
+        """ Test: display all degrees """
+        user_id = '1'
+        user = api.get_user(user_id)
+        self.login(user.username, '12')
+        response = self.client.get( reverse('users:degrees') )
+        self.assertEqual(response.status_code, 200) # success
+        degrees = response.context['degrees']
+        self.assertEqual( len(degrees), 11 )
+
+    def test_show_degree_details(self):
+        """ Test: display degree's details """
+        user_id = '1'
+        user = api.get_user(user_id)
+        self.login(user.username, '12')
+        degrees = api.get_degrees()
+        degree = degrees[0]
+        response = self.client.get( reverse('users:show_degree', args=[degree.slug]) )
+        self.assertEqual(response.status_code, 200) # success
+        res_degree = response.context['degree']
+        self.assertEqual(res_degree.name, degree.name)
+
+    def test_edit_degree_details(self):
+        """ Test: edit degree's details """
+        user_id = '1'
+        user = api.get_user(user_id)
+        self.login(user.username, '12')
+        degrees = api.get_degrees()
+        degree = degrees[0]
+
+        data = { 'name': 'updated degree' }
+        response = self.client.post( reverse('users:edit_degree', args=[degree.slug]), data=urlencode(data), content_type=ContentType )
+        messages = [m.message for m in get_messages(response.wsgi_request)]
+        self.assertTrue('Success' in messages[0]) # Check a success message
+        self.assertEqual(response.status_code, 302) # Redirect
+        self.assertRedirects(response, response.url)
+
+        response = self.client.get( reverse('users:show_degree', args=['updated-degree']) )
+        self.assertEqual(response.status_code, 200) # success
+        res_degree = response.context['degree']
+        self.assertEqual(res_degree.name, data['name'])
+
+    def test_delete_degree(self):
+        """ Test: delete a degree """
+        user_id = '1'
+        user = api.get_user(user_id)
+        self.login(user.username, '12')
+
+        degree_id = '1'
+        response = self.client.post( reverse('users:delete_degree'), data=urlencode({ 'degree': degree_id }), content_type=ContentType )
+        messages = [m.message for m in get_messages(response.wsgi_request)]
+        self.assertTrue('Success' in messages[0]) # Check a success message
+        self.assertEqual(response.status_code, 302) # Redirect
+        self.assertRedirects(response, response.url)
+
+        response = self.client.get(reverse('users:degrees'))
+        self.assertEqual(response.status_code, 200)
+        degrees = response.context['degrees']
+
+        found = False
+        for degree in degrees:
+            if degree.id == degree_id: found = True
+        self.assertFalse(found)
+
+
+
+
+
+
+class ProgramTest(TestCase):
+    fixtures = DATA
+
+    @classmethod
+    def setUpTestData(cls):
+        print('\nProgram CRUD testing has started ==>')
+
+    def login(self, username, password):
+        self.client.post('/accounts/local_login/', data={'username': username, 'password': password})
+
+    def test_view_url_exists_at_desired_location(self):
+        user_id = '1'
+        user = api.get_user(user_id)
+        self.login(user.username, '12')
+        response = self.client.get( reverse('users:programs') )
+        self.assertEqual(response.status_code, 200) # success
+
+        user_id = '5'
+        user = api.get_user(user_id)
+        self.login(user.username, '12')
+        response = self.client.get( reverse('users:programs') )
+        self.assertEqual(response.status_code, 403) # permission denied
+
+    def test_show_all_programs(self):
+        """ Test: display all programs """
+        user_id = '1'
+        user = api.get_user(user_id)
+        self.login(user.username, '12')
+        response = self.client.get( reverse('users:programs') )
+        self.assertEqual(response.status_code, 200) # success
+        programs = response.context['programs']
+        self.assertEqual( len(programs), 8 )
+
+    def test_show_program(self):
+        """ Test: display program's details """
+        user_id = '1'
+        user = api.get_user(user_id)
+        self.login(user.username, '12')
+        programs = api.get_programs()
+        program = programs[0]
+        response = self.client.get( reverse('users:show_program', args=[program.slug]) )
+        self.assertEqual(response.status_code, 200) # success
+        res_program = response.context['program']
+        self.assertEqual(res_program.name, program.name)
+
+    def test_edit_program_details(self):
+        """ Test: edit program's details """
+        user_id = '1'
+        user = api.get_user(user_id)
+        self.login(user.username, '12')
+        programs = api.get_programs()
+        program = programs[0]
+
+        data = { 'name': 'updated program' }
+        response = self.client.post( reverse('users:edit_program', args=[program.slug]), data=urlencode(data), content_type=ContentType )
+        messages = [m.message for m in get_messages(response.wsgi_request)]
+        self.assertTrue('Success' in messages[0]) # Check a success message
+        self.assertEqual(response.status_code, 302) # Redirect
+        self.assertRedirects(response, response.url)
+
+        response = self.client.get( reverse('users:show_program', args=['updated-program']) )
+        self.assertEqual(response.status_code, 200) # success
+        res_program = response.context['program']
+        self.assertEqual(res_program.name, data['name'])
+
+
+    def test_delete_program(self):
+        """ Test: delete a program """
+        user_id = '1'
+        user = api.get_user(user_id)
+        self.login(user.username, '12')
+
+        program_id = '1'
+        response = self.client.post( reverse('users:delete_program'), data=urlencode({ 'program': program_id }), content_type=ContentType )
+        messages = [m.message for m in get_messages(response.wsgi_request)]
+        self.assertTrue('Success' in messages[0]) # Check a success message
+        self.assertEqual(response.status_code, 302) # Redirect
+        self.assertRedirects(response, response.url)
+
+        response = self.client.get(reverse('users:programs'))
+        self.assertEqual(response.status_code, 200)
+        programs = response.context['programs']
+
+        found = False
+        for program in programs:
+            if program.id == program_id: found = True
+        self.assertFalse(found)
+
+
+class RoleTest(TestCase):
+    fixtures = DATA
+
+    @classmethod
+    def setUpTestData(cls):
+        print('\nRole CRUD testing has started ==>')
+
+    def login(self, username, password):
+        self.client.post('/accounts/local_login/', data={'username': username, 'password': password})
+
+    def test_view_url_exists_at_desired_location(self):
+        user_id = '1'
+        user = api.get_user(user_id)
+        self.login(user.username, '12')
+        response = self.client.get( reverse('users:roles') )
+        self.assertEqual(response.status_code, 200) # success
+
+        user_id = '5'
+        user = api.get_user(user_id)
+        self.login(user.username, '12')
+        response = self.client.get( reverse('users:roles') )
+        self.assertEqual(response.status_code, 403) # permission denied
+
+    def test_show_all_roles(self):
+        """ Test: display all roles """
+        user_id = '1'
+        user = api.get_user(user_id)
+        self.login(user.username, '12')
+        response = self.client.get( reverse('users:roles') )
+        self.assertEqual(response.status_code, 200) # success
+        roles = response.context['roles']
+        self.assertEqual( len(roles), 5 )
+
+    def test_show_role(self):
+        """ Test: display role's details """
+        user_id = '1'
+        user = api.get_user(user_id)
+        self.login(user.username, '12')
+        roles = api.get_roles()
+        role = roles[0]
+        response = self.client.get( reverse('users:show_role', args=[role.slug]) )
+        self.assertEqual(response.status_code, 200) # success
+        res_role = response.context['role']
+        self.assertEqual(res_role.name, role.name)
+
+    def test_edit_role_details(self):
+        """ Test: edit role's details """
+        user_id = '1'
+        user = api.get_user(user_id)
+        self.login(user.username, '12')
+        roles = api.get_roles()
+        role = roles[0]
+
+        data = { 'name': 'updated role' }
+        response = self.client.post( reverse('users:edit_role', args=[role.slug]), data=urlencode(data), content_type=ContentType )
+        messages = [m.message for m in get_messages(response.wsgi_request)]
+        self.assertTrue('Success' in messages[0]) # Check a success message
+        self.assertEqual(response.status_code, 302) # Redirect
+        self.assertRedirects(response, response.url)
+
+        response = self.client.get( reverse('users:show_role', args=['updated-role']) )
+        self.assertEqual(response.status_code, 200) # success
+        res_role = response.context['role']
+        self.assertEqual(res_role.name, data['name'])
+
+
+    def test_delete_role(self):
+        """ Test: delete a role """
+        user_id = '1'
+        user = api.get_user(user_id)
+        self.login(user.username, '12')
+
+        role_id = '1'
+        response = self.client.post( reverse('users:delete_role'), data=urlencode({ 'role': role_id }), content_type=ContentType )
+        messages = [m.message for m in get_messages(response.wsgi_request)]
+        self.assertTrue('Success' in messages[0]) # Check a success message
+        self.assertEqual(response.status_code, 302) # Redirect
+        self.assertRedirects(response, response.url)
+
+        response = self.client.get(reverse('users:roles'))
+        self.assertEqual(response.status_code, 200)
+        roles = response.context['roles']
+
+        found = False
+        for role in roles:
+            if role.id == role_id: found = True
+        self.assertFalse(found)
+
+
+class StatusTest(TestCase):
+    fixtures = DATA
+
+    @classmethod
+    def setUpTestData(cls):
+        print('\nStatus CRUD testing has started ==>')
+
+    def login(self, username, password):
+        self.client.post('/accounts/local_login/', data={'username': username, 'password': password})
+
+    def test_view_url_exists_at_desired_location(self):
+        user_id = '1'
+        user = api.get_user(user_id)
+        self.login(user.username, '12')
+        response = self.client.get( reverse('users:statuses') )
+        self.assertEqual(response.status_code, 200) # success
+
+        user_id = '5'
+        user = api.get_user(user_id)
+        self.login(user.username, '12')
+        response = self.client.get( reverse('users:statuses') )
+        self.assertEqual(response.status_code, 403) # permission denied
+
+    def test_show_all_statuses(self):
+        """ Test: display all statuses """
+        user_id = '1'
+        user = api.get_user(user_id)
+        self.login(user.username, '12')
+        response = self.client.get( reverse('users:statuses') )
+        self.assertEqual(response.status_code, 200) # success
+        statuses = response.context['statuses']
+        self.assertEqual( len(statuses), 9 )
+
+    def test_show_status(self):
+        """ Test: display status's details """
+        user_id = '1'
+        user = api.get_user(user_id)
+        self.login(user.username, '12')
+        statuses = api.get_statuses()
+        status = statuses[0]
+        response = self.client.get( reverse('users:show_status', args=[status.slug]) )
+        self.assertEqual(response.status_code, 200) # success
+        res_status = response.context['status']
+        self.assertEqual(res_status.name, status.name)
+
+    def test_edit_status_details(self):
+        """ Test: edit status's details """
+        user_id = '1'
+        user = api.get_user(user_id)
+        self.login(user.username, '12')
+        statuses = api.get_statuses()
+        status = statuses[0]
+
+        data = { 'name': 'updated status' }
+        response = self.client.post( reverse('users:edit_status', args=[status.slug]), data=urlencode(data), content_type=ContentType )
+        messages = [m.message for m in get_messages(response.wsgi_request)]
+        self.assertTrue('Success' in messages[0]) # Check a success message
+        self.assertEqual(response.status_code, 302) # Redirect
+        self.assertRedirects(response, response.url)
+
+        response = self.client.get( reverse('users:show_status', args=['updated-status']) )
+        self.assertEqual(response.status_code, 200) # success
+        res_status = response.context['status']
+        self.assertEqual(res_status.name, data['name'])
+
+    def test_delete_status(self):
+        """ Test: delete a status """
+        user_id = '1'
+        user = api.get_user(user_id)
+        self.login(user.username, '12')
+
+        status_id = '1'
+        response = self.client.post( reverse('users:delete_status'), data=urlencode({ 'status': status_id }), content_type=ContentType )
+        messages = [m.message for m in get_messages(response.wsgi_request)]
+        self.assertTrue('Success' in messages[0]) # Check a success message
+        self.assertEqual(response.status_code, 302) # Redirect
+        self.assertRedirects(response, response.url)
+
+        response = self.client.get(reverse('users:statuses'))
+        self.assertEqual(response.status_code, 200)
+        statuses = response.context['statuses']
+
+        found = False
+        for status in statuses:
+            if status.id == status_id: found = True
+        self.assertFalse(found)
+
+
+
+class TrainingTest(TestCase):
+    fixtures = DATA
+
+    @classmethod
+    def setUpTestData(cls):
+        print('\nTraining CRUD testing has started ==>')
+
+    def login(self, username, password):
+        self.client.post('/accounts/local_login/', data={'username': username, 'password': password})
+
+    def test_view_url_exists_at_desired_location(self):
+        user_id = '1'
+        user = api.get_user(user_id)
+        self.login(user.username, '12')
+        response = self.client.get( reverse('users:trainings') )
+        self.assertEqual(response.status_code, 200) # success
+
+        user_id = '5'
+        user = api.get_user(user_id)
+        self.login(user.username, '12')
+        response = self.client.get( reverse('users:trainings') )
+        self.assertEqual(response.status_code, 403) # permission denied
+
+    def test_show_all_trainings(self):
+        """ Test: display all trainings """
+        user_id = '1'
+        user = api.get_user(user_id)
+        self.login(user.username, '12')
+        response = self.client.get( reverse('users:trainings') )
+        self.assertEqual(response.status_code, 200) # success
+        trainings = response.context['trainings']
+        self.assertEqual( len(trainings), 5 )
+
+    def test_show_training(self):
+        """ Test: display training's details """
+        user_id = '1'
+        user = api.get_user(user_id)
+        self.login(user.username, '12')
+        trainings = api.get_trainings()
+        training = trainings[0]
+        response = self.client.get( reverse('users:show_training', args=[training.slug]) )
+        self.assertEqual(response.status_code, 200) # success
+        res_training = response.context['training']
+        self.assertEqual(res_training.name, training.name)
+
+    def test_edit_training_details(self):
+        """ Test: edit training's details """
+        user_id = '1'
+        user = api.get_user(user_id)
+        self.login(user.username, '12')
+        trainings = api.get_trainings()
+        training = trainings[0]
+
+        data = { 'name': 'updated training' }
+        response = self.client.post( reverse('users:edit_training', args=[training.slug]), data=urlencode(data), content_type=ContentType )
+        messages = [m.message for m in get_messages(response.wsgi_request)]
+        self.assertTrue('Success' in messages[0]) # Check a success message
+        self.assertEqual(response.status_code, 302) # Redirect
+        self.assertRedirects(response, response.url)
+
+        response = self.client.get( reverse('users:show_training', args=['updated-training']) )
+        self.assertEqual(response.status_code, 200) # success
+        res_training = response.context['training']
+        self.assertEqual(res_training.name, data['name'])
+
+    def test_delete_training(self):
+        """ Test: delete a training """
+        user_id = '1'
+        user = api.get_user(user_id)
+        self.login(user.username, '12')
+
+        training_id = '1'
+        response = self.client.post( reverse('users:delete_training'), data=urlencode({ 'training': training_id }), content_type=ContentType )
+        messages = [m.message for m in get_messages(response.wsgi_request)]
+        self.assertTrue('Success' in messages[0]) # Check a success message
+        self.assertEqual(response.status_code, 302) # Redirect
+        self.assertRedirects(response, response.url)
+
+        response = self.client.get(reverse('users:trainings'))
+        self.assertEqual(response.status_code, 200)
+        trainings = response.context['statuses']
+
+        found = False
+        for training in trainings:
+            if training.id == training_id: found = True
+        self.assertFalse(found)

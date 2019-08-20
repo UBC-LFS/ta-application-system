@@ -30,7 +30,7 @@
     {% for training in trainings %}
       <tr>
         <td>
-          <a href="{% url 'users:show_training' training.name %}">{{ training.name }}</a>
+          <a href="{% url 'users:show_training' training.slug %}">{{ training.name }}</a>
         </td>
         <td>
           <button type="button" data-toggle="modal" data-target="#training-edit-modal-{{ training.id }}">
@@ -55,7 +55,7 @@
 			        </button>
 			      </div>
 			      <div class="modal-body">
-							<form action="{% url 'users:edit_training' training.name %}" method="post">
+							<form action="{% url 'users:edit_training' training.slug %}" method="post">
 								{% csrf_token %}
                 <input type="text" name="name" value="{{ training.name }}" />
 								<input type="submit" value="Update"/>

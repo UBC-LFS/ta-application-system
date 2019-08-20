@@ -654,6 +654,8 @@ def hr(request):
     })
 
 
+
+
 # Training
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -672,7 +674,7 @@ def trainings(request):
         if form.is_valid():
             training = form.save()
             if training:
-                messages.success(request, 'Success!')
+                messages.success(request, 'Success! {0} created'.format(training.name))
                 return redirect('users:trainings')
             else:
                 messages.error(request, 'Error!')
@@ -689,7 +691,7 @@ def trainings(request):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
-def show_training(request, name):
+def show_training(request, slug):
 
     if not api.is_valid_user(request.user):
         raise PermissionDenied
@@ -700,14 +702,14 @@ def show_training(request, name):
 
     return render(request, 'users/trainings/show_training.html', {
         'loggedin_user': api.loggedin_user(request.user),
-        'training': api.get_training(name)
+        'training': api.get_training(slug)
     })
 
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['POST'])
-def edit_training(request, name):
+def edit_training(request, slug):
 
     if not api.is_valid_user(request.user):
         raise PermissionDenied
@@ -716,13 +718,13 @@ def edit_training(request, name):
     if not api.is_admin(loggedin_user):
         raise PermissionDenied
 
-    training = api.get_training(name)
+    training = api.get_training(slug)
     if request.method == 'POST':
         form = TrainingForm(request.POST, instance=training)
         if form.is_valid():
             updated_training = form.save()
             if updated_training:
-                messages.success(request, 'Success!')
+                messages.success(request, 'Success! {0} updated'.format(updated_training.name))
             else:
                 messages.error(request, 'Error!')
         else:
@@ -744,9 +746,9 @@ def delete_training(request):
 
     if request.method == 'POST':
         training_id = request.POST.get('training')
-        deleted = api.delete_training(training_id)
-        if deleted:
-            messages.success(request, 'Success!')
+        deleted_training = api.delete_training(training_id)
+        if deleted_training:
+            messages.success(request, 'Success! {0} deleted'.format(deleted_training.name))
         else:
             messages.error(request, 'Error!')
     return redirect('users:trainings')
@@ -771,7 +773,7 @@ def programs(request):
         if form.is_valid():
             program = form.save()
             if program:
-                messages.success(request, 'Success!')
+                messages.success(request, 'Success! {0} created'.format(program.name))
                 return redirect('users:programs')
             else:
                 messages.error(request, 'Error!')
@@ -788,7 +790,7 @@ def programs(request):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
-def show_program(request, name):
+def show_program(request, slug):
 
     if not api.is_valid_user(request.user):
         raise PermissionDenied
@@ -799,14 +801,14 @@ def show_program(request, name):
 
     return render(request, 'users/programs/show_program.html', {
         'loggedin_user': api.loggedin_user(request.user),
-        'program': api.get_program(name)
+        'program': api.get_program(slug)
     })
 
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['POST'])
-def edit_program(request, name):
+def edit_program(request, slug):
 
     if not api.is_valid_user(request.user):
         raise PermissionDenied
@@ -815,13 +817,13 @@ def edit_program(request, name):
     if not api.is_admin(loggedin_user):
         raise PermissionDenied
 
-    program = api.get_program(name)
+    program = api.get_program(slug)
     if request.method == 'POST':
         form = ProgramForm(request.POST, instance=program)
         if form.is_valid():
             updated_program = form.save()
             if updated_program:
-                messages.success(request, 'Success!')
+                messages.success(request, 'Success! {0} updated'.format(updated_program.name))
             else:
                 messages.error(request, 'Error!')
         else:
@@ -843,9 +845,9 @@ def delete_program(request):
 
     if request.method == 'POST':
         program_id = request.POST.get('program')
-        deleted = api.delete_program(program_id)
-        if deleted:
-            messages.success(request, 'Success!')
+        deleted_program = api.delete_program(program_id)
+        if deleted_program:
+            messages.success(request, 'Success! {0} deleted'.format(deleted_program.name))
         else:
             messages.error(request, 'Error!')
     return redirect('users:programs')
@@ -871,7 +873,7 @@ def degrees(request):
         if form.is_valid():
             degree = form.save()
             if degree:
-                messages.success(request, 'Success!')
+                messages.success(request, 'Success! {0} created'.format(degree.name))
                 return redirect('users:degrees')
             else:
                 messages.error(request, 'Error!')
@@ -888,7 +890,7 @@ def degrees(request):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
-def show_degree(request, name):
+def show_degree(request, slug):
 
     if not api.is_valid_user(request.user):
         raise PermissionDenied
@@ -899,14 +901,14 @@ def show_degree(request, name):
 
     return render(request, 'users/degrees/show_degree.html', {
         'loggedin_user': api.loggedin_user(request.user),
-        'degree': api.get_degree(name)
+        'degree': api.get_degree(slug)
     })
 
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['POST'])
-def edit_degree(request, name):
+def edit_degree(request, slug):
 
     if not api.is_valid_user(request.user):
         raise PermissionDenied
@@ -915,13 +917,13 @@ def edit_degree(request, name):
     if not api.is_admin(loggedin_user):
         raise PermissionDenied
 
-    degree = api.get_degree(name)
+    degree = api.get_degree(slug)
     if request.method == 'POST':
         form = DegreeForm(request.POST, instance=degree)
         if form.is_valid():
             updated_degree = form.save()
             if updated_degree:
-                messages.success(request, 'Success!')
+                messages.success(request, 'Success! {0} updated'.format(updated_degree.name))
             else:
                 messages.error(request, 'Error!')
         else:
@@ -933,6 +935,8 @@ def edit_degree(request, name):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['POST'])
 def delete_degree(request):
+    """ Delete a dgree """
+    print("delete_degree")
 
     if not api.is_valid_user(request.user):
         raise PermissionDenied
@@ -943,9 +947,10 @@ def delete_degree(request):
 
     if request.method == 'POST':
         degree_id = request.POST.get('degree')
-        deleted = api.delete_degree(degree_id)
-        if deleted:
-            messages.success(request, 'Success!')
+        print(request.POST)
+        deleted_degree = api.delete_degree(degree_id)
+        if deleted_degree:
+            messages.success(request, 'Success! {0} deleted'.format(deleted_degree.name))
         else:
             messages.error(request, 'Error!')
     return redirect('users:degrees')
@@ -972,7 +977,7 @@ def roles(request):
         if form.is_valid():
             role = form.save()
             if role:
-                messages.success(request, 'Success!')
+                messages.success(request, 'Success! {0} created'.format(role.name))
                 return redirect('users:roles')
             else:
                 messages.error(request, 'Error!')
@@ -989,7 +994,7 @@ def roles(request):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
-def show_role(request, name):
+def show_role(request, slug):
 
     if not api.is_valid_user(request.user):
         raise PermissionDenied
@@ -1000,14 +1005,14 @@ def show_role(request, name):
 
     return render(request, 'users/roles/show_role.html', {
         'loggedin_user': api.loggedin_user(request.user),
-        'role': api.get_role(name)
+        'role': api.get_role(slug)
     })
 
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['POST'])
-def edit_role(request, name):
+def edit_role(request, slug):
 
     if not api.is_valid_user(request.user):
         raise PermissionDenied
@@ -1016,13 +1021,13 @@ def edit_role(request, name):
     if not api.is_admin(loggedin_user):
         raise PermissionDenied
 
-    role = api.get_role(name)
+    role = api.get_role(slug)
     if request.method == 'POST':
         form = RoleForm(request.POST, instance=role)
         if form.is_valid():
             updated_role = form.save()
             if updated_role:
-                messages.success(request, 'Success!')
+                messages.success(request, 'Success! {0} updated'.format(updated_role.name))
             else:
                 messages.error(request, 'Error!')
         else:
@@ -1045,9 +1050,9 @@ def delete_role(request):
 
     if request.method == 'POST':
         role_id = request.POST.get('role')
-        deleted = api.delete_role(role_id)
-        if deleted:
-            messages.success(request, 'Success!')
+        deleted_role = api.delete_role(role_id)
+        if deleted_role:
+            messages.success(request, 'Success! {0} deleted'.format(deleted_role.name))
         else:
             messages.error(request, 'Error!')
     return redirect('users:roles')
@@ -1072,7 +1077,7 @@ def statuses(request):
         if form.is_valid():
             status = form.save()
             if status:
-                messages.success(request, 'Success!')
+                messages.success(request, 'Success! {0} created'.format(status.name))
                 return redirect('users:statuses')
             else:
                 messages.error(request, 'Error!')
@@ -1089,7 +1094,7 @@ def statuses(request):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
-def show_status(request, name):
+def show_status(request, slug):
 
     if not api.is_valid_user(request.user):
         raise PermissionDenied
@@ -1100,14 +1105,14 @@ def show_status(request, name):
 
     return render(request, 'users/statuses/show_status.html', {
         'loggedin_user': api.loggedin_user(request.user),
-        'status': api.get_status(name)
+        'status': api.get_status(slug)
     })
 
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['POST'])
-def edit_status(request, name):
+def edit_status(request, slug):
 
     if not api.is_valid_user(request.user):
         raise PermissionDenied
@@ -1116,13 +1121,13 @@ def edit_status(request, name):
     if not api.is_admin(loggedin_user):
         raise PermissionDenied
 
-    status = api.get_status(name)
+    status = api.get_status(slug)
     if request.method == 'POST':
         form = StatusForm(request.POST, instance=status)
         if form.is_valid():
             updated_status = form.save()
             if updated_status:
-                messages.success(request, 'Success!')
+                messages.success(request, 'Success! {0} updated'.format(updated_status.name))
             else:
                 messages.error(request, 'Error!')
         else:
@@ -1144,9 +1149,9 @@ def delete_status(request):
 
     if request.method == 'POST':
         status_id = request.POST.get('status')
-        deleted = api.delete_status(status_id)
-        if deleted:
-            messages.success(request, 'Success!')
+        deleted_status = api.delete_status(status_id)
+        if deleted_status:
+            messages.success(request, 'Success! {0} deleted'.format(deleted_status.name))
         else:
             messages.error(request, 'Error!')
     return redirect('users:statuses')

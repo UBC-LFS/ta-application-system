@@ -30,7 +30,7 @@
     {% for program in programs %}
       <tr>
         <td>
-          <a href="{% url 'users:show_program' program.name %}">{{ program.name }}</a>
+          <a href="{% url 'users:show_program' program.slug %}">{{ program.name }}</a>
         </td>
         <td>
           <button type="button" data-toggle="modal" data-target="#program-edit-modal-{{ program.id }}">
@@ -55,7 +55,7 @@
 			        </button>
 			      </div>
 			      <div class="modal-body">
-							<form action="{% url 'users:edit_program' program.name %}" method="post">
+							<form action="{% url 'users:edit_program' program.slug %}" method="post">
 								{% csrf_token %}
                 <input type="text" name="name" value="{{ program.name }}" />
 								<input type="submit" value="Update"/>

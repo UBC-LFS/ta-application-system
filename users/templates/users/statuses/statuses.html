@@ -30,7 +30,7 @@
     {% for status in statuses %}
       <tr>
         <td>
-          <a href="{% url 'users:show_status' status.name %}">{{ status.name }}</a>
+          <a href="{% url 'users:show_status' status.slug %}">{{ status.name }}</a>
         </td>
         <td>
           <button type="button" data-toggle="modal" data-target="#status-edit-modal-{{ status.id }}">
@@ -55,7 +55,7 @@
 			        </button>
 			      </div>
 			      <div class="modal-body">
-							<form action="{% url 'users:edit_status' status.name %}" method="post">
+							<form action="{% url 'users:edit_status' status.slug %}" method="post">
 								{% csrf_token %}
                 <input type="text" name="name" value="{{ status.name }}" />
 								<input type="submit" value="Update"/>
