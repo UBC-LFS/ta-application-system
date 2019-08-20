@@ -84,11 +84,15 @@ def show_user(request, username):
         raise PermissionDenied
 
     user = api.get_user_by_username(username)
+    student_jobs = departmentApi.get_jobs_applied_by_student(user)
+    offered_jobs, offered_summary = departmentApi.get_offered_jobs_by_student(user, student_jobs)
+    accepted_jobs, accepted_summary = departmentApi.get_accepted_jobs_by_student(user, student_jobs)
+
     resume_name = None
     if user.resume.file != None:
         resume_name = os.path.basename(user.resume.file.name)
 
-    student_jobs = departmentApi.get_jobs_applied_by_student(user)
+    
     return render(request, 'users/show_user.html', {
         'loggedin_user': loggedin_user,
         'user': user,
@@ -97,8 +101,10 @@ def show_user(request, username):
         #'job_application_applied_by_student': departmentApi.get_job_application_applied_by_student(user),
         'applications': departmentApi.get_applications_by_student(user),
         'student_jobs': student_jobs,
-        'offered_jobs': departmentApi.get_offered_jobs_by_student(user, student_jobs),
-        'accepted_jobs': departmentApi.get_accepted_jobs_by_student(user, student_jobs),
+        'offered_jobs': offered_jobs,
+        'offered_summary': offered_summary,
+        'accepted_jobs': accepted_jobs,
+        'accepted_summary': accepted_summary,
         'declined_jobs': departmentApi.get_declined_jobs_by_student(user, student_jobs),
         'resume_name': resume_name,
         'confidentiality': user.confidentiality
@@ -230,6 +236,8 @@ def show_student(request, username):
 
     user = api.get_user_by_username(username)
     student_jobs = departmentApi.get_jobs_applied_by_student(user)
+    offered_jobs, offered_summary = departmentApi.get_offered_jobs_by_student(user, student_jobs)
+    accepted_jobs, accepted_summary = departmentApi.get_accepted_jobs_by_student(user, student_jobs)
 
     resume_name = None
     if user.resume.file != None:
@@ -240,8 +248,10 @@ def show_student(request, username):
         'user': user,
         'resume_name': resume_name,
         'student_jobs': departmentApi.get_jobs_applied_by_student(user),
-        'offered_jobs': departmentApi.get_offered_jobs_by_student(user, student_jobs),
-        'accepted_jobs': departmentApi.get_accepted_jobs_by_student(user, student_jobs),
+        'offered_jobs': offered_jobs,
+        'offered_summary': offered_summary,
+        'accepted_jobs': accepted_jobs,
+        'accepted_summary': accepted_summary,
         'declined_jobs': departmentApi.get_declined_jobs_by_student(user, student_jobs),
         'resume_form': ResumeForm(initial={ 'user': user })
     })
@@ -643,8 +653,18 @@ def hr(request):
 
 
 # Training
-
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET', 'POST'])
 def trainings(request):
+
+    if not api.is_valid_user(request.user):
+        raise PermissionDenied
+
+    loggedin_user = api.loggedin_user(request.user)
+    if not api.is_admin(loggedin_user):
+        raise PermissionDenied
+
     if request.method == 'POST':
         form = TrainingForm(request.POST)
         if form.is_valid():
@@ -663,13 +683,37 @@ def trainings(request):
         'form': TrainingForm()
     })
 
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
 def show_training(request, name):
+
+    if not api.is_valid_user(request.user):
+        raise PermissionDenied
+
+    loggedin_user = api.loggedin_user(request.user)
+    if not api.is_admin(loggedin_user):
+        raise PermissionDenied
+
     return render(request, 'users/trainings/show_training.html', {
         'loggedin_user': api.loggedin_user(request.user),
         'training': api.get_training(name)
     })
 
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['POST'])
 def edit_training(request, name):
+
+    if not api.is_valid_user(request.user):
+        raise PermissionDenied
+
+    loggedin_user = api.loggedin_user(request.user)
+    if not api.is_admin(loggedin_user):
+        raise PermissionDenied
+
     training = api.get_training(name)
     if request.method == 'POST':
         form = TrainingForm(request.POST, instance=training)
@@ -684,7 +728,18 @@ def edit_training(request, name):
     return redirect('users:trainings')
 
 
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['POST'])
 def delete_training(request):
+
+    if not api.is_valid_user(request.user):
+        raise PermissionDenied
+
+    loggedin_user = api.loggedin_user(request.user)
+    if not api.is_admin(loggedin_user):
+        raise PermissionDenied
+
     if request.method == 'POST':
         training_id = request.POST.get('training')
         deleted = api.delete_training(training_id)
@@ -697,7 +752,18 @@ def delete_training(request):
 
 # Program
 
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET', 'POST'])
 def programs(request):
+
+    if not api.is_valid_user(request.user):
+        raise PermissionDenied
+
+    loggedin_user = api.loggedin_user(request.user)
+    if not api.is_admin(loggedin_user):
+        raise PermissionDenied
+
     if request.method == 'POST':
         form = ProgramForm(request.POST)
         if form.is_valid():
@@ -716,13 +782,37 @@ def programs(request):
         'form': ProgramForm()
     })
 
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
 def show_program(request, name):
+
+    if not api.is_valid_user(request.user):
+        raise PermissionDenied
+
+    loggedin_user = api.loggedin_user(request.user)
+    if not api.is_admin(loggedin_user):
+        raise PermissionDenied
+
     return render(request, 'users/programs/show_program.html', {
         'loggedin_user': api.loggedin_user(request.user),
         'program': api.get_program(name)
     })
 
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['POST'])
 def edit_program(request, name):
+
+    if not api.is_valid_user(request.user):
+        raise PermissionDenied
+
+    loggedin_user = api.loggedin_user(request.user)
+    if not api.is_admin(loggedin_user):
+        raise PermissionDenied
+
     program = api.get_program(name)
     if request.method == 'POST':
         form = ProgramForm(request.POST, instance=program)
@@ -737,7 +827,18 @@ def edit_program(request, name):
     return redirect('users:programs')
 
 
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['POST'])
 def delete_program(request):
+
+    if not api.is_valid_user(request.user):
+        raise PermissionDenied
+
+    loggedin_user = api.loggedin_user(request.user)
+    if not api.is_admin(loggedin_user):
+        raise PermissionDenied
+
     if request.method == 'POST':
         program_id = request.POST.get('program')
         deleted = api.delete_program(program_id)
@@ -751,7 +852,18 @@ def delete_program(request):
 
 # Degree
 
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET', 'POST'])
 def degrees(request):
+
+    if not api.is_valid_user(request.user):
+        raise PermissionDenied
+
+    loggedin_user = api.loggedin_user(request.user)
+    if not api.is_admin(loggedin_user):
+        raise PermissionDenied
+
     if request.method == 'POST':
         form = DegreeForm(request.POST)
         if form.is_valid():
@@ -770,13 +882,37 @@ def degrees(request):
         'form': DegreeForm()
     })
 
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
 def show_degree(request, name):
+
+    if not api.is_valid_user(request.user):
+        raise PermissionDenied
+
+    loggedin_user = api.loggedin_user(request.user)
+    if not api.is_admin(loggedin_user):
+        raise PermissionDenied
+
     return render(request, 'users/degrees/show_degree.html', {
         'loggedin_user': api.loggedin_user(request.user),
         'degree': api.get_degree(name)
     })
 
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['POST'])
 def edit_degree(request, name):
+
+    if not api.is_valid_user(request.user):
+        raise PermissionDenied
+
+    loggedin_user = api.loggedin_user(request.user)
+    if not api.is_admin(loggedin_user):
+        raise PermissionDenied
+
     degree = api.get_degree(name)
     if request.method == 'POST':
         form = DegreeForm(request.POST, instance=degree)
@@ -791,7 +927,18 @@ def edit_degree(request, name):
     return redirect('users:degrees')
 
 
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['POST'])
 def delete_degree(request):
+
+    if not api.is_valid_user(request.user):
+        raise PermissionDenied
+
+    loggedin_user = api.loggedin_user(request.user)
+    if not api.is_admin(loggedin_user):
+        raise PermissionDenied
+
     if request.method == 'POST':
         degree_id = request.POST.get('degree')
         deleted = api.delete_degree(degree_id)
@@ -806,7 +953,18 @@ def delete_degree(request):
 
 # Role
 
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET', 'POST'])
 def roles(request):
+
+    if not api.is_valid_user(request.user):
+        raise PermissionDenied
+
+    loggedin_user = api.loggedin_user(request.user)
+    if not api.is_admin(loggedin_user):
+        raise PermissionDenied
+
     if request.method == 'POST':
         form = RoleForm(request.POST)
         if form.is_valid():
@@ -825,13 +983,37 @@ def roles(request):
         'form': RoleForm()
     })
 
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
 def show_role(request, name):
+
+    if not api.is_valid_user(request.user):
+        raise PermissionDenied
+
+    loggedin_user = api.loggedin_user(request.user)
+    if not api.is_admin(loggedin_user):
+        raise PermissionDenied
+
     return render(request, 'users/roles/show_role.html', {
         'loggedin_user': api.loggedin_user(request.user),
         'role': api.get_role(name)
     })
 
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['POST'])
 def edit_role(request, name):
+
+    if not api.is_valid_user(request.user):
+        raise PermissionDenied
+
+    loggedin_user = api.loggedin_user(request.user)
+    if not api.is_admin(loggedin_user):
+        raise PermissionDenied
+
     role = api.get_role(name)
     if request.method == 'POST':
         form = RoleForm(request.POST, instance=role)
@@ -846,7 +1028,19 @@ def edit_role(request, name):
     return redirect('users:roles')
 
 
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['POST'])
 def delete_role(request):
+
+    if not api.is_valid_user(request.user):
+        raise PermissionDenied
+
+    loggedin_user = api.loggedin_user(request.user)
+    if not api.is_admin(loggedin_user):
+        raise PermissionDenied
+
     if request.method == 'POST':
         role_id = request.POST.get('role')
         deleted = api.delete_role(role_id)
@@ -859,7 +1053,18 @@ def delete_role(request):
 
 # Status
 
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET', 'POST'])
 def statuses(request):
+
+    if not api.is_valid_user(request.user):
+        raise PermissionDenied
+
+    loggedin_user = api.loggedin_user(request.user)
+    if not api.is_admin(loggedin_user):
+        raise PermissionDenied
+
     if request.method == 'POST':
         form = StatusForm(request.POST)
         if form.is_valid():
@@ -878,13 +1083,37 @@ def statuses(request):
         'form': StatusForm()
     })
 
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
 def show_status(request, name):
+
+    if not api.is_valid_user(request.user):
+        raise PermissionDenied
+
+    loggedin_user = api.loggedin_user(request.user)
+    if not api.is_admin(loggedin_user):
+        raise PermissionDenied
+
     return render(request, 'users/statuses/show_status.html', {
         'loggedin_user': api.loggedin_user(request.user),
         'status': api.get_status(name)
     })
 
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['POST'])
 def edit_status(request, name):
+
+    if not api.is_valid_user(request.user):
+        raise PermissionDenied
+
+    loggedin_user = api.loggedin_user(request.user)
+    if not api.is_admin(loggedin_user):
+        raise PermissionDenied
+
     status = api.get_status(name)
     if request.method == 'POST':
         form = StatusForm(request.POST, instance=status)
@@ -899,7 +1128,18 @@ def edit_status(request, name):
     return redirect('users:statuses')
 
 
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['POST'])
 def delete_status(request):
+
+    if not api.is_valid_user(request.user):
+        raise PermissionDenied
+
+    loggedin_user = api.loggedin_user(request.user)
+    if not api.is_admin(loggedin_user):
+        raise PermissionDenied
+
     if request.method == 'POST':
         status_id = request.POST.get('status')
         deleted = api.delete_status(status_id)

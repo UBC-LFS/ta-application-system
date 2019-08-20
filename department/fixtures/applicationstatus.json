@@ -1,0 +1,204 @@
+
+
+[
+  {
+    "model": "department.applicationstatus",
+    "pk": 1,
+    "fields": {
+      "assigned": "0",
+      "assigned_hours": "0.0",
+      "created_at": "2019-07-20",
+      "updated_at": "2019-07-20"
+    }
+  },
+  {
+    "model": "department.applicationstatus",
+    "pk": 2,
+    "fields": {
+      "assigned": "0",
+      "assigned_hours": "0.0",
+      "created_at": "2019-07-20",
+      "updated_at": "2019-07-20"
+    }
+  },
+  {
+    "model": "department.applicationstatus",
+    "pk": 3,
+    "fields": {
+      "assigned": "0",
+      "assigned_hours": "0.0",
+      "created_at": "2019-07-20",
+      "updated_at": "2019-07-20"
+    }
+  },
+  {
+    "model": "department.applicationstatus",
+    "pk": 4,
+    "fields": {
+      "assigned": "0",
+      "assigned_hours": "0.0",
+      "created_at": "2019-07-20",
+      "updated_at": "2019-07-20"
+    }
+  },
+  {
+    "model": "department.applicationstatus",
+    "pk": 5,
+    "fields": {
+      "assigned": "0",
+      "assigned_hours": "0.0",
+      "created_at": "2019-07-20",
+      "updated_at": "2019-07-20"
+    }
+  },
+  {
+    "model": "department.applicationstatus",
+    "pk": 6,
+    "fields": {
+      "assigned": "0",
+      "assigned_hours": "0.0",
+      "created_at": "2019-07-20",
+      "updated_at": "2019-07-20"
+    }
+  },
+  {
+    "model": "department.applicationstatus",
+    "pk": 7,
+    "fields": {
+      "assigned": "0",
+      "assigned_hours": "0.0",
+      "created_at": "2019-07-20",
+      "updated_at": "2019-07-20"
+    }
+  },
+  {
+    "model": "department.applicationstatus",
+    "pk": 8,
+    "fields": {
+      "assigned": "0",
+      "assigned_hours": "0.0",
+      "created_at": "2019-07-20",
+      "updated_at": "2019-07-20"
+    }
+  },
+  {
+    "model": "department.applicationstatus",
+    "pk": 9,
+    "fields": {
+      "assigned": "0",
+      "assigned_hours": "0.0",
+      "created_at": "2019-07-25",
+      "updated_at": "2019-07-25"
+    }
+  },
+  {
+    "model": "department.applicationstatus",
+    "pk": 10,
+    "fields": {
+      "assigned": "0",
+      "assigned_hours": "0.0",
+      "created_at": "2019-07-25",
+      "updated_at": "2019-07-25"
+    }
+  },
+  {
+    "model": "department.applicationstatus",
+    "pk": 12,
+    "fields": {
+      "assigned": "0",
+      "assigned_hours": "0.0",
+      "created_at": "2019-07-25",
+      "updated_at": "2019-07-25"
+    }
+  },
+  {
+    "model": "department.applicationstatus",
+    "pk": 13,
+    "fields": {
+      "assigned": "0",
+      "assigned_hours": "0.0",
+      "created_at": "2019-07-25",
+      "updated_at": "2019-07-25"
+    }
+  },
+  {
+    "model": "department.applicationstatus",
+    "pk": 14,
+    "fields": {
+      "assigned": "0",
+      "assigned_hours": "0.0",
+      "created_at": "2019-07-25",
+      "updated_at": "2019-07-25"
+    }
+  },
+  {
+    "model": "department.applicationstatus",
+    "pk": 15,
+    "fields": {
+      "assigned": "0",
+      "assigned_hours": "0.0",
+      "created_at": "2019-07-25",
+      "updated_at": "2019-07-25"
+    }
+  },
+  {
+    "model": "department.applicationstatus",
+    "pk": 16,
+    "fields": {
+      "assigned": "0",
+      "assigned_hours": "0.0",
+      "created_at": "2019-07-25",
+      "updated_at": "2019-07-25"
+    }
+  },
+  {
+    "model": "department.applicationstatus",
+    "pk": 17,
+    "fields": {
+      "assigned": "0",
+      "assigned_hours": "0.0",
+      "created_at": "2019-08-25",
+      "updated_at": "2019-08-25"
+    }
+  },
+  {
+    "model": "department.applicationstatus",
+    "pk": 18,
+    "fields": {
+      "assigned": "0",
+      "assigned_hours": "0.0",
+      "created_at": "2019-08-25",
+      "updated_at": "2019-08-25"
+    }
+  },
+  {
+    "model": "department.applicationstatus",
+    "pk": 19,
+    "fields": {
+      "assigned": "0",
+      "assigned_hours": "0.0",
+      "created_at": "2019-08-25",
+      "updated_at": "2019-08-25"
+    }
+  },
+  {
+    "model": "department.applicationstatus",
+    "pk": 20,
+    "fields": {
+      "assigned": "0",
+      "assigned_hours": "0.0",
+      "created_at": "2019-08-25",
+      "updated_at": "2019-08-25"
+    }
+  },
+  {
+    "model": "department.applicationstatus",
+    "pk": 21,
+    "fields": {
+      "assigned": "0",
+      "assigned_hours": "0.0",
+      "created_at": "2019-08-25",
+      "updated_at": "2019-08-25"
+    }
+  }
+]

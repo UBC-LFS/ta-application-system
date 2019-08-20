@@ -202,6 +202,23 @@
 
 <h3>Offered Jobs</h3>
 
+<table>
+  <thead>
+    <tr>
+      <th>Year-Term</th>
+      <th>Total Assigned Hours</th>
+    </tr>  
+  </thead>
+  <tbody>
+    {% for year_term, assigned_hours in offered_summary.items %}
+      <tr>
+        <td>{{ year_term }}</td>
+        <td>{{ assigned_hours }} hours</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
 <ul>
   {% for job in offered_jobs %}
     <li>{{ job.year }} {{ job.term }} - {{ job.course_code }} {{ job.course_number }} {{ job.course_section }}: {{ job.assigned_status }} {{ job.assigned_hours }} hours</li>
@@ -214,7 +231,27 @@
 <hr />
 
 
+
+
 <h3>Accepted Jobs</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Year-Term</th>
+      <th>Total Assigned Hours</th>
+    </tr>  
+  </thead>
+  <tbody>
+    {% for year_term, assigned_hours in accepted_summary.items %}
+      <tr>
+        <td>{{ year_term }}</td>
+        <td>{{ assigned_hours }} hours</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
 
 <ul>
   {% for job in accepted_jobs %}

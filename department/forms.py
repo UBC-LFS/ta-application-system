@@ -121,6 +121,9 @@ class ApplicationStatusForm(forms.ModelForm):
     class Meta:
         model = ApplicationStatus
         fields = ['assigned', 'assigned_hours']
+        widgets = {
+            'assigned': forms.HiddenInput()
+        }
 
 #checked
 class ApplicationForm(forms.ModelForm):
