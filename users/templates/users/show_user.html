@@ -2,7 +2,7 @@
 
 {% block content %}
 
-<nav aria-label="breadcrumb">
+<nav class="margin-top-10" aria-label="breadcrumb">
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="{% url 'department:index' %}">Department</a></li>
     <li class="breadcrumb-item"><a href="{% url 'users:index' %}">Users</a></li>
@@ -32,6 +32,30 @@
       <li class="list-group-item"><b>Last Login:</b> {{ user.last_login }}</li>
     </ul>
 
+    <button type="button" data-toggle="modal" data-target="#edit-user-info-{{ user.id }}">
+      Edit User Info
+    </button>
+
+    <div class="modal fade" id="edit-user-info-{{ user.id }}" tabindex="-1" role="dialog" aria-labelledby="edit-user-info-modal-label-{{ user.id }}" aria-hidden="true">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="edit-user-info-modal-label-{{ user.id }}">User Information: Edit</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form action="{% url 'users:edit_user_info' user.username %}" method="post">
+              {% csrf_token %}
+              <table>{{ form.as_table }}</table>
+              <input type="submit" value="Update" />
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <h3 class="margin-top-30">Confidentiality</h3>
 
     <ul class="list-group">
@@ -39,9 +63,29 @@
       <li class="list-group-item"><b>Employee Number:</b> {{ user.confidentiality.employee_number }}</li>
       <li class="list-group-item"><b>VISA:</b> {{ user.confidentiality.get_visa_display }}</li>
       <li class="list-group-item"><b>Work Permit:</b> {{ user.confidentiality.work_permit }}</li>
+      <li>Study Permit:
+        {% if study_permit_file %}
+          <a href="{% url 'users:download_study_permit' username=user.username filename=study_permit_file %}" target="_blank">
+            {{ study_permit_file }}
+          </a>
+          -
+          Expiry Date: {{ user.confidentiality.study_permit_expiry_date }}
+        {% else %}
+          None
+        {% endif %}
+      </li>
+      <li>Work Permit:
+        {% if work_permit_file %}
+          <a href="{% url 'users:download_work_permit' username=user.username filename=work_permit_file %}" target="_blank">
+            {{ work_permit_file }}
+          </a>
+        {% else %}
+          None
+        {% endif %}
+      </li>
     </ul>
   
-    <a class="btn btn-warning margin-top-10" href="{% url 'users:edit_confidentiality' user.username %}">Edit Confidentiality</a>
+    {% comment %} <a class="btn btn-warning margin-top-10" href="{% url 'users:edit_confidentiality' user.username %}">Edit Confidentiality</a> {% endcomment %}
   </div>
 
   <div class="col-6">
@@ -55,6 +99,7 @@
         {% for role in user.profile.roles.all %}
           {{ role.name }},
         {% endfor %}
+    
       </li>
       <li class="list-group-item"><b>Qualifications:</b> {{ user.profile.qualifications }}</li>
       <li class="list-group-item"><b>Prior Employment:</b> {{ user.profile.prior_employment }}</li>
@@ -103,6 +148,9 @@
       </li>
     </ul>
     <a class="btn btn-warning margin-top-10" href="{% url 'users:edit_profile' user.username %}">Edit Profile</a>
+    <div class="">
+      Preferred Name: {{ user.profile.preferred_name }}
+    </div>
   </div>
 
 </div>

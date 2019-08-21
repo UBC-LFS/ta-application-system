@@ -6,6 +6,9 @@ from datetime import datetime
 import datetime as dt
 
 
+DATE = datetime.now()
+
+
 class TrainingForm(forms.ModelForm):
     class Meta:
         model = Training
@@ -31,6 +34,14 @@ class StatusForm(forms.ModelForm):
         model = Status
         fields = ['name']
 
+class UserInfoForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name']
+        widgets = {
+            'first_name': forms.TextInput(attrs={'required': True}),
+            'last_name': forms.TextInput(attrs={'required': True})
+        }
 
 class UserForm(forms.ModelForm):
     class Meta:
@@ -46,11 +57,17 @@ class UserForm(forms.ModelForm):
         }
 
 class ConfidentialityForm(forms.ModelForm):
+    study_permit_expiry_date = forms.DateField(
+        required=False,
+        widget=forms.SelectDateWidget(years=range(DATE.year, DATE.year + 20))
+    )
     class Meta:
         model = Confidentiality
-        fields = ['user', 'sin', 'employee_number', 'visa', 'work_permit']
+        fields = ['user', 'sin', 'employee_number', 'study_permit', 'study_permit_expiry_date', 'work_permit']
         widgets = {
-            'user': forms.HiddenInput()
+            'user': forms.HiddenInput(),
+            'study_permit': forms.FileInput(),
+            'work_permit': forms.FileInput()
         }
 
 class ResumeForm(forms.ModelForm):
@@ -68,10 +85,9 @@ class ProfileForm(forms.ModelForm):
         queryset=Role.objects.all(),
         widget=forms.CheckboxSelectMultiple()
     )
-    date = datetime.now()
     graduation_date = forms.DateField(
         required=False,
-        widget=forms.SelectDateWidget(years=range(date.year, date.year + 20))
+        widget=forms.SelectDateWidget(years=range(DATE.year, DATE.year + 20))
     )
     degrees = forms.ModelMultipleChoiceField(
         required=False,
@@ -89,7 +105,7 @@ class ProfileForm(forms.ModelForm):
         fields = ['user', 'roles', 'qualifications','prior_employment', 'special_considerations',
                     'status', 'program', 'graduation_date', 'degrees', 'trainings',
                     'lfs_ta_training', 'lfs_ta_training_details', 'ta_experience',
-                    'ta_experience_details']
+                    'ta_experience_details', 'preferred_name']
         widgets = {
             'user': forms.HiddenInput(),
             'qualifications': forms.Textarea(attrs={'rows':2}),
@@ -99,7 +115,7 @@ class ProfileForm(forms.ModelForm):
             'ta_experience_details': forms.Textarea(attrs={'rows':2})
         }
 
-    field_order = ['roles', 'qualifications','prior_employment', 'special_considerations',
+    field_order = ['preferred_name', 'roles', 'qualifications','prior_employment', 'special_considerations',
                 'status', 'program', 'graduation_date', 'degrees', 'trainings',
                 'lfs_ta_training', 'lfs_ta_training_details', 'ta_experience',
                 'ta_experience_details']

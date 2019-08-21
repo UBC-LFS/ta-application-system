@@ -6,7 +6,7 @@ app_name = 'users'
 urlpatterns = [
     path('', views.index, name='index'),
 
-    path('index/<str:username>/confidentiality/edit/', views.edit_confidentiality, name='edit_confidentiality'),
+    path('index/<str:username>/info/edit/', views.edit_user_info, name='edit_user_info'),
     path('index/<str:username>/profile/edit/', views.edit_profile, name='edit_profile'),
     path('delete_user/', views.delete_user, name='delete_user'),
     path('index/<str:username>/', views.show_user, name='show_user'),
@@ -20,6 +20,12 @@ urlpatterns = [
     path('students/<str:username>/upload_resume', views.upload_resume, name='upload_resume'),
     path('students/<str:username>/resume/<str:filename>/download/', views.download_resume, name='download_resume'),
     path('delete_resume/', views.delete_resume, name='delete_resume'),
+
+    path('students/<str:username>/submit_confidentiality/', views.submit_confidentiality, name='submit_confidentiality'),
+    path('students/<str:username>/study_permit/<str:filename>/download/', views.download_study_permit, name='download_study_permit'),
+    path('delete_study_permit/', views.delete_study_permit, name='delete_study_permit'),
+    path('students/<str:username>/work_permit/<str:filename>/download/', views.download_work_permit, name='download_work_permit'),
+    path('delete_work_permit/', views.delete_work_permit, name='delete_work_permit'),
 
     path('instructors/<str:username>/', views.show_instructor, name='show_instructor'),
     path('instructors/<str:username>/edit/', views.edit_instructor, name='edit_instructor'),

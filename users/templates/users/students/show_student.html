@@ -96,17 +96,17 @@
 <h3>Upload a resume</h3>
 
 Resume:
-{% if resume_name %}
-  <a href="{% url 'users:download_resume' username=user.username filename=resume_name %}" target="_blank">
-    {{ resume_name }}
+{% if resume_file %}
+  <a href="{% url 'users:download_resume' username=user.username filename=resume_file %}" target="_blank">
+    {{ resume_file }}
   </a>
   - {{ user.resume.created_at }}
 
-<form action="{% url 'users:delete_resume' %}" method="post" onsubmit="return confirm('Are you sure to delete this resume?')">
-  {% csrf_token %}
-  <input type="hidden" name="user" value="{{ user.username }}">
-  <input type="submit" value="Delete" />
-</form>
+  <form action="{% url 'users:delete_resume' %}" method="post" onsubmit="return confirm('Are you sure to delete this resume?')">
+    {% csrf_token %}
+    <input type="hidden" name="user" value="{{ user.username }}">
+    <input type="submit" value="Delete" />
+  </form>
 
 {% else %}
   No resume
@@ -120,6 +120,51 @@ Resume:
 </form>
 
 
+<hr />
+
+<h3>Confidentiality</h3>
+
+<ul>
+  <li>SIN: {{ user.confidentiality.sin }}</li>
+  <li>Employee Number: {{ user.confidentiality.employee_number }}</li>
+  <li>Study Permit:
+    {% if study_permit_file %}
+
+      <a href="{% url 'users:download_study_permit' username=user.username filename=study_permit_file %}" target="_blank">
+        {{ study_permit_file }}
+      </a>
+      -
+      Expiry Date: {{ user.confidentiality.study_permit_expiry_date }}
+
+      <form action="{% url 'users:delete_study_permit' %}" method="post" onsubmit="return confirm('Are you sure to delete this study permit?')">
+        {% csrf_token %}
+        <input type="hidden" name="user" value="{{ user.username }}">
+        <input type="submit" value="Delete" />
+      </form>
+      
+    {% else %}
+      None
+    {% endif %}
+  </li>
+  <li>Work Permit:
+    {% if work_permit_file %}
+
+      <a href="{% url 'users:download_work_permit' username=user.username filename=work_permit_file %}" target="_blank">
+        {{ work_permit_file }}
+      </a>
+
+      <form action="{% url 'users:delete_work_permit' %}" method="post" onsubmit="return confirm('Are you sure to delete this work permit?')">
+        {% csrf_token %}
+        <input type="hidden" name="user" value="{{ user.username }}">
+        <input type="submit" value="Delete" />
+      </form>
+    {% else %}
+      None
+    {% endif %}
+  </li>
+</ul>
+
+<a href="{% url 'users:submit_confidentiality' user.username %}">Submit Confidentiality</a>
 
 
 <hr />
@@ -181,7 +226,7 @@ Resume:
     <tr>
       <th>Year-Term</th>
       <th>Total Assigned Hours</th>
-    </tr>  
+    </tr>
   </thead>
   <tbody>
     {% for year_term, assigned_hours in offered_summary.items %}
@@ -212,7 +257,7 @@ Resume:
     <tr>
       <th>Year-Term</th>
       <th>Total Assigned Hours</th>
-    </tr>  
+    </tr>
   </thead>
   <tbody>
     {% for year_term, assigned_hours in accepted_summary.items %}

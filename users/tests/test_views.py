@@ -155,7 +155,7 @@ class UserTest(TestCase):
         self.login('admin', '12')
 
         user_id = '25'
-        username = 'test.user25'
+        user = api.get_user(user_id)
         data = { 'user': user_id }
         response = self.client.post(reverse('users:delete_user'), data=urlencode(data), content_type=ContentType)
 
@@ -164,12 +164,45 @@ class UserTest(TestCase):
         self.assertEqual(response.status_code, 302) # Redirect to users index
         self.assertRedirects(response, response.url)
 
+        deleted_user = api.get_user(user_id)
+        self.assertEqual(deleted_user, None)
+        self.assertFalse(api.user_exists(user)) # Check the delted username
+        self.assertFalse(api.resume_exists(user)) # Check user's resume
+        self.assertFalse(api.confidentiality_exists(user)) # Check user's confidentiality
+
+        # Check user's profile, profile-degrees, profile-trainings
+        self.assertFalse(api.profile_exists(user))
+        degree_found = False
+        for degree in api.get_degrees():
+            if degree.profile_set.filter(user_id=user.id ).exists():
+                degree_found = True
+        self.assertFalse(degree_found)
+
+        training_found = False
+        for training in api.get_trainings():
+            if training.profile_set.filter(user_id=user.id ).exists():
+                training_found = True
+        self.assertFalse(degree_found)
+
+
+    def test_delete_user_who_applied_jobs(self):
+        """ Test: delete a user who applied for jobs """
+        self.login('admin', '12')
+
+        user_id = '11'
         user = api.get_user(user_id)
-        self.assertEqual(user, None)
-        self.assertFalse(api.username_exists(username)) # Check the delted username
-        self.assertFalse(api.profile_exists_by_username(username)) # Check user's profile
-        self.assertFalse(api.resume_exists_by_username(username)) # Check user's resume
-        self.assertFalse(api.confidentiality_exists_by_username(username)) # Check user's confidentiality
+
+        response = self.client.get( reverse('users:show_user', args=[user.username]) )
+        self.assertEqual(response.status_code, 200)
+        
+        data = { 'user': user_id }
+        response = self.client.post(reverse('users:delete_user'), data=urlencode(data), content_type=ContentType)
+        # application, application_status, applicationstatus
+        # if instructor, then job
+
+
+
+
 
     def test_edit_profile(self):
         """ Test: edit user's profile """
@@ -940,7 +973,7 @@ class TrainingTest(TestCase):
 
         response = self.client.get(reverse('users:trainings'))
         self.assertEqual(response.status_code, 200)
-        trainings = response.context['statuses']
+        trainings = response.context['trainings']
 
         found = False
         for training in trainings:

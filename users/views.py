@@ -32,12 +32,21 @@ from django.forms.models import model_to_dict
 def index(request):
     """ Display all users and create a user """
 
+
     if not api.is_valid_user(request.user):
         raise PermissionDenied
 
     loggedin_user = api.loggedin_user(request.user)
     if not api.is_admin(loggedin_user):
         raise PermissionDenied
+
+    my_user = api.get_user('24')
+    degrees = api.get_degrees()
+
+    #for degree in degrees:
+    #    print(degree.id, degree.profile_set.all())
+    #    print( degree.profile_set.filter(user_id=my_user.id ).exists() )
+
 
     if request.method == 'POST':
         form = UserForm(request.POST)
@@ -88,11 +97,19 @@ def show_user(request, username):
     offered_jobs, offered_summary = departmentApi.get_offered_jobs_by_student(user, student_jobs)
     accepted_jobs, accepted_summary = departmentApi.get_accepted_jobs_by_student(user, student_jobs)
 
-    resume_name = None
+    resume_file = None
     if user.resume.file != None:
-        resume_name = os.path.basename(user.resume.file.name)
+        resume_file = os.path.basename(user.resume.file.name)
 
-    
+    study_permit_file = None
+    if user.confidentiality.study_permit != None:
+        study_permit_file = os.path.basename(user.confidentiality.study_permit.name)
+
+    work_permit_file = None
+    if user.confidentiality.work_permit != None:
+        work_permit_file = os.path.basename(user.confidentiality.work_permit.name)
+
+
     return render(request, 'users/show_user.html', {
         'loggedin_user': loggedin_user,
         'user': user,
@@ -106,9 +123,38 @@ def show_user(request, username):
         'accepted_jobs': accepted_jobs,
         'accepted_summary': accepted_summary,
         'declined_jobs': departmentApi.get_declined_jobs_by_student(user, student_jobs),
-        'resume_name': resume_name,
-        'confidentiality': user.confidentiality
+        'resume_file': resume_file,
+        'study_permit_file': study_permit_file,
+        'work_permit_file': work_permit_file,
+        'confidentiality': user.confidentiality,
+        'form': UserInfoForm(data=None, instance=user)
     })
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['POST'])
+def edit_user_info(request, username):
+    """ Edit user's information (first_name, last_name) """
+
+    if not api.is_valid_user(request.user):
+        raise PermissionDenied
+
+    loggedin_user = api.loggedin_user(request.user)
+    if not api.is_admin(loggedin_user):
+        raise PermissionDenied
+
+    user = api.get_user_by_username(username)
+    if request.method == 'POST':
+        form = UserInfoForm(request.POST, instance=user)
+        if form.is_valid():
+            updated_user = form.save()
+            if updated_user:
+                messages.success(request, 'Success! {0} updated'.format(user.username))
+            else:
+                messages.error(request, 'Error!')
+        else:
+            messages.error(request, 'Error! Form is invalid')
+    return HttpResponseRedirect( reverse('users:show_user', args=[username]) )
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -181,41 +227,7 @@ def edit_profile(request, username):
         })
     })
 
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET', 'POST'])
-def edit_confidentiality(request, username):
-    """ Edit user's confidentiality """
 
-    if not api.is_valid_user(request.user):
-        raise PermissionDenied
-
-    loggedin_user = api.loggedin_user(request.user)
-    if not api.is_admin(loggedin_user):
-        raise PermissionDenied
-
-    user = api.get_user_by_username(username)
-    confidentiality = user.confidentiality
-
-    if request.method == 'POST':
-        form = ConfidentialityForm(request.POST, instance=confidentiality)
-        if form.is_valid():
-            updated_confidentiality = form.save(commit=False)
-            updated_confidentiality.updated_at = datetime.now()
-            updated_confidentiality.save()
-            if updated_confidentiality:
-                messages.success(request, 'Success! {0} - confidentiality updated'.format(username))
-                return HttpResponseRedirect( reverse('users:show_user', args=[username]) )
-            else:
-                messages.error(request, 'Error!')
-        else:
-            messages.error(request, 'Error! Form is invalid')
-
-    return render(request, 'users/edit_confidentiality.html', {
-        'loggedin_user': loggedin_user,
-        'user': user,
-        'form': ConfidentialityForm(data=None, instance=confidentiality, initial={ 'user': user })
-    })
 
 
 
@@ -239,14 +251,25 @@ def show_student(request, username):
     offered_jobs, offered_summary = departmentApi.get_offered_jobs_by_student(user, student_jobs)
     accepted_jobs, accepted_summary = departmentApi.get_accepted_jobs_by_student(user, student_jobs)
 
-    resume_name = None
+    resume_file = None
     if user.resume.file != None:
-        resume_name = os.path.basename(user.resume.file.name)
-    
+        resume_file = os.path.basename(user.resume.file.name)
+
+    study_permit_file = None
+    if user.confidentiality.study_permit != None:
+        study_permit_file = os.path.basename(user.confidentiality.study_permit.name)
+
+    work_permit_file = None
+    if user.confidentiality.work_permit != None:
+        work_permit_file = os.path.basename(user.confidentiality.work_permit.name)
+
+
     return render(request, 'users/students/show_student.html', {
         'loggedin_user': loggedin_user,
         'user': user,
-        'resume_name': resume_name,
+        'resume_file': resume_file,
+        'study_permit_file': study_permit_file,
+        'work_permit_file': work_permit_file,
         'student_jobs': departmentApi.get_jobs_applied_by_student(user),
         'offered_jobs': offered_jobs,
         'offered_summary': offered_summary,
@@ -255,6 +278,7 @@ def show_student(request, username):
         'declined_jobs': departmentApi.get_declined_jobs_by_student(user, student_jobs),
         'resume_form': ResumeForm(initial={ 'user': user })
     })
+
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -270,14 +294,21 @@ def upload_resume(request, username):
         raise PermissionDenied
 
     user = api.get_user_by_username(username)
+    old_resume = user.resume.file
     if request.method == 'POST':
         form = ResumeForm(request.POST, request.FILES, instance=user.resume)
         if form.is_valid():
             files = request.FILES
             resume = form.save(commit=False)
-            resume.delete_existing_file()
+
+            if len(old_resume.name) > 0:
+                deleted_resume = api.delete_user_resume(user.username)
+                if not deleted_resume:
+                    messages.warning(request, 'Warning! resume is not deleted')
+
             resume.file = files.get('file')
             resume.created_at = datetime.now()
+
             resume.save()
             if resume:
                 messages.success(request, 'Success! {0} - resume uploaded'.format(user.username))
@@ -288,9 +319,14 @@ def upload_resume(request, username):
 
     return HttpResponseRedirect( reverse('users:show_student', args=[username]) )
 
-
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def download_resume(request, username, filename):
     """ Download user's resume """
+
+    if not api.is_valid_user(request.user):
+        raise PermissionDenied
+
     path = 'users/{0}/resume/{1}/'.format(username, filename)
     return serve(request, path, document_root=settings.MEDIA_ROOT)
 
@@ -318,6 +354,148 @@ def delete_resume(request):
     else:
         messages.error(request, 'Error!')
     return HttpResponseRedirect( reverse('users:show_student', args=[username]) )
+
+
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET', 'POST'])
+def submit_confidentiality(request, username):
+    """ Submit user's confidentiality """
+
+    if not api.is_valid_user(request.user):
+        raise PermissionDenied
+
+    loggedin_user = api.loggedin_user(request.user)
+    if 'Student' not in loggedin_user['roles']:
+        raise PermissionDenied
+
+    user = api.get_user_by_username(username)
+    confidentiality = user.confidentiality
+    old_study_permit = confidentiality.study_permit
+    old_work_permit = confidentiality.work_permit
+
+    if request.method == 'POST':
+        form = ConfidentialityForm(request.POST, request.FILES, instance=confidentiality)
+        if form.is_valid():
+            study_permit_file = request.FILES.get('study_permit')
+            work_permit_file = request.FILES.get('work_permit')
+
+            updated_confidentiality = form.save(commit=False)
+            updated_confidentiality.updated_at = datetime.now()
+
+            if study_permit_file != None:
+                if len(old_study_permit.name) > 0:
+                    deleted_study_permit_file = api.delete_user_study_permit(username)
+                    if not deleted_study_permit_file:
+                        messages.warning(request, 'Warning! Previous study permit file was not deleted')
+                confidentiality.study_permit = study_permit_file
+
+            if work_permit_file != None:
+                if len(old_work_permit.name) > 0:
+                    deleted_work_permit_file = api.delete_user_work_permit(username)
+                    if not deleted_work_permit_file:
+                        messages.warning(request, 'Warning! Previous work permit file was not deleted')
+                confidentiality.work_permit = work_permit_file
+
+            updated_confidentiality.save()
+
+            if updated_confidentiality:
+                messages.success(request, 'Success! {0} - confidentiality updated'.format(username))
+                return HttpResponseRedirect( reverse('users:show_student', args=[username]) )
+            else:
+                messages.error(request, 'Error!')
+        else:
+            messages.error(request, 'Error! Form is invalid')
+
+    return render(request, 'users/students/edit_confidentiality.html', {
+        'loggedin_user': loggedin_user,
+        'user': user,
+        'form': ConfidentialityForm(data=None, instance=confidentiality, initial={ 'user': user })
+    })
+
+
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def download_study_permit(request, username, filename):
+    """ Download user's resume """
+
+    if not api.is_valid_user(request.user):
+        raise PermissionDenied
+
+    path = 'users/{0}/study_permit/{1}/'.format(username, filename)
+    return serve(request, path, document_root=settings.MEDIA_ROOT)
+
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['POST'])
+def delete_study_permit(request):
+    """ Delete user's study permit """
+
+    if not api.is_valid_user(request.user):
+        raise PermissionDenied
+
+    loggedin_user = api.loggedin_user(request.user)
+    if 'Student' not in loggedin_user['roles']:
+        raise PermissionDenied
+
+    if request.method == 'POST':
+        username = request.POST.get('user')
+        study_permit = api.delete_user_study_permit(username)
+        if study_permit:
+            messages.success(request, 'Success! {0} - study permit deleted'.format(username))
+        else:
+            messages.error(request, 'Error!')
+    else:
+        messages.error(request, 'Error!')
+    return HttpResponseRedirect( reverse('users:show_student', args=[username]) )
+
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def download_work_permit(request, username, filename):
+    """ Download user's work permit """
+
+    if not api.is_valid_user(request.user):
+        raise PermissionDenied
+
+    path = 'users/{0}/work_permit/{1}/'.format(username, filename)
+    return serve(request, path, document_root=settings.MEDIA_ROOT)
+
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['POST'])
+def delete_work_permit(request):
+    """ Delete user's work permit """
+
+    if not api.is_valid_user(request.user):
+        raise PermissionDenied
+
+    loggedin_user = api.loggedin_user(request.user)
+    if 'Student' not in loggedin_user['roles']:
+        raise PermissionDenied
+
+    if request.method == 'POST':
+        username = request.POST.get('user')
+        work_permit = api.delete_user_work_permit(username)
+        if work_permit:
+            messages.success(request, 'Success! {0} - work permit deleted'.format(username))
+        else:
+            messages.error(request, 'Error!')
+    else:
+        messages.error(request, 'Error!')
+    return HttpResponseRedirect( reverse('users:show_student', args=[username]) )
+
+
+
+
+
+
+
+
 
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -934,7 +1112,6 @@ def edit_degree(request, slug):
 @require_http_methods(['POST'])
 def delete_degree(request):
     """ Delete a dgree """
-    print("delete_degree")
 
     if not api.is_valid_user(request.user):
         raise PermissionDenied
@@ -945,7 +1122,6 @@ def delete_degree(request):
 
     if request.method == 'POST':
         degree_id = request.POST.get('degree')
-        print(request.POST)
         deleted_degree = api.delete_degree(degree_id)
         if deleted_degree:
             messages.success(request, 'Success! {0} deleted'.format(deleted_degree.name))
@@ -1153,3 +1329,62 @@ def delete_status(request):
         else:
             messages.error(request, 'Error!')
     return redirect('users:statuses')
+
+
+
+"""
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['POST'])
+def submit_confidentiality(request, username):
+
+    if not api.is_valid_user(request.user):
+        raise PermissionDenied
+
+    loggedin_user = api.loggedin_user(request.user)
+    if 'Student' not in loggedin_user['roles']:
+        raise PermissionDenied
+
+    user = api.get_user_by_username(username)
+    if request.method == 'POST':
+        print(request.POST)
+        print(user.confidentiality, user.confidentiality.sin, user.confidentiality.employee_number)
+        form = ConfidentialityForm(request.POST, request.FILES, instance=user.confidentiality)
+
+        if form.is_valid():
+            data = form.cleaned_data
+            print("data: ", data)
+
+
+            study_permit = request.FILES.get('study_permit')
+            work_permit = request.FILES.get('work_permit')
+
+            print(study_permit, work_permit)
+
+            confidentiality = form.save(commit=False)
+
+            print("1 ", confidentiality.sin, confidentiality.employee_number)
+            confidentiality.updated_at = datetime.now()
+
+
+
+            if study_permit != None:
+                #confidentiality.delete_existing_study_permit_file()
+                confidentiality.study_permit = study_permit
+            if work_permit != None:
+                #confidentiality.delete_existing_work_permit_file()
+                confidentiality.work_permit = work_permit
+
+            print("2 ", confidentiality.sin, confidentiality.employee_number)
+            confidentiality.save()
+
+            if confidentiality:
+                messages.success(request, 'Success! {0} - confidentiality submitted'.format(user.username))
+            else:
+                messages.error(request, 'Error!')
+        else:
+            print( form.errors.get_json_data() )
+            messages.error(request, 'Error! Form is invalid')
+
+    return HttpResponseRedirect( reverse('users:show_student', args=[username]) )
+"""
