@@ -34,6 +34,14 @@ class StatusForm(forms.ModelForm):
         model = Status
         fields = ['name']
 
+class UserInfoForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name']
+        widgets = {
+            'first_name': forms.TextInput(attrs={'required': True}),
+            'last_name': forms.TextInput(attrs={'required': True})
+        }
 
 class UserForm(forms.ModelForm):
     class Meta:
@@ -97,7 +105,7 @@ class ProfileForm(forms.ModelForm):
         fields = ['user', 'roles', 'qualifications','prior_employment', 'special_considerations',
                     'status', 'program', 'graduation_date', 'degrees', 'trainings',
                     'lfs_ta_training', 'lfs_ta_training_details', 'ta_experience',
-                    'ta_experience_details']
+                    'ta_experience_details', 'preferred_name']
         widgets = {
             'user': forms.HiddenInput(),
             'qualifications': forms.Textarea(attrs={'rows':2}),
@@ -107,7 +115,7 @@ class ProfileForm(forms.ModelForm):
             'ta_experience_details': forms.Textarea(attrs={'rows':2})
         }
 
-    field_order = ['roles', 'qualifications','prior_employment', 'special_considerations',
+    field_order = ['preferred_name', 'roles', 'qualifications','prior_employment', 'special_considerations',
                 'status', 'program', 'graduation_date', 'degrees', 'trainings',
                 'lfs_ta_training', 'lfs_ta_training_details', 'ta_experience',
                 'ta_experience_details']

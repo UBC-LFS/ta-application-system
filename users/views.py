@@ -128,8 +128,35 @@ def show_user(request, username):
         'resume_file': resume_file,
         'study_permit_file': study_permit_file,
         'work_permit_file': work_permit_file,
-        'confidentiality': user.confidentiality
+        'confidentiality': user.confidentiality,
+        'form': UserInfoForm(data=None, instance=user)
     })
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['POST'])
+def edit_user_info(request, username):
+    """ Edit user's information (first_name, last_name) """
+
+    if not api.is_valid_user(request.user):
+        raise PermissionDenied
+
+    loggedin_user = api.loggedin_user(request.user)
+    if not api.is_admin(loggedin_user):
+        raise PermissionDenied
+
+    user = api.get_user_by_username(username)
+    if request.method == 'POST':
+        form = UserInfoForm(request.POST, instance=user)
+        if form.is_valid():
+            updated_user = form.save()
+            if updated_user:
+                messages.success(request, 'Success! {0} updated'.format(user.username))
+            else:
+                messages.error(request, 'Error!')
+        else:
+            messages.error(request, 'Error! Form is invalid')
+    return HttpResponseRedirect( reverse('users:show_user', args=[username]) )
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -201,6 +228,10 @@ def edit_profile(request, username):
             'trainings': profile_trainings
         })
     })
+
+
+
+
 
 # Student Profile
 
