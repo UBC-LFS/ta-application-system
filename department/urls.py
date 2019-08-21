@@ -13,10 +13,17 @@ urlpatterns = [
     path('sessions/<str:session_slug>/edit/', views.edit_session, name='edit_session'),
     path('sessions/<str:session_slug>/jobs/<str:job_slug>/', views.show_job, name='show_job'),
     path('sessions/<str:session_slug>/jobs/<str:job_slug>/edit', views.edit_job, name='edit_job'),
-    path('sessions/<str:session_slug>/jobs/<str:job_slug>/edit_job_application', views.edit_job_application, name='edit_job_application'),
-    path('sessions/<str:session_slug>/jobs/<str:job_slug>/offer_job', views.offer_job, name='offer_job'),
-
+    
     path('jobs/', views.jobs, name='jobs'),
+
+    path('applications/', views.applications, name='applications'),
+    path('applications/selected/', views.selected_applications, name='selected_applications'),
+    path('applications/offered/', views.offered_applications, name='offered_applications'),
+    path('applications/accepted/', views.accepted_applications, name='accepted_applications'),
+    path('applications/declined', views.declined_applications, name='declined_applications'),
+    path('sessions/<str:session_slug>/jobs/<str:job_slug>/offer_job', views.offer_job, name='offer_job'),
+    path('sessions/<str:session_slug>/jobs/<str:job_slug>/edit_job_application', views.edit_job_application, name='edit_job_application'),
+    path('applications/<str:app_slug>', views.show_application, name='show_application'),
 
 
     path('courses/', views.courses, name='courses'),
@@ -42,8 +49,5 @@ urlpatterns = [
     path('course_sections/', views.course_sections, name='course_sections'),
     path('course_sections/<str:name>/', views.show_course_section, name='show_course_section'),
     path('course_sections/<str:name>/edit', views.edit_course_section, name='edit_course_section'),
-    path('course_sections/delete', views.delete_course_section, name='delete_course_section'),
-
-    path('applications/', views.applications, name='applications'),
-    path('applications/<str:app_slug>', views.show_application, name='show_application'),
+    path('course_sections/delete', views.delete_course_section, name='delete_course_section')
 ]

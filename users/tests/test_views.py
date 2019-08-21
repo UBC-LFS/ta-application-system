@@ -194,7 +194,7 @@ class UserTest(TestCase):
 
         response = self.client.get( reverse('users:show_user', args=[user.username]) )
         self.assertEqual(response.status_code, 200)
-        
+
         data = { 'user': user_id }
         response = self.client.post(reverse('users:delete_user'), data=urlencode(data), content_type=ContentType)
         # application, application_status, applicationstatus
@@ -249,30 +249,6 @@ class UserTest(TestCase):
         self.assertEquals(user.profile.get_ta_experience_display(), 'Yes')
         self.assertEquals(user.profile.ta_experience_details, 'ta experience details text')
 
-    def test_edit_confidentiality(self):
-        """ Test: edit user's confidentiality """
-        self.login('admin', '12')
-        data = {
-            'user': '20',
-            'sin': '123456789',
-            'employee_number': '0012345',
-            'visa': '1',
-            'work_permit': True
-        }
-        response = self.client.post(reverse('users:edit_confidentiality', args=['test.user20']), data=urlencode(data), content_type=ContentType)
-
-        self.assertEqual(response.status_code, 302) # Redirect to user details
-        self.assertRedirects(response, response.url)
-        messages = [m.message for m in get_messages(response.wsgi_request)]
-        self.assertTrue('Success' in messages[0]) # Check a success message
-
-        user = api.get_user('20')
-        self.assertEquals(user.id, 20)
-        self.assertEquals(user.confidentiality.sin, '123456789')
-        self.assertEquals(user.confidentiality.employee_number, '0012345')
-        self.assertEquals(user.confidentiality.get_visa_display(), 'Type 1')
-        self.assertEquals(user.confidentiality.work_permit, True)
-
 
 class StudentProfileTest(TestCase):
     fixtures = DATA
@@ -311,14 +287,14 @@ class StudentProfileTest(TestCase):
 
         loggedin_user = response.context['loggedin_user']
         res_user = response.context['user']
-        resume_name = response.context['resume_name']
+        resume_file = response.context['resume_file']
         student_jobs = response.context['student_jobs']
         offered_jobs = response.context['offered_jobs']
         accepted_jobs = response.context['accepted_jobs']
         declined_jobs = response.context['declined_jobs']
         self.assertEqual(loggedin_user['username'], user.username)
         self.assertEqual(res_user.id, int(user_id))
-        self.assertEqual(resume_name, '')
+        self.assertEqual(resume_file, '')
         self.assertEqual( len(student_jobs), 0 )
         self.assertEqual( len(offered_jobs), 0 )
         self.assertEqual( len(accepted_jobs), 0 )
@@ -333,15 +309,15 @@ class StudentProfileTest(TestCase):
 
         data = {
             'qualifications': 'updated qualifications',
-            'prior_employment': 'updated prior_employment', 
+            'prior_employment': 'updated prior_employment',
             'special_considerations': 'updated special_considerations',
-            'status': '5', 
-            'program': '7', 
-            'graduation_date': '2020-05-25', 
-            'degrees': ['4', '6'], 
+            'status': '5',
+            'program': '7',
+            'graduation_date': '2020-05-25',
+            'degrees': ['4', '6'],
             'trainings': ['2', '3'],
-            'lfs_ta_training': '1', 
-            'lfs_ta_training_details': 'updated lfs_ta_training_details', 
+            'lfs_ta_training': '1',
+            'lfs_ta_training_details': 'updated lfs_ta_training_details',
             'ta_experience': '2',
             'ta_experience_details': 'updated ta_experience_details'
         }
@@ -354,7 +330,7 @@ class StudentProfileTest(TestCase):
 
         response = self.client.get( reverse('users:show_student', args=[user.username]) )
         user = response.context['user']
-        
+
         self.assertEqual(user.profile.qualifications, data['qualifications'])
         self.assertEqual(user.profile.prior_employment, data['prior_employment'])
         self.assertEqual(user.profile.special_considerations, data['special_considerations'])
@@ -376,10 +352,10 @@ class StudentProfileTest(TestCase):
         user = api.get_user(user_id)
         self.login(user.username, '12')
 
-        resume_name = 'resume.pdf'
+        resume_file = 'resume.pdf'
         data = {
             'user': user_id,
-            'resume': SimpleUploadedFile(resume_name, b'file_content', content_type='application/pdf')
+            'resume': SimpleUploadedFile(resume_file, b'file_content', content_type='application/pdf')
         }
         response = self.client.post( reverse('users:upload_resume', args=[user.username]), data=data, format='multipart')
         self.assertEqual(response.status_code, 302)
@@ -388,7 +364,7 @@ class StudentProfileTest(TestCase):
         self.assertTrue('Success' in messages[0]) # Check a success message
 
         #response = self.client.get( reverse('users:show_student', args=[user.username]) )
-        #self.assertEqual(response.context['resume_name'], resume_name)
+        #self.assertEqual(response.context['resume_file'], resume_file)
         #print(response.context['user'].resume.created_at)
 
 
@@ -399,10 +375,10 @@ class StudentProfileTest(TestCase):
         user = api.get_user(user_id)
         self.login(user.username, '12')
 
-        resume_name = 'resume.pdf'
+        resume_file = 'resume.pdf'
         data = {
             'user': user_id,
-            'resume': SimpleUploadedFile(resume_name, b'file_content', content_type='application/pdf')
+            'resume': SimpleUploadedFile(resume_file, b'file_content', content_type='application/pdf')
         }
         response = self.client.post( reverse('users:upload_resume', args=[user.username]), data=data)
         self.assertEqual(response.status_code, 302)
@@ -410,21 +386,49 @@ class StudentProfileTest(TestCase):
         self.assertTrue('Success' in messages[0]) # Check a success message
 
 
-        updated_resume_name = 'updated_resume.pdf'
+        updated_resume_file = 'updated_resume.pdf'
         updated_data = {
             'user': user_id,
-            'resume': SimpleUploadedFile(updated_resume_name, b'file_content', content_type='application/pdf')
+            'resume': SimpleUploadedFile(updated_resume_file, b'file_content', content_type='application/pdf')
         }
         response = self.client.post( reverse('users:upload_resume', args=[user.username]), data=updated_data)
         self.assertEqual(response.status_code, 302)
         messages = [m.message for m in get_messages(response.wsgi_request)]
         self.assertTrue('Success' in messages[0]) # Check a success message
 
-    
+
     def test_delete_user_resume(self):
         """ Test: delete user's resume """
         pass
 
+
+    def test_edit_confidentiality(self):
+        """ Test: edit user's confidentiality
+        user_id = '11'
+        user = api.get_user(user_id)
+        self.login(user.username, '12')
+
+        data = {
+            'user': '20',
+            'sin': '123456789',
+            'employee_number': '0012345',
+            'visa': '1',
+            'work_permit': True
+        }
+        response = self.client.post(reverse('users:edit_confidentiality', args=['test.user20']), data=urlencode(data), content_type=ContentType)
+
+        self.assertEqual(response.status_code, 302) # Redirect to user details
+        self.assertRedirects(response, response.url)
+        messages = [m.message for m in get_messages(response.wsgi_request)]
+        self.assertTrue('Success' in messages[0]) # Check a success message
+
+        user = api.get_user('20')
+        self.assertEquals(user.id, 20)
+        self.assertEquals(user.confidentiality.sin, '123456789')
+        self.assertEquals(user.confidentiality.employee_number, '0012345')
+        self.assertEquals(user.confidentiality.get_visa_display(), 'Type 1')
+        self.assertEquals(user.confidentiality.work_permit, True)"""
+        pass
 
 
 
@@ -467,7 +471,7 @@ class InstructorProfileTest(TestCase):
         loggedin_user = response.context['loggedin_user']
         res_user = response.context['user']
         jobs = res_user.job_set.all()
-        
+
         self.assertEqual(loggedin_user['username'], user.username)
         self.assertEqual(res_user.id, int(user_id))
         self.assertEqual( len(jobs), 1 )
@@ -479,7 +483,7 @@ class InstructorProfileTest(TestCase):
         self.login(user.username, '12')
 
         data = {
-            'status': '8', 
+            'status': '8',
             'program': '4'
         }
         response = self.client.post( reverse('users:edit_instructor', args=[user.username]), data=urlencode(data), content_type=ContentType )
@@ -489,7 +493,7 @@ class InstructorProfileTest(TestCase):
 
         response = self.client.get( reverse('users:show_instructor', args=[user.username]) )
         user = response.context['user']
-        
+
         self.assertEqual(user.profile.status.id, int(data['status']))
         self.assertEqual(user.profile.program.id, int(data['program']))
 
