@@ -4,10 +4,10 @@
 
 <nav aria-label="breadcrumb">
   <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="{% url 'department:index' %}">Department</a></li>
-    <li class="breadcrumb-item"><a href="{% url 'users:index' %}">Users</a></li>
-    <li class="breadcrumb-item"><a href="{% url 'users:show_user' user.username %}">User Details</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Edit Confidentiality</li>
+    <li class="breadcrumb-item">
+      <a href="{% url 'users:show_student' user.username %}">Student Profile</a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">Submit Confidentiality</li>
   </ol>
 </nav>
 
@@ -17,7 +17,7 @@
 	{% endfor %}
 {% endif %}
 
-<h1>Edit Confidentiality</h1>
+<h1>Submit Confidentiality</h1>
 
 <h3>Infomation</h3>
 <div>First Name: {{ user.first_name }}</div>
@@ -28,14 +28,18 @@
 <div>Date Joined: {{ user.date_joined }}</div>
 <div>Last Login: {{ user.last_login }}</div>
 
+
 <hr />
 
-<h3>Confidentiality</h3>
+<p>Valid file types: jpg, jpeg, png, pdf, doc, docx</p>
 
-<form action="" method="post">
+<form action="" method="post" enctype="multipart/form-data">
   {% csrf_token %}
   <table>{{ form.as_table }}</table>
-  <input value="Update" type="submit" />
+  <input type="submit" value="Submit" />
 </form>
+
+<a href="{% url 'users:show_student' user.username %}"></a>
+
 
 {% endblock %}

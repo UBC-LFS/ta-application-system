@@ -6,6 +6,9 @@ from datetime import datetime
 import datetime as dt
 
 
+DATE = datetime.now()
+
+
 class TrainingForm(forms.ModelForm):
     class Meta:
         model = Training
@@ -46,11 +49,17 @@ class UserForm(forms.ModelForm):
         }
 
 class ConfidentialityForm(forms.ModelForm):
+    study_permit_expiry_date = forms.DateField(
+        required=False,
+        widget=forms.SelectDateWidget(years=range(DATE.year, DATE.year + 20))
+    )
     class Meta:
         model = Confidentiality
-        fields = ['user', 'sin', 'employee_number', 'visa', 'work_permit']
+        fields = ['user', 'sin', 'employee_number', 'study_permit', 'study_permit_expiry_date', 'work_permit']
         widgets = {
-            'user': forms.HiddenInput()
+            'user': forms.HiddenInput(),
+            'study_permit': forms.FileInput(),
+            'work_permit': forms.FileInput()
         }
 
 class ResumeForm(forms.ModelForm):
@@ -68,10 +77,9 @@ class ProfileForm(forms.ModelForm):
         queryset=Role.objects.all(),
         widget=forms.CheckboxSelectMultiple()
     )
-    date = datetime.now()
     graduation_date = forms.DateField(
         required=False,
-        widget=forms.SelectDateWidget(years=range(date.year, date.year + 20))
+        widget=forms.SelectDateWidget(years=range(DATE.year, DATE.year + 20))
     )
     degrees = forms.ModelMultipleChoiceField(
         required=False,

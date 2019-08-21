@@ -6,8 +6,9 @@
       "user_id": 1,
       "sin": null,
       "employee_number": null,
-      "visa": "0",
-      "work_permit": false,
+      "study_permit": null,
+      "study_permit_expiry_date": null,
+      "work_permit": null,
       "created_at": "2019-05-27",
       "updated_at": "2019-05-27"
     }
@@ -19,8 +20,9 @@
       "user_id": 2,
       "sin": null,
       "employee_number": null,
-      "visa": "0",
-      "work_permit": false,
+      "study_permit": null,
+      "study_permit_expiry_date": null,
+      "work_permit": null,
       "created_at": "2019-05-27",
       "updated_at": "2019-05-27"
     }
@@ -32,8 +34,9 @@
       "user_id": 3,
       "sin": null,
       "employee_number": null,
-      "visa": "0",
-      "work_permit": false,
+      "study_permit": null,
+      "study_permit_expiry_date": null,
+      "work_permit": null,
       "created_at": "2019-05-27",
       "updated_at": "2019-05-27"
     }
@@ -45,8 +48,9 @@
       "user_id": 4,
       "sin": null,
       "employee_number": null,
-      "visa": "0",
-      "work_permit": false,
+      "study_permit": null,
+      "study_permit_expiry_date": null,
+      "work_permit": null,
       "created_at": "2019-05-27",
       "updated_at": "2019-05-27"
     }
@@ -58,8 +62,9 @@
       "user_id": 5,
       "sin": null,
       "employee_number": null,
-      "visa": "0",
-      "work_permit": false,
+      "study_permit": null,
+      "study_permit_expiry_date": null,
+      "work_permit": null,
       "created_at": "2019-05-27",
       "updated_at": "2019-05-27"
     }
@@ -71,8 +76,9 @@
       "user_id": 6,
       "sin": null,
       "employee_number": null,
-      "visa": "0",
-      "work_permit": false,
+      "study_permit": null,
+      "study_permit_expiry_date": null,
+      "work_permit": null,
       "created_at": "2019-05-27",
       "updated_at": "2019-05-27"
     }
@@ -84,8 +90,9 @@
       "user_id": 7,
       "sin": null,
       "employee_number": null,
-      "visa": "0",
-      "work_permit": false,
+      "study_permit": null,
+      "study_permit_expiry_date": null,
+      "work_permit": null,
       "created_at": "2019-05-27",
       "updated_at": "2019-05-27"
     }
@@ -97,8 +104,9 @@
       "user_id": 8,
       "sin": null,
       "employee_number": null,
-      "visa": "0",
-      "work_permit": false,
+      "study_permit": null,
+      "study_permit_expiry_date": null,
+      "work_permit": null,
       "created_at": "2019-05-27",
       "updated_at": "2019-05-27"
     }
@@ -110,8 +118,9 @@
       "user_id": 9,
       "sin": null,
       "employee_number": null,
-      "visa": "0",
-      "work_permit": false,
+      "study_permit": null,
+      "study_permit_expiry_date": null,
+      "work_permit": null,
       "created_at": "2019-05-27",
       "updated_at": "2019-05-27"
     }
@@ -123,8 +132,9 @@
       "user_id": 10,
       "sin": null,
       "employee_number": null,
-      "visa": "0",
-      "work_permit": false,
+      "study_permit": null,
+      "study_permit_expiry_date": null,
+      "work_permit": null,
       "created_at": "2019-05-27",
       "updated_at": "2019-05-27"
     }
@@ -136,8 +146,9 @@
       "user_id": 11,
       "sin": null,
       "employee_number": null,
-      "visa": "0",
-      "work_permit": false,
+      "study_permit": null,
+      "study_permit_expiry_date": null,
+      "work_permit": null,
       "created_at": "2019-05-27",
       "updated_at": "2019-05-27"
     }
@@ -149,8 +160,9 @@
       "user_id": 12,
       "sin": null,
       "employee_number": null,
-      "visa": "0",
-      "work_permit": false,
+      "study_permit": null,
+      "study_permit_expiry_date": null,
+      "work_permit": null,
       "created_at": "2019-05-27",
       "updated_at": "2019-05-27"
     }
@@ -162,8 +174,9 @@
       "user_id": 13,
       "sin": null,
       "employee_number": null,
-      "visa": "0",
-      "work_permit": false,
+      "study_permit": null,
+      "study_permit_expiry_date": null,
+      "work_permit": null,
       "created_at": "2019-05-27",
       "updated_at": "2019-05-27"
     }
@@ -175,8 +188,9 @@
       "user_id": 14,
       "sin": null,
       "employee_number": null,
-      "visa": "0",
-      "work_permit": false,
+      "study_permit": null,
+      "study_permit_expiry_date": null,
+      "work_permit": null,
       "created_at": "2019-05-27",
       "updated_at": "2019-05-27"
     }
@@ -188,8 +202,9 @@
       "user_id": 15,
       "sin": null,
       "employee_number": null,
-      "visa": "0",
-      "work_permit": false,
+      "study_permit": null,
+      "study_permit_expiry_date": null,
+      "work_permit": null,
       "created_at": "2019-05-27",
       "updated_at": "2019-05-27"
     }
@@ -201,8 +216,9 @@
       "user_id": 16,
       "sin": null,
       "employee_number": null,
-      "visa": "0",
-      "work_permit": false,
+      "study_permit": null,
+      "study_permit_expiry_date": null,
+      "work_permit": null,
       "created_at": "2019-05-27",
       "updated_at": "2019-05-27"
     }
@@ -214,8 +230,9 @@
       "user_id": 17,
       "sin": null,
       "employee_number": null,
-      "visa": "0",
-      "work_permit": false,
+      "study_permit": null,
+      "study_permit_expiry_date": null,
+      "work_permit": null,
       "created_at": "2019-05-27",
       "updated_at": "2019-05-27"
     }
@@ -227,8 +244,9 @@
       "user_id": 18,
       "sin": null,
       "employee_number": null,
-      "visa": "0",
-      "work_permit": false,
+      "study_permit": null,
+      "study_permit_expiry_date": null,
+      "work_permit": null,
       "created_at": "2019-05-27",
       "updated_at": "2019-05-27"
     }
@@ -240,8 +258,9 @@
       "user_id": 19,
       "sin": null,
       "employee_number": null,
-      "visa": "0",
-      "work_permit": false,
+      "study_permit": null,
+      "study_permit_expiry_date": null,
+      "work_permit": null,
       "created_at": "2019-05-27",
       "updated_at": "2019-05-27"
     }
@@ -253,8 +272,9 @@
       "user_id": 20,
       "sin": null,
       "employee_number": null,
-      "visa": "0",
-      "work_permit": false,
+      "study_permit": null,
+      "study_permit_expiry_date": null,
+      "work_permit": null,
       "created_at": "2019-05-27",
       "updated_at": "2019-05-27"
     }
@@ -266,8 +286,9 @@
       "user_id": 21,
       "sin": null,
       "employee_number": null,
-      "visa": "0",
-      "work_permit": false,
+      "study_permit": null,
+      "study_permit_expiry_date": null,
+      "work_permit": null,
       "created_at": "2019-05-27",
       "updated_at": "2019-05-27"
     }
@@ -279,8 +300,9 @@
       "user_id": 22,
       "sin": null,
       "employee_number": null,
-      "visa": "0",
-      "work_permit": false,
+      "study_permit": null,
+      "study_permit_expiry_date": null,
+      "work_permit": null,
       "created_at": "2019-05-27",
       "updated_at": "2019-05-27"
     }
@@ -292,8 +314,9 @@
       "user_id": 23,
       "sin": null,
       "employee_number": null,
-      "visa": "0",
-      "work_permit": false,
+      "study_permit": null,
+      "study_permit_expiry_date": null,
+      "work_permit": null,
       "created_at": "2019-05-27",
       "updated_at": "2019-05-27"
     }
@@ -305,8 +328,9 @@
       "user_id": 24,
       "sin": null,
       "employee_number": null,
-      "visa": "0",
-      "work_permit": false,
+      "study_permit": null,
+      "study_permit_expiry_date": null,
+      "work_permit": null,
       "created_at": "2019-05-27",
       "updated_at": "2019-05-27"
     }
@@ -318,8 +342,9 @@
       "user_id": 25,
       "sin": null,
       "employee_number": null,
-      "visa": "0",
-      "work_permit": false,
+      "study_permit": null,
+      "study_permit_expiry_date": null,
+      "work_permit": null,
       "created_at": "2019-05-27",
       "updated_at": "2019-05-27"
     }
@@ -331,8 +356,9 @@
       "user_id": 26,
       "sin": null,
       "employee_number": null,
-      "visa": "0",
-      "work_permit": false,
+      "study_permit": null,
+      "study_permit_expiry_date": null,
+      "work_permit": null,
       "created_at": "2019-05-27",
       "updated_at": "2019-05-27"
     }
@@ -344,8 +370,9 @@
       "user_id": 27,
       "sin": null,
       "employee_number": null,
-      "visa": "0",
-      "work_permit": false,
+      "study_permit": null,
+      "study_permit_expiry_date": null,
+      "work_permit": null,
       "created_at": "2019-05-27",
       "updated_at": "2019-05-27"
     }
@@ -357,8 +384,9 @@
       "user_id": 28,
       "sin": null,
       "employee_number": null,
-      "visa": "0",
-      "work_permit": false,
+      "study_permit": null,
+      "study_permit_expiry_date": null,
+      "work_permit": null,
       "created_at": "2019-05-27",
       "updated_at": "2019-05-27"
     }
@@ -370,8 +398,9 @@
       "user_id": 29,
       "sin": null,
       "employee_number": null,
-      "visa": "0",
-      "work_permit": false,
+      "study_permit": null,
+      "study_permit_expiry_date": null,
+      "work_permit": null,
       "created_at": "2019-05-27",
       "updated_at": "2019-05-27"
     }
@@ -383,8 +412,9 @@
       "user_id": 30,
       "sin": null,
       "employee_number": null,
-      "visa": "0",
-      "work_permit": false,
+      "study_permit": null,
+      "study_permit_expiry_date": null,
+      "work_permit": null,
       "created_at": "2019-05-27",
       "updated_at": "2019-05-27"
     }

@@ -95,6 +95,30 @@ def delete_user(user_id):
     except User.DoesNotExist:
         return None
 
+def user_exists(user):
+    """ Check username exists """
+    if User.objects.filter(id=user.id).exists():
+        return True
+    return False
+
+def profile_exists(user):
+    """ Check user's profile exists """
+    if Profile.objects.filter(user__id=user.id).exists():
+        return True
+    return False
+
+def resume_exists(user):
+    """ Check user's resume exists """
+    if Resume.objects.filter(user__id=user.id).exists():
+        return True
+    return False
+
+def confidentiality_exists(user):
+    """ Check user's confidentiality exists """
+    if Confidentiality.objects.filter(user__id=user.id).exists():
+        return True
+    return False
+
 def username_exists(username):
     """ Check username exists """
     if User.objects.filter(username=username).exists():
@@ -203,6 +227,28 @@ def get_user_roles(user):
     else:
         return  None
 
+"""
+def file_exists(user, folder, file):
+    exists = False
+    dir_path = os.path.join(settings.MEDIA_ROOT, 'users', str(user.username), folder)
+    for root, dirs, files in os.walk(dir_path):
+        for filename in files:
+            if filename == file:
+                exists = True
+    return exists
+"""
+
+
+def delete_existing_file(user, folder, file):
+    """ Delete an existing file """
+    deleted = False
+    dir_path = os.path.join(settings.MEDIA_ROOT, 'users', str(user.username), folder)
+    for root, dirs, files in os.walk(dir_path):
+        for filename in files:
+            if filename == file:
+                os.remove(os.path.join(dir_path, filename))
+                deleted = True
+    return deleted
 
 def delete_user_resume(username):
     user = get_user_by_username(username)
@@ -212,15 +258,30 @@ def delete_user_resume(username):
     user.resume.save(update_fields=['file', 'created_at'])
 
     # Delete an existing file
-    deleted = False
-    dir_path = os.path.join(settings.MEDIA_ROOT, 'users', str(user.username), 'resume')
-    for root, dirs, files in os.walk(dir_path):
-        for filename in files:
-            if filename == file:
-                os.remove(os.path.join(dir_path, filename))
-                deleted = True
-
+    deleted = delete_existing_file(user, 'resume', file)
     return True if user.resume and deleted else None
+
+
+def delete_user_study_permit(username):
+    user = get_user_by_username(username)
+    file = os.path.basename(user.confidentiality.study_permit.name)
+    user.confidentiality.study_permit = None
+    user.confidentiality.study_permit_expiry_date = None
+    user.confidentiality.save(update_fields=['study_permit', 'study_permit_expiry_date'])
+
+    # Delete an existing file
+    deleted = delete_existing_file(user, 'study_permit', file)
+    return True if user.confidentiality and deleted else None
+
+def delete_user_work_permit(username):
+    user = get_user_by_username(username)
+    file = os.path.basename(user.confidentiality.work_permit.name)
+    user.confidentiality.work_permit = None
+    user.confidentiality.save(update_fields=['work_permit'])
+
+    # Delete an existing file
+    deleted = delete_existing_file(user, 'work_permit', file)
+    return True if user.confidentiality and deleted else None
 
 
 def create_user_resume(user):

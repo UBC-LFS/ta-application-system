@@ -98,9 +98,9 @@
 
 <div class="">
   Resume:
-  {% if resume_name %}
-    <a href="{% url 'users:download_user_resume' username=user.username filename=resume_name %}" target="_blank">
-      {{ resume_name }}
+  {% if resume_file %}
+    <a href="{% url 'users:download_resume' username=user.username filename=resume_file %}" target="_blank">
+      {{ resume_file }}
     </a>
     - {{ user.resume.created_at }}
   {% else %}
@@ -114,24 +114,30 @@
 
 <h3>Confidentiality</h3>
 
-<div>
-  SIN: {{ user.confidentiality.sin }}
-</div>
-
-<div>
-  Employee Number: {{ user.confidentiality.employee_number }}
-</div>
-
-<div>
-  VISA: {{ user.confidentiality.get_visa_display }}
-</div>
-
-<div>
-  Work Permit: {{ user.confidentiality.work_permit }}
-</div>
-
-<a href="{% url 'users:edit_confidentiality' user.username %}">Edit Confidentiality</a>
-
+<ul>
+  <li>SIN: {{ user.confidentiality.sin }}</li>
+  <li>Employee Number: {{ user.confidentiality.employee_number }}</li>
+  <li>Study Permit:
+    {% if study_permit_file %}
+      <a href="{% url 'users:download_study_permit' username=user.username filename=study_permit_file %}" target="_blank">
+        {{ study_permit_file }}
+      </a>
+      -
+      Expiry Date: {{ user.confidentiality.study_permit_expiry_date }}
+    {% else %}
+      None
+    {% endif %}
+  </li>
+  <li>Work Permit:
+    {% if work_permit_file %}
+      <a href="{% url 'users:download_work_permit' username=user.username filename=work_permit_file %}" target="_blank">
+        {{ work_permit_file }}
+      </a>
+    {% else %}
+      None
+    {% endif %}
+  </li>
+</ul>
 
 <hr />
 
@@ -207,7 +213,7 @@
     <tr>
       <th>Year-Term</th>
       <th>Total Assigned Hours</th>
-    </tr>  
+    </tr>
   </thead>
   <tbody>
     {% for year_term, assigned_hours in offered_summary.items %}
@@ -240,7 +246,7 @@
     <tr>
       <th>Year-Term</th>
       <th>Total Assigned Hours</th>
-    </tr>  
+    </tr>
   </thead>
   <tbody>
     {% for year_term, assigned_hours in accepted_summary.items %}

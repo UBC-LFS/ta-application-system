@@ -91,6 +91,13 @@ class Status(models.Model):
         super(Status, self).save(*args, **kwargs)
 
 
+def create_study_permit_path(instance, filename):
+    return os.path.join('users', str(instance.user.username), 'study_permit', filename)
+
+def create_work_permit_path(instance, filename):
+    return os.path.join('users', str(instance.user.username), 'work_permit', filename)
+
+
 class Confidentiality(models.Model):
     VISA_CHOICES = [
         ('0', 'None'),
@@ -101,11 +108,42 @@ class Confidentiality(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
     sin = models.CharField(max_length=256, unique=True, null=True, blank=True)
     employee_number = models.CharField(max_length=256, unique=True, null=True, blank=True)
-    visa = models.CharField(max_length=1, choices=VISA_CHOICES, default='0')
-    work_permit = models.BooleanField(default=False)
+    study_permit = models.FileField(
+        upload_to=create_study_permit_path,
+        validators=[FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png', 'pdf', 'doc', 'docx'])],
+        null=True,
+        blank=True
+    )
+    study_permit_expiry_date = models.DateField(null=True, blank=True)
+    work_permit = models.FileField(
+        upload_to=create_work_permit_path,
+        validators=[FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png', 'pdf', 'doc', 'docx'])],
+        null=True,
+        blank=True
+    )
 
     created_at = models.DateField(default=dt.date.today)
     updated_at = models.DateField(default=dt.date.today)
+
+    """
+    def delete_existing_study_permit_file(self, *args, **kwargs):
+        ''' Remove existing files '''
+        dir_path = os.path.join(settings.MEDIA_ROOT, 'users', str(self.user.username), 'study_permit')
+        for root, dirs, files in os.walk(dir_path):
+            for filename in files:
+                os.remove(os.path.join(dir_path, filename))
+        super(Confidentiality, self).delete(*args, **kwargs)
+
+    def delete_existing_work_permit_file(self, *args, **kwargs):
+        ''' Remove existing files '''
+        dir_path = os.path.join(settings.MEDIA_ROOT, 'users', str(self.user.username), 'work_permit')
+        for root, dirs, files in os.walk(dir_path):
+            for filename in files:
+                os.remove(os.path.join(dir_path, filename))
+        super(Confidentiality, self).delete(*args, **kwargs)
+    """
+
+
 
 def create_resume_path(instance, filename):
     return os.path.join('users', str(instance.user.username), 'resume', filename)
@@ -120,6 +158,7 @@ class Resume(models.Model):
     )
     created_at = models.DateField(null=True, blank=True)
 
+    """
     def delete_existing_file(self, *args, **kwargs):
         ''' Remove existing files '''
         dir_path = os.path.join(settings.MEDIA_ROOT, 'users', str(self.user.username), 'resume')
@@ -127,6 +166,7 @@ class Resume(models.Model):
             for filename in files:
                 os.remove(os.path.join(dir_path, filename))
         super(Resume, self).delete(*args, **kwargs)
+    """
 
 
 #checked
