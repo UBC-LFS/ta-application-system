@@ -1,6 +1,6 @@
 from .models import Session, Job, Course, Term, Application, ApplicationStatus, CourseCode, CourseNumber, CourseSection
 from django.contrib.auth.models import User
-
+from django.db.models import Q
 from django.forms.models import model_to_dict
 from users import api as usersApi
 
@@ -370,13 +370,6 @@ def get_applications():
     """ Get all applications """
     return Application.objects.all()
 
-def get_offered_applications():
-    applications = []
-    for app in get_applications():
-        ret = get_offered(app)
-        if ret: applications.append(app)
-    return applications
-
 def get_offered_applications_by_student(user):
     applications = []
     for app in get_applications_applied_by_student(user):
@@ -384,20 +377,34 @@ def get_offered_applications_by_student(user):
         if ret: applications.append(app)
     return applications
 
+def get_selected_applications():
+    return Application.objects.filter( ~Q(instructor_preference=Application.NONE) & ~Q(instructor_preference=Application.NO_PREFERENCE) )
+
+
+def get_offered_applications():
+    applications = []
+    for app in get_applications():
+        offered = get_offered(app)
+        if offered:
+            applications.append(app)
+    return applications
+
 
 def get_accepted_applications():
     applications = []
     for app in get_applications():
-        ret = get_accepted(app)
-        if ret: applications.append(app)
+        accepted = get_accepted(app)
+        if accepted:
+            applications.append(app)
     return applications
 
 
 def get_declined_applications():
     applications = []
     for app in get_applications():
-        ret = get_declined(app)
-        if ret: applications.append(app)
+        declined = get_declined(app)
+        if declined:
+            applications.append(app)
     return applications
 
 #checked
@@ -418,6 +425,7 @@ def get_application_slug(app_slug):
 def get_applications_by_student(user):
     applications = get_applications()
     return applications.filter(applicant__id=user.id)
+
 
 def get_offered(application):
     if application.status.filter(assigned=ApplicationStatus.OFFERED).exists():

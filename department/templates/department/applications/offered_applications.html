@@ -6,7 +6,10 @@
     <li class="breadcrumb-item">
       <a href="{% url 'department:index' %}">Department</a>
     </li>
-    <li class="breadcrumb-item active" aria-current="page">Applications</li>
+    <li class="breadcrumb-item">
+      <a href="{% url 'department:applications' %}">Applications</a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">Offered Applications</li>
   </ol>
 </nav>
 
@@ -17,21 +20,8 @@
 	{% endfor %}
 {% endif %}
 
-<h1>Applications</h1>
 
-<div>
-  How Interested, How Qualified: Not at all, Marginally, Somewhat, Most, Very
-</div>
-
-<div>
-  Instructor Preference: None, No Preference, Acceptable, Requested, Critical Requested
-</div>
-
-<a href="{% url 'department:selected_applications' %}">Selected Applications</a> |
-<a href="{% url 'department:offered_applications' %}">Offered Applications</a> |
-<a href="{% url 'department:accepted_applications' %}">Accepted Applications</a> |
-<a href="{% url 'department:declined_applications' %}">Declined Applications</a>
-
+<h1>Offered Applications</h1>
 
 <table>
   <thead>
@@ -54,7 +44,7 @@
     </tr>
   </thead>
   <tbody>
-    {% for app in applications %}
+    {% for app in offered_applications %}
       <tr>
         <td>{{ app.job.session.year }}</td>
         <td>{{ app.job.session.term.code }}</td>
@@ -70,16 +60,15 @@
               No status found
             {% endfor %}
           </ul>
-        </td>
-        <td>{{ app.supervisor_approval }}</td>
-        <td>{{ app.get_how_qualified_display }}</td>
-        <td>{{ app.get_how_interested_display }}</td>
-        <td>{{ app.availability }}</td>
-        <td>{{ app.get_classification_display }}</td>
-        <td>{{ app.get_instructor_preference_display }}</td>
-        <td>{{ app.note }}</td>
-        <td>{{ app.created_at }}</td>
-        <td>{{ app.updated_at }}</td>
+          <td>{{ app.supervisor_approval }}</td>
+          <td>{{ app.get_how_qualified_display }}</td>
+          <td>{{ app.get_how_interested_display }}</td>
+          <td>{{ app.availability }}</td>
+          <td>{{ app.get_classification_display }}</td>
+          <td>{{ app.get_instructor_preference_display }}</td>
+          <td>{{ app.note }}</td>
+          <td>{{ app.created_at }}</td>
+          <td>{{ app.updated_at }}</td>
         <td>
           <a href="{% url 'department:show_application' app.slug %}">View Details</a>
         </td>
@@ -91,5 +80,7 @@
     {% endfor %}
   </tbody>
 </table>
+
+<a href="{% url 'department:applications' %}">Back to Applications</a>
 
 {% endblock %}

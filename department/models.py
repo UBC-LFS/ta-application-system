@@ -135,12 +135,18 @@ class Application(models.Model):
         ('3', 'Type 3')
     ]
 
+    NONE = '0'
+    NO_PREFERENCE = '1'
+    ACCEPTABLE = '2'
+    REQUESTED = '3'
+    CRITICAL_REQUESTED = '4'
+
     INSTRUCTOR_PREFERENCE_CHOICES = [
-        ('0', 'None'),
-        ('1', 'No pref'),
-        ('2', 'Acceptable'),
-        ('3', 'Requested'),
-        ('4', 'Critical Requested')
+        (NONE, 'None'),
+        (NO_PREFERENCE, 'No Preference'),
+        (ACCEPTABLE, 'Acceptable'),
+        (REQUESTED, 'Requested'),
+        (CRITICAL_REQUESTED, 'Critical Requested')
     ]
 
     applicant = models.ForeignKey(User, on_delete=models.CASCADE)

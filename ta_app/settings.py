@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     'home',
     'accounts',
     'users',
-    'department'
+    'department',
+    #'ckeditor'
 ]
 
 MIDDLEWARE = [
@@ -144,3 +145,5 @@ MESSAGE_TAGS = {
     messages.WARNING: 'alert-warning',
     messages.ERROR: 'alert-danger',
 }
+
+#CKEDITOR_BASEPATH = os.path.join(STATIC_ROOT, 'ckeditor', 'ckeditor')
