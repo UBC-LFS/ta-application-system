@@ -2,47 +2,45 @@
 
 {% block content %}
 
-<nav aria-label="breadcrumb">
+<nav class="margin-top-10" aria-label="breadcrumb">
   <ol class="breadcrumb">
-    <li class="breadcrumb-item">
-      <a href="{% url 'users:hr' %}">for HR users</a>
-    </li>
+    <li class="breadcrumb-item active">For HR Users</li>
   </ol>
 </nav>
 
 {% if messages %}
 	{% for message in messages %}
-		<div>{{ message }}</div>
+		<div class="alert alert-info">{{ message }}</div>
 	{% endfor %}
 {% endif %}
 
-<h1>for HR users</h1>
+<h1>For HR Users</h1>
 <small>Total: {{ total_users }}</small>
 
 
-<div class="search-field">
+{% comment %} <div class="search-field">
 	<form method="GET" >
 		<div class="input-field">
 			<input class="search-field-text" type="text" name="q" value="{{ request.GET.q }}" placeholder="Search by CWL and Name">
 			<button class="btn btn-sm" type="submit" name="action">Search</button>
 		</div>
 	</form>
-</div>
+</div> {% endcomment %}
 
-<table class="table table-sm">
+<table class="table table-sm table-striped" data-toggle="table" data-sortable="true" data-classes="" data-pagination="true" data-search="true">
 	<thead>
 		<tr>
-      <th>CWL</th>
-      <th>First Name</th>
-			<th>Last Name</th>
-			<th>Email</th>
-			<th>UBC Number</th>
-			<th>SIN</th>
-      <th>Employee Number</th>
-      <th>VISA</th>
-      <th>Work Permit</th>
-			<th>Created at</th>
-			<th>Updated at</th>
+      		<th data-sortable="true">CWL</th>
+      		<th data-sortable="true">First Name</th>
+			<th data-sortable="true">Last Name</th>
+			<th data-sortable="true">Email</th>
+			<th data-sortable="true">UBC Number</th>
+			<th data-sortable="true">SIN</th>
+      		<th data-sortable="true">Employee Number</th>
+      		<th data-sortable="true">VISA</th>
+      		<th data-sortable="true">Work Permit</th>
+			<th data-sortable="true">Created at</th>
+			<th data-sortable="true">Updated at</th>
 		</tr>
 	</thead>
   <tbody>

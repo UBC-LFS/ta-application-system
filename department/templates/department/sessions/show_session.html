@@ -15,7 +15,7 @@
 
 {% if messages %}
 	{% for message in messages %}
-		<div>{{ message }}</div>
+		<div class="alert alert-info">{{ message }}</div>
 	{% endfor %}
 {% endif %}
 
@@ -24,14 +24,14 @@
 
 <div class="card">
   <ul class="list-group list-group-flush">
-    <li class="list-group-item">Title: {{ session.title }}</li>
-    <li class="list-group-item">Description: {{ session.description }}</li>
-    <li class="list-group-item">Year: {{ session.year }}</li>
-    <li class="list-group-item">Term: {{ session.term.name }} ({{ session.term.code }})</li>
-    <li class="list-group-item">Is Active: {{ session.is_active }}</li>
-    <li class="list-group-item">Created At: {{ session.created_at }}</li>
-    <li class="list-group-item">Updated At: {{ session.updated_at }}</li>
-    <li class="list-group-item">Note: {{ session.note }}</li>
+    <li class="list-group-item"><b>Title:</b> {{ session.title }}</li>
+    <li class="list-group-item"><b>Description:</b> {{ session.description }}</li>
+    <li class="list-group-item"><b>Year:</b> {{ session.year }}</li>
+    <li class="list-group-item"><b>Term:</b> {{ session.term.name }} ({{ session.term.code }})</li>
+    <li class="list-group-item"><b>Is Active:</b> {{ session.is_active }}</li>
+    <li class="list-group-item"><b>Created At:</b> {{ session.created_at }}</li>
+    <li class="list-group-item"><b>Updated At:</b> {{ session.updated_at }}</li>
+    <li class="list-group-item"><b>Note:</b> {{ session.note }}</li>
   </ul>
 </div>
 

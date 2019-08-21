@@ -1,7 +1,7 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
 
-<nav aria-label="breadcrumb">
+<nav class="margin-top-10" aria-label="breadcrumb">
   <ol class="breadcrumb">
     <li class="breadcrumb-item">
       <a href="{% url 'department:index' %}">Department</a>
@@ -13,20 +13,35 @@
 
 {% if messages %}
 	{% for message in messages %}
-		<div>{{ message }}</div>
+		<div class="alert alert-info">{{ message }}</div>
 	{% endfor %}
 {% endif %}
 
+<ul class="nav justify-content-center">
+  <li class="nav-item">
+    <a class="nav-link" href="{% url 'department:sessions' %}">Sessions</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="{% url 'department:jobs' %}">Jobs</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="{% url 'department:applications' %}">Applications</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="{% url 'users:index' %}">Users</a>
+  </li>
+</ul>
+
 <h1>Applications</h1>
 
-<table class="table">
+<table class="table table-sm table-striped" data-toggle="table" data-sortable="true" data-classes="" data-pagination="true" data-search="true">
   <thead>
     <tr>
-      <th>Year</th>
-      <th>Term</th>
-      <th>Job</th>
-      <th>Applicant</th>
-      <th>Status</th>
+      <th data-sortable="true">Year</th>
+      <th data-sortable="true">Term</th>
+      <th data-sortable="true">Job</th>
+      <th data-sortable="true">Applicant</th>
+      <th data-sortable="true">Status</th>
       <th>Apply Date</th>
       <th>Actions</th>
     </tr>
@@ -51,7 +66,7 @@
         </td>
         <td>{{ app.created_at }}</td>
         <td>
-          <a href="{% url 'department:show_application' app.slug %}">View Details</a>
+          <a class="btn btn-sm btn-info" href="{% url 'department:show_application' app.slug %}">View Details</a>
         </td>
       </tr>
     {% empty %}
@@ -64,14 +79,14 @@
 
 <h3>Offered Applications</h3>
 
-<table class="table">
+<table class="table table-sm table-striped" data-toggle="table" data-sortable="true" data-classes="" data-pagination="true" data-search="true">
   <thead>
     <tr>
-      <th>Year</th>
-      <th>Term</th>
-      <th>Job</th>
-      <th>Applicant</th>
-      <th>Status</th>
+      <th data-sortable="true">Year</th>
+      <th data-sortable="true">Term</th>
+      <th data-sortable="true">Job</th>
+      <th data-sortable="true">Applicant</th>
+      <th data-sortable="true">Status</th>
       <th>Apply Date</th>
       <th>Actions</th>
     </tr>
@@ -96,7 +111,7 @@
         </td>
         <td>{{ app.created_at }}</td>
         <td>
-          <a href="{% url 'department:show_application' app.slug %}">View Details</a>
+          <a class="btn btn-sm btn-info" href="{% url 'department:show_application' app.slug %}">View Details</a>
         </td>
       </tr>
     {% empty %}
@@ -109,14 +124,14 @@
 
 <h3>Accpeted Applications</h3>
 
-<table class="table">
+<table class="table table-sm table-striped" data-toggle="table" data-sortable="true" data-classes="" data-pagination="true" data-search="true">
   <thead>
     <tr>
-      <th>Year</th>
-      <th>Term</th>
-      <th>Job</th>
-      <th>Applicant</th>
-      <th>Status</th>
+      <th data-sortable="true">Year</th>
+      <th data-sortable="true">Term</th>
+      <th data-sortable="true">Job</th>
+      <th data-sortable="true">Applicant</th>
+      <th data-sortable="true">Status</th>
       <th>Apply Date</th>
       <th>Actions</th>
     </tr>
@@ -141,7 +156,7 @@
         </td>
         <td>{{ app.created_at }}</td>
         <td>
-          <a href="{% url 'department:show_application' app.slug %}">View Details</a>
+          <a class="btn btn-sm btn-info" href="{% url 'department:show_application' app.slug %}">View Details</a>
         </td>
       </tr>
     {% empty %}
@@ -154,14 +169,14 @@
 
 <h3>Declined Applications</h3>
 
-<table class="table">
+<table class="table table-sm table-striped" data-toggle="table" data-sortable="true" data-classes="" data-pagination="true" data-search="true">
   <thead>
     <tr>
-      <th>Year</th>
-      <th>Term</th>
-      <th>Job</th>
-      <th>Applicant</th>
-      <th>Status</th>
+      <th data-sortable="true">Year</th>
+      <th data-sortable="true">Term</th>
+      <th data-sortable="true">Job</th>
+      <th data-sortable="true">Applicant</th>
+      <th data-sortable="true">Status</th>
       <th>Apply Date</th>
       <th>Actions</th>
     </tr>
@@ -186,7 +201,7 @@
         </td>
         <td>{{ app.created_at }}</td>
         <td>
-          <a href="{% url 'department:show_application' app.slug %}">View Details</a>
+          <a class="btn btn-sm btn-info" href="{% url 'department:show_application' app.slug %}">View Details</a>
         </td>
       </tr>
     {% empty %}

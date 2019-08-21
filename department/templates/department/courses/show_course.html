@@ -1,7 +1,7 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
 
-<nav aria-label="breadcrumb">
+<nav class="margin-top-10" aria-label="breadcrumb">
   <ol class="breadcrumb">
     <li class="breadcrumb-item">
       <a href="{% url 'department:index' %}">Department</a>
@@ -15,21 +15,20 @@
 
 {% if messages %}
 	{% for message in messages %}
-		<div>{{ message }}</div>
+		<div class="alert alert-info">{{ message }}</div>
 	{% endfor %}
 {% endif %}
 
-<h3>Course Details</h3>
+<h3>{{ course.code }} {{ course.number }} {{ course.section }}</h3>
 
-<ul>
-  <li>Course Code: {{ course.code }}</li>
-  <li>Course Number: {{ course.number }}</li>
-  <li>Course Section: {{ course.section }}</li>
-  <li>Course Name: {{ course.name }}</li>
-  <li>Term: {{ course.term.name }} ({{ course.term.code }})</li>
+<ul class="list-group margin-top-10">
+  <li class="list-group-item">Course Code: {{ course.code }}</li>
+  <li class="list-group-item">Course Number: {{ course.number }}</li>
+  <li class="list-group-item">Course Section: {{ course.section }}</li>
+  <li class="list-group-item">Course Name: {{ course.name }}</li>
+  <li class="list-group-item">Term: {{ course.term.name }} ({{ course.term.code }})</li>
 </ul>
 
-<a href="{% url 'department:courses' %}">Courses</a> |
-<a href="{% url 'department:edit_course' course.slug %}">Edit</a>
+<a class="btn btn-warning margin-top-10" href="{% url 'department:edit_course' course.slug %}">Edit</a>
 
 {% endblock %}

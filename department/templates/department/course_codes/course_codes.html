@@ -1,7 +1,7 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
 
-<nav aria-label="breadcrumb">
+<nav class="margin-top-10" aria-label="breadcrumb">
   <ol class="breadcrumb">
     <li class="breadcrumb-item">
       <a href="{% url 'department:index' %}">Department</a>
@@ -13,34 +13,34 @@
 
 {% if messages %}
 	{% for message in messages %}
-		<div>{{ message }}</div>
+		<div class="alert alert-info">{{ message }}</div>
 	{% endfor %}
 {% endif %}
 
 <h1>Course Codes</h1>
 
-<table>
+<table class="table">
   <thead>
     <tr>
-      <th>Code</th>
-      <th>Actions</th>
+      <th class="w-75">Code</th>
+      <th class="w-25">Actions</th>
     </tr>
   </thead>
   <tbody>
     {% for code in course_codes %}
       <tr>
         <td>
-          <a href="{% url 'department:show_course_code' code.name %}">{{ code.name }}</a>
+          <h2><a href="{% url 'department:show_course_code' code.name %}">{{ code.name }}</a></h2>
         </td>
         <td>
-          <button type="button" data-toggle="modal" data-target="#course-code-edit-modal-{{ code.id }}">
+          <button class="btn btn-warning btn-block" type="button" data-toggle="modal" data-target="#course-code-edit-modal-{{ code.id }}">
             Edit
           </button>
 
           <form action="{% url 'department:delete_course_code' %}" method="post" onsubmit="return confirm('Are you sure to delete this course code - {{ code.name }} ?')">
             {% csrf_token %}
             <input type="hidden" name="course_code" value="{{ code.id }}" />
-            <input type="submit" value="Delete">
+            <input class="btn btn-danger btn-block margin-top-10" type="submit" value="Delete">
           </form>
         </td>
       </tr>

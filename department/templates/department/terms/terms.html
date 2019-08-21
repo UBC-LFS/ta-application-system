@@ -1,7 +1,7 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
 
-<nav aria-label="breadcrumb">
+<nav class="margin-top-10" aria-label="breadcrumb">
   <ol class="breadcrumb">
     <li class="breadcrumb-item">
       <a href="{% url 'department:index' %}">Department</a>
@@ -13,15 +13,15 @@
 
 {% if messages %}
 	{% for message in messages %}
-		<div>{{ message }}</div>
+		<div class="alert alert-info">{{ message }}</div>
 	{% endfor %}
 {% endif %}
 
 <h1>Terms</h1>
 
-<h3>All Terms</h3>
+<h3 class="margin-top-30">All Terms</h3>
 
-<table>
+<table class="table">
   <thead>
     <tr>
       <th>Code</th>
@@ -40,7 +40,7 @@
           <form action="{% url 'department:delete_term' %}" method="post" onsubmit="return confirm('Are you sure to delete {{ term.code }} - {{ term.name }}?');">
   					{% csrf_token %}
             <input type="hidden" name="term" value="{{ term.id }}">
-  					<input type="submit" value="Delete" />
+  					<input class="btn btn-danger" type="submit" value="Delete" />
   				</form>
         </td>
       </tr>

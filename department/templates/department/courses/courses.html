@@ -1,7 +1,7 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
 
-<nav aria-label="breadcrumb">
+<nav class="margin-top-10" aria-label="breadcrumb">
   <ol class="breadcrumb">
     <li class="breadcrumb-item">
       <a href="{% url 'department:index' %}">Department</a>
@@ -13,7 +13,7 @@
 
 {% if messages %}
 	{% for message in messages %}
-		<div>{{ message }}</div>
+		<div class="alert alert-info">{{ message }}</div>
 	{% endfor %}
 {% endif %}
 
@@ -21,12 +21,12 @@
 
 <h5>All Courses</h5>
 
-<table>
+<table class="table table-sm table-striped" data-toggle="table" data-sortable="true" data-classes="" data-pagination="true" data-search="true">
   <thead>
     <tr>
-      <th>Course</th>
-      <th>Term</th>
-      <th>Name</th>
+      <th data-sortable="true">Course</th>
+      <th data-sortable="true">Term</th>
+      <th data-sortable="true">Name</th>
       <th>Actions</th>
     </tr>
   </thead>
@@ -44,7 +44,7 @@
           <form action="{% url 'department:delete_course' %}" method="post" onsubmit="return confirm('Are you sure to delete {{ course.code }} {{ course.number }} {{ course.section }} - {{ course.name }}?');">
   					{% csrf_token %}
             <input type="hidden" name="course" value="{{ course.id }}">
-  					<input type="submit" value="Delete" />
+  					<input class="btn btn-sm btn-danger" type="submit" value="Delete" />
   				</form>
         </td>
       </tr>

@@ -12,7 +12,7 @@
 
 {% if messages %}
 	{% for message in messages %}
-		<div>{{ message }}</div>
+		<div class="alert alert-info">{{ message }}</div>
 	{% endfor %}
 {% endif %}
 
@@ -32,7 +32,7 @@
       <li class="list-group-item"><b>Last Login:</b> {{ user.last_login }}</li>
     </ul>
 
-    <button type="button" data-toggle="modal" data-target="#edit-user-info-{{ user.id }}">
+    <button class="btn btn-warning margin-top-10" type="button" data-toggle="modal" data-target="#edit-user-info-{{ user.id }}">
       Edit User Info
     </button>
 
@@ -58,25 +58,24 @@
 
     <h3 class="margin-top-30">Confidentiality</h3>
 
-    <ul class="list-group">
+    <ul class="list-group overflow-hidden">
       <li class="list-group-item"><b>SIN:</b> {{ user.confidentiality.sin }}</li>
       <li class="list-group-item"><b>Employee Number:</b> {{ user.confidentiality.employee_number }}</li>
       <li class="list-group-item"><b>VISA:</b> {{ user.confidentiality.get_visa_display }}</li>
       <li class="list-group-item"><b>Work Permit:</b> {{ user.confidentiality.work_permit }}</li>
-      <li>Study Permit:
+      <li class="list-group-item"><b>Study Permit:</b>
         {% if study_permit_file %}
-          <a href="{% url 'users:download_study_permit' username=user.username filename=study_permit_file %}" target="_blank">
+          <a class="filename" href="{% url 'users:download_study_permit' username=user.username filename=study_permit_file %}" target="_blank">
             {{ study_permit_file }}
           </a>
-          -
-          Expiry Date: {{ user.confidentiality.study_permit_expiry_date }}
+          <p>Expiry Date: {{ user.confidentiality.study_permit_expiry_date }}</p>
         {% else %}
           None
         {% endif %}
       </li>
-      <li>Work Permit:
+      <li class="list-group-item"><b>Work Permit:</b>
         {% if work_permit_file %}
-          <a href="{% url 'users:download_work_permit' username=user.username filename=work_permit_file %}" target="_blank">
+          <a class="filename" href="{% url 'users:download_work_permit' username=user.username filename=work_permit_file %}" target="_blank">
             {{ work_permit_file }}
           </a>
         {% else %}
@@ -92,6 +91,7 @@
     <h3 class="margin-top-30">Profile</h3>
 
     <ul class="list-group">
+      <li class="list-group-item"><b>Preferred Name:</b> {{ user.profile.preferred_name }}</li>
       <li class="list-group-item"><b>Created At:</b> {{ user.profile.created_at }}</li>
       <li class="list-group-item"><b>Updated at:</b> {{ user.profile.updated_at }}</li>
       <li class="list-group-item">
@@ -148,9 +148,6 @@
       </li>
     </ul>
     <a class="btn btn-warning margin-top-10" href="{% url 'users:edit_profile' user.username %}">Edit Profile</a>
-    <div class="">
-      Preferred Name: {{ user.profile.preferred_name }}
-    </div>
   </div>
 
 </div>

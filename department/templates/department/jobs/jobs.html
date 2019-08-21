@@ -13,9 +13,24 @@
 
 {% if messages %}
 	{% for message in messages %}
-		<div>{{ message }}</div>
+		<div class="alert alert-info">{{ message }}</div>
 	{% endfor %}
 {% endif %}
+
+<ul class="nav justify-content-center">
+  <li class="nav-item">
+    <a class="nav-link" href="{% url 'department:sessions' %}">Sessions</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="{% url 'department:jobs' %}">Jobs</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="{% url 'department:applications' %}">Applications</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="{% url 'users:index' %}">Users</a>
+  </li>
+</ul>
 
 <h1>Jobs</h1>
 <small>Total {{ jobs.count }}</small>

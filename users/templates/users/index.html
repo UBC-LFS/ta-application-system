@@ -2,7 +2,7 @@
 
 {% block content %}
 
-<nav aria-label="breadcrumb">
+<nav class="margin-top-10" aria-label="breadcrumb">
   <ol class="breadcrumb">
     <li class="breadcrumb-item">
       <a href="{% url 'department:index' %}">Department</a>
@@ -13,9 +13,24 @@
 
 {% if messages %}
 	{% for message in messages %}
-		<div>{{ message }}</div>
+		<div class="alert alert-info">{{ message }}</div>
 	{% endfor %}
 {% endif %}
+
+<ul class="nav justify-content-center">
+  <li class="nav-item">
+    <a class="nav-link" href="{% url 'department:sessions' %}">Sessions</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="{% url 'department:jobs' %}">Jobs</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="{% url 'department:applications' %}">Applications</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="{% url 'users:index' %}">Users</a>
+  </li>
+</ul>
 
 <h1>Users</h1>
 
@@ -23,6 +38,7 @@
 	<thead>
 		<tr>
 			<th data-sortable="true">First Name</th>
+			<th data-sortable="true">Prefered Name</th>
 			<th data-sortable="true">Last Name</th>
 			<th data-sortable="true">CWL</th>
 			<th data-sortable="true">UBC Number</th>
@@ -35,6 +51,7 @@
   {% for user in users %}
 		<tr>
 			<td>{{ user.first_name }}</td>
+			<td>{{ user.profile.preferred_name }}</td>
 			<td>{{ user.last_name }}</td>
 			<td><a href="{% url 'users:show_user' user.username %}">{{ user.username }}</a></td>
 			<td>{{ user.profile.ubc_number }}</td>

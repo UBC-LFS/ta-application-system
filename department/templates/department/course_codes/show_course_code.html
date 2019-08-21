@@ -1,7 +1,7 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
 
-<nav aria-label="breadcrumb">
+<nav class="margin-top-10" aria-label="breadcrumb">
   <ol class="breadcrumb">
     <li class="breadcrumb-item">
       <a href="{% url 'department:index' %}">Department</a>
@@ -16,17 +16,17 @@
 
 {% if messages %}
 	{% for message in messages %}
-		<div>{{ message }}</div>
+		<div class="alert alert-info">{{ message }}</div>
 	{% endfor %}
 {% endif %}
 
-<h1>Course Code Details</h1>
+<h1>{{ course_code.name }}</h1>
 
-<div class="">
+<div class="margin-top-30">
   Code Name: {{ course_code.name }}
 </div>
 
-<a href="{% url 'department:course_codes' %}">Back to Course Codes</a>
+<a class="btn btn-secondary margin-top-30" href="{% url 'department:course_codes' %}">Back to Course Codes</a>
 
 
 

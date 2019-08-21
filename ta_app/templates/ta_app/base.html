@@ -19,10 +19,25 @@
 				document.getElementById('home').classList.remove("active");
 			}
 
+			
 			if (window.location.href.indexOf("department") > -1) {
-				document.getElementById('admin').classList.add("active");
+				if (document.getElementById('admin')) {
+					document.getElementById('admin').classList.add("active");
+				}
 			} else {
-				document.getElementById('admin').classList.remove("active");
+				if (document.getElementById('admin')) {
+					document.getElementById('admin').classList.remove("active");
+				}
+			}
+
+			if (window.location.href.indexOf("hr") > -1) {
+				if (document.getElementById('hr')) {
+					document.getElementById('hr').classList.add("active");
+				}
+			} else {
+				if (document.getElementById('hr')) {
+					document.getElementById('hr').classList.remove("active");
+				}
 			}
   		});
 	</script>
@@ -51,7 +66,7 @@
 						{% endif %}
 
 						{% if 'HR' in loggedin_user.roles %}
-							<a class="nav-link" href="{% url 'users:hr' %}">for HR users</a>
+							<a id="hr" class="nav-link" href="{% url 'users:hr' %}">For HR Users</a>
 						{% endif %}
 
 						{% if 'Admin' in loggedin_user.roles or 'Superadmin' in loggedin_user.roles %}
