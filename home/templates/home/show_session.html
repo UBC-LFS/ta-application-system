@@ -1,7 +1,7 @@
 {% extends "ta_app/base.html" %}
 {% block content %}
 
-<nav aria-label="breadcrumb">
+<nav class="margin-top-10" aria-label="breadcrumb">
   <ol class="breadcrumb">
     <li class="breadcrumb-item">
       <a href="{% url 'home:index' %}">Home</a>
@@ -18,17 +18,18 @@
 
 
 <h1>Session Details</h1>
-<h3>{{ session.year }} {{ session.term.name }} {{ session.title }}</h3>
+<h3 class="margin-top-30">{{ session.year }} {{ session.term.name }} {{ session.title }}</h3>
 
-<h3>Available Jobs</h3>
+<h3 class="margin-top-30">Available Jobs</h3>
 
-<table>
+<table class="table">
   <thead>
     <tr>
       <td>Job</td>
       <td>Title</td>
       <td>Instructors</td>
       <td>Actions</td>
+      <td>Availablity</td>
     </tr>
   </thead>
   <tbody>
@@ -45,7 +46,9 @@
             {% endfor %}
           </td>
           <td>
-            <button type="button" class="btn btn-sm" data-toggle="modal" data-target="#job-list-modal-{{ job.id }}">View Details</button>
+            <button type="button" class="btn btn-info" data-toggle="modal" data-target="#job-list-modal-{{ job.id }}">View Details</button>
+          </td>
+          <td>
             {% if job.has_applied %}
               Applied
             {% else %}

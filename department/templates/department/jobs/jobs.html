@@ -1,7 +1,7 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
 
-<nav aria-label="breadcrumb">
+<nav class="margin-top-10" aria-label="breadcrumb">
   <ol class="breadcrumb">
     <li class="breadcrumb-item">
       <a href="{% url 'department:index' %}">Department</a>
@@ -26,7 +26,7 @@
       <th data-sortable="true">Year</th>
       <th data-sortable="true">Term</th>
       <th data-sortable="true">Job</th>
-      <th data-sortable="true">Applications</th>
+      <th data-sortable="true"># of Applications</th>
       <th data-sortable="true">TA Hours</th>
       <th data-sortable="true">Active</th>
       <th>Created at</th>
@@ -41,7 +41,7 @@
         <td>{{ job.session.term.code }}</td>
         <td>
           {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}
-          <button type="button" data-toggle="modal" data-target="#job-details-modal-{{ job.id }}" class="btn btn-secondary float-right">
+          <button type="button" data-toggle="modal" data-target="#job-details-modal-{{ job.id }}" class="btn btn-sm btn-info float-right">
             Details
           </button>
 
@@ -55,19 +55,12 @@
   				        </button>
   				      </div>
   				      <div class="modal-body">
-                  <div>Title: {{ job.title }}</div>
-                  <p>
-                    Description:
-                    {{ job.description }}
-                  </p>
-                  <p>
-                    Qualification:
-                    {{ job.qualification }}
-                  </p>
-                  <p>
-                    Note:
-                    {{ job.note }}
-                  </p>
+                  <ul class="list-group list-group-flush">
+                    <li class="list-group-item">Title: {{ job.title }}</li>
+                    <li class="list-group-item">Description: {{ job.description }}</li>
+                    <li class="list-group-item">Qualification: {{ job.qualification }}</li>
+                    <li class="list-group-item">Note: {{ job.note }}</li>
+                  </ul>
                   <div>
                     <ul>
                       {% for instructor in job.instructors.all %}
@@ -82,7 +75,7 @@
         </td>
         <td>
           {% if job.application_set.count > 0 %}
-            <button type="button" data-toggle="modal" data-target="#job-applications-modal-{{ job.id }}">
+            <button class="btn btn-sm btn-secondary" type="button" data-toggle="modal" data-target="#job-applications-modal-{{ job.id }}">
               {{ job.application_set.count }}
             </button>
             <div class="modal fade" id="job-applications-modal-{{ job.id }}" tabindex="-1" role="dialog" aria-labelledby="job-applications-modal-label-{{ job.id }}" aria-hidden="true">

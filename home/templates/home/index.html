@@ -1,7 +1,7 @@
 {% extends "ta_app/base.html" %}
 {% block content %}
 
-<nav aria-label="breadcrumb">
+<nav class="margin-top-10" aria-label="breadcrumb">
   <ol class="breadcrumb">
     <li class="breadcrumb-item active" aria-current="page">Home</li>
   </ol>
@@ -17,15 +17,19 @@
 
 <h1>Apply now!</h1>
 
+<div class="row">
 {% for session in active_sessions %}
-	<div class="">
-		<p>Description: {{ session.description }}</p>
-		<a href="{% url 'home:show_session' session.slug %}">{{ session.year }} {{ session.term.name }} {{ session.title }}</a>
-		<p>Note: {{ session.note }}</p>
+	<div class="col-4 margin-top-30">
+		<div class="card padding-20">
+			<h5><a href="{% url 'home:show_session' session.slug %}">{{ session.year }} {{ session.term.name }} {{ session.title }}</a></h5>
+			<p class="margin-bottom-0">Description: {{ session.description }}</p>
+			<p>Note: {{ session.note }}</p>
+		</div>
 	</div>
 {% empty %}
 	No active sessions found.
 {% endfor %}
+</div>
 
 
 {% endblock %}

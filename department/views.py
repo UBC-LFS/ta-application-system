@@ -245,6 +245,7 @@ def edit_job(request, session_slug, job_slug):
 
     if request.method == 'POST':
         form = JobForm(request.POST, instance=job)
+        print(form)
         if form.is_valid():
             data = form.cleaned_data
             new_instructors = data.get('instructors')

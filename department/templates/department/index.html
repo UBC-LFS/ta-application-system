@@ -1,8 +1,9 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
 
-<nav aria-label="breadcrumb">
+<nav class="margin-top-10" aria-label="breadcrumb">
   <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href={% url 'home:index' %}>Home</a></li>
     <li class="breadcrumb-item active" aria-current="page">Department</li>
   </ol>
 </nav>
@@ -17,14 +18,23 @@
 
 <h1>Department</h1>
 
-<a href="{% url 'department:sessions' %}">Sessions</a> |
-<a href="{% url 'department:jobs' %}">Jobs</a> |
-<a href="{% url 'department:applications' %}">Applications</a> |
-<a href="{% url 'users:index' %}">Users</a> |
+<ul class="nav">
+  <li class="nav-item">
+    <a class="nav-link" href="{% url 'department:sessions' %}">Sessions</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="{% url 'department:jobs' %}">Jobs</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="{% url 'department:applications' %}">Applications</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="{% url 'users:index' %}">Users</a>
+  </li>
+</ul>
 
-
-<div class="dropdown">
-  <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+<div class="dropdown margin-top-30">
+  <button class="btn btn-info dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
     Dropdown button
   </button>
   <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
@@ -49,10 +59,10 @@
 
 
 
-<h3>Overview</h3>
+<h3 class="margin-top-30">Overview</h3>
 
-<h4>Active Sessions</h4>
-<table>
+<h4 class="margin-top-30">Active Sessions</h4>
+<table class="table">
   <thead>
     <tr>
       <th>TA Application</th>
@@ -79,18 +89,26 @@
   </tbody>
 </table>
 
-<ul>
-  <li>Active Sessions: {{ active_sessions.count }}</li>
-  <li>Inactive Sessions: {{ inactive_sessions.count }}</li>
-  <li>Total Sessions: {{ active_sessions.count|add:inactive_sessions.count }}</li>
-</ul>
+<div class="row margin-top-30">
+  <div class="col-3">
+    <ul class="list-group">
+      <li class="list-group-item">Active Sessions: {{ active_sessions.count }}</li>
+      <li class="list-group-item">Inactive Sessions: {{ inactive_sessions.count }}</li>
+      <li class="list-group-item">Total Sessions: {{ active_sessions.count|add:inactive_sessions.count }}</li>
+    </ul>
+  </div>
+</div>
 
-<h4>Jobs</h4>
+<h4 class="margin-top-30">Jobs</h4>
 
-<h4>Courses</h4>
-<ul>
-  <li>Courses: {{ courses.count }}</li>
-</ul>
+<h4 class="margin-top-30">Courses</h4>
 
+<div class="row">
+  <div class="col-3">
+    <ul class="list-group">
+      <li class="list-group-item">Courses: {{ courses.count }}</li>
+    </ul>
+  </div>
+</div>
 
 {% endblock %}

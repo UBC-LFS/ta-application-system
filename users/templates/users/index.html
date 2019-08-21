@@ -48,7 +48,7 @@
 				<form action="{% url 'users:delete_user' %}" method="post" onsubmit="return confirm('Are you sure to delete {{ user.username }}?');">
 					{% csrf_token %}
           			<input type="hidden" name="user" value="{{ user.id }}">
-					<input class="btn btn-danger" type="submit" value="Delete" />
+					<input class="btn btn-sm btn-danger" type="submit" value="Delete" />
 				</form>
 			</td>
 		</tr>
@@ -57,7 +57,7 @@
 </table>
 
 <h3 class="margin-top-30">Create a user</h3>
-<div class="new-user-form padding-10">
+<div class="new-user-form padding-20">
 	<form action="" method="post">
 		{% csrf_token %}
 		<div class="form-group">

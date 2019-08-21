@@ -18,263 +18,237 @@
 
 <h1>User Details</h1>
 
-<h3>Infomation</h3>
-<div>First Name: {{ user.first_name }}</div>
-<div>Last Name: {{ user.last_name }}</div>
-<div>CWL: {{ user.username }}</div>
-<div>Email: {{ user.email }}</div>
-<div>UBC Number: {{ user.profile.ubc_number }}</div>
-<div>Date Joined: {{ user.date_joined }}</div>
-<div>Last Login: {{ user.last_login }}</div>
+<div class="row">
+  <div class="col-6">
+    <h3 class="margin-top-30">Infomation</h3>
 
-<hr />
+    <ul class="list-group">
+      <li class="list-group-item"><b>First Name:</b> {{ user.first_name }}</li>
+      <li class="list-group-item"><b>Last Name:</b> {{ user.last_name }}</li>
+      <li class="list-group-item"><b>CWL:</b> {{ user.username }}</li>
+      <li class="list-group-item"><b>Email:</b> {{ user.email }}</li>
+      <li class="list-group-item"><b>UBC Number:</b> {{ user.profile.ubc_number }}</li>
+      <li class="list-group-item"><b>Date Joined:</b> {{ user.date_joined }}</li>
+      <li class="list-group-item"><b>Last Login:</b> {{ user.last_login }}</li>
+    </ul>
 
-<h3>Profile</h3>
-<div>Created at: {{ user.profile.created_at }}</div>
-<div>Updated at: {{ user.profile.updated_at }}</div>
+    <h3 class="margin-top-30">Confidentiality</h3>
 
-<div class="">
-  Roles:
-  {% for role in user.profile.roles.all %}
-    {{ role.name }},
-  {% endfor %}
-</div>
+    <ul class="list-group">
+      <li class="list-group-item"><b>SIN:</b> {{ user.confidentiality.sin }}</li>
+      <li class="list-group-item"><b>Employee Number:</b> {{ user.confidentiality.employee_number }}</li>
+      <li class="list-group-item"><b>VISA:</b> {{ user.confidentiality.get_visa_display }}</li>
+      <li class="list-group-item"><b>Work Permit:</b> {{ user.confidentiality.work_permit }}</li>
+    </ul>
+  
+    <a class="btn btn-warning margin-top-10" href="{% url 'users:edit_confidentiality' user.username %}">Edit Confidentiality</a>
+  </div>
 
-<div class="">
-  Qualifications: {{ user.profile.qualifications }}
-</div>
+  <div class="col-6">
+    <h3 class="margin-top-30">Profile</h3>
 
-<div class="">
-  Prior Employment: {{ user.profile.prior_employment }}
-</div>
-
-<div class="">
-  Special Considerations: {{ user.profile.special_considerations }}
-</div>
-
-<div class="">
-  Status: {{ user.profile.status }}
-</div>
-
-<div class="">
-  Program: {{ user.profile.program }}
-</div>
-
-<div class="">
-  Graduation Date: {{ user.profile.graduation_date }}
-</div>
-
-<div class="">
-  Degrees:
-  <ul>
-    {% for degree in user.profile.degrees.all %}
-      <li>{{ degree.name }}</li>
-    {% empty %}
-      None
-    {% endfor %}
-  </ul>
-</div>
-
-<div class="">
-  Trainings:
-  <ul>
-    {% for degree in user.profile.trainings.all %}
-      <li>{{ degree.name }}</li>
-    {% empty %}
-      None
-    {% endfor %}
-  </ul>
-</div>
-
-<div class="">
-  LFS TA Training: {{ user.profile.get_lfs_ta_training_display }}
-  <p>Details: {{ user.profile.lfs_ta_training_details }}</p>
-</div>
-
-<div class="">
-  Previous TA Experience: {{ user.profile.get_ta_experience_display }}
-  <p>Details: {{ user.profile.ta_experience_details }}</p>
-</div>
-
-<div class="">
-  Resume:
-  {% if resume_name %}
-    <a href="{% url 'users:download_user_resume' username=user.username filename=resume_name %}" target="_blank">
-      {{ resume_name }}
-    </a>
-    - {{ user.resume.created_at }}
-  {% else %}
-    No resume
-  {% endif %}
-</div>
-
-<a href="{% url 'users:edit_profile' user.username %}">Edit Profile</a>
-
-<hr />
-
-<h3>Confidentiality</h3>
-
-<div>
-  SIN: {{ user.confidentiality.sin }}
-</div>
-
-<div>
-  Employee Number: {{ user.confidentiality.employee_number }}
-</div>
-
-<div>
-  VISA: {{ user.confidentiality.get_visa_display }}
-</div>
-
-<div>
-  Work Permit: {{ user.confidentiality.work_permit }}
-</div>
-
-<a href="{% url 'users:edit_confidentiality' user.username %}">Edit Confidentiality</a>
-
-
-<hr />
-
-{% if 'Instructor' in roles %}
-  <h3>Instructor Jobs</h3>
-  <ul>
-    {% for job in instructor_jobs %}
-      <li>
-       {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }} - {{ job.course.name }}
+    <ul class="list-group">
+      <li class="list-group-item"><b>Created At:</b> {{ user.profile.created_at }}</li>
+      <li class="list-group-item"><b>Updated at:</b> {{ user.profile.updated_at }}</li>
+      <li class="list-group-item">
+        <b>Roles:</b>
+        {% for role in user.profile.roles.all %}
+          {{ role.name }},
+        {% endfor %}
       </li>
-    {% empty %}
-      No jobs found
-    {% endfor %}
-  </ul>
-{% endif %}
-
-
-{% if 'Student' in roles %}
-
-
-<h3>Applied Jobs</h3>
-<table>
-  <thead>
-    <tr>
-      <th>Year</th>
-      <th>Term</th>
-      <th>Job</th>
-      <th>Status</th>
-      <th>Instructors</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for job in student_jobs %}
-      <tr>
-        <td>{{ job.session.year }}</td>
-        <td>{{ job.session.term.code }}</td>
-        <td>
-          <a href="{% url 'users:show_student_job' username=user.username session_slug=job.session.slug job_slug=job.course.slug %}">
-            {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}
+      <li class="list-group-item"><b>Qualifications:</b> {{ user.profile.qualifications }}</li>
+      <li class="list-group-item"><b>Prior Employment:</b> {{ user.profile.prior_employment }}</li>
+      <li class="list-group-item"><b>Special Considerations:</b> {{ user.profile.special_considerations }}</li>
+      <li class="list-group-item"><b>Status:</b> {{ user.profile.status }}</li>
+      <li class="list-group-item"><b>Program:</b> {{ user.profile.program }}</li>
+      <li class="list-group-item"><b>Graduation Date:</b> {{ user.profile.graduation_date }}</li>
+      <li class="list-group-item">
+        <b>Degrees:</b>
+        <ul>
+          {% for degree in user.profile.degrees.all %}
+            <li>{{ degree.name }}</li>
+          {% empty %}
+            None
+          {% endfor %}
+        </ul>
+      </li>
+      <li class="list-group-item">
+        <b>Trainings:</b>
+        <ul>
+          {% for degree in user.profile.trainings.all %}
+            <li>{{ degree.name }}</li>
+          {% empty %}
+            None
+          {% endfor %}
+        </ul>
+      </li>
+      <li class="list-group-item">
+        <b>LFS TA Training:</b> {{ user.profile.get_lfs_ta_training_display }}
+        <p>Details: {{ user.profile.lfs_ta_training_details }}</p>
+      </li>
+      <li class="list-group-item">
+        <b>Previous TA Experience:</b> {{ user.profile.get_ta_experience_display }}
+        <p>Details: {{ user.profile.ta_experience_details }}</p>
+      </li>
+      <li class="list-group-item">
+        <b>Resume:</b>
+        {% if resume_name %}
+          <a href="{% url 'users:download_user_resume' username=user.username filename=resume_name %}" target="_blank">
+            {{ resume_name }}
           </a>
-        </td>
-        <td>
-          {% for app in job.application_set.all %}
-            {% if app.applicant.id == user.id %}
-              <ul>
-                {% for st in app.status.all %}
-                  <li>{{ st.get_assigned_display }} - {{ st.assigned_hours }} hours - {{ st.created_at }}</li>
-                {% endfor %}
-              </ul>
-            {% endif %}
-          {% endfor %}
-        </td>
-        <td>
-          {% for instructor in job.instructors.all %}
-            {{ instructor.first_name }} {{ instructor.last_name }}
-          {% endfor %}
-        </td>
-      </tr>
-    {% empty %}
-      <tr>
-        <td colspan="5">No jobs applied yet</td>
-      </tr>
-    {% endfor %}
-  </tbody>
-</table>
+          - {{ user.resume.created_at }}
+        {% else %}
+          No resume
+        {% endif %}
+      </li>
+    </ul>
+    <a class="btn btn-warning margin-top-10" href="{% url 'users:edit_profile' user.username %}">Edit Profile</a>
+  </div>
 
-<hr />
+</div>
 
-<h3>Offered Jobs</h3>
+<div class="row margin-top-30">
+  <div class="col">
+    {% if 'Instructor' in roles %}
+      <h3>Instructor Jobs</h3>
 
-<table>
-  <thead>
-    <tr>
-      <th>Year-Term</th>
-      <th>Total Assigned Hours</th>
-    </tr>  
-  </thead>
-  <tbody>
-    {% for year_term, assigned_hours in offered_summary.items %}
-      <tr>
-        <td>{{ year_term }}</td>
-        <td>{{ assigned_hours }} hours</td>
-      </tr>
-    {% endfor %}
-  </tbody>
-</table>
-
-<ul>
-  {% for job in offered_jobs %}
-    <li>{{ job.year }} {{ job.term }} - {{ job.course_code }} {{ job.course_number }} {{ job.course_section }}: {{ job.assigned_status }} {{ job.assigned_hours }} hours</li>
-  {% empty %}
-    <li>No offered jobs found</li>
-  {% endfor %}
-</ul>
+      <ul class="list-group">
+        {% for job in instructor_jobs %}
+          <li class="list-group-item">
+            {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }} - {{ job.course.name }}
+          </li>
+        {% empty %}
+          No jobs found
+        {% endfor %}
+      </ul>
+    {% endif %}
 
 
-<hr />
+    {% if 'Student' in roles %}
+
+
+    <h3>Applied Jobs</h3>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Year</th>
+          <th>Term</th>
+          <th>Job</th>
+          <th>Status</th>
+          <th>Instructors</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for job in student_jobs %}
+          <tr>
+            <td>{{ job.session.year }}</td>
+            <td>{{ job.session.term.code }}</td>
+            <td>
+              <a href="{% url 'users:show_student_job' username=user.username session_slug=job.session.slug job_slug=job.course.slug %}">
+                {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}
+              </a>
+            </td>
+            <td>
+              {% for app in job.application_set.all %}
+                {% if app.applicant.id == user.id %}
+                  <ul>
+                    {% for st in app.status.all %}
+                      <li>{{ st.get_assigned_display }} - {{ st.assigned_hours }} hours - {{ st.created_at }}</li>
+                    {% endfor %}
+                  </ul>
+                {% endif %}
+              {% endfor %}
+            </td>
+            <td>
+              {% for instructor in job.instructors.all %}
+                {{ instructor.first_name }} {{ instructor.last_name }}
+              {% endfor %}
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="5">No jobs applied yet</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <hr />
+
+    <h3>Offered Jobs</h3>
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Year-Term</th>
+          <th>Total Assigned Hours</th>
+        </tr>  
+      </thead>
+      <tbody>
+        {% for year_term, assigned_hours in offered_summary.items %}
+          <tr>
+            <td>{{ year_term }}</td>
+            <td>{{ assigned_hours }} hours</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <ul class="list-group">
+      {% for job in offered_jobs %}
+        <li class="list-group-item">{{ job.year }} {{ job.term }} - {{ job.course_code }} {{ job.course_number }} {{ job.course_section }}: {{ job.assigned_status }} {{ job.assigned_hours }} hours</li>
+      {% empty %}
+        <li class="list-group-item">No offered jobs found</li>
+      {% endfor %}
+    </ul>
+
+
+    <hr />
 
 
 
 
-<h3>Accepted Jobs</h3>
+    <h3>Accepted Jobs</h3>
 
-<table>
-  <thead>
-    <tr>
-      <th>Year-Term</th>
-      <th>Total Assigned Hours</th>
-    </tr>  
-  </thead>
-  <tbody>
-    {% for year_term, assigned_hours in accepted_summary.items %}
-      <tr>
-        <td>{{ year_term }}</td>
-        <td>{{ assigned_hours }} hours</td>
-      </tr>
-    {% endfor %}
-  </tbody>
-</table>
-
-
-<ul>
-  {% for job in accepted_jobs %}
-    <li>{{ job.year }} {{ job.term }} - {{ job.course_code }} {{ job.course_number }} {{ job.course_section }}: {{ job.assigned_status }} {{ job.assigned_hours }} hours</li>
-  {% empty %}
-    <li>No accepted jobs found</li>
-  {% endfor %}
-</ul>
-
-<hr />
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Year-Term</th>
+          <th>Total Assigned Hours</th>
+        </tr>  
+      </thead>
+      <tbody>
+        {% for year_term, assigned_hours in accepted_summary.items %}
+          <tr>
+            <td>{{ year_term }}</td>
+            <td>{{ assigned_hours }} hours</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
 
 
-<h3>Declined Jobs</h3>
-<ul>
-  {% for job in declined_jobs %}
-    <li>{{ job.year }} {{ job.term }} - {{ job.course_code }} {{ job.course_number }} {{ job.course_section }}: {{ job.assigned_status }} {{ job.assigned_hours }} hours</li>
-  {% empty %}
-    <li>No declined jobs found</li>
-  {% endfor %}
-</ul>
+    <ul class="list-group">
+      {% for job in accepted_jobs %}
+        <li class="list-group-item">{{ job.year }} {{ job.term }} - {{ job.course_code }} {{ job.course_number }} {{ job.course_section }}: {{ job.assigned_status }} {{ job.assigned_hours }} hours</li>
+      {% empty %}
+        <li class="list-group-item">No accepted jobs found</li>
+      {% endfor %}
+    </ul>
+
+    <hr />
 
 
-
+    <h3>Declined Jobs</h3>
+    <ul class="list-group">
+      {% for job in declined_jobs %}
+        <li class="list-group-item">{{ job.year }} {{ job.term }} - {{ job.course_code }} {{ job.course_number }} {{ job.course_section }}: {{ job.assigned_status }} {{ job.assigned_hours }} hours</li>
+      {% empty %}
+        <li class="list-group-item">No declined jobs found</li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
 {% endif %}
 
 

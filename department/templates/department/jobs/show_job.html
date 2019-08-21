@@ -22,33 +22,20 @@
 
 <h1>Job Details</h1>
 
-
-<div class="">
-  Session: {{ job.session.year }} {{ job.session.term.name }} {{ job.session.title }}
-</div>
-<div class="">
-  Title: {{ job.title }}
-</div>
-<div class="">
-  description: {{ job.description }}
-</div>
-<div class="">
-  qualification: {{ job.qualification }}
-</div>
-<div class="">
-  note: {{ job.note }}
-</div>
-<div class="">
-  Is active: {{ job.is_active }}
-</div>
-<div class="">
-  Created at: {{ job.created_at }}
-</div>
-<div class="">
-  Updated at: {{ job.updated_at }}
+<div class="card">
+  <ul class="list-group list-group-flush">
+    <li class="list-group-item">Title: {{ job.title }}</li>
+    <li class="list-group-item">Description: {{ job.description }}</li>
+    <li class="list-group-item">Session: {{ job.session.year }} {{ job.session.term.name }} {{ job.session.title }}</li>
+    <li class="list-group-item">Qualification: {{ job.qualification }}</li>
+    <li class="list-group-item">Is Active: {{ job.is_active }}</li>
+    <li class="list-group-item">Created At: {{ job.created_at }}</li>
+    <li class="list-group-item">Updated At: {{ job.updated_at }}</li>
+    <li class="list-group-item">Note: {{ job.note }}</li>
+  </ul>
 </div>
 
-<h5>Instructors</h5>
+<h5 class="margin-top-30">Instructors</h5>
 <ul>
   {% for instructor in job.instructors.all %}
     <li>{{ instructor.first_name }} {{ instructor.last_name }}</li>
@@ -57,9 +44,17 @@
   {% endfor %}
 </ul>
 
-<a href="{% url 'department:show_session' session.slug %}">Session Details</a> |
-<a href="{% url 'department:jobs' %}">Jobs</a> |
-<a href="{% url 'department:edit_job' session_slug=session.slug job_slug=job.course.slug  %}">Edit</a>
+<ul class="nav">
+  <li class="nav-item">
+    <a class="nav-link" href="{% url 'department:show_session' session.slug %}">Session Details</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="{% url 'department:jobs' %}">Jobs</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="{% url 'department:edit_job' session_slug=session.slug job_slug=job.course.slug  %}">Edit</a>
+  </li>
+</ul>
 
 <hr />
 
@@ -69,9 +64,9 @@
   <small>(Maximum: 110 hours)</small>
 </p>
 
-<h3>Applications</h3>
+<h3 class="margin-top-30">Applications</h3>
 
-<table>
+<table class="table">
   <thead>
     <tr>
       <th>Applicant</th>
@@ -83,8 +78,8 @@
       <th>Availability</th>
       <th>Classification</th>
       <th>Instructor Preference</th>
-      <th>Created at</th>
-      <th>Updated at</th>
+      <th>Created At</th>
+      <th>Updated At</th>
       <th>Note</th>
       <th>Actions</th>
     </tr>
