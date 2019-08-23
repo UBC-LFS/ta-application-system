@@ -53,18 +53,18 @@ class CourseForm(forms.ModelForm):
 # checked
 class SessionForm(forms.ModelForm):
     """ Create a model form for a Session """
-    this_year = current_year()
-    year = forms.CharField(initial=this_year)
+    next_year = current_year() + 1
+    year = forms.CharField(initial=next_year)
     title = forms.CharField(initial='TA Application')
     class Meta:
         model = Session
-        fields = ['year', 'term', 'title', 'description', 'note', 'is_active']
+        fields = ['year', 'term', 'title', 'description', 'note']
         widgets = {
             'description': forms.Textarea(attrs={'rows':2}),
             'note': forms.Textarea(attrs={'rows':2})
         }
 
-    field_order = ['year', 'term', 'title', 'description', 'note', 'is_active']
+    field_order = ['year', 'term', 'title', 'description', 'note']
 
 
 # checked
@@ -81,13 +81,13 @@ class SessionConfirmationForm(forms.ModelForm):
 
     class Meta:
         model = Session
-        fields = ['year', 'term', 'title', 'description', 'note', 'is_active', 'courses']
+        fields = ['year', 'term', 'title', 'description', 'note', 'courses', 'is_visible', 'is_archived']
         widgets = {
             'description': forms.Textarea(attrs={'rows':2}),
             'note': forms.Textarea(attrs={'rows':2})
         }
 
-    field_order = ['year', 'term', 'title', 'description', 'note', 'is_active', 'courses']
+    field_order = ['year', 'term', 'title', 'description', 'note', 'courses', 'is_visible', 'is_archived']
 
     def __init__(self, *args, **kwargs):
         super(SessionConfirmationForm, self).__init__(*args, **kwargs)
@@ -99,6 +99,10 @@ class SessionConfirmationForm(forms.ModelForm):
 
 
 
+class AddInstructorForm(forms.ModelForm):
+    class Meta:
+        model = Job
+        fields = ['instructors']
 
 # checked
 class InstructorJobForm(forms.ModelForm):

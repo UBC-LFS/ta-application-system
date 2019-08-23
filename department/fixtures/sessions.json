@@ -10,7 +10,8 @@
       "note": "Session note",
       "created_at": "2018-01-01",
       "updated_at": "2018-01-01",
-      "is_active": false,
+      "is_visible": false,
+      "is_archived": true,
       "slug": "2018-w1"
     }
   },
@@ -25,7 +26,8 @@
       "note": "Session note",
       "created_at": "2018-01-01",
       "updated_at": "2018-01-01",
-      "is_active": false,
+      "is_visible": false,
+      "is_archived": true,
       "slug": "2018-w2"
     }
   },
@@ -40,7 +42,8 @@
       "note": "Session note",
       "created_at": "2018-01-01",
       "updated_at": "2018-01-01",
-      "is_active": false,
+      "is_visible": false,
+      "is_archived": true,
       "slug": "2018-s"
     }
   },
@@ -55,7 +58,8 @@
       "note": "Session note",
       "created_at": "2019-01-01",
       "updated_at": "2019-01-01",
-      "is_active": true,
+      "is_visible": false,
+      "is_archived": false,
       "slug": "2019-w1"
     }
   },
@@ -70,7 +74,8 @@
       "note": "Session note",
       "created_at": "2019-01-01",
       "updated_at": "2019-01-01",
-      "is_active": true,
+      "is_visible": false,
+      "is_archived": false,
       "slug": "2019-w2"
     }
   },
@@ -85,7 +90,8 @@
       "note": "Session note",
       "created_at": "2019-01-01",
       "updated_at": "2019-01-01",
-      "is_active": true,
+      "is_visible": false,
+      "is_archived": false,
       "slug": "2019-s"
     }
   }

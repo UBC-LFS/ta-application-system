@@ -17,6 +17,8 @@ from datetime import datetime
 from django.forms.models import model_to_dict
 
 
+# Pages
+
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
@@ -32,13 +34,52 @@ def index(request):
 
     return render(request, 'department/index.html', {
         'loggedin_user': loggedin_user,
-        'active_sessions': api.get_active_sessions(),
-        'inactive_sessions': api.get_inactive_sessions(),
         'courses': api.get_courses()
     })
 
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def basics(request):
+    if not usersApi.is_valid_user(request.user):
+        raise PermissionDenied
 
-# ------------- Sessions -------------
+    loggedin_user = usersApi.loggedin_user(request.user)
+    if not usersApi.is_admin(loggedin_user):
+        raise PermissionDenied
+
+    return render(request, 'department/pages/basics.html', {
+        'loggedin_user': loggedin_user
+    })
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET', 'POST'])
+def courses(request):
+    if not usersApi.is_valid_user(request.user):
+        raise PermissionDenied
+
+    loggedin_user = usersApi.loggedin_user(request.user)
+    if not usersApi.is_admin(loggedin_user):
+        raise PermissionDenied
+
+    if request.method == 'POST':
+        form = CourseForm(request.POST)
+        if form.is_valid():
+            course = form.save()
+            if course:
+                messages.success(request, 'Success!')
+                return redirect('department:courses')
+            else:
+                messages.error(request, 'Error!')
+        else:
+            messages.error(request, 'Error! Form is invalid')
+
+    return render(request, 'department/pages/courses.html', {
+        'loggedin_user': loggedin_user,
+        'courses': api.get_courses(),
+        'form': CourseForm()
+    })
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -57,13 +98,44 @@ def sessions(request):
         request.session['session_form_data'] = request.POST
         return redirect('department:create_session_confirmation')
 
-    return render(request, 'department/sessions/sessions.html', {
+    return render(request, 'department/pages/sessions.html', {
         'loggedin_user': loggedin_user,
-        'sessions': api.get_sessions(),
-        'active_sessions': api.get_active_sessions(),
-        'inactive_sessions': api.get_inactive_sessions(),
+        'not_archived_sessions': api.get_not_archived_sessions(),
+        'archived_sessions': api.get_archived_sessions(),
         'form': SessionForm()
     })
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def jobs(request):
+    """ Display all jobs """
+
+    if not usersApi.is_valid_user(request.user):
+        raise PermissionDenied
+
+    loggedin_user = usersApi.loggedin_user(request.user)
+    if not usersApi.is_admin(loggedin_user):
+        raise PermissionDenied
+
+    instructors = usersApi.get_instructors()
+    print("instructors", instructors)
+
+    return render(request, 'department/pages/jobs.html', {
+        'loggedin_user': loggedin_user,
+        'jobs': api.get_jobs(),
+        'instructors': instructors
+    })
+
+
+
+
+
+
+
+# ------------- Sessions -------------
+
+
 
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -115,24 +187,7 @@ def create_session_confirmation(request):
         'courses': courses
     })
 
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
-def show_session(request, session_slug):
-    """ Display session details """
 
-    if not usersApi.is_valid_user(request.user):
-        raise PermissionDenied
-
-    loggedin_user = usersApi.loggedin_user(request.user)
-    if not usersApi.is_admin(loggedin_user):
-        raise PermissionDenied
-
-    session = api.get_session_by_slug(session_slug)
-    return render(request, 'department/sessions/show_session.html', {
-        'loggedin_user': loggedin_user,
-        'session': session
-    })
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -156,15 +211,19 @@ def edit_session(request, session_slug):
         if form.is_valid():
             data = form.cleaned_data
             courses = data.get('courses')
+            is_archived = data.get('is_archived')
             updated_session = form.save(commit=False)
             updated_session.updated_at = datetime.now()
+
+            if is_archived:
+                updated_session.is_visible = False
             form.save()
 
             if updated_session:
                 updated_jobs = api.update_session_jobs(session, courses)
                 if updated_jobs:
                     messages.success(request, 'Success! {0} {1} {2} updated'.format(session.year, session.term.code, session.title))
-                    return HttpResponseRedirect( reverse('department:show_session', args=[updated_session.slug]) )
+                    return HttpResponseRedirect( reverse('department:sessions') )
                 else:
                     messages.error(request, 'Error!')
             else:
@@ -210,10 +269,8 @@ def delete_session(request):
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
-def jobs(request):
-    """ Display all jobs """
-
+@require_http_methods(['GET', 'POST'])
+def add_instructors(request, session_slug, job_slug):
     if not usersApi.is_valid_user(request.user):
         raise PermissionDenied
 
@@ -221,10 +278,30 @@ def jobs(request):
     if not usersApi.is_admin(loggedin_user):
         raise PermissionDenied
 
-    return render(request, 'department/jobs/jobs.html', {
-        'loggedin_user': loggedin_user,
-        'jobs': api.get_jobs()
-    })
+    job = api.get_session_job_by_slug(session_slug, job_slug)
+    job_instructors = job.instructors.all()
+
+    if request.method == 'POST':
+        form = AddInstructorForm(request.POST, instance=job)
+        if form.is_valid():
+            data = form.cleaned_data
+            new_instructors = data.get('instructors')
+            updated_job = form.save(commit=False)
+            updated_job.updated_at = datetime.now()
+            updated_job.save()
+            if updated_job:
+                updated = api.update_job_instructors(updated_job, job_instructors, new_instructors)
+                if updated:
+                    messages.success(request, 'Success! {0} {1} {2} {3} {4} updated'.format(updated_job.session.year, updated_job.session.term.code, updated_job.course.code.name, updated_job.course.number.name, updated_job.course.section.name))
+                else:
+                    messages.error(request, 'Error!')
+            else:
+                messages.error(request, 'Error!')
+        else:
+            print(form.errors.get_json_data())
+            messages.error(request, 'Error! Form is invalid')
+    return redirect('department:jobs')
+
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -245,18 +322,17 @@ def edit_job(request, session_slug, job_slug):
 
     if request.method == 'POST':
         form = JobForm(request.POST, instance=job)
-        print(form)
         if form.is_valid():
             data = form.cleaned_data
             new_instructors = data.get('instructors')
 
-            job = form.save(commit=False)
-            job.updated_at = datetime.now()
-            job.save()
-            if job:
-                updated = api.update_job_instructors(job, job_instructors, new_instructors)
+            updated_job = form.save(commit=False)
+            updated_job.updated_at = datetime.now()
+            updated_job.save()
+            if updated_job:
+                updated = api.update_job_instructors(updated_job, job_instructors, new_instructors)
                 if updated:
-                    messages.success(request, 'Success! {0} {1} {2} {3} {4} updated'.format(job.session.year, job.session.term.code, job.course.code.name, job.course.number.name, job.course.section.name))
+                    messages.success(request, 'Success! {0} {1} {2} {3} {4} updated'.format(updated_job.session.year, updated_job.session.term.code, updated_job.course.code.name, updated_job.course.number.name, updated_job.course.section.name))
                     return HttpResponseRedirect( reverse('department:show_job', args=[session_slug, job_slug]) )
                 else:
                     messages.error(request, 'Error!')
@@ -343,6 +419,8 @@ def offered_applications(request):
     loggedin_user = usersApi.loggedin_user(request.user)
     if not usersApi.is_admin(loggedin_user):
         raise PermissionDenied
+
+    # add email lists
 
     return render(request, 'department/applications/offered_applications.html', {
         'loggedin_user': loggedin_user,
@@ -478,34 +556,7 @@ def show_application(request, app_slug):
 
 # Courses
 
-#checked
-def courses(request):
-    """ Display all courses and create a course """
-    if request.method == 'POST':
-        form = CourseForm(request.POST)
-        if form.is_valid():
-            course = form.save()
-            if course:
-                messages.success(request, 'Success!')
-                return redirect('department:courses')
-            else:
-                messages.error(request, 'Error!')
-        else:
-            messages.error(request, 'Error! Form is invalid')
 
-    return render(request, 'department/courses/courses.html', {
-        'loggedin_user': usersApi.loggedin_user(request.user),
-        'courses': api.get_courses(),
-        'form': CourseForm()
-    })
-
-#checked
-def show_course(request, course_slug):
-    """ Display course details """
-    return render(request, 'department/courses/show_course.html', {
-        'loggedin_user': usersApi.loggedin_user(request.user),
-        'course': api.get_course_by_slug(course_slug)
-    })
 
 #checked
 def edit_course(request, course_slug):
@@ -762,10 +813,34 @@ def delete_course_section(request):
 
 
 
+# to be removed
+
+def temp_show_course(request, course_slug):
+    """ Display course details """
+    return render(request, 'department/courses/show_course.html', {
+        'loggedin_user': usersApi.loggedin_user(request.user),
+        'course': api.get_course_by_slug(course_slug)
+    })
 
 
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def temp_show_session(request, session_slug):
+    """ Display session details """
 
+    if not usersApi.is_valid_user(request.user):
+        raise PermissionDenied
 
+    loggedin_user = usersApi.loggedin_user(request.user)
+    if not usersApi.is_admin(loggedin_user):
+        raise PermissionDenied
+
+    session = api.get_session_by_slug(session_slug)
+    return render(request, 'department/sessions/show_session.html', {
+        'loggedin_user': loggedin_user,
+        'session': session
+    })
 
 
 

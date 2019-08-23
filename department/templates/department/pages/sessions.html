@@ -1,0 +1,55 @@
+{% extends 'ta_app/base.html' %}
+{% block content %}
+
+<div class="row">
+  <div class="col-md-3">
+    {% include "department/subpages/_sidebar_menu.html" %}
+  </div>
+  <div class="col-md-9">
+
+    {% if messages %}
+    	{% for message in messages %}
+    		<div class="alert alert-info">{{ message }}</div>
+    	{% endfor %}
+    {% endif %}
+
+    <h3>Sessions</h3>
+
+    <div class="bd-callout bd-callout-warning">
+      <h5>Checkpoint!</h5>
+      <p>
+        <ul>
+          <li>When Instructors, Job descripions are ready, please post a session</li>
+        </ul>
+      </p>
+    </div>
+
+    <nav class="margin-top-10">
+      <div class="nav nav-tabs" id="nav-tab" role="tablist">
+        <a class="nav-item nav-link active" id="nav-active-sessions-tab" data-toggle="tab" href="#nav-active-sessions" role="tab" aria-controls="nav-active-sessions" aria-selected="true">Current Sessions</a>
+        <a class="nav-item nav-link" id="nav-inactive-sessions-tab" data-toggle="tab" href="#nav-inactive-sessions" role="tab" aria-controls="nav-inactive-sessions" aria-selected="false">Archived Sessions</a>
+      </div>
+    </nav>
+    <div class="tab-content" id="nav-tabContent">
+      <div class="tab-pane fade show active" id="nav-active-sessions" role="tabpanel" aria-labelledby="nav-active-sessions-tab">
+        {% include "department/sessions/_not_archived_sessions.html" %}
+      </div>
+      <div class="tab-pane fade" id="nav-inactive-sessions" role="tabpanel" aria-labelledby="nav-inactive-sessions-tab">
+        {% include "department/sessions/_archived_sessions.html" %}
+      </div>
+    </div>
+
+    <hr />
+
+    <h4 class="page-title">Create a Session</h4>
+    <form action="" method="post">
+      {% csrf_token %}
+      <table>{{ form.as_table }}</table>
+      <input type="submit" value="Create">
+    </form>
+
+
+  </div>
+</div>
+
+{% endblock %}

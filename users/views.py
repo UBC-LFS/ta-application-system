@@ -720,6 +720,7 @@ def show_instructor_jobs(request, username, session_slug, job_slug):
 
     job = departmentApi.get_session_job_by_slug(session_slug, job_slug)
     instructor_preference = [ app.instructor_preference for app in job.application_set.all() ]
+    print(instructor_preference)
     if request.method == 'POST':
         form = InstructorApplicationForm(request.POST)
         if form.is_valid():
@@ -740,9 +741,7 @@ def show_instructor_jobs(request, username, session_slug, job_slug):
         'user': api.get_user_by_username(username),
         'session': departmentApi.get_session_by_slug(session_slug),
         'job': departmentApi.get_session_job_by_slug(session_slug, job_slug),
-        'form': InstructorApplicationForm(initial={
-            'instructor_preference': instructor_preference
-        })
+        'form': InstructorApplicationForm()
     })
 
 

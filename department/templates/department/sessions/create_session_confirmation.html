@@ -1,31 +1,38 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
 
-<nav class="margin-top-10" aria-label="breadcrumb">
-  <ol class="breadcrumb">
-    <li class="breadcrumb-item">
-      <a href="{% url 'department:index' %}">Department</a>
-    </li>
-    <li class="breadcrumb-item">
-      <a href="{% url 'department:sessions' %}">Sessions</a>
-    </li>
-    <li class="breadcrumb-item active" aria-current="page">Create Session Confirmation</li>
-  </ol>
-</nav>
+<div class="row">
+  <div class="col-md-3">
+    {% include "department/subpages/_sidebar_menu.html" %}
+  </div>
+  <div class="col-md-9">
 
-{% if messages %}
-	{% for message in messages %}
-		<div class="alert alert-info">{{ message }}</div>
-	{% endfor %}
-{% endif %}
+    {% if messages %}
+    	{% for message in messages %}
+    		<div class="alert alert-info">{{ message }}</div>
+    	{% endfor %}
+    {% endif %}
 
+    <h3>Create Session Confirmation</h3>
 
-<h1>Create Session Confirmation</h1>
+    <nav class="margin-top-10" aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a href="{% url 'department:sessions' %}">Sessions</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">Create Session Confirmation</li>
+      </ol>
+    </nav>
 
-<form action="" method="post">
-  {% csrf_token %}
-  <table>{{ form.as_table }}</table>
-  <input type="submit" value="Confirm to create">
-</form>
+    <form action="" method="post">
+      {% csrf_token %}
+      <table>{{ form.as_table }}</table>
+      <input type="submit" value="Confirm to create">
+    </form>
+
+    <a href="{% url 'department:sessions' %}">Back to Sessions</a>
+
+  </div>
+</div>
 
 {% endblock %}

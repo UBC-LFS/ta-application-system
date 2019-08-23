@@ -1,8 +1,10 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login as AuthLogin
+from django.http import HttpResponseRedirect, Http404
+from django.urls import reverse
 from .forms import LocalLoginForm
-
+from users import api as userApi
 
 def login(request):
     """ Login page """
@@ -17,6 +19,14 @@ def local_login(request):
             user = User.objects.get(username=request.POST['username'])
             if user is not None and request.POST['password'] is not None:
                 AuthLogin(request, user)
-                return redirect('home:index')
+                loggedin_user = userApi.loggedin_user(user)
+                if 'Admin' in loggedin_user['roles'] or 'Superadmin' in loggedin_user['roles']:
+                    return redirect('department:index')
+                elif 'HR' in loggedin_user['roles']:
+                    return redirect('users:hr')
+                elif 'Instructor' in loggedin_user['roles']:
+                    return HttpResponseRedirect( reverse('users:show_instructor', args=[loggedin_user['username']]) )
+                elif 'Student' in loggedin_user['roles']:
+                    return redirect('home:index')
 
     return render(request, 'accounts/local_login.html', { 'form': LocalLoginForm() })

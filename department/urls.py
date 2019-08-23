@@ -6,15 +6,20 @@ app_name = 'department'
 urlpatterns = [
     path('', views.index, name='index'),
 
+    path('basics/', views.basics, name='basics'),
+    path('courses/', views.courses, name='courses'),
     path('sessions/', views.sessions, name='sessions'),
+    path('jobs/', views.jobs, name='jobs'),
+
+
     path('sessions/create_session_confirmation/', views.create_session_confirmation, name='create_session_confirmation'),
     path('delete_session/', views.delete_session, name='delete_session'),
-    path('sessions/<str:session_slug>/', views.show_session, name='show_session'),
+    #path('sessions/<str:session_slug>/', views.show_session, name='show_session'),
     path('sessions/<str:session_slug>/edit/', views.edit_session, name='edit_session'),
     path('sessions/<str:session_slug>/jobs/<str:job_slug>/', views.show_job, name='show_job'),
     path('sessions/<str:session_slug>/jobs/<str:job_slug>/edit', views.edit_job, name='edit_job'),
-    
-    path('jobs/', views.jobs, name='jobs'),
+
+    path('sessions/<str:session_slug>/jobs/<str:job_slug>/add_instructors', views.add_instructors, name='add_instructors'),
 
     path('applications/', views.applications, name='applications'),
     path('applications/selected/', views.selected_applications, name='selected_applications'),
@@ -26,8 +31,8 @@ urlpatterns = [
     path('applications/<str:app_slug>', views.show_application, name='show_application'),
 
 
-    path('courses/', views.courses, name='courses'),
-    path('courses/<str:course_slug>/', views.show_course, name='show_course'),
+
+    #path('courses/<str:course_slug>/', views.show_course, name='show_course'),
     path('courses/<str:course_slug>/edit/', views.edit_course, name='edit_course'),
     path('delete_course/', views.delete_course, name='delete_course'),
 

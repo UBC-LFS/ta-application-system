@@ -1,6 +1,22 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
 
+<div class="row">
+  <div class="col-md-3">
+    {% include "department/subpages/_sidebar_menu.html" %}
+  </div>
+  <div class="col-md-9">
+    TA Application Management
+
+
+  </div>
+</div>
+
+
+
+
+<hr />
+
 <nav class="margin-top-10" aria-label="breadcrumb">
   <ol class="breadcrumb">
     <li class="breadcrumb-item active" aria-current="page">Department</li>
@@ -53,41 +69,6 @@
 </div>
 
 
-
-
-
-
-
-<h3 class="margin-top-30">Overview</h3>
-
-<h4 class="margin-top-30">Active Sessions</h4>
-<table class="table">
-  <thead>
-    <tr>
-      <th>TA Application</th>
-      <th>Jobs</th>
-      <th>Active</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for session in active_sessions %}
-      <tr>
-        <td>
-          <a href="{% url 'department:show_session' session.slug %}">
-            {{ session.year }} {{ session.term.name }} {{ session.title }}
-          </a>
-        </td>
-        <td>{{ session.job_set.count }}</td>
-        <td>{{ session.is_active }}</td>
-      </tr>
-    {% empty %}
-      <tr>
-        <td colspan="4">No sessions found</td>
-      </tr>
-    {% endfor %}
-  </tbody>
-</table>
-
 <div class="row margin-top-30">
   <div class="col-3">
     <ul class="list-group">
@@ -98,16 +79,5 @@
   </div>
 </div>
 
-<h4 class="margin-top-30">Jobs</h4>
-
-<h4 class="margin-top-30">Courses</h4>
-
-<div class="row">
-  <div class="col-3">
-    <ul class="list-group">
-      <li class="list-group-item">Courses: {{ courses.count }}</li>
-    </ul>
-  </div>
-</div>
 
 {% endblock %}

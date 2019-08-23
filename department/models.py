@@ -64,7 +64,8 @@ class Session(models.Model):
     title = models.CharField(max_length=256)
     description = models.TextField(null=True, blank=True)
     note = models.TextField(null=True, blank=True)
-    is_active = models.BooleanField(default=False)
+    is_visible = models.BooleanField(default=False)
+    is_archived = models.BooleanField(default=False)
 
     created_at = models.DateField(default=dt.date.today)
     updated_at = models.DateField(default=dt.date.today)

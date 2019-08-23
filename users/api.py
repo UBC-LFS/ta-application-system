@@ -154,6 +154,12 @@ def delete_users():
 
 # Profile CRUD
 
+def get_instructors():
+    instructors = []
+    for profile in Profile.objects.all():
+        if profile.roles.filter(slug='instructor').exists():
+            instructors.append(profile.user)
+    return instructors
 
 
 #checked

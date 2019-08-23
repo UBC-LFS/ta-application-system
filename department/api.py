@@ -1,7 +1,9 @@
-from .models import Session, Job, Course, Term, Application, ApplicationStatus, CourseCode, CourseNumber, CourseSection
-from django.contrib.auth.models import User
-from django.db.models import Q
+from django.shortcuts import get_object_or_404
 from django.forms.models import model_to_dict
+from django.db.models import Q
+from django.contrib.auth.models import User
+
+from .models import Session, Job, Course, Term, Application, ApplicationStatus, CourseCode, CourseNumber, CourseSection
 from users import api as usersApi
 
 # Sessions
@@ -36,12 +38,42 @@ def get_sessions_by_year(year):
     return Session.objects.filter(year=year)
 
 def get_active_sessions():
-    """ Get all active sessions """
-    return Session.objects.filter(is_active=True)
+    return []
 
 def get_inactive_sessions():
-    """ Get all inactive sessions """
-    return Session.objects.filter(is_active=False)
+    return []
+
+
+def get_visible_active_sessions():
+    return Session.objects.filter(is_visible=True, is_archived=False)
+
+def get_not_visible_active_sessions():
+    return Session.objects.filter(is_visible=False, is_archived=False)
+
+def get_not_archived_sessions():
+    sessions = []
+    for session in Session.objects.all():
+        if not session.is_archived:
+            count = 0
+            for job in session.job_set.all():
+                if job.instructors.count() > 0:
+                    count += 1
+            session.num_instructors = count
+            sessions.append(session)
+    return sessions
+
+def get_archived_sessions():
+    sessions = []
+    for session in Session.objects.all():
+        if session.is_archived:
+            count = 0
+            for job in session.job_set.all():
+                if job.instructors.count() > 0:
+                    count += 1
+            session.num_instructors = count
+            sessions.append(session)
+    return sessions
+
 
 
 
@@ -230,10 +262,12 @@ def get_course(course_id):
         return None
 
 def get_course_by_slug(course_slug):
-    try:
+    return get_object_or_404(Course, slug=course_slug)
+    """try:
         return Course.objects.get(slug=course_slug)
     except Course.DoesNotExist:
         return None
+    """
 
 def get_courses_by_term(term_id):
     try:
@@ -796,7 +830,6 @@ def delete_course_section(course_section_id):
         return course_section
     except CourseSection.DoesNotExist:
         return None
-
 
 
 # to be removed
