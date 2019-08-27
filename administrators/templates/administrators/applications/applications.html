@@ -1,0 +1,37 @@
+{% extends 'ta_app/base.html' %}
+{% block content %}
+
+
+<div class="row">
+  <div class="col-md-3">
+    {% include "administrators/_sidebar.html" %}
+  </div>
+  <div class="col-md-9">
+
+    {% if messages %}
+    	{% for message in messages %}
+    		<div class="alert alert-info">{{ message }}</div>
+    	{% endfor %}
+    {% endif %}
+
+    <h1>Applications</h1>
+
+    <div>
+      How Interested, How Qualified: Not at all, Marginally, Somewhat, Most, Very
+    </div>
+
+    <div>
+      Instructor Preference: None, No Preference, Acceptable, Requested, Critical Requested
+    </div>
+
+    <a href="{% url 'administrators:selected_applications' %}">Selected Applications</a> |
+    <a href="{% url 'administrators:offered_applications' %}">Offered Applications</a> |
+    <a href="{% url 'administrators:accepted_applications' %}">Accepted Applications</a> |
+    <a href="{% url 'administrators:declined_applications' %}">Declined Applications</a>
+
+
+  </div>
+</div>
+
+
+{% endblock %}

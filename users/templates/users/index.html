@@ -5,7 +5,7 @@
 <nav class="margin-top-10" aria-label="breadcrumb">
   <ol class="breadcrumb">
     <li class="breadcrumb-item">
-      <a href="{% url 'department:index' %}">Department</a>
+      <a href="{% url 'administrators:index' %}">administrators</a>
     </li>
     <li class="breadcrumb-item active" aria-current="page">Users</li>
   </ol>
@@ -19,13 +19,13 @@
 
 <ul class="nav justify-content-center">
   <li class="nav-item">
-    <a class="nav-link" href="{% url 'department:sessions' %}">Sessions</a>
+    <a class="nav-link" href="{% url 'administrators:sessions' %}">Sessions</a>
   </li>
   <li class="nav-item">
-    <a class="nav-link" href="{% url 'department:jobs' %}">Jobs</a>
+    <a class="nav-link" href="{% url 'administrators:jobs' %}">Jobs</a>
   </li>
   <li class="nav-item">
-    <a class="nav-link" href="{% url 'department:applications' %}">Applications</a>
+    <a class="nav-link" href="{% url 'administrators:applications' %}">Applications</a>
   </li>
   <li class="nav-item">
     <a class="nav-link" href="{% url 'users:index' %}">Users</a>

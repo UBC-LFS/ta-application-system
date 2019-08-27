@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.utils.text import slugify
 from django.core.validators import FileExtensionValidator
 
-from department.models import Course
+from administrators.models import Course
 import shutil
 import datetime as dt
 

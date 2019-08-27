@@ -6,7 +6,7 @@ from urllib.parse import urlencode
 
 from users.models import *
 from users import api
-from department.tests.test_views import DATA, ContentType
+from administrators.tests.test_views import DATA, ContentType
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 from django.utils.crypto import get_random_string
@@ -33,10 +33,10 @@ class UserTest(TestCase):
         self.client.post('/accounts/local_login/', data={'username': username, 'password': password})
 
     def test_view_url_exists_at_desired_location(self):
-        """ Test: land department and users pages """
+        """ Test: land administrators and users pages """
 
         # Without login
-        response = self.client.get('/department/')
+        response = self.client.get('/administrators/')
         self.assertEqual(response.status_code, 302) # Redirect to /accounts/login
         self.assertRedirects(response, response.url)
         response = self.client.get('/users/')
@@ -45,14 +45,14 @@ class UserTest(TestCase):
 
          # Login with student
         self.login('test.user11', '12')
-        response = self.client.get('/department/')
+        response = self.client.get('/administrators/')
         self.assertEqual(response.status_code, 403) # Permission denied
         response = self.client.get('/users/')
         self.assertEqual(response.status_code, 403) # Permission denied
 
          # Login with admin
         self.login('admin', '12')
-        response = self.client.get('/department/')
+        response = self.client.get('/administrators/')
         self.assertEqual(response.status_code, 200) # Success
         response = self.client.get('/users/')
         self.assertEqual(response.status_code, 200) # Success

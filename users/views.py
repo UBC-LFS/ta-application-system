@@ -15,10 +15,10 @@ from django.db.models import Q
 from datetime import datetime
 
 from . import api
-from department import api as departmentApi
+from administrators import api as administratorsApi
 from .forms import *
-from department.forms import CourseForm, InstructorJobForm, InstructorApplicationForm, ApplicationStatusForm
-from department.models import Course, ApplicationStatus
+from administrators.forms import CourseForm, InstructorJobForm, InstructorApplicationForm, ApplicationStatusForm
+from administrators.models import Course, ApplicationStatus
 
 
 from django.forms.models import model_to_dict
@@ -93,9 +93,9 @@ def show_user(request, username):
         raise PermissionDenied
 
     user = api.get_user_by_username(username)
-    student_jobs = departmentApi.get_jobs_applied_by_student(user)
-    offered_jobs, offered_summary = departmentApi.get_offered_jobs_by_student(user, student_jobs)
-    accepted_jobs, accepted_summary = departmentApi.get_accepted_jobs_by_student(user, student_jobs)
+    student_jobs = administratorsApi.get_jobs_applied_by_student(user)
+    offered_jobs, offered_summary = administratorsApi.get_offered_jobs_by_student(user, student_jobs)
+    accepted_jobs, accepted_summary = administratorsApi.get_accepted_jobs_by_student(user, student_jobs)
 
     resume_file = None
     if user.resume.file != None:
@@ -114,15 +114,15 @@ def show_user(request, username):
         'loggedin_user': loggedin_user,
         'user': user,
         'roles': api.get_user_roles(user),
-        'instructor_jobs': departmentApi.get_jobs_of_instructor(user),
-        #'job_application_applied_by_student': departmentApi.get_job_application_applied_by_student(user),
-        'applications': departmentApi.get_applications_by_student(user),
+        'instructor_jobs': administratorsApi.get_jobs_of_instructor(user),
+        #'job_application_applied_by_student': administratorsApi.get_job_application_applied_by_student(user),
+        'applications': administratorsApi.get_applications_by_student(user),
         'student_jobs': student_jobs,
         'offered_jobs': offered_jobs,
         'offered_summary': offered_summary,
         'accepted_jobs': accepted_jobs,
         'accepted_summary': accepted_summary,
-        'declined_jobs': departmentApi.get_declined_jobs_by_student(user, student_jobs),
+        'declined_jobs': administratorsApi.get_declined_jobs_by_student(user, student_jobs),
         'resume_file': resume_file,
         'study_permit_file': study_permit_file,
         'work_permit_file': work_permit_file,
@@ -227,133 +227,6 @@ def edit_profile(request, username):
         })
     })
 
-
-
-
-
-# Student Profile
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET', 'POST'])
-def show_student(request, username):
-    """ Display student details """
-
-    if not api.is_valid_user(request.user):
-        raise PermissionDenied
-
-    loggedin_user = api.loggedin_user(request.user)
-    if 'Student' not in loggedin_user['roles']:
-        raise PermissionDenied
-
-    user = api.get_user_by_username(username)
-    student_jobs = departmentApi.get_jobs_applied_by_student(user)
-    offered_jobs, offered_summary = departmentApi.get_offered_jobs_by_student(user, student_jobs)
-    accepted_jobs, accepted_summary = departmentApi.get_accepted_jobs_by_student(user, student_jobs)
-
-    resume_file = None
-    if user.resume.file != None:
-        resume_file = os.path.basename(user.resume.file.name)
-
-    study_permit_file = None
-    if user.confidentiality.study_permit != None:
-        study_permit_file = os.path.basename(user.confidentiality.study_permit.name)
-
-    work_permit_file = None
-    if user.confidentiality.work_permit != None:
-        work_permit_file = os.path.basename(user.confidentiality.work_permit.name)
-
-
-    return render(request, 'users/students/show_student.html', {
-        'loggedin_user': loggedin_user,
-        'user': user,
-        'resume_file': resume_file,
-        'study_permit_file': study_permit_file,
-        'work_permit_file': work_permit_file,
-        'student_jobs': departmentApi.get_jobs_applied_by_student(user),
-        'offered_jobs': offered_jobs,
-        'offered_summary': offered_summary,
-        'accepted_jobs': accepted_jobs,
-        'accepted_summary': accepted_summary,
-        'declined_jobs': departmentApi.get_declined_jobs_by_student(user, student_jobs),
-        'resume_form': ResumeForm(initial={ 'user': user })
-    })
-
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['POST'])
-def upload_resume(request, username):
-    """ Upload user's resume """
-
-    if not api.is_valid_user(request.user):
-        raise PermissionDenied
-
-    loggedin_user = api.loggedin_user(request.user)
-    if 'Student' not in loggedin_user['roles']:
-        raise PermissionDenied
-
-    user = api.get_user_by_username(username)
-    old_resume = user.resume.file
-    if request.method == 'POST':
-        form = ResumeForm(request.POST, request.FILES, instance=user.resume)
-        if form.is_valid():
-            files = request.FILES
-            resume = form.save(commit=False)
-
-            if len(old_resume.name) > 0:
-                deleted_resume = api.delete_user_resume(user.username)
-                if not deleted_resume:
-                    messages.warning(request, 'Warning! resume is not deleted')
-
-            resume.file = files.get('file')
-            resume.created_at = datetime.now()
-
-            resume.save()
-            if resume:
-                messages.success(request, 'Success! {0} - resume uploaded'.format(user.username))
-            else:
-                messages.error(request, 'Error!')
-        else:
-            messages.error(request, 'Error! Form is invalid')
-
-    return HttpResponseRedirect( reverse('users:show_student', args=[username]) )
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-def download_resume(request, username, filename):
-    """ Download user's resume """
-
-    if not api.is_valid_user(request.user):
-        raise PermissionDenied
-
-    path = 'users/{0}/resume/{1}/'.format(username, filename)
-    return serve(request, path, document_root=settings.MEDIA_ROOT)
-
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['POST'])
-def delete_resume(request):
-    """ Delete user's resume """
-
-    if not api.is_valid_user(request.user):
-        raise PermissionDenied
-
-    loggedin_user = api.loggedin_user(request.user)
-    if 'Student' not in loggedin_user['roles']:
-        raise PermissionDenied
-
-    if request.method == 'POST':
-        username = request.POST.get('user')
-        resume = api.delete_user_resume(username)
-        if resume:
-            messages.success(request, 'Success! {0} - resume deleted'.format(username))
-        else:
-            messages.error(request, 'Error!')
-    else:
-        messages.error(request, 'Error!')
-    return HttpResponseRedirect( reverse('users:show_student', args=[username]) )
 
 
 
@@ -561,17 +434,17 @@ def show_student_job(request, username, session_slug, job_slug):
         raise PermissionDenied
 
     user = api.get_user_by_username(username)
-    job = departmentApi.get_job_applied_by_student(user, session_slug, job_slug)
-    application = departmentApi.get_application_by_student_job(user, job)
+    job = administratorsApi.get_job_applied_by_student(user, session_slug, job_slug)
+    application = administratorsApi.get_application_by_student_job(user, job)
     return render(request, 'users/students/show_student_job.html', {
         'loggedin_user': loggedin_user,
         'user': user,
-        'session': departmentApi.get_session_by_slug(session_slug),
+        'session': administratorsApi.get_session_by_slug(session_slug),
         'job': job,
         'application': application,
-        'get_offered': departmentApi.get_offered(application),
-        'get_accepted': departmentApi.get_accepted(application),
-        'get_declined': departmentApi.get_declined(application)
+        'get_offered': administratorsApi.get_offered(application),
+        'get_accepted': administratorsApi.get_accepted(application),
+        'get_declined': administratorsApi.get_declined(application)
     })
 
 
@@ -594,11 +467,11 @@ def accept_offer(request, username, session_slug, job_slug):
         if form.is_valid():
             status = form.save()
             if status:
-                application = departmentApi.get_application(application_id)
+                application = administratorsApi.get_application(application_id)
                 application.status.add(status)
                 application.save()
                 if application:
-                    updated = departmentApi.update_job_ta_hours(session_slug, job_slug, assigned_hours)
+                    updated = administratorsApi.update_job_ta_hours(session_slug, job_slug, assigned_hours)
                     if updated:
                         messages.success(request, 'Success!')
                     else:
@@ -632,7 +505,7 @@ def decline_offer(request, username, session_slug, job_slug):
         if form.is_valid():
             status = form.save()
             if status:
-                application = departmentApi.get_application(application_id)
+                application = administratorsApi.get_application(application_id)
                 application.status.add(status)
                 application.save()
                 if application:
@@ -718,7 +591,7 @@ def show_instructor_jobs(request, username, session_slug, job_slug):
     if 'Instructor' not in loggedin_user['roles']:
         raise PermissionDenied
 
-    job = departmentApi.get_session_job_by_slug(session_slug, job_slug)
+    job = administratorsApi.get_session_job_by_slug(session_slug, job_slug)
     instructor_preference = [ app.instructor_preference for app in job.application_set.all() ]
     print(instructor_preference)
     if request.method == 'POST':
@@ -727,7 +600,7 @@ def show_instructor_jobs(request, username, session_slug, job_slug):
             data = request.POST
             application_id = data.get('application')
             instructor_preference = data.get('instructor_preference')
-            updated = departmentApi.update_application_instructor_preference(application_id, instructor_preference)
+            updated = administratorsApi.update_application_instructor_preference(application_id, instructor_preference)
             if updated:
                 messages.success(request, 'Success!')
                 return HttpResponseRedirect( reverse('users:show_instructor_jobs', args=[username, session_slug, job_slug]) )
@@ -739,8 +612,8 @@ def show_instructor_jobs(request, username, session_slug, job_slug):
     return render(request, 'users/instructors/show_instructor_jobs.html', {
         'loggedin_user': api.loggedin_user(request.user),
         'user': api.get_user_by_username(username),
-        'session': departmentApi.get_session_by_slug(session_slug),
-        'job': departmentApi.get_session_job_by_slug(session_slug, job_slug),
+        'session': administratorsApi.get_session_by_slug(session_slug),
+        'job': administratorsApi.get_session_job_by_slug(session_slug, job_slug),
         'form': InstructorApplicationForm()
     })
 
@@ -759,7 +632,7 @@ def edit_instructor_jobs(request, username, session_slug, job_slug):
         raise PermissionDenied
 
     user = api.get_user_by_username(username)
-    job = departmentApi.get_session_job_by_slug(session_slug, job_slug)
+    job = administratorsApi.get_session_job_by_slug(session_slug, job_slug)
     if request.method == 'POST':
         form = InstructorJobForm(request.POST, instance=job)
         if form.is_valid():
@@ -777,7 +650,7 @@ def edit_instructor_jobs(request, username, session_slug, job_slug):
     return render(request, 'users/instructors/edit_instructor_jobs.html', {
         'loggedin_user': api.loggedin_user(request.user),
         'user': user,
-        'session': departmentApi.get_session_by_slug(session_slug),
+        'session': administratorsApi.get_session_by_slug(session_slug),
         'job': job,
         'form': InstructorJobForm(data=None, instance=job)
     })

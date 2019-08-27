@@ -61,6 +61,10 @@ footer {
 
 /******/
 
+.sub-title {
+  margin-top: 50px;
+}
+
 .bd-callout {
     padding: 1.25rem;
     margin-top: 1.25rem;
@@ -78,6 +82,20 @@ footer {
     margin-bottom: 0;
 }
 
+.sidebar {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 10px 17px;
+}
+
+.sidebar hr {
+  border-top: 1px solid rgba(0,0,0,.2);
+}
+
+.sidebar,
+.sidebar a {
+  color: #555;
+}
 
 /* Extra small devices (portrait phones, less than 576px) */
 @media (max-width: 575.98px) {

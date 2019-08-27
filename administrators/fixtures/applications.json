@@ -1,0 +1,403 @@
+
+
+[
+  {
+    "model": "administrators.application",
+    "pk": 1,
+    "fields": {
+      "supervisor_approval": true,
+      "how_qualified": "3",
+      "how_interested": "3",
+      "availability": true,
+      "availability_note": "aaa",
+      "classification": 0,
+      "note": null,
+      "instructor_preference": "0",
+      "created_at": "2019-07-20",
+      "updated_at": "2019-07-20",
+      "slug": "2019-w1-lfs-100-001-introduction-to-land-food-and-community-w1-application-by-testuser11",
+      "applicant_id": "11",
+      "job_id": "7"
+    }
+  },
+  {
+    "model": "administrators.application",
+    "pk": 2,
+    "fields": {
+      "supervisor_approval": true,
+      "how_qualified": "3",
+      "how_interested": "3",
+      "availability": true,
+      "availability_note": "ggg",
+      "classification": "0",
+      "note": null,
+      "instructor_preference": "0",
+      "created_at": "2019-07-20",
+      "updated_at": "2019-07-20",
+      "slug": "2019-w1-lfs-150-001-scholarly-writing-and-argumentation-in-land-and-food-systems-w1-application-by-testuser11",
+      "applicant_id": "11",
+      "job_id": "8"
+    }
+  },
+  {
+    "model": "administrators.application",
+    "pk": 3,
+    "fields": {
+      "supervisor_approval": false,
+      "how_qualified": "4",
+      "how_interested": "3",
+      "availability": false,
+      "availability_note": "",
+      "classification": "0",
+      "note": null,
+      "instructor_preference": "0",
+      "created_at": "2019-07-20",
+      "updated_at": "2019-07-20",
+      "slug": "2019-w1-lfs-250-001-land-food-and-community-i-introduction-to-food-systems-and-sustainability-w1-application-by-testuser11",
+      "applicant_id": "11",
+      "job_id": "9"
+    }
+  },
+  {
+    "model": "administrators.application",
+    "pk": 4,
+    "fields": {
+      "supervisor_approval": false,
+      "how_qualified": "5",
+      "how_interested": "5",
+      "availability": false,
+      "availability_note": "",
+      "classification": "0",
+      "note": null,
+      "instructor_preference": "0",
+      "created_at": "2019-07-20",
+      "updated_at": "2019-07-20",
+      "slug": "2019-w1-lfs-252-001-land-food-and-community-quantitative-data-analysis-w1-application-by-testuser11",
+      "applicant_id": "11",
+      "job_id": "10"
+    }
+  },
+  {
+    "model": "administrators.application",
+    "pk": 5,
+    "fields": {
+      "supervisor_approval": false,
+      "how_qualified": "2",
+      "how_interested": "4",
+      "availability": false,
+      "availability_note": "",
+      "classification": "0",
+      "note": null,
+      "instructor_preference": "0",
+      "created_at": "2019-07-20",
+      "updated_at": "2019-07-20",
+      "slug": "2019-w2-lfs-100-001-introduction-to-land-food-and-community-w2-application-by-testuser11",
+      "applicant_id": "11",
+      "job_id": "11"
+    }
+  },
+  {
+    "model": "administrators.application",
+    "pk": 6,
+    "fields": {
+      "supervisor_approval": true,
+      "how_qualified": "4",
+      "how_interested": "4",
+      "availability": false,
+      "availability_note": "",
+      "classification": "0",
+      "note": null,
+      "instructor_preference": "0",
+      "created_at": "2019-07-20",
+      "updated_at": "2019-07-20",
+      "slug": "2019-w2-lfs-150-001-scholarly-writing-and-argumentation-in-land-and-food-systems-w2-application-by-testuser11",
+      "applicant_id": "11",
+      "job_id": "12"
+    }
+  },
+  {
+    "model": "administrators.application",
+    "pk": 7,
+    "fields": {
+      "supervisor_approval": true,
+      "how_qualified": "3",
+      "how_interested": "1",
+      "availability": true,
+      "availability_note": "aaa",
+      "classification": "0",
+      "note": null,
+      "instructor_preference": "0",
+      "created_at": "2019-07-20",
+      "updated_at": "2019-07-20",
+      "slug": "2019-w2-lfs-250-001-land-food-and-community-i-introduction-to-food-systems-and-sustainability-w2-application-by-testuser11",
+      "applicant_id": "11",
+      "job_id": "13"
+    }
+  },
+  {
+    "model": "administrators.application",
+    "pk": 8,
+    "fields": {
+      "supervisor_approval": false,
+      "how_qualified": "3",
+      "how_interested": "4",
+      "availability": false,
+      "availability_note": "",
+      "classification": "0",
+      "note": null,
+      "instructor_preference": "0",
+      "created_at": "2019-07-20",
+      "updated_at": "2019-07-20",
+      "slug": "2019-w2-lfs-302a-001-international-field-studies-internl-fld-std-w2-application-by-testuser11",
+      "applicant_id": "11",
+      "job_id": "15"
+    }
+  },
+  {
+    "model": "administrators.application",
+    "pk": 9,
+    "fields": {
+      "supervisor_approval": true,
+      "how_qualified": "5",
+      "how_interested": "5",
+      "availability": true,
+      "availability_note": "aa",
+      "classification": "0",
+      "note": null,
+      "instructor_preference": "0",
+      "created_at": "2019-07-25",
+      "updated_at": "2019-07-25",
+      "slug": "2019-w1-lfs-100-001-introduction-to-land-food-and-community-w1-application-by-testuser12",
+      "applicant_id": "12",
+      "job_id": "7"
+    }
+  },
+  {
+    "model": "administrators.application",
+    "pk": 10,
+    "fields": {
+      "supervisor_approval": false,
+      "how_qualified": "5",
+      "how_interested": "4",
+      "availability": false,
+      "availability_note": "",
+      "classification": "0",
+      "note": null,
+      "instructor_preference": "0",
+      "created_at": "2019-07-25",
+      "updated_at": "2019-07-25",
+      "slug": "2019-w1-lfs-150-001-scholarly-writing-and-argumentation-in-land-and-food-systems-w1-application-by-testuser12",
+      "applicant_id": "12",
+      "job_id": "8"
+    }
+  },
+  {
+    "model": "administrators.application",
+    "pk": 11,
+    "fields": {
+      "supervisor_approval": true,
+      "how_qualified": "1",
+      "how_interested": "1",
+      "availability": true,
+      "availability_note": "aa",
+      "classification": "0",
+      "note": null,
+      "instructor_preference": "0",
+      "created_at": "2019-07-25",
+      "updated_at": "2019-07-25",
+      "slug": "2019-w1-lfs-252-001-land-food-and-community-quantitative-data-analysis-w1-application-by-testuser12",
+      "applicant_id": "12",
+      "job_id": "10"
+    }
+  },
+  {
+    "model": "administrators.application",
+    "pk": 12,
+    "fields": {
+      "supervisor_approval": true,
+      "how_qualified": "4",
+      "how_interested": "3",
+      "availability": true,
+      "availability_note": "aa",
+      "classification": "0",
+      "note": null,
+      "instructor_preference": "0",
+      "created_at": "2019-07-25",
+      "updated_at": "2019-07-25",
+      "slug": "2019-w2-lfs-100-001-introduction-to-land-food-and-community-w2-application-by-testuser12",
+      "applicant_id": "12",
+      "job_id": "11"
+    }
+  },
+  {
+    "model": "administrators.application",
+    "pk": 13,
+    "fields": {
+      "supervisor_approval": true,
+      "how_qualified": "4",
+      "how_interested": "4",
+      "availability": false,
+      "availability_note": "ggg",
+      "classification": "0",
+      "note": null,
+      "instructor_preference": "0",
+      "created_at": "2019-07-25",
+      "updated_at": "2019-07-25",
+      "slug": "2019-w2-lfs-150-001-scholarly-writing-and-argumentation-in-land-and-food-systems-w2-application-by-testuser12",
+      "applicant_id": "12",
+      "job_id": "12"
+    }
+  },
+  {
+    "model": "administrators.application",
+    "pk": 14,
+    "fields": {
+      "supervisor_approval": false,
+      "how_qualified": "4",
+      "how_interested": "4",
+      "availability": false,
+      "availability_note": "",
+      "classification": "0",
+      "note": null,
+      "instructor_preference": "0",
+      "created_at": "2019-07-25",
+      "updated_at": "2019-07-25",
+      "slug": "2019-w2-lfs-250-001-land-food-and-community-i-introduction-to-food-systems-and-sustainability-w2-application-by-testuser12",
+      "applicant_id": "12",
+      "job_id": "13"
+    }
+  },
+  {
+    "model": "administrators.application",
+    "pk": 15,
+    "fields": {
+      "supervisor_approval": true,
+      "how_qualified": "4",
+      "how_interested": "2",
+      "availability": true,
+      "availability_note": "gggg",
+      "classification": "0",
+      "note": null,
+      "instructor_preference": "0",
+      "created_at": "2019-07-25",
+      "updated_at": "2019-07-25",
+      "slug": "2019-w2-lfs-252-001-land-food-and-community-quantitative-data-analysis-w2-application-by-testuser12",
+      "applicant_id": "12",
+      "job_id": "14"
+    }
+  },
+  {
+    "model": "administrators.application",
+    "pk": 16,
+    "fields": {
+      "supervisor_approval": false,
+      "how_qualified": "5",
+      "how_interested": "2",
+      "availability": true,
+      "availability_note": "aaa",
+      "classification": "0",
+      "note": null,
+      "instructor_preference": "0",
+      "created_at": "2019-07-25",
+      "updated_at": "2019-07-25",
+      "slug": "2019-w2-lfs-302a-001-international-field-studies-internl-fld-std-w2-application-by-testuser12",
+      "applicant_id": "12",
+      "job_id": "15"
+    }
+  },
+  {
+    "model": "administrators.application",
+    "pk": 17,
+    "fields": {
+      "supervisor_approval": false,
+      "how_qualified": "4",
+      "how_interested": "2",
+      "availability": false,
+      "availability_note": "",
+      "classification": "0",
+      "note": null,
+      "instructor_preference": "0",
+      "created_at": "2019-08-25",
+      "updated_at": "2019-08-25",
+      "slug": "2019-w1-lfs-100-001-introduction-to-land-food-and-community-w1-application-by-testuser13",
+      "applicant_id": "13",
+      "job_id": "7"
+    }
+  },
+  {
+    "model": "administrators.application",
+    "pk": 18,
+    "fields": {
+      "supervisor_approval": true,
+      "how_qualified": "5",
+      "how_interested": "5",
+      "availability": true,
+      "availability_note": "aaa",
+      "classification": "0",
+      "note": null,
+      "instructor_preference": "0",
+      "created_at": "2019-08-25",
+      "updated_at": "2019-08-25",
+      "slug": "2019-w1-lfs-150-001-scholarly-writing-and-argumentation-in-land-and-food-systems-w1-application-by-testuser13",
+      "applicant_id": "13",
+      "job_id": "8"
+    }
+  },
+  {
+    "model": "administrators.application",
+    "pk": 19,
+    "fields": {
+      "supervisor_approval": false,
+      "how_qualified": "2",
+      "how_interested": "3",
+      "availability": true,
+      "availability_note": "ggg",
+      "classification": "0",
+      "note": null,
+      "instructor_preference": "0",
+      "created_at": "2019-08-25",
+      "updated_at": "2019-08-25",
+      "slug": "2019-w2-lfs-150-001-scholarly-writing-and-argumentation-in-land-and-food-systems-w2-application-by-testuser13",
+      "applicant_id": "13",
+      "job_id": "14"
+    }
+  },
+  {
+    "model": "administrators.application",
+    "pk": 20,
+    "fields": {
+      "supervisor_approval": false,
+      "how_qualified": "3",
+      "how_interested": "3",
+      "availability": true,
+      "availability_note": "ggg",
+      "classification": "0",
+      "note": null,
+      "instructor_preference": "0",
+      "created_at": "2019-08-25",
+      "updated_at": "2019-08-25",
+      "slug": "2019-w2-lfs-252-001-land-food-and-community-quantitative-data-analysis-w2-application-by-testuser13",
+      "applicant_id": "13",
+      "job_id": "14"
+    }
+  },
+  {
+    "model": "administrators.application",
+    "pk": 21,
+    "fields": {
+      "supervisor_approval": true,
+      "how_qualified": "2",
+      "how_interested": "3",
+      "availability": true,
+      "availability_note": "ggg",
+      "classification": "0",
+      "note": null,
+      "instructor_preference": "0",
+      "created_at": "2019-08-25",
+      "updated_at": "2019-08-25",
+      "slug": "2019-w2-lfs-302a-001-international-field-studies-internl-fld-std-w2-application-by-testuser13",
+      "applicant_id": "13",
+      "job_id": "15"
+    }
+  }
+]

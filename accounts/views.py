@@ -21,12 +21,12 @@ def local_login(request):
                 AuthLogin(request, user)
                 loggedin_user = userApi.loggedin_user(user)
                 if 'Admin' in loggedin_user['roles'] or 'Superadmin' in loggedin_user['roles']:
-                    return redirect('department:index')
+                    return redirect('administrators:index')
                 elif 'HR' in loggedin_user['roles']:
-                    return redirect('users:hr')
+                    return redirect('human_resources:index')
                 elif 'Instructor' in loggedin_user['roles']:
-                    return HttpResponseRedirect( reverse('users:show_instructor', args=[loggedin_user['username']]) )
+                    return redirect('instructors:index')
                 elif 'Student' in loggedin_user['roles']:
-                    return redirect('home:index')
+                    return redirect('students:index')
 
     return render(request, 'accounts/local_login.html', { 'form': LocalLoginForm() })

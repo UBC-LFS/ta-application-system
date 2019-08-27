@@ -1,0 +1,40 @@
+{% extends 'ta_app/base.html' %}
+{% block content %}
+
+<div class="row">
+  <div class="col-md-3">
+    {% include "students/_sidebar.html" %}
+  </div>
+  <div class="col-md-9">
+
+    <h3>Offered Jobs</h3>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Year-Term</th>
+          <th>Total Assigned Hours</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for year_term, assigned_hours in offered_summary.items %}
+          <tr>
+            <td>{{ year_term }}</td>
+            <td>{{ assigned_hours }} hours</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <ul>
+      {% for job in offered_jobs %}
+        <li>{{ job.year }} {{ job.term }} - {{ job.course_code }} {{ job.course_number }} {{ job.course_section }}: {{ job.assigned_status }} {{ job.assigned_hours }} hours</li>
+      {% empty %}
+        <li>No offered jobs found</li>
+      {% endfor %}
+    </ul>
+
+  </div>
+</div>
+
+{% endblock %}

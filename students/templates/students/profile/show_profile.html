@@ -1,0 +1,128 @@
+{% extends 'ta_app/base.html' %}
+{% block content %}
+
+<div class="row">
+  <div class="col-md-3">
+    {% include "students/_sidebar.html" %}
+  </div>
+  <div class="col-md-9">
+
+    {% if messages %}
+    	{% for message in messages %}
+    		<div class="alert alert-info">{{ message }}</div>
+    	{% endfor %}
+    {% endif %}
+
+    <h3>Profile</h3>
+
+    <h3>Infomation</h3>
+
+    <ul>
+      <li>First Name: {{ user.first_name }}</li>
+      <li>Last Name: {{ user.last_name }}</li>
+      <li>CWL: {{ user.username }}</li>
+      <li>Email: {{ user.email }}</li>
+      <li>UBC Number: {{ user.profile.ubc_number }}</li>
+      <li>Date Joined: {{ user.date_joined }}</li>
+      <li>Last Login: {{ user.last_login }}</li>
+    </ul>
+
+    <hr />
+
+    <h3>Profile</h3>
+    <div>Created at: {{ user.profile.created_at }}</div>
+    <div>Updated at: {{ user.profile.updated_at }}</div>
+    <div class="">
+      Preferred Name: {{ user.profile.preferred_name }}
+    </div>
+
+    <div class="">
+      Qualifications: {{ user.profile.qualifications }}
+    </div>
+
+    <div class="">
+      Prior Employment: {{ user.profile.prior_employment }}
+    </div>
+
+    <div class="">
+      Special Considerations: {{ user.profile.special_considerations }}
+    </div>
+
+    <div class="">
+      Status: {{ user.profile.status }}
+    </div>
+
+    <div class="">
+      Program: {{ user.profile.program }}
+    </div>
+
+    <div class="">
+      Graduation Date: {{ user.profile.graduation_date }}
+    </div>
+
+    <div class="">
+      Degrees:
+      <ul>
+        {% for degree in user.profile.degrees.all %}
+          <li>{{ degree.name }}</li>
+        {% empty %}
+          None
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div class="">
+      Trainings:
+      <ul>
+        {% for degree in user.profile.trainings.all %}
+          <li>{{ degree.name }}</li>
+        {% empty %}
+          None
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div class="">
+      LFS TA Training: {{ user.profile.get_lfs_ta_training_display }}
+      <p>Details: {{ user.profile.lfs_ta_training_details }}</p>
+    </div>
+
+    <div class="">
+      Previous TA Experience: {{ user.profile.get_ta_experience_display }}
+      <p>Details: {{ user.profile.ta_experience_details }}</p>
+    </div>
+
+
+
+    <hr />
+
+    <h3>Upload a resume</h3>
+
+    Resume:
+    {% if resume_file %}
+      <a href="{% url 'students:download_resume' username=user.username filename=resume_file %}" target="_blank">
+        {{ resume_file }}
+      </a>
+      - {{ user.resume.created_at }}
+
+      <form action="{% url 'students:delete_resume' %}" method="post" onsubmit="return confirm('Are you sure to delete this resume?')">
+        {% csrf_token %}
+        <input type="hidden" name="user" value="{{ user.username }}">
+        <input type="submit" value="Delete" />
+      </form>
+
+    {% else %}
+      No resume
+    {% endif %}
+
+    <p>Valid file types: jpg, jpeg, png, pdf, doc, docx</p>
+    <form action="{% url 'students:upload_resume' user.username %}" method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <table>{{ resume_form.as_table }}</table>
+      <input type="submit" value="Upload" />
+    </form>
+
+  </div>
+</div>
+
+{% endblock %}

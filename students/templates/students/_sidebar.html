@@ -1,0 +1,32 @@
+<div class="">
+  <a href="{% url 'students:show_profile' %}">Profile</a>
+  <ul>
+    <li>
+      <a href="{% url 'students:edit_profile' user.username %}">Edit Profile</a>
+    </li>
+
+    <li>
+      <a href="{% url 'students:submit_confidentiality' user.username %}">Submit Confidentiality</a>
+    </li>
+  </ul>
+</div>
+
+<div class="">
+  <a href="{% url 'students:apply_jobs' %}">Explore Jobs</a>
+  <ul>
+    <li>
+      <a href="{% url 'students:check_jobs' %}">Check Jobs</a>
+    </li>
+
+
+    <li>
+      <a href="{% url 'students:offered_jobs' %}">Offered Jobs</a>
+    </li>
+    <li>
+      <a href="{% url 'students:accepted_jobs' %}">Accepted Jobs</a>
+    </li>
+    <li>
+      <a href="{% url 'students:declined_jobs' %}">Declined Jobs</a>
+    </li>
+  </ul>
+</div>

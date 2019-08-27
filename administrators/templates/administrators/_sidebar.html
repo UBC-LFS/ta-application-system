@@ -1,0 +1,77 @@
+<div class="sidebar">
+
+  <div>
+    <a href="{% url 'administrators:basics' %}">Basics</a>
+  </div>
+
+  <hr />
+
+  <div>
+    <a href="{% url 'administrators:courses' %}">Courses</a>
+    <ul>
+      <li>
+        <a href="{% url 'administrators:create_course' %}">Create a Course</a>
+      </li>
+    </ul>
+  </div>
+  <hr />
+
+  <div>
+    <a href="{% url 'administrators:sessions' %}">Sessions</a>
+    <ul>
+      <li>
+        <a href="{% url 'administrators:create_session' %}">Create a Session</a>
+      </li>
+      <li>
+        <a href="{% url 'administrators:current_sessions' %}">Current Sessions</a>
+      </li>
+      <li>
+        <a href="{% url 'administrators:archived_sessions' %}">Archived Sessions</a>
+      </li>
+    </ul>
+  </div>
+
+  <hr />
+
+  <div>
+    <a href="{% url 'administrators:jobs' %}">Jobs</a>
+    <ul>
+      <li>
+        <a href="{% url 'administrators:prepare_jobs' %}">Prepare Jobs</a>
+      </li>
+      <li>
+        <a href="{% url 'administrators:progress_jobs' %}">Jobs in Progress</a>
+      </li>
+    </ul>
+  </div>
+
+  <hr />
+
+  <div>
+    <a href="{% url 'administrators:applications' %}">Applications</a>
+    <ul>
+      <li>
+        <a href="{% url 'administrators:selected_applications' %}">Selected Applications</a>
+      </li>
+      <li>
+        <a href="{% url 'administrators:offered_applications' %}">Offered Applications</a>
+      </li>
+      <li>
+        <a href="{% url 'administrators:accepted_applications' %}">Accepted Applications</a>
+      </li>
+      <li>
+        <a href="{% url 'administrators:declined_applications' %}">Declined Applications</a>
+      </li>
+    </ul>
+  </div>
+
+  <hr />
+
+  <div>
+    <a href="{% url 'users:hr' %}">Human Resources</a>
+    <ul>
+      <li>Check Confidentiality</li>
+    </ul>
+  </div>
+
+</div>

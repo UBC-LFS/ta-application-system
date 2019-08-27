@@ -17,13 +17,13 @@ from django.contrib import admin
 from django.urls import path, include
 from . import views
 
-#app_name = 'ta_app'
-
 urlpatterns = [
     #path('admin/', admin.site.urls),
     path('', views.index, name='index'),
-    path('home/', include('home.urls')),
     path('accounts/', include('accounts.urls')),
     path('users/', include('users.urls')),
-    path('department/', include('department.urls')),
+    path('administrators/', include('administrators.urls')),
+    path('human_resources/', include('human_resources.urls')),
+    path('instructors/', include('instructors.urls')),
+    path('students/', include('students.urls')),
 ]

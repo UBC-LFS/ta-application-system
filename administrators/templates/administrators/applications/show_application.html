@@ -1,0 +1,105 @@
+{% extends 'ta_app/base.html' %}
+{% block content %}
+
+<nav class="margin-top-10" aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item">
+      <a href="{% url 'administrators:index' %}">administrators</a>
+    </li>
+    <li class="breadcrumb-item">
+      <a href="{% url 'administrators:applications' %}">Applications</a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">Application Details</li>
+  </ol>
+</nav>
+
+
+{% if messages %}
+	{% for message in messages %}
+		<div class="alert alert-info">{{ message }}</div>
+	{% endfor %}
+{% endif %}
+
+<h1>Application Details</h1>
+
+<div>
+  Applicant: {{ app.applicant.first_name }} {{ app.applicant.last_name }}
+</div>
+
+<div>
+  CWL: {{ app.applicant.username }}
+</div>
+
+
+<div>
+  Job:
+  {{ app.job.session.year }} {{ app.job.session.term.code }}
+  {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}
+</div>
+
+<div>
+  Status:
+  <ul>
+    {% for st in app.status.all %}
+      <li>{{ st.get_assigned_display }} - {{ st.assigned_hours }} - {{ st.created_at }}</li>
+    {% empty %}
+      No status found
+    {% endfor %}
+  </ul>
+</div>
+
+<div>
+  Supervisor Approval:
+  {{ app.supervisor_approval }}
+</div>
+
+<div>
+  How Qualified:
+  {{ app.get_how_qualified_display }}
+</div>
+
+<div>
+  How Interested:
+  {{ app.get_how_interested_display }}
+</div>
+
+<div>
+  Availability:
+  {{ app.availability }}
+</div>
+
+<div>
+  Availability Note:
+  {{ app.availability_note }}
+</div>
+
+<div>
+  Classification:
+  {{ app.get_classification_display }}
+</div>
+
+<div>
+  Note:
+  {{ app.note }}
+</div>
+
+<div>
+  Instructor Preference:
+  {{ app.get_instructor_preference_display }}
+</div>
+
+
+<div>
+  Created at:
+  {{ app.created_at }}
+</div>
+
+
+<div>
+  Updated at:
+  {{ app.updated_at }}
+</div>
+
+<a href="{% url 'administrators:applications' %}">Back to Applications</a>
+
+{% endblock %}

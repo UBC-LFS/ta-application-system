@@ -141,7 +141,7 @@ class StudentProfileForm(forms.ModelForm):
     )
     class Meta:
         model = Profile
-        fields = ['qualifications','prior_employment', 'special_considerations',
+        fields = ['preferred_name', 'qualifications','prior_employment', 'special_considerations',
                     'status', 'program', 'graduation_date', 'degrees', 'trainings',
                     'lfs_ta_training', 'lfs_ta_training_details', 'ta_experience',
                     'ta_experience_details']
@@ -153,7 +153,7 @@ class StudentProfileForm(forms.ModelForm):
             'ta_experience_details': forms.Textarea(attrs={'rows':2})
         }
 
-    field_order = ['qualifications','prior_employment', 'special_considerations',
+    field_order = ['preferred_name', 'qualifications','prior_employment', 'special_considerations',
                 'status', 'program', 'graduation_date', 'degrees', 'trainings',
                 'lfs_ta_training', 'lfs_ta_training_details', 'ta_experience',
                 'ta_experience_details']

@@ -1,0 +1,37 @@
+[
+  {
+    "model": "administrators.coursecode",
+    "pk": 1,
+    "fields": {
+      "name": "AANB"
+    }
+  },
+  {
+    "model": "administrators.coursecode",
+    "pk": 2,
+    "fields": {
+      "name": "BIOC"
+    }
+  },
+  {
+    "model": "administrators.coursecode",
+    "pk": 3,
+    "fields": {
+      "name": "DES"
+    }
+  },
+  {
+    "model": "administrators.coursecode",
+    "pk": 4,
+    "fields": {
+      "name": "LFS"
+    }
+  },
+  {
+    "model": "administrators.coursecode",
+    "pk": 5,
+    "fields": {
+      "name": "LIBE"
+    }
+  }
+]
