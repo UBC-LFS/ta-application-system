@@ -1,0 +1,35 @@
+{% extends 'ta_app/base.html' %}
+{% block content %}
+
+<div>
+	{% include "students/_sidebar.html" %}
+</div>
+
+{% if messages %}
+    {% for message in messages %}
+    	<div class="alert alert-info">{{ message }}</div>
+    {% endfor %}
+{% endif %}
+
+    <div class="row">
+    	<div class="col-7">
+    		<div class="row">
+    			{% for session in visible_current_sessions %}
+    					<div class="card margin-top-30 padding-20">
+    						<h5><a href="{% url 'students:list_jobs' session.slug %}">{{ session.year }} {{ session.term.name }} {{ session.title }}</a></h5>
+                <p class="margin-bottom-0">Number of jobs: {{ session.job_set.count }}</p>
+                <p class="margin-bottom-0">Description: {{ session.description }}</p>
+    						<p>Note: {{ session.note }}</p>
+    					</div>
+    			{% empty %}
+    				No current sessions found.
+    			{% endfor %}
+    		</div>
+    	</div>
+    </div>
+    <div class="col-6">
+        {% include 'students/jobs/_applied_jobs.html' %}
+    </div>
+</div>
+
+{% endblock %}

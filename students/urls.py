@@ -18,9 +18,10 @@ urlpatterns = [
     path('confidentiality/<str:username>/work_permit/<str:filename>/download/', views.download_work_permit, name='download_work_permit'),
     path('confidentiality/work_permit/delete/', views.delete_work_permit, name='delete_work_permit'),
 
-    path('jobs/apply/', views.apply_jobs, name='apply_jobs'),
-    path('jobs/check/', views.check_jobs, name='check_jobs'),
+    path('jobs/explore/', views.explore_jobs, name='explore_jobs'),
     path('jobs/<str:session_slug>/list/', views.list_jobs, name='list_jobs'),
+    path('jobs/<str:session_slug>/jobs/<str:job_slug>/apply/', views.apply_job, name='apply_job'),
+    path('jobs/applied/', views.applied_jobs, name='applied_jobs'),
     path('jobs/offered/', views.offered_jobs, name='offered_jobs'),
     path('jobs/accepted/', views.accepted_jobs, name='accepted_jobs'),
     path('jobs/declined/', views.declined_jobs, name='declined_jobs'),

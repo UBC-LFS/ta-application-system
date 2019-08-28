@@ -1,8 +1,55 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
 
+<<<<<<< HEAD
 <div>
   {% include "instructors/_sidebar.html" %}
+=======
+<div class="row">
+  <div class="col-md-3">
+    {% include "instructors/_sidebar.html" %}
+  </div>
+  <div class="col-md-9">
+    <h3>Applications</h3>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Applicant</th>
+          <th>CWL</th>
+          <th>Status</th>
+          <th>Instructor Preference</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for app in job.application_set.all %}
+          <tr>
+            <td>{{ app.applicant.first_name }} {{ app.applicant.last_name }}</td>
+            <td>{{ app.applicant.username }}</td>
+            <td>
+              {% for st in app.status.all %}
+                {{ st.get_assigned_display }} - {{ st.assigned_hours }} hours
+              {% endfor %}
+            </td>
+            <td>
+              <form action="" method="post" onsubmit="return confirm('Are you sure to select this preference?');">
+                {% csrf_token %}
+                <table>{{ form.as_table }}</table>
+                <input type="hidden" name="application" value="{{ app.id }}" />
+                <input type="submit" value="Select" />
+              </form>
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="4">No applications found</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+  </div>
+>>>>>>> origin/testing
 </div>
 
 <h3>Applications</h3>

@@ -97,16 +97,20 @@ class SessionConfirmationForm(forms.ModelForm):
             term = kwargs['initial']['term']
             self.fields['courses'].queryset = Course.objects.filter(term__id=term.id)
 
-class AssignedTaHoursForm(forms.ModelForm):
+class AdminJobForm(forms.ModelForm):
+    instructors = forms.ModelMultipleChoiceField(
+        queryset=User.objects.filter(profile__roles=ROLES['Instructor']),
+        widget=forms.CheckboxSelectMultiple()
+    )
     class Meta:
         model = Job
-        fields = ['assigned_ta_hours']
-
-
-class AddInstructorForm(forms.ModelForm):
-    class Meta:
-        model = Job
-        fields = ['instructors']
+        fields = ['title', 'description', 'qualification', 'note', 'instructors', 'assigned_ta_hours', 'is_active']
+        widgets = {
+            'description': forms.Textarea(attrs={'rows':2}),
+            'note': forms.Textarea(attrs={'rows':2}),
+            'qualification': forms.Textarea(attrs={'rows':2})
+        }
+    field_order = ['title', 'description', 'qualification', 'note', 'assigned_ta_hours', 'is_active', 'instructors']
 
 # checked
 class InstructorJobForm(forms.ModelForm):
@@ -114,6 +118,11 @@ class InstructorJobForm(forms.ModelForm):
     class Meta:
         model = Job
         fields = ['title', 'description', 'qualification', 'note']
+        widgets = {
+            'description': forms.Textarea(attrs={'rows':2}),
+            'note': forms.Textarea(attrs={'rows':2}),
+            'qualification': forms.Textarea(attrs={'rows':2})
+        }
 
 # checked
 class InstructorApplicationForm(forms.ModelForm):

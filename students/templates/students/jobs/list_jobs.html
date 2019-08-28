@@ -7,8 +7,6 @@
   </div>
   <div class="col-md-9">
 
-
-    <h1>List of jobs</h1>
     <h3 class="margin-top-30">{{ session.year }} {{ session.term.name }} {{ session.title }}</h3>
 
     <h3 class="margin-top-30">Available Jobs</h3>
@@ -16,17 +14,21 @@
     <table class="table">
       <thead>
         <tr>
-          <td>Job</td>
-          <td>Title</td>
-          <td>Instructors</td>
-          <td>Job Details</td>
-          <td>Availablity</td>
+          <th>Year</th>
+          <th>Term</th>
+          <th>Job</th>
+          <th>Title</th>
+          <th>Instructors</th>
+          <th>Job Details</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
         {% for job in jobs %}
           {% if job.is_active %}
             <tr>
+              <td>{{ job.session.year }}</td>
+              <td>{{ job.session.term.code }}</td>
               <td>{{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</td>
               <td>
                 {{ job.course.name }}
@@ -37,58 +39,54 @@
                 {% endfor %}
               </td>
               <td>
-                <button type="button" class="btn btn-info" data-toggle="modal" data-target="#job-list-modal-{{ job.id }}">
+                <button type="button" class="btn btn-sm btn-info" data-toggle="modal" data-target="#job-list-modal-{{ job.id }}">
                   View
                 </button>
-              </td>
-              <td>
-                {% if job.has_applied %}
-                  Applied
-                {% else %}
-                  Available
-                {% endif %}
-              </td>
-            </tr>
-            <div class="modal fade" id="course-list-modal-{{ course.id }}" tabindex="-1" role="dialog" aria-labelledby="course-list-modal-label-{{ course.id }}" aria-hidden="true">
-              <div class="modal-dialog modal-lg" role="document">
-                <div class="modal-content">
-                  <div class="modal-header">
-                    <h5 class="modal-title" id="job-list-modal-label-{{ job.id }}">Job Details</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                      <span aria-hidden="true">&times;</span>
-                    </button>
-                  </div>
-                  <div class="modal-body">
-                    <ul>
-                      <li>Job Code: {{ job.course.code.name }}</li>
-                      <li>Job Number: {{ job.course.number.name }}</li>
-                      <li>Job Section: {{ job.course.section.name }}</li>
-                      <li>Job Name: {{ job.course.name }}</li>
-                      <li>
-                        Intstructors:
-                        {% for instructor in job.instructors.all %}
-                          {{ instructor.username }},
-                        {% empty %}
-                          No instructors
-                        {% endfor %}
-                      </li>
-                    </ul>
+                <div class="modal fade" id="job-list-modal-{{ job.id }}" tabindex="-1" role="dialog" aria-labelledby="job-list-modal-label-{{ job.id }}" aria-hidden="true">
+                  <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="job-list-modal-label-{{ job.id }}">Job Details</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                        <h5>
+                          {{ job.session.year }} {{ job.session.term.code }} - {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}
+                        </h5>
+                        <p>{{ job.course.name }}</p>
+                        <ul>
+                          <li>
+                            Intstructors:
+                            {% for instructor in job.instructors.all %}
+                              {{ instructor.username }},
+                            {% empty %}
+                              No instructors
+                            {% endfor %}
+                          </li>
+                        </ul>
 
-                    <p>Job Title:</p>
-                    <p>{{ job.title }}</p>
+                        <p>Job Title:</p>
+                        <p>{{ job.title }}</p>
 
-                    <p>Job Description:</p>
-                    <p>{{ job.description }}</p>
+                        <p>Job Description:</p>
+                        <p>{{ job.description }}</p>
 
-                    <p>Job Qalification:</p>
-                    <p>{{ job.qualification }}</p>
+                        <p>Job Qalification:</p>
+                        <p>{{ job.qualification }}</p>
 
-                    <p>Job Note:</p>
-                    <p>{{ job.note }}</p>
+                        <p>Job Note:</p>
+                        <p>{{ job.note }}</p>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
+              </td>
+              <td>
+                  <a href="{% url 'students:apply_job' session_slug=job.session.slug job_slug=job.course.slug %}">Apply</a>
+              </td>
+            </tr>
           {% endif %}
         {% empty %}
           No jobs available yet.
