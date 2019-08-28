@@ -2,33 +2,33 @@
 {% block content %}
 
 <div class="row">
-  <div class="col-md-3">
-    {% include "students/_sidebar.html" %}
-  </div>
-  <div class="col-md-9">
+  {% include "students/_sidebar.html" %}
+</div>
 
-    {% if messages %}
-    	{% for message in messages %}
-    		<div class="alert alert-info">{{ message }}</div>
-    	{% endfor %}
-    {% endif %}
+{% if messages %}
+  {% for message in messages %}
+    <div class="alert alert-info">{{ message }}</div>
+  {% endfor %}
+{% endif %}
 
-    <h3>Profile</h3>
+<h1>Profile</h1>
 
+<div class="row margin-top-30">
+  <div class="col-6">
     <h3>Infomation</h3>
 
-    <ul>
-      <li>First Name: {{ user.first_name }}</li>
-      <li>Last Name: {{ user.last_name }}</li>
-      <li>CWL: {{ user.username }}</li>
-      <li>Email: {{ user.email }}</li>
-      <li>UBC Number: {{ user.profile.ubc_number }}</li>
-      <li>Date Joined: {{ user.date_joined }}</li>
-      <li>Last Login: {{ user.last_login }}</li>
+    <ul class="list-group">
+      <li class="list-group-item">First Name: {{ user.first_name }}</li>
+      <li class="list-group-item">Last Name: {{ user.last_name }}</li>
+      <li class="list-group-item">CWL: {{ user.username }}</li>
+      <li class="list-group-item">Email: {{ user.email }}</li>
+      <li class="list-group-item">UBC Number: {{ user.profile.ubc_number }}</li>
+      <li class="list-group-item">Date Joined: {{ user.date_joined }}</li>
+      <li class="list-group-item">Last Login: {{ user.last_login }}</li>
     </ul>
+  </div>
 
-    <hr />
-
+  <div class="col-6">
     <h3>Profile</h3>
     <div>Created at: {{ user.profile.created_at }}</div>
     <div>Updated at: {{ user.profile.updated_at }}</div>
@@ -96,33 +96,33 @@
 
     <hr />
 
-    <h3>Upload a resume</h3>
-
-    Resume:
-    {% if resume_file %}
-      <a href="{% url 'students:download_resume' username=user.username filename=resume_file %}" target="_blank">
-        {{ resume_file }}
-      </a>
-      - {{ user.resume.created_at }}
-
-      <form action="{% url 'students:delete_resume' %}" method="post" onsubmit="return confirm('Are you sure to delete this resume?')">
-        {% csrf_token %}
-        <input type="hidden" name="user" value="{{ user.username }}">
-        <input type="submit" value="Delete" />
-      </form>
-
-    {% else %}
-      No resume
-    {% endif %}
-
-    <p>Valid file types: jpg, jpeg, png, pdf, doc, docx</p>
-    <form action="{% url 'students:upload_resume' user.username %}" method="post" enctype="multipart/form-data">
-      {% csrf_token %}
-      <table>{{ resume_form.as_table }}</table>
-      <input type="submit" value="Upload" />
-    </form>
-
   </div>
 </div>
+
+<h3>Upload a resume</h3>
+
+Resume:
+{% if resume_file %}
+  <a href="{% url 'students:download_resume' username=user.username filename=resume_file %}" target="_blank">
+    {{ resume_file }}
+  </a>
+  - {{ user.resume.created_at }}
+
+  <form action="{% url 'students:delete_resume' %}" method="post" onsubmit="return confirm('Are you sure to delete this resume?')">
+    {% csrf_token %}
+    <input type="hidden" name="user" value="{{ user.username }}">
+    <input type="submit" value="Delete" />
+  </form>
+
+{% else %}
+  No resume
+{% endif %}
+
+<p>Valid file types: jpg, jpeg, png, pdf, doc, docx</p>
+<form action="{% url 'students:upload_resume' user.username %}" method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  <table>{{ resume_form.as_table }}</table>
+  <input type="submit" value="Upload" />
+</form>
 
 {% endblock %}

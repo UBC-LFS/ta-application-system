@@ -1,86 +1,81 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
 
-<div class="row">
-  <div class="col-md-3">
-    {% include "administrators/_sidebar.html" %}
-  </div>
-  <div class="col-md-9">
-
-    {% if messages %}
-    	{% for message in messages %}
-    		<div>{{ message }}</div>
-    	{% endfor %}
-    {% endif %}
-
-    <h1>Declined Applications</h1>
-
-    <nav aria-label="breadcrumb">
-      <ol class="breadcrumb">
-        <li class="breadcrumb-item">
-          <a href="{% url 'administrators:applications' %}">Applications</a>
-        </li>
-        <li class="breadcrumb-item active" aria-current="page">Declined Applications</li>
-      </ol>
-    </nav>
-
-    <table>
-      <thead>
-        <tr>
-          <th>Year</th>
-          <th>Term</th>
-          <th>Job</th>
-          <th>Applicant</th>
-          <th>Status</th>
-          <th>Availability</th>
-          <th>Classification</th>
-          <th>Instructor Preference</th>
-          <th>Note</th>
-          <th>Created at</th>
-          <th>Updated at</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for app in declined_applications %}
-          <tr>
-            <td>{{ app.job.session.year }}</td>
-            <td>{{ app.job.session.term.code }}</td>
-            <td>
-              {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}
-            </td>
-            <td>{{ app.applicant.first_name }} {{ app.applicant.last_name }}</td>
-            <td>
-              <ul>
-                {% for st in app.status.all %}
-                  <li>{{ st.get_assigned_display }} - {{ st.assigned_hours }} - {{ st.created_at }}</li>
-                {% empty %}
-                  No status found
-                {% endfor %}
-              </ul>
-            </td>
-            <td>{{ app.availability }}</td>
-            <td>{{ app.get_classification_display }}</td>
-            <td>{{ app.get_instructor_preference_display }}</td>
-            <td>{{ app.note }}</td>
-            <td>{{ app.created_at }}</td>
-            <td>{{ app.updated_at }}</td>
-            <td>
-              <a href="{% url 'administrators:show_application' app.slug %}">View Details</a>
-            </td>
-          </tr>
-        {% empty %}
-          <tr>
-            <td colspan="14">No applications found.</td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-
-    <a href="{% url 'administrators:applications' %}">Back to Applications</a>
-
-
-  </div>
+<div>
+  {% include "administrators/_sidebar.html" %}
 </div>
+
+{% if messages %}
+  {% for message in messages %}
+    <div>{{ message }}</div>
+  {% endfor %}
+{% endif %}
+
+<h1>Declined Applications</h1>
+
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item">
+      <a href="{% url 'administrators:applications' %}">Applications</a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">Declined Applications</li>
+  </ol>
+</nav>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>Year</th>
+      <th>Term</th>
+      <th>Job</th>
+      <th>Applicant</th>
+      <th>Status</th>
+      <th>Availability</th>
+      <th>Classification</th>
+      <th>Instructor Preference</th>
+      <th>Note</th>
+      <th>Created at</th>
+      <th>Updated at</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for app in declined_applications %}
+      <tr>
+        <td>{{ app.job.session.year }}</td>
+        <td>{{ app.job.session.term.code }}</td>
+        <td>
+          {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}
+        </td>
+        <td>{{ app.applicant.first_name }} {{ app.applicant.last_name }}</td>
+        <td>
+          <ul>
+            {% for st in app.status.all %}
+              <li>{{ st.get_assigned_display }} - {{ st.assigned_hours }} - {{ st.created_at }}</li>
+            {% empty %}
+              No status found
+            {% endfor %}
+          </ul>
+        </td>
+        <td>{{ app.availability }}</td>
+        <td>{{ app.get_classification_display }}</td>
+        <td>{{ app.get_instructor_preference_display }}</td>
+        <td>{{ app.note }}</td>
+        <td>{{ app.created_at }}</td>
+        <td>{{ app.updated_at }}</td>
+        <td>
+          <a href="{% url 'administrators:show_application' app.slug %}">View Details</a>
+        </td>
+      </tr>
+    {% empty %}
+      <tr>
+        <td colspan="14">No applications found.</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<a class="btn btn-secondary" href="{% url 'administrators:applications' %}">Back to Applications</a>
+
 
 {% endblock %}

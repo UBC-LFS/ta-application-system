@@ -1,36 +1,33 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
 
-<div class="row">
-  <div class="col-md-3">
+<div>
     {% include "administrators/_sidebar.html" %}
-  </div>
-  <div class="col-md-9">
-
-    {% if messages %}
-    	{% for message in messages %}
-    		<div class="alert alert-info">{{ message }}</div>
-    	{% endfor %}
-    {% endif %}
-
-    <h3>Jobs</h3>
-
-    <div class="bd-callout bd-callout-warning">
-      <h5>Checkpoint!</h5>
-      <p>Text area</p>
+</div>
+    
+{% if messages %}
+	{% for message in messages %}
+		<div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+      {{ message }}
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
     </div>
+	{% endfor %}
+{% endif %}
 
-    <div class="card border-secondary">
-      <h5 class="card-header bg-secondary text-white">Featured</h5>
-      <div class="card-body">
-        <h5 class="card-title">Special title treatment</h5>
-        <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-        <a class="btn btn-primary btn-sm" href="{% url 'administrators:prepare_jobs' %}">Prepare Jobs</a>
-      </div>
-    </div>
+<h3>Jobs</h3>
 
-  </div>
+<div class="bd-callout bd-callout-warning">
+  <h5>Checkpoint!</h5>
+  <p>Text area</p>
 </div>
 
+<div class="card border-secondary">
+  <h5 class="card-header bg-secondary text-white">Featured</h5>
+  <div class="card-body">
+    <h5 class="card-title">Special title treatment</h5>
+    <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+    <a class="btn btn-primary btn-sm" href="{% url 'administrators:prepare_jobs' %}">Prepare Jobs</a>
+  </div>
+</div>
 
 {% endblock %}
