@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <div class="">
   <a href="{% url 'students:show_profile' %}">Profile</a>
   <ul>
@@ -27,4 +28,35 @@
       <a href="{% url 'students:declined_jobs' %}">Declined Jobs</a>
     </li>
   </ul>
+=======
+<div class="sidebar card">
+  <div class="card-body">
+    <ul class="nav flex-column">
+      <li class="nav-item">
+        <h4><a class="nav-link" href="{% url 'students:show_profile' %}">Profile</a></h4>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link text-secondary" href="{% url 'students:edit_profile' user.username %}">Edit Profile</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link text-secondary" href="{% url 'students:submit_confidentiality' user.username %}">Submit Confidentiality</a>
+      </li>
+      <li class="nav-item">
+        <h4><a class="nav-link" href="{% url 'students:apply_jobs' %}">Explore Jobs</a></h4>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link text-secondary" href="{% url 'students:check_jobs' %}">Check Jobs</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link text-secondary" href="{% url 'students:offered_jobs' %}">Offered Jobs</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link text-secondary" href="{% url 'students:accepted_jobs' %}">Accepted Jobs</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link text-secondary" href="{% url 'students:declined_jobs' %}">Declined Jobs</a>
+      </li>
+    </ul>
+  </div>
+>>>>>>> origin/web-design
 </div>

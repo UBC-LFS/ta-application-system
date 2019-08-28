@@ -1,6 +1,7 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
 
+<<<<<<< HEAD
 <div class="row">
   <div class="col-md-3">
     {% include "instructors/_sidebar.html" %}
@@ -91,10 +92,46 @@
         </tr>
         {% endfor %}
       </tbody>
-
-    </table>
-
-  </div>
+=======
+<div>
+  {% include "instructors/_sidebar.html" %}
 </div>
+>>>>>>> origin/web-design
+
+<h3>My Jobs</h3>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>Year</th>
+      <th>Term</th>
+      <th>Job</th>
+      <th>Active</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for job in user.job_set.all %}
+      <tr>
+        <td>{{ job.session.year }}</td>
+        <td>{{ job.session.term.code }}</td>
+        <td>
+          <a href="{% url 'instructors:show_job' session_slug=job.session.slug job_slug=job.course.slug %}">
+            {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}
+          </a>
+        </td>
+        <td>{{ job.is_active }}</td>
+        <td>
+          <a class="btn btn-sm btn-secondary" href="{% url 'instructors:edit_job' session_slug=job.session.slug job_slug=job.course.slug %}">Update Job Details</a>
+          <a class="btn btn-sm btn-primary" href="{% url 'instructors:get_applications' session_slug=job.session.slug job_slug=job.course.slug %}">Applications</a>
+        </td>
+      </tr>
+    {% empty %}
+      <tr>
+        <td colspan="5">No jobs found</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
 
 {% endblock %}

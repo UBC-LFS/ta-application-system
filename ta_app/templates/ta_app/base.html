@@ -27,11 +27,11 @@
 				<ul class="navbar-nav mr-auto">
 					<li class="nav-item">
 						{% if 'Student' in loggedin_user.roles %}
-							<a class="nav-link" href="{% url 'students:index' %}">Student's Portal</a>
+							<a id="student" class="nav-link" href="{% url 'students:index' %}">Student's Portal</a>
 						{% endif %}
 
 						{% if 'Instructor' in loggedin_user.roles %}
-							<a class="nav-link" href="{% url 'instructors:index' %}">Instructor's Portal</a>
+							<a id="instructor" class="nav-link" href="{% url 'instructors:index' %}">Instructor's Portal</a>
 						{% endif %}
 
 						{% if 'HR' in loggedin_user.roles %}
@@ -46,7 +46,7 @@
 				<span class="navbar-text">{{ loggedin_user.username }} {{ loggedin_user.roles }}</span>
   		</div>
 		</nav>
-		<div class="container-fluid padding-top-56">
+		<div class="container container-fluid padding-top-66">
 			<main>
 				{% block content %}{% endblock %}
 			</main>

@@ -1,23 +1,18 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
 
-<div class="row">
-  <div class="col-md-3">
-    {% include "students/_sidebar.html" %}
-  </div>
-  <div class="col-md-9">
-
-    <h3>Declined Jobs</h3>
-    <ul>
-      {% for job in declined_jobs %}
-        <li>{{ job.year }} {{ job.term }} - {{ job.course_code }} {{ job.course_number }} {{ job.course_section }}: {{ job.assigned_status }} {{ job.assigned_hours }} hours</li>
-      {% empty %}
-        <li>No declined jobs found</li>
-      {% endfor %}
-    </ul>
-
-
-  </div>
+<div>
+  {% include "students/_sidebar.html" %}
 </div>
+
+<h3>Declined Jobs</h3>
+
+<ul>
+  {% for job in declined_jobs %}
+    <li>{{ job.year }} {{ job.term }} - {{ job.course_code }} {{ job.course_number }} {{ job.course_section }}: {{ job.assigned_status }} {{ job.assigned_hours }} hours</li>
+  {% empty %}
+    <li>No declined jobs found</li>
+  {% endfor %}
+</ul>
 
 {% endblock %}

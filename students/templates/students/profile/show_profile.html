@@ -2,101 +2,32 @@
 {% block content %}
 
 <div class="row">
-  <div class="col-md-3">
-    {% include "students/_sidebar.html" %}
-  </div>
-  <div class="col-md-9">
+  {% include "students/_sidebar.html" %}
+</div>
 
-    {% if messages %}
-    	{% for message in messages %}
-    		<div class="alert alert-info">{{ message }}</div>
-    	{% endfor %}
-    {% endif %}
+{% if messages %}
+  {% for message in messages %}
+    <div class="alert alert-info">{{ message }}</div>
+  {% endfor %}
+{% endif %}
 
-    <h3>Profile</h3>
+<h1>{{ user.first_name }} {{ user.last_name }}'s Profile</h1>
 
+<div class="row margin-top-30">
+  <div class="col-6">
     <h3>Infomation</h3>
 
-    <ul>
-      <li>First Name: {{ user.first_name }}</li>
-      <li>Last Name: {{ user.last_name }}</li>
-      <li>CWL: {{ user.username }}</li>
-      <li>Email: {{ user.email }}</li>
-      <li>UBC Number: {{ user.profile.ubc_number }}</li>
-      <li>Date Joined: {{ user.date_joined }}</li>
-      <li>Last Login: {{ user.last_login }}</li>
+    <ul class="list-group">
+      <li class="list-group-item"><strong>First Name:</strong> {{ user.first_name }}</li>
+      <li class="list-group-item"><strong>Last Name:</strong> {{ user.last_name }}</li>
+      <li class="list-group-item"><strong>CWL:</strong> {{ user.username }}</li>
+      <li class="list-group-item"><strong>Email:</strong> {{ user.email }}</li>
+      <li class="list-group-item"><strong>UBC Number:</strong> {{ user.profile.ubc_number }}</li>
+      <li class="list-group-item"><strong>Date Joined:</strong> {{ user.date_joined }}</li>
+      <li class="list-group-item"><strong>Last Login:</strong> {{ user.last_login }}</li>
     </ul>
 
-    <hr />
-
-    <h3>Profile</h3>
-    <div>Created at: {{ user.profile.created_at }}</div>
-    <div>Updated at: {{ user.profile.updated_at }}</div>
-    <div class="">
-      Preferred Name: {{ user.profile.preferred_name }}
-    </div>
-
-    <div class="">
-      Qualifications: {{ user.profile.qualifications }}
-    </div>
-
-    <div class="">
-      Prior Employment: {{ user.profile.prior_employment }}
-    </div>
-
-    <div class="">
-      Special Considerations: {{ user.profile.special_considerations }}
-    </div>
-
-    <div class="">
-      Status: {{ user.profile.status }}
-    </div>
-
-    <div class="">
-      Program: {{ user.profile.program }}
-    </div>
-
-    <div class="">
-      Graduation Date: {{ user.profile.graduation_date }}
-    </div>
-
-    <div class="">
-      Degrees:
-      <ul>
-        {% for degree in user.profile.degrees.all %}
-          <li>{{ degree.name }}</li>
-        {% empty %}
-          None
-        {% endfor %}
-      </ul>
-    </div>
-
-    <div class="">
-      Trainings:
-      <ul>
-        {% for degree in user.profile.trainings.all %}
-          <li>{{ degree.name }}</li>
-        {% empty %}
-          None
-        {% endfor %}
-      </ul>
-    </div>
-
-    <div class="">
-      LFS TA Training: {{ user.profile.get_lfs_ta_training_display }}
-      <p>Details: {{ user.profile.lfs_ta_training_details }}</p>
-    </div>
-
-    <div class="">
-      Previous TA Experience: {{ user.profile.get_ta_experience_display }}
-      <p>Details: {{ user.profile.ta_experience_details }}</p>
-    </div>
-
-
-
-    <hr />
-
-    <h3>Upload a resume</h3>
+    <h3 class="margin-top-30">Upload a resume</h3>
 
     Resume:
     {% if resume_file %}
@@ -121,7 +52,51 @@
       <table>{{ resume_form.as_table }}</table>
       <input type="submit" value="Upload" />
     </form>
+  </div>
+  
 
+  <div class="col-6">
+    <h3>Profile</h3>
+
+    <ul class="list-group">
+      <li class="list-group-item"><strong>Created at:</strong> {{ user.profile.created_at }}</li>
+      <li class="list-group-item"><strong>Updated at:</strong> {{ user.profile.updated_at }}</li>
+      <li class="list-group-item"><strong>Preferred Name:</strong> {{ user.profile.preferred_name }}</li>
+      <li class="list-group-item"><strong>Qualifications:</strong> {{ user.profile.qualifications }}</li>
+      <li class="list-group-item"><strong>Prior Employment:</strong> {{ user.profile.prior_employment }}</li>
+      <li class="list-group-item"><strong>Special Considerations:</strong> {{ user.profile.special_considerations }}</li>
+      <li class="list-group-item"><strong>Status:</strong> {{ user.profile.status }}</li>
+      <li class="list-group-item"><strong>Program:</strong> {{ user.profile.program }}</li>
+      <li class="list-group-item"><strong>Graduation Date:</strong> {{ user.profile.graduation_date }}</li>
+      <li class="list-group-item">
+        <strong>Degrees:</strong>
+        <ul>
+          {% for degree in user.profile.degrees.all %}
+            <li>{{ degree.name }}</li>
+          {% empty %}
+            None
+          {% endfor %}
+        </ul>
+      </li>
+      <li class="list-group-item">
+        <strong>Trainings:</strong>
+        <ul>
+          {% for degree in user.profile.trainings.all %}
+            <li>{{ degree.name }}</li>
+          {% empty %}
+            None
+          {% endfor %}
+        </ul>
+      </li>
+      <li class="list-group-item">
+        <strong>LFS TA Training:</strong> {{ user.profile.get_lfs_ta_training_display }}
+        <p><strong>Details:</strong> {{ user.profile.lfs_ta_training_details }}</p>
+      </li>
+      <li class="list-group-item">
+        <strong>Previous TA Experience:</strong> {{ user.profile.get_ta_experience_display }}
+        <p><strong>Details:</strong> {{ user.profile.ta_experience_details }}</p>
+      </li>
+    </ul>
   </div>
 </div>
 
