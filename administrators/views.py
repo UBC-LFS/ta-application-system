@@ -173,12 +173,9 @@ def archived_sessions(request):
 def edit_session(request, session_slug):
     """ Edit a session """
 
-    if not usersApi.is_valid_user(request.user):
-        raise PermissionDenied
-
+    if not usersApi.is_valid_user(request.user): raise PermissionDenied
     loggedin_user = usersApi.loggedin_user(request.user)
-    if not usersApi.is_admin(loggedin_user):
-        raise PermissionDenied
+    if not usersApi.is_admin(loggedin_user): raise PermissionDenied
 
     session = api.get_session_by_slug(session_slug)
     session_courses = [ job.course for job in session.job_set.all() ]
@@ -201,7 +198,7 @@ def edit_session(request, session_slug):
                 updated_jobs = api.update_session_jobs(session, courses)
                 if updated_jobs:
                     messages.success(request, 'Success! {0} {1} {2} updated'.format(session.year, session.term.code, session.title))
-                    return HttpResponseRedirect( reverse('administrators:sessions') )
+                    return HttpResponseRedirect( reverse('administrators:current_sessions') )
                 else:
                     messages.error(request, 'Error!')
             else:
@@ -259,7 +256,6 @@ def jobs(request):
         'loggedin_user': loggedin_user
     })
 
-
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
@@ -274,64 +270,6 @@ def prepare_jobs(request):
         'jobs': api.get_jobs(),
         'instructors': usersApi.get_instructors()
     })
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['POST'])
-def assign_ta_hours(request, session_slug, job_slug):
-    if not usersApi.is_valid_user(request.user): raise PermissionDenied
-    loggedin_user = usersApi.loggedin_user(request.user)
-    if not usersApi.is_admin(loggedin_user): raise PermissionDenied
-
-    job = api.get_session_job_by_slug(session_slug, job_slug)
-    if request.method == 'POST':
-        form = AssignedTaHoursForm(request.POST, instance=job)
-        if form.is_valid():
-            data = form.cleaned_data
-            assigned_ta_hours = data.get('assigned_ta_hours')
-            updated_job = form.save(commit=False)
-            updated_job.assigned_ta_hours = assigned_ta_hours
-            updated_job.updated_at = datetime.now()
-            updated_job.save()
-            if updated_job:
-                messages.success(request, 'Success! {0} TA Hours assigned to {1} {2} - {3} {4} {5}'.format(assigned_ta_hours, updated_job.session.year, updated_job.session.term.code, updated_job.course.code.name, updated_job.course.number.name, updated_job.course.section.name))
-            else:
-                messages.error(request, 'Error!')
-        else:
-            print(form.errors.get_json_data())
-            messages.error(request, 'Error! Form is invalid')
-    return redirect('administrators:prepare_jobs')
-
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET', 'POST'])
-def add_instructors(request, session_slug, job_slug):
-    if not usersApi.is_valid_user(request.user): raise PermissionDenied
-    loggedin_user = usersApi.loggedin_user(request.user)
-    if not usersApi.is_admin(loggedin_user): raise PermissionDenied
-
-    job = api.get_session_job_by_slug(session_slug, job_slug)
-    job_instructors = job.instructors.all()
-    if request.method == 'POST':
-        form = AddInstructorForm(request.POST, instance=job)
-        if form.is_valid():
-            data = form.cleaned_data
-            new_instructors = data.get('instructors')
-            updated_job = form.save(commit=False)
-            updated_job.updated_at = datetime.now()
-            updated_job.save()
-            if updated_job:
-                updated = api.update_job_instructors(updated_job, job_instructors, new_instructors)
-                if updated:
-                    messages.success(request, 'Success! {0} {1} {2} {3} {4} updated'.format(updated_job.session.year, updated_job.session.term.code, updated_job.course.code.name, updated_job.course.number.name, updated_job.course.section.name))
-                else:
-                    messages.error(request, 'Error!')
-            else:
-                messages.error(request, 'Error!')
-        else:
-            messages.error(request, 'Error! Form is invalid')
-    return redirect('administrators:jobs')
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -350,22 +288,6 @@ def progress_jobs(request):
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
-def show_job(request, session_slug, job_slug):
-
-    if not usersApi.is_valid_user(request.user): raise PermissionDenied
-    loggedin_user = usersApi.loggedin_user(request.user)
-    if not usersApi.is_admin(loggedin_user): raise PermissionDenied
-
-    return render(request, 'administrators/jobs/show_job.html', {
-        'loggedin_user': loggedin_user,
-        'session': api.get_session_by_slug(session_slug),
-        'job': api.get_session_job_by_slug(session_slug, job_slug)
-    })
-
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET', 'POST'])
 def edit_job(request, session_slug, job_slug):
 
@@ -378,7 +300,7 @@ def edit_job(request, session_slug, job_slug):
     job_instructors = job.instructors.all()
 
     if request.method == 'POST':
-        form = JobForm(request.POST, instance=job)
+        form = AdminJobForm(request.POST, instance=job)
         if form.is_valid():
             data = form.cleaned_data
             new_instructors = data.get('instructors')
@@ -390,7 +312,7 @@ def edit_job(request, session_slug, job_slug):
                 updated = api.update_job_instructors(updated_job, job_instructors, new_instructors)
                 if updated:
                     messages.success(request, 'Success! {0} {1} {2} {3} {4} updated'.format(updated_job.session.year, updated_job.session.term.code, updated_job.course.code.name, updated_job.course.number.name, updated_job.course.section.name))
-                    return HttpResponseRedirect( reverse('administrators:show_job', args=[session_slug, job_slug]) )
+                    return redirect('administrators:prepare_jobs')
                 else:
                     messages.error(request, 'Error!')
             else:
@@ -402,9 +324,24 @@ def edit_job(request, session_slug, job_slug):
         'loggedin_user': loggedin_user,
         'session': session,
         'job': job,
-        'form': JobForm(data=None, instance=job, initial={
+        'form': AdminJobForm(data=None, instance=job, initial={
             'instructors': job_instructors
         })
+    })
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def show_job(request, session_slug, job_slug):
+
+    if not usersApi.is_valid_user(request.user): raise PermissionDenied
+    loggedin_user = usersApi.loggedin_user(request.user)
+    if not usersApi.is_admin(loggedin_user): raise PermissionDenied
+
+    return render(request, 'administrators/jobs/show_job.html', {
+        'loggedin_user': loggedin_user,
+        'session': api.get_session_by_slug(session_slug),
+        'job': api.get_session_job_by_slug(session_slug, job_slug)
     })
 
 
@@ -977,4 +914,65 @@ def edit_course(request, course_slug):
         'form': CourseForm(data=None, instance=course)
     })
 
+"""
+
+
+"""
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['POST'])
+def assign_ta_hours(request, session_slug, job_slug):
+    if not usersApi.is_valid_user(request.user): raise PermissionDenied
+    loggedin_user = usersApi.loggedin_user(request.user)
+    if not usersApi.is_admin(loggedin_user): raise PermissionDenied
+
+    job = api.get_session_job_by_slug(session_slug, job_slug)
+    if request.method == 'POST':
+        form = AssignedTaHoursForm(request.POST, instance=job)
+        if form.is_valid():
+            data = form.cleaned_data
+            assigned_ta_hours = data.get('assigned_ta_hours')
+            updated_job = form.save(commit=False)
+            updated_job.assigned_ta_hours = assigned_ta_hours
+            updated_job.updated_at = datetime.now()
+            updated_job.save()
+            if updated_job:
+                messages.success(request, 'Success! {0} TA Hours assigned to {1} {2} - {3} {4} {5}'.format(assigned_ta_hours, updated_job.session.year, updated_job.session.term.code, updated_job.course.code.name, updated_job.course.number.name, updated_job.course.section.name))
+            else:
+                messages.error(request, 'Error!')
+        else:
+            print(form.errors.get_json_data())
+            messages.error(request, 'Error! Form is invalid')
+    return redirect('administrators:prepare_jobs')
+
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET', 'POST'])
+def add_instructors(request, session_slug, job_slug):
+    if not usersApi.is_valid_user(request.user): raise PermissionDenied
+    loggedin_user = usersApi.loggedin_user(request.user)
+    if not usersApi.is_admin(loggedin_user): raise PermissionDenied
+
+    job = api.get_session_job_by_slug(session_slug, job_slug)
+    job_instructors = job.instructors.all()
+    if request.method == 'POST':
+        form = AddInstructorForm(request.POST, instance=job)
+        if form.is_valid():
+            data = form.cleaned_data
+            new_instructors = data.get('instructors')
+            updated_job = form.save(commit=False)
+            updated_job.updated_at = datetime.now()
+            updated_job.save()
+            if updated_job:
+                updated = api.update_job_instructors(updated_job, job_instructors, new_instructors)
+                if updated:
+                    messages.success(request, 'Success! {0} {1} {2} {3} {4} updated'.format(updated_job.session.year, updated_job.session.term.code, updated_job.course.code.name, updated_job.course.number.name, updated_job.course.section.name))
+                else:
+                    messages.error(request, 'Error!')
+            else:
+                messages.error(request, 'Error!')
+        else:
+            messages.error(request, 'Error! Form is invalid')
+    return redirect('administrators:jobs')
 """

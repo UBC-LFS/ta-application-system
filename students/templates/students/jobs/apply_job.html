@@ -1,0 +1,55 @@
+{% extends 'ta_app/base.html' %}
+{% block content %}
+
+<div class="row">
+  <div class="col-md-3">
+    {% include "students/_sidebar.html" %}
+  </div>
+  <div class="col-md-9">
+    <h3>Job Details</h3>
+
+    <h5>
+      {{ job.session.year }} {{ job.session.term.code }} - {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}
+    </h5>
+    <p>{{ job.course.name }}</p>
+    <p>
+      Intstructors:
+      {% for instructor in job.instructors.all %}
+        {{ instructor.first_name }} {{ instructor.last_name }},
+      {% empty %}
+        No instructors
+      {% endfor %}
+    </p>
+
+    <p>Job Title:</p>
+    <p>{{ job.title }}</p>
+
+    <p>Job Description:</p>
+    <p>{{ job.description }}</p>
+
+    <p>Job Qalification:</p>
+    <p>{{ job.qualification }}</p>
+
+    <p>Job Note:</p>
+    <p>{{ job.note }}</p>
+
+    <hr />
+
+    {% if has_applied_job %}
+      <p>
+        You have already applied for this job. Please check your jobs in <a href="{% url 'students:applied_jobs' %}">Applied Jobs</a>
+      </p>
+
+
+    {% else %}
+      <form action="" method="post">
+        {% csrf_token %}
+        <table>{{ form.as_table }} </table>
+        <input type="submit" value="Apply">
+      </form>
+    {% endif %}
+
+  </div>
+</div>
+
+{% endblock %}

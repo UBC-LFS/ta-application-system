@@ -43,17 +43,22 @@ def get_active_sessions():
 def get_inactive_sessions():
     return []
 
-
-def get_visible_active_sessions():
-    return Session.objects.filter(is_visible=True, is_archived=False)
-
-def get_not_visible_active_sessions():
-    return Session.objects.filter(is_visible=False, is_archived=False)
-
 def get_current_sessions():
     sessions = []
     for session in Session.objects.all():
         if not session.is_archived:
+            count = 0
+            for job in session.job_set.all():
+                if job.instructors.count() > 0:
+                    count += 1
+            session.num_instructors = count
+            sessions.append(session)
+    return sessions
+
+def get_visible_current_sessions():
+    sessions = []
+    for session in Session.objects.all():
+        if session.is_visible and not session.is_archived:
             count = 0
             for job in session.job_set.all():
                 if job.instructors.count() > 0:
@@ -74,6 +79,9 @@ def get_archived_sessions():
             sessions.append(session)
     return sessions
 
+
+def get_not_visible_active_sessions():
+    return Session.objects.filter(is_visible=False, is_archived=False)
 
 
 
@@ -177,6 +185,8 @@ def get_jobs_applied_by_student(user):
     jobs = []
     for job in get_jobs():
         if job.application_set.filter(applicant__id=user.id).exists():
+            my_application = job.application_set.get(applicant__id=user.id)
+            job.my_application = my_application
             jobs.append(job)
     return jobs
 

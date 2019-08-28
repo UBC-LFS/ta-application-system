@@ -9,6 +9,7 @@ from django.views.decorators.http import require_http_methods
 from django.views.decorators.cache import cache_control
 
 from users.forms import *
+from administrators.forms import *
 from users import api as usersApi
 from administrators import api as administratorsApi
 
@@ -292,34 +293,18 @@ def delete_work_permit(request):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
-def apply_jobs(request):
+def explore_jobs(request):
 
     if not usersApi.is_valid_user(request.user): raise PermissionDenied
     loggedin_user = usersApi.loggedin_user(request.user)
     if 'Student' not in loggedin_user['roles']: raise PermissionDenied
 
-    current_sessions = administratorsApi.get_current_sessions()
-    return render(request, 'students/jobs/apply_jobs.html', {
+    visible_current_sessions = administratorsApi.get_visible_current_sessions()
+    return render(request, 'students/jobs/explore_jobs.html', {
         'loggedin_user': loggedin_user,
-        'current_sessions': current_sessions,
+        'visible_current_sessions': visible_current_sessions,
         'applied_jobs': administratorsApi.get_jobs_applied_by_student(request.user)
     })
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
-def check_jobs(request):
-    if not usersApi.is_valid_user(request.user): raise PermissionDenied
-    loggedin_user = usersApi.loggedin_user(request.user)
-    if 'Student' not in loggedin_user['roles']: raise PermissionDenied
-
-    user = usersApi.get_user(request.user.id)
-    return render(request, 'students/jobs/check_jobs.html', {
-        'loggedin_user': loggedin_user,
-        'applied_jobs': administratorsApi.get_jobs_applied_by_student(user)
-    })
-
-
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -336,6 +321,49 @@ def list_jobs(request, session_slug):
         'jobs': administratorsApi.get_jobs_with_student_applied(session_slug, request.user)
     })
 
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET', 'POST'])
+def apply_job(request, session_slug, job_slug):
+    if not usersApi.is_valid_user(request.user): raise PermissionDenied
+    loggedin_user = usersApi.loggedin_user(request.user)
+    if 'Student' not in loggedin_user['roles']: raise PermissionDenied
+
+    session = administratorsApi.get_session_by_slug(session_slug)
+    job = administratorsApi.get_session_job_by_slug(session_slug, job_slug)
+    if request.method == 'POST':
+        form = ApplicationForm(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            application = form.save()
+
+            if application:
+                status_form = ApplicationStatusForm({ 'assigned': ApplicationStatus.NONE, 'assigned_hours': 0.00 })
+                #status_data = status_form.cleaned_data
+                status = status_form.save()
+
+                if status:
+                    application.status.add(status)
+                    #job.applications.add(application)
+                    messages.success(request, 'Success! {0} {1} {2} {3} {4} applied'.format(job.session.year, job.session.term.code, job.course.code.name, job.course.number.name, job.course.section.name))
+                    return HttpResponseRedirect( reverse('students:list_jobs', args=[session_slug]) )
+                else:
+                    messages.error(request, 'Error!')
+            else:
+                messages.error(request, 'Error!')
+        else:
+            messages.error(request, 'Error! form is invalid')
+
+    return render(request, 'students/jobs/apply_job.html', {
+        'loggedin_user': loggedin_user,
+        'session': session,
+        'job': job,
+        'has_applied_job': administratorsApi.has_applied_job(session_slug, job_slug, request.user),
+        'form': ApplicationForm(initial={
+            'applicant': request.user.id,
+            'job': job.id
+        })
+    })
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -347,9 +375,13 @@ def applied_jobs(request):
     if 'Student' not in loggedin_user['roles']: raise PermissionDenied
 
     user = usersApi.get_user(request.user.id)
+
+    jobs = administratorsApi.get_jobs_applied_by_student(user)
+    for job in jobs:
+        print(job, job.my_application)
+
     return render(request, 'students/jobs/applied_jobs.html', {
         'loggedin_user': loggedin_user,
-        'user': user,
         'applied_jobs': administratorsApi.get_jobs_applied_by_student(user)
     })
 

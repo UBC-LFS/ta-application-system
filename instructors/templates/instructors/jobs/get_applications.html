@@ -7,7 +7,7 @@
   </div>
   <div class="col-md-9">
     <h3>Applications</h3>
-    
+
     <table>
       <thead>
         <tr>
@@ -35,6 +35,10 @@
                 <input type="submit" value="Select" />
               </form>
             </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="4">No applications found</td>
           </tr>
         {% endfor %}
       </tbody>
