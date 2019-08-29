@@ -28,25 +28,27 @@ from django.forms.models import model_to_dict
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET', 'POST'])
-def index(request):
-    """ Display all users and create a user """
+@require_http_methods(['GET'])
+def users(request):
 
-
-    if not api.is_valid_user(request.user):
-        raise PermissionDenied
-
+    if not api.is_valid_user(request.user): raise PermissionDenied
     loggedin_user = api.loggedin_user(request.user)
-    if not api.is_admin(loggedin_user):
-        raise PermissionDenied
+    if not api.is_admin(loggedin_user) or 'HR' not in loggedin_user['roles']: raise PermissionDenied
 
-    my_user = api.get_user('24')
-    degrees = api.get_degrees()
+    users = api.get_users()
+    return render(request, 'users/users.html', {
+        'loggedin_user': api.loggedin_user(request.user),
+        'users': users,
+        'total_users': len(users),
+    })
 
-    #for degree in degrees:
-    #    print(degree.id, degree.profile_set.all())
-    #    print( degree.profile_set.filter(user_id=my_user.id ).exists() )
-
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET', 'POST'])
+def create_user(request):
+    if not api.is_valid_user(request.user): raise PermissionDenied
+    loggedin_user = api.loggedin_user(request.user)
+    if not api.is_admin(loggedin_user): raise PermissionDenied
 
     if request.method == 'POST':
         form = UserForm(request.POST)
@@ -72,11 +74,12 @@ def index(request):
         else:
             messages.error(request, 'Error! form invalid')
 
-    return render(request, 'users/index.html', {
+    return render(request, 'users/create_user.html', {
         'loggedin_user': loggedin_user,
         'users': api.get_users(),
         'form': UserForm()
     })
+
 
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -664,12 +667,9 @@ def edit_instructor_jobs(request, username, session_slug, job_slug):
 def hr(request):
     """ Display HR's page """
 
-    if not api.is_valid_user(request.user):
-        raise PermissionDenied
-
+    if not api.is_valid_user(request.user): raise PermissionDenied
     loggedin_user = api.loggedin_user(request.user)
-    if 'HR' not in loggedin_user['roles']:
-        raise PermissionDenied
+    if  'Admin' not in loggedin_user['roles'] or 'HR' not in loggedin_user['roles']: raise PermissionDenied
 
     users = api.get_users()
     total_users = len(users)

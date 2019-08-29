@@ -8,10 +8,11 @@ from django.core.exceptions import PermissionDenied
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.cache import cache_control
 
-from . import api
+from administrators import api as administratorsApi
 from users import api as usersApi
 from .models import ApplicationStatus
 from .forms import *
+from users.forms import *
 from datetime import datetime
 
 from django.forms.models import model_to_dict
@@ -21,15 +22,13 @@ from django.forms.models import model_to_dict
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
 def index(request):
-    """ Display a summary of all data including a dashboard """
-
+    
     if not usersApi.is_valid_user(request.user): raise PermissionDenied
     loggedin_user = usersApi.loggedin_user(request.user)
     if not usersApi.is_admin(loggedin_user): raise PermissionDenied
 
     return render(request, 'administrators/index.html', {
-        'loggedin_user': loggedin_user,
-        'courses': api.get_courses()
+        'loggedin_user': loggedin_user
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -509,8 +508,6 @@ def show_application(request, app_slug):
     loggedin_user = usersApi.loggedin_user(request.user)
     if not usersApi.is_admin(loggedin_user): raise PermissionDenied
 
-
-
     return render(request, 'administrators/applications/show_application.html', {
         'loggedin_user': usersApi.loggedin_user(request.user),
         'app': api.get_application_slug(app_slug),
@@ -518,6 +515,80 @@ def show_application(request, app_slug):
             'assigned': ApplicationStatus.OFFERED
         })
     })
+
+# HR
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def hr(request):
+
+    if not usersApi.is_valid_user(request.user): raise PermissionDenied
+    loggedin_user = usersApi.loggedin_user(request.user)
+    if not usersApi.is_admin(loggedin_user): raise PermissionDenied
+
+    users = api.get_users()
+    return render(request, 'administrators/hr/hr.html', {
+        'loggedin_user': api.loggedin_user(request.user),
+        'users': users,
+        'total_users': len(users),
+    })
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def users(request):
+
+    if not usersApi.is_valid_user(request.user): raise PermissionDenied
+    loggedin_user = usersApi.loggedin_user(request.user)
+    if not usersApi.is_admin(loggedin_user): raise PermissionDenied
+
+    users = usersApi.get_users()
+    return render(request, 'administrators/hr/users.html', {
+        'loggedin_user': loggedin_user,
+        'users': users,
+        'total_users': len(users),
+    })
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET', 'POST'])
+def create_user(request):
+    if not usersApi.is_valid_user(request.user): raise PermissionDenied
+    loggedin_user = usersApi.loggedin_user(request.user)
+    if not usersApi.is_admin(loggedin_user): raise PermissionDenied
+
+    if request.method == 'POST':
+        form = UserForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            if user:
+                profile = usersApi.create_profile(user)
+                if profile:
+                    resume = usersApi.create_user_resume(user)
+                    if resume:
+                        confidentiality = usersApi.create_user_confidentiality(user)
+                        if confidentiality:
+                            messages.success(request, 'Success! {0} created'.format(user.username))
+                            return redirect('users:index')
+                        else:
+                            messages.error(request, 'Error! at confidentiality')
+                    else:
+                        messages.error(request, 'Error! at resume')
+                else:
+                    messages.error(request, 'Error! at profile')
+            else:
+                messages.error(request, 'Error! at user')
+        else:
+            messages.error(request, 'Error! form invalid')
+
+    return render(request, 'administrators/hr/create_user.html', {
+        'loggedin_user': loggedin_user,
+        'users': usersApi.get_users(),
+        'user_form': UserForm()
+    })
+
+
 
 
 # Courses
