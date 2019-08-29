@@ -1,3 +1,4 @@
+import os
 from django.shortcuts import get_object_or_404
 from django.forms.models import model_to_dict
 from django.db.models import Q
@@ -404,7 +405,7 @@ def update_application_classification_note(application_id, data):
         application.classification = classification
         application.note = note
         application.save(update_fields=['classification', 'note'])
-        return True
+        return application
     except Application.DoesNotExist:
         return None
 
@@ -421,6 +422,20 @@ def get_offered_applications_by_student(user):
     return applications
 
 def get_selected_applications():
+    applications = []
+    for app in Application.objects.all():
+        if app.instructor_preference != Application.NONE and app.instructor_preference != Application.NO_PREFERENCE:
+            app.resume_file = None
+            if app.applicant.resume.file != None:
+                app.resume_file = os.path.basename(app.applicant.resume.file.name)
+            applications.append(app)
+    return applications
+
+
+    return Application.objects.filter( ~Q(instructor_preference=Application.NONE) & ~Q(instructor_preference=Application.NO_PREFERENCE) )
+
+
+def get_selected_applications2():
     return Application.objects.filter( ~Q(instructor_preference=Application.NONE) & ~Q(instructor_preference=Application.NO_PREFERENCE) )
 
 

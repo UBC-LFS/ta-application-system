@@ -7,6 +7,7 @@ from django.http import HttpResponseRedirect, Http404
 from django.core.exceptions import PermissionDenied
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.cache import cache_control
+from django.views.static import serve
 
 from users.forms import *
 from administrators.forms import *
@@ -75,7 +76,7 @@ def edit_profile(request, username):
                 updated = usersApi.update_student_profile_degrees_trainings(updated_profile, profile_degrees, profile_trainings, data)
                 if updated:
                     messages.success(request, 'Success! {0} - profile updated'.format(user.username))
-                    return HttpResponseRedirect( reverse('students:show_profile', args=[username]) )
+                    return redirect('students:show_profile')
                 else:
                     messages.error(request, 'Error!')
             else:
@@ -133,7 +134,7 @@ def upload_resume(request, username):
         else:
             messages.error(request, 'Error! Form is invalid')
 
-    return HttpResponseRedirect( reverse('students:show_profile', args=[username]) )
+    return redirect('students:show_profile')
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -164,7 +165,7 @@ def delete_resume(request):
             messages.error(request, 'Error!')
     else:
         messages.error(request, 'Error!')
-    return HttpResponseRedirect( reverse('students:show_profile', args=[username]) )
+    return redirect('students:show_profile')
 
 
 

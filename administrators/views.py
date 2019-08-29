@@ -369,6 +369,50 @@ def applications(request):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
 def selected_applications(request):
+    if not usersApi.is_valid_user(request.user): raise PermissionDenied
+    loggedin_user = usersApi.loggedin_user(request.user)
+    if not usersApi.is_admin(loggedin_user): raise PermissionDenied
+
+    return render(request, 'administrators/applications/selected_applications.html', {
+        'loggedin_user': loggedin_user,
+        'selected_applications': api.get_selected_applications(),
+        'admin_application_form': AdminApplicationForm(),
+        'status_form': ApplicationStatusForm(initial={
+            'assigned': ApplicationStatus.OFFERED
+        })
+    })
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['POST'])
+def edit_job_application(request, session_slug, job_slug):
+    """ Edit classification and note """
+
+    if not usersApi.is_valid_user(request.user): raise PermissionDenied
+    loggedin_user = usersApi.loggedin_user(request.user)
+    if not usersApi.is_admin(loggedin_user): raise PermissionDenied
+
+    if request.method == 'POST':
+        application_id = request.POST.get('application')
+        form = AdminApplicationForm(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            updated_application = api.update_application_classification_note(application_id, data)
+            if updated_application:
+                messages.success(request, 'Success! {0} - application updated'.format(updated_application.applicant.username))
+            else:
+                messages.error(request, 'Error!')
+        else:
+            messages.error(request, 'Error!')
+
+    return redirect('administrators:selected_applications')
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['POST'])
+def offer_job(request, session_slug, job_slug):
+    """ Admin can offer a job to each job"""
+
     if not usersApi.is_valid_user(request.user):
         raise PermissionDenied
 
@@ -376,13 +420,31 @@ def selected_applications(request):
     if not usersApi.is_admin(loggedin_user):
         raise PermissionDenied
 
-    return render(request, 'administrators/applications/selected_applications.html', {
-        'loggedin_user': loggedin_user,
-        'selected_applications': api.get_selected_applications(),
-        'status_form': ApplicationStatusForm(initial={
-            'assigned': ApplicationStatus.OFFERED
-        })
-    })
+    job = api.get_session_job_by_slug(session_slug, job_slug)
+    if request.method == 'POST':
+        applicant_id = request.POST.get('applicant')
+        assigned_hours = request.POST.get('assigned_hours')
+        form = ApplicationStatusForm(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            status = form.save()
+            if status:
+                application = api.get_application_by_student_id_job(applicant_id, job)
+                application.status.add(status)
+                application.save()
+                if application:
+                    messages.success(request, 'Success! You offered {0} {1} hours for this job'.format(application.applicant.username, assigned_hours))
+                else:
+                    messages.error(request, 'Error!')
+            else:
+                messages.error(request, 'Error!')
+        else:
+            messages.error(request, 'Error! Form is invalid')
+
+    return redirect('administrators:selected_applications')
+
+
+
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -438,86 +500,23 @@ def declined_applications(request):
         'declined_applications': api.get_declined_applications()
     })
 
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['POST'])
-def offer_job(request, session_slug, job_slug):
-    """ Admin can offer a job to each job"""
-
-    if not usersApi.is_valid_user(request.user):
-        raise PermissionDenied
-
-    loggedin_user = usersApi.loggedin_user(request.user)
-    if not usersApi.is_admin(loggedin_user):
-        raise PermissionDenied
-
-    job = api.get_session_job_by_slug(session_slug, job_slug)
-    if request.method == 'POST':
-        applicant_id = request.POST.get('applicant')
-        assigned_hours = request.POST.get('assigned_hours')
-        form = ApplicationStatusForm(request.POST)
-        if form.is_valid():
-            data = form.cleaned_data
-            status = form.save()
-            if status:
-                application = api.get_application_by_student_id_job(applicant_id, job)
-                application.status.add(status)
-                application.save()
-                if application:
-                    messages.success(request, 'Success! You offered {0} {1} hours for this job'.format(application.applicant.username, assigned_hours))
-                else:
-                    messages.error(request, 'Error!')
-            else:
-                messages.error(request, 'Error!')
-        else:
-            messages.error(request, 'Error! Form is invalid')
-
-    return HttpResponseRedirect( reverse('administrators:applications', args=[session_slug, job_slug]) )
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['POST'])
-def edit_job_application(request, session_slug, job_slug):
-    """ Edit classification and note """
-
-    if not usersApi.is_valid_user(request.user):
-        raise PermissionDenied
-
-    loggedin_user = usersApi.loggedin_user(request.user)
-    if not usersApi.is_admin(loggedin_user):
-        raise PermissionDenied
-
-    if request.method == 'POST':
-        application_id = request.POST.get('application')
-        form = AdminApplicationForm(request.POST)
-        if form.is_valid():
-            data = form.cleaned_data
-            updated = api.update_application_classification_note(application_id, data)
-            if updated:
-                messages.success(request, 'Success!')
-            else:
-                messages.error(request, 'Error!')
-        else:
-            messages.error(request, 'Error!')
-
-    return HttpResponseRedirect( reverse('administrators:show_job', args=[session_slug, job_slug]) )
-
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
 def show_application(request, app_slug):
 
-    if not usersApi.is_valid_user(request.user):
-        raise PermissionDenied
-
+    if not usersApi.is_valid_user(request.user): raise PermissionDenied
     loggedin_user = usersApi.loggedin_user(request.user)
-    if not usersApi.is_admin(loggedin_user):
-        raise PermissionDenied
+    if not usersApi.is_admin(loggedin_user): raise PermissionDenied
+
+
 
     return render(request, 'administrators/applications/show_application.html', {
         'loggedin_user': usersApi.loggedin_user(request.user),
-        'app': api.get_application_slug(app_slug)
+        'app': api.get_application_slug(app_slug),
+        'form': AdminApplicationForm(initial={
+            'assigned': ApplicationStatus.OFFERED
+        })
     })
 
 
