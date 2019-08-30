@@ -4,7 +4,7 @@ from django.forms.models import model_to_dict
 from django.db.models import Q
 from django.contrib.auth.models import User
 
-from .models import Session, Job, Course, Term, Application, ApplicationStatus, CourseCode, CourseNumber, CourseSection
+from .models import *
 from users import api as usersApi
 
 # Sessions

@@ -63,11 +63,11 @@ class ConfidentialityForm(forms.ModelForm):
     )
     class Meta:
         model = Confidentiality
-        fields = ['user', 'sin', 'employee_number', 'study_permit', 'study_permit_expiry_date', 'work_permit']
+        fields = ['user', 'sin', 'employee_number', 'study_permit', 'study_permit_expiry_date']
         widgets = {
             'user': forms.HiddenInput(),
-            'study_permit': forms.FileInput(),
-            'work_permit': forms.FileInput()
+            'sin': forms.FileInput(),
+            'study_permit': forms.FileInput()
         }
 
 class ResumeForm(forms.ModelForm):
@@ -77,6 +77,20 @@ class ResumeForm(forms.ModelForm):
         widgets = {
             'user': forms.HiddenInput()
         }
+
+class ProfileRoleForm(forms.ModelForm):
+    roles = forms.ModelMultipleChoiceField(
+        required=False,
+        queryset=Role.objects.all(),
+        widget=forms.CheckboxSelectMultiple()
+    )
+    class Meta:
+        model = Profile
+        fields = ['user', 'roles']
+        widgets = {
+            'user': forms.HiddenInput()
+        }
+
 
 #checked
 class ProfileForm(forms.ModelForm):

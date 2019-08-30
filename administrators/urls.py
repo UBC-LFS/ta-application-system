@@ -64,7 +64,9 @@ urlpatterns = [
     path('course_sections/delete/', views.delete_course_section, name='delete_course_section'),
 
     path('hr/', views.hr, name='hr'),
-    path('hr/users/', views.users, name='users'),
     path('hr/users/create/', views.create_user, name='create_user'),
+    path('hr/users/', views.users, name='users'),
+    path('hr/users/<str:username>/', views.show_user, name='show_user')
+
 
 ]

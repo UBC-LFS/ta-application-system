@@ -18,7 +18,6 @@ from django.urls import path, include
 from . import views
 
 urlpatterns = [
-    #path('admin/', admin.site.urls),
     path('', views.index, name='index'),
     path('accounts/', include('accounts.urls')),
     path('users/', include('users.urls')),
@@ -26,4 +25,7 @@ urlpatterns = [
     path('human_resources/', include('human_resources.urls')),
     path('instructors/', include('instructors.urls')),
     path('students/', include('students.urls')),
+
+    #path('admin/', admin.site.urls),
+    #path('accounts/admin/', include('django.contrib.auth.urls'))
 ]

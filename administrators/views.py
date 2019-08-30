@@ -22,7 +22,7 @@ from django.forms.models import model_to_dict
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
 def index(request):
-    
+
     if not usersApi.is_valid_user(request.user): raise PermissionDenied
     loggedin_user = usersApi.loggedin_user(request.user)
     if not usersApi.is_admin(loggedin_user): raise PermissionDenied
@@ -142,7 +142,7 @@ def current_sessions(request):
 
     return render(request, 'administrators/sessions/current_sessions.html', {
         'loggedin_user': loggedin_user,
-        'not_archived_sessions': api.get_current_sessions(),
+        'not_archived_sessions': administratorsApi.get_current_sessions(),
         'form': SessionForm()
     })
 
@@ -536,24 +536,39 @@ def hr(request):
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
-def users(request):
-
+@require_http_methods(['GET', 'POST'])
+def create_user(request):
     if not usersApi.is_valid_user(request.user): raise PermissionDenied
     loggedin_user = usersApi.loggedin_user(request.user)
     if not usersApi.is_admin(loggedin_user): raise PermissionDenied
 
-    users = usersApi.get_users()
-    return render(request, 'administrators/hr/users.html', {
+    if request.method == 'POST':
+        form = UserForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            if user:
+                profile = usersApi.create_profile(user, request.POST)
+                if profile:
+                    messages.success(request, 'Success! New user - CWL: {0} created. Please check at All Users'.format(user.username))
+                    return redirect('administrators:create_user')
+                else:
+                    messages.error(request, 'Error! at profile')
+            else:
+                messages.error(request, 'Error! at user')
+        else:
+            messages.error(request, 'Error! form invalid')
+
+    return render(request, 'administrators/hr/create_user.html', {
         'loggedin_user': loggedin_user,
-        'users': users,
-        'total_users': len(users),
+        'users': usersApi.get_users(),
+        'roles': usersApi.get_roles(),
+        'user_form': UserForm()
     })
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET', 'POST'])
-def create_user(request):
+def create_user2(request):
     if not usersApi.is_valid_user(request.user): raise PermissionDenied
     loggedin_user = usersApi.loggedin_user(request.user)
     if not usersApi.is_admin(loggedin_user): raise PermissionDenied
@@ -588,7 +603,68 @@ def create_user(request):
         'user_form': UserForm()
     })
 
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET', 'POST'])
+def users(request):
 
+    if not usersApi.is_valid_user(request.user): raise PermissionDenied
+    loggedin_user = usersApi.loggedin_user(request.user)
+    if not usersApi.is_admin(loggedin_user): raise PermissionDenied
+
+    if request.method == 'POST':
+        user_id = request.POST.get('user')
+        user = usersApi.get_user(user_id)
+        profile_roles = user.profile.roles.all()
+
+        form = ProfileRoleForm(request.POST, instance=user.profile)
+        print("form ", form.is_valid())
+        if form.is_valid():
+            data = form.cleaned_data
+            print(data)
+            updated_profile = form.save(commit=False)
+            updated_profile.updated_at = datetime.now()
+            updated_profile.save()
+            if updated_profile:
+                updated = api.update_user_profile_roles(updated_profile, profile_roles, data)
+                if updated:
+                    messages.success(request, 'Success! {0} - roles updated'.format(user.username))
+                    return HttpResponseRedirect( reverse('administrators:show_user', args=[user.username]) )
+                else:
+                    messages.error(request, 'Error!')
+            else:
+                messages.error(request, 'Error!')
+        else:
+            messages.error(request, 'Error! form invalid')
+
+
+    users = usersApi.get_users()
+    return render(request, 'administrators/hr/users.html', {
+        'loggedin_user': loggedin_user,
+        'users': users,
+        'total_users': len(users),
+        'roles': usersApi.get_roles()
+    })
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def show_user(request, username):
+
+    if not usersApi.is_valid_user(request.user): raise PermissionDenied
+    loggedin_user = usersApi.loggedin_user(request.user)
+    if not usersApi.is_admin(loggedin_user): raise PermissionDenied
+
+    user = usersApi.get_user_by_username(username)
+    resume_file = None
+    if usersApi.has_user_resume_created(user) and user.resume.file != None:
+        resume_file = os.path.basename(user.resume.file.name)
+
+    return render(request, 'administrators/hr/show_user.html', {
+        'loggedin_user': loggedin_user,
+        'user': user,
+        'resume_file': resume_file,
+    })
 
 
 # Courses

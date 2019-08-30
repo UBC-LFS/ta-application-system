@@ -62,5 +62,13 @@
       "name": "Master of Land and Water Systems (MLWS)",
       "slug": "master-of-land-and-water-systems-mlws"
     }
+  },
+  {
+    "model": "users.program",
+    "pk": 9,
+    "fields": {
+      "name": "Others",
+      "slug": "others"
+    }
   }
 ]

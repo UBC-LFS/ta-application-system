@@ -4,11 +4,12 @@
     "pk": 1,
     "fields": {
       "user_id": 1,
+      "is_international": false,
       "sin": null,
+      "sin_expiry_date": null,
       "employee_number": null,
       "study_permit": null,
       "study_permit_expiry_date": null,
-      "work_permit": null,
       "created_at": "2019-05-27",
       "updated_at": "2019-05-27"
     }
@@ -18,11 +19,12 @@
     "pk": 2,
     "fields": {
       "user_id": 2,
+      "is_international": false,
       "sin": null,
+      "sin_expiry_date": null,
       "employee_number": null,
       "study_permit": null,
       "study_permit_expiry_date": null,
-      "work_permit": null,
       "created_at": "2019-05-27",
       "updated_at": "2019-05-27"
     }
@@ -32,11 +34,12 @@
     "pk": 3,
     "fields": {
       "user_id": 3,
+      "is_international": false,
       "sin": null,
+      "sin_expiry_date": null,
       "employee_number": null,
       "study_permit": null,
       "study_permit_expiry_date": null,
-      "work_permit": null,
       "created_at": "2019-05-27",
       "updated_at": "2019-05-27"
     }
@@ -46,11 +49,12 @@
     "pk": 4,
     "fields": {
       "user_id": 4,
+      "is_international": false,
       "sin": null,
+      "sin_expiry_date": null,
       "employee_number": null,
       "study_permit": null,
       "study_permit_expiry_date": null,
-      "work_permit": null,
       "created_at": "2019-05-27",
       "updated_at": "2019-05-27"
     }
@@ -60,11 +64,12 @@
     "pk": 5,
     "fields": {
       "user_id": 5,
+      "is_international": false,
       "sin": null,
+      "sin_expiry_date": null,
       "employee_number": null,
       "study_permit": null,
       "study_permit_expiry_date": null,
-      "work_permit": null,
       "created_at": "2019-05-27",
       "updated_at": "2019-05-27"
     }
@@ -74,11 +79,12 @@
     "pk": 6,
     "fields": {
       "user_id": 6,
+      "is_international": false,
       "sin": null,
+      "sin_expiry_date": null,
       "employee_number": null,
       "study_permit": null,
       "study_permit_expiry_date": null,
-      "work_permit": null,
       "created_at": "2019-05-27",
       "updated_at": "2019-05-27"
     }
@@ -88,11 +94,12 @@
     "pk": 7,
     "fields": {
       "user_id": 7,
+      "is_international": false,
       "sin": null,
+      "sin_expiry_date": null,
       "employee_number": null,
       "study_permit": null,
       "study_permit_expiry_date": null,
-      "work_permit": null,
       "created_at": "2019-05-27",
       "updated_at": "2019-05-27"
     }
@@ -102,11 +109,12 @@
     "pk": 8,
     "fields": {
       "user_id": 8,
+      "is_international": false,
       "sin": null,
+      "sin_expiry_date": null,
       "employee_number": null,
       "study_permit": null,
       "study_permit_expiry_date": null,
-      "work_permit": null,
       "created_at": "2019-05-27",
       "updated_at": "2019-05-27"
     }
@@ -116,11 +124,12 @@
     "pk": 9,
     "fields": {
       "user_id": 9,
+      "is_international": false,
       "sin": null,
+      "sin_expiry_date": null,
       "employee_number": null,
       "study_permit": null,
       "study_permit_expiry_date": null,
-      "work_permit": null,
       "created_at": "2019-05-27",
       "updated_at": "2019-05-27"
     }
@@ -130,11 +139,12 @@
     "pk": 10,
     "fields": {
       "user_id": 10,
+      "is_international": false,
       "sin": null,
+      "sin_expiry_date": null,
       "employee_number": null,
       "study_permit": null,
       "study_permit_expiry_date": null,
-      "work_permit": null,
       "created_at": "2019-05-27",
       "updated_at": "2019-05-27"
     }
@@ -144,11 +154,12 @@
     "pk": 11,
     "fields": {
       "user_id": 11,
+      "is_international": false,
       "sin": null,
+      "sin_expiry_date": null,
       "employee_number": null,
       "study_permit": null,
       "study_permit_expiry_date": null,
-      "work_permit": null,
       "created_at": "2019-05-27",
       "updated_at": "2019-05-27"
     }
@@ -158,11 +169,12 @@
     "pk": 12,
     "fields": {
       "user_id": 12,
+      "is_international": false,
       "sin": null,
+      "sin_expiry_date": null,
       "employee_number": null,
       "study_permit": null,
       "study_permit_expiry_date": null,
-      "work_permit": null,
       "created_at": "2019-05-27",
       "updated_at": "2019-05-27"
     }
@@ -172,11 +184,12 @@
     "pk": 13,
     "fields": {
       "user_id": 13,
+      "is_international": false,
       "sin": null,
+      "sin_expiry_date": null,
       "employee_number": null,
       "study_permit": null,
       "study_permit_expiry_date": null,
-      "work_permit": null,
       "created_at": "2019-05-27",
       "updated_at": "2019-05-27"
     }
@@ -186,11 +199,12 @@
     "pk": 14,
     "fields": {
       "user_id": 14,
+      "is_international": false,
       "sin": null,
+      "sin_expiry_date": null,
       "employee_number": null,
       "study_permit": null,
       "study_permit_expiry_date": null,
-      "work_permit": null,
       "created_at": "2019-05-27",
       "updated_at": "2019-05-27"
     }
@@ -200,11 +214,12 @@
     "pk": 15,
     "fields": {
       "user_id": 15,
+      "is_international": false,
       "sin": null,
+      "sin_expiry_date": null,
       "employee_number": null,
       "study_permit": null,
       "study_permit_expiry_date": null,
-      "work_permit": null,
       "created_at": "2019-05-27",
       "updated_at": "2019-05-27"
     }
@@ -214,11 +229,12 @@
     "pk": 16,
     "fields": {
       "user_id": 16,
+      "is_international": false,
       "sin": null,
+      "sin_expiry_date": null,
       "employee_number": null,
       "study_permit": null,
       "study_permit_expiry_date": null,
-      "work_permit": null,
       "created_at": "2019-05-27",
       "updated_at": "2019-05-27"
     }
@@ -228,11 +244,12 @@
     "pk": 17,
     "fields": {
       "user_id": 17,
+      "is_international": false,
       "sin": null,
+      "sin_expiry_date": null,
       "employee_number": null,
       "study_permit": null,
       "study_permit_expiry_date": null,
-      "work_permit": null,
       "created_at": "2019-05-27",
       "updated_at": "2019-05-27"
     }
@@ -242,11 +259,12 @@
     "pk": 18,
     "fields": {
       "user_id": 18,
+      "is_international": false,
       "sin": null,
+      "sin_expiry_date": null,
       "employee_number": null,
       "study_permit": null,
       "study_permit_expiry_date": null,
-      "work_permit": null,
       "created_at": "2019-05-27",
       "updated_at": "2019-05-27"
     }
@@ -256,11 +274,12 @@
     "pk": 19,
     "fields": {
       "user_id": 19,
+      "is_international": false,
       "sin": null,
+      "sin_expiry_date": null,
       "employee_number": null,
       "study_permit": null,
       "study_permit_expiry_date": null,
-      "work_permit": null,
       "created_at": "2019-05-27",
       "updated_at": "2019-05-27"
     }
@@ -270,11 +289,12 @@
     "pk": 20,
     "fields": {
       "user_id": 20,
+      "is_international": false,
       "sin": null,
+      "sin_expiry_date": null,
       "employee_number": null,
       "study_permit": null,
       "study_permit_expiry_date": null,
-      "work_permit": null,
       "created_at": "2019-05-27",
       "updated_at": "2019-05-27"
     }
@@ -284,11 +304,12 @@
     "pk": 21,
     "fields": {
       "user_id": 21,
+      "is_international": false,
       "sin": null,
+      "sin_expiry_date": null,
       "employee_number": null,
       "study_permit": null,
       "study_permit_expiry_date": null,
-      "work_permit": null,
       "created_at": "2019-05-27",
       "updated_at": "2019-05-27"
     }
@@ -298,11 +319,12 @@
     "pk": 22,
     "fields": {
       "user_id": 22,
+      "is_international": false,
       "sin": null,
+      "sin_expiry_date": null,
       "employee_number": null,
       "study_permit": null,
       "study_permit_expiry_date": null,
-      "work_permit": null,
       "created_at": "2019-05-27",
       "updated_at": "2019-05-27"
     }
@@ -312,11 +334,12 @@
     "pk": 23,
     "fields": {
       "user_id": 23,
+      "is_international": false,
       "sin": null,
+      "sin_expiry_date": null,
       "employee_number": null,
       "study_permit": null,
       "study_permit_expiry_date": null,
-      "work_permit": null,
       "created_at": "2019-05-27",
       "updated_at": "2019-05-27"
     }
@@ -326,11 +349,12 @@
     "pk": 24,
     "fields": {
       "user_id": 24,
+      "is_international": false,
       "sin": null,
+      "sin_expiry_date": null,
       "employee_number": null,
       "study_permit": null,
       "study_permit_expiry_date": null,
-      "work_permit": null,
       "created_at": "2019-05-27",
       "updated_at": "2019-05-27"
     }
@@ -340,11 +364,12 @@
     "pk": 25,
     "fields": {
       "user_id": 25,
+      "is_international": false,
       "sin": null,
+      "sin_expiry_date": null,
       "employee_number": null,
       "study_permit": null,
       "study_permit_expiry_date": null,
-      "work_permit": null,
       "created_at": "2019-05-27",
       "updated_at": "2019-05-27"
     }
@@ -354,11 +379,12 @@
     "pk": 26,
     "fields": {
       "user_id": 26,
+      "is_international": false,
       "sin": null,
+      "sin_expiry_date": null,
       "employee_number": null,
       "study_permit": null,
       "study_permit_expiry_date": null,
-      "work_permit": null,
       "created_at": "2019-05-27",
       "updated_at": "2019-05-27"
     }
@@ -368,11 +394,12 @@
     "pk": 27,
     "fields": {
       "user_id": 27,
+      "is_international": false,
       "sin": null,
+      "sin_expiry_date": null,
       "employee_number": null,
       "study_permit": null,
       "study_permit_expiry_date": null,
-      "work_permit": null,
       "created_at": "2019-05-27",
       "updated_at": "2019-05-27"
     }
@@ -382,11 +409,12 @@
     "pk": 28,
     "fields": {
       "user_id": 28,
+      "is_international": false,
       "sin": null,
+      "sin_expiry_date": null,
       "employee_number": null,
       "study_permit": null,
       "study_permit_expiry_date": null,
-      "work_permit": null,
       "created_at": "2019-05-27",
       "updated_at": "2019-05-27"
     }
@@ -396,11 +424,12 @@
     "pk": 29,
     "fields": {
       "user_id": 29,
+      "is_international": false,
       "sin": null,
+      "sin_expiry_date": null,
       "employee_number": null,
       "study_permit": null,
       "study_permit_expiry_date": null,
-      "work_permit": null,
       "created_at": "2019-05-27",
       "updated_at": "2019-05-27"
     }
@@ -410,11 +439,12 @@
     "pk": 30,
     "fields": {
       "user_id": 30,
+      "is_international": false,
       "sin": null,
+      "sin_expiry_date": null,
       "employee_number": null,
       "study_permit": null,
       "study_permit_expiry_date": null,
-      "work_permit": null,
       "created_at": "2019-05-27",
       "updated_at": "2019-05-27"
     }
