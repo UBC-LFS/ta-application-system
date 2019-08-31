@@ -12,7 +12,9 @@ urlpatterns = [
     path('profile/<str:username>/resume/<str:filename>/download/', views.download_resume, name='download_resume'),
     path('profile/delete_resume/', views.delete_resume, name='delete_resume'),
 
-    path('confidentiality/<str:username>/submit/', views.submit_confidentiality, name='submit_confidentiality'),
+    path('confidentiality/', views.show_confidentiality, name='show_confidentiality'),
+    path('confidentiality/check/', views.check_confidentiality, name='check_confidentiality'),
+    path('confidentiality/submit/', views.submit_confidentiality, name='submit_confidentiality'),
     path('confidentiality/<str:username>/study_permit/<str:filename>/download/', views.download_study_permit, name='download_study_permit'),
     path('confidentiality/study_permit/delete_/', views.delete_study_permit, name='delete_study_permit'),
     path('confidentiality/<str:username>/work_permit/<str:filename>/download/', views.download_work_permit, name='download_work_permit'),

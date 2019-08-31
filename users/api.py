@@ -270,6 +270,7 @@ def file_exists(user, folder, file):
 """
 
 
+
 def delete_existing_file(user, folder, file):
     """ Delete an existing file """
     deleted = False
@@ -347,6 +348,14 @@ def delete_roles():
 
 
 # Confidentiality
+
+def has_user_confidentiality_created(user):
+    try:
+        return user.confidentiality
+    except Confidentiality.DoesNotExist:
+        return None
+
+
 
 def get_confidentialities():
     return Confidentiality.objects.all()

@@ -618,10 +618,8 @@ def users(request):
         profile_roles = user.profile.roles.all()
 
         form = ProfileRoleForm(request.POST, instance=user.profile)
-        print("form ", form.is_valid())
         if form.is_valid():
             data = form.cleaned_data
-            print(data)
             updated_profile = form.save(commit=False)
             updated_profile.updated_at = datetime.now()
             updated_profile.save()
@@ -629,7 +627,7 @@ def users(request):
                 updated = api.update_user_profile_roles(updated_profile, profile_roles, data)
                 if updated:
                     messages.success(request, 'Success! {0} - roles updated'.format(user.username))
-                    return HttpResponseRedirect( reverse('administrators:show_user', args=[user.username]) )
+                    return redirect('administrators:users')
                 else:
                     messages.error(request, 'Error!')
             else:

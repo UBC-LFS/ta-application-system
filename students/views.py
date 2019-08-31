@@ -40,7 +40,7 @@ def show_profile(request):
 
     user = usersApi.get_user(request.user.id)
     resume_file = None
-    if user.resume.file != None:
+    if usersApi.has_user_resume_created(user) and user.resume.file != None:
         resume_file = os.path.basename(user.resume.file.name)
 
     return render(request, 'students/profile/show_profile.html', {
@@ -111,21 +111,24 @@ def upload_resume(request, username):
     if 'Student' not in loggedin_user['roles']: raise PermissionDenied
 
     user = usersApi.get_user(request.user.id)
-    old_resume = user.resume.file
     if request.method == 'POST':
-        form = ResumeForm(request.POST, request.FILES, instance=user.resume)
-        if form.is_valid():
-            files = request.FILES
-            resume = form.save(commit=False)
+        form = None
+        old_resume = None
+        if usersApi.has_user_resume_created(user) and user.resume.file != None:
+            old_resume = user.resume.file
+            form = ResumeForm(request.POST, request.FILES, instance=user.resume)
+        else:
+            form = ResumeForm(request.POST, request.FILES)
 
-            if len(old_resume.name) > 0:
+        if form.is_valid():
+            resume = form.save(commit=False)
+            if usersApi.has_user_resume_created(user) and user.resume.file != None and old_resume != None and len(old_resume.name) > 0:
                 deleted_resume = usersApi.delete_user_resume(user.username)
                 if not deleted_resume:
                     messages.warning(request, 'Warning! resume is not deleted')
 
-            resume.file = files.get('file')
+            resume.file = request.FILES.get('file')
             resume.created_at = datetime.now()
-
             resume.save()
             if resume:
                 messages.success(request, 'Success! {0} - resume uploaded'.format(user.username))
@@ -168,11 +171,50 @@ def delete_resume(request):
     return redirect('students:show_profile')
 
 
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def show_confidentiality(request):
+    if not usersApi.is_valid_user(request.user): raise PermissionDenied
+    loggedin_user = usersApi.loggedin_user(request.user)
+    if 'Student' not in loggedin_user['roles']: raise PermissionDenied
+
+    user = usersApi.get_user(request.user.id)
+    confidentiality = usersApi.has_user_confidentiality_created(user)
+    return render(request, 'students/profile/show_confidentiality.html', {
+        'loggedin_user': loggedin_user,
+        'user': user,
+        'confidentiality': confidentiality
+    })
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET', 'POST'])
-def submit_confidentiality(request, username):
+def check_confidentiality(request):
+    if not usersApi.is_valid_user(request.user): raise PermissionDenied
+    loggedin_user = usersApi.loggedin_user(request.user)
+    if 'Student' not in loggedin_user['roles']: raise PermissionDenied
+
+    if request.method == 'POST':
+        form = ConfidentialityForm(request.POST)
+        print('form ', form.is_valid())
+        if form.is_valid():
+            confidentiality = form.save()
+            if confidentiality:
+                messages.info(request, 'Thank you for selecting.')
+            else:
+                messages.error(request, 'Error!')
+        else:
+            print(form.errors.get_json_data())
+            messages.error(request, 'Error! Form is invalid')
+
+    return redirect('students:submit_confidentiality')
+
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET', 'POST'])
+def submit_confidentiality(request):
     """ Submit user's confidentiality """
 
     if not usersApi.is_valid_user(request.user): raise PermissionDenied
@@ -180,6 +222,7 @@ def submit_confidentiality(request, username):
     if 'Student' not in loggedin_user['roles']: raise PermissionDenied
 
     user = usersApi.get_user(request.user.id)
+    """
     confidentiality = user.confidentiality
     old_study_permit = confidentiality.study_permit
     old_work_permit = confidentiality.work_permit
@@ -215,12 +258,12 @@ def submit_confidentiality(request, username):
             else:
                 messages.error(request, 'Error!')
         else:
-            messages.error(request, 'Error! Form is invalid')
+            messages.error(request, 'Error! Form is invalid') """
 
     return render(request, 'students/profile/submit_confidentiality.html', {
         'loggedin_user': loggedin_user,
         'user': user,
-        'form': ConfidentialityForm(data=None, instance=confidentiality, initial={ 'user': user })
+        #'form': ConfidentialityForm(data=None, instance=confidentiality, initial={ 'user': user })
     })
 
 

@@ -111,7 +111,7 @@ class Confidentiality(models.Model):
     EXTENSIONS = ['jpg', 'jpeg', 'png', 'pdf', 'doc', 'docx']
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
-    is_international = models.BooleanField(default=False)
+    is_international = models.BooleanField(null=True, blank=True)
     employee_number = models.CharField(max_length=256, unique=True, null=True, blank=True)
     sin = models.FileField(
         upload_to=create_work_permit_path,
@@ -127,10 +127,9 @@ class Confidentiality(models.Model):
         blank=True
     )
     study_permit_expiry_date = models.DateField(null=True, blank=True)
-
-
-    created_at = models.DateField(default=dt.date.today)
-    updated_at = models.DateField(default=dt.date.today)
+    
+    created_at = models.DateField(null=True, blank=True)
+    updated_at = models.DateField(null=True, blank=True)
 
     """
     def delete_existing_study_permit_file(self, *args, **kwargs):

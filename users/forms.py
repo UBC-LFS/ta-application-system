@@ -57,13 +57,17 @@ class UserForm(forms.ModelForm):
         }
 
 class ConfidentialityForm(forms.ModelForm):
+    sin_expiry_date = forms.DateField(
+        required=False,
+        widget=forms.SelectDateWidget(years=range(DATE.year, DATE.year + 20))
+    )
     study_permit_expiry_date = forms.DateField(
         required=False,
         widget=forms.SelectDateWidget(years=range(DATE.year, DATE.year + 20))
     )
     class Meta:
         model = Confidentiality
-        fields = ['user', 'sin', 'employee_number', 'study_permit', 'study_permit_expiry_date']
+        fields = ['user', 'is_international', 'employee_number', 'sin', 'sin_expiry_date', 'study_permit', 'study_permit_expiry_date']
         widgets = {
             'user': forms.HiddenInput(),
             'sin': forms.FileInput(),
@@ -156,20 +160,22 @@ class StudentProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
         fields = ['preferred_name', 'qualifications','prior_employment', 'special_considerations',
-                    'status', 'program', 'graduation_date', 'degrees', 'trainings',
-                    'lfs_ta_training', 'lfs_ta_training_details', 'ta_experience',
+                    'status', 'program', 'program_others','graduation_date', 'degrees', 'trainings',
+                    'training_details', 'lfs_ta_training', 'lfs_ta_training_details', 'ta_experience',
                     'ta_experience_details']
         widgets = {
             'qualifications': forms.Textarea(attrs={'rows':2}),
             'prior_employment': forms.Textarea(attrs={'rows':2}),
             'special_considerations': forms.Textarea(attrs={'rows':2}),
+            'program_others': forms.Textarea(attrs={'rows':2}),
+            'training_details': forms.Textarea(attrs={'rows':2}),
             'lfs_ta_training_details': forms.Textarea(attrs={'rows':2}),
             'ta_experience_details': forms.Textarea(attrs={'rows':2})
         }
 
     field_order = ['preferred_name', 'qualifications','prior_employment', 'special_considerations',
-                'status', 'program', 'graduation_date', 'degrees', 'trainings',
-                'lfs_ta_training', 'lfs_ta_training_details', 'ta_experience',
+                'status', 'program', 'program_others','graduation_date', 'degrees', 'trainings',
+                'training_details', 'lfs_ta_training', 'lfs_ta_training_details', 'ta_experience',
                 'ta_experience_details']
 
 

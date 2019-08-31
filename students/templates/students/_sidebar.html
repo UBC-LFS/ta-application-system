@@ -8,6 +8,9 @@
         <a class="nav-link text-secondary" href="{% url 'students:edit_profile' user.username %}">Edit Profile</a>
       </li>
       <li class="nav-item">
+        <a class="nav-link text-secondary" href="{% url 'students:show_confidentiality' %}">Confidentiality</a>
+      </li>
+      <li class="nav-item">
         <a class="nav-link text-secondary" href="{% url 'students:submit_confidentiality' user.username %}">Submit Confidentiality</a>
       </li>
       <li class="nav-item">

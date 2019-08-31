@@ -70,6 +70,7 @@
       <li class="list-group-item"><strong>Special Considerations:</strong> {{ user.profile.special_considerations }}</li>
       <li class="list-group-item"><strong>Status:</strong> {{ user.profile.status }}</li>
       <li class="list-group-item"><strong>Program:</strong> {{ user.profile.program }}</li>
+      <li class="list-group-item"><strong>Program Others:</strong> {{ user.profile.program_others }}</li>
       <li class="list-group-item"><strong>Graduation Date:</strong> {{ user.profile.graduation_date }}</li>
       <li class="list-group-item">
         <strong>Degrees:</strong>
@@ -84,13 +85,14 @@
       <li class="list-group-item">
         <strong>Trainings:</strong>
         <ul>
-          {% for degree in user.profile.trainings.all %}
-            <li>{{ degree.name }}</li>
+          {% for training in user.profile.trainings.all %}
+            <li>{{ training.name }}</li>
           {% empty %}
             None
           {% endfor %}
         </ul>
       </li>
+      <li class="list-group-item"><strong>Training Details:</strong> {{ user.profile.training_details }}</li>
       <li class="list-group-item">
         <strong>LFS TA Training:</strong> {{ user.profile.get_lfs_ta_training_display }}
         <p><strong>Details:</strong> {{ user.profile.lfs_ta_training_details }}</p>

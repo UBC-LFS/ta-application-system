@@ -1,0 +1,42 @@
+{% extends 'ta_app/base.html' %}
+{% block content %}
+
+<div class="row">
+  {% include "students/_sidebar.html" %}
+</div>
+
+<h3>Confidentiality</h3>
+
+{% if confidentiality and confidentiality.created_at != None %}
+
+yes
+
+{% else %}
+
+<div>
+  If you are an international student, please click down below.
+  <form action="{% url 'students:check_confidentiality' %}" method="post">
+    {% csrf_token %}
+    <input type="hidden" name="user" value="{{ user.id }}" />
+    <input type="hidden" name="is_international" value="true" />
+    <input type="submit" value="I am an international student" />
+  </form>
+</div>
+
+or
+
+<div>
+  If you are a Canadian citizen or Permanent Resident, please click down below.
+  <form action="{% url 'students:check_confidentiality' %}" method="post">
+    {% csrf_token %}
+    <input type="hidden" name="user" value="{{ user.id }}" />
+    <input type="hidden" name="is_international" value="false" />
+    <input type="submit" value="I am a Canadian citizen/Permanent Resident" />
+  </form>
+</div>
+
+
+{% endif %}
+
+
+{% endblock %}
