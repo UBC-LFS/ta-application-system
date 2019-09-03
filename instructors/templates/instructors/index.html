@@ -1,23 +1,25 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
 
-<div>
+<div class="wrapper">
   {% include "instructors/_sidebar.html" %}
+
+  <div id="content" class="container-fluid">
+    <h1>Instructor's Portal</h1>
+
+    <h3 class="margin-top-30">Profile</h3>
+
+    <ul class="list-group margin-top-30">
+      <li class="list-group-item"><strong>First name:</strong> {{ user.first_name }}</li>
+      <li class="list-group-item"><strong>Last name:</strong> {{ user.last_name }}</li>
+      <li class="list-group-item"><strong>Preferred name:</strong> {{ user.profile.preferred_name }}</li>
+      <li class="list-group-item"><strong>Email:</strong> {{ user.email }}</li>
+      <li class="list-group-item"><strong>CWL:</strong> {{ user.username }}</li>
+      <li class="list-group-item"><strong>UBC Number:</strong> {{ user.profile.ubc_number }}</li>
+      <li class="list-group-item"><strong>Created at:</strong> {{ user.profile.created_at }}</li>
+      <li class="list-group-item"><strong>Updated at:</strong> {{ user.profile.updated_at }}</li>
+    </ul>
+  </div>
 </div>
-
-<h1>Instructor's Portal</h1>
-
-<h3 class="margin-top-30">Profile</h3>
-
-<ul class="list-group margin-top-30">
-  <li class="list-group-item"><strong>First name:</strong> {{ user.first_name }}</li>
-  <li class="list-group-item"><strong>Last name:</strong> {{ user.last_name }}</li>
-  <li class="list-group-item"><strong>Preferred name:</strong> {{ user.profile.preferred_name }}</li>
-  <li class="list-group-item"><strong>Email:</strong> {{ user.email }}</li>
-  <li class="list-group-item"><strong>CWL:</strong> {{ user.username }}</li>
-  <li class="list-group-item"><strong>UBC Number:</strong> {{ user.profile.ubc_number }}</li>
-  <li class="list-group-item"><strong>Created at:</strong> {{ user.profile.created_at }}</li>
-  <li class="list-group-item"><strong>Updated at:</strong> {{ user.profile.updated_at }}</li>
-</ul>
 
 {% endblock %}

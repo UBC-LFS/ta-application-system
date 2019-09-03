@@ -1,32 +1,32 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
 
-<div>
-  {% include "administrators/_sidebar.html" %}
-</div>
+{% include "administrators/_sidebar.html" %}
 
-{% if messages %}
-	{% for message in messages %}
-    <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
-      {{ message }}
-      <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+<div id="content" class="container-fluid">
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <h3>Sessions</h3>
+
+   <div class="bd-callout bd-callout-warning">
+    <h5>Checkpoint!</h5>
+    <p>Text area</p>
+  </div>
+
+  <div class="card border-secondary">
+    <h5 class="card-header bg-secondary text-white">Featured</h5>
+    <div class="card-body">
+      <h5 class="card-title">Special title treatment</h5>
+      <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+      <a href="#" class="btn btn-primary">Go somewhere</a>
     </div>
-	{% endfor %}
-{% endif %}
-
-<h3>Sessions</h3>
-
-<div class="bd-callout bd-callout-warning">
-  <h5>Checkpoint!</h5>
-  <p>Text area</p>
-</div>
-
-<div class="card border-secondary">
-  <h5 class="card-header bg-secondary text-white">Featured</h5>
-  <div class="card-body">
-    <h5 class="card-title">Special title treatment</h5>
-    <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-    <a href="#" class="btn btn-primary">Go somewhere</a>
   </div>
 </div>
 
