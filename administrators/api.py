@@ -393,7 +393,7 @@ def update_application_instructor_preference(application_id, instructor_preferen
         application = Application.objects.get(id=application_id)
         application.instructor_preference = instructor_preference
         application.save(update_fields=['instructor_preference'])
-        return True
+        return application
     except Appliation.DoesNotExist:
         return None
 

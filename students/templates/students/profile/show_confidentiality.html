@@ -27,15 +27,15 @@
   <div>
     SIN File:
     {% if sin_file %}
-    <a href="{% url 'students:download_sin' filename=sin_file %}" target="_blank">{{ sin_file }}</a>
-    <form action="{% url 'students:delete_sin' %}" method="post" onsubmit="return confirm('Are you sure to delete this SIN?')">
-      {% csrf_token %}
-      <input type="hidden" name="user" value="{{ user.username }}">
-      <input type="submit" value="Delete" />
-    </form>
-  {% else %}
-    None
-  {% endif %}
+      <a href="{% url 'students:download_sin' filename=sin_file %}" target="_blank">{{ sin_file }}</a>
+      <form action="{% url 'students:delete_sin' %}" method="post" onsubmit="return confirm('Are you sure to delete this SIN?')">
+        {% csrf_token %}
+        <input type="hidden" name="user" value="{{ user.username }}">
+        <input type="submit" value="Delete" />
+      </form>
+    {% else %}
+      None
+    {% endif %}
   </div>
 
   {% if user.confidentiality.is_international %}

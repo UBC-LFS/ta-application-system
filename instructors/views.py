@@ -95,9 +95,9 @@ def get_applications(request, session_slug, job_slug):
             data = request.POST
             application_id = data.get('application')
             instructor_preference = data.get('instructor_preference')
-            updated = administratorsApi.update_application_instructor_preference(application_id, instructor_preference)
-            if updated:
-                messages.success(request, 'Success!')
+            updated_application = administratorsApi.update_application_instructor_preference(application_id, instructor_preference)
+            if updated_application:
+                messages.success(request, 'Success! Instructor Preference is selected for {0} '.format(updated_application.applicant.username))
                 return HttpResponseRedirect( reverse('instructors:get_applications', args=[session_slug, job_slug]) )
             else:
                 messages.error(request, 'Error!')

@@ -396,11 +396,21 @@ def explore_jobs(request):
     loggedin_user = usersApi.loggedin_user(request.user)
     if 'Student' not in loggedin_user['roles']: raise PermissionDenied
 
+    user = usersApi.get_user(request.user.id)
     visible_current_sessions = administratorsApi.get_visible_current_sessions()
+    student_jobs = administratorsApi.get_jobs_applied_by_student(user)
+    offered_jobs, offered_summary = administratorsApi.get_offered_jobs_by_student(user, student_jobs)
+    accepted_jobs, accepted_summary = administratorsApi.get_accepted_jobs_by_student(user, student_jobs)
+    print(offered_summary)
+    print(accepted_summary)
+
+
     return render(request, 'students/jobs/explore_jobs.html', {
         'loggedin_user': loggedin_user,
         'visible_current_sessions': visible_current_sessions,
-        'applied_jobs': administratorsApi.get_jobs_applied_by_student(request.user)
+        'applied_jobs': administratorsApi.get_jobs_applied_by_student(request.user),
+        'offered_jobs': offered_jobs,
+        'accepted_jobs': accepted_jobs
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -472,11 +482,6 @@ def applied_jobs(request):
     if 'Student' not in loggedin_user['roles']: raise PermissionDenied
 
     user = usersApi.get_user(request.user.id)
-
-    jobs = administratorsApi.get_jobs_applied_by_student(user)
-    for job in jobs:
-        print(job, job.my_application)
-
     return render(request, 'students/jobs/applied_jobs.html', {
         'loggedin_user': loggedin_user,
         'applied_jobs': administratorsApi.get_jobs_applied_by_student(user)

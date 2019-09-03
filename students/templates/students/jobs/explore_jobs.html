@@ -11,7 +11,7 @@
     {% endfor %}
 {% endif %}
 
-<<<<<<< HEAD:students/templates/students/jobs/explore_jobs.html
+
     <div class="row">
     	<div class="col-7">
     		<div class="row">
@@ -26,28 +26,33 @@
     				No current sessions found.
     			{% endfor %}
     		</div>
-=======
-<div class="row">
-    <div class="col-6">
-		<h1>Apply now!</h1>
-    	<div class="row">
-    		{% for session in current_sessions %}
-    			<div class="card margin-top-30">
-					<div class="card-body">
-						<h5><a href="{% url 'students:list_jobs' session.slug %}">{{ session.year }} {{ session.term.name }} {{ session.title }}</a></h5>
-						<p class="margin-bottom-0">Description: {{ session.description }}</p>
-						<p>Note: {{ session.note }}</p>
-					</div>
-    			</div>
-    		{% empty %}
-    			No active sessions found.
-    		{% endfor %}
->>>>>>> origin/web-design:students/templates/students/jobs/apply_jobs.html
     	</div>
+
+			<div class="col-5">
+
+
+				<h4>Offered Jobs</h4>
+				<ul>
+				  {% for job in offered_jobs %}
+				    <li>{{ job.year }} {{ job.term }} - {{ job.course_code }} {{ job.course_number }} {{ job.course_section }}: {{ job.assigned_status }} {{ job.assigned_hours }} hours</li>
+				  {% empty %}
+				    <li>No offered jobs found</li>
+				  {% endfor %}
+				</ul>
+
+				<h4>Accepted Jobs</h4>
+				<ul>
+				  {% for job in accepted_jobs %}
+				    <li>{{ job.year }} {{ job.term }} - {{ job.course_code }} {{ job.course_number }} {{ job.course_section }}: {{ job.assigned_status }} {{ job.assigned_hours }} hours</li>
+				  {% empty %}
+				    <li>No accepted jobs found</li>
+				  {% endfor %}
+				</ul>
+
+	    </div>
+
     </div>
-    <div class="col-6">
-        {% include 'students/jobs/_applied_jobs.html' %}
-    </div>
+
 </div>
 
 {% endblock %}
