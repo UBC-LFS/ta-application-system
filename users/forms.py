@@ -56,6 +56,40 @@ class UserForm(forms.ModelForm):
             'username': forms.TextInput(attrs={'required': True}),
         }
 
+class ConfidentialityCheckForm(forms.ModelForm):
+    class Meta:
+        model = Confidentiality
+        fields = ['user', 'is_international']
+        widgets = {
+            'user': forms.HiddenInput()
+        }
+
+class ConfidentialityNonInternationalForm(forms.ModelForm):
+    class Meta:
+        model = Confidentiality
+        fields = ['user', 'employee_number', 'sin']
+        widgets = {
+            'user': forms.HiddenInput()
+        }
+
+class ConfidentialityInternationalForm(forms.ModelForm):
+    sin_expiry_date = forms.DateField(
+        required=False,
+        widget=forms.SelectDateWidget(years=range(DATE.year, DATE.year + 20))
+    )
+    study_permit_expiry_date = forms.DateField(
+        required=False,
+        widget=forms.SelectDateWidget(years=range(DATE.year, DATE.year + 20))
+    )
+    class Meta:
+        model = Confidentiality
+        fields = ['user', 'employee_number', 'sin', 'sin_expiry_date', 'study_permit', 'study_permit_expiry_date']
+        widgets = {
+            'user': forms.HiddenInput(),
+            'sin': forms.FileInput(),
+            'study_permit': forms.FileInput()
+        }
+
 class ConfidentialityForm(forms.ModelForm):
     sin_expiry_date = forms.DateField(
         required=False,
@@ -67,7 +101,7 @@ class ConfidentialityForm(forms.ModelForm):
     )
     class Meta:
         model = Confidentiality
-        fields = ['user', 'is_international', 'employee_number', 'sin', 'sin_expiry_date', 'study_permit', 'study_permit_expiry_date']
+        fields = ['user', 'is_international','employee_number', 'sin', 'sin_expiry_date', 'study_permit', 'study_permit_expiry_date']
         widgets = {
             'user': forms.HiddenInput(),
             'sin': forms.FileInput(),

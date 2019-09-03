@@ -15,10 +15,12 @@ urlpatterns = [
     path('confidentiality/', views.show_confidentiality, name='show_confidentiality'),
     path('confidentiality/check/', views.check_confidentiality, name='check_confidentiality'),
     path('confidentiality/submit/', views.submit_confidentiality, name='submit_confidentiality'),
-    path('confidentiality/<str:username>/study_permit/<str:filename>/download/', views.download_study_permit, name='download_study_permit'),
-    path('confidentiality/study_permit/delete_/', views.delete_study_permit, name='delete_study_permit'),
-    path('confidentiality/<str:username>/work_permit/<str:filename>/download/', views.download_work_permit, name='download_work_permit'),
-    path('confidentiality/work_permit/delete/', views.delete_work_permit, name='delete_work_permit'),
+    path('confidentiality/edit/', views.edit_confidentiality, name='edit_confidentiality'),
+    path('confidentiality/sin/<str:filename>/download/', views.download_sin, name='download_sin'),
+    path('confidentiality/sin/delete/', views.delete_sin, name='delete_sin'),
+    path('confidentiality/study_permit/<str:filename>/download/', views.download_study_permit, name='download_study_permit'),
+    path('confidentiality/study_permit/delete/', views.delete_study_permit, name='delete_study_permit'),
+
 
     path('jobs/explore/', views.explore_jobs, name='explore_jobs'),
     path('jobs/<str:session_slug>/list/', views.list_jobs, name='list_jobs'),

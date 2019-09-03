@@ -294,6 +294,18 @@ def delete_user_resume(username):
     return True if user.resume and deleted else None
 
 
+def delete_user_sin(username):
+    user = get_user_by_username(username)
+    file = os.path.basename(user.confidentiality.sin.name)
+    user.confidentiality.sin = None
+    user.confidentiality.sin_expiry_date = None
+    user.confidentiality.save(update_fields=['sin', 'sin_expiry_date'])
+
+    # Delete an existing file
+    deleted = delete_existing_file(user, 'sin', file)
+    return True if user.confidentiality and deleted else None
+
+
 def delete_user_study_permit(username):
     user = get_user_by_username(username)
     file = os.path.basename(user.confidentiality.study_permit.name)
@@ -303,16 +315,6 @@ def delete_user_study_permit(username):
 
     # Delete an existing file
     deleted = delete_existing_file(user, 'study_permit', file)
-    return True if user.confidentiality and deleted else None
-
-def delete_user_work_permit(username):
-    user = get_user_by_username(username)
-    file = os.path.basename(user.confidentiality.work_permit.name)
-    user.confidentiality.work_permit = None
-    user.confidentiality.save(update_fields=['work_permit'])
-
-    # Delete an existing file
-    deleted = delete_existing_file(user, 'work_permit', file)
     return True if user.confidentiality and deleted else None
 
 

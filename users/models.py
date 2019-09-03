@@ -94,11 +94,15 @@ class Status(models.Model):
         super(Status, self).save(*args, **kwargs)
 
 
+
+def create_sin_path(instance, filename):
+    print("create_sin_path", filename)
+    return os.path.join('users', str(instance.user.username), 'sin', filename)
+
 def create_study_permit_path(instance, filename):
+    print("create_study_permit_path", filename)
     return os.path.join('users', str(instance.user.username), 'study_permit', filename)
 
-def create_work_permit_path(instance, filename):
-    return os.path.join('users', str(instance.user.username), 'work_permit', filename)
 
 
 class Confidentiality(models.Model):
@@ -114,7 +118,7 @@ class Confidentiality(models.Model):
     is_international = models.BooleanField(null=True, blank=True)
     employee_number = models.CharField(max_length=256, unique=True, null=True, blank=True)
     sin = models.FileField(
-        upload_to=create_work_permit_path,
+        upload_to=create_sin_path,
         validators=[FileExtensionValidator(allowed_extensions=EXTENSIONS)],
         null=True,
         blank=True
@@ -127,7 +131,7 @@ class Confidentiality(models.Model):
         blank=True
     )
     study_permit_expiry_date = models.DateField(null=True, blank=True)
-    
+
     created_at = models.DateField(null=True, blank=True)
     updated_at = models.DateField(null=True, blank=True)
 
