@@ -2,13 +2,27 @@
 
 This project is a web-based TA hiring process system.
 
+## Login locally
+
+1. Create a superuser
+```
+# Reference: https://docs.djangoproject.com/en/2.2/topics/auth/default/
+$ python manage.py createsuperuser --username=joe --email=joe@example.com
+```
+
+2. Run this app
+```
+$ python manage.py runserver
+```
+
+3. Open a new window with an URL ``` http://localhost:8000/accounts/admin/login/ ```
 
 
 ## Summary of Deployment
 
 1. Clone this Github repository
 ```
-$ git clone https://github.com/UBC-LFS/ta-app-system.git
+$ git clone https://github.com/UBC-LFS/ta-application-system.git
 ```
 
 2. Install requirement dependencies

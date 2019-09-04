@@ -84,7 +84,13 @@
                 </div>
               </td>
               <td>
-                  <a href="{% url 'students:apply_job' session_slug=job.session.slug job_slug=job.course.slug %}">Apply</a>
+                  <a href="{% url 'students:apply_job' session_slug=job.session.slug job_slug=job.course.slug %}">
+                    {% if job.has_applied %}
+                      Applied
+                    {% else %}
+                      Apply
+                    {% endif %}
+                  </a>
               </td>
             </tr>
           {% endif %}

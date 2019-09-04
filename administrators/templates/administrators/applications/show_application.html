@@ -1,24 +1,9 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
 
-<nav class="margin-top-10" aria-label="breadcrumb">
-  <ol class="breadcrumb">
-    <li class="breadcrumb-item">
-      <a href="{% url 'administrators:index' %}">administrators</a>
-    </li>
-    <li class="breadcrumb-item">
-      <a href="{% url 'administrators:applications' %}">Applications</a>
-    </li>
-    <li class="breadcrumb-item active" aria-current="page">Application Details</li>
-  </ol>
-</nav>
-
-
-{% if messages %}
-	{% for message in messages %}
-		<div class="alert alert-info">{{ message }}</div>
-	{% endfor %}
-{% endif %}
+<div>
+  {% include "administrators/_sidebar.html" %}
+</div>
 
 <h1>Application Details</h1>
 
@@ -100,6 +85,9 @@
   {{ app.updated_at }}
 </div>
 
-<a href="{% url 'administrators:applications' %}">Back to Applications</a>
+
+
+
+<a href="{% url 'administrators:selected_applications' %}">Back to Applications</a>
 
 {% endblock %}

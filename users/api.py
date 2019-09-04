@@ -1,5 +1,6 @@
 import os
 from django.conf import settings
+from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
 from .models import *
 
@@ -56,10 +57,11 @@ def get_user(user_id):
 
 def get_user_by_username(username):
     """ Get a user by username """
-    try:
+    return get_object_or_404(User, username=username)
+    """try:
         return User.objects.get(username=username)
     except User.DoesNotExist:
-        return None
+        return None """
 
 def get_users():
     """ Get all users """
@@ -106,6 +108,13 @@ def profile_exists(user):
     if Profile.objects.filter(user__id=user.id).exists():
         return True
     return False
+
+def has_user_resume_created(user):
+    try:
+        return user.resume
+    except Resume.DoesNotExist:
+        return False
+
 
 def resume_exists(user):
     """ Check user's resume exists """
@@ -162,13 +171,20 @@ def get_instructors():
     return instructors
 
 
+def update_user_profile_roles(profile, old_roles, data):
+    profile.roles.remove( *old_roles )
+    new_roles = list( data.get('roles') )
+    profile.roles.add( *new_roles )
+    return True if profile else None
+
+
 #checked
-def update_user_profile(profile, new_roles, new_degrees, new_trainings, data):
+def update_user_profile(profile, old_roles, old_degrees, old_trainings, data):
     """ Update roles, degrees and trainings of a user profile """
     # Remove current roles, degrees and trainings
-    profile.roles.remove( *new_roles )
-    profile.degrees.remove( *new_degrees )
-    profile.trainings.remove( *new_trainings )
+    profile.roles.remove( *old_roles )
+    profile.degrees.remove( *old_degrees )
+    profile.trainings.remove( *old_trainings )
 
     new_roles = list( data.get('roles') )
     new_degrees = list( data.get('degrees') )
@@ -201,8 +217,17 @@ def update_student_profile_degrees_trainings(profile, old_degrees, old_trainings
 def get_profiles():
     return Profile.objects.all().order_by('id')
 
-def create_profile(user):
-    profile = Profile.objects.create(user_id=user.id, ubc_number=get_random_string(length=9))
+def create_profile(user, data):
+
+    # TODO: modify ubc_number coming from SAML's data
+    ubc_number = data.get('ubc_number', None)
+    ubc_number = get_random_string(length=9)
+
+    preferred_name = data.get('preferred_name')
+    roles = data.getlist('roles')
+    
+    profile = Profile.objects.create(user_id=user.id, ubc_number=ubc_number, preferred_name=preferred_name)
+    profile.roles.add( *roles )
     return True if profile else None
 
 def update_profile(user_id, data):
@@ -245,6 +270,7 @@ def file_exists(user, folder, file):
 """
 
 
+
 def delete_existing_file(user, folder, file):
     """ Delete an existing file """
     deleted = False
@@ -268,6 +294,18 @@ def delete_user_resume(username):
     return True if user.resume and deleted else None
 
 
+def delete_user_sin(username):
+    user = get_user_by_username(username)
+    file = os.path.basename(user.confidentiality.sin.name)
+    user.confidentiality.sin = None
+    user.confidentiality.sin_expiry_date = None
+    user.confidentiality.save(update_fields=['sin', 'sin_expiry_date'])
+
+    # Delete an existing file
+    deleted = delete_existing_file(user, 'sin', file)
+    return True if user.confidentiality and deleted else None
+
+
 def delete_user_study_permit(username):
     user = get_user_by_username(username)
     file = os.path.basename(user.confidentiality.study_permit.name)
@@ -277,16 +315,6 @@ def delete_user_study_permit(username):
 
     # Delete an existing file
     deleted = delete_existing_file(user, 'study_permit', file)
-    return True if user.confidentiality and deleted else None
-
-def delete_user_work_permit(username):
-    user = get_user_by_username(username)
-    file = os.path.basename(user.confidentiality.work_permit.name)
-    user.confidentiality.work_permit = None
-    user.confidentiality.save(update_fields=['work_permit'])
-
-    # Delete an existing file
-    deleted = delete_existing_file(user, 'work_permit', file)
     return True if user.confidentiality and deleted else None
 
 
@@ -322,6 +350,14 @@ def delete_roles():
 
 
 # Confidentiality
+
+def has_user_confidentiality_created(user):
+    try:
+        return user.confidentiality
+    except Confidentiality.DoesNotExist:
+        return None
+
+
 
 def get_confidentialities():
     return Confidentiality.objects.all()

@@ -1,59 +1,71 @@
 
-<nav id="sidebar" class="mCustomScrollbar" data-mcs-theme="dark">
-  <ul class="nav flex-column">
-    <li class="nav-item">
-      <h4><a class="nav-link" href="{% url 'administrators:basics' %}">Basics</a></h4>
-    </li>
-    <li class="nav-item">
-      <h4><a class="nav-link" href="{% url 'administrators:courses' %}">Courses</a></h4>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link text-secondary" href="{% url 'administrators:create_course' %}">Create a Course</a>
-    </li>
-    <li class="nav-item">
-      <h4><a class="nav-link" href="{% url 'administrators:sessions' %}">Sessions</a></h4>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link text-secondary" href="{% url 'administrators:create_session' %}">Create a Session</a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link text-secondary" href="{% url 'administrators:current_sessions' %}">Current Sessions</a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link text-secondary" href="{% url 'administrators:archived_sessions' %}">Archived Sessions</a>
-    </li>
-    <li class="nav-item">
-      <h4><a class="nav-link" href="{% url 'administrators:jobs' %}">Jobs</a></h4>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link text-secondary" href="{% url 'administrators:prepare_jobs' %}">Prepare Jobs</a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link text-secondary" href="{% url 'administrators:progress_jobs' %}">Jobs in Progress</a>
-    </li>
-    <li class="nav-item">
-      <h4><a class="nav-link" href="{% url 'administrators:applications' %}">Applications</a></h4>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link text-secondary" href="{% url 'administrators:selected_applications' %}">Selected Applications</a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link text-secondary" href="{% url 'administrators:offered_applications' %}">Offered Applications</a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link text-secondary" href="{% url 'administrators:accepted_applications' %}">Accepted Applications</a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link text-secondary" href="{% url 'administrators:declined_applications' %}">Declined Applications</a>
-    </li>
-    <li class="nav-item">
-      <h4><a class="nav-link" href="{% url 'users:hr' %}">Human Resources</a></h4>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link text-secondary">Check Confidentiality</a>
-    </li>
-  </ul>
-</nav>
+<div class="card sidebar">
+  <div class="card-body">
+    <ul class="nav flex-column">
+      <li class="nav-item">
+        <h4><a class="nav-link" href="{% url 'administrators:basics' %}">Basics</a></h4>
+      </li>
+      <li class="nav-item">
+        <h4><a class="nav-link" href="{% url 'administrators:courses' %}">Courses</a></h4>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link text-secondary" href="{% url 'administrators:create_course' %}">Create a Course</a>
+      </li>
+      <li class="nav-item">
+        <h4><a class="nav-link" href="{% url 'administrators:sessions' %}">Sessions</a></h4>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link text-secondary" href="{% url 'administrators:create_session' %}">Create a Session</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link text-secondary" href="{% url 'administrators:current_sessions' %}">Current Sessions</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link text-secondary" href="{% url 'administrators:archived_sessions' %}">Archived Sessions</a>
+      </li>
+      <li class="nav-item">
+        <h4><a class="nav-link" href="{% url 'administrators:jobs' %}">Jobs</a></h4>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link text-secondary" href="{% url 'administrators:prepare_jobs' %}">Prepare Jobs</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link text-secondary" href="{% url 'administrators:progress_jobs' %}">Jobs in Progress</a>
+      </li>
+      <li class="nav-item">
+        <h4><a class="nav-link" href="{% url 'administrators:applications' %}">Applications</a></h4>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link text-secondary" href="{% url 'administrators:selected_applications' %}">Selected Applications</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link text-secondary" href="{% url 'administrators:offered_applications' %}">Offered Applications</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link text-secondary" href="{% url 'administrators:accepted_applications' %}">Accepted Applications</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link text-secondary" href="{% url 'administrators:declined_applications' %}">Declined Applications</a>
+      </li>
+      <li class="nav-item">
+        <h4><a class="nav-link" href="{% url 'administrators:hr' %}">Human Resources</a></h4>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link text-secondary" href="{% url 'administrators:create_user' %}">Create a User</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link text-secondary" href="{% url 'administrators:users' %}">All Users</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link text-secondary" href="{% url 'administrators:view_confidentiality' %}">View Confidentiality</a>
+      </li>
+    </ul>
+  </div>
+</div>
+
+
+
+
 {% comment %} <div class="sidebar">
   <div>
     <h3><a href="{% url 'administrators:basics' %}">Basics</a></h3>

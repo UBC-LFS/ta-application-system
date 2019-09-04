@@ -28,25 +28,27 @@ from django.forms.models import model_to_dict
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET', 'POST'])
-def index(request):
-    """ Display all users and create a user """
+@require_http_methods(['GET'])
+def users(request):
 
-
-    if not api.is_valid_user(request.user):
-        raise PermissionDenied
-
+    if not api.is_valid_user(request.user): raise PermissionDenied
     loggedin_user = api.loggedin_user(request.user)
-    if not api.is_admin(loggedin_user):
-        raise PermissionDenied
+    if not api.is_admin(loggedin_user) or 'HR' not in loggedin_user['roles']: raise PermissionDenied
 
-    my_user = api.get_user('24')
-    degrees = api.get_degrees()
+    users = api.get_users()
+    return render(request, 'users/users.html', {
+        'loggedin_user': api.loggedin_user(request.user),
+        'users': users,
+        'total_users': len(users),
+    })
 
-    #for degree in degrees:
-    #    print(degree.id, degree.profile_set.all())
-    #    print( degree.profile_set.filter(user_id=my_user.id ).exists() )
-
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET', 'POST'])
+def create_user(request):
+    if not api.is_valid_user(request.user): raise PermissionDenied
+    loggedin_user = api.loggedin_user(request.user)
+    if not api.is_admin(loggedin_user): raise PermissionDenied
 
     if request.method == 'POST':
         form = UserForm(request.POST)
@@ -72,11 +74,12 @@ def index(request):
         else:
             messages.error(request, 'Error! form invalid')
 
-    return render(request, 'users/index.html', {
+    return render(request, 'users/create_user.html', {
         'loggedin_user': loggedin_user,
         'users': api.get_users(),
         'form': UserForm()
     })
+
 
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -287,6 +290,39 @@ def submit_confidentiality(request, username):
         'form': ConfidentialityForm(data=None, instance=confidentiality, initial={ 'user': user })
     })
 
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def download_sin(request, username, filename):
+
+    if not api.is_valid_user(request.user): raise PermissionDenied
+
+    path = 'users/{0}/sin/{1}/'.format(username, filename)
+    return serve(request, path, document_root=settings.MEDIA_ROOT)
+
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['POST'])
+def delete_sin(request):
+    """ Delete user's work permit """
+
+    if not api.is_valid_user(request.user):
+        raise PermissionDenied
+
+    loggedin_user = api.loggedin_user(request.user)
+    if 'Student' not in loggedin_user['roles']:
+        raise PermissionDenied
+
+    if request.method == 'POST':
+        username = request.POST.get('user')
+        work_permit = api.delete_user_work_permit(username)
+        if work_permit:
+            messages.success(request, 'Success! {0} - SIN deleted'.format(username))
+        else:
+            messages.error(request, 'Error!')
+    else:
+        messages.error(request, 'Error!')
+    return HttpResponseRedirect( reverse('users:show_student', args=[username]) )
 
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -294,8 +330,7 @@ def submit_confidentiality(request, username):
 def download_study_permit(request, username, filename):
     """ Download user's resume """
 
-    if not api.is_valid_user(request.user):
-        raise PermissionDenied
+    if not api.is_valid_user(request.user): raise PermissionDenied
 
     path = 'users/{0}/study_permit/{1}/'.format(username, filename)
     return serve(request, path, document_root=settings.MEDIA_ROOT)
@@ -324,45 +359,6 @@ def delete_study_permit(request):
     else:
         messages.error(request, 'Error!')
     return HttpResponseRedirect( reverse('users:show_student', args=[username]) )
-
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-def download_work_permit(request, username, filename):
-    """ Download user's work permit """
-
-    if not api.is_valid_user(request.user):
-        raise PermissionDenied
-
-    path = 'users/{0}/work_permit/{1}/'.format(username, filename)
-    return serve(request, path, document_root=settings.MEDIA_ROOT)
-
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['POST'])
-def delete_work_permit(request):
-    """ Delete user's work permit """
-
-    if not api.is_valid_user(request.user):
-        raise PermissionDenied
-
-    loggedin_user = api.loggedin_user(request.user)
-    if 'Student' not in loggedin_user['roles']:
-        raise PermissionDenied
-
-    if request.method == 'POST':
-        username = request.POST.get('user')
-        work_permit = api.delete_user_work_permit(username)
-        if work_permit:
-            messages.success(request, 'Success! {0} - work permit deleted'.format(username))
-        else:
-            messages.error(request, 'Error!')
-    else:
-        messages.error(request, 'Error!')
-    return HttpResponseRedirect( reverse('users:show_student', args=[username]) )
-
-
 
 
 
@@ -664,12 +660,9 @@ def edit_instructor_jobs(request, username, session_slug, job_slug):
 def hr(request):
     """ Display HR's page """
 
-    if not api.is_valid_user(request.user):
-        raise PermissionDenied
-
+    if not api.is_valid_user(request.user): raise PermissionDenied
     loggedin_user = api.loggedin_user(request.user)
-    if 'HR' not in loggedin_user['roles']:
-        raise PermissionDenied
+    if  'Admin' not in loggedin_user['roles'] or 'HR' not in loggedin_user['roles']: raise PermissionDenied
 
     users = api.get_users()
     total_users = len(users)

@@ -14,12 +14,12 @@
 <nav class="margin-top-10" aria-label="breadcrumb">
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="{% url 'students:show_confidentiality' %}">Confidentiality</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Submit Confidentiality</li>
+    <li class="breadcrumb-item active" aria-current="page">Edit Confidentiality</li>
   </ol>
 </nav>
 
 
-<h3>Submit Confidentiality</h3>
+<h3>Edit Confidentiality</h3>
 
 
 
@@ -29,7 +29,7 @@
 <form action="" method="post" enctype="multipart/form-data">
   {% csrf_token %}
   <table>{{ form.as_table }}</table>
-  <input type="submit" value="Submit" />
+  <input type="submit" value="Update" />
 </form>
 
 <a href="{% url 'students:show_confidentiality' %}">Back</a>

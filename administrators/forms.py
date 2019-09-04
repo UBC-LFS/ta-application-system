@@ -133,13 +133,22 @@ class InstructorApplicationForm(forms.ModelForm):
             'instructor_preference': ''
         }
 
-#checked
+# to be checked
 class ApplicationStatusForm(forms.ModelForm):
     class Meta:
         model = ApplicationStatus
         fields = ['assigned', 'assigned_hours']
         widgets = {
             'assigned': forms.HiddenInput()
+        }
+
+# to be checked
+class AdminApplicationForm(forms.ModelForm):
+    class Meta:
+        model = Application
+        fields = ['classification', 'note']
+        widgets = {
+            'note': forms.Textarea(attrs={'rows':2})
         }
 
 #checked
@@ -157,13 +166,7 @@ class ApplicationForm(forms.ModelForm):
             'availability_note': forms.Textarea(attrs={'rows':2})
         }
 
-class AdminApplicationForm(forms.ModelForm):
-    class Meta:
-        model = Application
-        fields = ['classification', 'note']
-        widgets = {
-            'note': forms.Textarea(attrs={'rows':2})
-        }
+
 
 
 class SessionJobForm(forms.ModelForm):

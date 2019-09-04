@@ -9,6 +9,9 @@ from administrators.models import Course
 import shutil
 import datetime as dt
 
+
+
+"""
 ROLES = [
     { 'name': 'Student' },
     { 'name': 'Instructor' },
@@ -26,7 +29,7 @@ STATUSES = [
     { 'name': 'Professor' },
     { 'name': 'Other' }
 ]
-
+"""
 
 class Program(models.Model):
     name = models.CharField(max_length=256, unique=True)
@@ -91,11 +94,15 @@ class Status(models.Model):
         super(Status, self).save(*args, **kwargs)
 
 
+
+def create_sin_path(instance, filename):
+    print("create_sin_path", filename)
+    return os.path.join('users', str(instance.user.username), 'sin', filename)
+
 def create_study_permit_path(instance, filename):
+    print("create_study_permit_path", filename)
     return os.path.join('users', str(instance.user.username), 'study_permit', filename)
 
-def create_work_permit_path(instance, filename):
-    return os.path.join('users', str(instance.user.username), 'work_permit', filename)
 
 
 class Confidentiality(models.Model):
@@ -105,25 +112,28 @@ class Confidentiality(models.Model):
         ('2', 'Type 2'),
         ('3', 'Type 3')
     ]
+    EXTENSIONS = ['jpg', 'jpeg', 'png', 'pdf', 'doc', 'docx']
+
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
-    sin = models.CharField(max_length=256, unique=True, null=True, blank=True)
+    is_international = models.BooleanField(null=True, blank=True)
     employee_number = models.CharField(max_length=256, unique=True, null=True, blank=True)
+    sin = models.FileField(
+        upload_to=create_sin_path,
+        validators=[FileExtensionValidator(allowed_extensions=EXTENSIONS)],
+        null=True,
+        blank=True
+    )
+    sin_expiry_date = models.DateField(null=True, blank=True)
     study_permit = models.FileField(
         upload_to=create_study_permit_path,
-        validators=[FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png', 'pdf', 'doc', 'docx'])],
+        validators=[FileExtensionValidator(allowed_extensions=EXTENSIONS)],
         null=True,
         blank=True
     )
     study_permit_expiry_date = models.DateField(null=True, blank=True)
-    work_permit = models.FileField(
-        upload_to=create_work_permit_path,
-        validators=[FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png', 'pdf', 'doc', 'docx'])],
-        null=True,
-        blank=True
-    )
 
-    created_at = models.DateField(default=dt.date.today)
-    updated_at = models.DateField(default=dt.date.today)
+    created_at = models.DateField(null=True, blank=True)
+    updated_at = models.DateField(null=True, blank=True)
 
     """
     def delete_existing_study_permit_file(self, *args, **kwargs):
@@ -190,10 +200,12 @@ class Profile(models.Model):
 
     status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, null=True, blank=True)
     program = models.ForeignKey(Program, on_delete=models.DO_NOTHING, null=True, blank=True)
+    program_others = models.TextField(null=True, blank=True)
     graduation_date = models.DateField(null=True, blank=True)
 
     degrees = models.ManyToManyField(Degree)
     trainings = models.ManyToManyField(Training)
+    training_details = models.TextField(null=True, blank=True)
 
     lfs_ta_training = models.CharField(max_length=1, choices=LFS_TA_TRAINING_CHOICES, null=True, blank=True)
     lfs_ta_training_details = models.TextField(null=True, blank=True)
