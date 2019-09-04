@@ -1,25 +1,27 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
 
-{% include "administrators/_sidebar.html" %}
+<div class="wrapper">
+  {% include "administrators/_sidebar.html" %}
 
-<div id="content" class="container-fluid">
-  {% if messages %}
-    {% for message in messages %}
-      <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
-        {{ message }}
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-      </div>
-    {% endfor %}
-  {% endif %}
+  <div id="content" class="container-fluid">
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        </div>
+      {% endfor %}
+    {% endif %}
 
-  <h1>Create a Course</h1>
+    <h1>Create a Course</h1>
 
-  <form action="" method="post">
-    {% csrf_token %}
-    <table>{{ form.as_table }}</table>
-    <input value="Create" type="submit" />
-  </form>
+    <form action="" method="post">
+      {% csrf_token %}
+      <table>{{ form.as_table }}</table>
+      <input value="Create" type="submit" />
+    </form>
+  </div>
 </div>
 
 {% endblock %}

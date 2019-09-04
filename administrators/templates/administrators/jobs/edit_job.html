@@ -1,17 +1,18 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
 
+<div class="wrapper">
+  {% include "administrators/_sidebar.html" %}
 
-{% include "administrators/_sidebar.html" %}
-
-<div id="content" class="container-fluid">
-  <h3>Edit Job</h3>
-  <form action="" method="post">
-    {% csrf_token %}
-    <table>{{ form.as_table }}</table>
-    <input class="btn btn-warning" type="submit" value="Update">
-  </form>
-    
+  <div id="content" class="container-fluid">
+    <h3>Edit Job</h3>
+    <form action="" method="post">
+      {% csrf_token %}
+      <table>{{ form.as_table }}</table>
+      <input class="btn btn-warning" type="submit" value="Update">
+    </form>
+      
+  </div>
 </div>
 
 

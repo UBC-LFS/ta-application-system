@@ -1,37 +1,39 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
 
-<div>
+<div class="wrapper">
   {% include "students/_sidebar.html" %}
+
+  <div id="content" class="container-fluid">
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-info">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+
+    <nav class="margin-top-10" aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'students:show_confidentiality' %}">Confidentiality</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Submit Confidentiality</li>
+      </ol>
+    </nav>
+
+
+    <h3>Submit Confidentiality</h3>
+
+
+
+
+    <p>Valid file types: jpg, jpeg, png, pdf, doc, docx</p>
+
+    <form action="" method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <table>{{ form.as_table }}</table>
+      <input type="submit" value="Submit" />
+    </form>
+
+    <a class="btn btn-secondary margin-top-10" href="{% url 'students:show_confidentiality' %}">Back</a>
+  </div>
 </div>
-
-{% if messages %}
-  {% for message in messages %}
-    <div class="alert alert-info">{{ message }}</div>
-  {% endfor %}
-{% endif %}
-
-<nav class="margin-top-10" aria-label="breadcrumb">
-  <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="{% url 'students:show_confidentiality' %}">Confidentiality</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Submit Confidentiality</li>
-  </ol>
-</nav>
-
-
-<h3>Submit Confidentiality</h3>
-
-
-
-
-<p>Valid file types: jpg, jpeg, png, pdf, doc, docx</p>
-
-<form action="" method="post" enctype="multipart/form-data">
-  {% csrf_token %}
-  <table>{{ form.as_table }}</table>
-  <input type="submit" value="Submit" />
-</form>
-
-<a href="{% url 'students:show_confidentiality' %}">Back</a>
 
 {% endblock %}

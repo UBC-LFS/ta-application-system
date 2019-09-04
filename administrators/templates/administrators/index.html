@@ -1,10 +1,12 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
 
-{% include "administrators/_sidebar.html" %}
+<div class="wrapper">
+  {% include "administrators/_sidebar.html" %}
 
-<div id="content" class="container-fluid">
-  Administrator's Portal
+  <div id="content" class="container-fluid">
+    Administrator's Portal
+  </div>
 </div>
 
 {% endblock %}

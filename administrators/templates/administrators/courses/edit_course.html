@@ -1,36 +1,39 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
 
-{% include "administrators//_sidebar.html" %}
+<div class="wrapper">
+  {% include "administrators//_sidebar.html" %}
 
-<div id="content" class="container-fluid">
-  {% if messages %}
-  	{% for message in messages %}
-      <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
-        {{ message }}
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-      </div>
-  	{% endfor %}
-  {% endif %}
+  <div id="content" class="container-fluid">
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        </div>
+      {% endfor %}
+    {% endif %}
 
-  <h3>Edit a Course</h3>
+    <h3>Edit a Course</h3>
 
-  <nav class="margin-top-10" aria-label="breadcrumb">
-    <ol class="breadcrumb">
-      <li class="breadcrumb-item">
-        <a href="{% url 'administrators:courses' %}">Courses</a>
-      </li>
-      <li class="breadcrumb-item active" aria-current="page">Edit Course</li>
-    </ol>
-  </nav>
+    <nav class="margin-top-10" aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a href="{% url 'administrators:courses' %}">Courses</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">Edit Course</li>
+      </ol>
+    </nav>
 
-  <form action="" method="post">
-    {% csrf_token %}
-    <table>{{ form.as_table }}</table>
-    <input value="Update" type="submit" />
-  </form>
+    <form action="" method="post">
+      {% csrf_token %}
+      <table>{{ form.as_table }}</table>
+      <input value="Update" type="submit" />
+    </form>
 
-  <a href="{% url 'administrators:courses' %}">Back to Courses</a>
+    <a href="{% url 'administrators:courses' %}">Back to Courses</a>
+
+  </div>
 
 </div>
 
