@@ -1,29 +1,31 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
 
-{% include "administrators//_sidebar.html" %}
+<div class="wrapper">
+  {% include "administrators//_sidebar.html" %}
 
-<h3>Edit Session</h3>
+  <div id="content" class="container-fluid">
+    <h3>Edit Session</h3>
 
-<h3>{{ session.year }} {{ session.term.name }} {{ session.title }}</h3>
+    <h3>{{ session.year }} {{ session.term.name }} {{ session.title }}</h3>
 
-<nav class="margin-top-10" aria-label="breadcrumb">
-  <ol class="breadcrumb">
-    <li class="breadcrumb-item">
-      <a href="{% url 'administrators:sessions' %}">Sessions</a>
-    </li>
-    <li class="breadcrumb-item active" aria-current="page">Edit Session</li>
-  </ol>
-</nav>
+    <nav class="margin-top-10" aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a href="{% url 'administrators:sessions' %}">Sessions</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">Edit Session</li>
+      </ol>
+    </nav>
 
-<form class="edit-session-form" action="" method="post">
-  {% csrf_token %}
-  <table>{{ form.as_table }}</table>
-  <input type="submit" value="Update" />
-</form>
+    <form class="edit-session-form" action="" method="post">
+      {% csrf_token %}
+      <table>{{ form.as_table }}</table>
+      <input type="submit" value="Update" />
+    </form>
 
-<a href="{% url 'administrators:current_sessions' %}">Back to Current Sessions</a>
-
-
+    <a href="{% url 'administrators:sessions' %}">Back to Sessions</a>
+  </div>
+</div>
 
 {% endblock %}

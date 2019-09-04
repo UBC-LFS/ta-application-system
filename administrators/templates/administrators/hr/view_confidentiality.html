@@ -1,49 +1,51 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
 
-<div>
-    {% include "administrators/_sidebar.html" %}
+<div class="wrapper">
+  {% include "administrators/_sidebar.html" %}
+
+  <div id="content" class="container-fluid">
+    <h3>View Confidentiality</h3>
+
+
+    <table class="table table-sm table-striped" data-toggle="table" data-sortable="true" data-classes="" data-pagination="true" data-search="true">
+      <thead>
+        <tr>
+          <th data-sortable="true">First Name</th>
+          <th data-sortable="true">Last Name</th>
+          <th data-sortable="true">CWL</th>
+          <th data-sortable="true">E-mail</th>
+          <th data-sortable="true">International Student</th>
+          <th data-sortable="true">SIN</th>
+          <th>SIN Expiry Date</th>
+          <th>Study Permit</th>
+          <th>Study Permit Expiry Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for user in users %}
+          <tr>
+            <td>{{ user.first_name }}</td>
+            <td>{{ user.last_name }}</td>
+            <td>{{ user.username }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ user.confidentiality.is_international }}</td>
+            <td>
+              {{ user.confidentiality.sin }}
+            </td>
+            <td>{{ user.confidentiality.sin_expiry_date }}</td>
+            <td>{{ user.confidentiality.study_permit }}</td>
+            <td>{{ user.confidentiality.study_permit_expiry_date }}</td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="9">No users found</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
-
-<h3>View Confidentiality</h3>
-
-
-<table>
-  <thead>
-    <tr>
-      <th>First Name</th>
-      <th>Last Name</th>
-      <th>CWL</th>
-      <th>E-mail</th>
-      <th>International Student</th>
-      <th>SIN</th>
-      <th>SIN Expiry Date</th>
-      <th>Study Permit</th>
-      <th>Study Permit Expiry Date</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for user in users %}
-      <tr>
-        <td>{{ user.first_name }}</td>
-        <td>{{ user.last_name }}</td>
-        <td>{{ user.username }}</td>
-        <td>{{ user.email }}</td>
-        <td>{{ user.confidentiality.is_international }}</td>
-        <td>
-          {{ user.confidentiality.sin }}
-        </td>
-        <td>{{ user.confidentiality.sin_expiry_date }}</td>
-        <td>{{ user.confidentiality.study_permit }}</td>
-        <td>{{ user.confidentiality.study_permit_expiry_date }}</td>
-      </tr>
-      {% empty %}
-      <tr>
-        <td colspan="9">No users found</td>
-      </tr>
-    {% endfor %}
-  </tbody>
-</table>
 
 
 {% endblock %}

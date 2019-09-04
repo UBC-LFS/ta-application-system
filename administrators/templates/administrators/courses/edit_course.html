@@ -1,19 +1,17 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
 
-<div class="row">
-  <div class="col-md-3">
-    {% include "administrators//_sidebar.html" %}
-  </div>
-  <div class="col-md-9">
+<div class="wrapper">
+  {% include "administrators//_sidebar.html" %}
 
+  <div id="content" class="container-fluid">
     {% if messages %}
-    	{% for message in messages %}
+      {% for message in messages %}
         <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
           {{ message }}
           <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
         </div>
-    	{% endfor %}
+      {% endfor %}
     {% endif %}
 
     <h3>Edit a Course</h3>
@@ -36,6 +34,7 @@
     <a href="{% url 'administrators:courses' %}">Back to Courses</a>
 
   </div>
+
 </div>
 
 

@@ -9,9 +9,13 @@
 
 	{% load static %}
 	<link rel="stylesheet" type="text/css" href="{% static 'ta_app/css/style.css' %}">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.min.css">
 	<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 	<script type="text/javascript" src="{% static 'ta_app/js/index.js' %}"></script>
 	<script src="https://unpkg.com/bootstrap-table@1.15.4/dist/bootstrap-table.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.concat.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js" integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ" crossorigin="anonymous"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
 </head>
 <body>
 
@@ -25,30 +29,39 @@
 
 			<div class="collapse navbar-collapse" id="navbarSupportedContent">
 				<ul class="navbar-nav mr-auto">
-					<li class="nav-item">
-						{% if 'Student' in loggedin_user.roles %}
+					{% if 'Student' in loggedin_user.roles %}
+						<li class="nav-item">
 							<a id="student" class="nav-link" href="{% url 'students:index' %}">Student's Portal</a>
-						{% endif %}
-
-						{% if 'Instructor' in loggedin_user.roles %}
+						</li>
+					{% endif %}
+					{% if 'Instructor' in loggedin_user.roles %}
+						<li class="nav-item">
 							<a id="instructor" class="nav-link" href="{% url 'instructors:index' %}">Instructor's Portal</a>
-						{% endif %}
-
-						{% if 'HR' in loggedin_user.roles %}
+						</li>
+					{% endif %}
+					{% if 'HR' in loggedin_user.roles %}
+						<li class="nav-item">
 							<a id="hr" class="nav-link" href="{% url 'human_resources:index' %}">Human Resource's Portal</a>
-						{% endif %}
-
-						{% if 'Admin' in loggedin_user.roles or 'Superadmin' in loggedin_user.roles %}
+						</li>
+					{% endif %}
+					{% if 'Admin' in loggedin_user.roles or 'Superadmin' in loggedin_user.roles %}
+						<li class="nav-item">
 							<a id="admin" class="nav-link" href="{% url 'administrators:index' %}">Administrator's Portal</a>
-						{% endif %}
-      		</li>
-    		</ul>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" href="{% url 'administrators:basics' %}">Basics</a>
+						</li>
+						<li class
+					{% endif %}
+    			</ul>
 				<span class="navbar-text">{{ loggedin_user.username }} {{ loggedin_user.roles }}</span>
-  		</div>
+  			</div>
 		</nav>
-		<div class="container container-fluid padding-top-66">
+		<div class="padding-top-66">
 			<main>
-				{% block content %}{% endblock %}
+				<div class="wrapper">
+					{% block content %}{% endblock %}
+				</div>
 			</main>
 
 			<footer></footer>

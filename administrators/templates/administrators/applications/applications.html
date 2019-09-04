@@ -2,42 +2,44 @@
 {% block content %}
 
 
-<div>
+<div class="wrapper">
   {% include "administrators/_sidebar.html" %}
-</div>
-    
-{% if messages %}
-  {% for message in messages %}
-    <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
-      {{ message }}
-      <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+
+  <div id="content" class="container-fluid">    
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+
+    <h1>Applications</h1>
+
+    <div class="margin-top-30">
+      How Interested, How Qualified: Not at all, Marginally, Somewhat, Most, Very
     </div>
-  {% endfor %}
-{% endif %}
 
-<h1>Applications</h1>
+    <div class="margin-top-30">
+      Instructor Preference: None, No Preference, Acceptable, Requested, Critical Requested
+    </div>
 
-<div class="margin-top-30">
-  How Interested, How Qualified: Not at all, Marginally, Somewhat, Most, Very
+    <ul class="nav margin-top-30">
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'administrators:selected_applications' %}">Selected Applications</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'administrators:offered_applications' %}">Offered Applications</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'administrators:accepted_applications' %}">Accepted Applications</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'administrators:declined_applications' %}">Declined Applications</a>
+      </li>
+    </ul>
+  </div>
 </div>
-
-<div class="margin-top-30">
-  Instructor Preference: None, No Preference, Acceptable, Requested, Critical Requested
-</div>
-
-<ul class="nav margin-top-30">
-  <li class="nav-item">
-    <a class="nav-link" href="{% url 'administrators:selected_applications' %}">Selected Applications</a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link" href="{% url 'administrators:offered_applications' %}">Offered Applications</a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link" href="{% url 'administrators:accepted_applications' %}">Accepted Applications</a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link" href="{% url 'administrators:declined_applications' %}">Declined Applications</a>
-  </li>
-</ul>
 
 {% endblock %}

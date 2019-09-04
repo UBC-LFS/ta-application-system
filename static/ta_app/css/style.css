@@ -23,6 +23,10 @@ footer {
   margin-bottom: 0;
 }
 
+.margin-bottom-30 {
+  margin-bottom: 30px;
+}
+
 .margin-left-10 {
   margin-left: 10px;
 }
@@ -100,13 +104,27 @@ footer {
     margin-bottom: 0;
 }
 
-.sidebar {
-  position: fixed;
-  top: 56px;
-  left: 0;
-  height: 100%;
+.wrapper {
+  display: flex;
+  width: 100%;
 }
 
+#sidebar {
+  width: 300px;
+  height: calc(100vh - 56px);
+  position: fixed;
+  top: 56px;
+  left:0;
+  z-index: 999;
+  padding: 15px;
+}
+
+#content {
+  position: absolute;
+  top: 56;
+  right: 0;
+  width: calc(100% - 300px);
+}
 
 /* .sidebar {
   border: 1px solid #ccc;

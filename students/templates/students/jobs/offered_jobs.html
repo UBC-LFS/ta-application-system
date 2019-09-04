@@ -1,42 +1,44 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
 
-<div>
+<div class="wrapper">
   {% include "students/_sidebar.html" %}
+
+  <div id="content" class="container-fluid">
+    <h3>Offered Jobs</h3>
+
+    <h4>Summary</h4>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Year-Term</th>
+          <th>Total Assigned Hours</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for year_term, assigned_hours in offered_summary.items %}
+          <tr>
+            <td>{{ year_term }}</td>
+            <td>{{ assigned_hours }} hours</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="2">No summary available</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <h4>List</h4>
+
+    <ul>
+      {% for job in offered_jobs %}
+        <li>{{ job.year }} {{ job.term }} - {{ job.course_code }} {{ job.course_number }} {{ job.course_section }}: {{ job.assigned_status }} {{ job.assigned_hours }} hours</li>
+      {% empty %}
+        <li>No offered jobs found</li>
+      {% endfor %}
+    </ul>
+  </div>
 </div>
-
-<h3>Offered Jobs</h3>
-
-<h4>Summary</h4>
-<table class="table">
-  <thead>
-    <tr>
-      <th>Year-Term</th>
-      <th>Total Assigned Hours</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for year_term, assigned_hours in offered_summary.items %}
-      <tr>
-        <td>{{ year_term }}</td>
-        <td>{{ assigned_hours }} hours</td>
-      </tr>
-    {% empty %}
-      <tr>
-        <td colspan="2">No summary available</td>
-      </tr>
-    {% endfor %}
-  </tbody>
-</table>
-
-<h4>List</h4>
-
-<ul>
-  {% for job in offered_jobs %}
-    <li>{{ job.year }} {{ job.term }} - {{ job.course_code }} {{ job.course_number }} {{ job.course_section }}: {{ job.assigned_status }} {{ job.assigned_hours }} hours</li>
-  {% empty %}
-    <li>No offered jobs found</li>
-  {% endfor %}
-</ul>
 
 {% endblock %}

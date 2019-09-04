@@ -1,60 +1,63 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
 
-<div>
+
+<div class="wrapper">
   {% include "administrators/_sidebar.html" %}
-</div>
-    
-{% if messages %}
-	{% for message in messages %}
-    <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
-      {{ message }}
-      <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-    </div>
-	{% endfor %}
-{% endif %}
 
-<h1>Current Sessions</h1>
+  <div id="content" class="container-fluid"> 
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        </div>
+      {% endfor %}
+    {% endif %}
 
-<table class="table table-sm margin-top-30">
-  <thead>
-    <tr>
-      <th>Year</th>
-      <th>Term</th>
-      <th>Session Title</th>
-      <th>Num of Jobs</th>
-      <th>Count Instructors added</th>
-      <th>Is Visible</th>
-      <th></th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for session in not_archived_sessions %}
-      <tr>
-        <td>{{ session.year }}</td>
-        <td>{{ session.term.code }}</td>
-        <td>{{ session.title }}</td>
-        <td>{{ session.job_set.count }}</td>
-        <td>{{ session.num_instructors }}</td>
-        <td>{{ session.is_visible }}</td>
-        <td>
-          <a class="btn btn-sm btn-warning btn-block" href="{% url 'administrators:edit_session' session.slug %}">Edit</a>
-        </td>
-        <td>
-          <form action="{% url 'administrators:delete_session' %}" method="post" onsubmit="return confirm('Are you sure to delete {{ session.year }} {{ session.term }} - {{ session.title }}?');">
-            {% csrf_token %}
-            <input type="hidden" name="session" value="{{ session.id }}">
-            <input type="submit" value="Delete" class="btn btn-sm btn-danger btn-block"/>
-          </form>
-        </td>
-      </tr>
-      {% empty %}
+    <h1>Current Sessions</h1>
+
+    <table class="table table-sm margin-top-30">
+      <thead>
         <tr>
-          <td colspan="4">No active sessions found</td>
+          <th>Year</th>
+          <th>Term</th>
+          <th>Session Title</th>
+          <th>Num of Jobs</th>
+          <th>Count Instructors added</th>
+          <th>Is Visible</th>
+          <th></th>
+          <th></th>
         </tr>
-    {% endfor %}
-  </tbody>
-</table>
+      </thead>
+      <tbody>
+        {% for session in not_archived_sessions %}
+          <tr>
+            <td>{{ session.year }}</td>
+            <td>{{ session.term.code }}</td>
+            <td>{{ session.title }}</td>
+            <td>{{ session.job_set.count }}</td>
+            <td>{{ session.num_instructors }}</td>
+            <td>{{ session.is_visible }}</td>
+            <td>
+              <a class="btn btn-sm btn-warning btn-block" href="{% url 'administrators:edit_session' session.slug %}">Edit</a>
+            </td>
+            <td>
+              <form action="{% url 'administrators:delete_session' %}" method="post" onsubmit="return confirm('Are you sure to delete {{ session.year }} {{ session.term }} - {{ session.title }}?');">
+                {% csrf_token %}
+                <input type="hidden" name="session" value="{{ session.id }}">
+                <input type="submit" value="Delete" class="btn btn-sm btn-danger btn-block"/>
+              </form>
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="4">No active sessions found</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
 
 {% endblock %}

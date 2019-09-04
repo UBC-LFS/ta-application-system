@@ -1,0 +1,47 @@
+{% extends 'ta_app/base.html' %}
+{% block content %}
+
+<div>
+  {% include "students/_sidebar.html" %}
+</div>
+
+<h3>Check Jobs</h3>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>Year</th>
+      <th>Term</th>
+      <th>Job</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for job in applied_jobs %}
+      <tr>
+        <td>{{ job.session.year }}</td>
+        <td>{{ job.session.term.code }}</td>
+        <td>{{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</td>
+        <td>
+          {% for app in job.application_set.all %}
+            {% if app.applicant.id == user.id %}
+              <ul>
+                {% for st in app.status.all %}
+                  <li>
+                    {{ st.get_assigned_display }}: {{ st.assigned_hours }} hours ({{ st.created_at }})
+                  </li>
+                {% endfor %}
+              </ul>
+            {% endif %}
+          {% endfor %}
+        </td>
+      </tr>
+    {% empty %}
+      <tr>
+        <td colspan="5">No jobs applied yet</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}
