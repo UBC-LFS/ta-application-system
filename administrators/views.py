@@ -287,6 +287,20 @@ def progress_jobs(request):
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def person_jobs(request):
+    if not usersApi.is_valid_user(request.user): raise PermissionDenied
+    loggedin_user = usersApi.loggedin_user(request.user)
+    if not usersApi.is_admin(loggedin_user): raise PermissionDenied
+
+    return render(request, 'administrators/jobs/person_jobs.html', {
+        'loggedin_user': loggedin_user,
+        'students': usersApi.get_students()
+    })
+
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET', 'POST'])
 def edit_job(request, session_slug, job_slug):
 
