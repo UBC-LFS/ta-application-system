@@ -1,0 +1,35 @@
+{% extends 'ta_app/base.html' %}
+{% block content %}
+
+<div class="wrapper">
+  {% include "administrators/_sidebar.html" %}
+
+  <div id="content" class="container-fluid">
+
+    <nav class="margin-top-10" aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a href="{% url 'administrators:course_numbers' %}">Course Numbers</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">Course Number Details</li>
+      </ol>
+    </nav>
+
+    {% if messages %}
+    	{% for message in messages %}
+    		<div class="alert alert-info">{{ message }}</div>
+    	{% endfor %}
+    {% endif %}
+
+    <h1>Course Number Details</h1>
+
+    <div class="">
+      Number Name: {{ course_number.name }}
+    </div>
+
+    <a href="{% url 'administrators:course_numbers' %}">Back to Course Numbers</a>
+
+  </div>
+</div>
+
+{% endblock %}

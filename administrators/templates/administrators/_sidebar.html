@@ -2,7 +2,19 @@
 <nav id="sidebar" class="mCustomScrollbar" data-mcs-theme="dark">
   <ul class="nav flex-column">
     <li class="nav-item">
-      <h4><a class="nav-link" href="{% url 'administrators:basics' %}">Basics</a></h4>
+      <h4><a class="nav-link" href="{% url 'administrators:preparation' %}">Preparation</a></h4>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link text-secondary" href="{% url 'administrators:terms' %}">Terms</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link text-secondary" href="{% url 'administrators:course_codes' %}">Course Codes</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link text-secondary" href="{% url 'administrators:course_numbers' %}">Course Numbers</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link text-secondary" href="{% url 'administrators:course_sections' %}">Course Sections</a>
     </li>
     <li class="nav-item">
       <h4><a class="nav-link" href="{% url 'administrators:courses' %}">Courses</a></h4>

@@ -48,10 +48,11 @@
 						<li class="nav-item">
 							<a id="admin" class="nav-link" href="{% url 'administrators:index' %}">Administrator's Portal</a>
 						</li>
+						{% comment %}
 						<li class="nav-item">
 							<a class="nav-link" href="{% url 'administrators:basics' %}">Basics</a>
 						</li>
-						<li class
+						{% endcomment %}
 					{% endif %}
     			</ul>
 				<span class="navbar-text">{{ loggedin_user.username }} {{ loggedin_user.roles }}</span>

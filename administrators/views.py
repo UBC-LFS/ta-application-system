@@ -31,17 +31,240 @@ def index(request):
         'loggedin_user': loggedin_user
     })
 
+# ------------- Preparation -------------
+
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
-def basics(request):
+def preparation(request):
     if not usersApi.is_valid_user(request.user): raise PermissionDenied
     loggedin_user = usersApi.loggedin_user(request.user)
     if not usersApi.is_admin(loggedin_user): raise PermissionDenied
 
-    return render(request, 'administrators/basics.html', {
+    return render(request, 'administrators/preparation/preparation.html', {
         'loggedin_user': loggedin_user
     })
+
+
+# Terms
+
+#checked
+def terms(request):
+    """ Display all terms and create a term """
+    if request.method == 'POST':
+        form = TermForm(request.POST)
+        if form.is_valid():
+            term = form.save()
+            if term:
+                messages.success(request, 'Success! {0} created'.format(term.name))
+                return redirect('administrators:terms')
+            else:
+                messages.error(request, 'Error!')
+        else:
+            messages.error(request, 'Error! Form is invalid')
+
+    return render(request, 'administrators/preparation/terms/terms.html', {
+        'loggedin_user': usersApi.loggedin_user(request.user),
+        'terms': administratorsApi.get_terms(),
+        'form': TermForm()
+    })
+
+#checked
+def show_term(request, code):
+    """ Display term details """
+    return render(request, 'administrators/preparation/terms/show_term.html', {
+        'loggedin_user': usersApi.loggedin_user(request.user),
+        'term': administratorsApi.get_term_by_code(code)
+    })
+
+#checked
+def edit_term(request, code):
+    """ Edit a term """
+    term = administratorsApi.get_term_by_code(code)
+    if request.method == 'POST':
+        form = TermForm(request.POST, instance=term)
+        if form.is_valid():
+            updated_term = form.save()
+            if updated_term:
+                messages.success(request, 'Success! {0} updated'.format(updated_term.name))
+                return HttpResponseRedirect( reverse('administrators:show_course', args=[updated_term.slug]) )
+            else:
+                messages.error(request, 'Error!')
+
+    return render(request, 'administrators/preparation/terms/edit_term.html', {
+        'loggedin_user': usersApi.loggedin_user(request.user),
+        'term': term,
+        'form': TermForm(data=None, instance=term)
+    })
+
+#checked
+def delete_term(request):
+    """ Delete a term """
+    if request.method == 'POST':
+        term_id = request.POST.get('term')
+        deleted_term = administratorsApi.delete_term(term_id)
+        if deleted_term:
+            messages.success(request, 'Success! {0} deleted'.format(deleted_term.name))
+        else:
+            messages.error(request, 'Error!')
+
+    return redirect("administrators:terms")
+
+
+def course_codes(request):
+    if request.method == 'POST':
+        form = CourseCodeForm(request.POST)
+        if form.is_valid():
+            course_code = form.save()
+            if course_code:
+                messages.success(request, 'Success! {0} created'.format(course_code.name))
+                return redirect('administrators:course_codes')
+            else:
+                messages.error(request, 'Error!')
+        else:
+            messages.error(request, 'Error! Form is invalid')
+
+    return render(request, 'administrators/preparation/course_codes/course_codes.html', {
+        'loggedin_user': usersApi.loggedin_user(request.user),
+        'course_codes': administratorsApi.get_course_codes(),
+        'form': CourseCodeForm()
+    })
+
+def show_course_code(request, name):
+    return render(request, 'administrators/preparation/course_codes/show_course_code.html', {
+        'loggedin_user': usersApi.loggedin_user(request.user),
+        'course_code': administratorsApi.get_course_code(name)
+    })
+
+def edit_course_code(request, name):
+    course_code = administratorsApi.get_course_code(name)
+    if request.method == 'POST':
+        form = CourseCodeForm(request.POST, instance=course_code)
+        if form.is_valid():
+            updated_course_code = form.save()
+            if updated_course_code:
+                messages.success(request, 'Success! {0} updated'.format(updated_course_code.name))
+            else:
+                messages.error(request, 'Error!')
+        else:
+            messages.error(request, 'Error!')
+    return redirect('administrators:course_codes')
+
+
+def delete_course_code(request):
+    if request.method == 'POST':
+        course_code_id = request.POST.get('course_code')
+        deleted_course_code = administratorsApi.delete_course_code(course_code_id)
+        if deleted_course_code:
+            messages.success(request, 'Success! {0} deleted'.format(deleted_course_code.name))
+        else:
+            messages.error(request, 'Error!')
+    return redirect('administrators:course_codes')
+
+# Course Number
+
+def course_numbers(request):
+    if request.method == 'POST':
+        form = CourseNumberForm(request.POST)
+        if form.is_valid():
+            course_number = form.save()
+            if course_number:
+                messages.success(request, 'Success! {0} created'.format(course_number.name))
+                return redirect('administrators:course_numbers')
+            else:
+                messages.error(request, 'Error!')
+        else:
+            messages.error(request, 'Error! Form is invalid')
+
+    return render(request, 'administrators/preparation/course_numbers/course_numbers.html', {
+        'loggedin_user': usersApi.loggedin_user(request.user),
+        'course_numbers': administratorsApi.get_course_numbers(),
+        'form': CourseNumberForm()
+    })
+
+def show_course_number(request, name):
+    return render(request, 'administrators/preparation/course_numbers/show_course_number.html', {
+        'loggedin_user': usersApi.loggedin_user(request.user),
+        'course_number': administratorsApi.get_course_number(name)
+    })
+
+def edit_course_number(request, name):
+    course_number = administratorsApi.get_course_number(name)
+    if request.method == 'POST':
+        form = CourseNumberForm(request.POST, instance=course_number)
+        if form.is_valid():
+            updated_course_number = form.save()
+            if updated_course_number:
+                messages.success(request, 'Success! {0} updated'.format(updated_course_number.name))
+            else:
+                messages.error(request, 'Error!')
+        else:
+            messages.error(request, 'Error!')
+    return redirect('administrators:course_numbers')
+
+
+def delete_course_number(request):
+    if request.method == 'POST':
+        course_number_id = request.POST.get('course_number')
+        deleted_course_number = administratorsApi.delete_course_number(course_number_id)
+        if deleted_course_number:
+            messages.success(request, 'Success! {0} deleted'.format(deleted_course_number.name))
+        else:
+            messages.error(request, 'Error!')
+    return redirect('administrators:course_numbers')
+
+# Course Section
+
+def course_sections(request):
+    if request.method == 'POST':
+        form = CourseSectionForm(request.POST)
+        if form.is_valid():
+            course_section = form.save()
+            if course_section:
+                messages.success(request, 'Success! {0} created'.format(course_section.name))
+                return redirect('administrators:course_sections')
+            else:
+                messages.error(request, 'Error!')
+        else:
+            messages.error(request, 'Error! Form is invalid')
+
+    return render(request, 'administrators/preparation/course_sections/course_sections.html', {
+        'loggedin_user': usersApi.loggedin_user(request.user),
+        'course_sections': administratorsApi.get_course_sections(),
+        'form': CourseSectionForm()
+    })
+
+def show_course_section(request, name):
+    return render(request, 'administrators/preparation/course_sections/show_course_section.html', {
+        'loggedin_user': usersApi.loggedin_user(request.user),
+        'course_section': administratorsApi.get_course_section(name)
+    })
+
+def edit_course_section(request, name):
+    course_section = administratorsApi.get_course_section(name)
+    if request.method == 'POST':
+        form = CourseSectionForm(request.POST, instance=course_section)
+        if form.is_valid():
+            updated_course_section = form.save()
+            if updated_course_section:
+                messages.success(request, 'Success! {0} updated'.format(updated_course_section.name))
+            else:
+                messages.error(request, 'Error!')
+        else:
+            messages.error(request, 'Error!')
+    return redirect('administrators:course_sections')
+
+def delete_course_section(request):
+    if request.method == 'POST':
+        course_section_id = request.POST.get('course_section')
+        deleted_course_section = administratorsApi.delete_course_section(course_section_id)
+        if deleted_course_section:
+            messages.success(request, 'Success! {0} deleted'.format(deleted_course_section.name))
+        else:
+            messages.error(request, 'Error!')
+    return redirect('administrators:course_sections')
+
+
 
 # ------------- Sessions -------------
 
@@ -794,227 +1017,6 @@ def delete_course(request):
             messages.error(request, 'Error!')
 
     return redirect("administrators:courses")
-
-
-# Terms
-
-#checked
-def terms(request):
-    """ Display all terms and create a term """
-    if request.method == 'POST':
-        form = TermForm(request.POST)
-        if form.is_valid():
-            term = form.save()
-            if term:
-                messages.success(request, 'Success!')
-                return redirect('administrators:terms')
-            else:
-                messages.error(request, 'Error!')
-        else:
-            messages.error(request, 'Error! Form is invalid')
-
-    return render(request, 'administrators/terms/terms.html', {
-        'loggedin_user': usersApi.loggedin_user(request.user),
-        'terms': administratorsApi.get_terms(),
-        'form': TermForm()
-    })
-
-#checked
-def show_term(request, code):
-    """ Display term details """
-    return render(request, 'administrators/terms/show_term.html', {
-        'loggedin_user': usersApi.loggedin_user(request.user),
-        'term': administratorsApi.get_term_by_code(code)
-    })
-
-#checked
-def edit_term(request, code):
-    """ Edit a term """
-    term = administratorsApi.get_term_by_code(code)
-    if request.method == 'POST':
-        form = TermForm(request.POST, instance=term)
-        if form.is_valid():
-            updated_term = form.save()
-            if updated_term:
-                messages.success(request, 'Success!')
-                return HttpResponseRedirect( reverse('administrators:show_course', args=[updated_term.slug]) )
-            else:
-                messages.error(request, 'Error!')
-
-    return render(request, 'administrators/terms/edit_term.html', {
-        'loggedin_user': usersApi.loggedin_user(request.user),
-        'term': term,
-        'form': TermForm(data=None, instance=term)
-    })
-
-#checked
-def delete_term(request):
-    """ Delete a term """
-    if request.method == 'POST':
-        term_id = request.POST.get('term')
-        deleted = administratorsApi.delete_term(term_id)
-        if deleted:
-            messages.success(request, 'Success!')
-        else:
-            messages.error(request, 'Error!')
-
-    return redirect("administrators:terms")
-
-
-def course_codes(request):
-    if request.method == 'POST':
-        form = CourseCodeForm(request.POST)
-        if form.is_valid():
-            course_code = form.save()
-            if course_code:
-                messages.success(request, 'Success!')
-                return redirect('administrators:course_codes')
-            else:
-                messages.error(request, 'Error!')
-        else:
-            messages.error(request, 'Error! Form is invalid')
-
-    return render(request, 'administrators/course_codes/course_codes.html', {
-        'loggedin_user': usersApi.loggedin_user(request.user),
-        'course_codes': administratorsApi.get_course_codes(),
-        'form': CourseCodeForm()
-    })
-
-def show_course_code(request, name):
-    return render(request, 'administrators/course_codes/show_course_code.html', {
-        'loggedin_user': usersApi.loggedin_user(request.user),
-        'course_code': administratorsApi.get_course_code(name)
-    })
-
-def edit_course_code(request, name):
-    course_code = administratorsApi.get_course_code(name)
-    if request.method == 'POST':
-        form = CourseCodeForm(request.POST, instance=course_code)
-        if form.is_valid():
-            updated_course_code = form.save()
-            if updated_course_code:
-                messages.success(request, 'Success!')
-            else:
-                messages.error(request, 'Error!')
-        else:
-            messages.error(request, 'Error!')
-    return redirect('administrators:course_codes')
-
-
-def delete_course_code(request):
-    if request.method == 'POST':
-        course_code_id = request.POST.get('course_code')
-        deleted = administratorsApi.delete_course_code(course_code_id)
-        if deleted:
-            messages.success(request, 'Success!')
-        else:
-            messages.error(request, 'Error!')
-    return redirect('administrators:course_codes')
-
-# Course Number
-
-def course_numbers(request):
-    if request.method == 'POST':
-        form = CourseNumberForm(request.POST)
-        if form.is_valid():
-            course_number = form.save()
-            if course_number:
-                messages.success(request, 'Success!')
-                return redirect('administrators:course_numbers')
-            else:
-                messages.error(request, 'Error!')
-        else:
-            messages.error(request, 'Error! Form is invalid')
-
-    return render(request, 'administrators/course_numbers/course_numbers.html', {
-        'loggedin_user': usersApi.loggedin_user(request.user),
-        'course_numbers': administratorsApi.get_course_numbers(),
-        'form': CourseNumberForm()
-    })
-
-def show_course_number(request, name):
-    return render(request, 'administrators/course_numbers/show_course_number.html', {
-        'loggedin_user': usersApi.loggedin_user(request.user),
-        'course_number': administratorsApi.get_course_number(name)
-    })
-
-def edit_course_number(request, name):
-    course_number = administratorsApi.get_course_number(name)
-    if request.method == 'POST':
-        form = CourseNumberForm(request.POST, instance=course_number)
-        if form.is_valid():
-            updated_course_number = form.save()
-            if updated_course_number:
-                messages.success(request, 'Success!')
-            else:
-                messages.error(request, 'Error!')
-        else:
-            messages.error(request, 'Error!')
-    return redirect('administrators:course_numbers')
-
-
-def delete_course_number(request):
-    if request.method == 'POST':
-        course_number_id = request.POST.get('course_number')
-        deleted = administratorsApi.delete_course_number(course_number_id)
-        if deleted:
-            messages.success(request, 'Success!')
-        else:
-            messages.error(request, 'Error!')
-    return redirect('administrators:course_numbers')
-
-# Course Section
-
-def course_sections(request):
-    if request.method == 'POST':
-        form = CourseSectionForm(request.POST)
-        if form.is_valid():
-            course_section = form.save()
-            if course_section:
-                messages.success(request, 'Success!')
-                return redirect('administrators:course_sections')
-            else:
-                messages.error(request, 'Error!')
-        else:
-            messages.error(request, 'Error! Form is invalid')
-
-    return render(request, 'administrators/course_sections/course_sections.html', {
-        'loggedin_user': usersApi.loggedin_user(request.user),
-        'course_sections': administratorsApi.get_course_sections(),
-        'form': CourseSectionForm()
-    })
-
-def show_course_section(request, name):
-    return render(request, 'administrators/course_sections/show_course_section.html', {
-        'loggedin_user': usersApi.loggedin_user(request.user),
-        'course_section': administratorsApi.get_course_section(name)
-    })
-
-def edit_course_section(request, name):
-    course_section = administratorsApi.get_course_section(name)
-    if request.method == 'POST':
-        form = CourseSectionForm(request.POST, instance=course_section)
-        if form.is_valid():
-            updated_course_section = form.save()
-            if updated_course_section:
-                messages.success(request, 'Success!')
-            else:
-                messages.error(request, 'Error!')
-        else:
-            messages.error(request, 'Error!')
-    return redirect('administrators:course_sections')
-
-def delete_course_section(request):
-    if request.method == 'POST':
-        course_section_id = request.POST.get('course_section')
-        deleted = administratorsApi.delete_course_section(course_section_id)
-        if deleted:
-            messages.success(request, 'Success!')
-        else:
-            messages.error(request, 'Error!')
-    return redirect('administrators:course_sections')
-
-
 
 
 # to be removed
