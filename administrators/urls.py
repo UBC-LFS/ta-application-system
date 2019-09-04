@@ -23,7 +23,10 @@ urlpatterns = [
     path('jobs/', views.jobs, name='jobs'),
     path('jobs/prepare/', views.prepare_jobs, name='prepare_jobs'),
     path('jobs/progress/', views.progress_jobs, name='progress_jobs'),
-    path('jobs/by-person/', views.person_jobs, name='person_jobs'),
+    path('jobs/student/', views.student_jobs, name='student_jobs'),
+    path('jobs/instructor/', views.instructor_jobs, name='instructor_jobs'),
+    path('instructors/<str:username>/job/details/', views.instructor_jobs_details, name='instructor_jobs_details'),
+
     #path('sessions/<str:session_slug>/jobs/<str:job_slug>/assign_ta_hours', views.assign_ta_hours, name='assign_ta_hours'),
     #path('sessions/<str:session_slug>/jobs/<str:job_slug>/add_instructors', views.add_instructors, name='add_instructors'),
 

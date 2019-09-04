@@ -269,6 +269,14 @@ def file_exists(user, folder, file):
     return exists
 """
 
+def get_instructors():
+    instructors = []
+    for user in get_users():
+        if user.profile.roles.filter(name='Instructor').exists():
+            instructors.append(user)
+    return instructors
+
+
 def get_students():
     students = []
     for user in get_users():

@@ -1,0 +1,77 @@
+{% extends 'ta_app/base.html' %}
+{% block content %}
+
+<div>
+    {% include "administrators/_sidebar.html" %}
+</div>
+
+
+
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>Year</th>
+      <th>Term</th>
+      <th>Job</th>
+      <th>Applicants</th>
+      <th>Active</th>
+      <th>Created at</th>
+      <th>Updated at</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for job in instructor.job_set.all %}
+    <tr>
+      <td>{{ job.session.year }}</td>
+      <td>{{ job.session.term.code }}</td>
+      <td>
+        {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}
+      </td>
+      <td>
+        <ul>
+          {% for app in job.application_set.all %}
+            <li>
+              {{ app.applicant.first_name }} {{ app.applicant.last_name }}:
+              <button type="button" class="btn btn-sm" data-toggle="modal" data-target="#application-modal-{{ app.id }}">Status</button>
+            	<div class="modal fade" id="application-modal-{{ app.id }}" tabindex="-1" role="dialog" aria-labelledby="application-modal-label-{{ app.id }}" aria-hidden="true">
+              	<div class="modal-dialog modal-lg" role="document">
+              	  <div class="modal-content">
+                		<div class="modal-header">
+                		  <h5 class="modal-title" id="application-modal-label-{{ app.id }}">{{ app.applicant.first_name }} {{ app.applicant.last_name }}'s Application Status</h5>
+                		  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                			<span aria-hidden="true">&times;</span>
+                		  </button>
+                		</div>
+                		<div class="modal-body">
+                      <ul>
+                        {% for st in app.status.all %}
+                          <li>{{ st.get_assigned_display }}: {{ st.assigned_hours }} hours, {{ st.created_at }} | {{ st.updated_at }}</li>
+                        {% endfor %}
+                      </ul>
+                		</div>
+              	  </div>
+              	</div>
+            	</div>
+            </li>
+          {% empty %}
+            <li>No applications</li>
+          {% endfor %}
+        </ul>
+      </td>
+      <td>{{ job.is_active }}</td>
+      <td>{{ job.created_at }}</td>
+      <td>{{ job.updated_at }}</td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="5">No jobs found</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+
+</table>
+
+<a href="{% url 'administrators:instructor_jobs' %}">Back to Jobs by Instructor</a>
+
+{% endblock %}

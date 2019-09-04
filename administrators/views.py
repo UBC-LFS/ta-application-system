@@ -288,14 +288,40 @@ def progress_jobs(request):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
-def person_jobs(request):
+def student_jobs(request):
     if not usersApi.is_valid_user(request.user): raise PermissionDenied
     loggedin_user = usersApi.loggedin_user(request.user)
     if not usersApi.is_admin(loggedin_user): raise PermissionDenied
 
-    return render(request, 'administrators/jobs/person_jobs.html', {
+    return render(request, 'administrators/jobs/student_jobs.html', {
         'loggedin_user': loggedin_user,
         'students': usersApi.get_students()
+    })
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def instructor_jobs(request):
+    if not usersApi.is_valid_user(request.user): raise PermissionDenied
+    loggedin_user = usersApi.loggedin_user(request.user)
+    if not usersApi.is_admin(loggedin_user): raise PermissionDenied
+
+    return render(request, 'administrators/jobs/instructor_jobs.html', {
+        'loggedin_user': loggedin_user,
+        'instructors': usersApi.get_instructors()
+    })
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def instructor_jobs_details(request, username):
+    if not usersApi.is_valid_user(request.user): raise PermissionDenied
+    loggedin_user = usersApi.loggedin_user(request.user)
+    if not usersApi.is_admin(loggedin_user): raise PermissionDenied
+    instructor = usersApi.get_user_by_username(username)
+    return render(request, 'administrators/jobs/instructor_jobs_details.html', {
+        'loggedin_user': loggedin_user,
+        'instructor': instructor
     })
 
 

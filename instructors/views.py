@@ -82,6 +82,7 @@ def edit_job(request, session_slug, job_slug):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET', 'POST'])
 def get_applications(request, session_slug, job_slug):
+    print("here")
     if not usersApi.is_valid_user(request.user): raise PermissionDenied
     loggedin_user = usersApi.loggedin_user(request.user)
     if 'Instructor' not in loggedin_user['roles']: raise PermissionDenied
