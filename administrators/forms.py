@@ -167,12 +167,11 @@ class ApplicationForm(forms.ModelForm):
         }
 
 
-
-
 class SessionJobForm(forms.ModelForm):
     class Meta:
         model = Job
         fields = ['session', 'course']
+
 
 class JobForm(forms.ModelForm):
     instructors = forms.ModelMultipleChoiceField(
@@ -182,3 +181,9 @@ class JobForm(forms.ModelForm):
     class Meta:
         model = Job
         fields = ['title', 'description', 'qualification', 'note', 'instructors', 'is_active']
+
+
+class EmailForm(forms.ModelForm):
+    class Meta:
+        model = Email
+        fields = ['sender', 'receiver','title', 'message', 'type']

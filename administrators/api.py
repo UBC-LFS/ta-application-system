@@ -3,9 +3,13 @@ from django.shortcuts import get_object_or_404
 from django.forms.models import model_to_dict
 from django.db.models import Q
 from django.contrib.auth.models import User
+from django.core.mail import send_mail
 
 from .models import *
 from users import api as usersApi
+
+from datetime import datetime
+
 
 # Sessions
 
@@ -386,16 +390,13 @@ def delete_term(term_id):
 
 # Applications
 
-#checked
 def update_application_instructor_preference(application_id, instructor_preference):
-    """ Update instructor's preference in an application """
-    try:
-        application = Application.objects.get(id=application_id)
-        application.instructor_preference = instructor_preference
-        application.save(update_fields=['instructor_preference'])
-        return application
-    except Appliation.DoesNotExist:
-        return None
+    application = get_object_or_404(Application, id=application_id)
+    application.instructor_preference = instructor_preference
+    application.updated_at = datetime.now()
+    application.save(update_fields=['instructor_preference', 'updated_at'])
+    return application
+
 
 def update_application_classification_note(application_id, data):
     classification = data.get('classification')
@@ -854,6 +855,35 @@ def delete_course_section(course_section_id):
         return course_section
     except CourseSection.DoesNotExist:
         return None
+
+
+def send_and_create_email(sender, receiver, title, message, type):
+    sent = send_mail(title, message, sender, [receiver], fail_silently=False)
+    created_email = Email.objects.create(
+        sender = sender,
+        receiver = receiver,
+        title = title,
+        message = message,
+        type = type
+    )
+    return True if sent and created_email else False
+    """
+    if sent and created_email:
+        print( 'Email has sent to {0} and is created'.format(receiver) )
+        return True
+    elif sent and not created_email:
+        print( 'Email has sent to {0} and is created'.format(receiver) )
+        if created_email:
+            print('The Email sent to {0} is created'.format(receiver))
+        else:
+            print('The Email sent to {0} is NOT created'.format(receiver))
+    else:
+        messages.error(request, 'Error! Failed to send an email to {0}'.format(receiver))
+    return False"""
+
+
+def get_emails():
+    return Email.objects.all()
 
 
 # to be removed

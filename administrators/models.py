@@ -164,7 +164,7 @@ class Application(models.Model):
     classification = models.CharField(max_length=1, choices=CLASSIFICATION_CHOICES, default='0')
     note = models.TextField(null=True, blank=True)
 
-    instructor_preference = models.CharField(max_length=1, choices=INSTRUCTOR_PREFERENCE_CHOICES,  default='0')
+    instructor_preference = models.CharField(max_length=1, choices=INSTRUCTOR_PREFERENCE_CHOICES, default='0')
 
     created_at = models.DateField(default=dt.date.today)
     updated_at = models.DateField(default=dt.date.today)
@@ -177,3 +177,15 @@ class Application(models.Model):
         """ Make a slug """
         self.slug = slugify(self.job.session.slug + ' ' + self.job.course.slug + ' application by ' + self.applicant.username)
         super(Application, self).save(*args, **kwargs)
+
+
+class Email(models.Model):
+    sender = models.CharField(max_length=256)
+    receiver = models.CharField(max_length=256)
+    title = models.CharField(max_length=256)
+    message = models.TextField()
+    type = models.CharField(max_length=256)
+    created_at = models.DateField(default=dt.date.today)
+
+    class Meta:
+        ordering = ['-pk']

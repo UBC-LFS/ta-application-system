@@ -705,21 +705,13 @@ def offer_job(request, session_slug, job_slug):
 
     return redirect('administrators:selected_applications')
 
-
-
-
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
 def offered_applications(request):
-    if not usersApi.is_valid_user(request.user):
-        raise PermissionDenied
-
+    if not usersApi.is_valid_user(request.user): raise PermissionDenied
     loggedin_user = usersApi.loggedin_user(request.user)
-    if not usersApi.is_admin(loggedin_user):
-        raise PermissionDenied
-
-    # add email lists
+    if not usersApi.is_admin(loggedin_user): raise PermissionDenied
 
     return render(request, 'administrators/applications/offered_applications.html', {
         'loggedin_user': loggedin_user,
@@ -728,17 +720,104 @@ def offered_applications(request):
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['POST'])
+def offered_applications_send_email(request):
+    if not usersApi.is_valid_user(request.user): raise PermissionDenied
+    loggedin_user = usersApi.loggedin_user(request.user)
+    if not usersApi.is_admin(loggedin_user): raise PermissionDenied
+
+    if request.method == 'POST':
+        applications = request.POST.getlist('application')
+        print( applications )
+        request.session['offered_applications_form_data'] = applications
+        return redirect('administrators:offered_applications_send_email_confirmation')
+
+    return redirect('administrators:offered_applications')
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET', 'POST'])
+def offered_applications_send_email_confirmation(request):
+    if not usersApi.is_valid_user(request.user): raise PermissionDenied
+    loggedin_user = usersApi.loggedin_user(request.user)
+    if not usersApi.is_admin(loggedin_user): raise PermissionDenied
+
+    applications = []
+    receiver_list = []
+    if request.method == 'POST':
+        form = EmailForm(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            receivers = eval(data['receiver'])
+
+            count = 0
+            for receiver in receivers:
+                receiver = 'brandon.oh@ubc.ca'
+                email = administratorsApi.send_and_create_email(data['sender'], receiver, data['title'], data['message'], data['type'])
+                if email:
+                    count += 1
+
+            if count == len(receivers):
+                messages.success(request, 'Success! Email has sent to {0}'.format(receivers))
+            else:
+                messages.error(request, 'Error!')
+
+            del request.session['offered_applications_form_data']
+            return redirect('administrators:offered_applications')
+
+        else:
+            messages.error(request, 'Error! Form is invalid')
+    else:
+        form_data = request.session.get('offered_applications_form_data')
+        for data in form_data:
+            application = administratorsApi.get_application(data)
+            applications.append(application)
+            print(application.applicant.email)
+            receiver_list.append(application.applicant.email)
+
+    return render(request, 'administrators/applications/offered_applications_send_email_confirmation.html', {
+        'loggedin_user': loggedin_user,
+        'applications': applications,
+        'sender': settings.EMAIL_FROM,
+        'receiver': receiver_list
+    })
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET', 'POST'])
+def email_history(request):
+    if not usersApi.is_valid_user(request.user): raise PermissionDenied
+    loggedin_user = usersApi.loggedin_user(request.user)
+    if not usersApi.is_admin(loggedin_user): raise PermissionDenied
+    if request.method == 'POST':
+        form = EmailForm(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            receiver = 'brandon.oh@ubc.ca'
+            email = administratorsApi.send_and_create_email(data['sender'], receiver, data['title'], data['message'], data['type'])
+            #email = administratorsApi.send_and_create_email(data['sender'], data['receiver'], data['title'], data['message'], data['type'])
+            if email:
+                messages.success(request, 'Success! Email has sent to {0}'.format(receiver))
+                return redirect('administrators:email_history')
+            else:
+                messages.error(request, 'Error!')
+        else:
+            messages.error(request, 'Error! Form is invalid')
+
+    return render(request, 'administrators/applications/email_history.html', {
+        'loggedin_user': loggedin_user,
+        'emails': administratorsApi.get_emails()
+    })
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
 def accepted_applications(request):
-    if not usersApi.is_valid_user(request.user):
-        raise PermissionDenied
-
+    if not usersApi.is_valid_user(request.user): raise PermissionDenied
     loggedin_user = usersApi.loggedin_user(request.user)
-    if not usersApi.is_admin(loggedin_user):
-        raise PermissionDenied
+    if not usersApi.is_admin(loggedin_user): raise PermissionDenied
 
     accepted_applications = administratorsApi.get_selected_applications()
-    print(accepted_applications)
     return render(request, 'administrators/applications/accepted_applications.html', {
         'loggedin_user': loggedin_user,
         'accepted_applications': administratorsApi.get_accepted_applications(),

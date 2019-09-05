@@ -50,16 +50,18 @@ urlpatterns = [
     #path('sessions/<str:session_slug>/jobs/<str:job_slug>/assign_ta_hours', views.assign_ta_hours, name='assign_ta_hours'),
     #path('sessions/<str:session_slug>/jobs/<str:job_slug>/add_instructors', views.add_instructors, name='add_instructors'),
 
-
-
     path('applications/', views.applications, name='applications'),
     path('applications/selected/', views.selected_applications, name='selected_applications'),
     path('applications/offered/', views.offered_applications, name='offered_applications'),
+    path('applications/offered/send_email/', views.offered_applications_send_email, name='offered_applications_send_email'),
+    path('applications/offered/send_email/confirmation', views.offered_applications_send_email_confirmation, name='offered_applications_send_email_confirmation'),
     path('applications/accepted/', views.accepted_applications, name='accepted_applications'),
     path('applications/declined/', views.declined_applications, name='declined_applications'),
     path('sessions/<str:session_slug>/jobs/<str:job_slug>/offer_job/', views.offer_job, name='offer_job'),
     path('sessions/<str:session_slug>/jobs/<str:job_slug>/edit_job_application/', views.edit_job_application, name='edit_job_application'),
     path('applications/<str:app_slug>/', views.show_application, name='show_application'),
+    path('applications/offered/email_history', views.email_history, name='email_history'),
+
 
     path('courses/', views.courses, name='courses'),
     #path('courses/<str:course_slug>/', views.show_course, name='show_course'),
