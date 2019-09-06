@@ -10,7 +10,7 @@
     <ul>
       {% for app in applications %}
         <li>
-          {{ app.applicant.first_name }} {{ app.applicant.last_name }} ({{ app.applicant.username }}):
+          {{ app.applicant.first_name }} {{ app.applicant.last_name }} ({{ app.applicant.email }}):
           {{ app.job.session.year }} {{ app.job.session.term.code }}-{{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}
         </li>
       {% endfor %}
@@ -26,12 +26,19 @@
       </div>
       <div>
         <label for="title">Message:</label>
-        <textarea name="message">text 1</textarea>
+        <textarea name="message" rows="8" cols="50">
+        text 1
+        Dear {0},
+        job: {1}
+        assigned_hours: {2} hours
+        classification: {3}
+        url: {4}
+        </textarea>
       </div>
       <div>Receiver: {{ receiver }}</div>
 
       <input type="hidden" name="sender" value="{{ sender }}" />
-      <input type="hidden" name="receiver" value="{{ receiver }}">
+      <input type="hidden" name="receiver" value="{{ receiver }}" />
       <input type="hidden" name="type" value="type1" />
       <input type="submit" name="" value="Confirm to send an email by Type 1" />
     </form>
@@ -48,17 +55,22 @@
       </div>
       <div>
         <label for="title">Message</label>
-        <textarea name="message">text 2</textarea>
+        <textarea name="message" rows="8" cols="50">
+          text 2
+          Dear {0},
+          job: {1}
+          assigned_hours: {2} hours
+          classification: {3}
+          url: {4}
+        </textarea>
       </div>
       <div>Receiver: {{ receiver }}</div>
 
       <input type="hidden" name="sender" value="{{ sender }}" />
-      <input type="hidden" name="receiver" value="{{ receiver }}">
+      <input type="hidden" name="receiver" value="{{ receiver }}" />
       <input type="hidden" name="type" value="type2" />
       <input type="submit" name="" value="Confirm to send an email by Type 2" />
     </form>
-
-
 
     <a href="{% url 'administrators:offered_applications' %}">Back to Offered Applications</a>
   </div>

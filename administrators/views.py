@@ -742,38 +742,46 @@ def offered_applications_send_email_confirmation(request):
     loggedin_user = usersApi.loggedin_user(request.user)
     if not usersApi.is_admin(loggedin_user): raise PermissionDenied
 
+    form_data = request.session.get('offered_applications_form_data')
     applications = []
     receiver_list = []
+    for data in form_data:
+        app = administratorsApi.get_application(data)
+        applications.append(app)
+        receiver_list.append(app.applicant.email)
+
     if request.method == 'POST':
         form = EmailForm(request.POST)
         if form.is_valid():
             data = form.cleaned_data
-            receivers = eval(data['receiver'])
 
             count = 0
-            for receiver in receivers:
-                receiver = 'brandon.oh@ubc.ca'
-                email = administratorsApi.send_and_create_email(data['sender'], receiver, data['title'], data['message'], data['type'])
-                if email:
-                    count += 1
+            for app in applications:
+                name = app.applicant.first_name + ' ' + app.applicant.last_name
+                job = app.job.session.year + ' ' + app.job.session.term.code + ' ' + app.job.course.code.name + ' ' + app.job.course.number.name + ' ' + app.job.course.section.name
+                assigned_hours = 0.0
+                for st in app.status.all():
+                    if st.assigned == ApplicationStatus.OFFERED:
+                        assigned_hours = st.assigned_hours
 
-            if count == len(receivers):
-                messages.success(request, 'Success! Email has sent to {0}'.format(receivers))
+                message = data['message'].format(name, job, assigned_hours, app.get_classification_display(), settings.TA_APP_URL)
+
+                # TODO: replace a receiver
+                receiver = '{0} <brandon.oh@ubc.ca>'.format(name)
+                #receiver = '{0} <{1}>'.format(name, app.applicant.email)
+
+                email = administratorsApi.send_and_create_email(data['sender'], receiver, data['title'], message, data['type'])
+                if email: count += 1
+
+            if count == len(applications):
+                messages.success(request, 'Success! Email has sent to {0}'.format( data['receiver'] ))
             else:
                 messages.error(request, 'Error!')
 
             del request.session['offered_applications_form_data']
             return redirect('administrators:offered_applications')
-
         else:
             messages.error(request, 'Error! Form is invalid')
-    else:
-        form_data = request.session.get('offered_applications_form_data')
-        for data in form_data:
-            application = administratorsApi.get_application(data)
-            applications.append(application)
-            print(application.applicant.email)
-            receiver_list.append(application.applicant.email)
 
     return render(request, 'administrators/applications/offered_applications_send_email_confirmation.html', {
         'loggedin_user': loggedin_user,
@@ -793,11 +801,9 @@ def email_history(request):
         form = EmailForm(request.POST)
         if form.is_valid():
             data = form.cleaned_data
-            receiver = 'brandon.oh@ubc.ca'
-            email = administratorsApi.send_and_create_email(data['sender'], receiver, data['title'], data['message'], data['type'])
-            #email = administratorsApi.send_and_create_email(data['sender'], data['receiver'], data['title'], data['message'], data['type'])
+            email = administratorsApi.send_and_create_email(data['sender'], data['receiver'], data['title'], data['message'], data['type'])
             if email:
-                messages.success(request, 'Success! Email has sent to {0}'.format(receiver))
+                messages.success(request, 'Success! Email has sent to {0}'.format(data['receiver']))
                 return redirect('administrators:email_history')
             else:
                 messages.error(request, 'Error!')
