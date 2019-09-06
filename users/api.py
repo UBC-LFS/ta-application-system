@@ -1,8 +1,9 @@
 import os
 from django.conf import settings
 from django.shortcuts import get_object_or_404
+from django.core.exceptions import PermissionDenied
 from django.contrib.auth.models import User
-from .models import *
+from users.models import *
 
 from datetime import datetime
 
@@ -10,41 +11,40 @@ from datetime import datetime
 from django.utils.crypto import get_random_string
 
 
+
+
 # for auth
 
 def is_valid_user(user):
-    """ Check if an user is valid or not """
+    ''' Check if an user is valid or not '''
     if user.is_anonymous or not user.is_authenticated:
         return False
     return True
 
 def is_admin(user):
-    """ Check if an user is an Admin or Superadmin"""
-    if 'Admin' in user['roles'] or 'Superadmin' in user['roles']:
+    ''' Check if an user is an Admin or Superadmin '''
+    if 'Admin' in user.roles or 'Superadmin' in user.roles:
         return True
     return False
 
-
 def loggedin_user(user):
+    ''' Get a logged in user '''
+    if not is_valid_user(user): PermissionDenied
+
     roles = []
     for role in user.profile.roles.all():
-        if role.name == 'Student':
-            roles.append('Student')
-        elif role.name == 'Instructor':
-            roles.append('Instructor')
-        elif role.name == 'HR':
-            roles.append('HR')
-        elif role.name == 'Admin':
-            roles.append('Admin')
-        elif role.name == 'Superadmin':
-            roles.append('Superadmin')
-
-    return {
-        'is_authenticated': user.is_authenticated,
-        'id': user.id,
-        'username': user.username,
-        'roles': roles
-    }
+        if role.name == Role.STUDENT:
+            roles.append(Role.STUDENT)
+        elif role.name == Role.INSTRUCTOR:
+            roles.append(Role.INSTRUCTOR)
+        elif role.name == Role.HR:
+            roles.append(Role.HR)
+        elif role.name == Role.ADMIN:
+            roles.append(Role.ADMIN)
+        elif role.name == Role.SUPERADMIN:
+            roles.append(Role.SUPERADMIN)
+    user.roles = roles
+    return user
 
 
 # Users

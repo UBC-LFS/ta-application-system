@@ -1,20 +1,12 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
 
+<div class="wrapper">
+  {% include "administrators/_sidebar.html" %}
 
-{% include "administrators/_sidebar.html" %}
-  
-<div id="content" class="container-fluid">
-    {% if messages %}
-      {% for message in messages %}
-        <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
-          {{ message }}
-          <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        </div>
-      {% endfor %}
-    {% endif %}
+  <div id="content" class="container-fluid">
 
-    <h1>Courses</h1>
+    <h3>Courses</h3>
 
     <div class="bd-callout bd-callout-warning">
       <h5>Checkpoint!</h5>
@@ -30,38 +22,8 @@
       </div>
     </div>
 
-    <h5 class="sub-title">List of Courses</h5>
-
-    <table class="table table-sm table-striped" data-toggle="table" data-sortable="true" data-classes="" data-pagination="true" data-search="true">
-      <thead>
-        <tr>
-          <th data-sortable="true">Course</th>
-          <th data-sortable="true">Term</th>
-          <th data-sortable="true">Name</th>
-          <th></th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for course in courses %}
-          <tr>
-            <td>{{ course.code }} {{ course.number }} {{ course.section }}</td>
-            <td>{{ course.term.code }}</td>
-            <td>{{ course.name }}</td>
-            <td>
-              <a class="btn btn-sm btn-warning btn-block" href="{% url 'administrators:edit_course' course.slug %}">Edit</a>
-            </td>
-            <td>
-              <form action="{% url 'administrators:delete_course' %}" method="post" onsubmit="return confirm('Are you sure to delete {{ course.code }} {{ course.number }} {{ course.section }} - {{ course.name }}?');">
-                {% csrf_token %}
-                <input type="hidden" name="course" value="{{ course.id }}">
-                <input class="btn btn-sm btn-danger btn-block" type="submit" value="Delete" />
-              </form>
-            </td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
   </div>
+
+</div>
 
 {% endblock %}

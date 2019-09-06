@@ -351,38 +351,8 @@ def get_courses_by_instructor(user):
 
     return courses
 
-# ----- Terms -----
 
-#checked
-def get_terms():
-    """ Get all terms """
-    return Term.objects.all()
 
-#checked
-def get_term(term_id):
-    """ Get a term by id """
-    try:
-        return Term.objects.get(id=term_id)
-    except:
-        return None
-
-#checked
-def get_term_by_code(code):
-    """ Get a term by code """
-    try:
-        return Term.objects.get(code=code)
-    except:
-        return None
-
-#checked
-def delete_term(term_id):
-    """ Delete a term """
-    try:
-        term = Term.objects.get(id=term_id)
-        term.delete()
-        return term
-    except Term.DoesNotExist:
-        return None
 
 
 
@@ -798,63 +768,88 @@ def delete_statuses():
 
 
 
+# ----- Terms -----
 
-# Course codes
+def get_terms():
+    ''' Get all terms '''
+    return Term.objects.all()
+
+def get_term(term_id):
+    ''' Get a term by id '''
+    return get_object_or_404(Term, id=term_id)
+
+def get_term_by_code(code):
+    ''' Get a term by code '''
+    return get_object_or_404(Term, code=code)
+
+def delete_term(term_id):
+    ''' Delete a term '''
+    term = get_term(term_id)
+    term.delete()
+    return term if term else False
+
+
+# Course Codes
+
+
 def get_course_codes():
+    ''' '''
     return CourseCode.objects.all()
 
-def get_course_code(name):
-    try:
-        return CourseCode.objects.get(name=name)
-    except CourseCode.DoesNotExist:
-        return None
+def get_course_code(course_code_id):
+    ''' '''
+    return get_object_or_404(CourseCode, id=course_code_id)
+
+def get_course_code_by_name(name):
+    ''' '''
+    return get_object_or_404(CourseCode, name=name)
 
 def delete_course_code(course_code_id):
-    try:
-        course_code = CourseCode.objects.get(id=course_code_id)
-        course_code.delete()
-        return course_code
-    except CourseCode.DoesNotExist:
-        return None
+    ''' '''
+    course_code = get_course_code(course_code_id)
+    course_code.delete()
+    return course_code if course_code else False
 
 
 
 # Course numbers
 def get_course_numbers():
+    ''' '''
     return CourseNumber.objects.all()
 
-def get_course_number(name):
-    try:
-        return CourseNumber.objects.get(name=name)
-    except CourseNumber.DoesNotExist:
-        return None
+def get_course_number(course_number_id):
+    ''' '''
+    return get_object_or_404(CourseNumber, id=course_number_id)
+
+def get_course_number_by_name(name):
+    ''' '''
+    return get_object_or_404(CourseNumber, name=name)
 
 def delete_course_number(course_number_id):
-    try:
-        course_number = CourseNumber.objects.get(id=course_number_id)
-        course_number.delete()
-        return course_number
-    except CourseNumber.DoesNotExist:
-        return None
+    ''' '''
+    course_number = get_course_number(course_number_id)
+    course_number.delete()
+    return course_number if course_number else False
 
 
 # Course codes
 def get_course_sections():
+    ''' '''
     return CourseSection.objects.all()
 
-def get_course_section(name):
-    try:
-        return CourseSection.objects.get(name=name)
-    except CourseSection.DoesNotExist:
-        return None
+def get_course_section(course_section_id):
+    ''' '''
+    return get_object_or_404(CourseSection, id=course_section_id)
+
+def get_course_section_by_name(name):
+    ''' '''
+    return get_object_or_404(CourseSection, name=name)
 
 def delete_course_section(course_section_id):
-    try:
-        course_section = CourseSection.objects.get(id=course_section_id)
-        course_section.delete()
-        return course_section
-    except CourseSection.DoesNotExist:
-        return None
+    ''' '''
+    course_section =get_course_section(course_section_id)
+    course_section.delete()
+    return course_section if course_section else False
 
 
 def send_and_create_email(sender, receiver, title, message, type):

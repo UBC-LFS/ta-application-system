@@ -5,30 +5,49 @@ from django.contrib.auth.models import User
 from django.utils.text import slugify
 
 
+
+class Term(models.Model):
+    """ Create a Term model """
+    code = models.CharField(max_length=2, unique=True)
+    name = models.CharField(max_length=256)
+
+    class Meta:
+        ordering = ['pk']
+
+    def __str__(self):
+        return self.code
+
+
 class CourseCode(models.Model):
     """ Create a CourseCode model """
     name = models.CharField(max_length=5, unique=True)
+
+    class Meta:
+        ordering = ['pk']
+
     def __str__(self):
         return self.name
 
 class CourseNumber(models.Model):
     """ Create a CourseNumber model """
     name = models.CharField(max_length=5, unique=True)
+    class Meta:
+        ordering = ['pk']
+
     def __str__(self):
         return self.name
 
 class CourseSection(models.Model):
     """ Create a CourseSection model """
     name = models.CharField(max_length=5, unique=True)
+
+    class Meta:
+        ordering = ['pk']
+
     def __str__(self):
         return self.name
 
-class Term(models.Model):
-    """ Create a Term model """
-    code = models.CharField(max_length=2, unique=True)
-    name = models.CharField(max_length=256)
-    def __str__(self):
-        return self.code
+
 
 
 

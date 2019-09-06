@@ -6,30 +6,10 @@ from django.utils.text import slugify
 from django.core.validators import FileExtensionValidator
 
 from administrators.models import Course
-import shutil
+
 import datetime as dt
 
 
-
-"""
-ROLES = [
-    { 'name': 'Student' },
-    { 'name': 'Instructor' },
-    { 'name': 'HR' },
-    { 'name': 'Admin' },
-    { 'name': 'Superadmin' }
-]
-
-STATUSES = [
-    { 'name': 'Undergraduate student' },
-    { 'name': 'Master student' },
-    { 'name': 'Ph.D student' },
-    { 'name': 'Instructor' },
-    { 'name': 'Assistance Professor' },
-    { 'name': 'Professor' },
-    { 'name': 'Other' }
-]
-"""
 
 class Program(models.Model):
     name = models.CharField(max_length=256, unique=True)
@@ -69,6 +49,12 @@ class Training(models.Model):
 
 
 class Role(models.Model):
+    SUPERADMIN = 'Superadmin'
+    ADMIN = 'Admin'
+    HR = 'HR'
+    INSTRUCTOR = 'Instructor'
+    STUDENT = 'Student'
+
     name = models.CharField(max_length=256, unique=True)
     slug = models.SlugField(max_length=256, unique=True)
 
