@@ -5,7 +5,9 @@ from django.db.models import Q
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
 
-from .models import *
+from administrators.models import *
+
+from users.models import *
 from users import api as usersApi
 
 from datetime import datetime

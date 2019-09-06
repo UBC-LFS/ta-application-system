@@ -29,283 +29,95 @@ def index(request):
         'loggedin_user': loggedin_user
     })
 
-# ------------- Preparation -------------
+# Courses
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
-def preparation(request):
+def courses(request):
+    if not userApi.is_valid_user(request.user): raise PermissionDenied
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
 
-    return render(request, 'administrators/preparation/preparation.html', {
-        'loggedin_user': loggedin_user
-    })
-
-# Terms
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET', 'POST'])
-def terms(request):
-    ''' Display all terms and create a term '''
-    loggedin_user = userApi.loggedin_user(request.user)
-    if not userApi.is_admin(loggedin_user): raise PermissionDenied
-
-    if request.method == 'POST':
-        form = TermForm(request.POST)
-        if form.is_valid():
-            term = form.save()
-            if term:
-                messages.success(request, 'Success! {0} ({1}) created'.format(term.name, term.code))
-                return redirect('administrators:terms')
-            else:
-                messages.error(request, 'Error!')
-        else:
-            messages.error(request, 'Error! Form is invalid')
-
-    return render(request, 'administrators/preparation/terms.html', {
+    return render(request, 'administrators/courses/courses.html', {
         'loggedin_user': loggedin_user,
-        'terms': adminApi.get_terms(),
-        'form': TermForm()
+        'courses': adminApi.get_courses()
     })
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['POST'])
-def edit_term(request, code):
-    ''' Edit a term '''
-    loggedin_user = userApi.loggedin_user(request.user)
-    if not userApi.is_admin(loggedin_user): raise PermissionDenied
-
-    if request.method == 'POST':
-        term = adminApi.get_term_by_code(code)
-        form = TermForm(request.POST, instance=term)
-        if form.is_valid():
-            updated_term = form.save()
-            if updated_term:
-                messages.success(request, 'Success! {0} ({1}) updated'.format(updated_term.name, updated_term.code))
-            else:
-                messages.error(request, 'Error!')
-        else:
-            print(form.errors.get_json_data())
-            messages.error(request, 'Error! Form is invalid')
-    return redirect("administrators:terms")
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['POST'])
-def delete_term(request):
-    ''' Delete a term '''
-    loggedin_user = userApi.loggedin_user(request.user)
-    if not userApi.is_admin(loggedin_user): raise PermissionDenied
-
-    if request.method == 'POST':
-        term_id = request.POST.get('term')
-        deleted_term = adminApi.delete_term(term_id)
-        if deleted_term:
-            messages.success(request, 'Success! {0} ({1}) deleted'.format(deleted_term.name, deleted_term.code))
-        else:
-            messages.error(request, 'Error!')
-    return redirect("administrators:terms")
-
+# LFS 100 001	W1
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET', 'POST'])
-def course_codes(request):
-    ''' Display all course codes and create a course code '''
-    print('course_codes')
+def create_course(request):
+    if not userApi.is_valid_user(request.user): raise PermissionDenied
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
 
     if request.method == 'POST':
-        form = CourseCodeForm(request.POST)
+        form = CourseForm(request.POST)
         if form.is_valid():
-            course_code = form.save()
-            if course_code:
-                messages.success(request, 'Success! {0} created'.format(course_code.name))
-                return redirect('administrators:course_codes')
+            course = form.save()
+            if course:
+                messages.success(request, 'Success! {0} {1} {2} {3} created'.format(course.code.name, course.number.name, course.section.name, course.term.code))
+                return redirect('administrators:courses')
             else:
                 messages.error(request, 'Error!')
         else:
             messages.error(request, 'Error! Form is invalid')
 
-    return render(request, 'administrators/preparation/course_codes.html', {
+    return render(request, 'administrators/courses/create_course.html', {
         'loggedin_user': loggedin_user,
-        'course_codes': adminApi.get_course_codes(),
-        'form': CourseCodeForm()
+        'form': CourseForm()
     })
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['POST'])
-def edit_course_code(request, name):
-    ''' Edit a course code '''
+@require_http_methods(['GET', 'POST'])
+def all_courses(request):
+    if not userApi.is_valid_user(request.user): raise PermissionDenied
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
 
-    if request.method == 'POST':
-        course_code = adminApi.get_course_code_by_name(name)
-        form = CourseCodeForm(request.POST, instance=course_code)
-        if form.is_valid():
-            updated_course_code = form.save()
-            if updated_course_code:
-                messages.success(request, 'Success! {0} updated'.format(updated_course_code.name))
-            else:
-                messages.error(request, 'Error!')
-        else:
-            messages.error(request, 'Error!')
-    return redirect('administrators:course_codes')
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['POST'])
-def delete_course_code(request):
-    ''' '''
-    loggedin_user = userApi.loggedin_user(request.user)
-    if not userApi.is_admin(loggedin_user): raise PermissionDenied
-
-    if request.method == 'POST':
-        course_code_id = request.POST.get('course_code')
-        deleted_course_code = adminApi.delete_course_code(course_code_id)
-        if deleted_course_code:
-            messages.success(request, 'Success! {0} deleted'.format(deleted_course_code.name))
-        else:
-            messages.error(request, 'Error!')
-    return redirect('administrators:course_codes')
-
-
-
-# Course Number
+    return render(request, 'administrators/courses/all_courses.html', {
+        'loggedin_user': loggedin_user,
+        'courses': adminApi.get_courses()
+    })
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET', 'POST'])
-def course_numbers(request):
-    ''' '''
-    loggedin_user = userApi.loggedin_user(request.user)
-    if not userApi.is_admin(loggedin_user): raise PermissionDenied
-
+def edit_course(request, course_slug):
+    """ Edit a course """
+    course = adminApi.get_course_by_slug(course_slug)
     if request.method == 'POST':
-        form = CourseNumberForm(request.POST)
+        form = CourseForm(request.POST, instance=course)
         if form.is_valid():
-            course_number = form.save()
-            if course_number:
-                messages.success(request, 'Success! {0} created'.format(course_number.name))
-                return redirect('administrators:course_numbers')
+            updated_course = form.save()
+            if updated_course:
+                messages.success(request, 'Success! {0} {1} {2} {3} updated'.format(updated_course.code.name, updated_course.number.name, updated_course.section.name, updated_course.term.code))
+                return redirect('administrators:courses')
             else:
                 messages.error(request, 'Error!')
         else:
             messages.error(request, 'Error! Form is invalid')
 
-    return render(request, 'administrators/preparation/course_numbers.html', {
+    return render(request, 'administrators/courses/edit_course.html', {
         'loggedin_user': userApi.loggedin_user(request.user),
-        'course_numbers': adminApi.get_course_numbers(),
-        'form': CourseNumberForm()
+        'course': course,
+        'form': CourseForm(data=None, instance=course)
     })
 
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['POST'])
-def edit_course_number(request, name):
-    ''' '''
-    loggedin_user = userApi.loggedin_user(request.user)
-    if not userApi.is_admin(loggedin_user): raise PermissionDenied
-
+#checked
+def delete_course(request):
+    """ Delete a course """
     if request.method == 'POST':
-        course_number = adminApi.get_course_number_by_name(name)
-        form = CourseNumberForm(request.POST, instance=course_number)
-        if form.is_valid():
-            updated_course_number = form.save()
-            if updated_course_number:
-                messages.success(request, 'Success! {0} updated'.format(updated_course_number.name))
-            else:
-                messages.error(request, 'Error!')
+        course_id = request.POST.get('course')
+        deleted = adminApi.delete_course(course_id)
+        if deleted:
+            messages.success(request, 'Success!')
         else:
             messages.error(request, 'Error!')
-    return redirect('administrators:course_numbers')
 
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['POST'])
-def delete_course_number(request):
-    ''' '''
-    loggedin_user = userApi.loggedin_user(request.user)
-    if not userApi.is_admin(loggedin_user): raise PermissionDenied
-
-    if request.method == 'POST':
-        course_number_id = request.POST.get('course_number')
-        deleted_course_number = adminApi.delete_course_number(course_number_id)
-        if deleted_course_number:
-            messages.success(request, 'Success! {0} deleted'.format(deleted_course_number.name))
-        else:
-            messages.error(request, 'Error!')
-    return redirect('administrators:course_numbers')
-
-# Course Section
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET', 'POST'])
-def course_sections(request):
-    ''' '''
-    loggedin_user = userApi.loggedin_user(request.user)
-    if not userApi.is_admin(loggedin_user): raise PermissionDenied
-
-    if request.method == 'POST':
-        form = CourseSectionForm(request.POST)
-        if form.is_valid():
-            course_section = form.save()
-            if course_section:
-                messages.success(request, 'Success! {0} created'.format(course_section.name))
-                return redirect('administrators:course_sections')
-            else:
-                messages.error(request, 'Error!')
-        else:
-            messages.error(request, 'Error! Form is invalid')
-
-    return render(request, 'administrators/preparation/course_sections.html', {
-        'loggedin_user': userApi.loggedin_user(request.user),
-        'course_sections': adminApi.get_course_sections(),
-        'form': CourseSectionForm()
-    })
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['POST'])
-def edit_course_section(request, name):
-    ''' '''
-    loggedin_user = userApi.loggedin_user(request.user)
-    if not userApi.is_admin(loggedin_user): raise PermissionDenied
-
-    if request.method == 'POST':
-        course_section = adminApi.get_course_section_by_name(name)
-        form = CourseSectionForm(request.POST, instance=course_section)
-        if form.is_valid():
-            updated_course_section = form.save()
-            if updated_course_section:
-                messages.success(request, 'Success! {0} updated'.format(updated_course_section.name))
-            else:
-                messages.error(request, 'Error!')
-        else:
-            messages.error(request, 'Error!')
-    return redirect('administrators:course_sections')
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['POST'])
-def delete_course_section(request):
-    loggedin_user = userApi.loggedin_user(request.user)
-    if not userApi.is_admin(loggedin_user): raise PermissionDenied
-
-    if request.method == 'POST':
-        course_section_id = request.POST.get('course_section')
-        deleted_course_section = adminApi.delete_course_section(course_section_id)
-        if deleted_course_section:
-            messages.success(request, 'Success! {0} deleted'.format(deleted_course_section.name))
-        else:
-            messages.error(request, 'Error!')
-    return redirect('administrators:course_sections')
-
+    return redirect("administrators:courses")
 
 
 # ------------- Sessions -------------
@@ -1070,98 +882,624 @@ def view_confidentiality(request):
     })
 
 
-# Courses
+# ------------- Preparation -------------
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
-def courses(request):
-    if not userApi.is_valid_user(request.user): raise PermissionDenied
+def preparation(request):
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
 
-    return render(request, 'administrators/courses/courses.html', {
-        'loggedin_user': loggedin_user,
-        'courses': adminApi.get_courses()
+    return render(request, 'administrators/preparation/preparation.html', {
+        'loggedin_user': loggedin_user
     })
-# LFS 100 001	W1
+
+# Terms
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET', 'POST'])
-def create_course(request):
-    if not userApi.is_valid_user(request.user): raise PermissionDenied
+def terms(request):
+    ''' Display all terms and create a term '''
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
 
     if request.method == 'POST':
-        form = CourseForm(request.POST)
+        form = TermForm(request.POST)
         if form.is_valid():
-            course = form.save()
-            if course:
-                messages.success(request, 'Success! {0} {1} {2} {3} created'.format(course.code.name, course.number.name, course.section.name, course.term.code))
-                return redirect('administrators:courses')
+            term = form.save()
+            if term:
+                messages.success(request, 'Success! {0} ({1}) created'.format(term.name, term.code))
+                return redirect('administrators:terms')
             else:
                 messages.error(request, 'Error!')
         else:
             messages.error(request, 'Error! Form is invalid')
 
-    return render(request, 'administrators/courses/create_course.html', {
+    return render(request, 'administrators/preparation/terms.html', {
         'loggedin_user': loggedin_user,
-        'form': CourseForm()
+        'terms': adminApi.get_terms(),
+        'form': TermForm()
     })
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET', 'POST'])
-def all_courses(request):
-    if not userApi.is_valid_user(request.user): raise PermissionDenied
+@require_http_methods(['POST'])
+def edit_term(request, code):
+    ''' Edit a term '''
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
 
-    return render(request, 'administrators/courses/all_courses.html', {
-        'loggedin_user': loggedin_user,
-        'courses': adminApi.get_courses()
-    })
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET', 'POST'])
-def edit_course(request, course_slug):
-    """ Edit a course """
-    course = adminApi.get_course_by_slug(course_slug)
     if request.method == 'POST':
-        form = CourseForm(request.POST, instance=course)
+        term = adminApi.get_term_by_code(code)
+        form = TermForm(request.POST, instance=term)
         if form.is_valid():
-            updated_course = form.save()
-            if updated_course:
-                messages.success(request, 'Success! {0} {1} {2} {3} updated'.format(updated_course.code.name, updated_course.number.name, updated_course.section.name, updated_course.term.code))
-                return redirect('administrators:courses')
+            updated_term = form.save()
+            if updated_term:
+                messages.success(request, 'Success! {0} ({1}) updated'.format(updated_term.name, updated_term.code))
             else:
                 messages.error(request, 'Error!')
         else:
+            print(form.errors.get_json_data())
             messages.error(request, 'Error! Form is invalid')
+    return redirect("administrators:terms")
 
-    return render(request, 'administrators/courses/edit_course.html', {
-        'loggedin_user': userApi.loggedin_user(request.user),
-        'course': course,
-        'form': CourseForm(data=None, instance=course)
-    })
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['POST'])
+def delete_term(request):
+    ''' Delete a term '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user): raise PermissionDenied
 
-#checked
-def delete_course(request):
-    """ Delete a course """
     if request.method == 'POST':
-        course_id = request.POST.get('course')
-        deleted = adminApi.delete_course(course_id)
-        if deleted:
-            messages.success(request, 'Success!')
+        term_id = request.POST.get('term')
+        deleted_term = adminApi.delete_term(term_id)
+        if deleted_term:
+            messages.success(request, 'Success! {0} ({1}) deleted'.format(deleted_term.name, deleted_term.code))
         else:
             messages.error(request, 'Error!')
+    return redirect("administrators:terms")
 
-    return redirect("administrators:courses")
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET', 'POST'])
+def course_codes(request):
+    ''' Display all course codes and create a course code '''
+    print('course_codes')
+    loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user): raise PermissionDenied
+
+    if request.method == 'POST':
+        form = CourseCodeForm(request.POST)
+        if form.is_valid():
+            course_code = form.save()
+            if course_code:
+                messages.success(request, 'Success! {0} created'.format(course_code.name))
+                return redirect('administrators:course_codes')
+            else:
+                messages.error(request, 'Error!')
+        else:
+            messages.error(request, 'Error! Form is invalid')
+
+    return render(request, 'administrators/preparation/course_codes.html', {
+        'loggedin_user': loggedin_user,
+        'course_codes': adminApi.get_course_codes(),
+        'form': CourseCodeForm()
+    })
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['POST'])
+def edit_course_code(request, name):
+    ''' Edit a course code '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user): raise PermissionDenied
+
+    if request.method == 'POST':
+        course_code = adminApi.get_course_code_by_name(name)
+        form = CourseCodeForm(request.POST, instance=course_code)
+        if form.is_valid():
+            updated_course_code = form.save()
+            if updated_course_code:
+                messages.success(request, 'Success! {0} updated'.format(updated_course_code.name))
+            else:
+                messages.error(request, 'Error!')
+        else:
+            messages.error(request, 'Error!')
+    return redirect('administrators:course_codes')
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['POST'])
+def delete_course_code(request):
+    ''' '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user): raise PermissionDenied
+
+    if request.method == 'POST':
+        course_code_id = request.POST.get('course_code')
+        deleted_course_code = adminApi.delete_course_code(course_code_id)
+        if deleted_course_code:
+            messages.success(request, 'Success! {0} deleted'.format(deleted_course_code.name))
+        else:
+            messages.error(request, 'Error!')
+    return redirect('administrators:course_codes')
 
 
-# to be removed
+
+# Course Number
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET', 'POST'])
+def course_numbers(request):
+    ''' '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user): raise PermissionDenied
+
+    if request.method == 'POST':
+        form = CourseNumberForm(request.POST)
+        if form.is_valid():
+            course_number = form.save()
+            if course_number:
+                messages.success(request, 'Success! {0} created'.format(course_number.name))
+                return redirect('administrators:course_numbers')
+            else:
+                messages.error(request, 'Error!')
+        else:
+            messages.error(request, 'Error! Form is invalid')
+
+    return render(request, 'administrators/preparation/course_numbers.html', {
+        'loggedin_user': userApi.loggedin_user(request.user),
+        'course_numbers': adminApi.get_course_numbers(),
+        'form': CourseNumberForm()
+    })
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['POST'])
+def edit_course_number(request, name):
+    ''' '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user): raise PermissionDenied
+
+    if request.method == 'POST':
+        course_number = adminApi.get_course_number_by_name(name)
+        form = CourseNumberForm(request.POST, instance=course_number)
+        if form.is_valid():
+            updated_course_number = form.save()
+            if updated_course_number:
+                messages.success(request, 'Success! {0} updated'.format(updated_course_number.name))
+            else:
+                messages.error(request, 'Error!')
+        else:
+            messages.error(request, 'Error!')
+    return redirect('administrators:course_numbers')
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['POST'])
+def delete_course_number(request):
+    ''' '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user): raise PermissionDenied
+
+    if request.method == 'POST':
+        course_number_id = request.POST.get('course_number')
+        deleted_course_number = adminApi.delete_course_number(course_number_id)
+        if deleted_course_number:
+            messages.success(request, 'Success! {0} deleted'.format(deleted_course_number.name))
+        else:
+            messages.error(request, 'Error!')
+    return redirect('administrators:course_numbers')
+
+# Course Section
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET', 'POST'])
+def course_sections(request):
+    ''' '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user): raise PermissionDenied
+
+    if request.method == 'POST':
+        form = CourseSectionForm(request.POST)
+        if form.is_valid():
+            course_section = form.save()
+            if course_section:
+                messages.success(request, 'Success! {0} created'.format(course_section.name))
+                return redirect('administrators:course_sections')
+            else:
+                messages.error(request, 'Error!')
+        else:
+            messages.error(request, 'Error! Form is invalid')
+
+    return render(request, 'administrators/preparation/course_sections.html', {
+        'loggedin_user': userApi.loggedin_user(request.user),
+        'course_sections': adminApi.get_course_sections(),
+        'form': CourseSectionForm()
+    })
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['POST'])
+def edit_course_section(request, name):
+    ''' '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user): raise PermissionDenied
+
+    if request.method == 'POST':
+        course_section = adminApi.get_course_section_by_name(name)
+        form = CourseSectionForm(request.POST, instance=course_section)
+        if form.is_valid():
+            updated_course_section = form.save()
+            if updated_course_section:
+                messages.success(request, 'Success! {0} updated'.format(updated_course_section.name))
+            else:
+                messages.error(request, 'Error!')
+        else:
+            messages.error(request, 'Error!')
+    return redirect('administrators:course_sections')
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['POST'])
+def delete_course_section(request):
+    ''' '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user): raise PermissionDenied
+
+    if request.method == 'POST':
+        course_section_id = request.POST.get('course_section')
+        deleted_course_section = adminApi.delete_course_section(course_section_id)
+        if deleted_course_section:
+            messages.success(request, 'Success! {0} deleted'.format(deleted_course_section.name))
+        else:
+            messages.error(request, 'Error!')
+    return redirect('administrators:course_sections')
+
+
+# Roles
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET', 'POST'])
+def roles(request):
+    ''' Display all roles and create a role '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user): raise PermissionDenied
+
+    if request.method == 'POST':
+        form = RoleForm(request.POST)
+        if form.is_valid():
+            role = form.save()
+            if role:
+                messages.success(request, 'Success! {0} created'.format(role.name))
+                return redirect('administrators:roles')
+            else:
+                messages.error(request, 'Error!')
+        else:
+            messages.error(request, 'Error! Form is invalid')
+
+    return render(request, 'administrators/preparation/roles.html', {
+        'loggedin_user': loggedin_user,
+        'roles': userApi.get_roles(),
+        'form': RoleForm()
+    })
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['POST'])
+def edit_role(request, slug):
+    ''' Edit a role '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user): raise PermissionDenied
+
+    if request.method == 'POST':
+        role = userApi.get_role_by_slug(slug)
+        form = RoleForm(request.POST, instance=role)
+        if form.is_valid():
+            updated_role = form.save()
+            if updated_role:
+                messages.success(request, 'Success! {0} updated'.format(updated_role.name))
+            else:
+                messages.error(request, 'Error!')
+        else:
+            messages.error(request, 'Error! Form is invalid')
+    return redirect("administrators:roles")
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['POST'])
+def delete_role(request):
+    ''' Delete a role '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user): raise PermissionDenied
+
+    if request.method == 'POST':
+        role_id = request.POST.get('role')
+        deleted_role = userApi.delete_role(role_id)
+        if deleted_role:
+            messages.success(request, 'Success! {0} deleted'.format(deleted_role.name))
+        else:
+            messages.error(request, 'Error!')
+    return redirect("administrators:roles")
+
+
+
+# Statuses
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET', 'POST'])
+def statuses(request):
+    ''' Display all statuses and create a status '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user): raise PermissionDenied
+
+    if request.method == 'POST':
+        form = StatusForm(request.POST)
+        if form.is_valid():
+            status = form.save()
+            if status:
+                messages.success(request, 'Success! {0} created'.format(status.name))
+                return redirect('administrators:statuses')
+            else:
+                messages.error(request, 'Error!')
+        else:
+            messages.error(request, 'Error! Form is invalid')
+
+    return render(request, 'administrators/preparation/statuses.html', {
+        'loggedin_user': loggedin_user,
+        'statuses': userApi.get_statuses(),
+        'form': StatusForm()
+    })
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['POST'])
+def edit_status(request, slug):
+    ''' Edit a status '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user): raise PermissionDenied
+
+    if request.method == 'POST':
+        status = userApi.get_status_by_slug(slug)
+        form = StatusForm(request.POST, instance=status)
+        if form.is_valid():
+            updated_status = form.save()
+            if updated_status:
+                messages.success(request, 'Success! {0} updated'.format(updated_status.name))
+            else:
+                messages.error(request, 'Error!')
+        else:
+            messages.error(request, 'Error! Form is invalid')
+    return redirect("administrators:statuses")
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['POST'])
+def delete_status(request):
+    ''' Delete a status '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user): raise PermissionDenied
+
+    if request.method == 'POST':
+        status_id = request.POST.get('status')
+        deleted_status = userApi.delete_status(status_id)
+        if deleted_status:
+            messages.success(request, 'Success! {0} deleted'.format(deleted_status.name))
+        else:
+            messages.error(request, 'Error!')
+    return redirect("administrators:statuses")
+
+
+
+# Programs
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET', 'POST'])
+def programs(request):
+    ''' Display all programs and create a program '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user): raise PermissionDenied
+
+    if request.method == 'POST':
+        form = ProgramForm(request.POST)
+        if form.is_valid():
+            program = form.save()
+            if program:
+                messages.success(request, 'Success! {0} created'.format(program.name))
+                return redirect('administrators:programs')
+            else:
+                messages.error(request, 'Error!')
+        else:
+            messages.error(request, 'Error! Form is invalid')
+
+    return render(request, 'administrators/preparation/programs.html', {
+        'loggedin_user': loggedin_user,
+        'programs': userApi.get_programs(),
+        'form': ProgramForm()
+    })
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['POST'])
+def edit_program(request, slug):
+    ''' Edit a program '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user): raise PermissionDenied
+
+    if request.method == 'POST':
+        program = userApi.get_program_by_slug(slug)
+        form = ProgramForm(request.POST, instance=program)
+        if form.is_valid():
+            updated_program = form.save()
+            if updated_program:
+                messages.success(request, 'Success! {0} updated'.format(updated_program.name))
+            else:
+                messages.error(request, 'Error!')
+        else:
+            messages.error(request, 'Error! Form is invalid')
+    return redirect("administrators:programs")
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['POST'])
+def delete_program(request):
+    ''' Delete a program '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user): raise PermissionDenied
+
+    if request.method == 'POST':
+        program_id = request.POST.get('program')
+        deleted_program = userApi.delete_program(program_id)
+        if deleted_program:
+            messages.success(request, 'Success! {0} deleted'.format(deleted_program.name))
+        else:
+            messages.error(request, 'Error!')
+    return redirect("administrators:programs")
+
+
+# Degrees
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET', 'POST'])
+def degrees(request):
+    ''' Display all degrees and create a degree '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user): raise PermissionDenied
+
+    if request.method == 'POST':
+        form = DegreeForm(request.POST)
+        if form.is_valid():
+            degree = form.save()
+            if degree:
+                messages.success(request, 'Success! {0} created'.format(degree.name))
+                return redirect('administrators:degrees')
+            else:
+                messages.error(request, 'Error!')
+        else:
+            messages.error(request, 'Error! Form is invalid')
+
+    return render(request, 'administrators/preparation/degrees.html', {
+        'loggedin_user': loggedin_user,
+        'degrees': userApi.get_degrees(),
+        'form': DegreeForm()
+    })
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['POST'])
+def edit_degree(request, slug):
+    ''' Edit a degree '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user): raise PermissionDenied
+
+    if request.method == 'POST':
+        degree = userApi.get_degree_by_slug(slug)
+        form = DegreeForm(request.POST, instance=degree)
+        if form.is_valid():
+            updated_degree = form.save()
+            if updated_degree:
+                messages.success(request, 'Success! {0} updated'.format(updated_degree.name))
+            else:
+                messages.error(request, 'Error!')
+        else:
+            messages.error(request, 'Error! Form is invalid')
+    return redirect("administrators:degrees")
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['POST'])
+def delete_degree(request):
+    ''' Delete a degree '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user): raise PermissionDenied
+
+    if request.method == 'POST':
+        degree_id = request.POST.get('degree')
+        deleted_degree = userApi.delete_degree(degree_id)
+        if deleted_degree:
+            messages.success(request, 'Success! {0} deleted'.format(deleted_degree.name))
+        else:
+            messages.error(request, 'Error!')
+    return redirect("administrators:degrees")
+
+
+# Trainings
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET', 'POST'])
+def trainings(request):
+    ''' Display all trainings and create a training '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user): raise PermissionDenied
+
+    if request.method == 'POST':
+        form = TrainingForm(request.POST)
+        if form.is_valid():
+            training = form.save()
+            if training:
+                messages.success(request, 'Success! {0} created'.format(training.name))
+                return redirect('administrators:trainings')
+            else:
+                messages.error(request, 'Error!')
+        else:
+            messages.error(request, 'Error! Form is invalid')
+
+    return render(request, 'administrators/preparation/trainings.html', {
+        'loggedin_user': loggedin_user,
+        'trainings': userApi.get_trainings(),
+        'form': TrainingForm()
+    })
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['POST'])
+def edit_training(request, slug):
+    ''' Edit a training '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user): raise PermissionDenied
+
+    if request.method == 'POST':
+        training = userApi.get_training_by_slug(slug)
+        form = TrainingForm(request.POST, instance=training)
+        if form.is_valid():
+            updated_training = form.save()
+            if updated_training:
+                messages.success(request, 'Success! {0} updated'.format(updated_training.name))
+            else:
+                messages.error(request, 'Error!')
+        else:
+            messages.error(request, 'Error! Form is invalid')
+    return redirect("administrators:trainings")
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['POST'])
+def delete_training(request):
+    ''' Delete a training '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user): raise PermissionDenied
+
+    if request.method == 'POST':
+        training_id = request.POST.get('training')
+        deleted_training = userApi.delete_training(training_id)
+        if deleted_training:
+            messages.success(request, 'Success! {0} deleted'.format(deleted_training.name))
+        else:
+            messages.error(request, 'Error!')
+    return redirect("administrators:trainings")
+
+
+
+# to be removed ------------------------
 
 def temp_show_course(request, course_slug):
     """ Display course details """

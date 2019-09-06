@@ -11,43 +11,6 @@ import datetime as dt
 
 
 
-class Program(models.Model):
-    name = models.CharField(max_length=256, unique=True)
-    slug = models.SlugField(max_length=256, unique=True)
-
-    def __str__(self):
-        return self.name
-
-    def save(self, *args, **kwargs):
-        """ Make a slug """
-        self.slug = slugify(self.name)
-        super(Program, self).save(*args, **kwargs)
-
-class Degree(models.Model):
-    name = models.CharField(max_length=256)
-    slug = models.SlugField(max_length=256, unique=True)
-
-    def __str__(self):
-        return self.name
-
-    def save(self, *args, **kwargs):
-        """ Make a slug """
-        self.slug = slugify(self.name)
-        super(Degree, self).save(*args, **kwargs)
-
-class Training(models.Model):
-    name = models.CharField(max_length=256, unique=True)
-    slug = models.SlugField(max_length=256, unique=True)
-
-    def __str__(self):
-        return self.name
-
-    def save(self, *args, **kwargs):
-        """ Make a slug """
-        self.slug = slugify(self.name)
-        super(Training, self).save(*args, **kwargs)
-
-
 class Role(models.Model):
     SUPERADMIN = 'Superadmin'
     ADMIN = 'Admin'
@@ -58,11 +21,9 @@ class Role(models.Model):
     name = models.CharField(max_length=256, unique=True)
     slug = models.SlugField(max_length=256, unique=True)
 
-    def __str__(self):
-        return self.name
-
+    class Meta: ordering = ['pk']
+    def __str__(self): return self.name
     def save(self, *args, **kwargs):
-        """ Make a slug """
         self.slug = slugify(self.name)
         super(Role, self).save(*args, **kwargs)
 
@@ -71,22 +32,48 @@ class Status(models.Model):
     name = models.CharField(max_length=256, unique=True)
     slug = models.SlugField(max_length=256, unique=True)
 
-    def __str__(self):
-        return self.name
-
+    class Meta: ordering = ['pk']
+    def __str__(self): return self.name
     def save(self, *args, **kwargs):
-        """ Make a slug """
         self.slug = slugify(self.name)
         super(Status, self).save(*args, **kwargs)
+
+class Program(models.Model):
+    name = models.CharField(max_length=256, unique=True)
+    slug = models.SlugField(max_length=256, unique=True)
+
+    class Meta: ordering = ['pk']
+    def __str__(self): return self.name
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.name)
+        super(Program, self).save(*args, **kwargs)
+
+class Degree(models.Model):
+    name = models.CharField(max_length=256)
+    slug = models.SlugField(max_length=256, unique=True)
+
+    class Meta: ordering = ['pk']
+    def __str__(self): return self.name
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.name)
+        super(Degree, self).save(*args, **kwargs)
+
+class Training(models.Model):
+    name = models.CharField(max_length=256, unique=True)
+    slug = models.SlugField(max_length=256, unique=True)
+
+    class Meta: ordering = ['pk']
+    def __str__(self): return self.name
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.name)
+        super(Training, self).save(*args, **kwargs)
 
 
 
 def create_sin_path(instance, filename):
-    print("create_sin_path", filename)
     return os.path.join('users', str(instance.user.username), 'sin', filename)
 
 def create_study_permit_path(instance, filename):
-    print("create_study_permit_path", filename)
     return os.path.join('users', str(instance.user.username), 'study_permit', filename)
 
 
