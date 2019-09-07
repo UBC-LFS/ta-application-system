@@ -8,9 +8,10 @@
 
     <h3>Jobs by Student</h3>
 
-    <table>
+    <table class="table">
       <thead>
         <tr>
+          <th>ID</th>
           <th>First Name</th>
           <th>Last Name</th>
           <th>CWL</th>
@@ -21,6 +22,7 @@
       <tbody>
         {% for student in students %}
           <tr>
+            <td>{{ student.id }}</td>
             <td>{{ student.first_name }}</td>
             <td>{{ student.last_name }}</td>
             <td>{{ student.username }}</td>

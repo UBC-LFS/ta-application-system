@@ -6,11 +6,37 @@ from django.contrib.auth.models import User
 from django.core.mail import send_mail
 
 from administrators.models import *
-
 from users.models import *
 from users import api as usersApi
 
 from datetime import datetime
+
+# Courses
+
+def get_courses():
+    ''' Get all courses '''
+    return Course.objects.all()
+
+def get_course(course_id):
+    ''' Get a course '''
+    return get_object_or_404(Course, id=course_id)
+
+def get_course_by_slug(course_slug):
+    ''' Get a course by slug '''
+    return get_object_or_404(Course, slug=course_slug)
+
+def get_courses_by_term(term_id):
+    ''' '''
+    try:
+        return Course.objects.filter(term__id=term_id)
+    except Course.DoesNotExist:
+        return None
+
+def delete_course(course_id):
+    ''' Delete a course '''
+    course = get_course(course_id)
+    course.delete()
+    return course if course else False
 
 
 # Sessions
@@ -265,42 +291,6 @@ def update_job_ta_hours(session_slug, job_slug, ta_hours):
     return True
 
 
-# Courses
-#checked
-def get_courses():
-    """ Get all courses """
-    return Course.objects.all()
-
-def get_course(course_id):
-    try:
-        return Course.objects.get(id=course_id)
-    except Course.DoesNotExist:
-        return None
-
-def get_course_by_slug(course_slug):
-    return get_object_or_404(Course, slug=course_slug)
-    """try:
-        return Course.objects.get(slug=course_slug)
-    except Course.DoesNotExist:
-        return None
-    """
-
-def get_courses_by_term(term_id):
-    try:
-        return Course.objects.filter(term__id=term_id)
-    except Course.DoesNotExist:
-        return None
-
-
-#checked
-def delete_course(course_id):
-    """ Delete a course """
-    try:
-        course = Course.objects.get(id=course_id)
-        course.delete()
-        return course
-    except Course.DoesNotExist:
-        return None
 
 
 def get_applications_applied_by_student(user):

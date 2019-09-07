@@ -1,33 +1,43 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
 
-
 <div class="wrapper">
   {% include "administrators/_sidebar.html" %}
 
   <div id="content" class="container-fluid">
 
+    {% if messages %}
+    	{% for message in messages %}
+        <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        </div>
+    	{% endfor %}
+    {% endif %}
+
     <h3>Create Session Confirmation</h3>
 
-    <nav class="margin-top-10" aria-label="breadcrumb">
-      <ol class="breadcrumb">
-        <li class="breadcrumb-item">
-          <a href="{% url 'administrators:sessions' %}">Sessions</a>
-        </li>
-        <li class="breadcrumb-item active" aria-current="page">Create Session Confirmation</li>
-      </ol>
-    </nav>
+    {% if error_messages %}
+      <div class="alert alert-danger" role="alert">
+        A Session form is not available for following reasons.
+        <ol>
+          {% for error in error_messages %}
+            <li>{{ error }}</li>
+          {% endfor %}
+        </ol>
+        Please try it agagin.
+      </div>
+    {% else %}
+      <form action="" method="post">
+        {% csrf_token %}
+        <table>{{ form.as_table }}</table>
+        <input type="submit" value="Confirm to create" />
+      </form>
+    {% endif %}
 
-    <form action="" method="post">
-      {% csrf_token %}
-      <table>{{ form.as_table }}</table>
-      <input type="submit" value="Confirm to create">
-    </form>
-
-    <a href="{% url 'administrators:sessions' %}">Back to Sessions</a>
+    <a href="{% url 'administrators:create_session' %}">Back to Sessions</a>
 
   </div>
 </div>
-
 
 {% endblock %}

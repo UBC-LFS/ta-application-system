@@ -11,6 +11,7 @@
     <table class="table">
       <thead>
         <tr>
+          <th>ID</th>
           <th>First Name</th>
           <th>Last Name</th>
           <th>CWL</th>
@@ -21,6 +22,7 @@
       <tbody>
         {% for instructor in instructors %}
           <tr>
+            <td>{{ instructor.id }}</td>
             <td>{{ instructor.first_name }}</td>
             <td>{{ instructor.last_name }}</td>
             <td>{{ instructor.username }}</td>

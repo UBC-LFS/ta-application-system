@@ -12,6 +12,7 @@
     <table class="table table-sm table-striped" data-toggle="table" data-sortable="true" data-classes="" data-pagination="true" data-search="true">
       <thead>
         <tr>
+          <th>ID</th>
           <th data-sortable="true">Year</th>
           <th data-sortable="true">Term</th>
           <th data-sortable="true">Job</th>
@@ -27,13 +28,12 @@
       <tbody>
         {% for job in jobs %}
           <tr>
+            <td>{{ job.id }}</td>
             <td>{{ job.session.year }}</td>
             <td>{{ job.session.term.code }}</td>
             <td>{{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</td>
             <td>
-              <button type="button" data-toggle="modal" data-target="#job-details-modal-{{ job.id }}" class="btn btn-sm btn-info">
-                View
-              </button>
+              <button type="button" data-toggle="modal" data-target="#job-details-modal-{{ job.id }}" class="btn btn-sm btn-info">View</button>
               <div class="modal fade" id="job-details-modal-{{ job.id }}" tabindex="-1" role="dialog" aria-labelledby="job-details-modal-label-{{ job.id }}" aria-hidden="true">
                 <div class="modal-dialog modal-lg" role="document">
                   <div class="modal-content">
