@@ -32,13 +32,14 @@
           <th>Updated at</th>
           <th></th>
           <th></th>
-          <th></th>
         </tr>
       </thead>
       <tbody>
         {% for session in archived_sessions %}
           <tr>
-            <td>{{ session.id }}</td>
+            <td>
+              <a href="{% url 'administrators:show_session' session_slug=session.slug path='archived_sessions' %}">{{ session.id }}</a>
+            </td>
             <td>{{ session.year }}</td>
             <td>{{ session.term.code }}</td>
             <td>{{ session.title }}</td>
@@ -48,9 +49,6 @@
             <td>{{ session.is_archived }}</td>
             <td>{{ session.created_at }}</td>
             <td>{{ session.updated_at }}</td>
-            <td>
-              <a class="btn btn-sm btn-info btn-block" href="{% url 'administrators:show_session' session.slug %}">View</a>
-            </td>
             <td>
               <a class="btn btn-sm btn-warning btn-block" href="{% url 'administrators:edit_session' session_slug=session.slug path='archived_sessions' %}">Edit</a>
             </td>

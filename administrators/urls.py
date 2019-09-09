@@ -18,32 +18,24 @@ urlpatterns = [
     path('sessions/archived/', views.archived_sessions, name='archived_sessions'),
     path('sessions/delete/<str:path>/', views.delete_session, name='delete_session'),
     path('sessions/<str:session_slug>/edit/<str:path>/', views.edit_session, name='edit_session'),
-    path('sessions/<str:session_slug>/', views.show_session, name='show_session'),
+    path('sessions/<str:session_slug>/<str:path>/', views.show_session, name='show_session'),
     path('sessions/', views.sessions, name='sessions'),
 
-    path('jobs/prepare/', views.prepare_jobs, name='prepare_jobs'),
-    path('jobs/progress/', views.progress_jobs, name='progress_jobs'),
-    path('jobs/student/', views.student_jobs, name='student_jobs'),
-    path('jobs/instructor/', views.instructor_jobs, name='instructor_jobs'),
+    path('sessions/<str:session_slug>/jobs/<str:job_slug>/<str:path>/', views.show_job, name='show_job'),
+    path('jobs/<str:type>/', views.type_jobs, name='type_jobs'),
     path('jobs/', views.jobs, name='jobs'),
     path('instructors/<str:username>/job/details/', views.instructor_jobs_details, name='instructor_jobs_details'),
     path('sessions/<str:session_slug>/jobs/<str:job_slug>/edit/', views.edit_job, name='edit_job'),
-    path('sessions/<str:session_slug>/jobs/<str:job_slug>/', views.show_job, name='show_job'),
 
-    #path('sessions/<str:session_slug>/jobs/<str:job_slug>/assign_ta_hours', views.assign_ta_hours, name='assign_ta_hours'),
-    #path('sessions/<str:session_slug>/jobs/<str:job_slug>/add_instructors', views.add_instructors, name='add_instructors'),
-
-    path('applications/', views.applications, name='applications'),
-    path('applications/selected/', views.selected_applications, name='selected_applications'),
-    path('applications/offered/', views.offered_applications, name='offered_applications'),
-    path('applications/offered/send_email/', views.offered_applications_send_email, name='offered_applications_send_email'),
     path('applications/offered/send_email/confirmation', views.offered_applications_send_email_confirmation, name='offered_applications_send_email_confirmation'),
-    path('applications/accepted/', views.accepted_applications, name='accepted_applications'),
-    path('applications/declined/', views.declined_applications, name='declined_applications'),
+    path('applications/offered/send_email/', views.offered_applications_send_email, name='offered_applications_send_email'),
+    path('applications/<str:type>/', views.type_applications, name='type_applications'),
     path('sessions/<str:session_slug>/jobs/<str:job_slug>/offer_job/', views.offer_job, name='offer_job'),
-    path('sessions/<str:session_slug>/jobs/<str:job_slug>/edit_job_application/', views.edit_job_application, name='edit_job_application'),
+
+    #path('sessions/<str:session_slug>/jobs/<str:job_slug>/edit_job_application/', views.edit_job_application, name='edit_job_application'),
     path('applications/<str:app_slug>/', views.show_application, name='show_application'),
     path('applications/offered/email_history', views.email_history, name='email_history'),
+    path('applications/', views.applications, name='applications'),
 
     path('hr/', views.hr, name='hr'),
     path('hr/users/create/', views.create_user, name='create_user'),
@@ -88,5 +80,13 @@ urlpatterns = [
     path('preparation/trainings/delete/', views.delete_training, name='delete_training'),
     path('preparation/trainings/<str:slug>/edit/', views.edit_training, name='edit_training'),
     path('preparation/trainings/', views.trainings, name='trainings'),
+
+    #path('sessions/<str:session_slug>/jobs/<str:job_slug>/assign_ta_hours', views.assign_ta_hours, name='assign_ta_hours'),
+    #path('sessions/<str:session_slug>/jobs/<str:job_slug>/add_instructors', views.add_instructors, name='add_instructors'),
+
+    #path('applications/selected/', views.selected_applications, name='selected_applications'),
+    #path('applications/offered/', views.offered_applications, name='offered_applications'),
+    #path('applications/accepted/', views.accepted_applications, name='accepted_applications'),
+    #path('applications/declined/', views.declined_applications, name='declined_applications'),
 
 ]

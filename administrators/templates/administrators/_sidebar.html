@@ -1,4 +1,3 @@
-
 <nav id="sidebar" class="mCustomScrollbar" data-mcs-theme="dark">
   <ul class="nav flex-column">
     <li class="nav-item">
@@ -28,33 +27,34 @@
       <h4><a class="nav-link" href="{% url 'administrators:jobs' %}">Jobs</a></h4>
     </li>
     <li class="nav-item">
-      <a class="nav-link text-secondary" href="{% url 'administrators:prepare_jobs' %}">Prepare Jobs</a>
+      <a class="nav-link text-secondary" href="{% url 'administrators:type_jobs' type='prepare_jobs' %}">Prepare Jobs</a>
     </li>
     <li class="nav-item">
-      <a class="nav-link text-secondary" href="{% url 'administrators:progress_jobs' %}">Jobs in Progress</a>
+      <a class="nav-link text-secondary" href="{% url 'administrators:type_jobs' type='progress_jobs' %}">Jobs in Progress</a>
     </li>
     <li class="nav-item">
-      <a class="nav-link text-secondary" href="{% url 'administrators:instructor_jobs' %}">Jobs by Instructor</a>
+      <a class="nav-link text-secondary" href="{% url 'administrators:type_jobs' type='instructor_jobs' %}">Jobs by Instructor</a>
     </li>
     <li class="nav-item">
-      <a class="nav-link text-secondary" href="{% url 'administrators:student_jobs' %}">Jobs by Student</a>
+      <a class="nav-link text-secondary" href="{% url 'administrators:type_jobs' type='student_jobs' %}">Jobs by Student</a>
     </li>
 
     <li class="nav-item">
       <h4><a class="nav-link" href="{% url 'administrators:applications' %}">Applications</a></h4>
     </li>
     <li class="nav-item">
-      <a class="nav-link text-secondary" href="{% url 'administrators:selected_applications' %}">Selected Applications</a>
+      <a class="nav-link text-secondary" href="{% url 'administrators:type_applications' type='selected_applications' %}">Selected Applications</a>
     </li>
     <li class="nav-item">
-      <a class="nav-link text-secondary" href="{% url 'administrators:offered_applications' %}">Offered Applications</a>
+      <a class="nav-link text-secondary" href="{% url 'administrators:type_applications' type='offered_applications' %}">Offered Applications</a>
     </li>
     <li class="nav-item">
-      <a class="nav-link text-secondary" href="{% url 'administrators:accepted_applications' %}">Accepted Applications</a>
+      <a class="nav-link text-secondary" href="{% url 'administrators:type_applications' type='accepted_applications' %}">Accepted Applications</a>
     </li>
     <li class="nav-item">
-      <a class="nav-link text-secondary" href="{% url 'administrators:declined_applications' %}">Declined Applications</a>
+      <a class="nav-link text-secondary" href="{% url 'administrators:type_applications' type='declined_applications' %}">Declined Applications</a>
     </li>
+
     <li class="nav-item">
       <a class="nav-link text-secondary" href="{% url 'administrators:email_history' %}">Email History</a>
     </li>

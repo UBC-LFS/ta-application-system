@@ -31,7 +31,6 @@
           <th>Is Archived</th>
           <th>Created at</th>
           <th>Updated at</th>
-          <td></td>
           <th></th>
           <th></th>
         </tr>
@@ -39,7 +38,9 @@
       <tbody>
         {% for session in not_archived_sessions %}
           <tr>
-            <td>{{ session.id }}</td>
+            <td>
+              <a href="{% url 'administrators:show_session' session_slug=session.slug path='current_sessions' %}">{{ session.id }}</a>
+            </td>
             <td>{{ session.year }}</td>
             <td>{{ session.term.code }}</td>
             <td>{{ session.title }}</td>
@@ -49,9 +50,6 @@
             <td>{{ session.is_archived }}</td>
             <td>{{ session.created_at }}</td>
             <td>{{ session.updated_at }}</td>
-            <td>
-              <a class="btn btn-sm btn-info btn-block" href="{% url 'administrators:show_session' session.slug %}">View</a>
-            </td>
             <td>
               <a class="btn btn-sm btn-warning btn-block" href="{% url 'administrators:edit_session' session_slug=session.slug path='current_sessions' %}">Edit</a>
             </td>
