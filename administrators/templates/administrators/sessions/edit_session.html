@@ -1,31 +1,30 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
 
-<div class="wrapper">
-  {% include "administrators//_sidebar.html" %}
 
-  <div id="content" class="container-fluid">
-    <h3>Edit Session</h3>
+{% include "administrators//_sidebar.html" %}
 
-    <h3>{{ session.year }} {{ session.term.name }} {{ session.title }}</h3>
+<div id="content" class="container-fluid">
+  <h3>Edit Session</h3>
 
-    <nav class="margin-top-10" aria-label="breadcrumb">
-      <ol class="breadcrumb">
-        <li class="breadcrumb-item">
-          <a href="{% url 'administrators:sessions' %}">Sessions</a>
-        </li>
-        <li class="breadcrumb-item active" aria-current="page">Edit Session</li>
-      </ol>
-    </nav>
+  <h3>{{ session.year }} {{ session.term.name }} {{ session.title }}</h3>
 
-    <form class="edit-session-form" action="" method="post">
-      {% csrf_token %}
-      <table>{{ form.as_table }}</table>
-      <input type="submit" value="Update" />
-    </form>
+  <nav class="margin-top-10" aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a href="{% url 'administrators:sessions' %}">Sessions</a>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">Edit Session</li>
+    </ol>
+  </nav>
 
-    <a href="{% url 'administrators:sessions' %}">Back to Sessions</a>
-  </div>
+  <form class="edit-session-form" action="" method="post">
+    {% csrf_token %}
+    <table>{{ form.as_table }}</table>
+    <input type="submit" value="Update" />
+  </form>
+
+  <a href="{% url 'administrators:sessions' %}">Back to Sessions</a>
 </div>
 
 {% endblock %}

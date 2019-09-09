@@ -5,63 +5,63 @@
 {% include "administrators/_sidebar.html" %}
   
 <div id="content" class="container-fluid">
-    {% if messages %}
-      {% for message in messages %}
-        <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
-          {{ message }}
-          <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        </div>
-      {% endfor %}
-    {% endif %}
-
-    <h1>Courses</h1>
-
-    <div class="bd-callout bd-callout-warning">
-      <h5>Checkpoint!</h5>
-      <p>Text area</p>
-    </div>
-
-    <div class="card border-secondary">
-      <h5 class="card-header bg-secondary text-white">Featured</h5>
-      <div class="card-body">
-        <h5 class="card-title">Special title treatment</h5>
-        <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-        <a href="#" class="btn btn-primary">Go somewhere</a>
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
       </div>
-    </div>
+    {% endfor %}
+  {% endif %}
 
-    <h5 class="sub-title">List of Courses</h5>
+  <h1>Courses</h1>
 
-    <table class="table table-sm table-striped" data-toggle="table" data-sortable="true" data-classes="" data-pagination="true" data-search="true">
-      <thead>
-        <tr>
-          <th data-sortable="true">Course</th>
-          <th data-sortable="true">Term</th>
-          <th data-sortable="true">Name</th>
-          <th></th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for course in courses %}
-          <tr>
-            <td>{{ course.code }} {{ course.number }} {{ course.section }}</td>
-            <td>{{ course.term.code }}</td>
-            <td>{{ course.name }}</td>
-            <td>
-              <a class="btn btn-sm btn-warning btn-block" href="{% url 'administrators:edit_course' course.slug %}">Edit</a>
-            </td>
-            <td>
-              <form action="{% url 'administrators:delete_course' %}" method="post" onsubmit="return confirm('Are you sure to delete {{ course.code }} {{ course.number }} {{ course.section }} - {{ course.name }}?');">
-                {% csrf_token %}
-                <input type="hidden" name="course" value="{{ course.id }}">
-                <input class="btn btn-sm btn-danger btn-block" type="submit" value="Delete" />
-              </form>
-            </td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+  <div class="bd-callout bd-callout-warning">
+    <h5>Checkpoint!</h5>
+    <p>Text area</p>
   </div>
+
+  <div class="card border-secondary">
+    <h5 class="card-header bg-secondary text-white">Featured</h5>
+    <div class="card-body">
+      <h5 class="card-title">Special title treatment</h5>
+      <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+      <a href="#" class="btn btn-primary">Go somewhere</a>
+    </div>
+  </div>
+
+  <h5 class="sub-title">List of Courses</h5>
+
+  <table class="table table-sm table-striped" data-toggle="table" data-sortable="true" data-classes="" data-pagination="true" data-search="true">
+    <thead>
+      <tr>
+        <th data-sortable="true">Course</th>
+        <th data-sortable="true">Term</th>
+        <th data-sortable="true">Name</th>
+        <th></th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for course in courses %}
+        <tr>
+          <td>{{ course.code }} {{ course.number }} {{ course.section }}</td>
+          <td>{{ course.term.code }}</td>
+          <td>{{ course.name }}</td>
+          <td>
+            <a class="btn btn-sm btn-warning btn-block" href="{% url 'administrators:edit_course' course.slug %}">Edit</a>
+          </td>
+          <td>
+            <form action="{% url 'administrators:delete_course' %}" method="post" onsubmit="return confirm('Are you sure to delete {{ course.code }} {{ course.number }} {{ course.section }} - {{ course.name }}?');">
+              {% csrf_token %}
+              <input type="hidden" name="course" value="{{ course.id }}">
+              <input class="btn btn-sm btn-danger btn-block" type="submit" value="Delete" />
+            </form>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
 
 {% endblock %}
