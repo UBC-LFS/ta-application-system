@@ -16,9 +16,9 @@ urlpatterns = [
     path('confidentiality/check/', views.check_confidentiality, name='check_confidentiality'),
     path('confidentiality/submit/', views.submit_confidentiality, name='submit_confidentiality'),
     path('confidentiality/edit/', views.edit_confidentiality, name='edit_confidentiality'),
-    path('confidentiality/sin/<str:filename>/download/', views.download_sin, name='download_sin'),
+    path('confidentiality/<str:username>/sin/<str:filename>/download/', views.download_sin, name='download_sin'),
     path('confidentiality/sin/delete/', views.delete_sin, name='delete_sin'),
-    path('confidentiality/study_permit/<str:filename>/download/', views.download_study_permit, name='download_study_permit'),
+    path('confidentiality/<str:username>/study_permit/<str:filename>/download/', views.download_study_permit, name='download_study_permit'),
     path('confidentiality/study_permit/delete/', views.delete_study_permit, name='delete_study_permit'),
 
 

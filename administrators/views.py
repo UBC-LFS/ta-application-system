@@ -669,17 +669,11 @@ def email_history(request):
         'emails': adminApi.get_emails()
     })
 
-
-
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
 def show_application(request, path, app_slug):
     ''' '''
-
-    print('show_application')
-    print(path)
-
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
 
@@ -843,8 +837,7 @@ def show_user(request, username):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
 def view_confidentiality(request):
-
-    if not userApi.is_valid_user(request.user): raise PermissionDenied
+    ''' '''
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
 

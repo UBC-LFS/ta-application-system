@@ -318,9 +318,10 @@ def edit_confidentiality(request):
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-def download_sin(request, filename):
+def download_sin(request, username, filename):
+    print('download_sin', filename)
     if not userApi.is_valid_user(request.user): raise PermissionDenied
-    path = 'users/{0}/sin/{1}/'.format(request.user.username, filename)
+    path = 'users/{0}/sin/{1}/'.format(username, filename)
     return serve(request, path, document_root=settings.MEDIA_ROOT)
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -348,10 +349,10 @@ def delete_sin(request):
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-def download_study_permit(request, filename):
+def download_study_permit(request, username, filename):
     if not userApi.is_valid_user(request.user): raise PermissionDenied
 
-    path = 'users/{0}/study_permit/{1}/'.format(request.user.username, filename)
+    path = 'users/{0}/study_permit/{1}/'.format(username, filename)
     return serve(request, path, document_root=settings.MEDIA_ROOT)
 
 

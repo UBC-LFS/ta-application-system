@@ -11,6 +11,7 @@
         <h3 class="margin-top-30">Infomation</h3>
 
         <ul class="list-group">
+          <li class="list-group-item"><b>ID:</b> {{ user.id }}</li>
           <li class="list-group-item"><b>First Name:</b> {{ user.first_name }}</li>
           <li class="list-group-item"><b>Last Name:</b> {{ user.last_name }}</li>
           <li class="list-group-item"><b>CWL:</b> {{ user.username }}</li>
@@ -23,7 +24,7 @@
         <div class="">
           <h3 class="margin-top-30">Resume:</h3>
           {% if resume_file %}
-            <a href="{% url 'users:download_user_resume' username=user.username filename=resume_file %}" target="_blank">
+            <a href="{% url 'students:download_resume' username=user.username filename=resume_file %}" target="_blank">
               {{ resume_file }}
             </a>
             - {{ user.resume.created_at }}

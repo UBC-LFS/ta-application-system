@@ -21,6 +21,7 @@
     <table class="table table-sm table-striped" data-toggle="table" data-sortable="true" data-classes="" data-pagination="true" data-search="true">
       <thead>
         <tr>
+          <th>ID</th>
           <th data-sortable="true">First Name</th>
           <th data-sortable="true">Prefered Name</th>
           <th data-sortable="true">Last Name</th>
@@ -28,7 +29,6 @@
           <th data-sortable="true">UBC Number</th>
           <th data-sortable="true">Role</th>
           <th data-sortable="true">Email</th>
-          <th>Actions</th>
           <th></th>
           <th></th>
         </tr>
@@ -36,6 +36,9 @@
       <tbody>
       {% for user in users %}
         <tr>
+          <td>
+            <a href="{% url 'administrators:show_user' user.username %}">{{ user.id }}</a>
+          </td>
           <td>{{ user.first_name }}</td>
           <td>{{ user.profile.preferred_name }}</td>
           <td>{{ user.last_name }}</td>
@@ -47,9 +50,6 @@
             {% endfor %}
           </td>
           <td>{{ user.email }}</td>
-          <td>
-            <a class="btn btn-sm btn-info" href="{% url 'administrators:show_user' user.username %}">Details</a>
-          </td>
           <td>
             <button type="button" class="btn btn-sm btn-warning" data-toggle="modal" data-target="#users-modal-{{ user.id }}">Change Role</button>
             <div class="modal fade" id="users-modal-{{ user.id }}" tabindex="-1" role="dialog" aria-labelledby="users-modal-label-{{ user.id }}" aria-hidden="true">

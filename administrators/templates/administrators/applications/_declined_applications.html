@@ -33,7 +33,7 @@
         <td>
           <ul>
             {% for st in app.status.all %}
-              <li>{{ st.get_assigned_display }} - {{ st.assigned_hours }} - {{ st.created_at }}</li>
+              <li>{{ st.get_assigned_display }}: {{ st.assigned_hours }} - {{ st.created_at }}</li>
             {% empty %}
               No status found
             {% endfor %}
@@ -46,7 +46,7 @@
         <td>{{ app.created_at }}</td>
         <td>{{ app.updated_at }}</td>
         <td>
-          <a href="{% url 'administrators:show_application' app.slug %}">View Details</a>
+
         </td>
       </tr>
     {% empty %}
