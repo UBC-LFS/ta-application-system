@@ -1,0 +1,79 @@
+{% extends 'ta_app/base.html' %}
+{% block content %}
+
+<div class="wrapper">
+  {% include "administrators/_sidebar.html" %}
+
+  <div id="content" class="container-fluid">
+
+    <h3>Session Details</h3>
+
+    <div class="card">
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item"><b>ID:</b> {{ session.id }}</li>
+        <li class="list-group-item"><b>Year:</b> {{ session.year }}</li>
+        <li class="list-group-item"><b>Term:</b> {{ session.term.name }} ({{ session.term.code }})</li>
+        <li class="list-group-item"><b>Title:</b> {{ session.title }}</li>
+        <li class="list-group-item"><b>Description:</b> {{ session.description }}</li>
+        <li class="list-group-item"><b>Note:</b> {{ session.note }}</li>
+        <li class="list-group-item"><b>Is Visible:</b> {{ session.is_visible }}</li>
+        <li class="list-group-item"><b>Is Archived:</b> {{ session.is_archived }}</li>
+        <li class="list-group-item"><b>Created At:</b> {{ session.created_at }}</li>
+        <li class="list-group-item"><b>Updated At:</b> {{ session.updated_at }}</li>
+        <li class="list-group-item"><b>Slug:</b> {{ session.slug }}</li>
+      </ul>
+    </div>
+
+    <hr />
+
+    <h3 class="margin-top-30">Jobs</h3>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Year</th>
+          <th>Term</th>
+          <th>Job</th>
+          <th>Instructors</th>
+          <th>Is Active</th>
+          <th>Created at</th>
+          <th>Updated at</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for job in session.job_set.all %}
+          <tr>
+            <td>
+              <a href="{% url 'administrators:show_job' session_slug=job.session.slug job_slug=job.course.slug path=path %}">{{ job.id }}</a>
+            </td>
+            <td>{{ job.session.year }}</td>
+            <td>{{ job.course.term.code }}</td>
+            <td>{{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</td>
+            <td>
+              {% for instructor in job.instructors.all %}
+                {{ instructor.first_name }} {{ instructor.last_name }},
+              {% empty %}
+                None
+              {% endfor %}
+            </td>
+            <td>{{ job.is_active }}</td>
+            <td>{{ job.created_at }}</td>
+            <td>{{ job.updated_at }}</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td>No jobs found.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    {% if path == 'current_sessions' %}
+      <a href="{% url 'administrators:current_sessions' %}">Back to Current Sessions</a>
+    {% else %}
+      <a href="{% url 'administrators:archived_sessions' %}">Back to Archived Sessions</a>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}

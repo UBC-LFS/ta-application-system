@@ -1,8 +1,9 @@
 import os
 from django.conf import settings
 from django.shortcuts import get_object_or_404
+from django.core.exceptions import PermissionDenied
 from django.contrib.auth.models import User
-from .models import *
+from users.models import *
 
 from datetime import datetime
 
@@ -10,41 +11,40 @@ from datetime import datetime
 from django.utils.crypto import get_random_string
 
 
+
+
 # for auth
 
 def is_valid_user(user):
-    """ Check if an user is valid or not """
+    ''' Check if an user is valid or not '''
     if user.is_anonymous or not user.is_authenticated:
         return False
     return True
 
 def is_admin(user):
-    """ Check if an user is an Admin or Superadmin"""
-    if 'Admin' in user['roles'] or 'Superadmin' in user['roles']:
+    ''' Check if an user is an Admin or Superadmin '''
+    if 'Admin' in user.roles or 'Superadmin' in user.roles:
         return True
     return False
 
-
 def loggedin_user(user):
+    ''' Get a logged in user '''
+    if not is_valid_user(user): PermissionDenied
+
     roles = []
     for role in user.profile.roles.all():
-        if role.name == 'Student':
-            roles.append('Student')
-        elif role.name == 'Instructor':
-            roles.append('Instructor')
-        elif role.name == 'HR':
-            roles.append('HR')
-        elif role.name == 'Admin':
-            roles.append('Admin')
-        elif role.name == 'Superadmin':
-            roles.append('Superadmin')
-
-    return {
-        'is_authenticated': user.is_authenticated,
-        'id': user.id,
-        'username': user.username,
-        'roles': roles
-    }
+        if role.name == Role.STUDENT:
+            roles.append(Role.STUDENT)
+        elif role.name == Role.INSTRUCTOR:
+            roles.append(Role.INSTRUCTOR)
+        elif role.name == Role.HR:
+            roles.append(Role.HR)
+        elif role.name == Role.ADMIN:
+            roles.append(Role.ADMIN)
+        elif role.name == Role.SUPERADMIN:
+            roles.append(Role.SUPERADMIN)
+    user.roles = roles
+    return user
 
 
 # Users
@@ -269,6 +269,22 @@ def file_exists(user, folder, file):
     return exists
 """
 
+def get_instructors():
+    instructors = []
+    for user in get_users():
+        if user.profile.roles.filter(name='Instructor').exists():
+            instructors.append(user)
+    return instructors
+
+
+def get_students():
+    students = []
+    for user in get_users():
+        if user.profile.roles.filter(name='Student').exists():
+            students.append(user)
+    return students
+
+
 
 
 def delete_existing_file(user, folder, file):
@@ -328,25 +344,126 @@ def create_user_confidentiality(user):
     return True if confidentiality else None
 
 
-# Role
-def get_roles():
-    """ Get all roles """
+# ----- Roles -----
 
+def get_roles():
+    ''' Get all roles '''
     return Role.objects.all()
 
 def get_role(role_id):
-    """ Get a role """
+    ''' Get a role by id '''
+    return get_object_or_404(Role, id=role_id)
 
-    try:
-        return Role.objects.get(id=role_id)
-    except Role.DoesNotExist:
-        return None
+def get_role_by_slug(slug):
+    ''' Get a role by code '''
+    return get_object_or_404(Role, slug=slug)
 
+def delete_role(role_id):
+    ''' Delete a role '''
+    role = get_role(role_id)
+    role.delete()
+    return role if role else False
+
+
+"""
 def delete_roles():
-    """ Delete all roles """
-
     roles = Role.objects.all().delete()
     return True if roles else None
+"""
+
+
+
+# ----- Statuses -----
+
+def get_statuses():
+    ''' Get all statuses '''
+    return Status.objects.all()
+
+def get_status(status_id):
+    ''' Get a status by id '''
+    return get_object_or_404(Status, id=status_id)
+
+def get_status_by_slug(slug):
+    ''' Get a status by code '''
+    return get_object_or_404(Status, slug=slug)
+
+def delete_status(status_id):
+    ''' Delete a status '''
+    status = get_status(status_id)
+    status.delete()
+    return status if status else False
+
+
+
+# ----- programs -----
+
+def get_programs():
+    ''' Get all programs '''
+    return Program.objects.all()
+
+def get_program(program_id):
+    ''' Get a program by id '''
+    return get_object_or_404(Program, id=program_id)
+
+def get_program_by_slug(slug):
+    ''' Get a program by code '''
+    return get_object_or_404(Program, slug=slug)
+
+def delete_program(program_id):
+    ''' Delete a program '''
+    program = get_program(program_id)
+    program.delete()
+    return program if program else False
+
+
+# ----- Degrees -----
+
+def get_degrees():
+    ''' Get all degrees '''
+    return Degree.objects.all()
+
+def get_degree(degree_id):
+    ''' Get a degree by id '''
+    return get_object_or_404(Degree, id=degree_id)
+
+def get_degree_by_slug(slug):
+    ''' Get a degree by code '''
+    return get_object_or_404(Degree, slug=slug)
+
+def delete_degree(degree_id):
+    ''' Delete a degree '''
+    degree = get_degree(degree_id)
+    degree.delete()
+    return degree if degree else False
+
+
+# ----- trainings -----
+
+def get_trainings():
+    ''' Get all trainings '''
+    return Training.objects.all()
+
+def get_training(training_id):
+    ''' Get a training by id '''
+    return get_object_or_404(Training, id=training_id)
+
+def get_training_by_slug(slug):
+    ''' Get a training by code '''
+    return get_object_or_404(Training, slug=slug)
+
+def delete_training(training_id):
+    ''' Delete a training '''
+    training = get_training(training_id)
+    training.delete()
+    return training if training else False
+
+
+
+
+
+
+
+
 
 
 # Confidentiality
@@ -373,108 +490,10 @@ def create_confidentiality(user):
     return True if confidentiality else None
 
 
-# Training
-
-def get_trainings():
-    return Training.objects.all()
-
-def get_training(slug):
-    try:
-        return Training.objects.get(slug=slug)
-    except Training.DoesNotExist:
-        return None
-
-def delete_training(training_id):
-    try:
-        training = Training.objects.get(id=training_id)
-        training.delete()
-        return training
-    except Training.DoesNotExist:
-        return None
-
-
-# Program
-
-def get_programs():
-    return Program.objects.all()
-
-def get_program(slug):
-    try:
-        return Program.objects.get(slug=slug)
-    except Program.DoesNotExist:
-        return None
-
-def delete_program(program_id):
-    try:
-        program = Program.objects.get(id=program_id)
-        program.delete()
-        return program
-    except Program.DoesNotExist:
-        return None
-
-
-# Degree
-
-def get_degrees():
-    return Degree.objects.all()
-
-def get_degree(slug):
-    try:
-        return Degree.objects.get(slug=slug)
-    except Degree.DoesNotExist:
-        return None
-
-def delete_degree(degree_id):
-    try:
-        degree = Degree.objects.get(id=degree_id)
-        degree.delete()
-        return degree
-    except Degree.DoesNotExist:
-        return None
-
-
-# Role
-
-def get_roles():
-    return Role.objects.all()
-
-def get_role(slug):
-    try:
-        return Role.objects.get(slug=slug)
-    except Role.DoesNotExist:
-        return None
-
-def delete_role(role_id):
-    try:
-        role = Role.objects.get(id=role_id)
-        role.delete()
-        return role
-    except Role.DoesNotExist:
-        return None
-
-
-# Status
-
-def get_statuses():
-    return Status.objects.all()
-
-def get_status(slug):
-    try:
-        return Status.objects.get(slug=slug)
-    except Status.DoesNotExist:
-        return None
-
-def delete_status(status_id):
-    try:
-        status = Status.objects.get(id=status_id)
-        status.delete()
-        return status
-    except Status.DoesNotExist:
-        return None
 
 
 
-# to be removed
+# to be removed --------------
 
 
 def get_profile(user):

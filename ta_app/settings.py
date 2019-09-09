@@ -28,6 +28,16 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+# Send email
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
+EMAIL_HOST_USER = ''
+EMAIL_HOST_PASSWORD = ''
+EMAIL_HOST = os.environ['TA_APP_EMAIL_HOST']
+EMAIL_FROM = os.environ['TA_APP_EMAIL_FROM']
+
+TA_APP_URL = os.environ['TA_APP_URL']
+
 
 # Application definition
 

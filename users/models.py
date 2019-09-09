@@ -6,77 +6,24 @@ from django.utils.text import slugify
 from django.core.validators import FileExtensionValidator
 
 from administrators.models import Course
-import shutil
+
 import datetime as dt
 
 
 
-"""
-ROLES = [
-    { 'name': 'Student' },
-    { 'name': 'Instructor' },
-    { 'name': 'HR' },
-    { 'name': 'Admin' },
-    { 'name': 'Superadmin' }
-]
-
-STATUSES = [
-    { 'name': 'Undergraduate student' },
-    { 'name': 'Master student' },
-    { 'name': 'Ph.D student' },
-    { 'name': 'Instructor' },
-    { 'name': 'Assistance Professor' },
-    { 'name': 'Professor' },
-    { 'name': 'Other' }
-]
-"""
-
-class Program(models.Model):
-    name = models.CharField(max_length=256, unique=True)
-    slug = models.SlugField(max_length=256, unique=True)
-
-    def __str__(self):
-        return self.name
-
-    def save(self, *args, **kwargs):
-        """ Make a slug """
-        self.slug = slugify(self.name)
-        super(Program, self).save(*args, **kwargs)
-
-class Degree(models.Model):
-    name = models.CharField(max_length=256)
-    slug = models.SlugField(max_length=256, unique=True)
-
-    def __str__(self):
-        return self.name
-
-    def save(self, *args, **kwargs):
-        """ Make a slug """
-        self.slug = slugify(self.name)
-        super(Degree, self).save(*args, **kwargs)
-
-class Training(models.Model):
-    name = models.CharField(max_length=256, unique=True)
-    slug = models.SlugField(max_length=256, unique=True)
-
-    def __str__(self):
-        return self.name
-
-    def save(self, *args, **kwargs):
-        """ Make a slug """
-        self.slug = slugify(self.name)
-        super(Training, self).save(*args, **kwargs)
-
-
 class Role(models.Model):
+    SUPERADMIN = 'Superadmin'
+    ADMIN = 'Admin'
+    HR = 'HR'
+    INSTRUCTOR = 'Instructor'
+    STUDENT = 'Student'
+
     name = models.CharField(max_length=256, unique=True)
     slug = models.SlugField(max_length=256, unique=True)
 
-    def __str__(self):
-        return self.name
-
+    class Meta: ordering = ['pk']
+    def __str__(self): return self.name
     def save(self, *args, **kwargs):
-        """ Make a slug """
         self.slug = slugify(self.name)
         super(Role, self).save(*args, **kwargs)
 
@@ -85,22 +32,48 @@ class Status(models.Model):
     name = models.CharField(max_length=256, unique=True)
     slug = models.SlugField(max_length=256, unique=True)
 
-    def __str__(self):
-        return self.name
-
+    class Meta: ordering = ['pk']
+    def __str__(self): return self.name
     def save(self, *args, **kwargs):
-        """ Make a slug """
         self.slug = slugify(self.name)
         super(Status, self).save(*args, **kwargs)
+
+class Program(models.Model):
+    name = models.CharField(max_length=256, unique=True)
+    slug = models.SlugField(max_length=256, unique=True)
+
+    class Meta: ordering = ['pk']
+    def __str__(self): return self.name
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.name)
+        super(Program, self).save(*args, **kwargs)
+
+class Degree(models.Model):
+    name = models.CharField(max_length=256)
+    slug = models.SlugField(max_length=256, unique=True)
+
+    class Meta: ordering = ['pk']
+    def __str__(self): return self.name
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.name)
+        super(Degree, self).save(*args, **kwargs)
+
+class Training(models.Model):
+    name = models.CharField(max_length=256, unique=True)
+    slug = models.SlugField(max_length=256, unique=True)
+
+    class Meta: ordering = ['pk']
+    def __str__(self): return self.name
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.name)
+        super(Training, self).save(*args, **kwargs)
 
 
 
 def create_sin_path(instance, filename):
-    print("create_sin_path", filename)
     return os.path.join('users', str(instance.user.username), 'sin', filename)
 
 def create_study_permit_path(instance, filename):
-    print("create_study_permit_path", filename)
     return os.path.join('users', str(instance.user.username), 'study_permit', filename)
 
 

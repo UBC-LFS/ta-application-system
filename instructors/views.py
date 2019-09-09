@@ -8,9 +8,11 @@ from django.core.exceptions import PermissionDenied
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.cache import cache_control
 
+from administrators.models import *
 from administrators.forms import *
-from users import api as usersApi
 from administrators import api as administratorsApi
+from users import api as usersApi
+
 
 from datetime import datetime
 
@@ -25,9 +27,22 @@ def index(request):
     if 'Instructor' not in loggedin_user['roles']: raise PermissionDenied
 
     return render(request, 'instructors/index.html', {
+        'loggedin_user': loggedin_user
+    })
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def profile(request):
+    if not usersApi.is_valid_user(request.user): raise PermissionDenied
+    loggedin_user = usersApi.loggedin_user(request.user)
+    if 'Instructor' not in loggedin_user['roles']: raise PermissionDenied
+
+    return render(request, 'instructors/profile.html', {
         'loggedin_user': loggedin_user,
         'user': usersApi.get_user(request.user.id)
     })
+
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -42,8 +57,6 @@ def my_jobs(request):
         'loggedin_user': loggedin_user,
         'user': usersApi.get_user(request.user.id)
     })
-
-
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -92,9 +105,8 @@ def get_applications(request, session_slug, job_slug):
     if request.method == 'POST':
         form = InstructorApplicationForm(request.POST)
         if form.is_valid():
-            data = request.POST
-            application_id = data.get('application')
-            instructor_preference = data.get('instructor_preference')
+            application_id = request.POST.get('application')
+            instructor_preference = request.POST.get('instructor_preference')
             updated_application = administratorsApi.update_application_instructor_preference(application_id, instructor_preference)
             if updated_application:
                 messages.success(request, 'Success! Instructor Preference is selected for {0} '.format(updated_application.applicant.username))
@@ -107,9 +119,7 @@ def get_applications(request, session_slug, job_slug):
     return render(request, 'instructors/jobs/get_applications.html', {
         'loggedin_user': loggedin_user,
         'job': administratorsApi.get_session_job_by_slug(session_slug, job_slug),
-        'form': InstructorApplicationForm(initial={
-            'instructor_preference': instructor_preference
-        })
+        'instructor_preference_choices': Application.INSTRUCTOR_PREFERENCE_CHOICES
     })
 
 

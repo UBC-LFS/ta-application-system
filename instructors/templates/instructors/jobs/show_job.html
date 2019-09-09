@@ -1,43 +1,46 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
 
-<div class="">
-  {% include "instructors/_sidebar.html" %}
+<div class="wrapper">
+  {% include "administrators/_sidebar.html" %}
+
+  <div id="content" class="container-fluid">
+
+    <h3>Job Details</h3>
+
+    <ul>
+      <li>Year: {{ job.session.year }}</li>
+      <li>Term: {{ job.session.term.name }}</li>
+      <li>Created at: {{ job.created_at }}</li>
+      <li>Updated at: {{ job.updated_at }}</li>
+      <li>Job Code: {{ job.course.code.name }}</li>
+      <li>Job Number: {{ job.course.number.name }}</li>
+      <li>Job Section: {{ job.course.section.name }}</li>
+      <li>
+        Intstructors:
+        {% for instructor in job.instructors.all %}
+          {{ instructor.username }},
+        {% endfor %}
+      </li>
+    </ul>
+
+
+    <p>Job Title:</p>
+    <p>{{ job.title }}</p>
+
+    <p>Job Description:</p>
+    <p>{{ job.description }}</p>
+
+    <p>Job Qualification:</p>
+    <p>{{ job.qualification }}</p>
+
+    <p>Note:</p>
+    <p>{{ job.note }}</p>
+
+    <a href="{% url 'instructors:my_jobs' %}">Back</a> |
+    <a href="{% url 'instructors:edit_job' session_slug=session.slug job_slug=job.course.slug %}">Update Job Details</a>
+
+  </div>
 </div>
-
-<h3>Job Details</h3>
-
-<ul>
-  <li>Year: {{ job.session.year }}</li>
-  <li>Term: {{ job.session.term.name }}</li>
-  <li>Created at: {{ job.created_at }}</li>
-  <li>Updated at: {{ job.updated_at }}</li>
-  <li>Job Code: {{ job.course.code.name }}</li>
-  <li>Job Number: {{ job.course.number.name }}</li>
-  <li>Job Section: {{ job.course.section.name }}</li>
-  <li>
-    Intstructors:
-    {% for instructor in job.instructors.all %}
-      {{ instructor.username }},
-    {% endfor %}
-  </li>
-</ul>
-
-
-<p>Job Title:</p>
-<p>{{ job.title }}</p>
-
-<p>Job Description:</p>
-<p>{{ job.description }}</p>
-
-<p>Job Qualification:</p>
-<p>{{ job.qualification }}</p>
-
-<p>Note:</p>
-<p>{{ job.note }}</p>
-
-<a href="{% url 'instructors:my_jobs' %}">Back</a> |
-<a href="{% url 'instructors:edit_job' session_slug=session.slug job_slug=job.course.slug %}">Update Job Details</a>
-
 
 {% endblock %}

@@ -20,13 +20,13 @@ def local_login(request):
             if user is not None and request.POST['password'] is not None:
                 AuthLogin(request, user)
                 loggedin_user = userApi.loggedin_user(user)
-                if 'Admin' in loggedin_user['roles'] or 'Superadmin' in loggedin_user['roles']:
+                if 'Admin' in loggedin_user.roles or 'Superadmin' in loggedin_user.roles:
                     return redirect('administrators:index')
-                elif 'HR' in loggedin_user['roles']:
+                elif 'HR' in loggedin_user.roles:
                     return redirect('human_resources:index')
-                elif 'Instructor' in loggedin_user['roles']:
+                elif 'Instructor' in loggedin_user.roles:
                     return redirect('instructors:index')
-                elif 'Student' in loggedin_user['roles']:
+                elif 'Student' in loggedin_user.roles:
                     return redirect('students:index')
 
     return render(request, 'accounts/local_login.html', { 'form': LocalLoginForm() })

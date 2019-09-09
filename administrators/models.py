@@ -5,30 +5,49 @@ from django.contrib.auth.models import User
 from django.utils.text import slugify
 
 
+
+class Term(models.Model):
+    """ Create a Term model """
+    code = models.CharField(max_length=2, unique=True)
+    name = models.CharField(max_length=256)
+
+    class Meta:
+        ordering = ['pk']
+
+    def __str__(self):
+        return self.code
+
+
 class CourseCode(models.Model):
     """ Create a CourseCode model """
     name = models.CharField(max_length=5, unique=True)
+
+    class Meta:
+        ordering = ['pk']
+
     def __str__(self):
         return self.name
 
 class CourseNumber(models.Model):
     """ Create a CourseNumber model """
     name = models.CharField(max_length=5, unique=True)
+    class Meta:
+        ordering = ['pk']
+
     def __str__(self):
         return self.name
 
 class CourseSection(models.Model):
     """ Create a CourseSection model """
     name = models.CharField(max_length=5, unique=True)
+
+    class Meta:
+        ordering = ['pk']
+
     def __str__(self):
         return self.name
 
-class Term(models.Model):
-    """ Create a Term model """
-    code = models.CharField(max_length=2, unique=True)
-    name = models.CharField(max_length=256)
-    def __str__(self):
-        return self.code
+
 
 
 
@@ -164,7 +183,7 @@ class Application(models.Model):
     classification = models.CharField(max_length=1, choices=CLASSIFICATION_CHOICES, default='0')
     note = models.TextField(null=True, blank=True)
 
-    instructor_preference = models.CharField(max_length=1, choices=INSTRUCTOR_PREFERENCE_CHOICES,  default='0')
+    instructor_preference = models.CharField(max_length=1, choices=INSTRUCTOR_PREFERENCE_CHOICES, default='0')
 
     created_at = models.DateField(default=dt.date.today)
     updated_at = models.DateField(default=dt.date.today)
@@ -177,3 +196,15 @@ class Application(models.Model):
         """ Make a slug """
         self.slug = slugify(self.job.session.slug + ' ' + self.job.course.slug + ' application by ' + self.applicant.username)
         super(Application, self).save(*args, **kwargs)
+
+
+class Email(models.Model):
+    sender = models.CharField(max_length=256)
+    receiver = models.CharField(max_length=256)
+    title = models.CharField(max_length=256)
+    message = models.TextField()
+    type = models.CharField(max_length=256)
+    created_at = models.DateField(default=dt.date.today)
+
+    class Meta:
+        ordering = ['-pk']
