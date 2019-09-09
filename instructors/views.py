@@ -21,10 +21,8 @@ from datetime import datetime
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
 def index(request):
-
-    if not usersApi.is_valid_user(request.user): raise PermissionDenied
     loggedin_user = usersApi.loggedin_user(request.user)
-    if 'Instructor' not in loggedin_user['roles']: raise PermissionDenied
+    if 'Instructor' not in loggedin_user.roles: raise PermissionDenied
 
     return render(request, 'instructors/index.html', {
         'loggedin_user': loggedin_user
@@ -34,9 +32,8 @@ def index(request):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
 def profile(request):
-    if not usersApi.is_valid_user(request.user): raise PermissionDenied
     loggedin_user = usersApi.loggedin_user(request.user)
-    if 'Instructor' not in loggedin_user['roles']: raise PermissionDenied
+    if 'Instructor' not in loggedin_user.roles: raise PermissionDenied
 
     return render(request, 'instructors/profile.html', {
         'loggedin_user': loggedin_user,
@@ -48,10 +45,8 @@ def profile(request):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
 def my_jobs(request):
-
-    if not usersApi.is_valid_user(request.user): raise PermissionDenied
     loggedin_user = usersApi.loggedin_user(request.user)
-    if 'Instructor' not in loggedin_user['roles']: raise PermissionDenied
+    if 'Instructor' not in loggedin_user.roles: raise PermissionDenied
 
     return render(request, 'instructors/jobs/my_jobs.html', {
         'loggedin_user': loggedin_user,
@@ -62,9 +57,8 @@ def my_jobs(request):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET', 'POST'])
 def edit_job(request, session_slug, job_slug):
-    if not usersApi.is_valid_user(request.user): raise PermissionDenied
     loggedin_user = usersApi.loggedin_user(request.user)
-    if 'Instructor' not in loggedin_user['roles']: raise PermissionDenied
+    if 'Instructor' not in loggedin_user.roles: raise PermissionDenied
 
     user = usersApi.get_user(request.user.id)
     job = administratorsApi.get_session_job_by_slug(session_slug, job_slug)
@@ -95,9 +89,8 @@ def edit_job(request, session_slug, job_slug):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET', 'POST'])
 def get_applications(request, session_slug, job_slug):
-    if not usersApi.is_valid_user(request.user): raise PermissionDenied
     loggedin_user = usersApi.loggedin_user(request.user)
-    if 'Instructor' not in loggedin_user['roles']: raise PermissionDenied
+    if 'Instructor' not in loggedin_user.roles: raise PermissionDenied
 
     user = usersApi.get_user(request.user.id)
     job = administratorsApi.get_session_job_by_slug(session_slug, job_slug)
@@ -131,7 +124,7 @@ def show_job(request, session_slug, job_slug):
 
     if not usersApi.is_valid_user(request.user): raise PermissionDenied
     loggedin_user = usersApi.loggedin_user(request.user)
-    if 'Instructor' not in loggedin_user['roles']: raise PermissionDenied
+    if 'Instructor' not in loggedin_user.roles: raise PermissionDenied
 
 
     job = administratorsApi.get_session_job_by_slug(session_slug, job_slug)

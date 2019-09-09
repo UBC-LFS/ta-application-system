@@ -270,6 +270,7 @@ def file_exists(user, folder, file):
 """
 
 def get_instructors():
+    ''' '''
     instructors = []
     for user in get_users():
         if user.profile.roles.filter(name='Instructor').exists():
@@ -278,13 +279,12 @@ def get_instructors():
 
 
 def get_students():
+    ''' '''
     students = []
     for user in get_users():
         if user.profile.roles.filter(name='Student').exists():
             students.append(user)
     return students
-
-
 
 
 def delete_existing_file(user, folder, file):

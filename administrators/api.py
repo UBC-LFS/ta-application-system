@@ -210,11 +210,8 @@ def get_job_application_applied_by_student(user):
     return jobs
 
 
-
-
-# checked
 def get_jobs_applied_by_student(user):
-    """ Get all jobs applied by a student """
+    ''' Get all jobs applied by a student '''
     jobs = []
     for job in get_jobs():
         if job.application_set.filter(applicant__id=user.id).exists():
@@ -466,6 +463,7 @@ def get_declined(application):
 
 
 def get_offered_jobs_by_student(user, student_jobs):
+    ''' '''
     jobs = []
     summary = {}
     for job in student_jobs:
@@ -473,6 +471,14 @@ def get_offered_jobs_by_student(user, student_jobs):
             if app.applicant.id == user.id:
                 if app.status.filter(assigned=ApplicationStatus.OFFERED).exists():
                     status = app.status.get(assigned=ApplicationStatus.OFFERED)
+
+                    accepted = None
+                    declined = None
+                    if app.status.filter(assigned=ApplicationStatus.ACCEPTED).exists():
+                        accepted = app.status.get(assigned=ApplicationStatus.ACCEPTED)
+                    if app.status.filter(assigned=ApplicationStatus.DECLINED).exists():
+                        declined = app.status.get(assigned=ApplicationStatus.DECLINED)
+
                     jobs.append({
                         'year': job.session.year,
                         'term': job.session.term.code,
@@ -480,7 +486,11 @@ def get_offered_jobs_by_student(user, student_jobs):
                         'course_number': job.course.number.name,
                         'course_section': job.course.section.name,
                         'assigned_status': 'Offered',
-                        'assigned_hours': status.assigned_hours
+                        'assigned_hours': status.assigned_hours,
+                        'session_slug': job.session.slug,
+                        'job_slug': job.course.slug,
+                        'accepted': accepted,
+                        'declined': declined
                     })
                     year_term = '{0}-{1}'.format(job.session.year, job.session.term.code)
                     if year_term in summary.keys():

@@ -25,6 +25,7 @@ urlpatterns = [
     path('jobs/<str:type>/', views.type_jobs, name='type_jobs'),
     path('jobs/', views.jobs, name='jobs'),
     path('instructors/<str:username>/job/details/', views.instructor_jobs_details, name='instructor_jobs_details'),
+    path('students/<str:username>/job/details/', views.student_jobs_details, name='student_jobs_details'),
     path('sessions/<str:session_slug>/jobs/<str:job_slug>/edit/', views.edit_job, name='edit_job'),
 
     path('applications/offered/send_email/confirmation/', views.offered_applications_send_email_confirmation, name='offered_applications_send_email_confirmation'),

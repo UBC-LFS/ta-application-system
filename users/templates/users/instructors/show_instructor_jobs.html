@@ -77,7 +77,7 @@
         <td>{{ app.applicant.username }}</td>
         <td>
           {% for st in app.status.all %}
-            {{ st.get_assigned_display }} - {{ st.assigned_hours }} hours
+            {{ st.get_assigned_display }}: {{ st.assigned_hours }} hours at {{ at.created_at }}
           {% endfor %}
         </td>
         <td>

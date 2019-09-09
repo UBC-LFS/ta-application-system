@@ -14,10 +14,8 @@ from users import api as usersApi
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
 def index(request):
-
-    if not usersApi.is_valid_user(request.user): raise PermissionDenied
     loggedin_user = usersApi.loggedin_user(request.user)
-    if 'HR' not in loggedin_user['roles']: raise PermissionDenied
+    if 'HR' not in loggedin_user.roles: raise PermissionDenied
 
     return render(request, 'human_resources/index.html', {
         'loggedin_user': loggedin_user

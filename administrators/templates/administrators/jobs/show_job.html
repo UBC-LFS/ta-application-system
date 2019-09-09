@@ -62,15 +62,13 @@
       <tbody>
         {% for app in job.application_set.all %}
           <tr>
-            <td>
-              <a href="{% url 'administrators:show_application' app.slug %}">{{ app.id }}</a>
-            </td>
+            <td>{{ app.id }}</td>
             <td>{{ app.applicant.first_name }} {{ app.applicant.last_name }}</td>
             <td>{{ app.applicant.username }}</td>
             <td>
               <ul>
                 {% for st in app.status.all %}
-                  <li>{{ st.get_assigned_display }} - {{ st.assigned_hours }} hours - {{ st.created_at }}</li>
+                  <li>{{ st.get_assigned_display }}: {{ st.assigned_hours }} hours at {{ st.created_at }}</li>
                 {% endfor %}
               </ul>
             </td>

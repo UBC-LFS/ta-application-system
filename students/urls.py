@@ -27,14 +27,15 @@ urlpatterns = [
     path('jobs/<str:session_slug>/jobs/<str:job_slug>/apply/', views.apply_job, name='apply_job'),
     path('jobs/applied/', views.applied_jobs, name='applied_jobs'),
     path('jobs/offered/', views.offered_jobs, name='offered_jobs'),
+    path('jobs/<str:session_slug>/jobs/<str:job_slug>/offered/', views.offered_job, name='offered_job'),
+    path('sessions/<str:session_slug>/jobs/<str:job_slug>/accept_offer/', views.accept_offer, name='accept_offer'),
+    path('sessions/<str:session_slug>/jobs/<str:job_slug>/decline_offer/', views.decline_offer, name='decline_offer'),
     path('jobs/accepted/', views.accepted_jobs, name='accepted_jobs'),
     path('jobs/declined/', views.declined_jobs, name='declined_jobs'),
 
     #path('students/<str:username>/', views.show_student, name='show_student'),
     #path('students/<str:username>/edit/', views.edit_student, name='edit_student'),
     #path('students/<str:username>/applied/sessions/<str:session_slug>/jobs/<str:job_slug>/', views.show_student_job, name='show_student_job'),
-    #path('students/<str:username>/applied/sessions/<str:session_slug>/jobs/<str:job_slug>/accept_offer/', views.accept_offer, name='accept_offer'),
-    #path('students/<str:username>/applied/sessions/<str:session_slug>/jobs/<str:job_slug>/decline_offer/', views.decline_offer, name='decline_offer'),
 
     #path('students/<str:username>/upload_resume', views.upload_resume, name='upload_resume'),
     #path('students/<str:username>/resume/<str:filename>/download/', views.download_resume, name='download_resume'),

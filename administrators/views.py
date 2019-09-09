@@ -370,7 +370,7 @@ def type_jobs(request, type):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
 def instructor_jobs_details(request, username):
-    if not userApi.is_valid_user(request.user): raise PermissionDenied
+    ''' '''
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
 
@@ -378,6 +378,19 @@ def instructor_jobs_details(request, username):
     return render(request, 'administrators/jobs/instructor_jobs_details.html', {
         'loggedin_user': loggedin_user,
         'instructor': instructor
+    })
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def student_jobs_details(request, username):
+    ''' '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user): raise PermissionDenied
+
+    return render(request, 'administrators/jobs/student_jobs_details.html', {
+        'loggedin_user': loggedin_user,
+        'student': userApi.get_user_by_username(username)
     })
 
 
@@ -662,20 +675,18 @@ def email_history(request):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
 def show_application(request, path, app_slug):
+    ''' '''
 
     print('show_application')
     print(path)
 
-    if not userApi.is_valid_user(request.user): raise PermissionDenied
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
 
     return render(request, 'administrators/applications/show_application.html', {
         'loggedin_user': userApi.loggedin_user(request.user),
         'app': adminApi.get_application_slug(app_slug),
-        'form': AdminApplicationForm(initial={
-            'assigned': ApplicationStatus.OFFERED
-        }),
+        'form': AdminApplicationForm(initial={ 'assigned': ApplicationStatus.OFFERED }),
         'path': path
     })
 
