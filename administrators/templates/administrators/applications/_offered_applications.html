@@ -6,6 +6,7 @@
     <table class="table table-responsive-lg">
       <thead>
         <tr>
+          <th>Select</th>
           <th>ID</th>
           <th>Year</th>
           <th>Term</th>
@@ -13,12 +14,11 @@
           <th>Applicant</th>
           <th>Status</th>
           <th>Availability</th>
-          <th>Classification</th>
           <th>Instructor Preference</th>
+          <th>Classification</th>
           <th>Note</th>
           <th>Created at</th>
           <th>Updated at</th>
-          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -26,6 +26,9 @@
           <tr>
             <td>
               <input type="checkbox" name="application" value="{{ app.id }}" />
+            </td>
+            <td>
+              <a href="{% url 'administrators:show_application' path='offered_applications' app_slug=app.slug %}">{{ app.id }}</a>
             </td>
             <td>{{ app.job.session.year }}</td>
             <td>{{ app.job.session.term.code }}</td>
@@ -41,14 +44,11 @@
               </ul>
             </td>
             <td>{{ app.availability }}</td>
-            <td>{{ app.get_classification_display }}</td>
             <td>{{ app.get_instructor_preference_display }}</td>
+            <td>{{ app.get_classification_display }}</td>
             <td>{{ app.note }}</td>
             <td>{{ app.created_at }}</td>
             <td>{{ app.updated_at }}</td>
-            <td>
-              <a href="{% url 'administrators:show_application' app.slug %}">View Details</a>
-            </td>
           </tr>
         {% endfor %}
       </tbody>

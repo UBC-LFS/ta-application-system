@@ -21,7 +21,9 @@
   <tbody>
     {% for app in selected_applications %}
       <tr>
-        <td>{{ app.id }}</td>
+        <td>
+          <a href="{% url 'administrators:show_application' path='selected_applications' app_slug=app.slug %}">{{ app.id }}</a>
+        </td>
         <td>{{ app.job.session.year }}</td>
         <td>{{ app.job.session.term.code }}</td>
         <td>
@@ -50,8 +52,6 @@
         <td>{{ app.note }}</td>
         <td>{{ app.updated_at }}</td>
         <td>
-          <a href="{% url 'administrators:show_application' app.slug %}">Details</a>
-
           <button type="button" data-toggle="modal" data-target="#jobApplicationModal-{{ app.id }}">Edit</button>
           <div class="modal fade" id="jobApplicationModal-{{ app.id }}" tabindex="-1" role="dialog" aria-labelledby="jobApplicationModalLabel-{{ app.id }}" aria-hidden="true">
             <div class="modal-dialog modal-lg" role="document">
@@ -111,5 +111,3 @@
     {% endfor %}
   </tbody>
 </table>
-
-<a class="btn btn-secondary" href="{% url 'administrators:applications' %}">Back to Applications</a>

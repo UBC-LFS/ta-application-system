@@ -21,7 +21,9 @@
   <tbody>
     {% for app in accepted_applications %}
       <tr>
-        <td>{{ app.id }}</td>
+        <td>
+          <a href="{% url 'administrators:show_application' path='accepted_applications' app_slug=app.slug %}">{{ app.id }}</a>
+        </td>
         <td>{{ app.job.session.year }}</td>
         <td>{{ app.job.session.term.code }}</td>
         <td>
@@ -80,5 +82,3 @@
     {% endfor %}
   </tbody>
 </table>
-
-<a class="btn btn-secondary" href="{% url 'administrators:applications' %}">Back to Applications</a>

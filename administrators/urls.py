@@ -6,8 +6,8 @@ app_name = 'administrators'
 urlpatterns = [
     path('', views.index, name='index'),
 
-    path('courses/all', views.all_courses, name='all_courses'),
-    path('courses/create', views.create_course, name='create_course'),
+    path('courses/all/', views.all_courses, name='all_courses'),
+    path('courses/create/', views.create_course, name='create_course'),
     path('courses/delete/', views.delete_course, name='delete_course'),
     path('courses/<str:course_slug>/edit/', views.edit_course, name='edit_course'),
     path('courses/', views.courses, name='courses'),
@@ -27,22 +27,20 @@ urlpatterns = [
     path('instructors/<str:username>/job/details/', views.instructor_jobs_details, name='instructor_jobs_details'),
     path('sessions/<str:session_slug>/jobs/<str:job_slug>/edit/', views.edit_job, name='edit_job'),
 
-    path('applications/offered/send_email/confirmation', views.offered_applications_send_email_confirmation, name='offered_applications_send_email_confirmation'),
+    path('applications/offered/send_email/confirmation/', views.offered_applications_send_email_confirmation, name='offered_applications_send_email_confirmation'),
     path('applications/offered/send_email/', views.offered_applications_send_email, name='offered_applications_send_email'),
+    path('applications/<str:path>/details/<str:app_slug>/', views.show_application, name='show_application'),
     path('applications/<str:type>/', views.type_applications, name='type_applications'),
     path('sessions/<str:session_slug>/jobs/<str:job_slug>/offer_job/', views.offer_job, name='offer_job'),
     path('sessions/<str:session_slug>/jobs/<str:job_slug>/edit_job_application/', views.edit_job_application, name='edit_job_application'),
-    path('applications/<str:app_slug>/', views.show_application, name='show_application'),
-    path('applications/offered/email_history', views.email_history, name='email_history'),
+    path('applications/offered/email_history/', views.email_history, name='email_history'),
     path('applications/', views.applications, name='applications'),
 
     path('hr/', views.hr, name='hr'),
     path('hr/users/create/', views.create_user, name='create_user'),
     path('hr/users/', views.users, name='users'),
     path('hr/users/<str:username>/', views.show_user, name='show_user'),
-    path('hr/confidentiality/view', views.view_confidentiality, name='view_confidentiality'),
-
-    path('preparation/', views.preparation, name='preparation'),
+    path('hr/confidentiality/view/', views.view_confidentiality, name='view_confidentiality'),
 
     path('preparation/terms/delete/', views.delete_term, name='delete_term'),
     path('preparation/terms/<str:code>/edit/', views.edit_term, name='edit_term'),
@@ -80,12 +78,9 @@ urlpatterns = [
     path('preparation/trainings/<str:slug>/edit/', views.edit_training, name='edit_training'),
     path('preparation/trainings/', views.trainings, name='trainings'),
 
+    path('preparation/', views.preparation, name='preparation'),
+
     #path('sessions/<str:session_slug>/jobs/<str:job_slug>/assign_ta_hours', views.assign_ta_hours, name='assign_ta_hours'),
     #path('sessions/<str:session_slug>/jobs/<str:job_slug>/add_instructors', views.add_instructors, name='add_instructors'),
-
-    #path('applications/selected/', views.selected_applications, name='selected_applications'),
-    #path('applications/offered/', views.offered_applications, name='offered_applications'),
-    #path('applications/accepted/', views.accepted_applications, name='accepted_applications'),
-    #path('applications/declined/', views.declined_applications, name='declined_applications'),
 
 ]

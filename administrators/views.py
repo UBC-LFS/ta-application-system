@@ -352,8 +352,10 @@ def type_jobs(request, type):
         jobs = adminApi.get_jobs()
     elif type == 'instructor_jobs':
         instructors = userApi.get_instructors()
-    else:
+    elif type == 'student_jobs':
         students = userApi.get_students()
+    else:
+        raise Http404
 
     return render(request, 'administrators/jobs/type_jobs.html', {
         'loggedin_user': loggedin_user,
@@ -474,8 +476,10 @@ def type_applications(request, type):
         offered_applications = adminApi.get_offered_applications()
     elif type == 'accepted_applications':
         accepted_applications = adminApi.get_accepted_applications()
-    else:
+    elif type == 'declined_applications':
         declined_applications = adminApi.get_declined_applications()
+    else:
+        raise Http404
 
     return render(request, 'administrators/applications/type_applications.html', {
         'loggedin_user': loggedin_user,
@@ -657,7 +661,10 @@ def email_history(request):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
-def show_application(request, app_slug):
+def show_application(request, path, app_slug):
+
+    print('show_application')
+    print(path)
 
     if not userApi.is_valid_user(request.user): raise PermissionDenied
     loggedin_user = userApi.loggedin_user(request.user)
@@ -668,7 +675,8 @@ def show_application(request, app_slug):
         'app': adminApi.get_application_slug(app_slug),
         'form': AdminApplicationForm(initial={
             'assigned': ApplicationStatus.OFFERED
-        })
+        }),
+        'path': path
     })
 
 # HR
