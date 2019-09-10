@@ -6,23 +6,15 @@
 
   <div id="content" class="container-fluid">
     {% if messages %}
-      {% for message in messages %}
-        <div class="alert alert-info">{{ message }}</div>
-      {% endfor %}
+    	{% for message in messages %}
+        <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        </div>
+    	{% endfor %}
     {% endif %}
 
-    <nav class="margin-top-10" aria-label="breadcrumb">
-      <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{% url 'students:show_confidentiality' %}">Confidentiality</a></li>
-        <li class="breadcrumb-item active" aria-current="page">Submit Confidentiality</li>
-      </ol>
-    </nav>
-
-
     <h3>Submit Confidentiality</h3>
-
-
-
 
     <p>Valid file types: jpg, jpeg, png, pdf, doc, docx</p>
 

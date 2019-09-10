@@ -23,7 +23,7 @@ urlpatterns = [
 
 
     path('jobs/explore/', views.explore_jobs, name='explore_jobs'),
-    path('jobs/<str:session_slug>/list/', views.list_jobs, name='list_jobs'),
+    path('sessions/<str:session_slug>/jobs/available/', views.available_jobs, name='available_jobs'),
     path('jobs/<str:session_slug>/jobs/<str:job_slug>/apply/', views.apply_job, name='apply_job'),
     path('jobs/applied/', views.applied_jobs, name='applied_jobs'),
     path('jobs/offered/', views.offered_jobs, name='offered_jobs'),

@@ -477,7 +477,6 @@ def type_applications(request, type):
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
 
-    print(type)
     selected_applications = None
     offered_applications = None
     accepted_applications = None

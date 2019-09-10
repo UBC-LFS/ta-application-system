@@ -49,19 +49,30 @@ def loggedin_user(user):
 
 # Users
 def get_user(user_id):
-    """ Get a user by id """
-    try:
-        return User.objects.get(id=user_id)
-    except User.DoesNotExist:
-        return None
+    ''' Get a user by id '''
+    user = get_object_or_404(User, id=user_id)
+    
+    if has_user_resume_created(user) and user.resume.file != None:
+        user.resume_file = os.path.basename(user.resume.file.name)
+    else:
+        user.resume_file = None
+
+    if has_user_confidentiality_created(user) and user.confidentiality.sin != None:
+        user.sin_file = os.path.basename(user.confidentiality.sin.name)
+    else:
+        user.sin_file = None
+
+    if has_user_confidentiality_created(user) and user.confidentiality.study_permit != None:
+        user.study_permit_file = os.path.basename(user.confidentiality.study_permit.name)
+    else:
+        user.study_permit_file = None
+
+    return user
+
 
 def get_user_by_username(username):
-    """ Get a user by username """
+    ''' Get a user by username '''
     return get_object_or_404(User, username=username)
-    """try:
-        return User.objects.get(username=username)
-    except User.DoesNotExist:
-        return None """
 
 def get_users():
     ''' Get all users '''

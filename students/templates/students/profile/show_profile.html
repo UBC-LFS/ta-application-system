@@ -14,11 +14,11 @@
       {% endfor %}
     {% endif %}
 
-    <h1>{{ user.first_name }} {{ user.last_name }}'s Profile</h1>
+    <h3>{{ user.first_name }} {{ user.last_name }}'s Profile</h3>
 
     <div class="row margin-top-30 margin-bottom-30">
       <div class="col-6">
-        <h3>Infomation</h3>
+        <h5>Infomation</h5>
 
         <ul class="list-group">
           <li class="list-group-item"><strong>First Name:</strong> {{ user.first_name }}</li>
@@ -30,36 +30,34 @@
           <li class="list-group-item"><strong>Last Login:</strong> {{ user.last_login }}</li>
         </ul>
 
-        <h3 class="margin-top-30">Upload a resume</h3>
+        <h5 class="margin-top-30">Resume</h5>
+        <div>
+          File:
+          {% if user.resume_file %}
+            <a href="{% url 'students:download_resume' username=user.username filename=user.resume_file %}" target="_blank">{{ user.resume_file }}</a>
+            <form action="{% url 'students:delete_resume' %}" method="post" onsubmit="return confirm('Are you sure to delete this resume?')">
+              {% csrf_token %}
+              <input type="hidden" name="user" value="{{ user.username }}">
+              <input type="submit" value="Delete" />
+            </form>
+            <div>Uploaded date: {{ user.resume.created_at }}</div>
+          {% else %}
+            No resume
+          {% endif %}
 
-        Resume:
-        {% if resume_file %}
-          <a href="{% url 'students:download_resume' username=user.username filename=resume_file %}" target="_blank">
-            {{ resume_file }}
-          </a>
-          - {{ user.resume.created_at }}
-
-          <form action="{% url 'students:delete_resume' %}" method="post" onsubmit="return confirm('Are you sure to delete this resume?')">
+          <h5 class="margin-top-30">Upload your resume</h5>
+          <p>Valid file types: jpg, jpeg, png, pdf, doc, docx</p>
+          <form action="{% url 'students:upload_resume' user.username %}" method="post" enctype="multipart/form-data">
             {% csrf_token %}
-            <input type="hidden" name="user" value="{{ user.username }}">
-            <input type="submit" value="Delete" />
+            <table>{{ resume_form.as_table }}</table>
+            <input type="submit" value="Upload" />
           </form>
-
-        {% else %}
-          No resume
-        {% endif %}
-
-        <p>Valid file types: jpg, jpeg, png, pdf, doc, docx</p>
-        <form action="{% url 'students:upload_resume' user.username %}" method="post" enctype="multipart/form-data">
-          {% csrf_token %}
-          <table>{{ resume_form.as_table }}</table>
-          <input type="submit" value="Upload" />
-        </form>
+        </div>
       </div>
 
 
       <div class="col-6">
-        <h3>Profile</h3>
+        <h5>Profile</h5>
 
         <ul class="list-group">
           <li class="list-group-item"><strong>Created at:</strong> {{ user.profile.created_at }}</li>
