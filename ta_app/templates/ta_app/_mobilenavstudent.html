@@ -1,0 +1,18 @@
+<ul class="nav justify-content-center bg-primary">
+	<li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle text-white" data-toggle="dropdown" href="{% url 'students:show_profile' %}" role="button" aria-haspopup="true" aria-expanded="false">Profile</a>
+        <div class="dropdown-menu">
+            <a class="dropdown-item" href="{% url 'students:edit_profile' user.username %}">Edit Profile</a>
+            <a class="dropdown-item" href="{% url 'students:show_confidentiality' %}">Confidentiality</a>
+        </div>
+    </li>
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle text-white" data-toggle="dropdown" href="{% url 'students:explore_jobs' %}" role="button" aria-haspopup="true" aria-expanded="false">Explore Jobs</a>
+        <div class="dropdown-menu">
+            <a class="dropdown-item" href="{% url 'students:type_jobs' type='applied_jobs' %}">Applied Jobs</a>
+            <a class="dropdown-item" href="{% url 'students:type_jobs' type='offered_jobs' %}">Offered Jobs</a>
+            <a class="dropdown-item" href="{% url 'students:type_jobs' type='accepted_jobs' %}">Accepted Jobs</a>
+            <a class="dropdown-item" href="{% url 'students:type_jobs' type='declined_jobs' %}">Declined Jobs</a>
+        </div>
+    </li>
+</ul>
