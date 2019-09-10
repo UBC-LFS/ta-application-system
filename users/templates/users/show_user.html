@@ -83,7 +83,7 @@
         {% endif %}
       </li>
     </ul>
-  
+
     {% comment %} <a class="btn btn-warning margin-top-10" href="{% url 'users:edit_confidentiality' user.username %}">Edit Confidentiality</a> {% endcomment %}
   </div>
 
@@ -99,7 +99,7 @@
         {% for role in user.profile.roles.all %}
           {{ role.name }},
         {% endfor %}
-    
+
       </li>
       <li class="list-group-item"><b>Qualifications:</b> {{ user.profile.qualifications }}</li>
       <li class="list-group-item"><b>Prior Employment:</b> {{ user.profile.prior_employment }}</li>
@@ -198,7 +198,7 @@
                 {% if app.applicant.id == user.id %}
                   <ul>
                     {% for st in app.status.all %}
-                      <li>{{ st.get_assigned_display }} - {{ st.assigned_hours }} hours - {{ st.created_at }}</li>
+                      <li>{{ st.get_assigned_display }}: {{ st.assigned_hours }} hours at {{ st.created_at }}</li>
                     {% endfor %}
                   </ul>
                 {% endif %}
@@ -227,7 +227,7 @@
         <tr>
           <th>Year-Term</th>
           <th>Total Assigned Hours</th>
-        </tr>  
+        </tr>
       </thead>
       <tbody>
         {% for year_term, assigned_hours in offered_summary.items %}
@@ -260,7 +260,7 @@
         <tr>
           <th>Year-Term</th>
           <th>Total Assigned Hours</th>
-        </tr>  
+        </tr>
       </thead>
       <tbody>
         {% for year_term, assigned_hours in accepted_summary.items %}

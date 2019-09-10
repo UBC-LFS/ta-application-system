@@ -25,14 +25,15 @@ urlpatterns = [
     path('jobs/<str:type>/', views.type_jobs, name='type_jobs'),
     path('jobs/', views.jobs, name='jobs'),
     path('instructors/<str:username>/job/details/', views.instructor_jobs_details, name='instructor_jobs_details'),
+    path('students/<str:username>/job/details/', views.student_jobs_details, name='student_jobs_details'),
     path('sessions/<str:session_slug>/jobs/<str:job_slug>/edit/', views.edit_job, name='edit_job'),
 
     path('applications/offered/send_email/confirmation/', views.offered_applications_send_email_confirmation, name='offered_applications_send_email_confirmation'),
     path('applications/offered/send_email/', views.offered_applications_send_email, name='offered_applications_send_email'),
     path('applications/<str:path>/details/<str:app_slug>/', views.show_application, name='show_application'),
     path('applications/<str:type>/', views.type_applications, name='type_applications'),
-    path('sessions/<str:session_slug>/jobs/<str:job_slug>/offer_job/', views.offer_job, name='offer_job'),
-    path('sessions/<str:session_slug>/jobs/<str:job_slug>/edit_job_application/', views.edit_job_application, name='edit_job_application'),
+    path('sessions/<str:session_slug>/jobs/<str:job_slug>/offer/<str:type>/', views.offer_job, name='offer_job'),
+    path('sessions/<str:session_slug>/jobs/<str:job_slug>/application/edit/<str:type>/', views.edit_job_application, name='edit_job_application'),
     path('applications/offered/email_history/', views.email_history, name='email_history'),
     path('applications/', views.applications, name='applications'),
 

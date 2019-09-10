@@ -11,8 +11,10 @@
       {% include 'administrators/jobs/_progress_jobs.html' %}
     {% elif type == 'instructor_jobs' %}
       {% include 'administrators/jobs/_instructor_jobs.html' %}
-    {% else %}
+    {% elif type == 'student_jobs' %}
       {% include 'administrators/jobs/_student_jobs.html' %}
+    {% else %}
+      {% include 'ta_app/404.html' %}
     {% endif %}
   </div>
 </div>

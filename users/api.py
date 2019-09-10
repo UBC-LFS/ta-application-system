@@ -49,23 +49,43 @@ def loggedin_user(user):
 
 # Users
 def get_user(user_id):
-    """ Get a user by id """
-    try:
-        return User.objects.get(id=user_id)
-    except User.DoesNotExist:
-        return None
+    ''' Get a user by id '''
+    user = get_object_or_404(User, id=user_id)
+    
+    if has_user_resume_created(user) and user.resume.file != None:
+        user.resume_file = os.path.basename(user.resume.file.name)
+    else:
+        user.resume_file = None
+
+    if has_user_confidentiality_created(user) and user.confidentiality.sin != None:
+        user.sin_file = os.path.basename(user.confidentiality.sin.name)
+    else:
+        user.sin_file = None
+
+    if has_user_confidentiality_created(user) and user.confidentiality.study_permit != None:
+        user.study_permit_file = os.path.basename(user.confidentiality.study_permit.name)
+    else:
+        user.study_permit_file = None
+
+    return user
+
 
 def get_user_by_username(username):
-    """ Get a user by username """
+    ''' Get a user by username '''
     return get_object_or_404(User, username=username)
-    """try:
-        return User.objects.get(username=username)
-    except User.DoesNotExist:
-        return None """
 
 def get_users():
-    """ Get all users """
-    return User.objects.all().order_by('id')
+    ''' Get all users '''
+    users = []
+    for user in User.objects.all().order_by('id'):
+        if has_user_resume_created(user) and user.resume.file != None:
+            user.resume_file = os.path.basename(user.resume.file.name)
+        if has_user_confidentiality_created(user) and user.confidentiality.sin != None:
+            user.sin_file = os.path.basename(user.confidentiality.sin.name)
+        if has_user_confidentiality_created(user) and user.confidentiality.study_permit != None:
+            user.study_permit_file = os.path.basename(user.confidentiality.study_permit.name)
+        users.append(user)
+    return users
 
 def create_user(data):
     """ Create a user when receiving data from SAML """
@@ -225,7 +245,7 @@ def create_profile(user, data):
 
     preferred_name = data.get('preferred_name')
     roles = data.getlist('roles')
-    
+
     profile = Profile.objects.create(user_id=user.id, ubc_number=ubc_number, preferred_name=preferred_name)
     profile.roles.add( *roles )
     return True if profile else None
@@ -270,6 +290,7 @@ def file_exists(user, folder, file):
 """
 
 def get_instructors():
+    ''' '''
     instructors = []
     for user in get_users():
         if user.profile.roles.filter(name='Instructor').exists():
@@ -278,13 +299,12 @@ def get_instructors():
 
 
 def get_students():
+    ''' '''
     students = []
     for user in get_users():
         if user.profile.roles.filter(name='Student').exists():
             students.append(user)
     return students
-
-
 
 
 def delete_existing_file(user, folder, file):

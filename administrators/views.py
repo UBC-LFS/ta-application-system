@@ -370,7 +370,7 @@ def type_jobs(request, type):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
 def instructor_jobs_details(request, username):
-    if not userApi.is_valid_user(request.user): raise PermissionDenied
+    ''' '''
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
 
@@ -378,6 +378,19 @@ def instructor_jobs_details(request, username):
     return render(request, 'administrators/jobs/instructor_jobs_details.html', {
         'loggedin_user': loggedin_user,
         'instructor': instructor
+    })
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def student_jobs_details(request, username):
+    ''' '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user): raise PermissionDenied
+
+    return render(request, 'administrators/jobs/student_jobs_details.html', {
+        'loggedin_user': loggedin_user,
+        'student': userApi.get_user_by_username(username)
     })
 
 
@@ -464,7 +477,6 @@ def type_applications(request, type):
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
 
-    print(type)
     selected_applications = None
     offered_applications = None
     accepted_applications = None
@@ -491,7 +503,9 @@ def type_applications(request, type):
         'admin_application_form': AdminApplicationForm(),
         'status_form': ApplicationStatusForm(initial={
             'assigned': ApplicationStatus.OFFERED
-        })
+        }),
+        'classification_choices': Application.CLASSIFICATION_CHOICES,
+        'offer_status_code': ApplicationStatus.OFFERED
     })
 
 
@@ -499,10 +513,8 @@ def type_applications(request, type):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['POST'])
-def edit_job_application(request, session_slug, job_slug):
-    """ Edit classification and note """
-
-    if not userApi.is_valid_user(request.user): raise PermissionDenied
+def edit_job_application(request, session_slug, job_slug, type):
+    ''' '''
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
 
@@ -519,13 +531,13 @@ def edit_job_application(request, session_slug, job_slug):
         else:
             messages.error(request, 'Error!')
 
-    return redirect('administrators:selected_applications')
+    return HttpResponseRedirect( reverse('administrators:type_applications', args=[type]) )
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['POST'])
-def offer_job(request, session_slug, job_slug):
-    """ Admin can offer a job to each job"""
+def offer_job(request, session_slug, job_slug, type):
+    ''' Admin can offer a job to each job '''
 
     if not userApi.is_valid_user(request.user):
         raise PermissionDenied
@@ -555,7 +567,7 @@ def offer_job(request, session_slug, job_slug):
         else:
             messages.error(request, 'Error! Form is invalid')
 
-    return redirect('administrators:selected_applications')
+    return HttpResponseRedirect( reverse('administrators:type_applications', args=[type]) )
 
 
 
@@ -656,26 +668,18 @@ def email_history(request):
         'emails': adminApi.get_emails()
     })
 
-
-
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
 def show_application(request, path, app_slug):
-
-    print('show_application')
-    print(path)
-
-    if not userApi.is_valid_user(request.user): raise PermissionDenied
+    ''' '''
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
 
     return render(request, 'administrators/applications/show_application.html', {
         'loggedin_user': userApi.loggedin_user(request.user),
         'app': adminApi.get_application_slug(app_slug),
-        'form': AdminApplicationForm(initial={
-            'assigned': ApplicationStatus.OFFERED
-        }),
+        'form': AdminApplicationForm(initial={ 'assigned': ApplicationStatus.OFFERED }),
         'path': path
     })
 
@@ -832,8 +836,7 @@ def show_user(request, username):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
 def view_confidentiality(request):
-
-    if not userApi.is_valid_user(request.user): raise PermissionDenied
+    ''' '''
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
 

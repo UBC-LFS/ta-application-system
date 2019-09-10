@@ -7,7 +7,7 @@ from django.core.mail import send_mail
 
 from administrators.models import *
 from users.models import *
-from users import api as usersApi
+from users import api as userApi
 
 from datetime import datetime
 
@@ -210,11 +210,8 @@ def get_job_application_applied_by_student(user):
     return jobs
 
 
-
-
-# checked
 def get_jobs_applied_by_student(user):
-    """ Get all jobs applied by a student """
+    ''' Get all jobs applied by a student '''
     jobs = []
     for job in get_jobs():
         if job.application_set.filter(applicant__id=user.id).exists():
@@ -389,18 +386,15 @@ def get_selected_applications():
     for app in Application.objects.all():
         if app.instructor_preference != Application.NONE and app.instructor_preference != Application.NO_PREFERENCE:
             app.resume_file = None
-            if app.applicant.resume.file != None:
+            if userApi.has_user_resume_created(app.applicant) and app.applicant.resume.file != None:
                 app.resume_file = os.path.basename(app.applicant.resume.file.name)
+
+            app.has_offered = None
+            for st in app.status.all():
+                if st.assigned == ApplicationStatus.OFFERED:
+                    app.has_offered = st.assigned_hours
             applications.append(app)
     return applications
-
-
-    return Application.objects.filter( ~Q(instructor_preference=Application.NONE) & ~Q(instructor_preference=Application.NO_PREFERENCE) )
-
-
-def get_selected_applications2():
-    return Application.objects.filter( ~Q(instructor_preference=Application.NONE) & ~Q(instructor_preference=Application.NO_PREFERENCE) )
-
 
 def get_offered_applications():
     applications = []
@@ -466,6 +460,7 @@ def get_declined(application):
 
 
 def get_offered_jobs_by_student(user, student_jobs):
+    ''' '''
     jobs = []
     summary = {}
     for job in student_jobs:
@@ -473,6 +468,14 @@ def get_offered_jobs_by_student(user, student_jobs):
             if app.applicant.id == user.id:
                 if app.status.filter(assigned=ApplicationStatus.OFFERED).exists():
                     status = app.status.get(assigned=ApplicationStatus.OFFERED)
+
+                    accepted = None
+                    declined = None
+                    if app.status.filter(assigned=ApplicationStatus.ACCEPTED).exists():
+                        accepted = app.status.get(assigned=ApplicationStatus.ACCEPTED)
+                    if app.status.filter(assigned=ApplicationStatus.DECLINED).exists():
+                        declined = app.status.get(assigned=ApplicationStatus.DECLINED)
+
                     jobs.append({
                         'year': job.session.year,
                         'term': job.session.term.code,
@@ -480,7 +483,11 @@ def get_offered_jobs_by_student(user, student_jobs):
                         'course_number': job.course.number.name,
                         'course_section': job.course.section.name,
                         'assigned_status': 'Offered',
-                        'assigned_hours': status.assigned_hours
+                        'assigned_hours': status.assigned_hours,
+                        'session_slug': job.session.slug,
+                        'job_slug': job.course.slug,
+                        'accepted': accepted,
+                        'declined': declined
                     })
                     year_term = '{0}-{1}'.format(job.session.year, job.session.term.code)
                     if year_term in summary.keys():

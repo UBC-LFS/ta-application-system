@@ -114,7 +114,6 @@ class ApplicationStatus(models.Model):
     assigned = models.CharField(max_length=1, choices=ASSSIGNED_CHOICES, default=NONE)
     assigned_hours = models.FloatField(default=0.00)
     created_at = models.DateField(default=dt.date.today)
-    updated_at = models.DateField(default=dt.date.today)
 
 #checked
 class Job(models.Model):

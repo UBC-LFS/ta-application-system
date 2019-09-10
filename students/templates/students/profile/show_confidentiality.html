@@ -16,8 +16,6 @@
 
     <h3>Confidentiality</h3>
 
-
-
     {% if confidentiality and confidentiality.created_at != None %}
 
       <p>
@@ -26,8 +24,8 @@
 
       <div>
         SIN File:
-        {% if sin_file %}
-          <a href="{% url 'students:download_sin' filename=sin_file %}" target="_blank">{{ sin_file }}</a>
+        {% if user.sin_file %}
+          <a href="{% url 'students:download_sin' username=user.username filename=user.sin_file %}" target="_blank">{{ user.sin_file }}</a>
           <form action="{% url 'students:delete_sin' %}" method="post" onsubmit="return confirm('Are you sure to delete this SIN?')">
             {% csrf_token %}
             <input type="hidden" name="user" value="{{ user.username }}">
@@ -45,8 +43,8 @@
 
         <div>
           Study Permit File:
-          {% if study_permit_file %}
-            <a href="{% url 'students:download_study_permit' filename=study_permit_file %}" target="_blank">{{ study_permit_file }}</a>
+          {% if user.study_permit_file %}
+            <a href="{% url 'students:download_study_permit' username=user.username filename=user.study_permit_file %}" target="_blank">{{ user.study_permit_file }}</a>
             <form action="{% url 'students:delete_study_permit' %}" method="post" onsubmit="return confirm('Are you sure to delete this study permit?')">
               {% csrf_token %}
               <input type="hidden" name="user" value="{{ user.username }}">
@@ -86,7 +84,6 @@
           <input type="submit" value="I am a Canadian citizen/Permanent Resident" />
         </form>
       </div>
-
 
     {% endif %}
   </div>
