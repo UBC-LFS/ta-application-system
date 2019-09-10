@@ -503,7 +503,9 @@ def type_applications(request, type):
         'admin_application_form': AdminApplicationForm(),
         'status_form': ApplicationStatusForm(initial={
             'assigned': ApplicationStatus.OFFERED
-        })
+        }),
+        'classification_choices': Application.CLASSIFICATION_CHOICES,
+        'offer_status_code': ApplicationStatus.OFFERED
     })
 
 
@@ -511,10 +513,8 @@ def type_applications(request, type):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['POST'])
-def edit_job_application(request, session_slug, job_slug):
-    """ Edit classification and note """
-
-    if not userApi.is_valid_user(request.user): raise PermissionDenied
+def edit_job_application(request, session_slug, job_slug, type):
+    ''' '''
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
 
@@ -531,13 +531,13 @@ def edit_job_application(request, session_slug, job_slug):
         else:
             messages.error(request, 'Error!')
 
-    return redirect('administrators:selected_applications')
+    return HttpResponseRedirect( reverse('administrators:type_applications', args=[type]) )
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['POST'])
-def offer_job(request, session_slug, job_slug):
-    """ Admin can offer a job to each job"""
+def offer_job(request, session_slug, job_slug, type):
+    ''' Admin can offer a job to each job '''
 
     if not userApi.is_valid_user(request.user):
         raise PermissionDenied
@@ -567,7 +567,7 @@ def offer_job(request, session_slug, job_slug):
         else:
             messages.error(request, 'Error! Form is invalid')
 
-    return redirect('administrators:selected_applications')
+    return HttpResponseRedirect( reverse('administrators:type_applications', args=[type]) )
 
 
 

@@ -1,0 +1,9 @@
+<h3>Declined Jobs</h3>
+
+<ul>
+  {% for job in declined_jobs %}
+    <li>{{ job.year }} {{ job.term }} - {{ job.course_code }} {{ job.course_number }} {{ job.course_section }}: {{ job.assigned_status }} {{ job.assigned_hours }} hours</li>
+  {% empty %}
+    <li>No declined jobs found</li>
+  {% endfor %}
+</ul>

@@ -7,7 +7,7 @@ from django.core.mail import send_mail
 
 from administrators.models import *
 from users.models import *
-from users import api as usersApi
+from users import api as userApi
 
 from datetime import datetime
 
@@ -386,18 +386,15 @@ def get_selected_applications():
     for app in Application.objects.all():
         if app.instructor_preference != Application.NONE and app.instructor_preference != Application.NO_PREFERENCE:
             app.resume_file = None
-            if app.applicant.resume.file != None:
+            if userApi.has_user_resume_created(app.applicant) and app.applicant.resume.file != None:
                 app.resume_file = os.path.basename(app.applicant.resume.file.name)
+
+            app.has_offered = None
+            for st in app.status.all():
+                if st.assigned == ApplicationStatus.OFFERED:
+                    app.has_offered = st.assigned_hours
             applications.append(app)
     return applications
-
-
-    return Application.objects.filter( ~Q(instructor_preference=Application.NONE) & ~Q(instructor_preference=Application.NO_PREFERENCE) )
-
-
-def get_selected_applications2():
-    return Application.objects.filter( ~Q(instructor_preference=Application.NONE) & ~Q(instructor_preference=Application.NO_PREFERENCE) )
-
 
 def get_offered_applications():
     applications = []

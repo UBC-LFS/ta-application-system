@@ -5,14 +5,25 @@
   {% include "administrators/_sidebar.html" %}
 
   <div id="content" class="container-fluid">
+    {% if messages %}
+    	{% for message in messages %}
+        <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        </div>
+    	{% endfor %}
+    {% endif %}
+
     {% if type == 'selected_applications' %}
       {% include 'administrators/applications/_selected_applications.html' %}
     {% elif type == 'offered_applications' %}
       {% include 'administrators/applications/_offered_applications.html' %}
     {% elif type == 'accepted_applications' %}
       {% include 'administrators/applications/_accepted_applications.html' %}
-    {% else %}
+    {% elif type == 'declined_applications' %}
       {% include 'administrators/applications/_declined_applications.html' %}
+    {% else %}
+      {% include 'ta_app/404.html' %}
     {% endif %}
   </div>
 </div>
