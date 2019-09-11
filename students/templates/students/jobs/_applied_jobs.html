@@ -7,7 +7,6 @@
       <th>Year</th>
       <th>Term</th>
       <th>Job</th>
-      <th>Job Details</th>
       <th>Application</th>
       <th>Status</th>
     </tr>
@@ -17,83 +16,12 @@
       <tr>
         <td>{{ job.session.year }}</td>
         <td>{{ job.session.term.code }}</td>
-        <td>{{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</td>
-        <td>
-
-          <button type="button" class="btn btn-sm btn-info" data-toggle="modal" data-target="#job-details-modal-{{ job.id }}">
-            View
-          </button>
-          <div class="modal fade" id="job-details-modal-{{ job.id }}" tabindex="-1" role="dialog" aria-labelledby="job-details-modal-label-{{ job.id }}" aria-hidden="true">
-            <div class="modal-dialog modal-lg" role="document">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title" id="job-details-modal-label-{{ job.id }}">Job Details</h5>
-                  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                </div>
-                <div class="modal-body">
-                  <h5>
-                    {{ job.session.year }} {{ job.session.term.code }} - {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}
-                  </h5>
-                  <div>Course Name: {{ job.course.name }}</div>
-                  <div>
-                    Intstructors:
-                    <ul>
-                      {% for instructor in job.instructors.all %}
-                        <li>{{ instructor.first_name }} {{ instructor.last_name }}</li>
-                      {% empty %}
-                        <li>No instructors</li>
-                      {% endfor %}
-                    </ul>
-                  </div>
-                  <div>Job Title: {{ job.title }}</div>
-                  <div>Job Description: {{ job.description }}</div>
-                  <div>Job Qalification: {{ job.qualification }}</div>
-                  <div>Job Note: {{ job.note }}</div>
-                  <small>Created at: {{ job.created_at }} | Updated at: {{ job.updated_at }}</small>
-                </div>
-              </div>
-            </div>
-          </div>
-
-        </td>
-        <td>
-          <button type="button" class="btn btn-sm btn-info" data-toggle="modal" data-target="#job-application-modal-{{ job.id }}">View</button>
-          <div class="modal fade" id="job-application-modal-{{ job.id }}" tabindex="-1" role="dialog" aria-labelledby="job-application-modal-label-{{ job.id }}" aria-hidden="true">
-            <div class="modal-dialog modal-lg" role="document">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title" id="job-application-modal-label-{{ job.id }}">Application</h5>
-                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                  </button>
-                </div>
-                <div class="modal-body">
-                  <h5>
-                    {{ job.session.year }} {{ job.session.term.code }} - {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}
-                  </h5>
-                  <p>{{ job.course.name }}</p>
-                  <p>Supervisor Approval: {{ job.my_application.supervisor_approval }}</p>
-                  <p>How Qualified: {{ job.my_application.get_how_qualified_display }}</p>
-                  <p>How Interested: {{ job.my_application.get_how_interested_display }}</p>
-                  <p>Availability: {{ job.my_application.availability }}</p>
-                  <p>Availability Note: {{ job.my_application.availability_note }}</p>
-                  <small>Created at: {{ job.my_application.created_at }} | Updated at: {{ job.my_application.updated_at }}</small>
-                </div>
-              </div>
-            </div>
-          </div>
-
-        </td>
+        <td>{% include 'administrators/util/_modal_job_details.html' with role='student' %}</td>
+        <td>{% include 'administrators/util/_modal_application_details.html' with app=job.my_application role='student' %}</td>
         <td>
           {% for app in job.application_set.all %}
             {% if app.applicant.id == user.id %}
-              <ul>
-                {% for st in app.status.all %}
-                  <li>
-                    {{ st.get_assigned_display }}: {{ st.assigned_hours }} hours at {{ st.created_at }}
-                  </li>
-                {% endfor %}
-              </ul>
+              {% include 'administrators/util/_display_app_status.html' %}
             {% endif %}
           {% endfor %}
         </td>

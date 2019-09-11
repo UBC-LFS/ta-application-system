@@ -1,4 +1,4 @@
-<h1>Prepare Jobs</h1>
+<h3>Prepare Jobs</h3>
 
 <small>Total: {{ jobs.count }}</small>
 <table class="table table-sm table-striped" data-toggle="table" data-sortable="true" data-classes="" data-pagination="true" data-search="true">
@@ -8,7 +8,6 @@
       <th data-sortable="true">Year</th>
       <th data-sortable="true">Term</th>
       <th data-sortable="true">Job</th>
-      <th data-sortable="true">Job Details</th>
       <th data-sortable="true">Instructors</th>
       <th data-sortable="true">Assigned TA Hours</th>
       <th data-sortable="true">Active</th>
@@ -24,39 +23,7 @@
         </td>
         <td>{{ job.session.year }}</td>
         <td>{{ job.session.term.code }}</td>
-        <td>{{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</td>
-        <td>
-          <button type="button" data-toggle="modal" data-target="#job-details-modal-{{ job.id }}" class="btn btn-sm btn-info">View</button>
-          <div class="modal fade" id="job-details-modal-{{ job.id }}" tabindex="-1" role="dialog" aria-labelledby="job-details-modal-label-{{ job.id }}" aria-hidden="true">
-            <div class="modal-dialog modal-lg" role="document">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title" id="job-details-modal-label-{{ job.id }}">
-                    Job Description of {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}
-                  </h5>
-                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                  </button>
-                </div>
-                <div class="modal-body">
-                  <ul class="list-group list-group-flush">
-                    <li class="list-group-item">Title: {{ job.title }}</li>
-                    <li class="list-group-item">Description: {{ job.description }}</li>
-                    <li class="list-group-item">Qualification: {{ job.qualification }}</li>
-                    <li class="list-group-item">Note: {{ job.note }}</li>
-                  </ul>
-                  <div>
-                    <ul>
-                      {% for instructor in job.instructors.all %}
-                        <li>{{ instructor.first_name }} {{ instructor.last_name }}</li>
-                      {% endfor %}
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </td>
+        <td>{% include 'administrators/util/_modal_job_details.html' role='administrator' %}</td>
         <td>
           {% for instructor in job.instructors.all %}
             {{ instructor.first_name }} {{ instructor.last_name }},

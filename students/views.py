@@ -462,7 +462,7 @@ def type_jobs(request, type):
         declined_jobs = adminApi.get_declined_jobs_by_student(loggedin_user, student_jobs)
     else:
         raise Http404
-    
+
     return render(request, 'students/jobs/type_jobs.html', {
         'loggedin_user': loggedin_user,
         'applied_jobs': applied_jobs,
