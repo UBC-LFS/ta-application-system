@@ -22,14 +22,14 @@
     {% for app in accepted_applications %}
       <tr>
         <td>
-          <a href="{% url 'administrators:show_application' path='accepted_applications' app_slug=app.slug %}">{{ app.id }}</a>
+          <a href="{% url 'administrators:show_application' type='accepted_applications' app_slug=app.slug %}">{{ app.id }}</a>
         </td>
         <td>{{ app.job.session.year }}</td>
         <td>{{ app.job.session.term.code }}</td>
-        <td>{% include 'administrators/util/_modal_application_job_details.html' %}</td>
-        <td>{% include 'administrators/util/_modal_user_details.html' %}</td>
-        <td>{% include 'administrators/util/_modal_application_details.html' %}</td>
-        <td>{% include 'administrators/util/_modal_application_status.html' %}</td>
+        <td>{% include 'administrators/util/_modal_job_details.html' with data=app.job role='admnistrator' %}</td>
+        <td>{% include 'administrators/util/_modal_user_details.html' with data=app.applicant role='admnistrator' %}</td>
+        <td>{% include 'administrators/util/_modal_application_details.html' with data=app role='admnistrator' %}</td>
+        <td>{% include 'administrators/util/_modal_application_status.html' with data=app %}</td>
         <td>{{ app.get_classification_display }}</td>
         <td>{{ app.get_instructor_preference_display }}</td>
         <td>{{ app.note }}</td>

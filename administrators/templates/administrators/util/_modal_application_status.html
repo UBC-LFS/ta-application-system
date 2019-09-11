@@ -1,9 +1,10 @@
-<button type="button" class="btn btn-sm btn-info" data-toggle="modal" data-target="#job-application-modal-{{ app.id }}">Status</button>
-<div class="modal fade" id="job-application-modal-{{ app.id }}" tabindex="-1" role="dialog" aria-labelledby="job-application-modal-label-{{ app.id }}" aria-hidden="true">
+<button type="button" class="btn btn-sm btn-info" data-toggle="modal" data-target="#application-status-modal-{{ data.id }}">View</button>
+
+<div class="modal fade" id="application-status-modal-{{ data.id }}" tabindex="-1" role="dialog" aria-labelledby="application-status-modal-label-{{ data.id }}" aria-hidden="true">
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="job-application-modal-label-{{ app.id }}">Application Status</h5>
+        <h5 class="modal-title" id="application-status-modal-label-{{ data.id }}">Application Status Details</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
       </div>
       <div class="modal-body">
@@ -16,7 +17,7 @@
             </tr>
           </thead>
           <tbody>
-            {% for st in app.status.all %}
+            {% for st in data.status.all %}
               <tr>
                 <td>{{ st.get_assigned_display }}</td>
                 <td>{{ st.assigned_hours }} hours</td>

@@ -70,13 +70,8 @@ def get_sessions_by_year(year):
     """ Get sessions by year """
     return Session.objects.filter(year=year)
 
-def get_active_sessions():
-    return []
-
-def get_inactive_sessions():
-    return []
-
 def get_current_sessions():
+    ''' '''
     sessions = []
     for session in Session.objects.all():
         if not session.is_archived:
@@ -87,6 +82,25 @@ def get_current_sessions():
             session.num_instructors = count
             sessions.append(session)
     return sessions
+
+def get_archived_sessions():
+    ''' '''
+    sessions = []
+    for session in Session.objects.all():
+        if session.is_archived:
+            count = 0
+            for job in session.job_set.all():
+                if job.instructors.count() > 0:
+                    count += 1
+            session.num_instructors = count
+            sessions.append(session)
+    return sessions
+
+def get_active_sessions():
+    return []
+
+def get_inactive_sessions():
+    return []
 
 def get_visible_current_sessions():
     sessions = []
@@ -99,19 +113,6 @@ def get_visible_current_sessions():
             session.num_instructors = count
             sessions.append(session)
     return sessions
-
-def get_archived_sessions():
-    sessions = []
-    for session in Session.objects.all():
-        if session.is_archived:
-            count = 0
-            for job in session.job_set.all():
-                if job.instructors.count() > 0:
-                    count += 1
-            session.num_instructors = count
-            sessions.append(session)
-    return sessions
-
 
 def get_not_visible_active_sessions():
     return Session.objects.filter(is_visible=False, is_archived=False)

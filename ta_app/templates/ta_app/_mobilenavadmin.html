@@ -11,8 +11,8 @@
     	<a class="nav-link dropdown-toggle text-white" data-toggle="dropdown" href="{% url 'administrators:sessions' %}" role="button" aria-haspopup="true" aria-expanded="false">Sessions</a>
     	<div class="dropdown-menu">
       		<a class="dropdown-item" href="{% url 'administrators:create_session' %}">Create a Session</a>
-      		<a class="dropdown-item" href="{% url 'administrators:current_sessions' %}">Current Sessions</a>
-      		<a class="dropdown-item" href="{% url 'administrators:archived_sessions' %}">Archived Sessions</a>
+      		<a class="dropdown-item" href="{% url 'administrators:type_sessions' type='current_sessions' %}">Current Sessions</a>
+      		<a class="dropdown-item" href="{% url 'administrators:type_sessions' type='archived_sessions' %}">Archived Sessions</a>
     	</div>
 	</li>
 

@@ -21,6 +21,7 @@ from datetime import datetime
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
 def index(request):
+    ''' '''
     loggedin_user = userApi.loggedin_user(request.user)
     if 'Student' not in loggedin_user.roles: raise PermissionDenied
 

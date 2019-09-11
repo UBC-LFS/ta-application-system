@@ -18,8 +18,9 @@
       <input type="submit" value="Update" />
     </form>
 
-    <a href="{% url 'administrators:current_sessions' %}">Back to Current Sessions</a> |
-    <a href="{% url 'administrators:archived_sessions' %}">Back to Archived Sessions</a>
+    <a href="{% url 'administrators:type_sessions' type=type %}">
+      Back to {% if type == 'current_sessions' %} Current {% else %} Archived {% endif %} Sessions
+    </a>
   </div>
 </div>
 

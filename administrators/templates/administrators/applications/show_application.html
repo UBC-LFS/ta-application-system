@@ -42,7 +42,7 @@
     <div>Created at: {{ app.created_at }}</div>
     <div>Updated at: {{ app.updated_at }}</div>
 
-    <a href="{% url 'administrators:type_applications' path %}">Back to previous Applications</a>
+    <a href="{% url 'administrators:type_applications' type=type %}">Back to previous Applications</a>
 
   </div>
 </div>

@@ -44,7 +44,7 @@
         {% for job in session.job_set.all %}
           <tr>
             <td>
-              <a href="{% url 'administrators:show_job' session_slug=job.session.slug job_slug=job.course.slug path=path %}">{{ job.id }}</a>
+              <a href="{% url 'administrators:show_job' session_slug=job.session.slug job_slug=job.course.slug type=type %}">{{ job.id }}</a>
             </td>
             <td>{{ job.session.year }}</td>
             <td>{{ job.course.term.code }}</td>
@@ -68,11 +68,9 @@
       </tbody>
     </table>
 
-    {% if path == 'current_sessions' %}
-      <a href="{% url 'administrators:current_sessions' %}">Back to Current Sessions</a>
-    {% else %}
-      <a href="{% url 'administrators:archived_sessions' %}">Back to Archived Sessions</a>
-    {% endif %}
+    <a href="{% url 'administrators:type_sessions' type=type %}">
+      Back to {% if type == 'current_sessions' %} Current {% else %} Archived {% endif %} Sessions
+    </a>
   </div>
 </div>
 

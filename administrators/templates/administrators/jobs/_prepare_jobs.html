@@ -19,11 +19,11 @@
     {% for job in jobs %}
       <tr>
         <td>
-          <a href="{% url 'administrators:show_job' session_slug=job.session.slug job_slug=job.course.slug path='prepare_jobs' %}">{{ job.id }}</a>
+          <a href="{% url 'administrators:show_job' session_slug=job.session.slug job_slug=job.course.slug type='prepare_jobs' %}">{{ job.id }}</a>
         </td>
         <td>{{ job.session.year }}</td>
         <td>{{ job.session.term.code }}</td>
-        <td>{% include 'administrators/util/_modal_job_details.html' role='administrator' %}</td>
+        <td>{% include 'administrators/util/_modal_job_details.html' with data=job role='administrator' %}</td>
         <td>
           {% for instructor in job.instructors.all %}
             {{ instructor.first_name }} {{ instructor.last_name }},

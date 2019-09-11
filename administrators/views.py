@@ -216,7 +216,7 @@ def create_session_confirmation(request):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
-def show_session(request, session_slug, path):
+def show_session(request, session_slug, type):
     ''' Display session details '''
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
@@ -224,42 +224,38 @@ def show_session(request, session_slug, path):
     return render(request, 'administrators/sessions/show_session.html', {
         'loggedin_user': loggedin_user,
         'session': adminApi.get_session_by_slug(session_slug),
-        'path': path
+        'type': type
     })
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET', 'POST'])
-def current_sessions(request):
-    ''' Display all information of sessions and create a session '''
+@require_http_methods(['GET'])
+def type_sessions(request, type):
+    ''' '''
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
 
-    return render(request, 'administrators/sessions/current_sessions.html', {
+    current_sessions = None
+    archived_sessions = None
+    if type == 'current_sessions':
+        current_sessions = adminApi.get_current_sessions()
+    elif type == 'archived_sessions':
+        archived_sessions = adminApi.get_archived_sessions()
+    else:
+        raise Http404
+
+    return render(request, 'administrators/sessions/type_sessions.html', {
         'loggedin_user': loggedin_user,
-        'not_archived_sessions': adminApi.get_current_sessions(),
-        'form': SessionForm()
+        'current_sessions': current_sessions,
+        'archived_sessions': archived_sessions,
+        'form': SessionForm(),
+        'type': type
     })
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET', 'POST'])
-def archived_sessions(request):
-    ''' Display all information of sessions and create a session '''
-    loggedin_user = userApi.loggedin_user(request.user)
-    if not userApi.is_admin(loggedin_user): raise PermissionDenied
-
-    return render(request, 'administrators/sessions/archived_sessions.html', {
-        'loggedin_user': loggedin_user,
-        'archived_sessions': adminApi.get_archived_sessions(),
-        'form': SessionForm()
-    })
-
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET', 'POST'])
-def edit_session(request, session_slug, path):
+def edit_session(request, session_slug, type):
     ''' Edit a session '''
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
@@ -285,7 +281,7 @@ def edit_session(request, session_slug, path):
                 updated_jobs = adminApi.update_session_jobs(session, courses)
                 if updated_jobs:
                     messages.success(request, 'Success! {0} {1} {2} updated'.format(session.year, session.term.code, session.title))
-                    return redirect('administrators:{0}'.format(path))
+                    return redirect('administrators:{0}'.format(type))
                 else:
                     messages.error(request, 'Error!')
             else:
@@ -299,13 +295,14 @@ def edit_session(request, session_slug, path):
         'form': SessionConfirmationForm(data=None, instance=session, initial={
             'courses': session_courses,
             'term': term
-        })
+        }),
+        'type': type
     })
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['POST'])
-def delete_session(request, path):
+def delete_session(request, type):
     ''' Delete a Session '''
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
@@ -318,7 +315,7 @@ def delete_session(request, path):
         else:
             messages.error(request, 'Error! Failed to delete {0} {1} {2}'.format(deleted_session.year, deleted_session.term.code, deleted_session.title))
 
-    return redirect('administrators:{0}'.format(path))
+    return redirect('administrators:{0}'.format(type))
 
 
 
@@ -440,7 +437,7 @@ def edit_job(request, session_slug, job_slug):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
-def show_job(request, session_slug, job_slug, path):
+def show_job(request, session_slug, job_slug, type):
     ''' Display job details '''
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
@@ -449,7 +446,7 @@ def show_job(request, session_slug, job_slug, path):
         'loggedin_user': loggedin_user,
         'session': adminApi.get_session_by_slug(session_slug),
         'job': adminApi.get_session_job_by_slug(session_slug, job_slug),
-        'path': path
+        'type': type
     })
 
 
@@ -581,11 +578,9 @@ def offered_applications_send_email(request):
 
     if request.method == 'POST':
         applications = request.POST.getlist('application')
-        print( applications )
         request.session['offered_applications_form_data'] = applications
         return redirect('administrators:offered_applications_send_email_confirmation')
-
-    return redirect('administrators:offered_applications')
+    return HttpResponseRedirect( reverse('administrators:type_applications', args=['offered_applications']) )
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -632,7 +627,7 @@ def offered_applications_send_email_confirmation(request):
                 messages.error(request, 'Error!')
 
             del request.session['offered_applications_form_data']
-            return redirect('administrators:offered_applications')
+            return HttpResponseRedirect( reverse('administrators:type_applications', args=['offered_applications']) )
         else:
             messages.error(request, 'Error! Form is invalid')
 
@@ -671,7 +666,7 @@ def email_history(request):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
-def show_application(request, path, app_slug):
+def show_application(request, type, app_slug):
     ''' '''
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
@@ -680,7 +675,7 @@ def show_application(request, path, app_slug):
         'loggedin_user': userApi.loggedin_user(request.user),
         'app': adminApi.get_application_slug(app_slug),
         'form': AdminApplicationForm(initial={ 'assigned': ApplicationStatus.OFFERED }),
-        'path': path
+        'type': type
     })
 
 # HR

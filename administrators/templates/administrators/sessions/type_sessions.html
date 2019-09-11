@@ -14,14 +14,10 @@
     	{% endfor %}
     {% endif %}
 
-    {% if type == 'selected_applications' %}
-      {% include 'administrators/applications/_selected_applications.html' %}
-    {% elif type == 'offered_applications' %}
-      {% include 'administrators/applications/_offered_applications.html' %}
-    {% elif type == 'accepted_applications' %}
-      {% include 'administrators/applications/_accepted_applications.html' %}
-    {% elif type == 'declined_applications' %}
-      {% include 'administrators/applications/_declined_applications.html' %}
+    {% if type == 'current_sessions' %}
+      {% include 'administrators/sessions/_current_sessions.html' %}
+    {% elif type == 'archived_sessions' %}
+      {% include 'administrators/sessions/_archived_sessions.html' %}
     {% else %}
       {% include 'ta_app/404.html' %}
     {% endif %}
