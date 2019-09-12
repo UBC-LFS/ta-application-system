@@ -8,18 +8,34 @@
 
     <h3>Job Details</h3>
 
-    <div class="card">
-      <ul class="list-group list-group-flush">
-        <li class="list-group-item"><b>ID:</b> {{ job.id }}</li>
-        <li class="list-group-item"><b>Title:</b> {{ job.title }}</li>
-        <li class="list-group-item"><b>Description:</b> {{ job.description }}</li>
-        <li class="list-group-item"><b>Session:</b> {{ job.session.year }} {{ job.session.term.name }} {{ job.session.title }}</li>
-        <li class="list-group-item"><b>Qualification:</b> {{ job.qualification }}</li>
-        <li class="list-group-item"><b>Is Active:</b> {{ job.is_active }}</li>
-        <li class="list-group-item"><b>Created At:</b> {{ job.created_at }}</li>
-        <li class="list-group-item"><b>Updated At:</b> {{ job.updated_at }}</li>
-        <li class="list-group-item"><b>Note:</b> {{ job.note }}</li>
-      </ul>
+    <h5>{{ job.session.year }} {{ job.session.term.name }} {{ job.session.title }}</h5>
+    <h4>{{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</h4>
+    <div>{{ job.course.name }}</div>
+
+    <div>
+      <h5>Title: {{ job.title }}</h5>
+
+
+      <div>Job ID: {{ job.id }}</div>
+      <div>Is Active: {{ job.is_active }}</div>
+
+
+      <small>Created at: {{ job.created_at }} | Updated At: {{ job.updated_at }}</small>
+    </div>
+
+    <div>
+      <h5>Description</h5>
+      <p>{{ job.description }}</p>
+    </div>
+
+    <div>
+      <h5>Qualification</h5>
+      <p>{{ job.qualification }}</p>
+    </div>
+
+    <div>
+      <h5>Note</h5>
+      <p>{{ job.note }}</p>
     </div>
 
     <h5 class="margin-top-30">Instructors</h5>
@@ -31,16 +47,15 @@
       {% endfor %}
     </ul>
 
-    <p>
-      Assgiend TA Hours: {{ job.assigned_ta_hours }} hours
-    </p>
+    <hr />
 
-    <p>
-      Applicants' TA Hours: {{ job.ta_hours }} hours
-    </p>
+    <h5>TA Hours</h5>
+    <ul>
+      <li>Assgiend TA Hours: {{ job.assigned_ta_hours }} hours</li>
+      <li>Applicants' TA Hours: {{ job.ta_hours }} hours</li>
+    </ul>
 
     <h3 class="margin-top-30">Applications</h3>
-
     <table class="table">
       <thead>
         <tr>

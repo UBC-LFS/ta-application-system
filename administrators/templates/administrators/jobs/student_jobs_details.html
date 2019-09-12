@@ -6,7 +6,7 @@
 
   <div id="content" class="container-fluid">
 
-    <h3>Student Jobs</h3>
+    <h3>Student Jobs and Details</h3>
 
     <div>ID: {{ student.id }}</div>
     <div>First Name: {{ student.first_name }}</div>
@@ -14,6 +14,8 @@
     <div>Preferred Name: {{ student.profile.preferred_name }}</div>
     <div>CWL: {{ student.username }}</div>
     <div>E-mail: {{ student.email }}</div>
+
+    <hr />
 
     <h5>Jobs</h5>
     <table class="table table-responsive">
@@ -74,6 +76,8 @@
         {% endfor %}
       </tbody>
     </table>
+
+    <a href="{% url 'administrators:type_jobs' type='student_jobs' %}">Go back to Jobs by Student</a>
 
   </div>
 </div>

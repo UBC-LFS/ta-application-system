@@ -9,7 +9,6 @@
       <th>Job</th>
       <th>Applicant</th>
       <th>Resume</th>
-      <th>Application</th>
       <th>Status</th>
       <th>Instructor Preference</th>
       <th>Classification</th>
@@ -33,9 +32,7 @@
           </a>
         </td>
         <td>
-          <a href="{% url 'administrators:show_user' app.applicant.username %}">
-            {{ app.applicant.first_name }} {{ app.applicant.last_name }}
-          </a>
+          <a href="{% url 'administrators:show_user' app.applicant.username %}">{{ app.applicant.first_name }} {{ app.applicant.last_name }}</a>
         </td>
         <td>
           {% if app.resume_file %}
@@ -43,9 +40,6 @@
           {% else %}
             No
           {% endif %}
-        </td>
-        <td>
-          <a href="{% url 'administrators:display_application_details' app_slug=app.slug role='administrator' %}">View</a>
         </td>
         <td>{% include 'administrators/util/_modal_application_status.html' with data=app %}</td>
         <td>{{ app.get_instructor_preference_display }}</td>

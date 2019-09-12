@@ -21,7 +21,7 @@ urlpatterns = [
     path('sessions/<str:type>/', views.type_sessions, name='type_sessions'),
     path('sessions/', views.sessions, name='sessions'),
 
-    path('sessions/<str:session_slug>/jobs/<str:job_slug>/<str:type>/', views.show_job, name='show_job'),
+    path('sessions/<str:session_slug>/jobs/<str:job_slug>/type/<str:type>/', views.show_job, name='show_job'),
     path('jobs/<str:type>/', views.type_jobs, name='type_jobs'),
     path('jobs/', views.jobs, name='jobs'),
     path('instructors/<str:username>/job/details/', views.instructor_jobs_details, name='instructor_jobs_details'),

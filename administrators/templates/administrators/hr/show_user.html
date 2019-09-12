@@ -3,7 +3,11 @@
 
 <div class="wrapper">
   {% include "administrators/util/_sidebar.html" %}
+
+
   <div id="content" class="container-fluid">
+
+    <h3>User Details</h3>
 
     <div class="row">
 
@@ -11,7 +15,7 @@
         <h3 class="margin-top-30">Infomation</h3>
 
         <ul class="list-group">
-          <li class="list-group-item"><b>ID:</b> {{ user.id }}</li>
+          <li class="list-group-item"><b>User ID:</b> {{ user.id }}</li>
           <li class="list-group-item"><b>First Name:</b> {{ user.first_name }}</li>
           <li class="list-group-item"><b>Last Name:</b> {{ user.last_name }}</li>
           <li class="list-group-item"><b>CWL:</b> {{ user.username }}</li>

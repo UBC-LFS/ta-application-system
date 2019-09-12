@@ -425,7 +425,7 @@ def edit_job(request, session_slug, job_slug):
                 updated = adminApi.update_job_instructors(updated_job, job_instructors, new_instructors)
                 if updated:
                     messages.success(request, 'Success! {0} {1} {2} {3} {4} updated'.format(updated_job.session.year, updated_job.session.term.code, updated_job.course.code.name, updated_job.course.number.name, updated_job.course.section.name))
-                    return redirect('administrators:prepare_jobs')
+                    return HttpResponseRedirect( reverse('administrators:type_jobs', args=['prepare_jobs']) )
                 else:
                     messages.error(request, 'Error!')
             else:

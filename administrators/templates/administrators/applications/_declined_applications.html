@@ -8,7 +8,6 @@
       <th>Term</th>
       <th>Job</th>
       <th>Applicant</th>
-      <th>Application</th>
       <th>Status</th>
       <th>Instructor Preference</th>
       <th>Classification</th>
@@ -25,9 +24,14 @@
         </td>
         <td>{{ app.job.session.year }}</td>
         <td>{{ app.job.session.term.code }}</td>
-        <td>{% include 'administrators/util/_modal_job_details.html' with data=app.job role='admnistrator' %}</td>
-        <td>{% include 'administrators/util/_modal_user_details.html' with data=app.applicant role='admnistrator' %}</td>
-        <td>{% include 'administrators/util/_modal_application_details.html' with data=app role='admnistrator' %}</td>
+        <td>
+          <a href="{% url 'administrators:display_job_details' session_slug=app.job.session.slug job_slug=app.job.course.slug role='administrator' %}">
+            {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}
+          </a>
+        </td>
+        <td>
+          <a href="{% url 'administrators:show_user' app.applicant.username %}">{{ app.applicant.first_name }} {{ app.applicant.last_name }}</a>
+        </td>
         <td>{% include 'administrators/util/_modal_application_status.html' with data=app %}</td>
         <td>{{ app.get_instructor_preference_display }}</td>
         <td>{{ app.get_classification_display }}</td>

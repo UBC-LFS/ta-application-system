@@ -21,15 +21,11 @@
     {% for job in jobs %}
       <tr>
         <td>
-          <a href="{% url 'administrators:show_job' session_slug=job.session.slug job_slug=job.course.slug type='prepare_jobs' %}">{{ job.id }}</a>
+          <a href="{% url 'administrators:show_job' session_slug=job.session.slug job_slug=job.course.slug type='progress_jobs' %}">{{ job.id }}</a>
         </td>
         <td>{{ job.session.year }}</td>
         <td>{{ job.session.term.code }}</td>
-        <td>
-          <a href="{% url 'administrators:display_job_details' session_slug=job.session.slug job_slug=job.course.slug role='administrator' %}">
-            {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}
-          </a>
-        </td>
+        <td>{{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</td>
         <td>
           {% if job.application_set.count > 0 %}
             <a href="{% url 'administrators:show_job_applications' session_slug=job.session.slug job_slug=job.course.slug %}">{{ job.application_set.count }}</a>

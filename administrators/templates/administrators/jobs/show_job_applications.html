@@ -8,9 +8,13 @@
 
     <h3>Job Applications</h3>
 
+    <h5>{{ job.session.year }} {{ job.session.term.name }}</h5>
+    <h4>{{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</h4>
+
     <table class="table">
       <thead>
         <tr>
+          <th>ID</th>
           <th>Applicant</th>
           <th>Status</th>
           <th>Instructor Preference</th>
@@ -23,7 +27,12 @@
       <tbody>
         {% for app in job.application_set.all %}
           <tr>
-            <td>{{ app.applicant.first_name }} {{ app.applicant.last_name }}</td>
+            <td>
+              <a href="{% url 'administrators:display_application_details' app_slug=app.slug role='administrator' %}">{{ app.id }}</a>
+            </td>
+            <td>
+              <a href="{% url 'administrators:show_user' app.applicant.username %}">{{ app.applicant.first_name }} {{ app.applicant.last_name }}</a>
+            </td>
             <td>
               {% include 'administrators/util/_display_app_status.html' with data=app %}
             </td>

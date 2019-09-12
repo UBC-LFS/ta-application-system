@@ -20,7 +20,6 @@
     <table class="table table-responsive">
       <thead>
         <tr>
-          <th>ID</th>
           <th>Applicant</th>
           <th>CWL</th>
           <th>Supervisor Approval</th>
@@ -35,7 +34,6 @@
       <tbody>
         {% for app in job.application_set.all %}
           <tr>
-            <td>{{ app.id }}</td>
             <td>{{ app.applicant.first_name }} {{ app.applicant.last_name }}</td>
             <td>{{ app.applicant.username }}</td>
             <td>{{ app.supervisor_approval }}</td>
@@ -44,9 +42,14 @@
             <td>{{ app.availability }}</td>
             <td>{{ app.availability_note }}</td>
             <td>
-              {% for st in app.status.all %}
-                {{ st.get_assigned_display }}: {{ st.assigned_hours }} hours on {{ st.created_at }}
-              {% endfor %}
+              <ul>
+                {% for st in app.status.all %}
+                  <li>{{ st.get_assigned_display }}: {{ st.assigned_hours }} hours on {{ st.created_at }}</li>
+                {% empty %}
+                  <li>No status</li>
+                {% endfor %}
+              </ul>
+
             </td>
             <td>
               <form action="" method="post" onsubmit="return confirm('Are you sure to select this preference for {{ app.applicant.first_name }} {{ app.applicant.last_name }} ?');">
@@ -60,8 +63,6 @@
                     {% endif %}
                   {% endfor %}
                 </select>
-
-
                 <input type="hidden" name="application" value="{{ app.id }}" />
                 <input type="submit" value="Select" />
               </form>
@@ -72,7 +73,7 @@
     </table>
 
 
-    <a href="{% url 'instructors:my_jobs' %}">Back to My Jobs</a>
+    <a href="{% url 'instructors:my_jobs' %}">Bo back to My Jobs</a>
 
   </div>
 </div>
