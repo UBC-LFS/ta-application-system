@@ -1,0 +1,41 @@
+{% extends 'ta_app/base.html' %}
+{% block content %}
+
+<div class="wrapper">
+
+  {% if role == 'administrator' %}
+    {% include 'administrators/util/_sidebar.html' %}
+  {% elif role == 'student' %}
+    {% include 'students/util/_sidebar.html' %}
+  {% endif %}
+
+  <div id="content" class="container-fluid">
+
+    <h3>Application Details</h3>
+    <h5>{{ application.job.session.year }} {{ application.job.session.term.code }} - {{ application.job.course.code.name }} {{ application.job.course.number.name }} {{ application.job.course.section.name }}</h5>
+
+    {% if role == 'administrator' %}
+      <div>Application ID: {{ application.id }}</div>
+    {% endif %}
+
+    <h4>Applicant: {{ application.applicant.first_name }} {{ application.applicant.last_name }}</h4>
+    <small>Created at: {{ application.created_at }} | Updated at: {{ application.updated_at }}</small>
+
+    <div>Supervisor Approval: {{ application.supervisor_approval }}</div>
+    <div>How Qualified: {{ application.get_how_qualified_display }}</div>
+    <div>How Interested: {{ application.get_how_interested_display }}</div>
+    <div>Availability: {{ application.availability }}</div>
+    <div>Availability Note: {{ application.availability_note }}</div>
+
+    {% if role == 'administrator' %}
+      <div>Instructor Preference: {{ application.get_instructor_preference_display }}</div>
+      <div>Classification: {{ application.get_classification_display }}</div>
+      <div>Note: {{ application.note }}</div>
+    {% endif %}
+
+    <a href="{{ previous_url }}">Go back to a previous page</a>
+
+  </div>
+</div>
+
+{% endblock %}

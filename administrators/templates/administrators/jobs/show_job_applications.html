@@ -1,0 +1,47 @@
+{% extends 'ta_app/base.html' %}
+{% block content %}
+
+<div class="wrapper">
+  {% include 'administrators/util/_sidebar.html' %}
+
+  <div id="content" class="container-fluid">
+
+    <h3>Job Applications</h3>
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Applicant</th>
+          <th>Status</th>
+          <th>Instructor Preference</th>
+          <th>Classification</th>
+          <th>Note</th>
+          <th>Created at</th>
+          <th>Updated at</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for app in job.application_set.all %}
+          <tr>
+            <td>{{ app.applicant.first_name }} {{ app.applicant.last_name }}</td>
+            <td>
+              {% include 'administrators/util/_display_app_status.html' with data=app %}
+            </td>
+            <td>{{ app.get_instructor_preference_display }}</td>
+            <td>{{ app.get_classification_display }}</td>
+            <td>{{ app.note }}</td>
+            <td>{{ app.created_at }}</td>
+            <td>{{ app.updated_at }}</td>
+          </tr>
+        {% empty %}
+          No applications found
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <a href="{% url 'administrators:type_jobs' type='progress_jobs' %}">Go back to Jobs in Progress</a>
+
+  </div>
+</div>
+
+{% endblock %}

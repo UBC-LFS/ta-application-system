@@ -341,25 +341,33 @@ def type_jobs(request, type):
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
 
-    print(type)
-    jobs = None
-    instructors = None
-    students = None
+    context = {
+        'loggedin_user': loggedin_user,
+        'type': type,
+    }
+
     if type == 'prepare_jobs' or type == 'progress_jobs':
-        jobs = adminApi.get_jobs()
+        context['jobs'] = adminApi.get_jobs()
     elif type == 'instructor_jobs':
-        instructors = userApi.get_instructors()
+        context['instructors'] = userApi.get_instructors()
     elif type == 'student_jobs':
-        students = userApi.get_students()
+        context['students'] = userApi.get_students()
     else:
         raise Http404
 
-    return render(request, 'administrators/jobs/type_jobs.html', {
+    return render(request, 'administrators/jobs/type_jobs.html', context)
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def show_job_applications(request, session_slug, job_slug):
+    ''' '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user): raise PermissionDenied
+
+    return render(request, 'administrators/jobs/show_job_applications.html', {
         'loggedin_user': loggedin_user,
-        'type': type,
-        'jobs': jobs,
-        'instructors': instructors,
-        'students': students
+        'job': adminApi.get_session_job_by_slug(session_slug, job_slug)
     })
 
 
@@ -822,6 +830,7 @@ def show_user(request, username):
 
     return render(request, 'administrators/hr/show_user.html', {
         'loggedin_user': loggedin_user,
+        'previous_url': request.META['HTTP_REFERER'],
         'user': user,
         'resume_file': resume_file,
     })
@@ -1455,6 +1464,45 @@ def delete_training(request):
         else:
             messages.error(request, 'Error!')
     return redirect("administrators:trainings")
+
+
+
+# ----- Utils
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def display_job_details(request, session_slug, job_slug, role):
+    ''' '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    #if not userApi.is_admin(loggedin_user): raise PermissionDenied
+    return render(request, 'administrators/util/_display_job_details.html', {
+        'loggedin_user': loggedin_user,
+        'previous_url': request.META['HTTP_REFERER'],
+        'job': adminApi.get_session_job_by_slug(session_slug, job_slug),
+        'role': role
+    })
+
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def display_application_details(request, app_slug, role):
+    ''' '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    #if not userApi.is_admin(loggedin_user): raise PermissionDenied
+    return render(request, 'administrators/util/_display_application_details.html', {
+        'loggedin_user': loggedin_user,
+        'previous_url': request.META['HTTP_REFERER'],
+        'application': adminApi.get_application_slug(app_slug),
+        'role': role
+    })
+
+
+
+
+
+
 
 
 

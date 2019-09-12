@@ -16,12 +16,18 @@
       <tr>
         <td>{{ job.session.year }}</td>
         <td>{{ job.session.term.code }}</td>
-        <td>{% include 'administrators/util/_modal_job_details.html' with role='student' %}</td>
-        <td>{% include 'administrators/util/_modal_application_details.html' with app=job.my_application role='student' %}</td>
+        <td>
+          <a href="{% url 'administrators:display_job_details' session_slug=job.session.slug job_slug=job.course.slug role='student' %}">
+            {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}
+          </a>
+        </td>
+        <td>
+          <a href="{% url 'administrators:display_application_details' app_slug=job.my_application.slug role='student' %}">View</a>
+        </td>
         <td>
           {% for app in job.application_set.all %}
             {% if app.applicant.id == user.id %}
-              {% include 'administrators/util/_display_app_status.html' %}
+              {% include 'administrators/util/_display_app_status.html' with data=app %}
             {% endif %}
           {% endfor %}
         </td>

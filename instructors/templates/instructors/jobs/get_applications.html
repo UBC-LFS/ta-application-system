@@ -45,7 +45,7 @@
             <td>{{ app.availability_note }}</td>
             <td>
               {% for st in app.status.all %}
-                {{ st.get_assigned_display }}: {{ st.assigned_hours }} hours at {{ st.created_at }}
+                {{ st.get_assigned_display }}: {{ st.assigned_hours }} hours on {{ st.created_at }}
               {% endfor %}
             </td>
             <td>

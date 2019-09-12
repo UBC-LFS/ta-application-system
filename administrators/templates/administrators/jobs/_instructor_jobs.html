@@ -22,9 +22,11 @@
         <td>{{ instructor.username }}</td>
         <td>{{ instructor.email }}</td>
         <td>
-          <a href="{% url 'administrators:instructor_jobs_details' instructor.username %}">
+          {% if instructor.job_set.count > 0 %}
+            <a href="{% url 'administrators:instructor_jobs_details' instructor.username %}">{{ instructor.job_set.count }}</a>
+          {% else %}
             {{ instructor.job_set.count }}
-          </a>
+          {% endif %}
         </td>
       </tr>
 

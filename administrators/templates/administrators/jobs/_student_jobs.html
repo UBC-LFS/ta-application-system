@@ -22,7 +22,11 @@
         <td>{{ student.username }}</td>
         <td>{{ student.email }}</td>
         <td>
-          <a href="{% url 'administrators:student_jobs_details' student.username %}">{{ student.application_set.count }}</a>
+          {% if student.application_set.count > 0 %}
+            <a href="{% url 'administrators:student_jobs_details' student.username %}">{{ student.application_set.count }}</a>
+          {% else %}
+            {{ student.application_set.count }}
+          {% endif %}
         </td>
       </tr>
 

@@ -36,7 +36,11 @@
             <tr>
               <td>{{ job.session.year }}</td>
               <td>{{ job.session.term.code }}</td>
-              <td>{% include 'administrators/util/_modal_job_details.html' with role='student' %}</td>
+              <td>
+                <a href="{% url 'administrators:display_job_details' session_slug=job.session.slug job_slug=job.course.slug role='student' %}">
+                  {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}
+                </a>
+              </td>
               <td>{{ job.course.name }}</td>
               <td>
                 {% for instructor in job.instructors.all %}
@@ -59,6 +63,8 @@
         {% endfor %}
       </tbody>
     </table>
+
+    <a href="{% url 'students:explore_jobs' %}">Go back to a previous page</a>
 
   </div>
 </div>

@@ -432,11 +432,8 @@ def get_application(application_id):
         return None
 
 def get_application_slug(app_slug):
-    """ Get an application """
-    try:
-        return Application.objects.get(slug=app_slug)
-    except Application.DoesNotExist:
-        return None
+    ''' Get an application '''
+    return get_object_or_404(Application, slug=app_slug)
 
 def get_applications_by_student(user):
     applications = get_applications()
@@ -512,7 +509,9 @@ def get_accepted_jobs_by_student(user, student_jobs):
                         'course_number': job.course.number.name,
                         'course_section': job.course.section.name,
                         'assigned_status': 'Accepted',
-                        'assigned_hours': status.assigned_hours
+                        'assigned_hours': status.assigned_hours,
+                        'session_slug': job.session.slug,
+                        'job_slug': job.course.slug
                     })
                     year_term = '{0}-{1}'.format(job.session.year, job.session.term.code)
                     if year_term in summary.keys():
@@ -536,7 +535,9 @@ def get_declined_jobs_by_student(user, student_jobs):
                         'course_number': job.course.number.name,
                         'course_section': job.course.section.name,
                         'assigned_status': 'Declined',
-                        'assigned_hours': status.assigned_hours
+                        'assigned_hours': status.assigned_hours,
+                        'session_slug': job.session.slug,
+                        'job_slug': job.course.slug
                     })
     return jobs
 

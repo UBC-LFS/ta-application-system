@@ -49,14 +49,18 @@
     <tr>
       <td>{{ job.year }}</td>
       <td>{{ job.term }}</td>
-      <td>{{ job.course_code }} {{ job.course_number }} {{ job.course_section }}</td>
+      <td>
+        <a href="{% url 'administrators:display_job_details' session_slug=job.session_slug job_slug=job.job_slug role='student' %}">
+          {{ job.course_code }} {{ job.course_number }} {{ job.course_section }}
+        </a>
+      </td>
       <td>{{ job.assigned_status }}</td>
       <td>{{ job.assigned_hours }} hours</td>
       <td>
         {% if job.accepted %}
-          {{ job.accepted.get_assigned_display }}: {{ job.accepted.assigned_hours }} hours at {{ job.accepted.created_at }}
+          {{ job.accepted.get_assigned_display }}: {{ job.accepted.assigned_hours }} hours on {{ job.accepted.created_at }}
         {% elif job.declined %}
-          {{ job.declined.get_assigned_display }}: {{ job.declined.assigned_hours }} hours at {{ job.declined.created_at }}
+          {{ job.declined.get_assigned_display }}: {{ job.declined.assigned_hours }} hours on {{ job.declined.created_at }}
         {% else %}
           None
         {% endif %}

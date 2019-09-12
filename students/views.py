@@ -402,7 +402,6 @@ def apply_job(request, session_slug, job_slug):
     loggedin_user = userApi.loggedin_user(request.user)
     if 'Student' not in loggedin_user.roles: raise PermissionDenied
 
-    session = adminApi.get_session_by_slug(session_slug)
     job = adminApi.get_session_job_by_slug(session_slug, job_slug)
     if request.method == 'POST':
         form = ApplicationForm(request.POST)
@@ -427,11 +426,10 @@ def apply_job(request, session_slug, job_slug):
 
     return render(request, 'students/jobs/apply_job.html', {
         'loggedin_user': loggedin_user,
-        'session': session,
         'job': job,
         'has_applied_job': adminApi.has_applied_job(session_slug, job_slug, loggedin_user),
         'form': ApplicationForm(initial={
-            'applicant': request.user.id,
+            'applicant': loggedin_user.id,
             'job': job.id
         })
     })
@@ -444,36 +442,28 @@ def type_jobs(request, type):
     loggedin_user = userApi.loggedin_user(request.user)
     if 'Student' not in loggedin_user.roles: raise PermissionDenied
 
-    print('type ', type)
-    student_jobs = adminApi.get_jobs_applied_by_student(loggedin_user)
-    applied_jobs = None
-    offered_jobs = None
-    offered_summary = None
-    accepted_jobs = None
-    accepted_summary = None
-    declined_jobs = None
+    context = {
+        'loggedin_user': loggedin_user,
+        'type': type
+    }
 
+    student_jobs = adminApi.get_jobs_applied_by_student(loggedin_user)
     if type == 'applied_jobs':
-        applied_jobs = adminApi.get_jobs_applied_by_student(loggedin_user)
+        context['applied_jobs'] = adminApi.get_jobs_applied_by_student(loggedin_user)
     elif type == 'offered_jobs':
         offered_jobs, offered_summary = adminApi.get_offered_jobs_by_student(loggedin_user, student_jobs)
+        context['offered_jobs'] = offered_jobs
+        context['offered_summary'] = offered_summary
     elif type == 'accepted_jobs':
         accepted_jobs, accepted_summary = adminApi.get_accepted_jobs_by_student(loggedin_user, student_jobs)
+        context['accepted_jobs'] = accepted_jobs
+        context['accepted_summary'] = accepted_summary
     elif type == 'declined_jobs':
-        declined_jobs = adminApi.get_declined_jobs_by_student(loggedin_user, student_jobs)
+        context['declined_jobs'] = adminApi.get_declined_jobs_by_student(loggedin_user, student_jobs)
     else:
         raise Http404
 
-    return render(request, 'students/jobs/type_jobs.html', {
-        'loggedin_user': loggedin_user,
-        'applied_jobs': applied_jobs,
-        'offered_jobs': offered_jobs,
-        'offered_summary': offered_summary,
-        'accepted_jobs': accepted_jobs,
-        'accepted_summary': accepted_summary,
-        'declined_jobs': declined_jobs,
-        'type': type
-    })
+    return render(request, 'students/jobs/type_jobs.html', context)
 
 """
 @login_required(login_url=settings.LOGIN_URL)
@@ -592,7 +582,7 @@ def accept_offer(request, session_slug, job_slug):
                 message.error(request, 'Error!')
         else:
             message.error(request, 'Error! Form is invalid')
-    return redirect('students:offered_jobs')
+    return HttpResponseRedirect( reverse('students:type_jobs', args=['offered_jobs']) )
 
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -614,14 +604,14 @@ def decline_offer(request, session_slug, job_slug):
                 application.status.add(status)
                 application.save()
                 if application:
-                    messages.success(request, 'Success!')
+                    messages.success(request, 'Success! You declined the job offer - {0} {1}: {2} {3} {4} '.format(application.job.session.year, application.job.session.term.code, application.job.course.code.name, application.job.course.number.name, application.job.course.section.name))
                 else:
                     message.error(request, 'Error!')
             else:
                 message.error(request, 'Error!')
         else:
             message.error(request, 'Error! Form is invalid')
-    return redirect('students:offered_jobs')
+    return HttpResponseRedirect( reverse('students:type_jobs', args=['offered_jobs']) )
 
 
 # -------------
