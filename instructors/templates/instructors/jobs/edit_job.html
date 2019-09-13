@@ -7,9 +7,9 @@
   <div id="content" class="container-fluid">
 
     <h3>Edit a Job</h3>
-    <h5>{{ job.session.year }} {{ job.session.term.code }}- {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</h5>
+    <h5>{{ job.session.year }} {{ job.session.term.code }} - {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</h5>
     <small>Created at: {{ job.created_at }} | Updated at: {{ job.updated_at }}</small>
-    
+
     <h5>Intstructors:</h5>
     <ul>
       {% for instructor in job.instructors.all %}

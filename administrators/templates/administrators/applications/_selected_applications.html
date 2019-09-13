@@ -87,34 +87,33 @@
             Offered
           {% else %}
             <button type="button" data-toggle="modal" data-target="#jobApplicationOfferModal-{{ app.id }}">Offer</button>
-          {% endif %}
-          <div class="modal fade" id="jobApplicationOfferModal-{{ app.id }}" tabindex="-1" role="dialog" aria-labelledby="jobApplicationOfferModalLabel-{{ app.id }}" aria-hidden="true">
-            <div class="modal-dialog modal-lg" role="document">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title" id="jobApplicationOfferModalLabel-{{ app.id }}">Offer</h5>
-                  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                </div>
-                <div class="modal-body">
-                  <h4>
-                    To {{ app.applicant.username }} for
-                    {{ app.job.session.year }} {{ app.job.session.term.code }} - {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}
-                  </h4>
-                  <form action="{% url 'administrators:offer_job' session_slug=app.job.session.slug job_slug=app.job.course.slug type=type %}" method="post">
-                    {% csrf_token %}
-                    <div>
-                      <label for="assigned_hours">Assigned Hours:</label>
-                      <input type="number" name="assigned_hours" value="0.0" />
-                    </div>
-                    <input type="hidden" name="assigned" value="{{ offer_status_code }}" />
-                    <input type="hidden" name="applicant" value="{{ app.applicant.id }}" />
-                    <input type="submit" value="Offer" />
-                  </form>
+            <div class="modal fade" id="jobApplicationOfferModal-{{ app.id }}" tabindex="-1" role="dialog" aria-labelledby="jobApplicationOfferModalLabel-{{ app.id }}" aria-hidden="true">
+              <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="jobApplicationOfferModalLabel-{{ app.id }}">Offer</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                  </div>
+                  <div class="modal-body">
+                    <h4>
+                      To {{ app.applicant.username }} for
+                      {{ app.job.session.year }} {{ app.job.session.term.code }} - {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}
+                    </h4>
+                    <form action="{% url 'administrators:offer_job' session_slug=app.job.session.slug job_slug=app.job.course.slug type=type %}" method="post">
+                      {% csrf_token %}
+                      <div>
+                        <label for="assigned_hours">Assigned Hours:</label>
+                        <input type="number" name="assigned_hours" value="0.0" />
+                      </div>
+                      <input type="hidden" name="assigned" value="{{ offer_status_code }}" />
+                      <input type="hidden" name="applicant" value="{{ app.applicant.id }}" />
+                      <input type="submit" value="Offer" />
+                    </form>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-
+          {% endif %}
         </td>
       </tr>
     {% empty %}

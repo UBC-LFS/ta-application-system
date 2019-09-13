@@ -159,11 +159,29 @@ def update_session_jobs(session, courses):
 
 
 # Jobs
-# checked
+
 def get_jobs():
-    """ Get all jobs """
+    ''' Get all jobs '''
     return Job.objects.all()
 
+def get_jobs_with_applications_statistics():
+    ''' '''
+    jobs = []
+    for job in Job.objects.all():
+        offered_app = 0
+        accepted_app = 0
+        declined_app = 0
+        for app in job.application_set.all():
+            if get_offered(app): offered_app += 1
+            if get_accepted(app): accepted_app += 1
+            if get_declined(app): declined_app += 1
+
+        job.offered_applications = offered_app
+        job.accepted_applications = accepted_app
+        job.declined_applications = declined_app
+        jobs.append(job)
+
+    return jobs
 
 # checked
 def get_session_job_by_slug(session_slug, job_slug):
@@ -285,10 +303,9 @@ def update_job_ta_hours(session_slug, job_slug, ta_hours):
     job = get_session_job_by_slug(session_slug, job_slug)
     new_hours = job.ta_hours + float(ta_hours)
     job.ta_hours = new_hours
-    job.save(update_fields=['ta_hours'])
-    return True
-
-
+    saved = job.save(update_fields=['ta_hours'])
+    print('saved ', saved)
+    return True if job else False
 
 
 def get_applications_applied_by_student(user):
@@ -372,8 +389,8 @@ def update_application_classification_note(application_id, data):
 
 
 def get_applications():
-    """ Get all applications """
-    return Application.objects.all()
+    ''' Get all applications '''
+    return Application.objects.all().order_by('id')
 
 def get_offered_applications_by_student(user):
     applications = []
@@ -409,11 +426,24 @@ def get_offered_applications():
 def get_accepted_applications():
     applications = []
     for app in get_applications():
-        accepted = get_accepted(app)
-        if accepted:
-            applications.append(app)
+        app.has_accepted = None
+        for st in app.status.all():
+            if st.assigned == ApplicationStatus.ACCEPTED:
+                app.has_accepted = st.assigned_hours
+                applications.append(app)
     return applications
 
+def get_accepted_status(application):
+    for st in application.status.all():
+        if st.assigned == ApplicationStatus.ACCEPTED:
+            return st
+    return None
+
+def get_declined_status(application):
+    for st in application.status.all():
+        if st.assigned == ApplicationStatus.DECLINED:
+            return st
+    return None
 
 def get_declined_applications():
     applications = []
@@ -424,12 +454,9 @@ def get_declined_applications():
     return applications
 
 #checked
-def get_application(application_id):
-    """ Get an application """
-    try:
-        return Application.objects.get(id=application_id)
-    except Application.DoesNotExist:
-        return None
+def get_application(app_id):
+    ''' Get an application '''
+    return get_object_or_404(Application, id=app_id)
 
 def get_application_slug(app_slug):
     ''' Get an application '''
@@ -455,6 +482,9 @@ def get_declined(application):
     if application.status.filter(assigned=ApplicationStatus.DECLINED).exists():
         return application.status.get(assigned=ApplicationStatus.DECLINED)
     return False
+
+
+
 
 
 def get_offered_jobs_by_student(user, student_jobs):

@@ -47,11 +47,6 @@ class CourseSection(models.Model):
     def __str__(self):
         return self.name
 
-
-
-
-
-
 # checked
 class Course(models.Model):
     """ Create a Course model """
@@ -125,8 +120,8 @@ class Job(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     instructors = models.ManyToManyField(User)
 
-    ta_hours = models.FloatField(default=0.00)
-    assigned_ta_hours = models.FloatField(default=0.00)
+    assigned_ta_hours = models.FloatField(default=0.00) # Admins can assign ta hours
+    ta_hours = models.FloatField(default=0.00)          # Add up all student's ta hours
     is_active = models.BooleanField(default=True)
     created_at = models.DateField(default=dt.date.today)
     updated_at = models.DateField(default=dt.date.today)

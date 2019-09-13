@@ -43,6 +43,9 @@
       <h4><a class="nav-link" href="{% url 'administrators:applications' %}">Applications</a></h4>
     </li>
     <li class="nav-item">
+      <a class="nav-link text-secondary" href="{% url 'administrators:type_applications' type='all_applications' %}">All Applications</a>
+    </li>
+    <li class="nav-item">
       <a class="nav-link text-secondary" href="{% url 'administrators:type_applications' type='selected_applications' %}">Selected Applications</a>
     </li>
     <li class="nav-item">

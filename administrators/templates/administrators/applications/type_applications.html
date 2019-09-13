@@ -14,7 +14,9 @@
     	{% endfor %}
     {% endif %}
 
-    {% if type == 'selected_applications' %}
+    {% if type == 'all_applications' %}
+      {% include 'administrators/applications/_all_applications.html' %}
+    {% elif type == 'selected_applications' %}
       {% include 'administrators/applications/_selected_applications.html' %}
     {% elif type == 'offered_applications' %}
       {% include 'administrators/applications/_offered_applications.html' %}

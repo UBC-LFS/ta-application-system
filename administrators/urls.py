@@ -32,10 +32,12 @@ urlpatterns = [
     path('applications/offered/send_email/confirmation/', views.offered_applications_send_email_confirmation, name='offered_applications_send_email_confirmation'),
     path('applications/offered/send_email/', views.offered_applications_send_email, name='offered_applications_send_email'),
     path('applications/<str:app_slug>/details/type/<str:type>/', views.show_application, name='show_application'),
-    path('applications/<str:type>/', views.type_applications, name='type_applications'),
+    path('applications/type/<str:type>/', views.type_applications, name='type_applications'),
     path('sessions/<str:session_slug>/jobs/<str:job_slug>/offer/<str:type>/', views.offer_job, name='offer_job'),
     path('sessions/<str:session_slug>/jobs/<str:job_slug>/application/edit/<str:type>/', views.edit_job_application, name='edit_job_application'),
     path('applications/offered/email_history/', views.email_history, name='email_history'),
+    path('applications/decline_reassign/confirmation/', views.decline_reassign_confirmation, name='decline_reassign_confirmation'),
+    path('applications/decline_reassign/', views.decline_reassign, name='decline_reassign'),
     path('applications/', views.applications, name='applications'),
 
     path('hr/', views.hr, name='hr'),
