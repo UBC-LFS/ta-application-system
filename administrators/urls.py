@@ -43,7 +43,7 @@ urlpatterns = [
     path('hr/', views.hr, name='hr'),
     path('hr/users/create/', views.create_user, name='create_user'),
     path('hr/users/', views.users, name='users'),
-    path('hr/users/<str:username>/', views.show_user, name='show_user'),
+    path('hr/users/<str:username>/role/<str:role>/', views.show_user, name='show_user'),
     path('hr/confidentiality/view/', views.view_confidentiality, name='view_confidentiality'),
 
     path('preparation/terms/delete/', views.delete_term, name='delete_term'),

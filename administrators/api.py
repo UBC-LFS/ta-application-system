@@ -1,5 +1,6 @@
 import os
 from django.shortcuts import get_object_or_404
+from django.http import Http404
 from django.forms.models import model_to_dict
 from django.db.models import Q
 from django.contrib.auth.models import User
@@ -60,11 +61,8 @@ def get_session(session_id):
         return None
 
 def get_session_by_slug(session_slug):
-    """ Get a session by slug """
-    try:
-        return Session.objects.get(slug=session_slug)
-    except Session.DoesNotExist:
-        return None
+    ''' Get a session by slug '''
+    return get_object_or_404(Session, slug=session_slug)
 
 def get_sessions_by_year(year):
     """ Get sessions by year """
@@ -164,33 +162,17 @@ def get_jobs():
     ''' Get all jobs '''
     return Job.objects.all()
 
-def get_jobs_with_applications_statistics():
-    ''' '''
-    jobs = []
-    for job in Job.objects.all():
-        offered_app = 0
-        accepted_app = 0
-        declined_app = 0
-        for app in job.application_set.all():
-            if get_offered(app): offered_app += 1
-            if get_accepted(app): accepted_app += 1
-            if get_declined(app): declined_app += 1
-
-        job.offered_applications = offered_app
-        job.accepted_applications = accepted_app
-        job.declined_applications = declined_app
-        jobs.append(job)
-
-    return jobs
-
-# checked
 def get_session_job_by_slug(session_slug, job_slug):
-    """ Get a job by session slug and job slug """
+    ''' Get a job by session slug and job slug '''
     session = get_session_by_slug(session_slug)
-    for job in session.job_set.all():
+    if session.job_set.filter(course__slug=job_slug).exists():
+        return session.job_set.get(course__slug=job_slug)
+    raise Http404
+
+    """for job in session.job_set.all():
         if job.course.slug == job_slug:
             return job
-    return None
+    return None"""
 
 
 
@@ -248,12 +230,12 @@ def get_job_applied_by_student(user, session_slug, job_slug):
             return job
     return None
 
-#checked
+
 def get_application_by_student_id_job(user_id, job):
-    try:
+    ''' '''
+    if job.application_set.filter(applicant__id=user_id).exists():
         return job.application_set.get(applicant__id=user_id)
-    except Application.DoesNotExist:
-        return None
+    return None
 
 '''
 def get_application_by_student_id_job(user_id, job):
@@ -388,9 +370,14 @@ def update_application_classification_note(application_id, data):
         return None
 
 
-def get_applications():
+def get_applications(option=None):
     ''' Get all applications '''
-    return Application.objects.all().order_by('id')
+    if not option:
+        return Application.objects.all().order_by('id')
+    return Application.objects.all().order_by(option)
+
+def get_application_statuses():
+    return ApplicationStatus.objects.all().order_by('-id')
 
 def get_offered_applications_by_student(user):
     applications = []
@@ -408,7 +395,7 @@ def get_selected_applications():
                 app.resume_file = os.path.basename(app.applicant.resume.file.name)
 
             app.has_offered = None
-            for st in app.status.all():
+            for st in app.applicationstatus_set.all():
                 if st.assigned == ApplicationStatus.OFFERED:
                     app.has_offered = st.assigned_hours
             applications.append(app)
@@ -427,21 +414,19 @@ def get_accepted_applications():
     applications = []
     for app in get_applications():
         app.has_accepted = None
-        for st in app.status.all():
+
+        for st in app.applicationstatus_set.all().order_by('id'):
             if st.assigned == ApplicationStatus.ACCEPTED:
                 app.has_accepted = st.assigned_hours
-                applications.append(app)
+
+        if app.has_accepted:
+            applications.append(app)
+
     return applications
 
-def get_accepted_status(application):
-    for st in application.status.all():
+def get_accepted_status(app):
+    for st in app.applicationstatus_set.all().order_by('-id'):
         if st.assigned == ApplicationStatus.ACCEPTED:
-            return st
-    return None
-
-def get_declined_status(application):
-    for st in application.status.all():
-        if st.assigned == ApplicationStatus.DECLINED:
             return st
     return None
 
@@ -466,25 +451,45 @@ def get_applications_by_student(user):
     applications = get_applications()
     return applications.filter(applicant__id=user.id)
 
+def temp():
+    for job in Job.objects.all():
+        for app in job.application_set.all():
+            print(app.id, app.applicationstatus_set.all())
 
-def get_offered(application):
-    if application.status.filter(assigned=ApplicationStatus.OFFERED).exists():
-        return application.status.get(assigned=ApplicationStatus.OFFERED)
+def get_jobs_with_applications_statistics():
+    ''' '''
+    jobs = []
+    for job in Job.objects.all():
+        offered_app = 0
+        accepted_app = 0
+        declined_app = 0
+        for app in job.application_set.all():
+            if get_offered(app): offered_app += 1
+            if get_accepted(app): accepted_app += 1
+            if get_declined(app): declined_app += 1
+
+        job.offered_applications = offered_app
+        job.accepted_applications = accepted_app
+        job.declined_applications = declined_app
+        jobs.append(job)
+
+    return jobs
+
+def get_offered(app):
+    if app.applicationstatus_set.filter(assigned=ApplicationStatus.OFFERED).exists():
+        return app.applicationstatus_set.get(assigned=ApplicationStatus.OFFERED)
     return False
 
-def get_accepted(application):
-    if application.status.filter(assigned=ApplicationStatus.ACCEPTED).exists():
-        return application.status.get(assigned=ApplicationStatus.ACCEPTED)
+def get_accepted(app):
+    if app.applicationstatus_set.filter(assigned=ApplicationStatus.ACCEPTED).exists():
+        return app.applicationstatus_set.get(assigned=ApplicationStatus.ACCEPTED)
     return False
 
 
-def get_declined(application):
-    if application.status.filter(assigned=ApplicationStatus.DECLINED).exists():
-        return application.status.get(assigned=ApplicationStatus.DECLINED)
+def get_declined(app):
+    if app.applicationstatus_set.filter(assigned=ApplicationStatus.DECLINED).exists():
+        return app.applicationstatus_set.filter(assigned=ApplicationStatus.DECLINED)
     return False
-
-
-
 
 
 def get_offered_jobs_by_student(user, student_jobs):
@@ -494,15 +499,15 @@ def get_offered_jobs_by_student(user, student_jobs):
     for job in student_jobs:
         for app in job.application_set.all():
             if app.applicant.id == user.id:
-                if app.status.filter(assigned=ApplicationStatus.OFFERED).exists():
-                    status = app.status.get(assigned=ApplicationStatus.OFFERED)
+                if app.applicationstatus_set.filter(assigned=ApplicationStatus.OFFERED).exists():
+                    status = app.applicationstatus_set.get(assigned=ApplicationStatus.OFFERED)
 
                     accepted = None
                     declined = None
-                    if app.status.filter(assigned=ApplicationStatus.ACCEPTED).exists():
-                        accepted = app.status.get(assigned=ApplicationStatus.ACCEPTED)
-                    if app.status.filter(assigned=ApplicationStatus.DECLINED).exists():
-                        declined = app.status.get(assigned=ApplicationStatus.DECLINED)
+                    if app.applicationstatus_set.filter(assigned=ApplicationStatus.ACCEPTED).exists():
+                        accepted = app.applicationstatus_set.get(assigned=ApplicationStatus.ACCEPTED)
+                    if app.applicationstatus_set.filter(assigned=ApplicationStatus.DECLINED).exists():
+                        declined = app.applicationstatus_set.get(assigned=ApplicationStatus.DECLINED)
 
                     jobs.append({
                         'year': job.session.year,
@@ -530,8 +535,8 @@ def get_accepted_jobs_by_student(user, student_jobs):
     for job in student_jobs:
         for app in job.application_set.all():
             if app.applicant.id == user.id:
-                if app.status.filter(assigned=ApplicationStatus.ACCEPTED).exists():
-                    status = app.status.get(assigned=ApplicationStatus.ACCEPTED)
+                if app.applicationstatus_set.filter(assigned=ApplicationStatus.ACCEPTED).exists():
+                    status = app.applicationstatus_set.get(assigned=ApplicationStatus.ACCEPTED)
                     jobs.append({
                         'year': job.session.year,
                         'term': job.session.term.code,
@@ -556,8 +561,8 @@ def get_declined_jobs_by_student(user, student_jobs):
     for job in student_jobs:
         for app in job.application_set.all():
             if app.applicant.id == user.id:
-                if app.status.filter(assigned=ApplicationStatus.DECLINED).exists():
-                    status = app.status.get(assigned=ApplicationStatus.DECLINED)
+                if app.applicationstatus_set.filter(assigned=ApplicationStatus.DECLINED).exists():
+                    status = app.applicationstatus_set.get(assigned=ApplicationStatus.DECLINED)
                     jobs.append({
                         'year': job.session.year,
                         'term': job.session.term.code,
@@ -570,6 +575,12 @@ def get_declined_jobs_by_student(user, student_jobs):
                         'job_slug': job.course.slug
                     })
     return jobs
+
+def student_apply_job(app):
+    app_status = ApplicationStatus.objects.create(application=app, assigned=ApplicationStatus.NONE, assigned_hours=0.0)
+    return app_status if app_status else None
+
+
 
 """
 def get_offered_jobs_by_student2(user, student_jobs):

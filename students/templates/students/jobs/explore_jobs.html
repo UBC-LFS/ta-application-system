@@ -15,38 +15,36 @@
 				<div class="col-7">
 					<div class="row">
 						{% for session in visible_current_sessions %}
-								<div class="card margin-top-30 padding-20">
-									<h5><a href="{% url 'students:available_jobs' session.slug %}">{{ session.year }} {{ session.term.name }} {{ session.title }}</a></h5>
-						<p class="margin-bottom-0">Number of jobs: {{ session.job_set.count }}</p>
-						<p class="margin-bottom-0">Description: {{ session.description }}</p>
-									<p>Note: {{ session.note }}</p>
-								</div>
+							<div class="card margin-top-30 padding-20">
+								<h5><a href="{% url 'students:available_jobs' session.slug %}">{{ session.year }} {{ session.term.name }} {{ session.title }}</a></h5>
+								<p class="margin-bottom-0">Number of jobs: {{ session.job_set.count }}</p>
+								<p class="margin-bottom-0">Description: {{ session.description }}</p>
+								<p>Note: {{ session.note }}</p>
+							</div>
 						{% empty %}
 							No current sessions found.
 						{% endfor %}
 					</div>
 				</div>
 
-					<div class="col-5">
-
-
-						<h4>Offered Jobs</h4>
-						<ul>
+				<div class="col-5">
+					<h4>Offered Jobs</h4>
+					<ul>
 						{% for job in offered_jobs %}
 							<li>{{ job.year }} {{ job.term }} - {{ job.course_code }} {{ job.course_number }} {{ job.course_section }}: {{ job.assigned_status }} {{ job.assigned_hours }} hours</li>
 						{% empty %}
 							<li>No offered jobs found</li>
 						{% endfor %}
-						</ul>
+					</ul>
 
-						<h4>Accepted Jobs</h4>
-						<ul>
+					<h4>Accepted Jobs</h4>
+					<ul>
 						{% for job in accepted_jobs %}
 							<li>{{ job.year }} {{ job.term }} - {{ job.course_code }} {{ job.course_number }} {{ job.course_section }}: {{ job.assigned_status }} {{ job.assigned_hours }} hours</li>
 						{% empty %}
 							<li>No accepted jobs found</li>
 						{% endfor %}
-						</ul>
+					</ul>
 
 				</div>
 

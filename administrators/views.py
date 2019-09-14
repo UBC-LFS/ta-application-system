@@ -182,8 +182,8 @@ def create_session_confirmation(request):
                 jobs = adminApi.create_jobs(session, courses)
                 if jobs:
                     del request.session['session_form_data'] # remove session form data
-                    messages.success(request, 'Success! {0} {1} {2} created'.format(session.year, session.term.code, session.title))
-                    return redirect('administrators:current_sessions')
+                    messages.success(request, 'Success! {0} {1} - {2} created'.format(session.year, session.term.code, session.title))
+                    return HttpResponseRedirect( reverse('administrators:type_sessions', args=['current_sessions']) )
                 else:
                     messages.error(request, 'Error! Failed to create jobs')
             else:
@@ -281,7 +281,7 @@ def edit_session(request, session_slug, type):
                 updated_jobs = adminApi.update_session_jobs(session, courses)
                 if updated_jobs:
                     messages.success(request, 'Success! {0} {1} {2} updated'.format(session.year, session.term.code, session.title))
-                    return redirect('administrators:{0}'.format(type))
+                    return HttpResponseRedirect( reverse('administrators:type_sessions', args=[type]) )
                 else:
                     messages.error(request, 'Error!')
             else:
@@ -472,6 +472,7 @@ def applications(request):
         'loggedin_user': loggedin_user
     })
 
+
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
@@ -485,7 +486,17 @@ def type_applications(request, type):
         'type': type
     }
 
-    if type == 'all_applications':
+    if type == 'applications_dashboard':
+        context['applications'] = adminApi.get_applications('-updated_at')
+        context['statuses'] = adminApi.get_application_statuses()
+        context['app_status'] = {
+            'applied': ApplicationStatus.NONE,
+            'offered': ApplicationStatus.OFFERED,
+            'accepted': ApplicationStatus.ACCEPTED,
+            'declined': ApplicationStatus.DECLINED
+        }
+
+    elif type == 'all_applications':
         context['applications'] = adminApi.get_applications()
 
     elif type == 'selected_applications':
@@ -537,13 +548,8 @@ def edit_job_application(request, session_slug, job_slug, type):
 @require_http_methods(['POST'])
 def offer_job(request, session_slug, job_slug, type):
     ''' Admin can offer a job to each job '''
-
-    if not userApi.is_valid_user(request.user):
-        raise PermissionDenied
-
     loggedin_user = userApi.loggedin_user(request.user)
-    if not userApi.is_admin(loggedin_user):
-        raise PermissionDenied
+    if not userApi.is_admin(loggedin_user): raise PermissionDenied
 
     job = adminApi.get_session_job_by_slug(session_slug, job_slug)
     if request.method == 'POST':
@@ -551,16 +557,10 @@ def offer_job(request, session_slug, job_slug, type):
         assigned_hours = request.POST.get('assigned_hours')
         form = ApplicationStatusForm(request.POST)
         if form.is_valid():
-            data = form.cleaned_data
             status = form.save()
             if status:
-                application = adminApi.get_application_by_student_id_job(applicant_id, job)
-                application.status.add(status)
-                application.save()
-                if application:
-                    messages.success(request, 'Success! You offered {0} {1} hours for this job'.format(application.applicant.username, assigned_hours))
-                else:
-                    messages.error(request, 'Error!')
+                app = adminApi.get_application_by_student_id_job(applicant_id, job)
+                messages.success(request, 'Success! You offered this user ({0} {1}) {2} hours for this job ({3} {4} - {5} {6} {7})'.format(app.applicant.first_name, app.applicant.last_name, assigned_hours, app.job.session.year, app.job.session.term.code, app.job.course.code.name, app.job.course.number.name, app.job.course.section.name))
             else:
                 messages.error(request, 'Error!')
         else:
@@ -697,14 +697,13 @@ def decline_reassign_confirmation(request):
         new_assigned_hours = request.POST.get('new_assigned_hours')
         application = adminApi.get_application(app_id)
         accepted_status = adminApi.get_accepted_status(application)
-        declined_status = adminApi.get_declined_status(application)
 
-        form = ApplicationStatusForm({ 'assigned': ApplicationStatus.DECLINED, 'assigned_hours': 0.00 }, instance=accepted_status)
+        form = ApplicationStatusReassignForm({ 'assigned': ApplicationStatus.DECLINED, 'assigned_hours': 0.00, 'parent_id': accepted_status.id })
         if form.is_valid():
             declined_status = form.save()
             if declined_status:
                 application.status.add(declined_status)
-                reassign_form = ApplicationStatusForm({ 'assigned': ApplicationStatus.ACCEPTED, 'assigned_hours': new_assigned_hours }, instance=declined_status)
+                reassign_form = ApplicationStatusForm({ 'assigned': ApplicationStatus.ACCEPTED, 'assigned_hours': new_assigned_hours })
                 reassigned_status = reassign_form.save()
                 if reassigned_status:
                     application.status.add(reassigned_status)
@@ -887,11 +886,9 @@ def users(request):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
-def show_user(request, username):
-
-    if not userApi.is_valid_user(request.user): raise PermissionDenied
+def show_user(request, username, role):
+    ''' '''
     loggedin_user = userApi.loggedin_user(request.user)
-    if not userApi.is_admin(loggedin_user): raise PermissionDenied
 
     user = userApi.get_user_by_username(username)
     resume_file = None
@@ -903,6 +900,7 @@ def show_user(request, username):
         'previous_url': request.META['HTTP_REFERER'],
         'user': user,
         'resume_file': resume_file,
+        'role': role
     })
 
 

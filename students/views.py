@@ -406,15 +406,12 @@ def apply_job(request, session_slug, job_slug):
     if request.method == 'POST':
         form = ApplicationForm(request.POST)
         if form.is_valid():
-            data = form.cleaned_data
             application = form.save()
 
             if application:
-                status_form = ApplicationStatusForm({ 'assigned': ApplicationStatus.NONE, 'assigned_hours': 0.00 })
-                status = status_form.save()
+                app_status = adminApi.student_apply_job(application)
 
-                if status:
-                    application.status.add(status)
+                if app_status:
                     messages.success(request, 'Success! {0} {1} - {2} {3} {4} applied'.format(job.session.year, job.session.term.code, job.course.code.name, job.course.number.name, job.course.section.name))
                     return HttpResponseRedirect( reverse('students:available_jobs', args=[session_slug]) )
                 else:
@@ -428,10 +425,7 @@ def apply_job(request, session_slug, job_slug):
         'loggedin_user': loggedin_user,
         'job': job,
         'has_applied_job': adminApi.has_applied_job(session_slug, job_slug, loggedin_user),
-        'form': ApplicationForm(initial={
-            'applicant': loggedin_user.id,
-            'job': job.id
-        })
+        'form': ApplicationForm(initial={ 'applicant': loggedin_user.id, 'job': job.id })
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -450,16 +444,20 @@ def type_jobs(request, type):
     student_jobs = adminApi.get_jobs_applied_by_student(loggedin_user)
     if type == 'applied_jobs':
         context['applied_jobs'] = adminApi.get_jobs_applied_by_student(loggedin_user)
+
     elif type == 'offered_jobs':
         offered_jobs, offered_summary = adminApi.get_offered_jobs_by_student(loggedin_user, student_jobs)
         context['offered_jobs'] = offered_jobs
         context['offered_summary'] = offered_summary
+
     elif type == 'accepted_jobs':
         accepted_jobs, accepted_summary = adminApi.get_accepted_jobs_by_student(loggedin_user, student_jobs)
         context['accepted_jobs'] = accepted_jobs
         context['accepted_summary'] = accepted_summary
+
     elif type == 'declined_jobs':
         context['declined_jobs'] = adminApi.get_declined_jobs_by_student(loggedin_user, student_jobs)
+
     else:
         raise Http404
 

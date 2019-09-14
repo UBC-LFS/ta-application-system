@@ -15,7 +15,7 @@
     {% for instructor in instructors %}
       <tr>
         <td>
-          <a href="{% url 'administrators:show_user' instructor.username %}">{{ instructor.id }}</a>
+          <a href="{% url 'administrators:show_user' username=instructor.username role='administrator' %}">{{ instructor.id }}</a>
         </td>
         <td>{{ instructor.first_name }}</td>
         <td>{{ instructor.last_name }}</td>

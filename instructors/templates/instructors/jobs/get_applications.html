@@ -35,23 +35,18 @@
       <tbody>
         {% for app in job.application_set.all %}
           <tr>
-            <td>{{ app.applicant.first_name }} {{ app.applicant.last_name }}</td>
+            <td>
+              <a href="{% url 'administrators:show_user' username=app.applicant.username role='instructor' %}">
+                {{ app.applicant.first_name }} {{ app.applicant.last_name }}
+              </a>
+            </td>
             <td>{{ app.applicant.username }}</td>
             <td>{{ app.supervisor_approval }}</td>
             <td>{{ app.get_how_qualified_display }}</td>
             <td>{{ app.get_how_interested_display }}</td>
             <td>{{ app.availability }}</td>
             <td>{{ app.availability_note }}</td>
-            <td>
-              <ul>
-                {% for st in app.status.all %}
-                  <li>{{ st.get_assigned_display }}: {{ st.assigned_hours }} hours on {{ st.created_at }}</li>
-                {% empty %}
-                  <li>No status</li>
-                {% endfor %}
-              </ul>
-
-            </td>
+            <td>{% include 'administrators/util/_display_app_status.html' with data=app %}</td>
             <td>
               <form action="" method="post" onsubmit="return confirm('Are you sure to select this preference for {{ app.applicant.first_name }} {{ app.applicant.last_name }} ?');">
                 {% csrf_token %}
@@ -68,6 +63,10 @@
                 <input type="submit" value="Select" />
               </form>
             </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td>No applications found</td>
           </tr>
         {% endfor %}
       </tbody>

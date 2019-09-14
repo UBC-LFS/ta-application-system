@@ -8,7 +8,7 @@
 
     <h3>Instructor Jobs and Details</h3>
 
-    <div>ID: {{ instructor.id }}</div>
+    <div>Instructor ID: {{ instructor.id }}</div>
     <div>First Name: {{ instructor.first_name }}</div>
     <div>Last Name: {{ instructor.last_name }}</div>
     <div>Preferred Name: {{ instructor.profile.preferred_name }}</div>
@@ -16,6 +16,8 @@
     <div>E-mail: {{ instructor.email }}</div>
 
     <hr />
+
+    <h5>Jobs</h5>
 
     <table class="table">
       <thead>
@@ -45,31 +47,11 @@
             <ul>
               {% for app in job.application_set.all %}
                 <li>
-                  <a href="{% url 'administrators:show_user' app.applicant.username %}">{{ app.applicant.first_name }} {{ app.applicant.last_name }}</a>
-
-                  <button type="button" class="btn btn-sm btn-info" data-toggle="modal" data-target="#application-modal-{{ app.id }}">Status</button>
-                	<div class="modal fade" id="application-modal-{{ app.id }}" tabindex="-1" role="dialog" aria-labelledby="application-modal-label-{{ app.id }}" aria-hidden="true">
-                  	<div class="modal-dialog modal-lg" role="document">
-                  	  <div class="modal-content">
-                    		<div class="modal-header">
-                    		  <h5 class="modal-title" id="application-modal-label-{{ app.id }}">{{ app.applicant.first_name }} {{ app.applicant.last_name }}'s Application Status</h5>
-                    		  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    			<span aria-hidden="true">&times;</span>
-                    		  </button>
-                    		</div>
-                    		<div class="modal-body">
-                          <ul>
-                            {% for st in app.status.all %}
-                              <li>{{ st.get_assigned_display }}: {{ st.assigned_hours }} hours on {{ st.created_at }}</li>
-                            {% endfor %}
-                          </ul>
-                    		</div>
-                  	  </div>
-                  	</div>
-                	</div>
+                  <a href="{% url 'administrators:show_user' username=app.applicant.username role='administrator' %}">{{ app.applicant.first_name }} {{ app.applicant.last_name }}</a>
+                  {% include 'administrators/util/_modal_application_status.html' with data=app %}
                 </li>
               {% empty %}
-                <li>No applications</li>
+                <li>No applicants</li>
               {% endfor %}
             </ul>
           </td>

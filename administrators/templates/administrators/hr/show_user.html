@@ -2,9 +2,15 @@
 {% block content %}
 
 <div class="wrapper">
-  {% include "administrators/util/_sidebar.html" %}
 
-
+  {% if role == 'administrator' %}
+    {% include 'administrators/util/_sidebar.html' %}
+  {% elif role == 'instructor' %}
+    {% include 'instructors/util/_sidebar.html' %}
+  {% elif role == 'student' %}
+    {% include 'students/util/_sidebar.html' %}
+  {% endif %}
+  
   <div id="content" class="container-fluid">
 
     <h3>User Details</h3>
@@ -15,14 +21,17 @@
         <h3 class="margin-top-30">Infomation</h3>
 
         <ul class="list-group">
-          <li class="list-group-item"><b>User ID:</b> {{ user.id }}</li>
+          {% if role == 'administrator' %}
+            <li class="list-group-item"><b>User ID:</b> {{ user.id }}</li>
+            <li class="list-group-item"><b>Date Joined:</b> {{ user.date_joined }}</li>
+            <li class="list-group-item"><b>Last Login:</b> {{ user.last_login }}</li>
+          {% endif %}
+
           <li class="list-group-item"><b>First Name:</b> {{ user.first_name }}</li>
           <li class="list-group-item"><b>Last Name:</b> {{ user.last_name }}</li>
           <li class="list-group-item"><b>CWL:</b> {{ user.username }}</li>
           <li class="list-group-item"><b>Email:</b> {{ user.email }}</li>
           <li class="list-group-item"><b>UBC Number:</b> {{ user.profile.ubc_number }}</li>
-          <li class="list-group-item"><b>Date Joined:</b> {{ user.date_joined }}</li>
-          <li class="list-group-item"><b>Last Login:</b> {{ user.last_login }}</li>
         </ul>
 
         <div class="">

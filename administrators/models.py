@@ -97,18 +97,7 @@ class Session(models.Model):
         self.slug = slugify(self.year + ' ' + self.term.code)
         super(Session, self).save(*args, **kwargs)
 
-#checked
-class ApplicationStatus(models.Model):
-    """ Application Status """
-    NONE = '0'
-    OFFERED = '1'
-    ACCEPTED = '2'
-    DECLINED = '3'
-    ASSSIGNED_CHOICES = [(NONE, 'None'), (OFFERED, 'Offered'),(ACCEPTED, 'Accepted'), (DECLINED, 'Declined')]
 
-    assigned = models.CharField(max_length=1, choices=ASSSIGNED_CHOICES, default=NONE)
-    assigned_hours = models.FloatField(default=0.00)
-    created_at = models.DateField(default=dt.date.today)
 
 #checked
 class Job(models.Model):
@@ -166,7 +155,6 @@ class Application(models.Model):
 
     applicant = models.ForeignKey(User, on_delete=models.CASCADE)
     job = models.ForeignKey(Job, on_delete=models.CASCADE)
-    status = models.ManyToManyField(ApplicationStatus)
 
     supervisor_approval = models.BooleanField()
     how_qualified = models.CharField(max_length=1, choices=PREFERENCE_CHOICES)
@@ -190,6 +178,24 @@ class Application(models.Model):
         """ Make a slug """
         self.slug = slugify(self.job.session.slug + ' ' + self.job.course.slug + ' application by ' + self.applicant.username)
         super(Application, self).save(*args, **kwargs)
+
+
+class ApplicationStatus(models.Model):
+    ''' Application Status '''
+    NONE = '0'
+    OFFERED = '1'
+    ACCEPTED = '2'
+    DECLINED = '3'
+    ASSSIGNED_CHOICES = [(NONE, 'None'), (OFFERED, 'Offered'),(ACCEPTED, 'Accepted'), (DECLINED, 'Declined')]
+
+    application = models.ForeignKey(Application, on_delete=models.CASCADE)
+    assigned = models.CharField(max_length=1, choices=ASSSIGNED_CHOICES, default=NONE)
+    assigned_hours = models.FloatField(default=0.00)
+    parent_id = models.CharField(max_length=256, null=True, blank=True)
+    created_at = models.DateField(default=dt.date.today)
+
+    class Meta:
+        ordering = ['pk']
 
 
 class Email(models.Model):

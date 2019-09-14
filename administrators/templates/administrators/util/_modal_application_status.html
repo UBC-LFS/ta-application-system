@@ -1,4 +1,4 @@
-<button type="button" class="btn btn-sm btn-info" data-toggle="modal" data-target="#application-status-modal-{{ data.id }}">View</button>
+<button type="button" class="btn btn-sm btn-info" data-toggle="modal" data-target="#application-status-modal-{{ data.id }}">Status</button>
 
 <div class="modal fade" id="application-status-modal-{{ data.id }}" tabindex="-1" role="dialog" aria-labelledby="application-status-modal-label-{{ data.id }}" aria-hidden="true">
   <div class="modal-dialog modal-lg" role="document">
@@ -11,17 +11,23 @@
         <table class="table">
           <thead>
             <tr>
+              <th>Status ID</th>
               <th>Assigned</th>
               <th>Assigned Hours</th>
+              <th>Parent ID</th>
               <th>Created at</th>
+              <th>Application ID</th>
             </tr>
           </thead>
           <tbody>
-            {% for st in data.status.all %}
+            {% for st in data.applicationstatus_set.all %}
               <tr>
+                <td>{{ st.id }}</td>
                 <td>{{ st.get_assigned_display }}</td>
                 <td>{{ st.assigned_hours }} hours</td>
+                <td>{% if st.parent_id %} {{ st.parent_id }} {% endif %}</td>
                 <td>{{ st.created_at }}</td>
+                <td>{{ st.application_id }}</td>
               </tr>
             {% empty %}
               <tr>

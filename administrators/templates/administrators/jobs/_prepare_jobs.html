@@ -1,6 +1,6 @@
 <h3>Prepare Jobs</h3>
 
-<small>Total: {{ jobs.count }}</small>
+<small>Total: {{ jobs|length }}</small>
 <table class="table table-sm table-striped" data-toggle="table" data-sortable="true" data-classes="" data-pagination="true" data-search="true">
   <thead>
     <tr>
@@ -37,10 +37,6 @@
         <td>
           <a class="btn btn-sm btn-warning" href="{% url 'administrators:edit_job' session_slug=job.session.slug job_slug=job.course.slug %}">Edit</a>
         </td>
-      </tr>
-    {% empty %}
-      <tr>
-        <td colspan="9">No jobs found</td>
       </tr>
     {% endfor %}
   </tbody>

@@ -133,14 +133,23 @@ class InstructorApplicationForm(forms.ModelForm):
             'instructor_preference': ''
         }
 
-# to be checked
+
 class ApplicationStatusForm(forms.ModelForm):
     class Meta:
         model = ApplicationStatus
-        fields = ['assigned', 'assigned_hours']
+        fields = ['application', 'assigned', 'assigned_hours']
         widgets = {
             'assigned': forms.HiddenInput()
         }
+
+class ApplicationStatusReassignForm(forms.ModelForm):
+    class Meta:
+        model = ApplicationStatus
+        fields = ['application', 'assigned', 'assigned_hours', 'parent_id']
+        widgets = {
+            'assigned': forms.HiddenInput()
+        }
+
 
 # to be checked
 class AdminApplicationForm(forms.ModelForm):

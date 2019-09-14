@@ -1,5 +1,5 @@
 <ul>
-  {% for st in data.status.all %}
+  {% for st in data.applicationstatus_set.all %}
     <li>
       {{ st.get_assigned_display }}: {{ st.assigned_hours }} hours on {{ st.created_at }}
     </li>
