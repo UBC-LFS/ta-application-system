@@ -105,11 +105,7 @@
       </tbody>
     </table>
 
-    {% if type == 'current_sessions' or type == 'archived_sessions' %}
-      <a href="{% url 'administrators:show_session' session_slug=job.session.slug type=type %}">Back to previous Session</a>
-    {% else %}
-      <a href="{% url 'administrators:type_jobs' type=type %}">Back to previous Jobs</a>
-    {% endif %}
+    {% include 'administrators/jobs/_go_back.html' with data=path job_data=job %}
   </div>
 
 </div>

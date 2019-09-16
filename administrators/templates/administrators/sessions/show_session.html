@@ -10,7 +10,7 @@
 
     <div class="card">
       <ul class="list-group list-group-flush">
-        <li class="list-group-item"><b>ID:</b> {{ session.id }}</li>
+        <li class="list-group-item"><b>Session ID:</b> {{ session.id }}</li>
         <li class="list-group-item"><b>Year:</b> {{ session.year }}</li>
         <li class="list-group-item"><b>Term:</b> {{ session.term.name }} ({{ session.term.code }})</li>
         <li class="list-group-item"><b>Title:</b> {{ session.title }}</li>
@@ -30,7 +30,7 @@
     <table class="table">
       <thead>
         <tr>
-          <th>ID</th>
+          <th>Job ID</th>
           <th>Year</th>
           <th>Term</th>
           <th>Job</th>
@@ -44,7 +44,7 @@
         {% for job in session.job_set.all %}
           <tr>
             <td>
-              <a href="{% url 'administrators:show_job' session_slug=job.session.slug job_slug=job.course.slug type=type %}">{{ job.id }}</a>
+              <a href="{% url 'administrators:show_job' session_slug=job.session.slug job_slug=job.course.slug path=path %}">{{ job.id }}</a>
             </td>
             <td>{{ job.session.year }}</td>
             <td>{{ job.course.term.code }}</td>
@@ -68,9 +68,7 @@
       </tbody>
     </table>
 
-    <a href="{% url 'administrators:type_sessions' type=type %}">
-      Back to {% if type == 'current_sessions' %} Current {% else %} Archived {% endif %} Sessions
-    </a>
+    {% include 'administrators/sessions/_go_back.html' with data=path %}
   </div>
 </div>
 

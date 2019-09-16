@@ -42,7 +42,7 @@
     <div>Created at: {{ app.created_at }}</div>
     <div>Updated at: {{ app.updated_at }}</div>
 
-    <a href="{% url 'administrators:type_applications' type=type %}">Back to previous Applications</a>
+    {% include 'administrators/applications/_go_back.html' with data=path %}
 
   </div>
 </div>

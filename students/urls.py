@@ -22,17 +22,16 @@ urlpatterns = [
     path('confidentiality/study_permit/delete/', views.delete_study_permit, name='delete_study_permit'),
 
     path('jobs/explore/', views.explore_jobs, name='explore_jobs'),
-    path('jobs/<str:type>/', views.type_jobs, name='type_jobs'),
     path('sessions/<str:session_slug>/jobs/<str:job_slug>/apply/', views.apply_job, name='apply_job'),
     path('sessions/<str:session_slug>/jobs/<str:job_slug>/offered/', views.offered_job, name='offered_job'),
     path('sessions/<str:session_slug>/jobs/<str:job_slug>/accept_offer/', views.accept_offer, name='accept_offer'),
     path('sessions/<str:session_slug>/jobs/<str:job_slug>/decline_offer/', views.decline_offer, name='decline_offer'),
     path('sessions/<str:session_slug>/jobs/available/', views.available_jobs, name='available_jobs'),
 
-    #path('jobs/accepted/', views.accepted_jobs, name='accepted_jobs'),
-    #path('jobs/declined/', views.declined_jobs, name='declined_jobs'),
-    #path('jobs/applied/', views.applied_jobs, name='applied_jobs'),
-    #path('jobs/offered/', views.offered_jobs, name='offered_jobs'),
+    path('jobs/accepted/', views.accepted_jobs, name='accepted_jobs'),
+    path('jobs/declined/', views.declined_jobs, name='declined_jobs'),
+    path('jobs/applied/', views.applied_jobs, name='applied_jobs'),
+    path('jobs/offered/', views.offered_jobs, name='offered_jobs'),
 
 
 
