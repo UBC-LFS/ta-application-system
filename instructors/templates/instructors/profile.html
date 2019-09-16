@@ -6,11 +6,20 @@
 
   <div id="content" class="container-fluid">
 
-    <h3 class="margin-top-30">Profile</h3>
+    <table>
+      <tbody>
+        <tr>
+          <td>
+            <img src="http://globalaccessibilitynews.com/files/2013/05/UBC-Logo.jpg" style="max-height: 150px"/>
+          </td>
+          <td class="align-middle">
+            <h2 style="padding-left: 20px;">{{ user.first_name }} {{ user.last_name }}</h2>
+          </td>
+        </tr>
+      </tbody>
+    </table>
 
     <ul class="list-group margin-top-30">
-      <li class="list-group-item"><strong>First name:</strong> {{ user.first_name }}</li>
-      <li class="list-group-item"><strong>Last name:</strong> {{ user.last_name }}</li>
       <li class="list-group-item"><strong>Preferred name:</strong> {{ user.profile.preferred_name }}</li>
       <li class="list-group-item"><strong>Email:</strong> {{ user.email }}</li>
       <li class="list-group-item"><strong>CWL:</strong> {{ user.username }}</li>
@@ -18,7 +27,6 @@
       <li class="list-group-item"><strong>Created at:</strong> {{ user.profile.created_at }}</li>
       <li class="list-group-item"><strong>Updated at:</strong> {{ user.profile.updated_at }}</li>
     </ul>
-
   </div>
 </div>
 
