@@ -19,20 +19,20 @@
     <li class="nav-item dropdown">
     	<a class="nav-link dropdown-toggle text-white" data-toggle="dropdown" href="{% url 'administrators:jobs' %}" role="button" aria-haspopup="true" aria-expanded="false">Jobs</a>
     	<div class="dropdown-menu">
-      		<a class="dropdown-item" href="{% url 'administrators:type_jobs' type='prepare_jobs' %}">Prepare Jobs</a>
-      		<a class="dropdown-item" href="{% url 'administrators:type_jobs' type='progress_jobs' %}">Jobs in Progress</a>
-      		<a class="dropdown-item" href="{% url 'administrators:type_jobs' type='instructor_jobs' %}">Jobs by Instructor</a>
-      		<a class="dropdown-item" href="{% url 'administrators:type_jobs' type='student_jobs' %}">Jobs by Student</a>
+      		<a class="dropdown-item" href="{% url 'administrators:prepare_jobs' %}">Prepare Jobs</a>
+      		<a class="dropdown-item" href="{% url 'administrators:progress_jobs' %}">Jobs in Progress</a>
+      		<a class="dropdown-item" href="{% url 'administrators:instructor_jobs' %}">Jobs by Instructor</a>
+      		<a class="dropdown-item" href="{% url 'administrators:student_jobs' %}">Jobs by Student</a>
 		</div>
     </li>
 
     <li class="nav-item dropdown">
     	<a class="nav-link dropdown-toggle text-white" data-toggle="dropdown" href="{% url 'administrators:applications' %}" role="button" aria-haspopup="true" aria-expanded="false">Applications</a>
     	<div class="dropdown-menu">
-      		<a class="dropdown-item" href="{% url 'administrators:type_applications' type='selected_applications' %}">Selected Applications</a>
-      		<a class="dropdown-item" href="{% url 'administrators:type_applications' type='offered_applications' %}">Offered Applications</a>
-      		<a class="dropdown-item" href="{% url 'administrators:type_applications' type='accepted_applications' %}">Accepted Applications</a>
-      		<a class="dropdown-item" href="{% url 'administrators:type_applications' type='declined_applications' %}">Declined Applications</a>
+      		<a class="dropdown-item" href="{% url 'administrators:selected_applications' %}">Selected Applications</a>
+      		<a class="dropdown-item" href="{% url 'administrators:offered_applications' %}">Offered Applications</a>
+      		<a class="dropdown-item" href="{% url 'administrators:accepted_applications' %}">Accepted Applications</a>
+      		<a class="dropdown-item" href="{% url 'administrators:declined_applications' %}">Declined Applications</a>
 		</div>
     </li>
 
@@ -63,4 +63,8 @@
       		<a class="dropdown-item" href="{% url 'administrators:trainings' %}">Trainings</a>
 		</div>
     </li>
+<<<<<<< HEAD
 </ul>
+=======
+  </ul>
+>>>>>>> origin/testing

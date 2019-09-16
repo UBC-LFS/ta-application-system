@@ -2,7 +2,7 @@
 {% block content %}
 
 <div class="wrapper">
-  {% include "administrators/_sidebar.html" %}
+  {% include "administrators/util/_sidebar.html" %}
 
   <div id="content" class="container-fluid">
     <h3>Edit Job</h3>
@@ -11,10 +11,9 @@
       <table>{{ form.as_table }}</table>
       <input class="btn btn-warning" type="submit" value="Update">
     </form>
-      
+
+    <a href="{% url 'administrators:prepare_jobs' %}">Go back to Prepare Jobs</a>
   </div>
 </div>
-
-
 
 {% endblock %}

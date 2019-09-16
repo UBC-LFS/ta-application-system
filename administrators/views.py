@@ -182,7 +182,7 @@ def create_session_confirmation(request):
                 jobs = adminApi.create_jobs(session, courses)
                 if jobs:
                     del request.session['session_form_data'] # remove session form data
-                    messages.success(request, 'Success! {0} {1} {2} created'.format(session.year, session.term.code, session.title))
+                    messages.success(request, 'Success! {0} {1} - {2} created'.format(session.year, session.term.code, session.title))
                     return redirect('administrators:current_sessions')
                 else:
                     messages.error(request, 'Error! Failed to create jobs')
@@ -227,6 +227,8 @@ def show_session(request, session_slug, path):
         'path': path
     })
 
+
+
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET', 'POST'])
@@ -237,7 +239,7 @@ def current_sessions(request):
 
     return render(request, 'administrators/sessions/current_sessions.html', {
         'loggedin_user': loggedin_user,
-        'not_archived_sessions': adminApi.get_current_sessions(),
+        'current_sessions': adminApi.get_current_sessions(),
         'form': SessionForm()
     })
 
@@ -254,7 +256,6 @@ def archived_sessions(request):
         'archived_sessions': adminApi.get_archived_sessions(),
         'form': SessionForm()
     })
-
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -285,7 +286,7 @@ def edit_session(request, session_slug, path):
                 updated_jobs = adminApi.update_session_jobs(session, courses)
                 if updated_jobs:
                     messages.success(request, 'Success! {0} {1} {2} updated'.format(session.year, session.term.code, session.title))
-                    return redirect('administrators:{0}'.format(path))
+                    return redirect('administrators:{0}_sessions'.format(path))
                 else:
                     messages.error(request, 'Error!')
             else:
@@ -299,7 +300,8 @@ def edit_session(request, session_slug, path):
         'form': SessionConfirmationForm(data=None, instance=session, initial={
             'courses': session_courses,
             'term': term
-        })
+        }),
+        'path': path
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -318,7 +320,7 @@ def delete_session(request, path):
         else:
             messages.error(request, 'Error! Failed to delete {0} {1} {2}'.format(deleted_session.year, deleted_session.term.code, deleted_session.title))
 
-    return redirect('administrators:{0}'.format(path))
+    return redirect('administrators:{0}_sessions'.format(path))
 
 
 
@@ -339,30 +341,66 @@ def jobs(request):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
-def type_jobs(request, type):
+def prepare_jobs(request):
+    ''' Prepare jobs '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user): raise PermissionDenied
+
+    return render(request, 'administrators/jobs/prepare_jobs.html', {
+        'loggedin_user': loggedin_user,
+        'jobs': adminApi.get_jobs_with_applications_statistics()
+    })
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def progress_jobs(request):
+    ''' See jobs in progress '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user): raise PermissionDenied
+
+    return render(request, 'administrators/jobs/progress_jobs.html', {
+        'loggedin_user': loggedin_user,
+        'jobs': adminApi.get_jobs_with_applications_statistics()
+    })
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def instructor_jobs(request):
+    ''' Display jobs by instructor '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user): raise PermissionDenied
+
+    return render(request, 'administrators/jobs/instructor_jobs.html', {
+        'loggedin_user': loggedin_user,
+        'instructors': userApi.get_instructors()
+    })
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def student_jobs(request):
+    ''' Display jobs by student '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user): raise PermissionDenied
+
+    return render(request, 'administrators/jobs/student_jobs.html', {
+        'loggedin_user': loggedin_user,
+        'students': userApi.get_students()
+    })
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def show_job_applications(request, session_slug, job_slug):
     ''' '''
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
 
-    print(type)
-    jobs = None
-    instructors = None
-    students = None
-    if type == 'prepare_jobs' or type == 'progress_jobs':
-        jobs = adminApi.get_jobs()
-    elif type == 'instructor_jobs':
-        instructors = userApi.get_instructors()
-    elif type == 'student_jobs':
-        students = userApi.get_students()
-    else:
-        raise Http404
-
-    return render(request, 'administrators/jobs/type_jobs.html', {
+    return render(request, 'administrators/jobs/show_job_applications.html', {
         'loggedin_user': loggedin_user,
-        'type': type,
-        'jobs': jobs,
-        'instructors': instructors,
-        'students': students
+        'job': adminApi.get_session_job_by_slug(session_slug, job_slug)
     })
 
 
@@ -398,8 +436,7 @@ def student_jobs_details(request, username):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET', 'POST'])
 def edit_job(request, session_slug, job_slug):
-
-    if not userApi.is_valid_user(request.user): raise PermissionDenied
+    ''' '''
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
 
@@ -464,56 +501,120 @@ def applications(request):
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
 
     return render(request, 'administrators/applications/applications.html', {
+        'loggedin_user': loggedin_user
+    })
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def show_application(request, app_slug, path):
+    ''' '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user): raise PermissionDenied
+
+    return render(request, 'administrators/applications/show_application.html', {
+        'loggedin_user': userApi.loggedin_user(request.user),
+        'app': adminApi.get_application_slug(app_slug),
+        'form': AdminApplicationForm(initial={ 'assigned': ApplicationStatus.OFFERED }),
+        'path': path
+    })
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def applications_dashboard(request):
+    print('applications_dashboard')
+    ''' '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user): raise PermissionDenied
+
+    return render(request, 'administrators/applications/applications_dashboard.html', {
         'loggedin_user': loggedin_user,
-        'applications': adminApi.get_applications()
+        'applications': adminApi.get_applications('-updated_at'),
+        'statuses': adminApi.get_application_statuses(),
+        'app_status': {
+            'applied': ApplicationStatus.NONE,
+            'offered': ApplicationStatus.OFFERED,
+            'accepted': ApplicationStatus.ACCEPTED,
+            'declined': ApplicationStatus.DECLINED
+        }
     })
 
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
-def type_applications(request, type):
+def all_applications(request):
     ''' '''
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
 
-    selected_applications = None
-    offered_applications = None
-    accepted_applications = None
-    declined_applications = None
-
-    if type == 'selected_applications':
-        selected_applications = adminApi.get_selected_applications()
-    elif type == 'offered_applications':
-        offered_applications = adminApi.get_offered_applications()
-    elif type == 'accepted_applications':
-        accepted_applications = adminApi.get_accepted_applications()
-    elif type == 'declined_applications':
-        declined_applications = adminApi.get_declined_applications()
-    else:
-        raise Http404
-
-    return render(request, 'administrators/applications/type_applications.html', {
+    return render(request, 'administrators/applications/all_applications.html', {
         'loggedin_user': loggedin_user,
-        'type': type,
-        'selected_applications': selected_applications,
-        'offered_applications': offered_applications,
-        'accepted_applications': accepted_applications,
-        'declined_applications': declined_applications,
+        'applications': adminApi.get_applications()
+    })
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def selected_applications(request):
+    ''' '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user): raise PermissionDenied
+
+    return render(request, 'administrators/applications/selected_applications.html', {
+        'loggedin_user': loggedin_user,
+        'selected_applications': adminApi.get_selected_applications(),
         'admin_application_form': AdminApplicationForm(),
-        'status_form': ApplicationStatusForm(initial={
-            'assigned': ApplicationStatus.OFFERED
-        }),
+        'status_form': ApplicationStatusForm(initial={ 'assigned': ApplicationStatus.OFFERED }),
         'classification_choices': Application.CLASSIFICATION_CHOICES,
         'offer_status_code': ApplicationStatus.OFFERED
     })
 
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def offered_applications(request):
+    ''' '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user): raise PermissionDenied
+
+    return render(request, 'administrators/applications/offered_applications.html', {
+        'loggedin_user': loggedin_user,
+        'offered_applications': adminApi.get_offered_applications()
+    })
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def accepted_applications(request):
+    ''' '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user): raise PermissionDenied
+
+    return render(request, 'administrators/applications/accepted_applications.html', {
+        'loggedin_user': loggedin_user,
+        'accepted_applications': adminApi.get_accepted_applications()
+    })
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def declined_applications(request):
+    ''' '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user): raise PermissionDenied
+
+    return render(request, 'administrators/applications/declined_applications.html', {
+        'loggedin_user': loggedin_user,
+        'declined_applications': adminApi.get_declined_applications()
+    })
 
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['POST'])
-def edit_job_application(request, session_slug, job_slug, type):
+def edit_job_application(request, session_slug, job_slug):
     ''' '''
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
@@ -531,20 +632,15 @@ def edit_job_application(request, session_slug, job_slug, type):
         else:
             messages.error(request, 'Error!')
 
-    return HttpResponseRedirect( reverse('administrators:type_applications', args=[type]) )
+    return redirect('administrators:selected_applications')
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['POST'])
-def offer_job(request, session_slug, job_slug, type):
+def offer_job(request, session_slug, job_slug):
     ''' Admin can offer a job to each job '''
-
-    if not userApi.is_valid_user(request.user):
-        raise PermissionDenied
-
     loggedin_user = userApi.loggedin_user(request.user)
-    if not userApi.is_admin(loggedin_user):
-        raise PermissionDenied
+    if not userApi.is_admin(loggedin_user): raise PermissionDenied
 
     job = adminApi.get_session_job_by_slug(session_slug, job_slug)
     if request.method == 'POST':
@@ -552,22 +648,16 @@ def offer_job(request, session_slug, job_slug, type):
         assigned_hours = request.POST.get('assigned_hours')
         form = ApplicationStatusForm(request.POST)
         if form.is_valid():
-            data = form.cleaned_data
             status = form.save()
             if status:
-                application = adminApi.get_application_by_student_id_job(applicant_id, job)
-                application.status.add(status)
-                application.save()
-                if application:
-                    messages.success(request, 'Success! You offered {0} {1} hours for this job'.format(application.applicant.username, assigned_hours))
-                else:
-                    messages.error(request, 'Error!')
+                app = adminApi.get_application_by_student_id_job(applicant_id, job)
+                messages.success(request, 'Success! You offered this user ({0} {1}) {2} hours for this job ({3} {4} - {5} {6} {7})'.format(app.applicant.first_name, app.applicant.last_name, assigned_hours, app.job.session.year, app.job.session.term.code, app.job.course.code.name, app.job.course.number.name, app.job.course.section.name))
             else:
                 messages.error(request, 'Error!')
         else:
             messages.error(request, 'Error! Form is invalid')
 
-    return HttpResponseRedirect( reverse('administrators:type_applications', args=[type]) )
+    return redirect('administrators:selected_applications')
 
 
 
@@ -581,10 +671,8 @@ def offered_applications_send_email(request):
 
     if request.method == 'POST':
         applications = request.POST.getlist('application')
-        print( applications )
         request.session['offered_applications_form_data'] = applications
         return redirect('administrators:offered_applications_send_email_confirmation')
-
     return redirect('administrators:offered_applications')
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -613,7 +701,7 @@ def offered_applications_send_email_confirmation(request):
                 name = app.applicant.first_name + ' ' + app.applicant.last_name
                 job = app.job.session.year + ' ' + app.job.session.term.code + ' ' + app.job.course.code.name + ' ' + app.job.course.number.name + ' ' + app.job.course.section.name
                 assigned_hours = 0.0
-                for st in app.status.all():
+                for st in app.applicationstatus_set.all():
                     if st.assigned == ApplicationStatus.OFFERED:
                         assigned_hours = st.assigned_hours
 
@@ -670,18 +758,80 @@ def email_history(request):
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
-def show_application(request, path, app_slug):
+@require_http_methods(['POST'])
+def decline_reassign(request):
     ''' '''
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
 
-    return render(request, 'administrators/applications/show_application.html', {
-        'loggedin_user': userApi.loggedin_user(request.user),
-        'app': adminApi.get_application_slug(app_slug),
-        'form': AdminApplicationForm(initial={ 'assigned': ApplicationStatus.OFFERED }),
-        'path': path
+    if request.method == 'POST':
+        request.session['decline_reassign_form_data'] = request.POST
+        return redirect('administrators:decline_reassign_confirmation')
+
+    return redirect('administrators:accepted_applications')
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET', 'POST'])
+def decline_reassign_confirmation(request):
+    ''' '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user): raise PermissionDenied
+
+    app = None
+    old_assigned_hours = None
+    new_assigned_hours = None
+    new_ta_hours = None
+    if request.method == 'POST':
+        app_id = request.POST.get('application')
+        old_assigned_hours = request.POST.get('old_assigned_hours')
+        new_assigned_hours = request.POST.get('new_assigned_hours')
+        application = adminApi.get_application(app_id)
+        accepted_status = adminApi.get_accepted_status(application)
+
+        form = ApplicationStatusReassignForm({ 'assigned': ApplicationStatus.DECLINED, 'assigned_hours': 0.00, 'parent_id': accepted_status.id })
+        if form.is_valid():
+            declined_status = form.save()
+            if declined_status:
+                application.status.add(declined_status)
+                reassign_form = ApplicationStatusForm({ 'assigned': ApplicationStatus.ACCEPTED, 'assigned_hours': new_assigned_hours })
+                reassigned_status = reassign_form.save()
+                if reassigned_status:
+                    application.status.add(reassigned_status)
+                    application.save()
+                    updated = adminApi.update_job_ta_hours(application.job.session.slug, application.job.course.slug, float(new_assigned_hours) - float(old_assigned_hours))
+                    if updated:
+                        messages.success(request, 'Success! Application (ID: {0}) updated'.format(app_id))
+                    else:
+                        messages.error(request, 'Error! Failed to update ta hours in a job')
+                else:
+                    messages.error(request, 'Error!')
+            else:
+                messages.error(request, 'Error!')
+        else:
+            messages.error(request, 'Error! Form is invalid')
+
+        return redirect('administrators:accepted_applications')
+    else:
+        data = request.session.get('decline_reassign_form_data')
+        app_id = data.get('application')
+        old_assigned_hours = data.get('old_assigned_hours')
+        new_assigned_hours = data.get('new_assigned_hours')
+        app = adminApi.get_application(app_id)
+        ta_hours = app.job.ta_hours
+        new_ta_hours = float(ta_hours) - float(old_assigned_hours) + float(new_assigned_hours)
+
+    return render(request, 'administrators/applications/decline_reassign_confirmation.html', {
+        'loggedin_user': loggedin_user,
+        'app': app,
+        'old_assigned_hours': old_assigned_hours,
+        'new_assigned_hours': new_assigned_hours,
+        'new_ta_hours': new_ta_hours
     })
+
+
+
+
 
 # HR
 
@@ -814,11 +964,9 @@ def users(request):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
-def show_user(request, username):
-
-    if not userApi.is_valid_user(request.user): raise PermissionDenied
+def show_user(request, username, role):
+    ''' '''
     loggedin_user = userApi.loggedin_user(request.user)
-    if not userApi.is_admin(loggedin_user): raise PermissionDenied
 
     user = userApi.get_user_by_username(username)
     resume_file = None
@@ -827,8 +975,10 @@ def show_user(request, username):
 
     return render(request, 'administrators/hr/show_user.html', {
         'loggedin_user': loggedin_user,
+        'previous_url': request.META['HTTP_REFERER'],
         'user': user,
         'resume_file': resume_file,
+        'role': role
     })
 
 
@@ -1460,6 +1610,45 @@ def delete_training(request):
         else:
             messages.error(request, 'Error!')
     return redirect("administrators:trainings")
+
+
+
+# ----- Utils
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def display_job_details(request, session_slug, job_slug, role):
+    ''' '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    #if not userApi.is_admin(loggedin_user): raise PermissionDenied
+    return render(request, 'administrators/util/_display_job_details.html', {
+        'loggedin_user': loggedin_user,
+        'previous_url': request.META['HTTP_REFERER'],
+        'job': adminApi.get_session_job_by_slug(session_slug, job_slug),
+        'role': role
+    })
+
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def display_application_details(request, app_slug, role):
+    ''' '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    #if not userApi.is_admin(loggedin_user): raise PermissionDenied
+    return render(request, 'administrators/util/_display_application_details.html', {
+        'loggedin_user': loggedin_user,
+        'previous_url': request.META['HTTP_REFERER'],
+        'application': adminApi.get_application_slug(app_slug),
+        'role': role
+    })
+
+
+
+
+
+
 
 
 

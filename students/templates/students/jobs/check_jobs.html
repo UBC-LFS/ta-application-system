@@ -2,7 +2,7 @@
 {% block content %}
 
 <div>
-  {% include "students/_sidebar.html" %}
+  {% include "students/util/_sidebar.html" %}
 </div>
 
 <h3>Check Jobs</h3>
@@ -28,7 +28,7 @@
               <ul>
                 {% for st in app.status.all %}
                   <li>
-                    {{ st.get_assigned_display }}: {{ st.assigned_hours }} hours at {{ st.created_at }}
+                    {{ st.get_assigned_display }}: {{ st.assigned_hours }} hours on {{ st.created_at }}
                   </li>
                 {% endfor %}
               </ul>

@@ -1,0 +1,70 @@
+<button type="button" class="btn btn-sm btn-info" data-toggle="modal" data-target="#user-details-modal-{{ data.id }}">
+  {{ data.first_name }} {{ data.last_name }}
+</button>
+
+<div class="modal fade" id="user-details-modal-{{ data.id }}" tabindex="-1" role="dialog" aria-labelledby="user-details-modal-label-{{ data.id }}" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="user-details-modal-label-{{ data.id }}">User Details</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      </div>
+      <div class="modal-body">
+        <h4>Name: {{ data.first_name }} {{ data.last_name }}</h4>
+        <small>Date Joined: {{ data.date_joined }} | Last Login: {{ data.last_login }}</small>
+
+        <hr />
+
+        <h5>Information</h5>
+        <ul class="list-group">
+          <li class="list-group-item"><b>ID:</b> {{ data.id }}</li>
+          <li class="list-group-item"><b>CWL:</b> {{ data.username }}</li>
+          <li class="list-group-item"><b>Email:</b> {{ data.email }}</li>
+          <li class="list-group-item"><b>UBC Number:</b> {{ data.profile.ubc_number }}</li>
+        </ul>
+
+        <h5>Profile</h5>
+        <small>Created at: {{ data.profile.created_at }} | Updated at: {{ data.profile.updated_at }}</small>
+        <ul class="list-group">
+          <li class="list-group-item"><strong>Preferred Name:</strong> {{ data.profile.preferred_name }}</li>
+          <li class="list-group-item"><strong>Status:</strong> {{ data.profile.status }}</li>
+          <li class="list-group-item"><strong>Graduation Date:</strong> {{ data.profile.graduation_date }}</li>
+          <li class="list-group-item"><strong>Program:</strong> {{ data.profile.program }}</li>
+          <li class="list-group-item"><strong>Program Others:</strong> {{ data.profile.program_others }}</li>
+          <li class="list-group-item"><strong>Qualifications:</strong> {{ data.profile.qualifications }}</li>
+          <li class="list-group-item"><strong>Prior Employment:</strong> {{ data.profile.prior_employment }}</li>
+          <li class="list-group-item"><strong>Special Considerations:</strong> {{ data.profile.special_considerations }}</li>
+          <li class="list-group-item">
+            <strong>Degrees:</strong>
+            <ul>
+              {% for degree in data.profile.degrees.all %}
+                <li>{{ degree.name }}</li>
+              {% empty %}
+                None
+              {% endfor %}
+            </ul>
+          </li>
+          <li class="list-group-item">
+            <strong>Trainings:</strong>
+            <ul>
+              {% for training in data.profile.trainings.all %}
+                <li>{{ training.name }}</li>
+              {% empty %}
+                None
+              {% endfor %}
+            </ul>
+          </li>
+          <li class="list-group-item"><strong>Training Details:</strong> {{ data.profile.training_details }}</li>
+          <li class="list-group-item">
+            <strong>LFS TA Training:</strong> {{ data.profile.get_lfs_ta_training_display }}
+            <p><strong>Details:</strong> {{ data.profile.lfs_ta_training_details }}</p>
+          </li>
+          <li class="list-group-item">
+            <strong>Previous TA Experience:</strong> {{ data.profile.get_ta_experience_display }}
+            <p><strong>Details:</strong> {{ data.profile.ta_experience_details }}</p>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

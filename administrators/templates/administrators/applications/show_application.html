@@ -2,13 +2,13 @@
 {% block content %}
 
 <div class="wrapper">
-  {% include "administrators/_sidebar.html" %}
+  {% include "administrators/util/_sidebar.html" %}
 
   <div id="content" class="container-fluid">
 
     <h3>Application Details</h3>
 
-    <div>ID: {{ app.id }}</div>
+    <div>Application ID: {{ app.id }}</div>
     <div>Slug: {{ app.slug }}</div>
     <div>First Name: {{ app.applicant.first_name }}</div>
     <div>Last Name: {{ app.applicant.last_name }}</div>
@@ -42,7 +42,7 @@
     <div>Created at: {{ app.created_at }}</div>
     <div>Updated at: {{ app.updated_at }}</div>
 
-    <a href="{% url 'administrators:type_applications' path %}">Back to previous Applications</a>
+    {% include 'administrators/applications/_go_back.html' with data=path %}
 
   </div>
 </div>

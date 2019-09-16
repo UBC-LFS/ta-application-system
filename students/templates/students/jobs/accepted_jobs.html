@@ -1,0 +1,69 @@
+{% extends 'ta_app/base.html' %}
+{% block content %}
+
+<div class="wrapper">
+  {% include 'students/util/_sidebar.html' %}
+
+  <div id="content" class="container-fluid">
+
+    <h3>Accpeted Jobs</h3>
+
+    <h5>Summary</h5>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Year-Term</th>
+          <th>Total Assigned Hours</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for year_term, assigned_hours in accepted_summary.items %}
+          <tr>
+            <td>{{ year_term }}</td>
+            <td>{{ assigned_hours }} hours</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="2">No summary available</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <h5>List</h5>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Year</th>
+          <th>Term</th>
+          <th>Job</th>
+          <th>Assigned Status</th>
+          <th>Assigned Hours</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for job in accepted_jobs %}
+        <tr>
+          <td>{{ job.year }}</td>
+          <td>{{ job.term }}</td>
+          <td>
+            <a href="{% url 'administrators:display_job_details' session_slug=job.session_slug job_slug=job.job_slug role='student' %}">
+              {{ job.course_code }} {{ job.course_number }} {{ job.course_section }}
+            </a>
+          </td>
+          <td>{{ job.assigned_status }}</td>
+          <td>{{ job.assigned_hours }} hours</td>
+        </tr>
+        {% empty %}
+          <tr>
+            <td colspan="3">No accepted jobs found</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+
+  </div>
+</div>
+
+{% endblock %}

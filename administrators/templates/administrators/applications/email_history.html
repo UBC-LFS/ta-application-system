@@ -2,7 +2,7 @@
 {% block content %}
 
 <div class="wrapper">
-  {% include "administrators/_sidebar.html" %}
+  {% include "administrators/util/_sidebar.html" %}
 
   <div id="content" class="container-fluid">
 
@@ -38,7 +38,7 @@
             <td>{{ email.receiver }}</td>
             <td>{{ email.title }}</td>
             <td>
-              <button type="button" class="btn btn-sm" data-toggle="modal" data-target="#email-modal-{{ email.id }}">View</button>
+              <button type="button" class="btn btn-sm btn-info" data-toggle="modal" data-target="#email-modal-{{ email.id }}">View</button>
             	<div class="modal fade" id="email-modal-{{ email.id }}" tabindex="-1" role="dialog" aria-labelledby="email-modal-label-{{ email.id }}" aria-hidden="true">
               	<div class="modal-dialog modal-lg" role="document">
               	  <div class="modal-content">
@@ -48,7 +48,7 @@
                 		</div>
                 		<div class="modal-body">
                       <div>Sender: {{ email.sender }}</div>
-                      <div>Receiver: {{ email.sender }}</div>
+                      <div>Receiver: {{ email.receiver }}</div>
                 		  <h5>{{ email.title }}</h5>
                       <p>{{ email.message }}</p>
                 		</div>
@@ -59,7 +59,7 @@
             <td>{{ email.type }}</td>
             <td>{{ email.created_at }}</td>
             <td>
-              <button type="button" class="btn btn-sm" data-toggle="modal" data-target="#reminder-modal-{{ email.id }}">Reminder</button>
+              <button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#reminder-modal-{{ email.id }}">Remind</button>
             	<div class="modal fade" id="reminder-modal-{{ email.id }}" tabindex="-1" role="dialog" aria-labelledby="reminder-modal-label-{{ email.id }}" aria-hidden="true">
               	<div class="modal-dialog modal-lg" role="document">
               	  <div class="modal-content">

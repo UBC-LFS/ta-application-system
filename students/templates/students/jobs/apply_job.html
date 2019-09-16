@@ -3,7 +3,7 @@
 
 
 <div class="wrapper">
-  {% include "students/_sidebar.html" %}
+  {% include "students/util/_sidebar.html" %}
 
   <div id="content" class="container-fluid">
 
@@ -38,9 +38,9 @@
 
     {% if has_applied_job %}
       <p>
-        You have already applied for this job. Please check your jobs in <a href="{% url 'students:applied_jobs' %}">Applied Jobs</a>
+        You have already applied for this job. Please check your jobs in <a href="{% url 'students:type_jobs' type='applied_jobs' %}">Applied Jobs</a>
       </p>
-    
+
     {% else %}
       <form action="" method="post">
         {% csrf_token %}
@@ -48,6 +48,8 @@
         <input type="submit" value="Apply">
       </form>
     {% endif %}
+
+    <a href="{% url 'students:available_jobs' session_slug=job.session.slug %}">Go back to a previous page</a>
 
   </div>
 </div>

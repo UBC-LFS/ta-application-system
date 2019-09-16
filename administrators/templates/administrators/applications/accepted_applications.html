@@ -1,0 +1,94 @@
+{% extends 'ta_app/base.html' %}
+{% block content %}
+
+<div class="wrapper">
+  {% include 'administrators/util/_sidebar.html' %}
+
+  <div id="content" class="container-fluid">
+
+    <h3>Accpeted Applications</h3>
+
+    <table class="table table-responsive-lg">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Year</th>
+          <th>Term</th>
+          <th>Job</th>
+          <th>Applicant</th>
+          <th>Status</th>
+          <th>Assigned TA Hours</th>
+          <th>Applicants' TA Hours</th>
+          <th>Instructor Preference</th>
+          <th>Classification</th>
+          <th>Note</th>
+          <th>Created at</th>
+          <th>Updated at</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for app in accepted_applications %}
+          <tr>
+            <td>
+              <a href="{% url 'administrators:show_application' app_slug=app.slug path='accepted' %}">{{ app.id }}</a>
+            </td>
+            <td>{{ app.job.session.year }}</td>
+            <td>{{ app.job.session.term.code }}</td>
+            <td>
+              <a href="{% url 'administrators:display_job_details' session_slug=app.job.session.slug job_slug=app.job.course.slug role='administrator' %}">
+                {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}
+              </a>
+            </td>
+            <td>
+              <a href="{% url 'administrators:show_user' username=app.applicant.username role='administrator' %}">{{ app.applicant.first_name }} {{ app.applicant.last_name }}</a>
+            </td>
+            <td>{% include 'administrators/util/_modal_application_status.html' with data=app %}</td>
+            <td>{{ app.job.assigned_ta_hours }}</td>
+            <td>{{ app.job.ta_hours }}</td>
+            <td>{{ app.get_classification_display }}</td>
+            <td>{{ app.get_instructor_preference_display }}</td>
+            <td>{{ app.note }}</td>
+            <td>{{ app.created_at }}</td>
+            <td>{{ app.updated_at }}</td>
+            <td>
+              <button type="button" data-toggle="modal" data-target="#jobApplicationModal-{{ app.id }}">Decline & Reassign</button>
+              <div class="modal fade" id="jobApplicationModal-{{ app.id }}" tabindex="-1" role="dialog" aria-labelledby="jobApplicationModalLabel-{{ app.id }}" aria-hidden="true">
+                <div class="modal-dialog modal-lg" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="jobApplicationModalLabel-{{ app.id }}">Decline & Reassign</h5>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    </div>
+                    <div class="modal-body">
+                      <h4>{{ app.applicant.username }}</h4>
+                      <form action="{% url 'administrators:decline_reassign' %}" method="post">
+                        {% csrf_token %}
+                        <div>
+                          <label for="assigned_hours">Assigned hours:</label>
+                          <input type="number" name="new_assigned_hours" value="{{ app.has_accepted }}" />
+                        </div>
+                        <input type="hidden" name="old_assigned_hours" value="{{ app.has_accepted }}" />
+                        <input type="hidden" name="application" value="{{ app.id }}" />
+                        <input type="submit" value="Decline & Reassign" />
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="14">No applications found.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+
+  </div>
+</div>
+
+{% endblock %}

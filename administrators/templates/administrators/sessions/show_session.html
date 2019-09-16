@@ -2,7 +2,7 @@
 {% block content %}
 
 <div class="wrapper">
-  {% include "administrators/_sidebar.html" %}
+  {% include "administrators/util/_sidebar.html" %}
 
   <div id="content" class="container-fluid">
 
@@ -10,7 +10,7 @@
 
     <div class="card">
       <ul class="list-group list-group-flush">
-        <li class="list-group-item"><b>ID:</b> {{ session.id }}</li>
+        <li class="list-group-item"><b>Session ID:</b> {{ session.id }}</li>
         <li class="list-group-item"><b>Year:</b> {{ session.year }}</li>
         <li class="list-group-item"><b>Term:</b> {{ session.term.name }} ({{ session.term.code }})</li>
         <li class="list-group-item"><b>Title:</b> {{ session.title }}</li>
@@ -30,7 +30,7 @@
     <table class="table">
       <thead>
         <tr>
-          <th>ID</th>
+          <th>Job ID</th>
           <th>Year</th>
           <th>Term</th>
           <th>Job</th>
@@ -68,11 +68,7 @@
       </tbody>
     </table>
 
-    {% if path == 'current_sessions' %}
-      <a href="{% url 'administrators:current_sessions' %}">Back to Current Sessions</a>
-    {% else %}
-      <a href="{% url 'administrators:archived_sessions' %}">Back to Archived Sessions</a>
-    {% endif %}
+    {% include 'administrators/sessions/_go_back.html' with data=path %}
   </div>
 </div>
 

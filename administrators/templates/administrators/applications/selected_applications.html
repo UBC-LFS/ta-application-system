@@ -1,0 +1,140 @@
+{% extends 'ta_app/base.html' %}
+{% block content %}
+
+<div class="wrapper">
+  {% include 'administrators/util/_sidebar.html' %}
+
+  <div id="content" class="container-fluid">
+    {% include 'ta_app/_return_messages.html' with data=messages %}
+
+    <h3>Selected Applications</h3>
+
+    <table class="table table-responsive">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Year</th>
+          <th>Term</th>
+          <th>Job</th>
+          <th>Applicant</th>
+          <th>Resume</th>
+          <th>Status</th>
+          <th>Instructor Preference</th>
+          <th>Classification</th>
+          <th>Note</th>
+          <th>Created at</th>
+          <th>Updated at</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for app in selected_applications %}
+          <tr>
+            <td>
+              <a href="{% url 'administrators:show_application' app_slug=app.slug path='selected' %}">{{ app.id }}</a>
+            </td>
+            <td>{{ app.job.session.year }}</td>
+            <td>{{ app.job.session.term.code }}</td>
+            <td>
+              <a href="{% url 'administrators:display_job_details' session_slug=app.job.session.slug job_slug=app.job.course.slug role='administrator' %}">
+                {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}
+              </a>
+            </td>
+            <td>
+              <a href="{% url 'administrators:show_user' username=app.applicant.username role='administrator' %}">{{ app.applicant.first_name }} {{ app.applicant.last_name }}</a>
+            </td>
+            <td>
+              {% if app.resume_file %}
+                <a href="{% url 'students:download_resume' username=app.applicant.username filename=app.resume_file %}" target="_blank">{{ app.resume_file }}</a>
+              {% else %}
+                No
+              {% endif %}
+            </td>
+            <td>{% include 'administrators/util/_modal_application_status.html' with data=app %}</td>
+            <td>{{ app.get_instructor_preference_display }}</td>
+            <td>{{ app.get_classification_display }}</td>
+            <td>{{ app.note }}</td>
+            <td>{{ app.created_at }}</td>
+            <td>{{ app.updated_at }}</td>
+            <td>
+              <button class="btn btn-sm btn-warning" type="button" data-toggle="modal" data-target="#jobApplicationModal-{{ app.id }}">Edit</button>
+              <div class="modal fade" id="jobApplicationModal-{{ app.id }}" tabindex="-1" role="dialog" aria-labelledby="jobApplicationModalLabel-{{ app.id }}" aria-hidden="true">
+                <div class="modal-dialog modal-lg" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="jobApplicationModalLabel-{{ app.id }}">Edit Classification and Note</h5>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    </div>
+                    <div class="modal-body">
+                      <h4>{{ app.applicant.username }}</h4>
+                      <form action="{% url 'administrators:edit_job_application' session_slug=app.job.session.slug job_slug=app.job.course.slug %}" method="post">
+                        {% csrf_token %}
+                        <div>
+                          <label for="classification">Classification:</label>
+                          <select name="classification">
+                            {% for choice in classification_choices %}
+                              {% if choice.0 == app.classification %}
+                                <option value="{{ choice.0 }}" selected>{{ choice.1 }}</option>
+                              {% else %}
+                                <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+                              {% endif %}
+                            {% endfor %}
+                          </select>
+                        </div>
+                        <div>
+                          <label for="note">Note:</label>
+                          <textarea name="note" rows="2" cols="40">{% if app.note %} {{ app.note }} {% endif %}</textarea>
+                        </div>
+                        <input type="hidden" name="application" value="{{ app.id }}">
+                        <input type="submit" value="Update">
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {% if app.has_offered %}
+                Offered
+              {% else %}
+                <button type="button" data-toggle="modal" data-target="#jobApplicationOfferModal-{{ app.id }}">Offer</button>
+                <div class="modal fade" id="jobApplicationOfferModal-{{ app.id }}" tabindex="-1" role="dialog" aria-labelledby="jobApplicationOfferModalLabel-{{ app.id }}" aria-hidden="true">
+                  <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="jobApplicationOfferModalLabel-{{ app.id }}">Offer</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                      </div>
+                      <div class="modal-body">
+                        <h4>
+                          To {{ app.applicant.username }} for
+                          {{ app.job.session.year }} {{ app.job.session.term.code }} - {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}
+                        </h4>
+                        <form action="{% url 'administrators:offer_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}" method="post">
+                          {% csrf_token %}
+                          <div>
+                            <label for="assigned_hours">Assigned Hours:</label>
+                            <input type="number" name="assigned_hours" value="0.0" />
+                          </div>
+                          <input type="hidden" name="application" value="{{ app.id }}" />
+                          <input type="hidden" name="assigned" value="{{ offer_status_code }}" />
+                          <input type="hidden" name="applicant" value="{{ app.applicant.id }}" />
+                          <input type="submit" value="Offer" />
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              {% endif %}
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="14">No applications found.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+  </div>
+</div>
+
+{% endblock %}

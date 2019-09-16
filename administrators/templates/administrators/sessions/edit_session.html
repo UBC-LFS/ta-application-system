@@ -2,7 +2,7 @@
 {% block content %}
 
 <div class="wrapper">
-  {% include "administrators//_sidebar.html" %}
+  {% include "administrators//util/_sidebar.html" %}
 
   <div id="content" class="container-fluid">
     <h3>Edit Session</h3>
@@ -18,8 +18,7 @@
       <input type="submit" value="Update" />
     </form>
 
-    <a href="{% url 'administrators:current_sessions' %}">Back to Current Sessions</a> |
-    <a href="{% url 'administrators:archived_sessions' %}">Back to Archived Sessions</a>
+    {% include 'administrators/sessions/_go_back.html' with data=path %}
   </div>
 </div>
 

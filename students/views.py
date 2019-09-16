@@ -21,6 +21,7 @@ from datetime import datetime
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
 def index(request):
+    ''' '''
     loggedin_user = userApi.loggedin_user(request.user)
     if 'Student' not in loggedin_user.roles: raise PermissionDenied
 
@@ -401,20 +402,16 @@ def apply_job(request, session_slug, job_slug):
     loggedin_user = userApi.loggedin_user(request.user)
     if 'Student' not in loggedin_user.roles: raise PermissionDenied
 
-    session = adminApi.get_session_by_slug(session_slug)
     job = adminApi.get_session_job_by_slug(session_slug, job_slug)
     if request.method == 'POST':
         form = ApplicationForm(request.POST)
         if form.is_valid():
-            data = form.cleaned_data
             application = form.save()
 
             if application:
-                status_form = ApplicationStatusForm({ 'assigned': ApplicationStatus.NONE, 'assigned_hours': 0.00 })
-                status = status_form.save()
+                app_status = adminApi.student_apply_job(application)
 
-                if status:
-                    application.status.add(status)
+                if app_status:
                     messages.success(request, 'Success! {0} {1} - {2} {3} {4} applied'.format(job.session.year, job.session.term.code, job.course.code.name, job.course.number.name, job.course.section.name))
                     return HttpResponseRedirect( reverse('students:available_jobs', args=[session_slug]) )
                 else:
@@ -426,55 +423,12 @@ def apply_job(request, session_slug, job_slug):
 
     return render(request, 'students/jobs/apply_job.html', {
         'loggedin_user': loggedin_user,
-        'session': session,
         'job': job,
         'has_applied_job': adminApi.has_applied_job(session_slug, job_slug, loggedin_user),
-        'form': ApplicationForm(initial={
-            'applicant': request.user.id,
-            'job': job.id
-        })
+        'form': ApplicationForm(initial={ 'applicant': loggedin_user.id, 'job': job.id })
     })
 
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
-def type_jobs(request, type):
-    ''' '''
-    loggedin_user = userApi.loggedin_user(request.user)
-    if 'Student' not in loggedin_user.roles: raise PermissionDenied
 
-    print('type ', type)
-    student_jobs = adminApi.get_jobs_applied_by_student(loggedin_user)
-    applied_jobs = None
-    offered_jobs = None
-    offered_summary = None
-    accepted_jobs = None
-    accepted_summary = None
-    declined_jobs = None
-
-    if type == 'applied_jobs':
-        applied_jobs = adminApi.get_jobs_applied_by_student(loggedin_user)
-    elif type == 'offered_jobs':
-        offered_jobs, offered_summary = adminApi.get_offered_jobs_by_student(loggedin_user, student_jobs)
-    elif type == 'accepted_jobs':
-        accepted_jobs, accepted_summary = adminApi.get_accepted_jobs_by_student(loggedin_user, student_jobs)
-    elif type == 'declined_jobs':
-        declined_jobs = adminApi.get_declined_jobs_by_student(loggedin_user, student_jobs)
-    else:
-        raise Http404
-    
-    return render(request, 'students/jobs/type_jobs.html', {
-        'loggedin_user': loggedin_user,
-        'applied_jobs': applied_jobs,
-        'offered_jobs': offered_jobs,
-        'offered_summary': offered_summary,
-        'accepted_jobs': accepted_jobs,
-        'accepted_summary': accepted_summary,
-        'declined_jobs': declined_jobs,
-        'type': type
-    })
-
-"""
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
@@ -513,7 +467,6 @@ def accepted_jobs(request):
     loggedin_user = userApi.loggedin_user(request.user)
     if 'Student' not in loggedin_user.roles: raise PermissionDenied
 
-    user = userApi.get_user(request.user.id)
     student_jobs = adminApi.get_jobs_applied_by_student(loggedin_user)
     accepted_jobs, accepted_summary = adminApi.get_accepted_jobs_by_student(loggedin_user, student_jobs)
     return render(request, 'students/jobs/accepted_jobs.html', {
@@ -537,7 +490,6 @@ def declined_jobs(request):
         'declined_jobs': adminApi.get_declined_jobs_by_student(loggedin_user, student_jobs)
     })
 
-"""
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -613,7 +565,7 @@ def decline_offer(request, session_slug, job_slug):
                 application.status.add(status)
                 application.save()
                 if application:
-                    messages.success(request, 'Success!')
+                    messages.success(request, 'Success! You declined the job offer - {0} {1}: {2} {3} {4} '.format(application.job.session.year, application.job.session.term.code, application.job.course.code.name, application.job.course.number.name, application.job.course.section.name))
                 else:
                     message.error(request, 'Error!')
             else:

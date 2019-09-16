@@ -2,18 +2,20 @@
 {% block content %}
 
 <div class="wrapper">
-  {% include "administrators/_sidebar.html" %}
+  {% include "administrators/util/_sidebar.html" %}
 
   <div id="content" class="container-fluid">
 
-    <h3>Student Jobs</h3>
+    <h3>Student Jobs and Details</h3>
 
-    <div>ID: {{ student.id }}</div>
+    <div>Student ID: {{ student.id }}</div>
     <div>First Name: {{ student.first_name }}</div>
     <div>Last Name: {{ student.last_name }}</div>
     <div>Preferred Name: {{ student.profile.preferred_name }}</div>
     <div>CWL: {{ student.username }}</div>
     <div>E-mail: {{ student.email }}</div>
+
+    <hr />
 
     <h5>Jobs</h5>
     <table class="table table-responsive">
@@ -58,7 +60,7 @@
             <td>
               <ul>
                 {% for st in app.status.all %}
-                  <li>{{ st.get_assigned_display }}: {{ st.assigned_hours }} hours at {{ st.created_at }}</li>
+                  <li>{{ st.get_assigned_display }}: {{ st.assigned_hours }} hours on {{ st.created_at }}</li>
                 {% empty %}
                   <li>No status found</li>
                 {% endfor %}
@@ -74,6 +76,8 @@
         {% endfor %}
       </tbody>
     </table>
+
+    <a href="{% url 'administrators:student_jobs' %}">Go back to Jobs by Student</a>
 
   </div>
 </div>

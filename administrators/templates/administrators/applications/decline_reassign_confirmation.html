@@ -1,0 +1,55 @@
+{% extends 'ta_app/base.html' %}
+{% block content %}
+
+<div class="wrapper">
+  {% include 'administrators/util/_sidebar.html' %}
+
+  <div id="content" class="container-fluid">
+    <h3>Decline and Reassign</h3>
+
+    <h5>
+      {{ app.job.session.year }} {{ app.job.session.term.code }} -
+      {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}
+    </h5>
+
+    <div>Application ID: {{ app.id }}</div>
+    <div>Slug: {{ app.slug }}</div>
+    <div>Name: {{ app.applicant.first_name }} {{ app.applicant.last_name }}</div>
+    <div>CWL: {{ app.applicant.username }}</div>
+
+    <h2>Confirmation: Are you sure to decline and re-assign?</h2>
+    <div>
+      Current Assigned hours: {{ old_assigned_hours }} hours -> New Assigned hours: {{ new_assigned_hours }} hours
+    </div>
+
+    <h5>Result</h5>
+
+    <div>
+      <h5>Current Status</h5>
+      <div>Assigned TA hours: {{ app.job.assigned_ta_hours }} hours</div>
+      <div>Applicants' TA hours: {{ app.job.ta_hours }} hours</div>
+    </div>
+
+    <div>
+      <h5>New Status</h5>
+      <div>Assigned TA hours: {{ app.job.assigned_ta_hours }} hours</div>
+      <div>Applicants' TA hours: {{ new_ta_hours }} hours ({{ app.job.ta_hours }} - {{ old_assigned_hours }} + {{ new_assigned_hours }})</div>
+    </div>
+
+    <hr />
+
+    <form action="" method="post">
+      {% csrf_token %}
+      <div>Assigned hours: {{ new_assigned_hours }}</div>
+      <input type="hidden" name="application" value="{{ app.id }}" />
+      <input type="hidden" name="old_assigned_hours" value="{{ old_assigned_hours }}" />
+      <input type="hidden" name="new_assigned_hours" value="{{ new_assigned_hours }}" />
+      <input type="submit" value="Confirm to decline and reassign" />
+    </form>
+
+    <a href="{% url 'administrators:accepted_applications' %}">Go back to Accepted Applications</a>
+
+  </div>
+</div>
+
+{% endblock %}

@@ -2,7 +2,7 @@
 {% block content %}
 
 <div class="wrapper">
-  {% include "administrators/_sidebar.html" %}
+  {% include "administrators/util/_sidebar.html" %}
 
   <div id="content" class="container-fluid">
     <h3>offered applications send email confirmation</h3>
@@ -72,7 +72,7 @@
       <input type="submit" name="" value="Confirm to send an email by Type 2" />
     </form>
 
-    <a href="{% url 'administrators:offered_applications' %}">Back to Offered Applications</a>
+    <a href="{% url 'administrators:offered_applications' %}">Go back to Offered Applications</a>
   </div>
 </div>
 

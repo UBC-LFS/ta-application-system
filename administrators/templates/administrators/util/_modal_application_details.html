@@ -1,0 +1,29 @@
+<button type="button" class="btn btn-sm btn-info" data-toggle="modal" data-target="#application-details-modal-{{ data.id }}">View</button>
+
+<div class="modal fade" id="application-details-modal-{{ data.id }}" tabindex="-1" role="dialog" aria-labelledby="application-details-modal-label-{{ data.id }}" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="application-details-modal-label-{{ data.id }}">Application Details</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      </div>
+      <div class="modal-body">
+        <h4>Applicant: {{ data.applicant.first_name }} {{ data.applicant.last_name }}</h4>
+        <small>Created at: {{ data.created_at }} | Updated at: {{ data.updated_at }}</small>
+
+        <div>Supervisor Approval: {{ data.supervisor_approval }}</div>
+        <div>How Qualified: {{ data.get_how_qualified_display }}</div>
+        <div>How Interested: {{ data.get_how_interested_display }}</div>
+        <div>Availability: {{ data.availability }}</div>
+        <div>Availability Note: {{ data.availability_note }}</div>
+
+        {% if role == 'administrator' %}
+          <div>Instructor Preference: {{ data.get_instructor_preference_display }}</div>
+          <div>Classification: {{ data.get_classification_display }}</div>
+          <div>Note: {{ data.note }}</div>
+        {% endif %}
+
+      </div>
+    </div>
+  </div>
+</div>
