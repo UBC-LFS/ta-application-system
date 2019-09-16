@@ -197,7 +197,6 @@ class ApplicationStatus(models.Model):
     class Meta:
         ordering = ['pk']
 
-
 class Email(models.Model):
     sender = models.CharField(max_length=256)
     receiver = models.CharField(max_length=256)

@@ -54,7 +54,7 @@ INSTALLED_APPS = [
     'human_resources',
     'instructors',
     'students',
-    #'ckeditor'
+    'django_summernote'
 ]
 
 MIDDLEWARE = [
@@ -158,4 +158,49 @@ MESSAGE_TAGS = {
     messages.ERROR: 'alert-danger',
 }
 
-#CKEDITOR_BASEPATH = os.path.join(STATIC_ROOT, 'ckeditor', 'ckeditor')
+# Text editor - summernote theme
+SUMMERNOTE_THEME = 'bs4'
+SUMMERNOTE_CONFIG = {
+    'summernote': {
+        'toolbar': [
+          ['style', ['style']],
+          ['font', ['bold', 'underline', 'clear']],
+          ['fontname', ['fontname']],
+          ['color', ['color']],
+          ['para', ['ul', 'ol', 'paragraph']],
+          ['table', ['table']],
+          ['insert', ['link']],
+          ['view', ['help']],
+        ]
+    }
+}
+
+# Email titles and messages
+
+EMAIL_TITLE_TYPE_1 = 'Congratulations! You get a job offer [type 1]'
+
+MY_EMAIL_MESSAGE_TYPE_1 = '''\
+<p>Dear {0},</p>
+<p>text 1</p>
+<p>job: {1}</p>
+<p>assigned_hours: {2} hours</p>
+<p>classification: {3}</p>
+<p>url: {4}</p>
+<p>Thank you for your consideration.</p>
+<p>Best regards,</p>
+<p>TA App System</p>
+'''
+
+EMAIL_TITLE_TYPE_2 = 'Congratulations! You get a job offer [type 2]'
+
+MY_EMAIL_MESSAGE_TYPE_2 = '''\
+<p>Dear {0},</p>
+<p>text 2</p>
+<p>job: {1}</p>
+<p>assigned_hours: {2} hours</p>
+<p>classification: {3}</p>
+<p>url: {4}</p>
+<p>Thank you for your consideration.</p>
+<p>Best regards,</p>
+<p>TA App System</p>
+'''

@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
+from django_summernote.widgets import SummernoteWidget, SummernoteInplaceWidget
 
 from .models import *
 
@@ -50,9 +51,8 @@ class CourseForm(forms.ModelForm):
     field_order = ['code', 'number','section', 'name', 'term']
 
 
-# checked
 class SessionForm(forms.ModelForm):
-    """ Create a model form for a Session """
+    ''' Create a model form for a Session '''
     next_year = current_year() + 1
     year = forms.CharField(initial=next_year)
     title = forms.CharField(initial='TA Application')
@@ -60,8 +60,8 @@ class SessionForm(forms.ModelForm):
         model = Session
         fields = ['year', 'term', 'title', 'description', 'note']
         widgets = {
-            'description': forms.Textarea(attrs={'rows':2}),
-            'note': forms.Textarea(attrs={'rows':2})
+            'description': SummernoteWidget(),
+            'note': SummernoteWidget()
         }
 
     field_order = ['year', 'term', 'title', 'description', 'note']
@@ -83,8 +83,8 @@ class SessionConfirmationForm(forms.ModelForm):
         model = Session
         fields = ['year', 'term', 'title', 'description', 'note', 'courses', 'is_visible', 'is_archived']
         widgets = {
-            'description': forms.Textarea(attrs={'rows':2}),
-            'note': forms.Textarea(attrs={'rows':2})
+            'description': SummernoteWidget(),
+            'note': SummernoteWidget()
         }
 
     field_order = ['year', 'term', 'title', 'description', 'note', 'courses', 'is_visible', 'is_archived']
@@ -106,22 +106,22 @@ class AdminJobForm(forms.ModelForm):
         model = Job
         fields = ['title', 'description', 'qualification', 'note', 'instructors', 'assigned_ta_hours', 'is_active']
         widgets = {
-            'description': forms.Textarea(attrs={'rows':2}),
-            'note': forms.Textarea(attrs={'rows':2}),
-            'qualification': forms.Textarea(attrs={'rows':2})
+            'description': SummernoteWidget(),
+            'note': SummernoteWidget(),
+            'qualification': SummernoteWidget()
         }
     field_order = ['title', 'description', 'qualification', 'note', 'assigned_ta_hours', 'is_active', 'instructors']
 
-# checked
+
 class InstructorJobForm(forms.ModelForm):
-    """ Create a model form for job details of an instructor """
+    ''' Create a model form for job details of an instructor '''
     class Meta:
         model = Job
         fields = ['title', 'description', 'qualification', 'note']
         widgets = {
-            'description': forms.Textarea(attrs={'rows':2}),
-            'note': forms.Textarea(attrs={'rows':2}),
-            'qualification': forms.Textarea(attrs={'rows':2})
+            'description': SummernoteWidget(),
+            'qualification': SummernoteWidget(),
+            'note': SummernoteWidget()
         }
 
 # checked
@@ -196,3 +196,9 @@ class EmailForm(forms.ModelForm):
     class Meta:
         model = Email
         fields = ['sender', 'receiver','title', 'message', 'type']
+        widgets = {
+            'message': SummernoteWidget(),
+            'sender': forms.HiddenInput(),
+            'receiver': forms.HiddenInput(),
+            'type': forms.HiddenInput()
+        }

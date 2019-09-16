@@ -14,8 +14,8 @@
         <li class="list-group-item"><b>Year:</b> {{ session.year }}</li>
         <li class="list-group-item"><b>Term:</b> {{ session.term.name }} ({{ session.term.code }})</li>
         <li class="list-group-item"><b>Title:</b> {{ session.title }}</li>
-        <li class="list-group-item"><b>Description:</b> {{ session.description }}</li>
-        <li class="list-group-item"><b>Note:</b> {{ session.note }}</li>
+        <li class="list-group-item"><b>Description:</b> {{ session.description|safe }}</li>
+        <li class="list-group-item"><b>Note:</b> {{ session.note|safe }}</li>
         <li class="list-group-item"><b>Is Visible:</b> {{ session.is_visible }}</li>
         <li class="list-group-item"><b>Is Archived:</b> {{ session.is_archived }}</li>
         <li class="list-group-item"><b>Created At:</b> {{ session.created_at }}</li>

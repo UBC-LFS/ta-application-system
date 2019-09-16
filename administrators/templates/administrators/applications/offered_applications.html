@@ -59,7 +59,13 @@
           </tbody>
         </table>
 
-        <input class="btn btn-lg btn-primary" type="submit" value="Send Email">
+        <div>
+          <h5>Select Email Type:</h5>
+          <label class="radio-inline"><input type="radio" name="email_type" value="type1" checked />Type 1</label>
+          <label class="radio-inline"><input type="radio" name="email_type" value="type2" />Type 2</label>
+        </div>
+
+        <input class="btn btn-lg btn-primary" type="submit" value="Send Email" />
       </form>
 
     {% else %}

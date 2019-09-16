@@ -25,17 +25,17 @@
 
     <div>
       <h5>Description</h5>
-      <p>{{ job.description }}</p>
+      <p>{{ job.description|safe }}</p>
     </div>
 
     <div>
       <h5>Qualification</h5>
-      <p>{{ job.qualification }}</p>
+      <p>{{ job.qualification|safe }}</p>
     </div>
 
     <div>
       <h5>Note</h5>
-      <p>{{ job.note }}</p>
+      <p>{{ job.note|safe }}</p>
     </div>
 
     <h5 class="margin-top-30">Instructors</h5>

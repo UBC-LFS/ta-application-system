@@ -6,14 +6,7 @@
 
   <div id="content" class="container-fluid">
 
-    {% if messages %}
-    	{% for message in messages %}
-        <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
-          {{ message }}
-          <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        </div>
-    	{% endfor %}
-    {% endif %}
+    {% include 'ta_app/_return_messages.html' with data=messages %}
 
     <h3>Applications</h3>
     <h5>{{ job.session.year }} {{ job.session.term.code }} - {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</h5>

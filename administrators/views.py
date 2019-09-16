@@ -665,13 +665,16 @@ def offer_job(request, session_slug, job_slug):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['POST'])
 def offered_applications_send_email(request):
-    if not userApi.is_valid_user(request.user): raise PermissionDenied
+    ''' '''
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
 
     if request.method == 'POST':
+        print('offered_applications_send_email')
+        print(request.POST)
         applications = request.POST.getlist('application')
-        request.session['offered_applications_form_data'] = applications
+        email_type = request.POST.get('email_type')
+        request.session['offered_applications_form_data'] = { 'applications': applications, 'email_type': email_type }
         return redirect('administrators:offered_applications_send_email_confirmation')
     return redirect('administrators:offered_applications')
 
@@ -679,15 +682,19 @@ def offered_applications_send_email(request):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET', 'POST'])
 def offered_applications_send_email_confirmation(request):
-    if not userApi.is_valid_user(request.user): raise PermissionDenied
+    ''' '''
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
 
-    form_data = request.session.get('offered_applications_form_data')
+
     applications = []
     receiver_list = []
-    for data in form_data:
-        app = adminApi.get_application(data)
+    form = None
+
+    form_data = request.session.get('offered_applications_form_data')
+    data_applications = form_data['applications']
+    for app_id in data_applications:
+        app = adminApi.get_application(app_id)
         applications.append(app)
         receiver_list.append(app.applicant.email)
 
@@ -723,12 +730,32 @@ def offered_applications_send_email_confirmation(request):
             return redirect('administrators:offered_applications')
         else:
             messages.error(request, 'Error! Form is invalid')
+    else:
+        email_type = form_data['email_type']
+        title = None
+        message = None
+        if email_type == 'type1':
+            title = settings.EMAIL_TITLE_TYPE_1
+            message = settings.MY_EMAIL_MESSAGE_TYPE_1
+        else:
+            title = settings.EMAIL_TITLE_TYPE_2
+            message = settings.MY_EMAIL_MESSAGE_TYPE_2
+
+        form = EmailForm(initial={
+            'sender': settings.EMAIL_FROM,
+            'receiver': receiver_list,
+            'title': title,
+            'message': message,
+            'type': email_type
+        })
 
     return render(request, 'administrators/applications/offered_applications_send_email_confirmation.html', {
         'loggedin_user': loggedin_user,
         'applications': applications,
         'sender': settings.EMAIL_FROM,
-        'receiver': receiver_list
+        'receiver': receiver_list,
+        'form': form,
+        'type': email_type
     })
 
 @login_required(login_url=settings.LOGIN_URL)
