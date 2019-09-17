@@ -521,28 +521,23 @@ def accept_offer(request, session_slug, job_slug):
     if 'Student' not in loggedin_user.roles: raise PermissionDenied
 
     if request.method == 'POST':
-        application_id = request.POST.get('application')
+        app_id = request.POST.get('application')
         assigned_hours = request.POST.get('assigned_hours')
         assigned = ApplicationStatus.ACCEPTED
-        form = ApplicationStatusForm({ 'assigned': assigned, 'assigned_hours': assigned_hours })
+        form = ApplicationStatusForm({ 'application': app_id, 'assigned': assigned, 'assigned_hours': assigned_hours })
         if form.is_valid():
             status = form.save()
             if status:
-                application = adminApi.get_application(application_id)
-                application.status.add(status)
-                application.save()
-                if application:
-                    updated = adminApi.update_job_ta_hours(session_slug, job_slug, assigned_hours)
-                    if updated:
-                        messages.success(request, 'Success! You accepted the job offer - {0} {1}: {2} {3} {4} '.format(application.job.session.year, application.job.session.term.code, application.job.course.code.name, application.job.course.number.name, application.job.course.section.name))
-                    else:
-                        message.error(request, 'Error!')
+                app = adminApi.get_application(app_id)
+                updated = adminApi.update_job_ta_hours(session_slug, job_slug, assigned_hours)
+                if updated:
+                    messages.success(request, 'Success! You accepted the job offer - {0} {1}: {2} {3} {4} '.format(app.job.session.year, app.job.session.term.code, app.job.course.code.name, app.job.course.number.name, app.job.course.section.name))
                 else:
-                    message.error(request, 'Error!')
+                    messages.error(request, 'Error!')
             else:
-                message.error(request, 'Error!')
+                messages.error(request, 'Error!')
         else:
-            message.error(request, 'Error! Form is invalid')
+            messages.error(request, 'Error! Form is invalid')
     return redirect('students:offered_jobs')
 
 

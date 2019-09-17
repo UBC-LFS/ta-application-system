@@ -32,7 +32,7 @@
     <div>
       Status:
       <ul>
-        {% for st in application.status.all %}
+        {% for st in application.applicationstatus_set.all %}
           <li>{{ st.get_assigned_display }}: {{ st.assigned_hours }} hours on {{ st.created_at }}</li>
         {% endfor %}
       </ul>
@@ -61,7 +61,7 @@
     {% if get_offered and not get_accepted and not get_declined %}
       <h5>Congratulations! You get a job offer</h5>
       <p>You are assigned {{ get_offered.assigned_hours }} hours for this job.</p>
-
+      
       <form action="{% url 'students:accept_offer' session_slug=job.session.slug job_slug=job.course.slug %}" method="post">
         {% csrf_token %}
         <input type="hidden" name="application" value="{{ application.id }}" />
@@ -84,7 +84,7 @@
       <p>You declined a job offer.</p>
     {% endif %}
 
-    <a href="{% url 'students:type_jobs' type='offered_jobs' %}">Back to Offered Jobs</a>
+    <a href="{% url 'students:offered_jobs' %}">Go back to Offered Jobs</a>
 
   </div>
 </div>

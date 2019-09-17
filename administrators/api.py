@@ -481,12 +481,12 @@ def get_jobs_with_applications_statistics():
 
 def get_offered(app):
     if app.applicationstatus_set.filter(assigned=ApplicationStatus.OFFERED).exists():
-        return app.applicationstatus_set.get(assigned=ApplicationStatus.OFFERED)
+        return app.applicationstatus_set.filter(assigned=ApplicationStatus.OFFERED)
     return False
 
 def get_accepted(app):
     if app.applicationstatus_set.filter(assigned=ApplicationStatus.ACCEPTED).exists():
-        return app.applicationstatus_set.get(assigned=ApplicationStatus.ACCEPTED)
+        return app.applicationstatus_set.filter(assigned=ApplicationStatus.ACCEPTED)
     return False
 
 

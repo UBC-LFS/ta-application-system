@@ -33,9 +33,6 @@ urlpatterns = [
     path('jobs/applied/', views.applied_jobs, name='applied_jobs'),
     path('jobs/offered/', views.offered_jobs, name='offered_jobs'),
 
-
-
-    #path('students/<str:username>/', views.show_student, name='show_student'),
     #path('students/<str:username>/edit/', views.edit_student, name='edit_student'),
     #path('students/<str:username>/applied/sessions/<str:session_slug>/jobs/<str:job_slug>/', views.show_student_job, name='show_student_job'),
 

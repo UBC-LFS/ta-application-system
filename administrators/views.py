@@ -348,7 +348,7 @@ def prepare_jobs(request):
 
     return render(request, 'administrators/jobs/prepare_jobs.html', {
         'loggedin_user': loggedin_user,
-        'jobs': adminApi.get_jobs_with_applications_statistics()
+        'jobs': adminApi.get_jobs()
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -439,6 +439,8 @@ def edit_job(request, session_slug, job_slug):
     ''' '''
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
+
+    print('edit_job')
 
     session = adminApi.get_session_by_slug(session_slug)
     job = adminApi.get_session_job_by_slug(session_slug, job_slug)
@@ -813,20 +815,17 @@ def decline_reassign_confirmation(request):
         app_id = request.POST.get('application')
         old_assigned_hours = request.POST.get('old_assigned_hours')
         new_assigned_hours = request.POST.get('new_assigned_hours')
-        application = adminApi.get_application(app_id)
-        accepted_status = adminApi.get_accepted_status(application)
+        app = adminApi.get_application(app_id)
+        accepted_status = adminApi.get_accepted_status(app)
 
-        form = ApplicationStatusReassignForm({ 'assigned': ApplicationStatus.DECLINED, 'assigned_hours': 0.00, 'parent_id': accepted_status.id })
+        form = ApplicationStatusReassignForm({ 'application': app_id, 'assigned': ApplicationStatus.DECLINED, 'assigned_hours': 0.00, 'parent_id': accepted_status.id })
         if form.is_valid():
             declined_status = form.save()
             if declined_status:
-                application.status.add(declined_status)
-                reassign_form = ApplicationStatusForm({ 'assigned': ApplicationStatus.ACCEPTED, 'assigned_hours': new_assigned_hours })
+                reassign_form = ApplicationStatusForm({ 'application': app_id, 'assigned': ApplicationStatus.ACCEPTED, 'assigned_hours': new_assigned_hours })
                 reassigned_status = reassign_form.save()
                 if reassigned_status:
-                    application.status.add(reassigned_status)
-                    application.save()
-                    updated = adminApi.update_job_ta_hours(application.job.session.slug, application.job.course.slug, float(new_assigned_hours) - float(old_assigned_hours))
+                    updated = adminApi.update_job_ta_hours(app.job.session.slug, app.job.course.slug, float(new_assigned_hours) - float(old_assigned_hours))
                     if updated:
                         messages.success(request, 'Success! Application (ID: {0}) updated'.format(app_id))
                     else:
