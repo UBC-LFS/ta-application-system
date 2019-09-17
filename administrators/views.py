@@ -764,26 +764,46 @@ def offered_applications_send_email_confirmation(request):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET', 'POST'])
 def email_history(request):
-    if not userApi.is_valid_user(request.user): raise PermissionDenied
+    ''' '''
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
+
+    return render(request, 'administrators/applications/email_history.html', {
+        'loggedin_user': loggedin_user,
+        'emails': adminApi.get_emails()
+    })
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET', 'POST'])
+def send_reminder(request, id):
+    ''' '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user): raise PermissionDenied
+
+    email = None
     if request.method == 'POST':
         form = EmailForm(request.POST)
         if form.is_valid():
             data = form.cleaned_data
-            email = adminApi.send_and_create_email(data['sender'], data['receiver'], data['title'], data['message'], data['type'])
-            if email:
+            sent_email = adminApi.send_and_create_email(data['sender'], data['receiver'], data['title'], data['message'], data['type'])
+            if sent_email:
                 messages.success(request, 'Success! Email has sent to {0}'.format(data['receiver']))
                 return redirect('administrators:email_history')
             else:
                 messages.error(request, 'Error!')
         else:
             messages.error(request, 'Error! Form is invalid')
-
-    return render(request, 'administrators/applications/email_history.html', {
+    else:
+        email = adminApi.get_email(id)
+    
+    return render(request, 'administrators/applications/send_reminder.html', {
         'loggedin_user': loggedin_user,
-        'emails': adminApi.get_emails()
+        'form': EmailForm(data=None, instance=email, initial={
+            'title': 'REMINDER: ' + email.title
+        })
     })
+
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)

@@ -586,6 +586,12 @@ def student_apply_job(app):
 
 
 
+def get_email(id):
+    ''' '''
+    return get_object_or_404(Email, id=id)
+
+
+
 """
 def get_offered_jobs_by_student2(user, student_jobs):
     jobs = {}

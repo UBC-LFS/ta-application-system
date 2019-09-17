@@ -1,0 +1,18 @@
+{% extends 'ta_app/base.html' %}
+{% block content %}
+
+{% include 'administrators/util/_sidebar.html' %}
+
+<div id="content" class="container-fluid">
+
+  <h3>Send Reminder</h3>
+  <form action="" method="post">
+    {% csrf_token %}
+    <table>{{ form.as_table }}</table>
+    <input type="submit" value="Send Reminder" />
+  </form>
+
+  <a href="{% url 'administrators:email_history' %}">Go back to Email History</a>
+</div>
+
+{% endblock %}
