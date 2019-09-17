@@ -9,11 +9,11 @@
     <h3>Job Details</h3>
 
     <h5>{{ job.session.year }} {{ job.session.term.name }} {{ job.session.title }}</h5>
-    <h4>{{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</h4>
+    <h4 class="margin-top-30">{{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</h4>
     <div>{{ job.course.name }}</div>
 
-    <div>
-      <h5>Title: {{ job.title }}</h5>
+    <div class="margin-top-30">
+      <h5>{{ job.title }}</h5>
 
 
       <div>Job ID: {{ job.id }}</div>
@@ -23,7 +23,7 @@
       <small>Created at: {{ job.created_at }} | Updated At: {{ job.updated_at }}</small>
     </div>
 
-    <div>
+    <div class="margin-top-30">
       <h5>Description</h5>
       <p>{{ job.description }}</p>
     </div>

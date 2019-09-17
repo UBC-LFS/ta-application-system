@@ -1,7 +1,7 @@
 {% if data == 'current' %}
-  <a href="{% url 'administrators:current_sessions' %}">Go back to Current Sessions</a>
+  <a class="btn btn-secondary margin-bottom-30" href="{% url 'administrators:current_sessions' %}">Go back to Current Sessions</a>
 {% elif data == 'archived' %}
-  <a href="{% url 'administrators:archived_sessions' %}">Go back to Archived Sessions</a>
+  <a class="btn btn-secondary margin-bottom-30" href="{% url 'administrators:archived_sessions' %}">Go back to Archived Sessions</a>
 {% else %}
-  <a href="{% url 'administrators:sessions' %}">Go back to Sessions</a>
+  <a class="btn btn-secondary margin-bottom-30" href="{% url 'administrators:sessions' %}">Go back to Sessions</a>
 {% endif %}

@@ -8,7 +8,7 @@
 
     <h3>Jobs by Instructor</h3>
 
-    <table class="table">
+    <table class="table margin-top-30">
       <thead>
         <tr>
           <th>ID</th>
@@ -23,7 +23,7 @@
         {% for instructor in instructors %}
           <tr>
             <td>
-              <a href="{% url 'administrators:show_user' username=instructor.username role='administrator' %}">{{ instructor.id }}</a>
+              <a class="btn btn-light" href="{% url 'administrators:show_user' username=instructor.username role='administrator' %}">{{ instructor.id }}</a>
             </td>
             <td>{{ instructor.first_name }}</td>
             <td>{{ instructor.last_name }}</td>
@@ -31,9 +31,9 @@
             <td>{{ instructor.email }}</td>
             <td>
               {% if instructor.job_set.count > 0 %}
-                <a href="{% url 'administrators:instructor_jobs_details' instructor.username %}">{{ instructor.job_set.count }}</a>
+                <a class="btn btn-info" href="{% url 'administrators:instructor_jobs_details' instructor.username %}">{{ instructor.job_set.count }}</a>
               {% else %}
-                {{ instructor.job_set.count }}
+                <button class="btn btn-secondary" disabled>{{ instructor.job_set.count }}</button>
               {% endif %}
             </td>
           </tr>

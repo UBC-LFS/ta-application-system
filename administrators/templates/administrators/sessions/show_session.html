@@ -44,7 +44,7 @@
         {% for job in session.job_set.all %}
           <tr>
             <td>
-              <a href="{% url 'administrators:show_job' session_slug=job.session.slug job_slug=job.course.slug path=path %}">{{ job.id }}</a>
+              <a class="btn btn-light" href="{% url 'administrators:show_job' session_slug=job.session.slug job_slug=job.course.slug path=path %}">{{ job.id }}</a>
             </td>
             <td>{{ job.session.year }}</td>
             <td>{{ job.course.term.code }}</td>
