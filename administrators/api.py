@@ -5,6 +5,7 @@ from django.forms.models import model_to_dict
 from django.db.models import Q
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
+from django.core.mail import EmailMultiAlternatives
 
 from administrators.models import *
 from users.models import *
@@ -289,6 +290,8 @@ def update_job_ta_hours(session_slug, job_slug, ta_hours):
     print('saved ', saved)
     return True if job else False
 
+def get_recent_ten_job_details(course):
+    return Job.objects.filter( Q(course__code=course.code) & Q(course__number=course.number) ).order_by('-created_at')[:10]
 
 def get_applications_applied_by_student(user):
     """ Get all applications applied by a student """
@@ -441,6 +444,7 @@ def get_declined_applications():
 #checked
 def get_application(app_id):
     ''' Get an application '''
+    print('get_application ==== ', app_id)
     return get_object_or_404(Application, id=app_id)
 
 def get_application_slug(app_slug):
@@ -477,12 +481,12 @@ def get_jobs_with_applications_statistics():
 
 def get_offered(app):
     if app.applicationstatus_set.filter(assigned=ApplicationStatus.OFFERED).exists():
-        return app.applicationstatus_set.get(assigned=ApplicationStatus.OFFERED)
+        return app.applicationstatus_set.filter(assigned=ApplicationStatus.OFFERED)
     return False
 
 def get_accepted(app):
     if app.applicationstatus_set.filter(assigned=ApplicationStatus.ACCEPTED).exists():
-        return app.applicationstatus_set.get(assigned=ApplicationStatus.ACCEPTED)
+        return app.applicationstatus_set.filter(assigned=ApplicationStatus.ACCEPTED)
     return False
 
 
@@ -579,6 +583,12 @@ def get_declined_jobs_by_student(user, student_jobs):
 def student_apply_job(app):
     app_status = ApplicationStatus.objects.create(application=app, assigned=ApplicationStatus.NONE, assigned_hours=0.0)
     return app_status if app_status else None
+
+
+
+def get_email(id):
+    ''' '''
+    return get_object_or_404(Email, id=id)
 
 
 
@@ -895,7 +905,12 @@ def delete_course_section(course_section_id):
 
 
 def send_and_create_email(sender, receiver, title, message, type):
-    sent = send_mail(title, message, sender, [receiver], fail_silently=False)
+    # Reference: https://docs.djangoproject.com/en/2.2/topics/email/
+    #sent = send_mail(title, message, sender, [receiver], fail_silently=False)
+    msg = EmailMultiAlternatives(title, message, sender, [receiver])
+    msg.attach_alternative(message, "text/html")
+    msg.send()
+
     created_email = Email.objects.create(
         sender = sender,
         receiver = receiver,
@@ -903,7 +918,7 @@ def send_and_create_email(sender, receiver, title, message, type):
         message = message,
         type = type
     )
-    return True if sent and created_email else False
+    return True if msg and created_email else False
     """
     if sent and created_email:
         print( 'Email has sent to {0} and is created'.format(receiver) )

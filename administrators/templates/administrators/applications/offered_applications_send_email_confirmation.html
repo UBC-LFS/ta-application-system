@@ -7,70 +7,55 @@
   <div id="content" class="container-fluid">
     <h3>offered applications send email confirmation</h3>
 
-    <ul>
-      {% for app in applications %}
-        <li>
-          {{ app.applicant.first_name }} {{ app.applicant.last_name }} ({{ app.applicant.email }}):
-          {{ app.job.session.year }} {{ app.job.session.term.code }}-{{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}
-        </li>
-      {% endfor %}
-    </ul>
+    {% if applications|length == 0 %}
 
-    <h5>Type 1 Email</h5>
-    <form action="" method="post">
-      {% csrf_token %}
-      <div>Sender: {{ sender }}</div>
-      <div>
-        <label for="title">Title:</label>
-        <input type="text" name="title" value="Congratulations! You get a job offer type 1" />
-      </div>
-      <div>
-        <label for="title">Message:</label>
-        <textarea name="message" rows="8" cols="50">
-        text 1
-        Dear {0},
-        job: {1}
-        assigned_hours: {2} hours
-        classification: {3}
-        url: {4}
-        </textarea>
-      </div>
-      <div>Receiver: {{ receiver }}</div>
+    <div class="alert alert-danger" role="alert">
+      Please select any one of Offered Applications to send an email, and try again.
+    </div>
 
-      <input type="hidden" name="sender" value="{{ sender }}" />
-      <input type="hidden" name="receiver" value="{{ receiver }}" />
-      <input type="hidden" name="type" value="type1" />
-      <input type="submit" name="" value="Confirm to send an email by Type 1" />
-    </form>
+    {% else %}
 
-    <hr />
+      <ul>
+        {% for app in applications %}
+          <li>
+            {{ app.applicant.first_name }} {{ app.applicant.last_name }} ({{ app.applicant.email }}):
+            {{ app.job.session.year }} {{ app.job.session.term.code }}-{{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}
+          </li>
+        {% endfor %}
+      </ul>
 
-    <h5>Type 2 Email</h5>
-    <form action="" method="post">
-      {% csrf_token %}
-      <div>Sender: {{ sender }}</div>
-      <div>
-        <label for="title">Title:</label>
-        <input type="text" name="title" value="Congratulations! You get a job offer type 2" />
-      </div>
-      <div>
-        <label for="title">Message</label>
-        <textarea name="message" rows="8" cols="50">
-          text 2
-          Dear {0},
-          job: {1}
-          assigned_hours: {2} hours
-          classification: {3}
-          url: {4}
-        </textarea>
-      </div>
-      <div>Receiver: {{ receiver }}</div>
+      <h5>
+        {% if type == 'type1' %} Type 1 {% else %} Type 2 {% endif %}
+        Email
+      </h5>
 
-      <input type="hidden" name="sender" value="{{ sender }}" />
-      <input type="hidden" name="receiver" value="{{ receiver }}" />
-      <input type="hidden" name="type" value="type2" />
-      <input type="submit" name="" value="Confirm to send an email by Type 2" />
-    </form>
+      <form action="" method="post">
+        {% csrf_token %}
+        <div>Sender: {{ sender }}</div>
+        <div>Receiver: {{ receiver }}</div>
+        <table>{{ form.as_table }}</table>
+
+        {% if type == 'type1' %}
+          <input type="submit" name="" value="Confirm to send an email by Type 1" />
+        {% else  %}
+          <input type="submit" name="" value="Confirm to send an email by Type 2" />
+        {% endif %}
+      </form>
+
+    {% endif %}
+
+    <div class="bd-callout bd-callout-warning">
+      <h5>Note</h5>
+      <p>
+        <ul>
+          <li>Name: {0}</li>
+          <li>Job: {1}</li>
+          <li>Assigned Hours: {2}</li>
+          <li>Classification: {3}</li>
+          <li>URL: {4}</li>
+        </ul>
+      </p>
+    </div>
 
     <a href="{% url 'administrators:offered_applications' %}">Go back to Offered Applications</a>
   </div>

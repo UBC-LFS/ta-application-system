@@ -23,7 +23,7 @@
     <div>
       Status:
       <ul>
-        {% for st in app.status.all %}
+        {% for st in app.applicationstatus_set.all %}
           <li>{{ st.get_assigned_display }} - {{ st.assigned_hours }} - {{ st.created_at }}</li>
         {% empty %}
           No status found

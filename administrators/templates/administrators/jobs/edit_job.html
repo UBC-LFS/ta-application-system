@@ -5,6 +5,8 @@
   {% include "administrators/util/_sidebar.html" %}
 
   <div id="content" class="container-fluid">
+    {% include 'ta_app/_return_messages.html' with data=messages %}
+    
     <h3>Edit Job</h3>
     <form action="" method="post">
       {% csrf_token %}

@@ -6,14 +6,7 @@
 
   <div id="content" class="container-fluid">
 
-    {% if messages %}
-    	{% for message in messages %}
-        <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
-          {{ message }}
-          <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        </div>
-    	{% endfor %}
-    {% endif %}
+    {% include 'ta_app/_return_messages.html' with data=messages %}
 
     <h3>Email History</h3>
 
@@ -50,7 +43,7 @@
                       <div>Sender: {{ email.sender }}</div>
                       <div>Receiver: {{ email.receiver }}</div>
                 		  <h5>{{ email.title }}</h5>
-                      <p>{{ email.message }}</p>
+                      <p>{{ email.message|safe }}</p>
                 		</div>
               	  </div>
               	</div>
@@ -59,38 +52,7 @@
             <td>{{ email.type }}</td>
             <td>{{ email.created_at }}</td>
             <td>
-              <button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#reminder-modal-{{ email.id }}">Remind</button>
-            	<div class="modal fade" id="reminder-modal-{{ email.id }}" tabindex="-1" role="dialog" aria-labelledby="reminder-modal-label-{{ email.id }}" aria-hidden="true">
-              	<div class="modal-dialog modal-lg" role="document">
-              	  <div class="modal-content">
-                		<div class="modal-header">
-                		  <h5 class="modal-title" id="reminder-modal-label-{{ email.id }}">Sent an email to {{ email.receiver }}</h5>
-                		  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                		</div>
-                		<div class="modal-body">
-
-                      <form action="" method="post">
-                        {% csrf_token %}
-                        <div>Sender: {{ email.sender }}</div>
-                        <div>Receiver: {{ email.receiver }}</div>
-                        <div>
-                          <label for="title">Title:</label>
-                          <input type="text" name="title" value="REMINDER: {{ email.title }}" />
-                        </div>
-                        <div>
-                          <label for="message">Message:</label>
-                          <textarea name="message">{{ email.message }}</textarea>
-                        </div>
-                        <input type="hidden" name="sender" value="{{ email.sender }}" />
-                        <input type="hidden" name="receiver" value="{{ email.receiver }}" />
-                        <input type="hidden" name="type" value="{{ email.type }}" />
-                        <input type="submit" value="Send Reminder" />
-                      </form>
-
-                		</div>
-              	  </div>
-              	</div>
-            	</div>
+              <a href="{% url 'administrators:send_reminder' email.id %}">Remind</a>
             </td>
           </tr>
         {% empty %}

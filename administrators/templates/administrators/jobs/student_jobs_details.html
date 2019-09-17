@@ -59,7 +59,7 @@
             <td>{{ app.job.ta_hours }} hours</td>
             <td>
               <ul>
-                {% for st in app.status.all %}
+                {% for st in app.applicationstatus_set.all %}
                   <li>{{ st.get_assigned_display }}: {{ st.assigned_hours }} hours on {{ st.created_at }}</li>
                 {% empty %}
                   <li>No status found</li>
