@@ -29,6 +29,7 @@
           <th data-sortable="true">UBC Number</th>
           <th data-sortable="true">Role</th>
           <th data-sortable="true">Email</th>
+          <th>Confidentiality</th>
           <th></th>
           <th></th>
         </tr>
@@ -51,6 +52,9 @@
           </td>
           <td>{{ user.email }}</td>
           <td>
+            <a href="{% url 'administrators:view_confidentiality' username=user.username %}">View</a>
+          </td>
+          <td>
             <button type="button" class="btn btn-sm btn-warning" data-toggle="modal" data-target="#users-modal-{{ user.id }}">Change Role</button>
             <div class="modal fade" id="users-modal-{{ user.id }}" tabindex="-1" role="dialog" aria-labelledby="users-modal-label-{{ user.id }}" aria-hidden="true">
               <div class="modal-dialog modal-lg" role="document">
@@ -63,7 +67,7 @@
                   </div>
                   <div class="modal-body">
                     <h3>{{ user.first_name }} {{ user.last_name }}</h3>
-                    
+
                     <form action="" method="post">
                       {% csrf_token %}
                       {% for role in roles %}

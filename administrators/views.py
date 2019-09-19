@@ -1031,14 +1031,14 @@ def show_user(request, username, role):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
-def view_confidentiality(request):
+def view_confidentiality(request, username):
     ''' '''
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
-
+    user = userApi.get_user_by_username(username)
     return render(request, 'administrators/hr/view_confidentiality.html', {
         'loggedin_user': loggedin_user,
-        'users': userApi.get_users_with_data(),
+        'user': userApi.get_user_with_data(user.id),
     })
 
 

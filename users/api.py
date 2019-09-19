@@ -49,8 +49,17 @@ def loggedin_user(user):
 
 # Users
 def get_user(user_id):
+    ''' '''
+    return get_object_or_404(User, id=user_id)
+
+def get_user_by_username(username):
+    ''' Get a user by username '''
+    return get_object_or_404(User, username=username)
+
+
+def get_user_with_data(user_id):
     ''' Get a user by id '''
-    user = get_object_or_404(User, id=user_id)
+    user = get_user(user_id)
 
     if has_user_resume_created(user) and bool(user.resume.file):
         user.resume_file = os.path.basename(user.resume.file.name)
@@ -70,9 +79,7 @@ def get_user(user_id):
     return user
 
 
-def get_user_by_username(username):
-    ''' Get a user by username '''
-    return get_object_or_404(User, username=username)
+
 
 def get_users():
     ''' '''

@@ -160,10 +160,9 @@ def show_confidentiality(request):
     loggedin_user = userApi.loggedin_user(request.user)
     if 'Student' not in loggedin_user.roles: raise PermissionDenied
 
-    user = userApi.get_user(request.user.id)
     return render(request, 'students/profile/show_confidentiality.html', {
         'loggedin_user': loggedin_user,
-        'user': user
+        'user': userApi.get_user_with_data(loggedin_user.id)
     })
 
 @login_required(login_url=settings.LOGIN_URL)

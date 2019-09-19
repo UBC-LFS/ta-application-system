@@ -7,48 +7,33 @@
   <div id="content" class="container-fluid">
     <h3>View Confidentiality</h3>
 
-    <table class="table table-sm table-striped" data-toggle="table" data-sortable="true" data-classes="" data-pagination="true" data-search="true">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th data-sortable="true">First Name</th>
-          <th data-sortable="true">Last Name</th>
-          <th data-sortable="true">CWL</th>
-          <th data-sortable="true">E-mail</th>
-          <th data-sortable="true">International Student</th>
-          <th>SIN</th>
-          <th>Study Permit</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for user in users %}
-          <tr>
-            <td>{{ user.id }}</td>
-            <td>{{ user.first_name }}</td>
-            <td>{{ user.last_name }}</td>
-            <td>{{ user.username }}</td>
-            <td>{{ user.email }}</td>
-            <td>{{ user.confidentiality.is_international }}</td>
-            <td>
-              {% if user.sin_data %}
-                <a href="{{ user.sin_data.url }}" download="{{ user.sin_data.filename }}">{{ user.sin_data.filename }}</a>
-                (Expiry Date: {{ user.confidentiality.sin_expiry_date }})
-              {% endif %}
-            </td>
-            <td>
-              {% if user.study_permit_data %}
-                <a href="{{ user.study_permit_data.url }}" download="{{ user.study_permit_data.filename }}">{{ user.study_permit_data.filename }}</a>
-                (Expiry Date: {{ user.confidentiality.study_permit_expiry_date }})
-              {% endif %}
-            </td>
-          </tr>
-          {% empty %}
-          <tr>
-            <td colspan="9">No users found</td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+    <div>User ID: {{ user.id }}</div>
+    <div>First Name: {{ user.first_name }}</div>
+    <div>Last Name: {{ user.last_name }}</div>
+    <div>Username: {{ user.username }}</div>
+    <div>E-mail: {{ user.email }}</div>
+    <div>International Student: {{ user.confidentiality.is_international }}</div>
+    <div>
+      SIN:
+      {% if user.sin_data %}
+        <img src="{{ user.sin_data.url }}" width="{{ user.sin_data.width }}" height="{{ user.sin_data.height }}" alt="SIN-image" />
+
+        <a href="{{ user.sin_data.url }}" download="{{ user.sin_data.filename }}">{{ user.sin_data.filename }}</a>
+        <div>Expiry Date: {{ user.confidentiality.sin_expiry_date }}</div>
+
+      {% endif %}
+    </div>
+    <div>
+      Study Permit:
+      {% if user.study_permit_data %}
+        <img src="{{ user.study_permit_data.url }}" width="{{ user.study_permit_data.width }}" height="{{ user.study_permit_data.height }}" alt="Study-Permit-image" />
+
+        <a href="{{ user.study_permit_data.url }}" download="{{ user.study_permit_data.filename }}">{{ user.study_permit_data.filename }}</a>
+        <div>Expiry Date: {{ user.confidentiality.study_permit_expiry_date }}</div>
+      {% endif %}
+    </div>
+
+    <a href="{% url 'administrators:users' %}">Go back to All Users</a>
   </div>
 </div>
 
