@@ -39,7 +39,28 @@ USER = os.environ['TA_APP_DB_USER']
 PASSWORD = os.environ['TA_APP_DB_PASSWORD']
 HOST = os.environ['TA_APP_DB_HOST']
 PORT = os.environ['TA_APP_DB_PORT']
+TA_APP_URL = os.environ['TA_APP_URL']
+ENCRYPT_SALT = os.environ['TA_APP_ENCRYPT_SALT']
+ENCRYPT_PASSWORD = os.environ['TA_APP_ENCRYPT_PASSWORD']
 ```
+
+*Note: how to create ENCRYPT_SALT and ENCRYPT_PASSWORD*
+```
+# Open up a Python Shell by typing *python*
+$ python
+
+# In the Python Shell
+>>> from cryptography.fernet import Fernet
+>>> key = Fernet.generate_key()
+>>> key
+long binary string shows up (i.e., b'23fva4-09234ndsfas=sdf0-8973u2rel=')
+
+# You can save only the string part for ENCRYPT_SALT and ENCRYPT_PASSWORD into your system environment variables
+So, os.environ['TA_APP_ENCRYPT_SALT'] would be 23fva4-09234ndsfas=sdf0-8973u2rel=
+```
+
+> Reference: [cryptography](https://github.com/pyca/cryptography)
+
 
 4. Switch *DEBUG* to **False** in a *settings.py* file
 ```

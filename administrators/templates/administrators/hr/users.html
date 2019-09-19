@@ -37,7 +37,7 @@
       {% for user in users %}
         <tr>
           <td>
-            <a href="{% url 'administrators:show_user' user.username %}">{{ user.id }}</a>
+            <a href="{% url 'administrators:show_user' username=user.username role='administrator' %}">{{ user.id }}</a>
           </td>
           <td>{{ user.first_name }}</td>
           <td>{{ user.profile.preferred_name }}</td>
@@ -63,8 +63,7 @@
                   </div>
                   <div class="modal-body">
                     <h3>{{ user.first_name }} {{ user.last_name }}</h3>
-
-                    {{ user.profile.roles.all }}
+                    
                     <form action="" method="post">
                       {% csrf_token %}
                       {% for role in roles %}

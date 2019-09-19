@@ -796,7 +796,7 @@ def send_reminder(request, id):
             messages.error(request, 'Error! Form is invalid')
     else:
         email = adminApi.get_email(id)
-    
+
     return render(request, 'administrators/applications/send_reminder.html', {
         'loggedin_user': loggedin_user,
         'form': EmailForm(data=None, instance=email, initial={
@@ -970,8 +970,8 @@ def create_user2(request):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET', 'POST'])
 def users(request):
+    ''' '''
 
-    if not userApi.is_valid_user(request.user): raise PermissionDenied
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
 
@@ -1038,7 +1038,7 @@ def view_confidentiality(request):
 
     return render(request, 'administrators/hr/view_confidentiality.html', {
         'loggedin_user': loggedin_user,
-        'users': userApi.get_users(),
+        'users': userApi.get_users_with_data(),
     })
 
 

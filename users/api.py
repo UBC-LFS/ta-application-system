@@ -51,21 +51,21 @@ def loggedin_user(user):
 def get_user(user_id):
     ''' Get a user by id '''
     user = get_object_or_404(User, id=user_id)
-    
-    if has_user_resume_created(user) and user.resume.file != None:
+
+    if has_user_resume_created(user) and bool(user.resume.file):
         user.resume_file = os.path.basename(user.resume.file.name)
     else:
         user.resume_file = None
 
-    if has_user_confidentiality_created(user) and user.confidentiality.sin != None:
-        user.sin_file = os.path.basename(user.confidentiality.sin.name)
+    if has_user_confidentiality_created(user) and bool(user.confidentiality.sin):
+        user.sin_data = decrypt_image(user.username, user.confidentiality.sin, 'sin')
     else:
-        user.sin_file = None
+        user.sin_data = None
 
-    if has_user_confidentiality_created(user) and user.confidentiality.study_permit != None:
-        user.study_permit_file = os.path.basename(user.confidentiality.study_permit.name)
+    if has_user_confidentiality_created(user) and bool(user.confidentiality.study_permit):
+        user.study_permit_data = decrypt_image(user.username, user.confidentiality.study_permit, 'study_permit')
     else:
-        user.study_permit_file = None
+        user.study_permit_data = None
 
     return user
 
@@ -75,15 +75,28 @@ def get_user_by_username(username):
     return get_object_or_404(User, username=username)
 
 def get_users():
+    ''' '''
+    return User.objects.all().order_by('id')
+
+def get_users_with_data():
     ''' Get all users '''
     users = []
-    for user in User.objects.all().order_by('id'):
-        if has_user_resume_created(user) and user.resume.file != None:
+    for user in get_users():
+        if has_user_resume_created(user) and bool(user.resume.file):
             user.resume_file = os.path.basename(user.resume.file.name)
-        if has_user_confidentiality_created(user) and user.confidentiality.sin != None:
-            user.sin_file = os.path.basename(user.confidentiality.sin.name)
-        if has_user_confidentiality_created(user) and user.confidentiality.study_permit != None:
-            user.study_permit_file = os.path.basename(user.confidentiality.study_permit.name)
+        else:
+            user.resume_file = None
+
+        if has_user_confidentiality_created(user) and bool(user.confidentiality.sin):
+            user.sin_data = decrypt_image(user.username, user.confidentiality.sin, 'sin')
+        else:
+            user.sin_data = None
+
+        if has_user_confidentiality_created(user) and bool(user.confidentiality.study_permit):
+            user.study_permit_data = decrypt_image(user.username, user.confidentiality.study_permit, 'study_permit')
+        else:
+            user.study_permit_data = None
+
         users.append(user)
     return users
 

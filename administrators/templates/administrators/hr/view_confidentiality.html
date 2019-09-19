@@ -17,9 +17,7 @@
           <th data-sortable="true">E-mail</th>
           <th data-sortable="true">International Student</th>
           <th>SIN</th>
-          <th>SIN Expiry Date</th>
           <th>Study Permit</th>
-          <th>Study Permit Expiry Date</th>
         </tr>
       </thead>
       <tbody>
@@ -32,17 +30,17 @@
             <td>{{ user.email }}</td>
             <td>{{ user.confidentiality.is_international }}</td>
             <td>
-              {% if user.sin_file %}
-                <a href="{% url 'students:download_sin' username=user.username filename=user.sin_file %}" target="_blank">{{ user.sin_file }}</a>
+              {% if user.sin_data %}
+                <a href="{{ user.sin_data.url }}" download="{{ user.sin_data.filename }}">{{ user.sin_data.filename }}</a>
+                (Expiry Date: {{ user.confidentiality.sin_expiry_date }})
               {% endif %}
             </td>
-            <td>{{ user.confidentiality.sin_expiry_date }}</td>
             <td>
-              {% if user.study_permit_file %}
-                <a href="{% url 'students:download_study_permit' username=user.username filename=user.study_permit_file %}" target="_blank">{{ user.study_permit_file }}</a>
+              {% if user.study_permit_data %}
+                <a href="{{ user.study_permit_data.url }}" download="{{ user.study_permit_data.filename }}">{{ user.study_permit_data.filename }}</a>
+                (Expiry Date: {{ user.confidentiality.study_permit_expiry_date }})
               {% endif %}
             </td>
-            <td>{{ user.confidentiality.study_permit_expiry_date }}</td>
           </tr>
           {% empty %}
           <tr>
