@@ -1,12 +1,27 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
 
-<div class="wrapper">
-    {% include "administrators/util/_sidebar.html" %}
 
-    <div id="content" class="container-fluid">
-        <h3>Human Resources</h3>
+{% include "administrators/util/_sidebar.html" %}
+
+<div id="content" class="container-fluid">
+  <h3>Human Resources</h3>
+
+  <div class="bd-callout bd-callout-warning">
+    <h5>Checkpoint!</h5>
+    <p>Text area</p>
+  </div>
+
+  <div class="card border-secondary">
+    <h5 class="card-header bg-secondary text-white">Featured</h5>
+    <div class="card-body">
+      <h5 class="card-title">Special title treatment</h5>
+      <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+      <a href="#" class="btn btn-primary">Go somewhere</a>
     </div>
+  </div>
+
 </div>
+
 
 {% endblock %}

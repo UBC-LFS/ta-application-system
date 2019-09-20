@@ -1,111 +1,109 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
 
-<div class="wrapper">
+{% if role == 'administrator' %}
+  {% include 'administrators/util/_sidebar.html' %}
+{% elif role == 'instructor' %}
+  {% include 'instructors/util/_sidebar.html' %}
+{% elif role == 'student' %}
+  {% include 'students/util/_sidebar.html' %}
+{% endif %}
 
-  {% if role == 'administrator' %}
-    {% include 'administrators/util/_sidebar.html' %}
-  {% elif role == 'instructor' %}
-    {% include 'instructors/util/_sidebar.html' %}
-  {% elif role == 'student' %}
-    {% include 'students/util/_sidebar.html' %}
-  {% endif %}
-  
-  <div id="content" class="container-fluid">
+<div id="content" class="container-fluid">
 
-    <h3>User Details</h3>
+  <h3>User Details</h3>
 
-    <div class="row">
+  <div class="row">
 
-      <div class="col-6">
-        <h3 class="margin-top-30">Infomation</h3>
+    <div class="col-6">
+      <h3 class="margin-top-30">Infomation</h3>
 
-        <ul class="list-group">
-          {% if role == 'administrator' %}
-            <li class="list-group-item"><b>User ID:</b> {{ user.id }}</li>
-            <li class="list-group-item"><b>Date Joined:</b> {{ user.date_joined }}</li>
-            <li class="list-group-item"><b>Last Login:</b> {{ user.last_login }}</li>
-          {% endif %}
+      <ul class="list-group">
+        {% if role == 'administrator' %}
+          <li class="list-group-item"><b>User ID:</b> {{ user.id }}</li>
+          <li class="list-group-item"><b>Date Joined:</b> {{ user.date_joined }}</li>
+          <li class="list-group-item"><b>Last Login:</b> {{ user.last_login }}</li>
+        {% endif %}
 
-          <li class="list-group-item"><b>First Name:</b> {{ user.first_name }}</li>
-          <li class="list-group-item"><b>Last Name:</b> {{ user.last_name }}</li>
-          <li class="list-group-item"><b>CWL:</b> {{ user.username }}</li>
-          <li class="list-group-item"><b>Email:</b> {{ user.email }}</li>
-          <li class="list-group-item"><b>UBC Number:</b> {{ user.profile.ubc_number }}</li>
-        </ul>
+        <li class="list-group-item"><b>First Name:</b> {{ user.first_name }}</li>
+        <li class="list-group-item"><b>Last Name:</b> {{ user.last_name }}</li>
+        <li class="list-group-item"><b>CWL:</b> {{ user.username }}</li>
+        <li class="list-group-item"><b>Email:</b> {{ user.email }}</li>
+        <li class="list-group-item"><b>UBC Number:</b> {{ user.profile.ubc_number }}</li>
+      </ul>
 
-        <div class="">
-          <h3 class="margin-top-30">Resume:</h3>
-          {% if resume_file %}
-            <a href="{% url 'students:download_resume' username=user.username filename=resume_file %}" target="_blank">
-              {{ resume_file }}
-            </a>
-            - {{ user.resume.created_at }}
-          {% else %}
-            No resume
-          {% endif %}
-        </div>
-
-      </div>
-
-      <div class="col-6">
-        <h3 class="margin-top-30">Profile</h3>
-
-        <ul class="list-group">
-          <li class="list-group-item"><b>Preferred Name:</b> {{ user.profile.preferred_name }}</li>
-          <li class="list-group-item"><b>Created At:</b> {{ user.profile.created_at }}</li>
-          <li class="list-group-item"><b>Updated at:</b> {{ user.profile.updated_at }}</li>
-          <li class="list-group-item">
-            <b>Roles:</b>
-            {% for role in user.profile.roles.all %}
-              {{ role.name }},
-            {% endfor %}
-
-          </li>
-          <li class="list-group-item"><b>Qualifications:</b> {{ user.profile.qualifications }}</li>
-          <li class="list-group-item"><b>Prior Employment:</b> {{ user.profile.prior_employment }}</li>
-          <li class="list-group-item"><b>Special Considerations:</b> {{ user.profile.special_considerations }}</li>
-          <li class="list-group-item"><b>Status:</b> {{ user.profile.status }}</li>
-          <li class="list-group-item"><b>Program:</b> {{ user.profile.program }}</li>
-          <li class="list-group-item"><b>Graduation Date:</b> {{ user.profile.graduation_date }}</li>
-          <li class="list-group-item">
-            <b>Degrees:</b>
-            <ul>
-              {% for degree in user.profile.degrees.all %}
-                <li>{{ degree.name }}</li>
-              {% empty %}
-                None
-              {% endfor %}
-            </ul>
-          </li>
-          <li class="list-group-item">
-            <b>Trainings:</b>
-            <ul>
-              {% for degree in user.profile.trainings.all %}
-                <li>{{ degree.name }}</li>
-              {% empty %}
-                None
-              {% endfor %}
-            </ul>
-          </li>
-          <li class="list-group-item">
-            <b>LFS TA Training:</b> {{ user.profile.get_lfs_ta_training_display }}
-            <p>Details: {{ user.profile.lfs_ta_training_details }}</p>
-          </li>
-          <li class="list-group-item">
-            <b>Previous TA Experience:</b> {{ user.profile.get_ta_experience_display }}
-            <p>Details: {{ user.profile.ta_experience_details }}</p>
-          </li>
-
-        </ul>
-
-
+      <div class="">
+        <h3 class="margin-top-30">Resume:</h3>
+        {% if user.resume_file %}
+          <a href="{% url 'students:download_resume' username=user.username filename=user.resume_file %}" target="_blank">
+            {{ user.resume_file }}
+          </a>
+          | {{ user.resume.created_at }}
+        {% else %}
+          No resume
+        {% endif %}
       </div>
 
     </div>
 
-    <a href="{{ previous_url }}">Go back to a previous page</a>
+    <div class="col-6">
+      <h3 class="margin-top-30">Profile</h3>
+
+      <ul class="list-group">
+        <li class="list-group-item"><b>Preferred Name:</b> {{ user.profile.preferred_name }}</li>
+        <li class="list-group-item"><b>Created At:</b> {{ user.profile.created_at }}</li>
+        <li class="list-group-item"><b>Updated at:</b> {{ user.profile.updated_at }}</li>
+        <li class="list-group-item">
+          <b>Roles:</b>
+          {% for role in user.profile.roles.all %}
+            {{ role.name }},
+          {% endfor %}
+
+        </li>
+        <li class="list-group-item"><b>Qualifications:</b> {{ user.profile.qualifications }}</li>
+        <li class="list-group-item"><b>Prior Employment:</b> {{ user.profile.prior_employment }}</li>
+        <li class="list-group-item"><b>Special Considerations:</b> {{ user.profile.special_considerations }}</li>
+        <li class="list-group-item"><b>Status:</b> {{ user.profile.status }}</li>
+        <li class="list-group-item"><b>Program:</b> {{ user.profile.program }}</li>
+        <li class="list-group-item"><b>Graduation Date:</b> {{ user.profile.graduation_date }}</li>
+        <li class="list-group-item">
+          <b>Degrees:</b>
+          <ul>
+            {% for degree in user.profile.degrees.all %}
+              <li>{{ degree.name }}</li>
+            {% empty %}
+              None
+            {% endfor %}
+          </ul>
+        </li>
+        <li class="list-group-item">
+          <b>Trainings:</b>
+          <ul>
+            {% for degree in user.profile.trainings.all %}
+              <li>{{ degree.name }}</li>
+            {% empty %}
+              None
+            {% endfor %}
+          </ul>
+        </li>
+        <li class="list-group-item">
+          <b>LFS TA Training:</b> {{ user.profile.get_lfs_ta_training_display }}
+          <p>Details: {{ user.profile.lfs_ta_training_details }}</p>
+        </li>
+        <li class="list-group-item">
+          <b>Previous TA Experience:</b> {{ user.profile.get_ta_experience_display }}
+          <p>Details: {{ user.profile.ta_experience_details }}</p>
+        </li>
+
+      </ul>
+
+    </div>
 
   </div>
+  {% if previous_url %}
+    <a href="{{ previous_url }}">Go back to a previous page</a>
+  {% endif %}
+
 </div>
+
 {% endblock %}

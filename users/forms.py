@@ -34,6 +34,7 @@ class StatusForm(forms.ModelForm):
         model = Status
         fields = ['name']
 
+"""
 class UserInfoForm(forms.ModelForm):
     class Meta:
         model = User
@@ -42,8 +43,10 @@ class UserInfoForm(forms.ModelForm):
             'first_name': forms.TextInput(attrs={'required': True}),
             'last_name': forms.TextInput(attrs={'required': True})
         }
+"""
 
 class UserForm(forms.ModelForm):
+    ''' User model form '''
     class Meta:
         model = User
         fields = ['first_name', 'last_name', 'email', 'username']
@@ -55,6 +58,13 @@ class UserForm(forms.ModelForm):
             'email': forms.EmailInput(attrs={'required': True}),
             'username': forms.TextInput(attrs={'required': True}),
         }
+
+class UserCreateProfileForm(forms.ModelForm):
+    ''' To check a profile while creating a user '''
+    class Meta:
+        model = Profile
+        fields = ['preferred_name', 'ubc_number', 'roles']
+
 
 class ConfidentialityCheckForm(forms.ModelForm):
     class Meta:

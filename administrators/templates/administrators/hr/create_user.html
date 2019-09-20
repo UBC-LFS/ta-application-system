@@ -2,37 +2,34 @@
 {% block content %}
 
 <div class="wrapper">
-    {% include "administrators/util/_sidebar.html" %}
+  {% include "administrators/util/_sidebar.html" %}
 
 	<div id="content" class="container-fluid">
-		{% if messages %}
-			{% for message in messages %}
-				<div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
-			{{ message }}
-			<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-			</div>
-			{% endfor %}
-		{% endif %}
+		{% include 'ta_app/_return_messages.html' with data=messages %}
 
 		<h3>Create a User</h3>
 
 		<form action="" method="post">
-		{% csrf_token %}
+  		{% csrf_token %}
+  		<table>{{ user_form.as_table }}</table>
 
-		<table>{{ user_form.as_table }}</table>
+  		<div>
+  			<label for="id_preferred_name">Preferred Name (Optional):</label>
+  			<input type="text" name="preferred_name" id="id_preferred_name" />
+  		</div>
 
-		<div>
-			<label for="id_preferred_name">Preferred Name (Optional):</label>
-			<input type="text" name="preferred_name" id="id_preferred_name" />
-		</div>
+      <div>
+  			<label for="id_ubc_number">UBC Number:</label>
+  			<input type="text" name="ubc_number" id="id_ubc_number" />
+  		</div>
 
-		<h5>Roles:</h5>
-		{% for role in roles %}
-			<div>
-				<input type="checkbox" name="roles" value="{{ role.id }}" /> {{ role.name }}
-			</div>
-		{% endfor %}
-		<input type="submit" value="Create" />
+  		<h5>Roles:</h5>
+  		{% for role in roles %}
+  			<div>
+  				<input type="checkbox" name="roles" value="{{ role.id }}" /> {{ role.name }}
+  			</div>
+  		{% endfor %}
+  		<input type="submit" value="Create" />
 		</form>
 	</div>
 </div>

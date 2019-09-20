@@ -2,13 +2,16 @@ import os
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import PermissionDenied
+from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
-from users.models import *
 
+from users.models import *
+from users.forms import UserCreateProfileForm
 from datetime import datetime
 
 # to be removed
 from django.utils.crypto import get_random_string
+
 
 
 
@@ -56,6 +59,14 @@ def get_user_by_username(username):
     ''' Get a user by username '''
     return get_object_or_404(User, username=username)
 
+def get_user_by_username_with_resume(username):
+    user = get_user_by_username(username)
+
+    if has_user_resume_created(user) and bool(user.resume.file):
+        user.resume_file = os.path.basename(user.resume.file.name)
+    else:
+        user.resume_file = None
+    return user
 
 def get_user_with_data(user_id):
     ''' Get a user by id '''
@@ -107,26 +118,47 @@ def get_users_with_data():
         users.append(user)
     return users
 
-def create_user(data):
-    """ Create a user when receiving data from SAML """
 
-    # TODO: Change a ubc number
+def create_user(data):
+    ''' Create a user when receiving data from SAML '''
+
     user = User.objects.create(
         first_name = data['first_name'],
         last_name = data['last_name'],
         email = data['email'],
         username = data['username'],
-        password = '12'
+        password = make_password(settings.USER_PASSWORD)
     )
     if user:
-        profile = create_profile(user)
+        profile, message = create_profile(user, data)
         if profile:
-            resume = create_user_resume(user)
-            if resume:
-                confidentiality = create_user_confidentiality(user)
-                if confidentiality:
-                    return user
-    return False
+            return user, None
+        else:
+            return False, message
+
+    return False, 'An error occurred while creating a user. Please contact administrators.'
+
+def create_profile(user, content):
+    ''' Create an user's profile '''
+    
+    form = UserCreateProfileForm(content)
+    if form.is_valid():
+        data = form.cleaned_data
+
+        # TODO: modify ubc_number coming from SAML's data
+        #ubc_number = data['ubc_number']
+        ubc_number = get_random_string(length=9)
+
+        preferred_name = data['preferred_name']
+        roles = data['roles']
+        profile = Profile.objects.create(user_id=user.id, ubc_number=ubc_number, preferred_name=preferred_name)
+        profile.roles.add( *roles )
+
+        return profile if profile else False, 'An error occurred while creating a profile. Please contact administrators.'
+    
+    errors = form.errors.get_json_data()
+    return False, 'An error occurred. {0}'.format(get_error_messages(errors))
+
 
 def delete_user(user_id):
     """ Delete a user """
@@ -138,8 +170,14 @@ def delete_user(user_id):
         return None
 
 def user_exists(user):
-    """ Check username exists """
+    """ Check user exists """
     if User.objects.filter(id=user.id).exists():
+        return True
+    return False
+
+def user_exists_by_username(username):
+    ''' Check username exists '''
+    if User.objects.filter(username=username).exists():
         return True
     return False
 
@@ -169,13 +207,13 @@ def confidentiality_exists(user):
     return False
 
 def username_exists(username):
-    """ Check username exists """
+    ''' Check username exists '''
     if User.objects.filter(username=username).exists():
         return True
     return False
 
 def profile_exists_by_username(username):
-    """ Check user's profile exists """
+    ''' Check user's profile exists '''
     if Profile.objects.filter(user__username=username).exists():
         return True
     return False
@@ -257,18 +295,7 @@ def update_student_profile_degrees_trainings(profile, old_degrees, old_trainings
 def get_profiles():
     return Profile.objects.all().order_by('id')
 
-def create_profile(user, data):
 
-    # TODO: modify ubc_number coming from SAML's data
-    ubc_number = data.get('ubc_number', None)
-    ubc_number = get_random_string(length=9)
-
-    preferred_name = data.get('preferred_name')
-    roles = data.getlist('roles')
-
-    profile = Profile.objects.create(user_id=user.id, ubc_number=ubc_number, preferred_name=preferred_name)
-    profile.roles.add( *roles )
-    return True if profile else None
 
 def update_profile(user_id, data):
     profile = get_profile(user_id)
@@ -532,6 +559,18 @@ def create_confidentiality(user):
 
 
 
+# Helper methods
+
+def get_error_messages(errors):
+    messages = ''
+    for key in errors.keys():
+        value = errors[key]
+        messages += key.replace('_', ' ').upper() + ': ' + value[0]['message'] + ' '
+    return messages.strip()
+
+
+
+
 
 # to be removed --------------
 
@@ -541,3 +580,6 @@ def get_profile(user):
         return Profile.objects.get(user_id=user.id)
     except Profile.DoesNotExist:
         return None
+
+
+

@@ -134,9 +134,9 @@ class Resume(models.Model):
     )
     created_at = models.DateField(null=True, blank=True)
 
-#checked
+
 class Profile(models.Model):
-    """ This is a model for a user profile """
+    ''' This is a model for a user profile '''
 
     LFS_TA_TRAINING_CHOICES = [
         ('0', 'N/A'),

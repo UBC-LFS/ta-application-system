@@ -1,105 +1,96 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
 
-<div class="wrapper">
-  {% include "administrators/util/_sidebar.html" %}
+{% include "administrators/util/_sidebar.html" %}
 
-  <div id="content" class="container-fluid">
-    {% if messages %}
-      {% for message in messages %}
-        <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
-          {{ message }}
-          <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        </div>
-      {% endfor %}
-    {% endif %}
+<div id="content" class="container-fluid">
+  {% include 'ta_app/_return_messages.html' with data=messages %}
 
-    <h1>All Users</h1>
+  <h3>All Users</h3>
+  <p>Total: {{ users|length }}</p>
 
-    <p>Total: {{ total_users }}</p>
+  <table class="table table-sm table-striped" data-toggle="table" data-sortable="true" data-classes="" data-pagination="true" data-search="true">
+    <thead>
+      <tr>
+        <th data-sortable="true">User ID</th>
+        <th data-sortable="true">First Name</th>
+        <th data-sortable="true">Prefered Name</th>
+        <th data-sortable="true">Last Name</th>
+        <th data-sortable="true">CWL</th>
+        <th data-sortable="true">UBC Number</th>
+        <th data-sortable="true">Role</th>
+        <th data-sortable="true">Email</th>
+        <th>Confidentiality</th>
+        <th></th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for user in users %}
+      <tr>
+        <td>
+          <a href="{% url 'administrators:show_user' username=user.username role='administrator' %}">{{ user.id }}</a>
+        </td>
+        <td>{{ user.first_name }}</td>
+        <td>{{ user.profile.preferred_name }}</td>
+        <td>{{ user.last_name }}</td>
+        <td>{{ user.username }}</td>
+        <td>{{ user.profile.ubc_number }}</td>
+        <td>
+          {% for role in user.profile.roles.all %}
+            {{ role.name }},
+          {% endfor %}
+        </td>
+        <td>{{ user.email }}</td>
+        <td>
+          <a href="{% url 'administrators:view_confidentiality' username=user.username %}">View</a>
+        </td>
+        <td>
+          <button type="button" class="btn btn-sm btn-warning" data-toggle="modal" data-target="#users-modal-{{ user.id }}">Change Role</button>
+          <div class="modal fade" id="users-modal-{{ user.id }}" tabindex="-1" role="dialog" aria-labelledby="users-modal-label-{{ user.id }}" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="users-modal-label-{{ user.id }}">Change Role</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <h3>{{ user.first_name }} {{ user.last_name }} ({{ user.username }})</h3>
 
-    <table class="table table-sm table-striped" data-toggle="table" data-sortable="true" data-classes="" data-pagination="true" data-search="true">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th data-sortable="true">First Name</th>
-          <th data-sortable="true">Prefered Name</th>
-          <th data-sortable="true">Last Name</th>
-          <th data-sortable="true">CWL</th>
-          <th data-sortable="true">UBC Number</th>
-          <th data-sortable="true">Role</th>
-          <th data-sortable="true">Email</th>
-          <th>Confidentiality</th>
-          <th></th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-      {% for user in users %}
-        <tr>
-          <td>
-            <a href="{% url 'administrators:show_user' username=user.username role='administrator' %}">{{ user.id }}</a>
-          </td>
-          <td>{{ user.first_name }}</td>
-          <td>{{ user.profile.preferred_name }}</td>
-          <td>{{ user.last_name }}</td>
-          <td>{{ user.username }}</td>
-          <td>{{ user.profile.ubc_number }}</td>
-          <td>
-            {% for role in user.profile.roles.all %}
-              {{ role.name }},
-            {% endfor %}
-          </td>
-          <td>{{ user.email }}</td>
-          <td>
-            <a href="{% url 'administrators:view_confidentiality' username=user.username %}">View</a>
-          </td>
-          <td>
-            <button type="button" class="btn btn-sm btn-warning" data-toggle="modal" data-target="#users-modal-{{ user.id }}">Change Role</button>
-            <div class="modal fade" id="users-modal-{{ user.id }}" tabindex="-1" role="dialog" aria-labelledby="users-modal-label-{{ user.id }}" aria-hidden="true">
-              <div class="modal-dialog modal-lg" role="document">
-                <div class="modal-content">
-                  <div class="modal-header">
-                    <h5 class="modal-title" id="users-modal-label-{{ user.id }}">Change Role</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                      <span aria-hidden="true">&times;</span>
-                    </button>
-                  </div>
-                  <div class="modal-body">
-                    <h3>{{ user.first_name }} {{ user.last_name }}</h3>
-
-                    <form action="" method="post">
-                      {% csrf_token %}
-                      {% for role in roles %}
-                        <div>
-                          <input type="checkbox" name="roles" value="{{ role.id }}"
+                  <form action="" method="post">
+                    {% csrf_token %}
+                    {% for role in roles %}
+                      <div>
+                        <input type="checkbox" name="roles" value="{{ role.id }}"
                           {% if role in user.profile.roles.all %}
                             checked
                           {% endif %}
-                          /> {{ role.name }}
-                        </div>
-                      {% endfor %}
-                      <input type="hidden" name="user" value="{{ user.id }}">
-                      <input type="submit" value="Change" />
-                    </form>
+                        /> {{ role.name }}
+                      </div>
+                    {% endfor %}
+                    <input type="hidden" name="user" value="{{ user.id }}" />
+                    <input type="submit" value="Change" />
+                  </form>
 
-                  </div>
                 </div>
               </div>
             </div>
-          </td>
-          <td>
-            <form action="{% url 'users:delete_user' %}" method="post" onsubmit="return confirm('Are you sure to delete {{ user.username }}?');">
-              {% csrf_token %}
-              <input type="hidden" name="user" value="{{ user.id }}">
-              <input class="btn btn-sm btn-danger" type="submit" value="Delete" />
-            </form>
-          </td>
-        </tr>
-      {% endfor %}
-      </tbody>
-    </table>
-  </div>
+          </div>
+        </td>
+        <td>
+          <form action="{% url 'administrators:delete_user' %}" method="post" onsubmit="return confirm('Are you sure to delete {{ user.first_name }} {{ user.last_name }} ({{ user.username }})?');">
+            {% csrf_token %}
+            <input type="hidden" name="user" value="{{ user.id }}">
+            <input class="btn btn-sm btn-danger" type="submit" value="Delete" />
+          </form>
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
 </div>
+
 
 {% endblock %}

@@ -39,6 +39,8 @@ EMAIL_FROM = os.environ['TA_APP_EMAIL_FROM']
 TA_APP_URL = os.environ['TA_APP_URL']
 ENCRYPT_SALT = os.environ['TA_APP_ENCRYPT_SALT']
 ENCRYPT_PASSWORD = os.environ['TA_APP_ENCRYPT_PASSWORD']
+USER_PASSWORD = 'password'
+
 
 # Application definition
 
