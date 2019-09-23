@@ -52,7 +52,7 @@ urlpatterns = [
     path('applications/', views.applications, name='applications'),
 
 
-    path('hr/users/<str:username>/confidentiality/view/', views.view_confidentiality, name='view_confidentiality'),
+    path('hr/users/<str:username>/confidentiality/view/role/<str:role>/', views.view_confidentiality, name='view_confidentiality'),
     path('hr/users/<str:username>/role/<str:role>/', views.show_user, name='show_user'),
     path('hr/users/create/', views.create_user, name='create_user'),
     path('hr/users/delete/', views.delete_user, name='delete_user'),

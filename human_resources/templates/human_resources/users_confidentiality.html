@@ -1,0 +1,46 @@
+{% extends 'ta_app/base.html' %}
+{% block content %}
+
+{% include "human_resources/util/_sidebar.html" %}
+
+<div id="content" class="container-fluid">
+  <h3>Users' Confidentiality</h3>
+
+  <p>Total: {{ users|length }}</p>
+
+  <table class="table table-sm table-striped" data-toggle="table" data-sortable="true" data-classes="" data-pagination="true" data-search="true">
+    <thead>
+      <tr>
+        <th data-sortable="true">User ID</th>
+        <th data-sortable="true">First Name</th>
+        <th data-sortable="true">Prefered Name</th>
+        <th data-sortable="true">Last Name</th>
+        <th data-sortable="true">CWL</th>
+        <th data-sortable="true">UBC Number</th>
+        <th data-sortable="true">Email</th>
+        <th>Confidentiality</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for user in users %}
+      <tr>
+        <td>
+          <a href="{% url 'administrators:show_user' username=user.username role='human_resource' %}">{{ user.id }}</a>
+        </td>
+        <td>{{ user.first_name }}</td>
+        <td>{{ user.profile.preferred_name }}</td>
+        <td>{{ user.last_name }}</td>
+        <td>{{ user.username }}</td>
+        <td>{{ user.profile.ubc_number }}</td>
+        <td>{{ user.email }}</td>
+        <td>
+          <a href="{% url 'administrators:view_confidentiality' username=user.username role='human_resource' %}">View</a>
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+
+</div>
+
+{% endblock %}
