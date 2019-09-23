@@ -6,50 +6,35 @@
 
   <div id="content" class="container-fluid">
 
-    <h3>Job Details</h3>
+    <h5 class="margin-bottom-30">{{ job.session.year }} {{ job.session.term.name }} {{ job.session.title }}</h5>
+    <h3 style="display: inline-block">{{ job.title }} - {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</h3>
+    <span> ({{ job.course.name }})</span>
 
-    <h5>{{ job.session.year }} {{ job.session.term.name }} {{ job.session.title }}</h5>
-    <h4 class="margin-top-30">{{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</h4>
-    <div>{{ job.course.name }}</div>
-
-    <div class="margin-top-30">
-      <h5>{{ job.title }}</h5>
-
-
-      <div>Job ID: {{ job.id }}</div>
-      <div>Is Active: {{ job.is_active }}</div>
-
-
-      <small>Created at: {{ job.created_at }} | Updated At: {{ job.updated_at }}</small>
-    </div>
-
-    <div class="margin-top-30">
-      <h5>Description</h5>
-      <p>{{ job.description|safe }}</p>
-    </div>
-
-    <div>
-      <h5>Qualification</h5>
-      <p>{{ job.qualification|safe }}</p>
-    </div>
-
-    <div>
-      <h5>Note</h5>
-      <p>{{ job.note|safe }}</p>
-    </div>
-
-    <h5 class="margin-top-30">Instructors</h5>
-    <ul>
-      {% for instructor in job.instructors.all %}
-        <li>{{ instructor.first_name }} {{ instructor.last_name }}</li>
-      {% empty %}
-        No instructors found.
-      {% endfor %}
+    <ul class="list-group margin-bottom-10 list-group-flush">
+      <li class="list-group-item">{{ job.description|safe }}</li>
+      <li class="list-group-item">
+        <h5>Instructors</h5>
+        <ul>
+          {% for instructor in job.instructors.all %}
+            <li>{{ instructor.first_name }} {{ instructor.last_name }}</li>
+          {% empty %}
+            No instructors found.
+          {% endfor %}
+        </ul>
+      </li>
+      <li class="list-group-item">
+        <h5>Qualification</h5>
+        <p>{{ job.qualification|safe }}</p>
+      </li>
+      <li class="list-group-item">
+        <span><strong>Note:</strong> {{ job.note|safe }}</span>
+      </li>
     </ul>
 
-    <hr />
+    <span>Job ID: {{ job.id }} - Is Active: {{ job.is_active }} - </span>
+    <span><small>Created at: {{ job.created_at }} | Updated At: {{ job.updated_at }}</small></span>
 
-    <h5>TA Hours</h5>
+    <h4 class="margin-top-30">TA Hours</h4>
     <ul>
       <li>Assgiend TA Hours: {{ job.assigned_ta_hours }} hours</li>
       <li>Applicants' TA Hours: {{ job.ta_hours }} hours</li>

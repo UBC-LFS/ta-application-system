@@ -44,7 +44,8 @@
             <td>{{ job.is_active }}</td>
             <td>{{ job.updated_at }}</td>
             <td>
-              <a class="btn btn-sm btn-warning" href="{% url 'administrators:edit_job' session_slug=job.session.slug job_slug=job.course.slug %}">Edit</a>
+              <a class="btn btn-sm btn-info" href="{% url 'administrators:show_job' session_slug=job.session.slug job_slug=job.course.slug path='prepare' %}">Details</a>
+              <a class="btn btn-sm btn-warning margin-left-10" href="{% url 'administrators:edit_job' session_slug=job.session.slug job_slug=job.course.slug %}">Edit</a>
             </td>
           </tr>
         {% endfor %}

@@ -17,6 +17,7 @@
           <th>CWL</th>
           <th>E-mail</th>
           <th>Jobs</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -31,10 +32,13 @@
             <td>{{ instructor.email }}</td>
             <td>
               {% if instructor.job_set.count > 0 %}
-                <a class="btn btn-info" href="{% url 'administrators:instructor_jobs_details' instructor.username %}">{{ instructor.job_set.count }}</a>
+                <a class="btn btn-success" href="{% url 'administrators:instructor_jobs_details' instructor.username %}">{{ instructor.job_set.count }}</a>
               {% else %}
                 <button class="btn btn-secondary" disabled>{{ instructor.job_set.count }}</button>
               {% endif %}
+            </td>
+            <td>
+              <a class="btn btn-info" href="{% url 'administrators:show_user' username=instructor.username role='administrator' %}">Instructor Details</a>
             </td>
           </tr>
 

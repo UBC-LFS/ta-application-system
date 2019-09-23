@@ -13,8 +13,86 @@
   
   <div id="content" class="container-fluid">
 
-    <h3>User Details</h3>
+    <h2>{{ user.first_name }} {{ user.last_name }}'s Details</h2>
 
+    <div class="row justify-content-center">
+      <div class="col-8">
+
+        <h3 class="margin-top-30">Infomation</h3>
+        <table class="table table-sm table-bordered">
+          <tbody>
+            {% if role == 'administrator' %}
+              <tr>
+                <td>User ID</td>
+                <td>{{ user.id }}</td>
+              </tr>
+              <tr>
+                <td>Date Joined</td>
+                <td>{{ user.date_joined }}</td>
+              </tr>
+              <tr>
+                <td>Last Login</td>
+                <td>{{ user.last_login }}</td>
+              </tr>
+            {% endif %}
+            <tr>
+              <td>CWL</td>
+              <td>{{ user.username }}</td>
+            </tr>
+            <tr>
+              <td>Email</td>
+              <td>{{ user.email }}</td>
+            </tr>
+            <tr>
+              <td>UBC Number</td>
+              <td>{{ user.profile.ubc_number }}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3 class="margin-top-30">Profile</h3>
+        <table class="table table-sm table-bordered">
+          <tbody>
+            <tr>
+              <td>Preferred Name</td>
+              <td>{{ user.profile.preferred_name }}</td>
+            </tr>
+            <tr>
+              <td>Created At</td>
+              <td>{{ user.profile.created_at }}</td>
+            </tr>
+            <tr>
+              <td>Updated At</td>
+              <td>{{ user.profile.updated_at }}</td>
+            </tr>
+            <tr>
+              <td>Qualifications</td>
+              <td>{{ user.profile.qualifications }}</td>
+            </tr>
+            <tr>
+              <td>Prior Employment</td>
+              <td>{{ user.profile.prior_employment }}</td>
+            </tr>
+            <tr>
+              <td>Special Considerations</td>
+              <td>{{ user.profile.special_considerations }}</td>
+            </tr>
+            <tr>
+              <td>Status</td>
+              <td>{{ user.profile.status }}</td>
+            </tr>
+            <tr>
+              <td>Program</td>
+              <td>{{ user.profile.program }}</td>
+            </tr>
+            <tr>
+              <td>Graduation Date</td>
+              <td>{{ user.profile.graduation_date }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
     <div class="row">
 
       <div class="col-6">
