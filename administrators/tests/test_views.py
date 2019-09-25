@@ -1,7 +1,9 @@
+from django.conf import settings
 from django.test import TestCase
 from django.urls import reverse
 from django.contrib.messages import get_messages
 from urllib.parse import urlencode
+from django.core import mail
 
 from administrators.models import *
 from users.models import *
@@ -17,6 +19,7 @@ DATA = [
     'administrators/fixtures/course_numbers.json',
     'administrators/fixtures/course_sections.json',
     'administrators/fixtures/courses.json',
+    'administrators/fixtures/emails.json',
     'administrators/fixtures/job_instructors.json',
     'administrators/fixtures/jobs.json',
     'administrators/fixtures/sessions.json',
@@ -382,9 +385,6 @@ class SessionTest(TestCase):
         self.assertEqual( updated_session.job_set.count(), len(data['courses']) )
 
 
-
-# Job
-
 class JobTest(TestCase):
     fixtures = DATA
 
@@ -584,3 +584,246 @@ class JobTest(TestCase):
         self.assertEqual(session.slug, session_slug)
         self.assertEqual(job.course.slug, job_slug)
         self.assertFalse(form.is_bound)
+
+
+
+class ApplicationTest(TestCase):
+    fixtures = DATA
+
+    @classmethod
+    def setUpTestData(cls):
+        print('\nJob testing has started ==>')
+
+    def login(self, username, password):
+        self.client.post('/accounts/local_login/', data={'username': username, 'password': password})
+
+    def messages(self, res):
+        return [m.message for m in get_messages(res.wsgi_request)]
+
+    def test_view_url_exists_at_desired_location(self):
+        print('\n- Test: view url exists at desired location')
+        self.login('admin', '12')
+        app_slug = '2019-w1-lfs-100-001-introduction-to-land-food-and-community-w1-application-by-testuser11'
+
+        response = self.client.get( reverse('administrators:applications') )
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get( reverse('administrators:show_application', args=[app_slug, 'all']) )
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get( reverse('administrators:applications_dashboard') )
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get( reverse('administrators:all_applications') )
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get( reverse('administrators:selected_applications') )
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get( reverse('administrators:offered_applications') )
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get( reverse('administrators:accepted_applications') )
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get( reverse('administrators:declined_applications') )
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get( reverse('administrators:offered_applications_send_email_confirmation') )
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get( reverse('administrators:email_history') )
+        self.assertEqual(response.status_code, 200)
+
+        #response = self.client.get( reverse('administrators:send_reminder', args=['1']) )
+        #self.assertEqual(response.status_code, 200)
+
+        response = self.client.get( reverse('administrators:decline_reassign_confirmation') )
+        self.assertEqual(response.status_code, 200)
+
+    def test_show_application(self):
+        print('\n- Test: Display an application details')
+        self.login('admin', '12')
+
+        app_slug = '2019-w1-lfs-100-001-introduction-to-land-food-and-community-w1-application-by-testuser11'
+        path = 'all'
+
+        response = self.client.get( reverse('administrators:show_application', args=[app_slug, path]) )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['loggedin_user'].username, 'admin')
+        self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
+        self.assertEqual(response.context['app'].slug, app_slug)
+        self.assertFalse(response.context['form'].is_bound)
+        self.assertEqual(response.context['path'], path)
+
+    def test_applications_dashboard(self):
+        print('\n- Test: Display a dashboard to take a look at updates')
+        self.login('admin', '12')
+
+    def test_all_applications(self):
+        print('\n- Test: Display all applications')
+        self.login('admin', '12')
+
+        response = self.client.get( reverse('administrators:all_applications') )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['loggedin_user'].username, 'admin')
+        self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
+        self.assertEqual( len(response.context['applications']), 21)
+
+    def test_selected_applications(self):
+        print('\n- Test: Display applications selected by instructors')
+        self.login('admin', '12')
+
+        response = self.client.get( reverse('administrators:selected_applications') )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['loggedin_user'].username, 'admin')
+        self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
+        self.assertEqual( len(response.context['selected_applications']), 12)
+        self.assertFalse(response.context['admin_application_form'].is_bound)
+        self.assertFalse(response.context['status_form'].is_bound)
+        self.assertEqual( len(response.context['classification_choices']), 4)
+        self.assertEqual(response.context['offer_status_code'], ApplicationStatus.OFFERED)
+
+    def test_offered_applications(self):
+        print('\n- Test: Display applications offered by admins')
+        self.login('admin', '12')
+
+        response = self.client.get( reverse('administrators:offered_applications') )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['loggedin_user'].username, 'admin')
+        self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
+        self.assertEqual( len(response.context['offered_applications']), 5)
+
+    def test_accepted_applications(self):
+        print('\n- Test: Display applications accepted by students')
+        self.login('admin', '12')
+
+        response = self.client.get( reverse('administrators:accepted_applications') )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['loggedin_user'].username, 'admin')
+        self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
+        self.assertEqual( len(response.context['accepted_applications']), 9)
+
+    def test_declined_applications(self):
+        print('\n- Test: Display applications declined by students')
+        self.login('admin', '12')
+
+        response = self.client.get( reverse('administrators:declined_applications') )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['loggedin_user'].username, 'admin')
+        self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
+        self.assertEqual( len(response.context['declined_applications']), 4)
+
+    def test_edit_job_application(self):
+        print('\n- Test: Edit classification and note in select applications')
+        self.login('admin', '12')
+
+        app_id = '12'
+        app = adminApi.get_application(app_id)
+
+        data = {
+            'application': app_id,
+            'classification': '2',
+            'note': 'This is a note.'
+        }
+        response = self.client.post(reverse('administrators:edit_job_application', args=[app.job.session.slug, app.job.course.slug]), data=urlencode(data), content_type=ContentType)
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+        app = adminApi.get_application(app_id)
+        self.assertEqual(app.classification, data['classification'])
+        self.assertEqual(app.note, data['note'])
+
+    def test_offer_job(self):
+        print('\n- Test: Admin can offer a job to each job')
+        self.login('admin', '12')
+
+        app_id = '19'
+        app = adminApi.get_application(app_id)
+        self.assertFalse(adminApi.get_offered(app))
+        data = {
+            'applicant': '13',
+            'application': app_id,
+            'assigned': '1',
+            'assigned_hours': '20.0'
+        }
+        response = self.client.post(reverse('administrators:offer_job', args=[app.job.session.slug, app.job.course.slug]), data=urlencode(data), content_type=ContentType)
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+        app = adminApi.get_application(app_id)
+        offered_app = adminApi.get_offered(app)[0]
+        self.assertTrue(offered_app.assigned, ApplicationStatus.OFFERED)
+        self.assertEqual(offered_app.assigned_hours, float(data['assigned_hours']))
+
+    def test_offered_applications_send_email(self):
+        print('\n- Test: Admin can offer a job to each job')
+        self.login('admin', '12')
+
+        self.assertEqual( len(adminApi.get_emails()), 4 )
+
+        data = {
+            'application': ['10', '11', '14' , '19'],
+            'email_type': 'type1'
+        }
+        response = self.client.post(reverse('administrators:offered_applications_send_email'), data=urlencode(data, True), content_type=ContentType)
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+        response = self.client.get(response.url)
+        session = self.client.session
+        self.assertEqual(session['offered_applications_form_data']['applications'], data['application'])
+
+        app_ids = []
+        user_emails = []
+        for app in response.context['applications']:
+            app_ids.append( str(app.id) )
+            user_emails.append(app.applicant.email)
+
+        self.assertEqual(len(response.context['applications']), len(data['application']))
+        self.assertEqual(response.context['sender'], settings.EMAIL_FROM)
+        self.assertEqual(app_ids, data['application'])
+        self.assertFalse(response.context['form'].is_bound)
+        self.assertEqual(response.context['type'], data['email_type'])
+
+        data = {
+            'sender': settings.EMAIL_FROM,
+            'receiver': user_emails,
+            'title': 'Congratulations!',
+            'message': 'You have got an job offer',
+            'type': response.context['type']
+        }
+        response = self.client.post(reverse('administrators:offered_applications_send_email_confirmation'), data=urlencode(data, True), content_type=ContentType)
+        messages = [m.message for m in get_messages(response.wsgi_request)]
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+        self.assertEqual(len(mail.outbox), 4)
+        self.assertEqual( len(adminApi.get_emails()), len(user_emails))
+
+    def test_email_history(self):
+        print('\n- Test: Display all of email sent by admins to let them know job offers')
+        self.login('admin', '12')
+
+        response = self.client.get(reverse('administrators:email_history'))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['loggedin_user'].username, 'admin')
+        self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
+        self.assertEqual( len(response.context['emails']), 4 )
+
+    def test_send_reminder(self):
+        print('\n- Test: Send a reminder email')
+        self.login('admin', '12')
+
+        response = self.client.get(reverse('administrators:send_reminder', args=['1']))
+        print(response)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['loggedin_user'].username, 'admin')
+        self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
+        form = response.context['form']
+        print(form.instance)

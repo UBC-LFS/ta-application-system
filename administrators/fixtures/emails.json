@@ -1,0 +1,46 @@
+[
+  {
+    "model": "administrators.email",
+    "pk": 1,
+    "fields": {
+      "sender": "TA App System <lfs.lc@ubc.ca>",
+      "receiver": "test12 user12 <test.user12@example.com>",
+      "title": "Congratulations! You get a job offer [type 1]",
+      "message": "<p>Dear test12 user12,</p><p>text 1</p><p>job: 2019 W1 LFS 150 001</p><p>assigned_hours: 0.0 hours</p><p>classification: Type 2</p><p>url: http://localhost:8000</p><p>Thank you for your consideration.</p><p>Best regards,</p><p>TA App System</p>",
+      "created_at": "2019-12-31"
+    }
+  },
+  {
+    "model": "administrators.email",
+    "pk": 2,
+    "fields": {
+      "sender": "TA App System <lfs.lc@ubc.ca>",
+      "receiver": "test12 user12 <test.user12@example.com>",
+      "title": "Congratulations! You get a job offer [type 1]",
+      "message": "<p>Dear test12 user12,</p><p>text 1</p><p>job: 2019 W1 LFS 252 001</p><p>assigned_hours: 0.0 hours</p><p>classification: Type 2</p><p>url: http://localhost:8000</p><p>Thank you for your consideration.</p><p>Best regards,</p><p>TA App System</p>",
+      "created_at": "2019-12-31"
+    }
+  },
+  {
+    "model": "administrators.email",
+    "pk": 3,
+    "fields": {
+      "sender": "TA App System <lfs.lc@ubc.ca>",
+      "receiver": "test12 user12 <test.user12@example.com>",
+      "title": "Congratulations! You get a job offer [type 1]",
+      "message": "<p>Dear test12 user12,</p><p>text 1</p><p>job: 2019 W2 LFS 250 001</p><p>assigned_hours: 0.0 hours</p><p>classification: Type 1</p><p>url: http://localhost:8000</p><p>Thank you for your consideration.</p><p>Best regards,</p><p>TA App System</p>",
+      "created_at": "2019-12-31"
+    }
+  },
+  {
+    "model": "administrators.email",
+    "pk": 4,
+    "fields": {
+      "sender": "TA App System <lfs.lc@ubc.ca>",
+      "receiver": "test13 user13 <test.user13@example.com>",
+      "title": "Congratulations! You get a job offer [type 1]",
+      "message": "<p>Dear test13 user13,</p><p>text 1</p><p>job: 2019 W2 LFS 250 001</p><p>assigned_hours: 20.0 hours</p><p>classification: Type 2</p><p>url: http://localhost:8000</p><p>Thank you for your consideration.</p><p>Best regards,</p><p>TA App System</p>",
+      "created_at": "2019-12-31"
+    }
+  }
+]

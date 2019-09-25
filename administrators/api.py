@@ -441,14 +441,12 @@ def get_declined_applications():
             applications.append(app)
     return applications
 
-#checked
 def get_application(app_id):
     ''' Get an application '''
-    print('get_application ==== ', app_id)
     return get_object_or_404(Application, id=app_id)
 
 def get_application_slug(app_slug):
-    ''' Get an application '''
+    ''' Get an application by slug '''
     return get_object_or_404(Application, slug=app_slug)
 
 def get_applications_by_student(user):
@@ -586,11 +584,12 @@ def student_apply_job(app):
 
 
 
-def get_email(id):
+def get_email(email_id):
     ''' '''
-    return get_object_or_404(Email, id=id)
+    return get_object_or_404(Email, id=email_id)
 
-
+def get_emails():
+    return Email.objects.all()
 
 """
 def get_offered_jobs_by_student2(user, student_jobs):

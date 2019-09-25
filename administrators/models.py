@@ -198,6 +198,7 @@ class ApplicationStatus(models.Model):
         ordering = ['pk']
 
 class Email(models.Model):
+    application = models.ForeignKey(Application, on_delete=models.CASCADE)
     sender = models.CharField(max_length=256)
     receiver = models.CharField(max_length=256)
     title = models.CharField(max_length=256)
