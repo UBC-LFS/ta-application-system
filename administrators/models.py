@@ -120,7 +120,21 @@ class Job(models.Model):
     class Meta:
         ordering = ['session', 'course']
 
-#checked
+
+class Classification(models.Model):
+    year = models.CharField(max_length=4)
+    name = models.CharField(max_length=10)
+    wage = models.FloatField()
+    is_active = models.BooleanField(default=True)
+    slug = models.SlugField(max_length=256, unique=True)
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.year + ' ' + self.name)
+        super(Classification, self).save(*args, **kwargs)
+
+    class Meta:
+        ordering = ['-year', '-wage']
+
 class Application(models.Model):
     """ This is a model for applications of students """
 
@@ -130,13 +144,6 @@ class Application(models.Model):
         ('3', 'Somewhat'),
         ('4', 'Most'),
         ('5', 'Very')
-    ]
-
-    CLASSIFICATION_CHOICES = [
-        ('0', 'None'),
-        ('1', 'Type 1'),
-        ('2', 'Type 2'),
-        ('3', 'Type 3')
     ]
 
     NONE = '0'
@@ -161,8 +168,8 @@ class Application(models.Model):
     how_interested = models.CharField(max_length=1, choices=PREFERENCE_CHOICES)
     availability = models.BooleanField()
     availability_note = models.TextField(null=True, blank=True)
-
-    classification = models.CharField(max_length=1, choices=CLASSIFICATION_CHOICES, default='0')
+    
+    classification = models.ForeignKey(Classification, on_delete=models.DO_NOTHING, null=True, blank=True)
     note = models.TextField(null=True, blank=True)
 
     instructor_preference = models.CharField(max_length=1, choices=INSTRUCTOR_PREFERENCE_CHOICES, default='0')

@@ -47,12 +47,16 @@
                 </td>
                 <td>{% include 'administrators/util/_modal_application_status.html' with data=app %}</td>
                 <td>{{ app.get_instructor_preference_display }}</td>
-                <td>{{ app.get_classification_display }}</td>
+                <td>{{ app.classification.year }} {{ app.classification.name }}</td>
                 <td>{{ app.note }}</td>
                 <td>{{ app.created_at }}</td>
                 <td>{{ app.updated_at }}</td>
                 <td>
-                  <input type="checkbox" name="application" value="{{ app.id }}" />
+                  {% if app.email_set.all|length > 0 %}
+                    {{ app.email_set.all|length }}
+                  {% else %}
+                    <input type="checkbox" name="application" value="{{ app.id }}" />
+                  {% endif %}
                 </td>
               </tr>
             {% endfor %}

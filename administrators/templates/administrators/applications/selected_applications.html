@@ -12,7 +12,7 @@
     <table class="table table-responsive">
       <thead>
         <tr>
-          <th>ID</th>
+          <th>Application ID</th>
           <th>Year</th>
           <th>Term</th>
           <th>Job</th>
@@ -52,7 +52,7 @@
             </td>
             <td>{% include 'administrators/util/_modal_application_status.html' with data=app %}</td>
             <td>{{ app.get_instructor_preference_display }}</td>
-            <td>{{ app.get_classification_display }}</td>
+            <td>{{ app.classification.name }}</td>
             <td>{{ app.note }}</td>
             <td>{{ app.created_at }}</td>
             <td>{{ app.updated_at }}</td>
@@ -73,10 +73,10 @@
                           <label for="classification">Classification:</label>
                           <select name="classification">
                             {% for choice in classification_choices %}
-                              {% if choice.0 == app.classification %}
-                                <option value="{{ choice.0 }}" selected>{{ choice.1 }}</option>
+                              {% if choice.id == app.classification.id %}
+                                <option value="{{ choice.id }}" selected>{{ choice.year }} {{ choice.name }}</option>
                               {% else %}
-                                <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+                                <option value="{{ choice.id }}">{{ choice.year }} {{ choice.name }}</option>
                               {% endif %}
                             {% endfor %}
                           </select>

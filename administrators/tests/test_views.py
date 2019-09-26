@@ -15,6 +15,7 @@ ContentType='application/x-www-form-urlencoded'
 DATA = [
     'administrators/fixtures/applications.json',
     'administrators/fixtures/applicationstatus.json',
+    'administrators/fixtures/classifications.json',
     'administrators/fixtures/course_codes.json',
     'administrators/fixtures/course_numbers.json',
     'administrators/fixtures/course_sections.json',
@@ -224,13 +225,13 @@ class HRTest(TestCase):
         # Check user's profile, profile-degrees, profile-trainings
         self.assertFalse(userApi.profile_exists(user))
         degree_found = False
-        for degree in adminApi.get_degrees():
+        for degree in userApi.get_degrees():
             if degree.profile_set.filter(user_id=user.id ).exists():
                 degree_found = True
         self.assertFalse(degree_found)
 
         training_found = False
-        for training in adminApi.get_trainings():
+        for training in userApi.get_trainings():
             if training.profile_set.filter(user_id=user.id ).exists():
                 training_found = True
         self.assertFalse(degree_found)
@@ -395,6 +396,8 @@ class JobTest(TestCase):
     def login(self, username, password):
         self.client.post('/accounts/local_login/', data={'username': username, 'password': password})
 
+    def messages(self, res):
+        return [m.message for m in get_messages(res.wsgi_request)]
 
     def apply_jobs(self, user, active_sessions):
         ''' Students apply jobs '''
@@ -584,6 +587,30 @@ class JobTest(TestCase):
         self.assertEqual(session.slug, session_slug)
         self.assertEqual(job.course.slug, job_slug)
         self.assertFalse(form.is_bound)
+        self.assertEqual(form.instance.id, job.id)
+
+        data = {
+            'title': 'new title',
+            'description': 'new description',
+            'quallification': 'new quallification',
+            'note': 'new note',
+            'assigned_ta_hours': '180.00',
+            'is_active': False,
+            'instructors': ['4', '5', '6']
+        }
+        response = self.client.post( reverse('administrators:edit_job', args=[session_slug, job_slug]), data=urlencode(data, True), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+        updated_job = adminApi.get_session_job_by_slug(session_slug, job_slug)
+        self.assertEqual(updated_job.title, data['title'])
+        self.assertEqual(updated_job.description, data['description'])
+        self.assertEqual(updated_job.note, data['note'])
+        self.assertEqual(updated_job.assigned_ta_hours, float(data['assigned_ta_hours']))
+        self.assertEqual(updated_job.is_active, data['is_active'])
+        self.assertEqual(len(updated_job.instructors.all()), len(data['instructors']))
 
 
 
@@ -603,7 +630,7 @@ class ApplicationTest(TestCase):
     def test_view_url_exists_at_desired_location(self):
         print('\n- Test: view url exists at desired location')
         self.login('admin', '12')
-        app_slug = '2019-w1-lfs-100-001-introduction-to-land-food-and-community-w1-application-by-testuser11'
+        app_slug = '2019-w1-lfs-250-001-land-food-and-community-i-introduction-to-food-systems-and-sustainability-w1-application-by-testuser10'
 
         response = self.client.get( reverse('administrators:applications') )
         self.assertEqual(response.status_code, 200)
@@ -645,7 +672,7 @@ class ApplicationTest(TestCase):
         print('\n- Test: Display an application details')
         self.login('admin', '12')
 
-        app_slug = '2019-w1-lfs-100-001-introduction-to-land-food-and-community-w1-application-by-testuser11'
+        app_slug = '2019-w1-lfs-250-001-land-food-and-community-i-introduction-to-food-systems-and-sustainability-w1-application-by-testuser10'
         path = 'all'
 
         response = self.client.get( reverse('administrators:show_application', args=[app_slug, path]) )
@@ -668,7 +695,7 @@ class ApplicationTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, 'admin')
         self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
-        self.assertEqual( len(response.context['applications']), 21)
+        self.assertEqual( len(response.context['applications']), 31)
 
     def test_selected_applications(self):
         print('\n- Test: Display applications selected by instructors')
@@ -678,10 +705,10 @@ class ApplicationTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, 'admin')
         self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
-        self.assertEqual( len(response.context['selected_applications']), 12)
+        self.assertEqual( len(response.context['selected_applications']), 22)
         self.assertFalse(response.context['admin_application_form'].is_bound)
         self.assertFalse(response.context['status_form'].is_bound)
-        self.assertEqual( len(response.context['classification_choices']), 4)
+        self.assertEqual( len(response.context['classification_choices']), 6)
         self.assertEqual(response.context['offer_status_code'], ApplicationStatus.OFFERED)
 
     def test_offered_applications(self):
@@ -692,7 +719,7 @@ class ApplicationTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, 'admin')
         self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
-        self.assertEqual( len(response.context['offered_applications']), 5)
+        self.assertEqual( len(response.context['offered_applications']), 14)
 
     def test_accepted_applications(self):
         print('\n- Test: Display applications accepted by students')
@@ -702,7 +729,7 @@ class ApplicationTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, 'admin')
         self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
-        self.assertEqual( len(response.context['accepted_applications']), 9)
+        self.assertEqual( len(response.context['accepted_applications']), 12)
 
     def test_declined_applications(self):
         print('\n- Test: Display applications declined by students')
@@ -712,7 +739,7 @@ class ApplicationTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, 'admin')
         self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
-        self.assertEqual( len(response.context['declined_applications']), 4)
+        self.assertEqual( len(response.context['declined_applications']), 2)
 
     def test_edit_job_application(self):
         print('\n- Test: Edit classification and note in select applications')
@@ -733,20 +760,20 @@ class ApplicationTest(TestCase):
         self.assertRedirects(response, response.url)
 
         app = adminApi.get_application(app_id)
-        self.assertEqual(app.classification, data['classification'])
+        self.assertEqual(app.classification.id, int(data['classification']))
         self.assertEqual(app.note, data['note'])
 
     def test_offer_job(self):
         print('\n- Test: Admin can offer a job to each job')
         self.login('admin', '12')
 
-        app_id = '19'
+        app_id = '5'
         app = adminApi.get_application(app_id)
         self.assertFalse(adminApi.get_offered(app))
         data = {
-            'applicant': '13',
+            'applicant': '10',
             'application': app_id,
-            'assigned': '1',
+            'assigned': ApplicationStatus.OFFERED,
             'assigned_hours': '20.0'
         }
         response = self.client.post(reverse('administrators:offer_job', args=[app.job.session.slug, app.job.course.slug]), data=urlencode(data), content_type=ContentType)
@@ -764,11 +791,12 @@ class ApplicationTest(TestCase):
         print('\n- Test: Admin can offer a job to each job')
         self.login('admin', '12')
 
-        self.assertEqual( len(adminApi.get_emails()), 4 )
+        curr_emails = adminApi.get_emails()
+        self.assertEqual( len(curr_emails), 13 )
 
         data = {
-            'application': ['10', '11', '14' , '19'],
-            'email_type': 'type1'
+            'application': ['25', '29'],
+            'email_type': 'type2'
         }
         response = self.client.post(reverse('administrators:offered_applications_send_email'), data=urlencode(data, True), content_type=ContentType)
         self.assertEqual(response.status_code, 302)
@@ -798,13 +826,13 @@ class ApplicationTest(TestCase):
             'type': response.context['type']
         }
         response = self.client.post(reverse('administrators:offered_applications_send_email_confirmation'), data=urlencode(data, True), content_type=ContentType)
-        messages = [m.message for m in get_messages(response.wsgi_request)]
+        messages = self.messages(response)
         self.assertTrue('Success' in messages[0])
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, response.url)
 
-        self.assertEqual(len(mail.outbox), 4)
-        self.assertEqual( len(adminApi.get_emails()), len(user_emails))
+        self.assertEqual(len(mail.outbox), 2)
+        self.assertEqual( len(adminApi.get_emails()), len(curr_emails) + len(user_emails) )
 
     def test_email_history(self):
         print('\n- Test: Display all of email sent by admins to let them know job offers')
@@ -814,16 +842,96 @@ class ApplicationTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, 'admin')
         self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
-        self.assertEqual( len(response.context['emails']), 4 )
+        self.assertEqual( len(response.context['emails']), 13 )
 
     def test_send_reminder(self):
         print('\n- Test: Send a reminder email')
         self.login('admin', '12')
 
-        response = self.client.get(reverse('administrators:send_reminder', args=['1']))
-        print(response)
+        total_emails = len(adminApi.get_emails())
+        #print('emails ', len(emails))
+
+        email_id = '1'
+        response = self.client.get(reverse('administrators:send_reminder', args=[email_id]))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, 'admin')
         self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
-        form = response.context['form']
-        print(form.instance)
+        email = response.context['form'].instance
+        self.assertEqual( email.id, int(email_id) )
+
+        data = {
+            'application': email.application.id,
+            'sender': email.sender,
+            'receiver': email.receiver,
+            'type': email.type,
+            'title': email.title,
+            'message': email.message
+        }
+        response = self.client.post( reverse('administrators:send_reminder', args=[email_id]), data=urlencode(data), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+        self.assertEqual(adminApi.get_emails().first().application.id, data['application'])
+        self.assertEqual(len(adminApi.get_emails()), total_emails + 1)
+        self.assertEqual(len(mail.outbox), 1)
+
+    def test_decline_reassign(self):
+        print('\n- Test: Decline and reassign a job offer with new assigned hours')
+        self.login('admin', '12')
+
+        app_id = 2
+
+        response = self.client.get( reverse('administrators:accepted_applications') )
+        self.assertEqual(response.status_code, 200)
+        accepted_applications = response.context['accepted_applications']
+
+        application = None
+        for app in accepted_applications:
+            if app.id == app_id:
+                application = app
+                break
+
+        data = {
+            'application': str(application.id),
+            'new_assigned_hours': '70.0',
+            'old_assigned_hours': str(application.has_accepted)
+        }
+        response = self.client.post(reverse('administrators:decline_reassign'), data=urlencode(data), content_type=ContentType)
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+        response = self.client.get(response.url)
+        session = self.client.session
+        self.assertEqual(session['decline_reassign_form_data'], data)
+
+        response = self.client.post( reverse('administrators:decline_reassign_confirmation'), data=urlencode(data), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+        response = self.client.get(reverse('administrators:accepted_applications'))
+        self.assertEqual(response.status_code, 200)
+        accepted_applications = response.context['accepted_applications']
+
+        updated_app = None
+        for app in accepted_applications:
+            if app.id == app_id:
+                updated_app = app
+                break
+        status = []
+        for st in updated_app.applicationstatus_set.all():
+            status.append({
+                'id': st.id,
+                'assigned': st.assigned,
+                'assigned_hours': st.assigned_hours,
+                'parent_id': st.parent_id
+            })
+        self.assertEqual(len(status), 5)
+        self.assertEqual(status[2]['assigned'], ApplicationStatus.ACCEPTED)
+        self.assertEqual(status[3]['assigned'], ApplicationStatus.DECLINED)
+        self.assertEqual(status[3]['assigned_hours'], 0.0)
+        self.assertEqual(status[3]['parent_id'], str(status[2]['id']))
+        self.assertEqual(status[4]['assigned'], ApplicationStatus.ACCEPTED)
+        self.assertEqual(status[4]['assigned_hours'], float(data['new_assigned_hours']))

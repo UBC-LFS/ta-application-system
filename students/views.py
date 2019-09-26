@@ -495,7 +495,7 @@ def offered_job(request, session_slug, job_slug):
         'loggedin_user': loggedin_user,
         'job': job,
         'application': application,
-        'get_offered': adminApi.get_offered(application),
+        'get_offered': adminApi.get_offered(application).first(),
         'get_accepted': adminApi.get_accepted(application),
         'get_declined': adminApi.get_declined(application)
     })
@@ -527,7 +527,9 @@ def accept_offer(request, session_slug, job_slug):
             else:
                 messages.error(request, 'Error!')
         else:
-            messages.error(request, 'Error! Form is invalid')
+            errors = form.errors.get_json_data()
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+    
     return redirect('students:offered_jobs')
 
 
@@ -540,23 +542,23 @@ def decline_offer(request, session_slug, job_slug):
     if 'Student' not in loggedin_user.roles: raise PermissionDenied
 
     if request.method == 'POST':
-        application_id = request.POST.get('application')
+        app_id = request.POST.get('application')
         assigned = ApplicationStatus.DECLINED
-        form = ApplicationStatusForm({ 'assigned': assigned, 'assigned_hours': 0.0 })
+        form = ApplicationStatusForm({ 'application': app_id, 'assigned': assigned, 'assigned_hours': 0.0 })
         if form.is_valid():
             status = form.save()
             if status:
-                application = adminApi.get_application(application_id)
-                application.status.add(status)
-                application.save()
-                if application:
-                    messages.success(request, 'Success! You declined the job offer - {0} {1}: {2} {3} {4} '.format(application.job.session.year, application.job.session.term.code, application.job.course.code.name, application.job.course.number.name, application.job.course.section.name))
+                app = adminApi.get_application(app_id)
+                if app:
+                    messages.success(request, 'Success! You declined the job offer - {0} {1}: {2} {3} {4} '.format(app.job.session.year, app.job.session.term.code, app.job.course.code.name, app.job.course.number.name, app.job.course.section.name))
                 else:
-                    message.error(request, 'Error!')
+                    messages.error(request, 'Error!')
             else:
-                message.error(request, 'Error!')
+                messages.error(request, 'Error!')
         else:
-            message.error(request, 'Error! Form is invalid')
+            errors = form.errors.get_json_data()
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+
     return redirect('students:offered_jobs')
 
 

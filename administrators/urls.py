@@ -49,6 +49,7 @@ urlpatterns = [
     path('applications/offered/', views.offered_applications, name='offered_applications'),
     path('applications/accepted/', views.accepted_applications, name='accepted_applications'),
     path('applications/declined/', views.declined_applications, name='declined_applications'),
+    path('applications/<str:username>/jobs/accepted/', views.show_user_accepted_job_summary, name='show_user_accepted_job_summary'),
     path('applications/', views.applications, name='applications'),
 
 
@@ -57,6 +58,9 @@ urlpatterns = [
     path('hr/users/create/', views.create_user, name='create_user'),
     path('hr/users/delete/', views.delete_user, name='delete_user'),
     path('hr/users/', views.users, name='users'),
+    path('hr/roles/delete/', views.delete_role, name='delete_role'),
+    path('hr/roles/<str:slug>/edit/', views.edit_role, name='edit_role'),
+    path('hr/roles/', views.roles, name='roles'),
     path('hr/', views.hr, name='hr'),
 
     path('preparation/terms/delete/', views.delete_term, name='delete_term'),
@@ -75,10 +79,6 @@ urlpatterns = [
     path('preparation/course_sections/<str:name>/edit/', views.edit_course_section, name='edit_course_section'),
     path('preparation/course_sections/', views.course_sections, name='course_sections'),
 
-    path('preparation/roles/delete/', views.delete_role, name='delete_role'),
-    path('preparation/roles/<str:slug>/edit/', views.edit_role, name='edit_role'),
-    path('preparation/roles/', views.roles, name='roles'),
-
     path('preparation/statuses/delete/', views.delete_status, name='delete_status'),
     path('preparation/statuses/<str:slug>/edit/', views.edit_status, name='edit_status'),
     path('preparation/statuses/', views.statuses, name='statuses'),
@@ -94,6 +94,10 @@ urlpatterns = [
     path('preparation/trainings/delete/', views.delete_training, name='delete_training'),
     path('preparation/trainings/<str:slug>/edit/', views.edit_training, name='edit_training'),
     path('preparation/trainings/', views.trainings, name='trainings'),
+
+    path('preparation/classifications/delete/', views.delete_classification, name='delete_classification'),
+    path('preparation/classifications/<str:slug>/edit/', views.edit_classification, name='edit_classification'),
+    path('preparation/classifications/', views.classifications, name='classifications'),
 
     path('preparation/', views.preparation, name='preparation'),
 

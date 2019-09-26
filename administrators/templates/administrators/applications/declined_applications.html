@@ -42,7 +42,7 @@
             </td>
             <td>{% include 'administrators/util/_modal_application_status.html' with data=app %}</td>
             <td>{{ app.get_instructor_preference_display }}</td>
-            <td>{{ app.get_classification_display }}</td>
+            <td>{{ app.classification.year }} {{ app.classification.name }}</td>
             <td>{{ app.note }}</td>
             <td>{{ app.created_at }}</td>
             <td>{{ app.updated_at }}</td>

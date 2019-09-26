@@ -1,0 +1,68 @@
+[
+  {
+    "model": "administrators.classification",
+    "pk": 1,
+    "fields": {
+      "year": "2019",
+      "name": "STA",
+      "wage": 35.42,
+      "is_active": true,
+      "slug": "2019-sta"
+    }
+  },
+  {
+    "model": "administrators.classification",
+    "pk": 2,
+    "fields": {
+      "year": "2019",
+      "name": "GTA I",
+      "wage": 33.10,
+      "is_active": true,
+      "slug": "2019-gta-i"
+    }
+  },
+  {
+    "model": "administrators.classification",
+    "pk": 3,
+    "fields": {
+      "year": "2019",
+      "name": "GTA II",
+      "wage": 31.85,
+      "is_active": true,
+      "slug": "2019-gta-ii"
+    }
+  },
+  {
+    "model": "administrators.classification",
+    "pk": 4,
+    "fields": {
+      "year": "2019",
+      "name": "UTA I",
+      "wage": 17.79,
+      "is_active": true,
+      "slug": "2019-uta-i"
+    }
+  },
+  {
+    "model": "administrators.classification",
+    "pk": 5,
+    "fields": {
+      "year": "2019",
+      "name": "UTA II",
+      "wage": 15.89,
+      "is_active": true,
+      "slug": "2019-uta-ii"
+    }
+  },
+  {
+    "model": "administrators.classification",
+    "pk": 6,
+    "fields": {
+      "year": "2019",
+      "name": "Marker",
+      "wage": 15.24,
+      "is_active": true,
+      "slug": "2019-marker"
+    }
+  }
+]

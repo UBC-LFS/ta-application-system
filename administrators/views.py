@@ -492,9 +492,17 @@ def student_jobs_details(request, username):
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
 
+    user = userApi.get_user_by_username(username)
+    student_jobs = adminApi.get_jobs_applied_by_student(user)
+    offered_jobs, offered_summary = adminApi.get_offered_jobs_by_student(user, student_jobs)
+    accepted_jobs, accepted_summary = adminApi.get_accepted_jobs_by_student(user, student_jobs)
     return render(request, 'administrators/jobs/student_jobs_details.html', {
         'loggedin_user': loggedin_user,
-        'student': userApi.get_user_by_username(username)
+        'offered_jobs': offered_jobs,
+        'offered_summary': offered_summary,
+        'accepted_jobs': accepted_jobs,
+        'accepted_summary': accepted_summary,
+        'student': user
     })
 
 
@@ -530,7 +538,7 @@ def edit_job(request, session_slug, job_slug):
                 messages.error(request, 'An error occurred.')
         else:
             errors = form.errors.get_json_data()
-            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( get_error_messages(errors) ))
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
     return render(request, 'administrators/jobs/edit_job.html', {
         'loggedin_user': loggedin_user,
@@ -619,7 +627,7 @@ def selected_applications(request):
         'selected_applications': adminApi.get_selected_applications(),
         'admin_application_form': AdminApplicationForm(),
         'status_form': ApplicationStatusForm(initial={ 'assigned': ApplicationStatus.OFFERED }),
-        'classification_choices': Application.CLASSIFICATION_CHOICES,
+        'classification_choices': adminApi.get_classifications(),
         'offer_status_code': ApplicationStatus.OFFERED
     })
 
@@ -647,6 +655,21 @@ def accepted_applications(request):
     return render(request, 'administrators/applications/accepted_applications.html', {
         'loggedin_user': loggedin_user,
         'accepted_applications': adminApi.get_accepted_applications()
+    })
+
+def show_user_accepted_job_summary(request, username):
+    ''' Display a summary of user's accepted applications '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user): raise PermissionDenied
+
+    user = userApi.get_user_by_username(username)
+    student_jobs = adminApi.get_jobs_applied_by_student(user)
+    accepted_jobs, accepted_summary = adminApi.get_accepted_jobs_by_student(user, student_jobs)
+    return render(request, 'administrators/applications/show_user_accepted_job_summary.html', {
+        'loggedin_user': loggedin_user,
+        'user': user,
+        'accepted_jobs': accepted_jobs,
+        'accepted_summary': accepted_summary
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -682,7 +705,7 @@ def edit_job_application(request, session_slug, job_slug):
                 messages.error(request, 'An error occurred. Failed to update classification and note.')
         else:
             errors = form.errors.get_json_data()
-            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( get_error_messages(errors) ))
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
     return redirect('administrators:selected_applications')
 
@@ -708,7 +731,7 @@ def offer_job(request, session_slug, job_slug):
                 messages.error(request, 'An error occurred. Failed to offer a job.')
         else:
             errors = form.errors.get_json_data()
-            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( get_error_messages(errors) ))
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
     return redirect('administrators:selected_applications')
 
@@ -763,13 +786,13 @@ def offered_applications_send_email_confirmation(request):
                         if st.assigned == ApplicationStatus.OFFERED:
                             assigned_hours = st.assigned_hours
 
-                    message = data['message'].format(name, job, assigned_hours, app.get_classification_display(), settings.TA_APP_URL)
+                    message = data['message'].format(name, job, assigned_hours, app.classification.name, settings.TA_APP_URL)
 
                     # TODO: replace a receiver
                     receiver = '{0} <brandon.oh@ubc.ca>'.format(name)
                     #receiver = '{0} <{1}>'.format(name, app.applicant.email)
 
-                    email = adminApi.send_and_create_email(data['sender'], receiver, data['title'], message, data['type'])
+                    email = adminApi.send_and_create_email(app, data['sender'], receiver, data['title'], message, data['type'])
                     if email: count += 1
 
                 if count == len(applications):
@@ -780,7 +803,11 @@ def offered_applications_send_email_confirmation(request):
                 del request.session['offered_applications_form_data']
                 return redirect('administrators:offered_applications')
             else:
-                messages.error(request, 'Error! Form is invalid')
+                errors = form.errors.get_json_data()
+                messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+
+            return redirect('administrators:offered_applications_send_email_confirmation')
+
         else:
             email_type = form_data['email_type']
             title = None
@@ -832,23 +859,24 @@ def send_reminder(request, email_id):
 
     email = None
     if request.method == 'POST':
-        form = EmailForm(request.POST)
+        form = ReminderForm(request.POST)
         if form.is_valid():
             data = form.cleaned_data
-            sent_email = adminApi.send_and_create_email(data['sender'], data['receiver'], data['title'], data['message'], data['type'])
+            sent_email = adminApi.send_and_create_email(data['application'], data['sender'], data['receiver'], data['title'], data['message'], data['type'])
             if sent_email:
                 messages.success(request, 'Success! Email has sent to {0}'.format(data['receiver']))
                 return redirect('administrators:email_history')
             else:
-                messages.error(request, 'Error!')
+                messages.error(request, 'An error occurred.')
         else:
-            messages.error(request, 'Error! Form is invalid')
+            errors = form.errors.get_json_data()
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
     else:
         email = adminApi.get_email(email_id)
 
     return render(request, 'administrators/applications/send_reminder.html', {
         'loggedin_user': loggedin_user,
-        'form': EmailForm(data=None, instance=email, initial={
+        'form': ReminderForm(data=None, instance=email, initial={
             'title': 'REMINDER: ' + email.title
         })
     })
@@ -898,13 +926,14 @@ def decline_reassign_confirmation(request):
                     if updated:
                         messages.success(request, 'Success! Application (ID: {0}) updated'.format(app_id))
                     else:
-                        messages.error(request, 'Error! Failed to update ta hours in a job')
+                        messages.error(request, 'An error occurred. Failed to update ta hours in a job')
                 else:
-                    messages.error(request, 'Error!')
+                    messages.error(request, 'An error occurred.')
             else:
-                messages.error(request, 'Error!')
+                messages.error(request, 'An error occurred.')
         else:
-            messages.error(request, 'Error! Form is invalid')
+            errors = form.errors.get_json_data()
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
         return redirect('administrators:accepted_applications')
     else:
@@ -1652,6 +1681,149 @@ def delete_training(request):
         else:
             messages.error(request, 'Error!')
     return redirect("administrators:trainings")
+
+
+# classification
+
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET', 'POST'])
+def classifications(request):
+    ''' Display all classifications and create a classification '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user): raise PermissionDenied
+
+    if request.method == 'POST':
+        form = ClassificationForm(request.POST)
+        if form.is_valid():
+            classification = form.save()
+            if classification:
+                messages.success(request, 'Success! {0} {1} created'.format(classification.year, classification.name))
+                return redirect('administrators:classifications')
+            else:
+                messages.error(request, 'Error!')
+        else:
+            messages.error(request, 'Error! Form is invalid')
+
+    return render(request, 'administrators/preparation/classifications.html', {
+        'loggedin_user': loggedin_user,
+        'classifications': adminApi.get_classifications(),
+        'form': ClassificationForm()
+    })
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['POST'])
+def edit_classification(request, slug):
+    ''' Edit a classification '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user): raise PermissionDenied
+
+    if request.method == 'POST':
+        classification = adminApi.get_classification_by_slug(slug)
+        form = ClassificationForm(request.POST, instance=classification)
+        if form.is_valid():
+            updated_classification = form.save()
+            if updated_classification:
+                messages.success(request, 'Success! {0} {1} updated'.format(updated_classification.year, updated_classification.name))
+            else:
+                messages.error(request, 'An error occurred.')
+        else:
+            errors = form.errors.get_json_data()
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+
+    return redirect("administrators:classifications")
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['POST'])
+def delete_classification(request):
+    ''' Delete a classification '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user): raise PermissionDenied
+
+    if request.method == 'POST':
+        classification_id = request.POST.get('classification')
+        deleted_classification = adminApi.delete_classification(classification_id)
+        if deleted_classification:
+            messages.success(request, 'Success! {0} deleted'.format(deleted_classification.name))
+        else:
+            messages.error(request, 'Error!')
+    return redirect("administrators:classifications")
+
+
+# roles
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET', 'POST'])
+def roles(request):
+    ''' Display all roles and create a role '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user): raise PermissionDenied
+
+    if request.method == 'POST':
+        form = RoleForm(request.POST)
+        if form.is_valid():
+            role = form.save()
+            if role:
+                messages.success(request, 'Success! {0} created'.format(role.name))
+                return redirect('administrators:roles')
+            else:
+                messages.error(request, 'An error occurred.')
+        else:
+            errors = form.errors.get_json_data()
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+
+    return render(request, 'administrators/hr/roles.html', {
+        'loggedin_user': loggedin_user,
+        'roles': userApi.get_roles(),
+        'form': RoleForm()
+    })
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['POST'])
+def edit_role(request, slug):
+    ''' Edit a role '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user): raise PermissionDenied
+
+    if request.method == 'POST':
+        role = userApi.get_role_by_slug(slug)
+        form = RoleForm(request.POST, instance=role)
+        if form.is_valid():
+            updated_role = form.save()
+            if updated_role:
+                messages.success(request, 'Success! {0} updated'.format(updated_role.name))
+            else:
+                messages.error(request, 'An error occurred.')
+        else:
+            errors = form.errors.get_json_data()
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+    return redirect("administrators:roles")
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['POST'])
+def delete_role(request):
+    ''' Delete a role '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user): raise PermissionDenied
+
+    if request.method == 'POST':
+        role_id = request.POST.get('role')
+        deleted_role = userApi.delete_role(role_id)
+        if deleted_role:
+            messages.success(request, 'Success! {0} deleted'.format(deleted_role.name))
+        else:
+            messages.error(request, 'An error occurred.')
+    return redirect("administrators:roles")
+
+
+
+
 
 
 

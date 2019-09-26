@@ -7,12 +7,12 @@
   <div id="content" class="container-fluid">
 
     <h3>Jobs in Progress</h3>
-    <small>Total: {{ jobs.count }}</small>
+    <small>Total: {{ jobs|length }}</small>
 
     <table class="table table-sm table-striped" data-toggle="table" data-sortable="true" data-classes="" data-pagination="true" data-search="true">
       <thead>
         <tr>
-          <th data-sortable="true">ID</th>
+          <th data-sortable="true">Job ID</th>
           <th data-sortable="true">Year</th>
           <th data-sortable="true">Term</th>
           <th data-sortable="true">Job</th>

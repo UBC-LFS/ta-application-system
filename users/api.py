@@ -525,14 +525,6 @@ def delete_training(training_id):
     return training if training else False
 
 
-
-
-
-
-
-
-
-
 # Confidentiality
 
 def has_user_confidentiality_created(user):
