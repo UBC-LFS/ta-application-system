@@ -50,7 +50,10 @@
                 No
               {% endif %}
             </td>
-            <td>{% include 'administrators/util/_modal_application_status.html' with data=app %}</td>
+            <td>
+              {{ app.applicationstatus_set.all.last.get_assigned_display }}
+              {% include 'administrators/util/_modal_application_status.html' with data=app %}
+            </td>
             <td>{{ app.get_instructor_preference_display }}</td>
             <td>{{ app.classification.name }}</td>
             <td>{{ app.note }}</td>

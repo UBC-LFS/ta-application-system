@@ -28,24 +28,14 @@
 				</div>
 
 				<div class="col-5">
-					<h4>Offered Jobs</h4>
+					<h4>Summary of applied jobs</h4>
 					<ul>
-						{% for job in offered_jobs %}
-							<li>{{ job.year }} {{ job.term }} - {{ job.course_code }} {{ job.course_number }} {{ job.course_section }}: {{ job.assigned_status }} {{ job.assigned_hours }} hours</li>
+						{% for job in applied_jobs %}
+							<li>{{ job.session.year }} {{ job.session.term.code }} - {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</li>
 						{% empty %}
-							<li>No offered jobs found</li>
+							<li>No applied jobs found</li>
 						{% endfor %}
 					</ul>
-
-					<h4>Accepted Jobs</h4>
-					<ul>
-						{% for job in accepted_jobs %}
-							<li>{{ job.year }} {{ job.term }} - {{ job.course_code }} {{ job.course_number }} {{ job.course_section }}: {{ job.assigned_status }} {{ job.assigned_hours }} hours</li>
-						{% empty %}
-							<li>No accepted jobs found</li>
-						{% endfor %}
-					</ul>
-
 				</div>
 
 			</div>

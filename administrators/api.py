@@ -502,14 +502,14 @@ def get_offered_jobs_by_student(user, student_jobs):
         for app in job.application_set.all():
             if app.applicant.id == user.id:
                 if app.applicationstatus_set.filter(assigned=ApplicationStatus.OFFERED).exists():
-                    status = app.applicationstatus_set.get(assigned=ApplicationStatus.OFFERED)
+                    status = app.applicationstatus_set.filter(assigned=ApplicationStatus.OFFERED).last()
 
                     accepted = None
                     declined = None
                     if app.applicationstatus_set.filter(assigned=ApplicationStatus.ACCEPTED).exists():
-                        accepted = app.applicationstatus_set.get(assigned=ApplicationStatus.ACCEPTED)
+                        accepted = app.applicationstatus_set.filter(assigned=ApplicationStatus.ACCEPTED).last()
                     if app.applicationstatus_set.filter(assigned=ApplicationStatus.DECLINED).exists():
-                        declined = app.applicationstatus_set.get(assigned=ApplicationStatus.DECLINED)
+                        declined = app.applicationstatus_set.filter(assigned=ApplicationStatus.DECLINED).last()
 
                     jobs.append({
                         'year': job.session.year,
@@ -538,7 +538,7 @@ def get_accepted_jobs_by_student(user, student_jobs):
         for app in job.application_set.all():
             if app.applicant.id == user.id:
                 if app.applicationstatus_set.filter(assigned=ApplicationStatus.ACCEPTED).exists():
-                    status = app.applicationstatus_set.get(assigned=ApplicationStatus.ACCEPTED)
+                    status = app.applicationstatus_set.filter(assigned=ApplicationStatus.ACCEPTED).last()
                     jobs.append({
                         'year': job.session.year,
                         'term': job.session.term.code,

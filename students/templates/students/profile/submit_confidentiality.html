@@ -9,13 +9,18 @@
 
     <h3>Submit Confidentiality</h3>
 
-    <p>Valid file formats: JPG, JPEG, PNG</p>
-
-    <form action="" method="post" enctype="multipart/form-data">
-      {% csrf_token %}
-      <table>{{ form.as_table }}</table>
-      <input type="submit" value="Submit" />
-    </form>
+    {% if form %}
+      <p>Valid file formats: JPG, JPEG, PNG</p>
+      <form action="" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <table>{{ form.as_table }}</table>
+        <input type="submit" value="Submit" />
+      </form>
+    {% else %}
+      <div class="alert alert-danger" role="alert">
+        An error occurred. Please select your confidentiality.
+      </div>
+    {% endif %}
 
     <a class="btn btn-secondary margin-top-10" href="{% url 'students:show_confidentiality' %}">Back</a>
   </div>

@@ -45,7 +45,10 @@
                 <td>
                   <a href="{% url 'administrators:show_user' username=app.applicant.username role='administrator' %}">{{ app.applicant.first_name }} {{ app.applicant.last_name }}</a>
                 </td>
-                <td>{% include 'administrators/util/_modal_application_status.html' with data=app %}</td>
+                <td>
+                  {{ app.applicationstatus_set.all.last.get_assigned_display }}
+                  {% include 'administrators/util/_modal_application_status.html' with data=app %}
+                </td>
                 <td>{{ app.get_instructor_preference_display }}</td>
                 <td>{{ app.classification.year }} {{ app.classification.name }}</td>
                 <td>{{ app.note }}</td>

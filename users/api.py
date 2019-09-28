@@ -60,8 +60,8 @@ def get_user_by_username(username):
     return get_object_or_404(User, username=username)
 
 def get_user_by_username_with_resume(username):
+    ''' '''
     user = get_user_by_username(username)
-
     if has_user_resume_created(user) and bool(user.resume.file):
         user.resume_file = os.path.basename(user.resume.file.name)
     else:
@@ -140,7 +140,7 @@ def create_user(data):
 
 def create_profile(user, content):
     ''' Create an user's profile '''
-    
+
     form = UserCreateProfileForm(content)
     if form.is_valid():
         data = form.cleaned_data
@@ -155,7 +155,7 @@ def create_profile(user, content):
         profile.roles.add( *roles )
 
         return profile if profile else False, 'An error occurred while creating a profile. Please contact administrators.'
-    
+
     errors = form.errors.get_json_data()
     return False, 'An error occurred. {0}'.format(get_error_messages(errors))
 
@@ -192,7 +192,6 @@ def has_user_resume_created(user):
         return user.resume
     except Resume.DoesNotExist:
         return False
-
 
 def resume_exists(user):
     """ Check user's resume exists """
@@ -368,13 +367,11 @@ def delete_existing_file(user, folder, file):
 def delete_user_resume(username):
     user = get_user_by_username(username)
     file = os.path.basename(user.resume.file.name)
-    user.resume.file = None
-    user.resume.created_at = None
-    user.resume.save(update_fields=['file', 'created_at'])
-
+    deleted_resume = user.resume.delete()
+    
     # Delete an existing file
     deleted = delete_existing_file(user, 'resume', file)
-    return True if user.resume and deleted else None
+    return True if deleted_resume and deleted else None
 
 
 def delete_user_sin(username):
@@ -533,8 +530,6 @@ def has_user_confidentiality_created(user):
     except Confidentiality.DoesNotExist:
         return None
 
-
-
 def get_confidentialities():
     return Confidentiality.objects.all()
 
@@ -572,6 +567,3 @@ def get_profile(user):
         return Profile.objects.get(user_id=user.id)
     except Profile.DoesNotExist:
         return None
-
-
-

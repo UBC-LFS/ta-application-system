@@ -695,7 +695,7 @@ class ApplicationTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, 'admin')
         self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
-        self.assertEqual( len(response.context['applications']), 31)
+        self.assertEqual( len(response.context['applications']), 33)
 
     def test_selected_applications(self):
         print('\n- Test: Display applications selected by instructors')
@@ -705,7 +705,7 @@ class ApplicationTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, 'admin')
         self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
-        self.assertEqual( len(response.context['selected_applications']), 22)
+        self.assertEqual( len(response.context['selected_applications']), 23)
         self.assertFalse(response.context['admin_application_form'].is_bound)
         self.assertFalse(response.context['status_form'].is_bound)
         self.assertEqual( len(response.context['classification_choices']), 6)
@@ -719,7 +719,7 @@ class ApplicationTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, 'admin')
         self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
-        self.assertEqual( len(response.context['offered_applications']), 14)
+        self.assertEqual( len(response.context['offered_applications']), 15)
 
     def test_accepted_applications(self):
         print('\n- Test: Display applications accepted by students')
@@ -739,7 +739,7 @@ class ApplicationTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, 'admin')
         self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
-        self.assertEqual( len(response.context['declined_applications']), 2)
+        self.assertEqual( len(response.context['declined_applications']), 3)
 
     def test_edit_job_application(self):
         print('\n- Test: Edit classification and note in select applications')
@@ -928,7 +928,7 @@ class ApplicationTest(TestCase):
                 'assigned_hours': st.assigned_hours,
                 'parent_id': st.parent_id
             })
-        self.assertEqual(len(status), 5)
+        self.assertEqual(len(status), 7)
         self.assertEqual(status[2]['assigned'], ApplicationStatus.ACCEPTED)
         self.assertEqual(status[3]['assigned'], ApplicationStatus.DECLINED)
         self.assertEqual(status[3]['assigned_hours'], 0.0)

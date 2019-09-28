@@ -7,12 +7,11 @@ urlpatterns = [
     path('', views.index, name='index'),
     path('profile/', views.show_profile, name='show_profile'),
     path('profile/<str:username>/edit/', views.edit_profile, name='edit_profile'),
-    path('profile/<str:username>/confidentiality/submit/', views.submit_confidentiality, name='submit_confidentiality'),
-    path('profile/<str:username>/upload_resume', views.upload_resume, name='upload_resume'),
+    #path('profile/<str:username>/confidentiality/submit/', views.submit_confidentiality, name='submit_confidentiality'),
+    path('profile/resume/upload/', views.upload_resume, name='upload_resume'),
+    path('profile/resume/delete/', views.delete_resume, name='delete_resume'),
     path('profile/<str:username>/resume/<str:filename>/download/', views.download_resume, name='download_resume'),
-    path('profile/delete_resume/', views.delete_resume, name='delete_resume'),
 
-    path('confidentiality/', views.show_confidentiality, name='show_confidentiality'),
     path('confidentiality/check/', views.check_confidentiality, name='check_confidentiality'),
     path('confidentiality/submit/', views.submit_confidentiality, name='submit_confidentiality'),
     path('confidentiality/edit/', views.edit_confidentiality, name='edit_confidentiality'),
@@ -20,6 +19,7 @@ urlpatterns = [
     path('confidentiality/sin/delete/', views.delete_sin, name='delete_sin'),
     path('confidentiality/<str:username>/study_permit/<str:filename>/download/', views.download_study_permit, name='download_study_permit'),
     path('confidentiality/study_permit/delete/', views.delete_study_permit, name='delete_study_permit'),
+    path('confidentiality/', views.show_confidentiality, name='show_confidentiality'),
 
     path('jobs/explore/', views.explore_jobs, name='explore_jobs'),
     path('sessions/<str:session_slug>/jobs/<str:job_slug>/apply/', views.apply_job, name='apply_job'),
