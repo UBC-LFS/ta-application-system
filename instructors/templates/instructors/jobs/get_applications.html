@@ -11,6 +11,12 @@
     <h3>Applications</h3>
     <h5>{{ job.session.year }} {{ job.session.term.code }} - {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</h5>
 
+    <div>Assigned TA Hours: {{ job.assigned_ta_hours }} hours</div>
+    <div>
+      Applicants' TA Hours: {{ job.ta_hours }} hours
+      <p>Note: Applicants' TA Hours are accumulated when they accept their job offers with assigned hours.</p>
+    </div>
+
     <table class="table table-responsive">
       <thead>
         <tr>
@@ -22,6 +28,8 @@
           <th>Availability</th>
           <th>Availability Note</th>
           <th>Status</th>
+          <th>Created at</th>
+          <th>Updated at</th>
           <th>Instructor Preference</th>
         </tr>
       </thead>
@@ -40,6 +48,8 @@
             <td>{{ app.availability }}</td>
             <td>{{ app.availability_note }}</td>
             <td>{% include 'administrators/util/_display_app_status.html' with data=app %}</td>
+            <td>{{ app.created_at }}</td>
+            <td>{{ app.updated_at }}</td>
             <td>
               <form action="" method="post" onsubmit="return confirm('Are you sure to select this preference for {{ app.applicant.first_name }} {{ app.applicant.last_name }} ?');">
                 {% csrf_token %}

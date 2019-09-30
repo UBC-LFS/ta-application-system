@@ -41,6 +41,13 @@ class TermForm(forms.ModelForm):
         model = Term
         fields = ['code', 'name']
 
+
+class ClassificationForm(forms.ModelForm):
+    class Meta:
+        model = Classification
+        fields = ['year', 'name', 'wage', 'is_active']
+
+
 # checked
 class CourseForm(forms.ModelForm):
     """ Create a model form for a course """
@@ -197,6 +204,18 @@ class EmailForm(forms.ModelForm):
         model = Email
         fields = ['sender', 'receiver','title', 'message', 'type']
         widgets = {
+            'message': SummernoteWidget(),
+            'sender': forms.HiddenInput(),
+            'receiver': forms.HiddenInput(),
+            'type': forms.HiddenInput()
+        }
+
+class ReminderForm(forms.ModelForm):
+    class Meta:
+        model = Email
+        fields = ['application', 'sender', 'receiver','title', 'message', 'type']
+        widgets = {
+            'application': forms.HiddenInput(),
             'message': SummernoteWidget(),
             'sender': forms.HiddenInput(),
             'receiver': forms.HiddenInput(),

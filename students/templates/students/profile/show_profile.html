@@ -46,10 +46,10 @@
           {% endif %}
 
           <h5 class="margin-top-30">Upload your resume</h5>
-          <p>Valid file types: jpg, jpeg, png, pdf, doc, docx</p>
-          <form action="{% url 'students:upload_resume' user.username %}" method="post" enctype="multipart/form-data">
+          <p>Valid file formats: jpg, jpeg, png, pdf, doc, docx</p>
+          <form action="{% url 'students:upload_resume' %}" method="post" enctype="multipart/form-data">
             {% csrf_token %}
-            <table>{{ resume_form.as_table }}</table>
+            <table>{{ form.as_table }}</table>
             <input type="submit" value="Upload" />
           </form>
         </div>

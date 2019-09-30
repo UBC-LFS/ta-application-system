@@ -43,7 +43,7 @@
         </td>
         <td>{{ user.email }}</td>
         <td>
-          <a href="{% url 'administrators:view_confidentiality' username=user.username %}">View</a>
+          <a href="{% url 'administrators:view_confidentiality' username=user.username role='administrator' %}">View</a>
         </td>
         <td>
           <button type="button" class="btn btn-sm btn-warning" data-toggle="modal" data-target="#users-modal-{{ user.id }}">Change Role</button>

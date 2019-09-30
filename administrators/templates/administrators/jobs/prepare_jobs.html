@@ -6,14 +6,14 @@
 
   <div id="content" class="container-fluid">
     {% include 'ta_app/_return_messages.html' with data=messages %}
-    
+
     <h3>Prepare Jobs</h3>
 
     <small>Total: {{ jobs|length }}</small>
     <table class="table table-sm table-striped" data-toggle="table" data-sortable="true" data-classes="" data-pagination="true" data-search="true">
       <thead>
         <tr>
-          <th>ID</th>
+          <th>Job ID</th>
           <th data-sortable="true">Year</th>
           <th data-sortable="true">Term</th>
           <th data-sortable="true">Job</th>

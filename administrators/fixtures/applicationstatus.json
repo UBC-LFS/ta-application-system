@@ -6,8 +6,8 @@
       "application_id": "1",
       "parent_id": null,
       "assigned": "0",
-      "assigned_hours": "0.0",
-      "created_at": "2019-07-20"
+      "assigned_hours": "00.0",
+      "created_at": "2019-09-24"
     }
   },
   {
@@ -18,7 +18,7 @@
       "parent_id": null,
       "assigned": "0",
       "assigned_hours": "0.0",
-      "created_at": "2019-07-20"
+      "created_at": "2019-09-24"
     }
   },
   {
@@ -29,7 +29,7 @@
       "parent_id": null,
       "assigned": "0",
       "assigned_hours": "0.0",
-      "created_at": "2019-07-20"
+      "created_at": "2019-09-24"
     }
   },
   {
@@ -40,7 +40,7 @@
       "parent_id": null,
       "assigned": "0",
       "assigned_hours": "0.0",
-      "created_at": "2019-07-20"
+      "created_at": "2019-09-24"
     }
   },
   {
@@ -51,7 +51,7 @@
       "parent_id": null,
       "assigned": "0",
       "assigned_hours": "0.0",
-      "created_at": "2019-07-20"
+      "created_at": "2019-09-24"
     }
   },
   {
@@ -62,7 +62,7 @@
       "parent_id": null,
       "assigned": "0",
       "assigned_hours": "0.0",
-      "created_at": "2019-07-20"
+      "created_at": "2019-09-24"
     }
   },
   {
@@ -73,7 +73,7 @@
       "parent_id": null,
       "assigned": "0",
       "assigned_hours": "0.0",
-      "created_at": "2019-07-20"
+      "created_at": "2019-09-24"
     }
   },
   {
@@ -84,7 +84,7 @@
       "parent_id": null,
       "assigned": "0",
       "assigned_hours": "0.0",
-      "created_at": "2019-07-20"
+      "created_at": "2019-09-24"
     }
   },
   {
@@ -95,7 +95,7 @@
       "parent_id": null,
       "assigned": "0",
       "assigned_hours": "0.0",
-      "created_at": "2019-07-25"
+      "created_at": "2019-09-24"
     }
   },
   {
@@ -106,7 +106,7 @@
       "parent_id": null,
       "assigned": "0",
       "assigned_hours": "0.0",
-      "created_at": "2019-07-25"
+      "created_at": "2019-09-24"
     }
   },
   {
@@ -117,7 +117,7 @@
       "parent_id": null,
       "assigned": "0",
       "assigned_hours": "0.0",
-      "created_at": "2019-07-25"
+      "created_at": "2019-09-24"
     }
   },
   {
@@ -128,7 +128,7 @@
       "parent_id": null,
       "assigned": "0",
       "assigned_hours": "0.0",
-      "created_at": "2019-07-25"
+      "created_at": "2019-09-24"
     }
   },
   {
@@ -139,7 +139,7 @@
       "parent_id": null,
       "assigned": "0",
       "assigned_hours": "0.0",
-      "created_at": "2019-07-25"
+      "created_at": "2019-09-24"
     }
   },
   {
@@ -150,7 +150,7 @@
       "parent_id": null,
       "assigned": "0",
       "assigned_hours": "0.0",
-      "created_at": "2019-07-25"
+      "created_at": "2019-09-24"
     }
   },
   {
@@ -161,7 +161,7 @@
       "parent_id": null,
       "assigned": "0",
       "assigned_hours": "0.0",
-      "created_at": "2019-07-25"
+      "created_at": "2019-09-24"
     }
   },
   {
@@ -172,7 +172,7 @@
       "parent_id": null,
       "assigned": "0",
       "assigned_hours": "0.0",
-      "created_at": "2019-07-25"
+      "created_at": "2019-09-24"
     }
   },
   {
@@ -183,7 +183,7 @@
       "parent_id": null,
       "assigned": "0",
       "assigned_hours": "0.0",
-      "created_at": "2019-08-25"
+      "created_at": "2019-09-24"
     }
   },
   {
@@ -194,7 +194,7 @@
       "parent_id": null,
       "assigned": "0",
       "assigned_hours": "0.0",
-      "created_at": "2019-08-25"
+      "created_at": "2019-09-24"
     }
   },
   {
@@ -205,7 +205,7 @@
       "parent_id": null,
       "assigned": "0",
       "assigned_hours": "0.0",
-      "created_at": "2019-08-25"
+      "created_at": "2019-09-24"
     }
   },
   {
@@ -216,7 +216,7 @@
       "parent_id": null,
       "assigned": "0",
       "assigned_hours": "0.0",
-      "created_at": "2019-08-25"
+      "created_at": "2019-09-24"
     }
   },
   {
@@ -226,8 +226,481 @@
       "application_id": "21",
       "parent_id": null,
       "assigned": "0",
+      "assigned_hours": "00.0",
+      "created_at": "2019-09-24"
+    }
+  },
+  {
+    "model": "administrators.applicationstatus",
+    "pk": 22,
+    "fields": {
+      "application_id": "22",
+      "parent_id": null,
+      "assigned": "0",
       "assigned_hours": "0.0",
-      "created_at": "2019-08-25"
+      "created_at": "2019-09-24"
+    }
+  },
+  {
+    "model": "administrators.applicationstatus",
+    "pk": 23,
+    "fields": {
+      "application_id": "23",
+      "parent_id": null,
+      "assigned": "0",
+      "assigned_hours": "0.0",
+      "created_at": "2019-09-24"
+    }
+  },
+  {
+    "model": "administrators.applicationstatus",
+    "pk": 24,
+    "fields": {
+      "application_id": "24",
+      "parent_id": null,
+      "assigned": "0",
+      "assigned_hours": "0.0",
+      "created_at": "2019-09-24"
+    }
+  },
+  {
+    "model": "administrators.applicationstatus",
+    "pk": 25,
+    "fields": {
+      "application_id": "25",
+      "parent_id": null,
+      "assigned": "0",
+      "assigned_hours": "0.0",
+      "created_at": "2019-09-24"
+    }
+  },
+  {
+    "model": "administrators.applicationstatus",
+    "pk": 26,
+    "fields": {
+      "application_id": "26",
+      "parent_id": null,
+      "assigned": "0",
+      "assigned_hours": "0.0",
+      "created_at": "2019-09-24"
+    }
+  },
+  {
+    "model": "administrators.applicationstatus",
+    "pk": 27,
+    "fields": {
+      "application_id": "27",
+      "parent_id": null,
+      "assigned": "0",
+      "assigned_hours": "0.0",
+      "created_at": "2019-09-24"
+    }
+  },
+  {
+    "model": "administrators.applicationstatus",
+    "pk": 28,
+    "fields": {
+      "application_id": "28",
+      "parent_id": null,
+      "assigned": "0",
+      "assigned_hours": "0.0",
+      "created_at": "2019-09-24"
+    }
+  },
+  {
+    "model": "administrators.applicationstatus",
+    "pk": 29,
+    "fields": {
+      "application_id": "29",
+      "parent_id": null,
+      "assigned": "0",
+      "assigned_hours": "0.0",
+      "created_at": "2019-09-24"
+    }
+  },
+  {
+    "model": "administrators.applicationstatus",
+    "pk": 30,
+    "fields": {
+      "application_id": "30",
+      "parent_id": null,
+      "assigned": "0",
+      "assigned_hours": "0.0",
+      "created_at": "2019-09-24"
+    }
+  },
+  {
+    "model": "administrators.applicationstatus",
+    "pk": 31,
+    "fields": {
+      "application_id": "31",
+      "parent_id": null,
+      "assigned": "0",
+      "assigned_hours": "0.0",
+      "created_at": "2019-09-24"
+    }
+  },
+  {
+    "model": "administrators.applicationstatus",
+    "pk": 32,
+    "fields": {
+      "application_id": "15",
+      "parent_id": null,
+      "assigned": "1",
+      "assigned_hours": "30.0",
+      "created_at": "2019-09-25"
+    }
+  },
+  {
+    "model": "administrators.applicationstatus",
+    "pk": 33,
+    "fields": {
+      "application_id": "23",
+      "parent_id": null,
+      "assigned": "1",
+      "assigned_hours": "40.0",
+      "created_at": "2019-09-25"
+    }
+  },
+  {
+    "model": "administrators.applicationstatus",
+    "pk": 34,
+    "fields": {
+      "application_id": "2",
+      "parent_id": null,
+      "assigned": "1",
+      "assigned_hours": "50.0",
+      "created_at": "2019-09-25"
+    }
+  },
+  {
+    "model": "administrators.applicationstatus",
+    "pk": 35,
+    "fields": {
+      "application_id": "24",
+      "parent_id": null,
+      "assigned": "1",
+      "assigned_hours": "20.0",
+      "created_at": "2019-09-25"
+    }
+  },
+  {
+    "model": "administrators.applicationstatus",
+    "pk": 36,
+    "fields": {
+      "application_id": "3",
+      "parent_id": null,
+      "assigned": "1",
+      "assigned_hours": "50.0",
+      "created_at": "2019-09-25"
+    }
+  },
+  {
+    "model": "administrators.applicationstatus",
+    "pk": 37,
+    "fields": {
+      "application_id": "25",
+      "parent_id": null,
+      "assigned": "1",
+      "assigned_hours": "40.0",
+      "created_at": "2019-09-25"
+    }
+  },
+  {
+    "model": "administrators.applicationstatus",
+    "pk": 38,
+    "fields": {
+      "application_id": "11",
+      "parent_id": null,
+      "assigned": "1",
+      "assigned_hours": "70.0",
+      "created_at": "2019-09-25"
+    }
+  },
+  {
+    "model": "administrators.applicationstatus",
+    "pk": 39,
+    "fields": {
+      "application_id": "16",
+      "parent_id": null,
+      "assigned": "1",
+      "assigned_hours": "40.0",
+      "created_at": "2019-09-25"
+    }
+  },
+  {
+    "model": "administrators.applicationstatus",
+    "pk": 40,
+    "fields": {
+      "application_id": "22",
+      "parent_id": null,
+      "assigned": "1",
+      "assigned_hours": "20.0",
+      "created_at": "2019-09-25"
+    }
+  },
+  {
+    "model": "administrators.applicationstatus",
+    "pk": 41,
+    "fields": {
+      "application_id": "29",
+      "parent_id": null,
+      "assigned": "1",
+      "assigned_hours": "40.0",
+      "created_at": "2019-09-25"
+    }
+  },
+  {
+    "model": "administrators.applicationstatus",
+    "pk": 42,
+    "fields": {
+      "application_id": "7",
+      "parent_id": null,
+      "assigned": "1",
+      "assigned_hours": "50.0",
+      "created_at": "2019-09-25"
+    }
+  },
+  {
+    "model": "administrators.applicationstatus",
+    "pk": 43,
+    "fields": {
+      "application_id": "8",
+      "parent_id": null,
+      "assigned": "1",
+      "assigned_hours": "20.0",
+      "created_at": "2019-09-25"
+    }
+  },
+  {
+    "model": "administrators.applicationstatus",
+    "pk": 44,
+    "fields": {
+      "application_id": "21",
+      "parent_id": null,
+      "assigned": "1",
+      "assigned_hours": "30.0",
+      "created_at": "2019-09-25"
+    }
+  },
+  {
+    "model": "administrators.applicationstatus",
+    "pk": 45,
+    "fields": {
+      "application_id": "31",
+      "parent_id": null,
+      "assigned": "1",
+      "assigned_hours": "40.0",
+      "created_at": "2019-09-25"
+    }
+  },
+  {
+    "model": "administrators.applicationstatus",
+    "pk": 46,
+    "fields": {
+      "application_id": "2",
+      "parent_id": null,
+      "assigned": "2",
+      "assigned_hours": "50.0",
+      "created_at": "2019-09-25"
+    }
+  },
+  {
+    "model": "administrators.applicationstatus",
+    "pk": 47,
+    "fields": {
+      "application_id": "3",
+      "parent_id": null,
+      "assigned": "2",
+      "assigned_hours": "50.0",
+      "created_at": "2019-09-25"
+    }
+  },
+  {
+    "model": "administrators.applicationstatus",
+    "pk": 48,
+    "fields": {
+      "application_id": "7",
+      "parent_id": null,
+      "assigned": "3",
+      "assigned_hours": "0.0",
+      "created_at": "2019-09-25"
+    }
+  },
+  {
+    "model": "administrators.applicationstatus",
+    "pk": 49,
+    "fields": {
+      "application_id": "8",
+      "parent_id": null,
+      "assigned": "2",
+      "assigned_hours": "20.0",
+      "created_at": "2019-09-25"
+    }
+  },
+  {
+    "model": "administrators.applicationstatus",
+    "pk": 50,
+    "fields": {
+      "application_id": "11",
+      "parent_id": null,
+      "assigned": "2",
+      "assigned_hours": "70.0",
+      "created_at": "2019-09-25"
+    }
+  },
+  {
+    "model": "administrators.applicationstatus",
+    "pk": 51,
+    "fields": {
+      "application_id": "15",
+      "parent_id": null,
+      "assigned": "2",
+      "assigned_hours": "30.0",
+      "created_at": "2019-09-25"
+    }
+  },
+  {
+    "model": "administrators.applicationstatus",
+    "pk": 52,
+    "fields": {
+      "application_id": "16",
+      "parent_id": null,
+      "assigned": "2",
+      "assigned_hours": "40.0",
+      "created_at": "2019-09-25"
+    }
+  },
+  {
+    "model": "administrators.applicationstatus",
+    "pk": 53,
+    "fields": {
+      "application_id": "22",
+      "parent_id": null,
+      "assigned": "2",
+      "assigned_hours": "20.0",
+      "created_at": "2019-09-25"
+    }
+  },
+  {
+    "model": "administrators.applicationstatus",
+    "pk": 54,
+    "fields": {
+      "application_id": "21",
+      "parent_id": null,
+      "assigned": "2",
+      "assigned_hours": "30.0",
+      "created_at": "2019-09-25"
+    }
+  },
+  {
+    "model": "administrators.applicationstatus",
+    "pk": 55,
+    "fields": {
+      "application_id": "23",
+      "parent_id": null,
+      "assigned": "2",
+      "assigned_hours": "40.0",
+      "created_at": "2019-09-25"
+    }
+  },
+  {
+    "model": "administrators.applicationstatus",
+    "pk": 56,
+    "fields": {
+      "application_id": "24",
+      "parent_id": null,
+      "assigned": "2",
+      "assigned_hours": "20.0",
+      "created_at": "2019-09-25"
+    }
+  },
+  {
+    "model": "administrators.applicationstatus",
+    "pk": 57,
+    "fields": {
+      "application_id": "25",
+      "parent_id": null,
+      "assigned": "3",
+      "assigned_hours": "0.0",
+      "created_at": "2019-09-25"
+    }
+  },
+  {
+    "model": "administrators.applicationstatus",
+    "pk": 58,
+    "fields": {
+      "application_id": "29",
+      "parent_id": null,
+      "assigned": "2",
+      "assigned_hours": "40.0",
+      "created_at": "2019-09-25"
+    }
+  },
+  {
+    "model": "administrators.applicationstatus",
+    "pk": 59,
+    "fields": {
+      "application_id": "31",
+      "parent_id": null,
+      "assigned": "2",
+      "assigned_hours": "40.0",
+      "created_at": "2019-09-25"
+    }
+  },
+  {
+    "model": "administrators.applicationstatus",
+    "pk": 60,
+    "fields": {
+      "application_id": "2",
+      "parent_id": "46",
+      "assigned": "3",
+      "assigned_hours": "0.0",
+      "created_at": "2019-09-26"
+    }
+  },
+  {
+    "model": "administrators.applicationstatus",
+    "pk": 61,
+    "fields": {
+      "application_id": "2",
+      "parent_id": null,
+      "assigned": "2",
+      "assigned_hours": "70.0",
+      "created_at": "2019-09-26"
+    }
+  },
+  {
+    "model": "administrators.applicationstatus",
+    "pk": 62,
+    "fields": {
+      "application_id": "32",
+      "parent_id": null,
+      "assigned": "0",
+      "assigned_hours": "0.0",
+      "created_at": "2019-09-27"
+    }
+  },
+  {
+    "model": "administrators.applicationstatus",
+    "pk": 63,
+    "fields": {
+      "application_id": "33",
+      "parent_id": null,
+      "assigned": "0",
+      "assigned_hours": "0.0",
+      "created_at": "2019-09-27"
+    }
+  },
+  {
+    "model": "administrators.applicationstatus",
+    "pk": 64,
+    "fields": {
+      "application_id": "32",
+      "parent_id": null,
+      "assigned": "1",
+      "assigned_hours": "10.0",
+      "created_at": "2019-09-27"
     }
   }
 ]

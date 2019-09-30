@@ -38,5 +38,133 @@
       "job_id": 4,
       "user_id": 8
     }
+  },
+  {
+    "model": "administrators.job_instructors",
+    "pk": 6,
+    "fields": {
+      "job_id": 7,
+      "user_id": 4
+    }
+  },
+  {
+    "model": "administrators.job_instructors",
+    "pk": 7,
+    "fields": {
+      "job_id": 8,
+      "user_id": 5
+    }
+  },
+  {
+    "model": "administrators.job_instructors",
+    "pk": 8,
+    "fields": {
+      "job_id": 9,
+      "user_id": 6
+    }
+  },
+  {
+    "model": "administrators.job_instructors",
+    "pk": 9,
+    "fields": {
+      "job_id": 10,
+      "user_id": 7
+    }
+  },
+  {
+    "model": "administrators.job_instructors",
+    "pk": 10,
+    "fields": {
+      "job_id": 10,
+      "user_id": 8
+    }
+  },
+  {
+    "model": "administrators.job_instructors",
+    "pk": 11,
+    "fields": {
+      "job_id": 11,
+      "user_id": 4
+    }
+  },
+  {
+    "model": "administrators.job_instructors",
+    "pk": 12,
+    "fields": {
+      "job_id": 12,
+      "user_id": 5
+    }
+  },
+  {
+    "model": "administrators.job_instructors",
+    "pk": 13,
+    "fields": {
+      "job_id": 13,
+      "user_id": 6
+    }
+  },
+  {
+    "model": "administrators.job_instructors",
+    "pk": 14,
+    "fields": {
+      "job_id": 14,
+      "user_id": 7
+    }
+  },
+  {
+    "model": "administrators.job_instructors",
+    "pk": 15,
+    "fields": {
+      "job_id": 15,
+      "user_id": 8
+    }
+  },
+  {
+    "model": "administrators.job_instructors",
+    "pk": 16,
+    "fields": {
+      "job_id": 16,
+      "user_id": 4
+    }
+  },
+  {
+    "model": "administrators.job_instructors",
+    "pk": 17,
+    "fields": {
+      "job_id": 17,
+      "user_id": 5
+    }
+  },
+  {
+    "model": "administrators.job_instructors",
+    "pk": 18,
+    "fields": {
+      "job_id": 18,
+      "user_id": 6
+    }
+  },
+  {
+    "model": "administrators.job_instructors",
+    "pk": 19,
+    "fields": {
+      "job_id": 19,
+      "user_id": 7
+    }
+  },
+  {
+    "model": "administrators.job_instructors",
+    "pk": 20,
+    "fields": {
+      "job_id": 20,
+      "user_id": 8
+    }
+  },
+  {
+    "model": "administrators.job_instructors",
+    "pk": 21,
+    "fields": {
+      "job_id": 21,
+      "user_id": 8
+    }
   }
 ]

@@ -29,7 +29,7 @@
 
     {% if role == 'administrator' %}
       <div>Instructor Preference: {{ application.get_instructor_preference_display }}</div>
-      <div>Classification: {{ application.get_classification_display }}</div>
+      <div>Classification: {{ app.classification.year }} {{ app.classification.name }}</div>
       <div>Note: {{ application.note }}</div>
     {% endif %}
 

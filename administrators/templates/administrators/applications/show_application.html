@@ -37,7 +37,7 @@
     <div>Availability: {{ app.availability }}</div>
     <div>Availability Note: {{ app.availability_note }}</div>
     <div>Instructor Preference: {{ app.get_instructor_preference_display }}</div>
-    <div>Classification: {{ app.get_classification_display }}</div>
+    <div>Classification: {{ app.classification.year }} {{ app.classification.name }}</div>
     <div>Note: {{ app.note }}</div>
     <div>Created at: {{ app.created_at }}</div>
     <div>Updated at: {{ app.updated_at }}</div>

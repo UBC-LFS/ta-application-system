@@ -14,7 +14,7 @@
     <table class="table">
       <thead>
         <tr>
-          <th>ID</th>
+          <th>Application ID</th>
           <th>Applicant</th>
           <th>Status</th>
           <th>Instructor Preference</th>
@@ -37,7 +37,7 @@
               {% include 'administrators/util/_display_app_status.html' with data=app %}
             </td>
             <td>{{ app.get_instructor_preference_display }}</td>
-            <td>{{ app.get_classification_display }}</td>
+            <td>{{ app.classification.year }} {{ app.classification.name }}</td>
             <td>{{ app.note }}</td>
             <td>{{ app.created_at }}</td>
             <td>{{ app.updated_at }}</td>

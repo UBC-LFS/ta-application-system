@@ -3,6 +3,8 @@
 
 {% if role == 'administrator' %}
   {% include 'administrators/util/_sidebar.html' %}
+{% elif role == 'human_resource' %}
+  {% include 'human_resources/util/_sidebar.html' %}
 {% elif role == 'instructor' %}
   {% include 'instructors/util/_sidebar.html' %}
 {% elif role == 'student' %}

@@ -33,13 +33,13 @@ def index(request):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
 def profile(request):
-    ''' '''
+    ''' Display user's profile '''
     loggedin_user = userApi.loggedin_user(request.user)
     if 'Instructor' not in loggedin_user.roles: raise PermissionDenied
 
     return render(request, 'instructors/profile.html', {
         'loggedin_user': loggedin_user,
-        'user': userApi.get_user(request.user.id)
+        'user': loggedin_user
     })
 
 
@@ -47,20 +47,20 @@ def profile(request):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
 def my_jobs(request):
-    ''' '''
+    ''' Display jobs by instructors '''
     loggedin_user = userApi.loggedin_user(request.user)
     if 'Instructor' not in loggedin_user.roles: raise PermissionDenied
 
     return render(request, 'instructors/jobs/my_jobs.html', {
         'loggedin_user': loggedin_user,
-        'user': userApi.get_user(request.user.id)
+        'user': loggedin_user
     })
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET', 'POST'])
 def edit_job(request, session_slug, job_slug):
-    ''' '''
+    ''' Update job details of instructors '''
     loggedin_user = userApi.loggedin_user(request.user)
     if 'Instructor' not in loggedin_user.roles: raise PermissionDenied
 
@@ -72,7 +72,7 @@ def edit_job(request, session_slug, job_slug):
             job.updated_at = datetime.now()
             job.save()
             if job:
-                messages.success(request, 'Success! {0} - job details updated'.format(user.username))
+                messages.success(request, 'Success! {0} {1} {2} - job details updated'.format(job.course.code.name, job.course.number.name, job.course.section.name))
                 return redirect('instructors:my_jobs')
             else:
                 messages.error(request, 'Error!')
@@ -92,7 +92,7 @@ def edit_job(request, session_slug, job_slug):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET', 'POST'])
 def get_applications(request, session_slug, job_slug):
-    ''' '''
+    ''' Display applications applied by students '''
     loggedin_user = userApi.loggedin_user(request.user)
     if 'Instructor' not in loggedin_user.roles: raise PermissionDenied
 

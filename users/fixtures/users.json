@@ -7,7 +7,7 @@
       "username": "admin",
       "first_name": "ad",
       "last_name": "min",
-      "email": "<email address>"
+      "email": "admin@example.com"
     }
   },
   {
@@ -18,7 +18,7 @@
       "username": "admin2",
       "first_name": "ad2",
       "last_name": "min2",
-      "email": "<email address>"
+      "email": "admin2@example.com"
     }
   },
   {
@@ -29,7 +29,7 @@
       "username": "admin3",
       "first_name": "ad3",
       "last_name": "min3",
-      "email": "<email address>"
+      "email": "admin3@example.com"
     }
   },
   {
@@ -40,7 +40,7 @@
       "username": "test.user4",
       "first_name": "test4",
       "last_name": "user4",
-      "email": "<email address>"
+      "email": "test.user4@example.com"
     }
   },
   {
@@ -51,7 +51,7 @@
       "username": "test.user5",
       "first_name": "test5",
       "last_name": "user5",
-      "email": "<email address>"
+      "email": "test.user5@example.com"
     }
   },
   {
@@ -62,7 +62,7 @@
       "username": "test.user6",
       "first_name": "test6",
       "last_name": "user6",
-      "email": "<email address>"
+      "email": "test.user6@example.com"
     }
   },
   {
@@ -73,7 +73,7 @@
       "username": "test.user7",
       "first_name": "test7",
       "last_name": "user7",
-      "email": "<email address>"
+      "email": "test.user7@example.com"
     }
   },
   {
@@ -84,7 +84,7 @@
       "username": "test.user8",
       "first_name": "test8",
       "last_name": "user8",
-      "email": "<email address>"
+      "email": "test.user8@example.com"
     }
   },
   {
@@ -95,7 +95,7 @@
       "username": "test.user9",
       "first_name": "test9",
       "last_name": "user9",
-      "email": "<email address>"
+      "email": "test.user9@example.com"
     }
   },
   {
@@ -106,7 +106,7 @@
       "username": "test.user10",
       "first_name": "test10",
       "last_name": "user10",
-      "email": "<email address>"
+      "email": "test.user10@example.com"
     }
   },
   {
@@ -117,7 +117,7 @@
       "username": "test.user11",
       "first_name": "test11",
       "last_name": "user11",
-      "email": "<email address>"
+      "email": "test.user11@example.com"
     }
   },
   {
@@ -128,7 +128,7 @@
       "username": "test.user12",
       "first_name": "test12",
       "last_name": "user12",
-      "email": "<email address>"
+      "email": "test.user12@example.com"
     }
   },
   {
@@ -139,7 +139,7 @@
       "username": "test.user13",
       "first_name": "test13",
       "last_name": "user13",
-      "email": "<email address>"
+      "email": "test.user13@example.com"
     }
   },
   {
@@ -150,7 +150,7 @@
       "username": "test.user14",
       "first_name": "test14",
       "last_name": "user14",
-      "email": "<email address>"
+      "email": "test.user14@example.com"
     }
   },
   {
@@ -161,7 +161,7 @@
       "username": "test.user15",
       "first_name": "test15",
       "last_name": "user15",
-      "email": "<email address>"
+      "email": "test.user15@example.com"
     }
   },
   {
@@ -172,7 +172,7 @@
       "username": "test.user16",
       "first_name": "test16",
       "last_name": "user16",
-      "email": "<email address>"
+      "email": "test.user16@example.com"
     }
   },
   {
@@ -183,7 +183,7 @@
       "username": "test.user17",
       "first_name": "test17",
       "last_name": "user17",
-      "email": "<email address>"
+      "email": "test.user17@example.com"
     }
   },
   {
@@ -194,7 +194,7 @@
       "username": "test.user18",
       "first_name": "test18",
       "last_name": "user18",
-      "email": "<email address>"
+      "email": "test.user18@example.com"
     }
   },
   {
@@ -205,7 +205,7 @@
       "username": "test.user19",
       "first_name": "test19",
       "last_name": "user19",
-      "email": "<email address>"
+      "email": "test.user19@example.com"
     }
   },
   {
@@ -216,7 +216,7 @@
       "username": "test.user20",
       "first_name": "test20",
       "last_name": "user20",
-      "email": "<email address>"
+      "email": "test.user20@example.com"
     }
   },
   {
@@ -227,7 +227,7 @@
       "username": "test.user21",
       "first_name": "test21",
       "last_name": "user21",
-      "email": "<email address>"
+      "email": "test.user21@example.com"
     }
   },
   {
@@ -238,7 +238,7 @@
       "username": "test.user22",
       "first_name": "test22",
       "last_name": "user22",
-      "email": "<email address>"
+      "email": "test.user22@example.com"
     }
   },
   {
@@ -249,7 +249,7 @@
       "username": "test.user23",
       "first_name": "test23",
       "last_name": "user23",
-      "email": "<email address>"
+      "email": "test.user23@example.com"
     }
   },
   {
@@ -260,7 +260,7 @@
       "username": "test.user24",
       "first_name": "test24",
       "last_name": "user24",
-      "email": "<email address>"
+      "email": "test.user24@example.com"
     }
   },
   {
@@ -271,7 +271,7 @@
       "username": "test.user25",
       "first_name": "test25",
       "last_name": "user25",
-      "email": "<email address>"
+      "email": "test.user25@example.com"
     }
   },
   {
@@ -282,7 +282,7 @@
       "username": "test.user26",
       "first_name": "test26",
       "last_name": "user26",
-      "email": "<email address>"
+      "email": "test.user26@example.com"
     }
   },
   {
@@ -293,7 +293,7 @@
       "username": "test.user27",
       "first_name": "test27",
       "last_name": "user27",
-      "email": "<email address>"
+      "email": "test.user27@example.com"
     }
   },
   {
@@ -304,7 +304,7 @@
       "username": "test.user28",
       "first_name": "test28",
       "last_name": "user28",
-      "email": "<email address>"
+      "email": "test.user28@example.com"
     }
   },
   {
@@ -315,7 +315,7 @@
       "username": "test.user29",
       "first_name": "test29",
       "last_name": "user29",
-      "email": "<email address>"
+      "email": "test.user29@example.com"
     }
   },
   {
@@ -326,7 +326,7 @@
       "username": "test.user30",
       "first_name": "test30",
       "last_name": "user30",
-      "email": "<email address>"
+      "email": "test.user30@example.com"
     }
   }
 ]

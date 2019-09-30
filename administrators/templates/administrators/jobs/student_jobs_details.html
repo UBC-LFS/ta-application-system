@@ -17,22 +17,131 @@
 
     <hr />
 
-    <h5>Jobs</h5>
-    <table class="table table-responsive">
+    <h3>Offered Jobs</h3>
+
+    		<h5>Summary</h5>
+    		<table class="table">
+    		  <thead>
+    		    <tr>
+    		      <th>Year-Term</th>
+    		      <th>Total Assigned Hours</th>
+    		    </tr>
+    		  </thead>
+    		  <tbody>
+    		    {% for year_term, assigned_hours in offered_summary.items %}
+    		      <tr>
+    		        <td>{{ year_term }}</td>
+    		        <td>{{ assigned_hours }} hours</td>
+    		      </tr>
+    		    {% empty %}
+    		      <tr>
+    		        <td colspan="2">No summary available</td>
+    		      </tr>
+    		    {% endfor %}
+    		  </tbody>
+    		</table>
+
+    		<h5>List</h5>
+    		<table class="table">
+    		  <thead>
+    		    <tr>
+    		      <th>Year</th>
+    		      <th>Term</th>
+    		      <th>Job</th>
+    		      <th>Assigned Status</th>
+    		      <th>Assigned Hours</th>
+    		    </tr>
+    		  </thead>
+    		  <tbody>
+    		    {% for job in offered_jobs %}
+    		    <tr>
+    		      <td>{{ job.year }}</td>
+    		      <td>{{ job.term }}</td>
+    		      <td>
+    		        <a href="{% url 'administrators:display_job_details' session_slug=job.session_slug job_slug=job.job_slug role='administrator' %}">
+    		          {{ job.course_code }} {{ job.course_number }} {{ job.course_section }}
+    		        </a>
+    		      </td>
+    		      <td>{{ job.assigned_status }}</td>
+    		      <td>{{ job.assigned_hours }} hours</td>
+    		    </tr>
+    		    {% empty %}
+    		      <tr>
+    		        <td colspan="3">No offered jobs found</td>
+    		      </tr>
+    		    {% endfor %}
+    		  </tbody>
+    		</table>
+
+    <hr />
+
+    <h3>Accpeted Jobs</h3>
+
+    <h5>Summary</h5>
+    <table class="table">
       <thead>
         <tr>
-          <th>ID</th>
+          <th>Year-Term</th>
+          <th>Total Assigned Hours</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for year_term, assigned_hours in accepted_summary.items %}
+          <tr>
+            <td>{{ year_term }}</td>
+            <td>{{ assigned_hours }} hours</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="2">No summary available</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <h5>List</h5>
+    <table class="table">
+      <thead>
+        <tr>
           <th>Year</th>
           <th>Term</th>
           <th>Job</th>
-          <th>Supervisor Approval</th>
-          <th>How Qualified</th>
-          <th>How Interested</th>
-          <th>Availability</th>
-          <th>Availability Note</th>
-          <th>Classification</th>
-          <th>Note</th>
-          <th>Instructor Preference</th>
+          <th>Assigned Status</th>
+          <th>Assigned Hours</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for job in accepted_jobs %}
+        <tr>
+          <td>{{ job.year }}</td>
+          <td>{{ job.term }}</td>
+          <td>
+            <a href="{% url 'administrators:display_job_details' session_slug=job.session_slug job_slug=job.job_slug role='administrator' %}">
+              {{ job.course_code }} {{ job.course_number }} {{ job.course_section }}
+            </a>
+          </td>
+          <td>{{ job.assigned_status }}</td>
+          <td>{{ job.assigned_hours }} hours</td>
+        </tr>
+        {% empty %}
+          <tr>
+            <td colspan="3">No accepted jobs found</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+
+    <hr />
+
+    <h3>Applications</h3>
+    <table class="table table-responsive">
+      <thead>
+        <tr>
+          <th>Application ID</th>
+          <th>Year</th>
+          <th>Term</th>
+          <th>Job</th>
           <th>Assigned TA Hours</th>
           <th>Applicant TA Hours</th>
           <th>Status</th>
@@ -43,18 +152,14 @@
       <tbody>
         {% for app in student.application_set.all %}
           <tr>
-            <td>{{ app.id }}</td>
+            <td>
+              <a href="{% url 'administrators:display_application_details' app_slug=app.slug role='administrator' %}">
+                {{ app.id }}
+              </a>
+            </td>
             <td>{{ app.job.session.year }}</td>
             <td>{{ app.job.session.term.code }}</td>
             <td>{{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</td>
-            <td>{{ app.supervisor_approval }}</td>
-            <td>{{ app.get_how_qualified_display }}</td>
-            <td>{{ app.get_how_interested_display }}</td>
-            <td>{{ app.availability }}</td>
-            <td>{{ app.availability_note }}</td>
-            <td>{{ app.get_classification_display }}</td>
-            <td>{{ app.note }}</td>
-            <td>{{ app.get_instructor_preference_display }}</td>
             <td>{{ app.job.assigned_ta_hours }} hours</td>
             <td>{{ app.job.ta_hours }} hours</td>
             <td>

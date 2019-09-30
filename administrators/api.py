@@ -286,8 +286,8 @@ def update_job_ta_hours(session_slug, job_slug, ta_hours):
     job = get_session_job_by_slug(session_slug, job_slug)
     new_hours = job.ta_hours + float(ta_hours)
     job.ta_hours = new_hours
-    saved = job.save(update_fields=['ta_hours'])
-    print('saved ', saved)
+    job.updated_at = datetime.now()
+    saved = job.save(update_fields=['ta_hours', 'updated_at'])
     return True if job else False
 
 def get_recent_ten_job_details(course):
@@ -441,14 +441,12 @@ def get_declined_applications():
             applications.append(app)
     return applications
 
-#checked
 def get_application(app_id):
     ''' Get an application '''
-    print('get_application ==== ', app_id)
     return get_object_or_404(Application, id=app_id)
 
 def get_application_slug(app_slug):
-    ''' Get an application '''
+    ''' Get an application by slug '''
     return get_object_or_404(Application, slug=app_slug)
 
 def get_applications_by_student(user):
@@ -504,14 +502,14 @@ def get_offered_jobs_by_student(user, student_jobs):
         for app in job.application_set.all():
             if app.applicant.id == user.id:
                 if app.applicationstatus_set.filter(assigned=ApplicationStatus.OFFERED).exists():
-                    status = app.applicationstatus_set.get(assigned=ApplicationStatus.OFFERED)
+                    status = app.applicationstatus_set.filter(assigned=ApplicationStatus.OFFERED).last()
 
                     accepted = None
                     declined = None
                     if app.applicationstatus_set.filter(assigned=ApplicationStatus.ACCEPTED).exists():
-                        accepted = app.applicationstatus_set.get(assigned=ApplicationStatus.ACCEPTED)
+                        accepted = app.applicationstatus_set.filter(assigned=ApplicationStatus.ACCEPTED).last()
                     if app.applicationstatus_set.filter(assigned=ApplicationStatus.DECLINED).exists():
-                        declined = app.applicationstatus_set.get(assigned=ApplicationStatus.DECLINED)
+                        declined = app.applicationstatus_set.filter(assigned=ApplicationStatus.DECLINED).last()
 
                     jobs.append({
                         'year': job.session.year,
@@ -540,7 +538,7 @@ def get_accepted_jobs_by_student(user, student_jobs):
         for app in job.application_set.all():
             if app.applicant.id == user.id:
                 if app.applicationstatus_set.filter(assigned=ApplicationStatus.ACCEPTED).exists():
-                    status = app.applicationstatus_set.get(assigned=ApplicationStatus.ACCEPTED)
+                    status = app.applicationstatus_set.filter(assigned=ApplicationStatus.ACCEPTED).last()
                     jobs.append({
                         'year': job.session.year,
                         'term': job.session.term.code,
@@ -586,10 +584,12 @@ def student_apply_job(app):
 
 
 
-def get_email(id):
+def get_email(email_id):
     ''' '''
-    return get_object_or_404(Email, id=id)
+    return get_object_or_404(Email, id=email_id)
 
+def get_emails():
+    return Email.objects.all()
 
 
 """
@@ -730,67 +730,6 @@ def get_offered_jobs():
 
 
 
-# Program
-def get_program(program_id):
-    """ Get a program """
-
-    try:
-        return Program.objects.get(id=program_id)
-    except Program.DoesNotExist:
-        return None
-
-
-
-
-
-
-
-# Degree
-
-def get_degree(degree_id):
-    """ Get a degree """
-
-    try:
-        return Degree.objects.get(id=degree_id)
-    except Degree.DoesNotExist:
-        return None
-
-def get_degrees():
-    ''' Get all degrees '''
-    return Degree.objects.all()
-    """degrees = None
-    try:
-        degrees = Degree.objects.all().order_by('id')
-    except Degree.DoesNotExist:
-        degrees = None
-    return degrees"""
-
-def get_degrees_list():
-    print("get_degrees_list")
-    print("here")
-    try:
-        return [ (degree.id, degree.name) for degree in get_degrees() ]
-    except Degree.DoesNotExist:
-        print("not ")
-        return None
-
-
-# Training
-def get_training(training_id):
-    try:
-        return Training.objects.get(id=training_id)
-    except Training.DoesNotExist:
-        return None
-
-def get_trainings():
-    return Training.objects.all().order_by('id')
-
-def get_trainings_list():
-    print("get_trainings_list")
-    try:
-        return [ (training.id, training.name) for training in get_trainings() ]
-    except Training.DoesNotExist:
-        return None
 
 
 
@@ -902,7 +841,34 @@ def delete_course_section(course_section_id):
     return course_section if course_section else False
 
 
-def send_and_create_email(sender, receiver, title, message, type):
+
+# ----- classifications -----
+
+def get_classifications():
+    ''' Get all classifications '''
+    return Classification.objects.filter(is_active=True)
+
+def get_classification(classification_id):
+    ''' Get a classification by id '''
+    return get_object_or_404(Classification, id=classification_id)
+
+def get_classification_by_slug(slug):
+    ''' Get a classification by code '''
+    return get_object_or_404(Classification, slug=slug)
+
+def delete_classification(classification_id):
+    ''' Delete a classification '''
+    classification = get_classification(classification_id)
+    classification.delete()
+    return classification if classification else False
+
+
+
+
+
+
+
+def send_and_create_email(app, sender, receiver, title, message, type):
     # Reference: https://docs.djangoproject.com/en/2.2/topics/email/
     #sent = send_mail(title, message, sender, [receiver], fail_silently=False)
     msg = EmailMultiAlternatives(title, message, sender, [receiver])
@@ -910,6 +876,7 @@ def send_and_create_email(sender, receiver, title, message, type):
     msg.send()
 
     created_email = Email.objects.create(
+        application = app,
         sender = sender,
         receiver = receiver,
         title = title,

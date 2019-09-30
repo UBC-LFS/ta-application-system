@@ -6,14 +6,7 @@
 
   <div id="content" class="container-fluid">
 
-    {% if messages %}
-    	{% for message in messages %}
-        <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
-          {{ message }}
-          <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        </div>
-    	{% endfor %}
-    {% endif %}
+    {% include 'ta_app/_return_messages.html' with data=messages %}
 
     <h3 class="margin-top-30">{{ session.year }} {{ session.term.name }} {{ session.title }}</h3>
 
@@ -36,15 +29,11 @@
             <tr>
               <td>{{ job.session.year }}</td>
               <td>{{ job.session.term.code }}</td>
-              <td>
-                <a href="{% url 'administrators:display_job_details' session_slug=job.session.slug job_slug=job.course.slug role='student' %}">
-                  {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}
-                </a>
-              </td>
-              <td>{{ job.course.name }}</td>
+              <td>{{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</td>
+              <td>{{ job.title }}</td>
               <td>
                 {% for instructor in job.instructors.all %}
-                  {{ instructor.first_name }} {{ instructor.last_name }}
+                  {{ instructor.first_name }} {{ instructor.last_name }},
                 {% endfor %}
               </td>
               <td>
@@ -64,7 +53,7 @@
       </tbody>
     </table>
 
-    <a href="{% url 'students:explore_jobs' %}">Go back to a previous page</a>
+    <a href="{% url 'students:explore_jobs' %}">Go back to Explore Jobs</a>
 
   </div>
 </div>

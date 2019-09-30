@@ -13,14 +13,12 @@
     <table class="table table-responsive-lg">
       <thead>
         <tr>
-          <th>ID</th>
+          <th>Application ID</th>
           <th>Year</th>
           <th>Term</th>
           <th>Job</th>
           <th>Applicant</th>
           <th>Status</th>
-          <th>Assigned TA Hours</th>
-          <th>Applicants' TA Hours</th>
           <th>Instructor Preference</th>
           <th>Classification</th>
           <th>Note</th>
@@ -43,12 +41,12 @@
               </a>
             </td>
             <td>
-              <a href="{% url 'administrators:show_user' username=app.applicant.username role='administrator' %}">{{ app.applicant.first_name }} {{ app.applicant.last_name }}</a>
+              <a href="{% url 'administrators:show_user_accepted_job_summary' username=app.applicant.username %}">{{ app.applicant.first_name }} {{ app.applicant.last_name }}</a>
             </td>
-            <td>{% include 'administrators/util/_modal_application_status.html' with data=app %}</td>
-            <td>{{ app.job.assigned_ta_hours }}</td>
-            <td>{{ app.job.ta_hours }}</td>
-            <td>{{ app.get_classification_display }}</td>
+            <td>
+              {% include 'administrators/util/_modal_application_status.html' with data=app %}
+            </td>
+            <td>{{ app.classification.year }} {{ app.classification.name }}</td>
             <td>{{ app.get_instructor_preference_display }}</td>
             <td>{{ app.note }}</td>
             <td>{{ app.created_at }}</td>

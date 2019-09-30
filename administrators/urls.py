@@ -39,7 +39,7 @@ urlpatterns = [
     path('sessions/<str:session_slug>/jobs/<str:job_slug>/offer/', views.offer_job, name='offer_job'),
     path('sessions/<str:session_slug>/jobs/<str:job_slug>/application/edit/', views.edit_job_application, name='edit_job_application'),
     path('applications/offered/email_history/', views.email_history, name='email_history'),
-    path('emails/<str:id>/reminder/', views.send_reminder, name='send_reminder'),
+    path('emails/<str:email_id>/reminder/', views.send_reminder, name='send_reminder'),
     path('applications/decline_reassign/confirmation/', views.decline_reassign_confirmation, name='decline_reassign_confirmation'),
     path('applications/decline_reassign/', views.decline_reassign, name='decline_reassign'),
 
@@ -49,14 +49,18 @@ urlpatterns = [
     path('applications/offered/', views.offered_applications, name='offered_applications'),
     path('applications/accepted/', views.accepted_applications, name='accepted_applications'),
     path('applications/declined/', views.declined_applications, name='declined_applications'),
+    path('applications/<str:username>/jobs/accepted/', views.show_user_accepted_job_summary, name='show_user_accepted_job_summary'),
     path('applications/', views.applications, name='applications'),
 
 
-    path('hr/users/<str:username>/confidentiality/view/', views.view_confidentiality, name='view_confidentiality'),
+    path('hr/users/<str:username>/confidentiality/view/role/<str:role>/', views.view_confidentiality, name='view_confidentiality'),
     path('hr/users/<str:username>/role/<str:role>/', views.show_user, name='show_user'),
     path('hr/users/create/', views.create_user, name='create_user'),
     path('hr/users/delete/', views.delete_user, name='delete_user'),
     path('hr/users/', views.users, name='users'),
+    path('hr/roles/delete/', views.delete_role, name='delete_role'),
+    path('hr/roles/<str:slug>/edit/', views.edit_role, name='edit_role'),
+    path('hr/roles/', views.roles, name='roles'),
     path('hr/', views.hr, name='hr'),
 
     path('preparation/terms/delete/', views.delete_term, name='delete_term'),
@@ -75,10 +79,6 @@ urlpatterns = [
     path('preparation/course_sections/<str:name>/edit/', views.edit_course_section, name='edit_course_section'),
     path('preparation/course_sections/', views.course_sections, name='course_sections'),
 
-    path('preparation/roles/delete/', views.delete_role, name='delete_role'),
-    path('preparation/roles/<str:slug>/edit/', views.edit_role, name='edit_role'),
-    path('preparation/roles/', views.roles, name='roles'),
-
     path('preparation/statuses/delete/', views.delete_status, name='delete_status'),
     path('preparation/statuses/<str:slug>/edit/', views.edit_status, name='edit_status'),
     path('preparation/statuses/', views.statuses, name='statuses'),
@@ -94,6 +94,10 @@ urlpatterns = [
     path('preparation/trainings/delete/', views.delete_training, name='delete_training'),
     path('preparation/trainings/<str:slug>/edit/', views.edit_training, name='edit_training'),
     path('preparation/trainings/', views.trainings, name='trainings'),
+
+    path('preparation/classifications/delete/', views.delete_classification, name='delete_classification'),
+    path('preparation/classifications/<str:slug>/edit/', views.edit_classification, name='edit_classification'),
+    path('preparation/classifications/', views.classifications, name='classifications'),
 
     path('preparation/', views.preparation, name='preparation'),
 

@@ -13,12 +13,13 @@
     <table class="table">
       <thead>
         <tr>
-          <th>ID</th>
+          <th>Email ID</th>
           <th>Sender</th>
           <th>Receiver</th>
           <th>Title</th>
           <th>Email</th>
           <th>Type</th>
+          <th>Application ID</th>
           <th>Created at</th>
           <th>Actions</th>
         </tr>
@@ -50,13 +51,20 @@
             	</div>
             </td>
             <td>{{ email.type }}</td>
+            <td>
+              <a href="{% url 'administrators:display_application_details' app_slug=email.application.slug role='administrator' %}">
+                {{ email.application.id }}
+              </a>
+            </td>
             <td>{{ email.created_at }}</td>
             <td>
               <a href="{% url 'administrators:send_reminder' email.id %}">Remind</a>
             </td>
           </tr>
         {% empty %}
-          No emails found
+          <tr>
+            <td colspan="6">No emails found</td>
+          </tr>
         {% endfor %}
       </tbody>
     </table>

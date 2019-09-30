@@ -35,14 +35,14 @@ def index(request):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
 def show_profile(request):
+    ''' Display user profile '''
     loggedin_user = userApi.loggedin_user(request.user)
     if 'Student' not in loggedin_user.roles: raise PermissionDenied
 
-    user = userApi.get_user(request.user.id)
     return render(request, 'students/profile/show_profile.html', {
         'loggedin_user': loggedin_user,
-        'user': user,
-        'resume_form': ResumeForm(initial={ 'user': user })
+        'user': userApi.get_user_by_username_with_resume(loggedin_user.username),
+        'form': ResumeForm(initial={ 'user': loggedin_user })
     })
 
 
@@ -50,13 +50,12 @@ def show_profile(request):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET', 'POST'])
 def edit_profile(request, username):
-    ''' '''
+    ''' Edit user's profile '''
     loggedin_user = userApi.loggedin_user(request.user)
     if 'Student' not in loggedin_user.roles: raise PermissionDenied
 
     profile_degrees = loggedin_user.profile.degrees.all()
     profile_trainings = loggedin_user.profile.trainings.all()
-
     if request.method == 'POST':
         form = StudentProfileForm(request.POST, instance=loggedin_user.profile)
         if form.is_valid():
@@ -71,11 +70,14 @@ def edit_profile(request, username):
                     messages.success(request, 'Success! {0} - profile updated'.format(loggedin_user.username))
                     return redirect('students:show_profile')
                 else:
-                    messages.error(request, 'Error!')
+                    messages.error(request, 'An error occurred.')
             else:
-                messages.error(request, 'Error!')
+                messages.error(request, 'An error occurred.')
         else:
-            messages.error(request, 'Error! Form is invalid')
+            errors = form.errors.get_json_data()
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+
+        return HttpResponseRedirect( reverse('students:edit_profile', args=[username]) )
 
     return render(request, 'students/profile/edit_profile.html', {
         'loggedin_user': loggedin_user,
@@ -88,12 +90,12 @@ def edit_profile(request, username):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['POST'])
-def upload_resume(request, username):
+def upload_resume(request):
+    ''' Upload user's resume '''
     loggedin_user = userApi.loggedin_user(request.user)
     if 'Student' not in loggedin_user.roles: raise PermissionDenied
 
-    user = userApi.get_user(request.user.id)
-    print(user.resume_file)
+    user = userApi.get_user_by_username_with_resume(loggedin_user.username)
     if request.method == 'POST':
         form = None
         old_resume = None
@@ -108,17 +110,18 @@ def upload_resume(request, username):
             if user.resume_file and old_resume != None and len(old_resume.name) > 0:
                 deleted_resume = userApi.delete_user_resume(user.username)
                 if not deleted_resume:
-                    messages.warning(request, 'Warning! resume is not deleted')
+                    messages.warning(request, 'Warning! Resume is not deleted')
 
             resume.file = request.FILES.get('file')
             resume.created_at = datetime.now()
             resume.save()
             if resume:
-                messages.success(request, 'Success! {0} - resume uploaded'.format(user.username))
+                messages.success(request, 'Success! {0} - Resume uploaded'.format(user.username))
             else:
-                messages.error(request, 'Error!')
+                messages.error(request, 'An error occurred.')
         else:
-            messages.error(request, 'Error! Form is invalid')
+            errors = form.errors.get_json_data()
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
     return redirect('students:show_profile')
 
@@ -136,19 +139,20 @@ def download_resume(request, username, filename):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['POST'])
 def delete_resume(request):
-    ''' '''
+    ''' Delete user's resume '''
     loggedin_user = userApi.loggedin_user(request.user)
     if 'Student' not in loggedin_user.roles: raise PermissionDenied
 
     if request.method == 'POST':
         username = request.POST.get('user')
-        deleted_resume = api.delete_user_resume(username)
+        deleted_resume = userApi.delete_user_resume(username)
         if deleted_resume:
-            messages.success(request, 'Success! {0} - resume deleted'.format(username))
+            messages.success(request, 'Success! {0} - Resume deleted'.format(username))
         else:
-            messages.error(request, 'Error!')
+            messages.error(request, 'An error occurred. Failed to delete your resume.')
     else:
-        messages.error(request, 'Error!')
+        messages.error(request, 'An error occurred. Request is not POST.')
+
     return redirect('students:show_profile')
 
 
@@ -156,7 +160,7 @@ def delete_resume(request):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
 def show_confidentiality(request):
-    ''' '''
+    ''' Display user's confidentiality '''
     loggedin_user = userApi.loggedin_user(request.user)
     if 'Student' not in loggedin_user.roles: raise PermissionDenied
 
@@ -167,17 +171,17 @@ def show_confidentiality(request):
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET', 'POST'])
+@require_http_methods(['POST'])
 def check_confidentiality(request):
+    ''' Check whether an international student or not '''
     loggedin_user = userApi.loggedin_user(request.user)
     if 'Student' not in loggedin_user.roles: raise PermissionDenied
 
-    user = userApi.get_user(request.user.id)
     if request.method == 'POST':
         form = None
-        confidentiality = userApi.has_user_confidentiality_created(user)
+        confidentiality = userApi.has_user_confidentiality_created(loggedin_user)
         if confidentiality:
-            form = ConfidentialityCheckForm(request.POST, instance=user.confidentiality)
+            form = ConfidentialityCheckForm(request.POST, instance=loggedin_user.confidentiality)
         else:
             form = ConfidentialityCheckForm(request.POST)
         if form.is_valid():
@@ -185,9 +189,10 @@ def check_confidentiality(request):
             if confidentiality:
                 messages.info(request, 'Thank you for selecting.')
             else:
-                messages.error(request, 'Error!')
+                messages.error(request, 'An error occurred.')
         else:
-            messages.error(request, 'Error! Form is invalid')
+            errors = form.errors.get_json_data()
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
     return redirect('students:submit_confidentiality')
 
@@ -224,14 +229,17 @@ def submit_confidentiality(request):
                 messages.success(request, 'Success! {0} - confidentiality created'.format(user.username))
                 return redirect('students:show_confidentiality')
             else:
-                messages.error(request, 'Error!')
+                messages.error(request, 'An error occurred.')
         else:
-            messages.error(request, 'Error! Form is invalid')
+            errors = form.errors.get_json_data()
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+
     else:
-        if user.confidentiality.is_international == True:
-            form = ConfidentialityInternationalForm(initial={ 'user': user })
-        else:
-            form = ConfidentialityNonInternationalForm(initial={ 'user': user })
+        if userApi.has_user_confidentiality_created(user):
+            if bool(user.confidentiality.is_international):
+                form = ConfidentialityInternationalForm(initial={ 'user': user })
+            else:
+                form = ConfidentialityNonInternationalForm(initial={ 'user': user })
 
     return render(request, 'students/profile/submit_confidentiality.html', {
         'loggedin_user': loggedin_user,
@@ -243,16 +251,16 @@ def submit_confidentiality(request):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET', 'POST'])
 def edit_confidentiality(request):
-    ''' '''
+    ''' Edit user's confidentiality '''
     loggedin_user = userApi.loggedin_user(request.user)
     if 'Student' not in loggedin_user.roles: raise PermissionDenied
 
-    user = userApi.get_user(request.user.id)
+    confidentiality = userApi.has_user_confidentiality_created(loggedin_user)
     if request.method == 'POST':
-        old_sin = user.confidentiality.sin
-        old_study_permit = user.confidentiality.study_permit
+        old_sin = loggedin_user.confidentiality.sin
+        old_study_permit = loggedin_user.confidentiality.study_permit
 
-        form = ConfidentialityForm(request.POST, request.FILES, instance=user.confidentiality)
+        form = ConfidentialityForm(request.POST, request.FILES, instance=loggedin_user.confidentiality)
         if form.is_valid():
             sin_file = request.FILES.get('sin')
             study_permit_file = request.FILES.get('study_permit')
@@ -262,32 +270,33 @@ def edit_confidentiality(request):
 
             if sin_file != None:
                 if len(old_sin.name) > 0:
-                    deleted_sin_file = userApi.delete_user_sin(user.username)
+                    deleted_sin_file = userApi.delete_user_sin(loggedin_user.username)
                     if not deleted_sin_file:
                         messages.warning(request, 'Warning! Previous SIN file was not deleted')
-                user.confidentiality.sin = sin_file
+                loggedin_user.confidentiality.sin = sin_file
 
             if study_permit_file != None:
                 if len(old_study_permit.name) > 0:
-                    deleted_study_permit_file = userApi.delete_user_study_permit(user.username)
+                    deleted_study_permit_file = userApi.delete_user_study_permit(loggedin_user.username)
                     if not deleted_study_permit_file:
                         messages.warning(request, 'Warning! Previous study permit file was not deleted')
-                user.confidentiality.study_permit = study_permit_file
+                loggedin_user.confidentiality.study_permit = study_permit_file
 
             updated_confidentiality.save()
 
             if updated_confidentiality:
-                messages.success(request, 'Success! {0} - confidentiality updated'.format(user.username))
+                messages.success(request, 'Success! {0} - confidentiality updated'.format(loggedin_user.username))
                 return redirect('students:show_confidentiality')
             else:
-                messages.error(request, 'Error!')
+                messages.error(request, 'An error occurred.')
         else:
-            messages.error(request, 'Error! Form is invalid')
+            errors = form.errors.get_json_data()
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
     return render(request, 'students/profile/edit_confidentiality.html', {
         'loggedin_user': loggedin_user,
-        'form': ConfidentialityForm(data=None, instance=user.confidentiality, initial={
-            'user': user
+        'form': ConfidentialityForm(data=None, instance=confidentiality, initial={
+            'user': loggedin_user
         })
     })
 
@@ -296,7 +305,6 @@ def edit_confidentiality(request):
 #@require_http_methods(['GET'])
 def download_sin(request, username, filename):
     ''' '''
-    print('download_sin ', username, filename)
     #if not userApi.is_valid_user(request.user): raise PermissionDenied
     path = 'users/{0}/sin/{1}/'.format(username, filename)
     return serve(request, path, document_root=settings.MEDIA_ROOT)
@@ -351,30 +359,30 @@ def delete_study_permit(request):
         messages.error(request, 'Error!')
     return redirect('students:show_confidentiality')
 
+
+
+# Jobs
+
+
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
 def explore_jobs(request):
-    ''' '''
+    ''' Display all lists of session terms '''
     loggedin_user = userApi.loggedin_user(request.user)
     if 'Student' not in loggedin_user.roles: raise PermissionDenied
 
-    student_jobs = adminApi.get_jobs_applied_by_student(loggedin_user)
-    offered_jobs, offered_summary = adminApi.get_offered_jobs_by_student(loggedin_user, student_jobs)
-    accepted_jobs, accepted_summary = adminApi.get_accepted_jobs_by_student(loggedin_user, student_jobs)
     return render(request, 'students/jobs/explore_jobs.html', {
         'loggedin_user': loggedin_user,
         'visible_current_sessions': adminApi.get_visible_current_sessions(),
-        'applied_jobs': adminApi.get_jobs_applied_by_student(loggedin_user),
-        'offered_jobs': offered_jobs,
-        'accepted_jobs': accepted_jobs
+        'applied_jobs': adminApi.get_jobs_applied_by_student(loggedin_user)
     })
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
 def available_jobs(request, session_slug):
-    ''' '''
+    ''' Display jobs available to apply '''
     loggedin_user = userApi.loggedin_user(request.user)
     if 'Student' not in loggedin_user.roles: raise PermissionDenied
 
@@ -388,7 +396,7 @@ def available_jobs(request, session_slug):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET', 'POST'])
 def apply_job(request, session_slug, job_slug):
-    ''' '''
+    ''' Students can apply for each job '''
     loggedin_user = userApi.loggedin_user(request.user)
     if 'Student' not in loggedin_user.roles: raise PermissionDenied
 
@@ -397,19 +405,20 @@ def apply_job(request, session_slug, job_slug):
         form = ApplicationForm(request.POST)
         if form.is_valid():
             application = form.save()
-
             if application:
                 app_status = adminApi.student_apply_job(application)
-
                 if app_status:
                     messages.success(request, 'Success! {0} {1} - {2} {3} {4} applied'.format(job.session.year, job.session.term.code, job.course.code.name, job.course.number.name, job.course.section.name))
                     return HttpResponseRedirect( reverse('students:available_jobs', args=[session_slug]) )
                 else:
-                    messages.error(request, 'Error!')
+                    messages.error(request, 'An error occurred.')
             else:
-                messages.error(request, 'Error!')
+                messages.error(request, 'An error occurred.')
         else:
-            messages.error(request, 'Error! form is invalid')
+            errors = form.errors.get_json_data()
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+
+        return HttpResponseRedirect( reverse('students:apply_job', args=[session_slug, job_slug]) )
 
     return render(request, 'students/jobs/apply_job.html', {
         'loggedin_user': loggedin_user,
@@ -418,12 +427,11 @@ def apply_job(request, session_slug, job_slug):
         'form': ApplicationForm(initial={ 'applicant': loggedin_user.id, 'job': job.id })
     })
 
-
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
 def applied_jobs(request):
-    ''' '''
+    ''' Display jobs applied by a student '''
     loggedin_user = userApi.loggedin_user(request.user)
     if 'Student' not in loggedin_user.roles: raise PermissionDenied
 
@@ -432,12 +440,11 @@ def applied_jobs(request):
         'applied_jobs': adminApi.get_jobs_applied_by_student(loggedin_user)
     })
 
-
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
 def offered_jobs(request):
-    ''' '''
+    ''' Display jobs offered from admins '''
     loggedin_user = userApi.loggedin_user(request.user)
     if 'Student' not in loggedin_user.roles: raise PermissionDenied
 
@@ -453,7 +460,7 @@ def offered_jobs(request):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
 def accepted_jobs(request):
-    ''' '''
+    ''' Display jobs accepted by a student '''
     loggedin_user = userApi.loggedin_user(request.user)
     if 'Student' not in loggedin_user.roles: raise PermissionDenied
 
@@ -465,12 +472,11 @@ def accepted_jobs(request):
         'accepted_summary': accepted_summary
     })
 
-
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
 def declined_jobs(request):
-    ''' '''
+    ''' Display jobs declined by a student '''
     loggedin_user = userApi.loggedin_user(request.user)
     if 'Student' not in loggedin_user.roles: raise PermissionDenied
 
@@ -480,12 +486,11 @@ def declined_jobs(request):
         'declined_jobs': adminApi.get_declined_jobs_by_student(loggedin_user, student_jobs)
     })
 
-
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
 def offered_job(request, session_slug, job_slug):
-    ''' '''
+    ''' Display a job to select accept or decline a job offer '''
     loggedin_user = userApi.loggedin_user(request.user)
     if 'Student' not in loggedin_user.roles: raise PermissionDenied
 
@@ -495,18 +500,16 @@ def offered_job(request, session_slug, job_slug):
         'loggedin_user': loggedin_user,
         'job': job,
         'application': application,
-        'get_offered': adminApi.get_offered(application),
+        'get_offered': adminApi.get_offered(application).first(),
         'get_accepted': adminApi.get_accepted(application),
         'get_declined': adminApi.get_declined(application)
     })
-
-
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['POST'])
 def accept_offer(request, session_slug, job_slug):
-    ''' Students accept job offers '''
+    ''' Students accept a job offer '''
     loggedin_user = userApi.loggedin_user(request.user)
     if 'Student' not in loggedin_user.roles: raise PermissionDenied
 
@@ -523,13 +526,14 @@ def accept_offer(request, session_slug, job_slug):
                 if updated:
                     messages.success(request, 'Success! You accepted the job offer - {0} {1}: {2} {3} {4} '.format(app.job.session.year, app.job.session.term.code, app.job.course.code.name, app.job.course.number.name, app.job.course.section.name))
                 else:
-                    messages.error(request, 'Error!')
+                    messages.error(request, 'An error occurred.')
             else:
-                messages.error(request, 'Error!')
+                messages.error(request, 'An error occurred.')
         else:
-            messages.error(request, 'Error! Form is invalid')
-    return redirect('students:offered_jobs')
+            errors = form.errors.get_json_data()
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
+    return redirect('students:offered_jobs')
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -540,23 +544,23 @@ def decline_offer(request, session_slug, job_slug):
     if 'Student' not in loggedin_user.roles: raise PermissionDenied
 
     if request.method == 'POST':
-        application_id = request.POST.get('application')
+        app_id = request.POST.get('application')
         assigned = ApplicationStatus.DECLINED
-        form = ApplicationStatusForm({ 'assigned': assigned, 'assigned_hours': 0.0 })
+        form = ApplicationStatusForm({ 'application': app_id, 'assigned': assigned, 'assigned_hours': 0.0 })
         if form.is_valid():
             status = form.save()
             if status:
-                application = adminApi.get_application(application_id)
-                application.status.add(status)
-                application.save()
-                if application:
-                    messages.success(request, 'Success! You declined the job offer - {0} {1}: {2} {3} {4} '.format(application.job.session.year, application.job.session.term.code, application.job.course.code.name, application.job.course.number.name, application.job.course.section.name))
+                app = adminApi.get_application(app_id)
+                if app:
+                    messages.success(request, 'Success! You declined the job offer - {0} {1}: {2} {3} {4} '.format(app.job.session.year, app.job.session.term.code, app.job.course.code.name, app.job.course.number.name, app.job.course.section.name))
                 else:
-                    message.error(request, 'Error!')
+                    messages.error(request, 'An error occurred.')
             else:
-                message.error(request, 'Error!')
+                messages.error(request, 'An error occurred.')
         else:
-            message.error(request, 'Error! Form is invalid')
+            errors = form.errors.get_json_data()
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+
     return redirect('students:offered_jobs')
 
 
