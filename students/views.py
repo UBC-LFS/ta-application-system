@@ -149,9 +149,10 @@ def delete_resume(request):
         if deleted_resume:
             messages.success(request, 'Success! {0} - Resume deleted'.format(username))
         else:
-            messages.error(request, 'An error occurred.')
+            messages.error(request, 'An error occurred. Failed to delete your resume.')
     else:
-        messages.error(request, 'An error occurred.')
+        messages.error(request, 'An error occurred. Request is not POST.')
+
     return redirect('students:show_profile')
 
 
@@ -228,9 +229,11 @@ def submit_confidentiality(request):
                 messages.success(request, 'Success! {0} - confidentiality created'.format(user.username))
                 return redirect('students:show_confidentiality')
             else:
-                messages.error(request, 'Error!')
+                messages.error(request, 'An error occurred.')
         else:
-            messages.error(request, 'Error! Form is invalid')
+            errors = form.errors.get_json_data()
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+
     else:
         if userApi.has_user_confidentiality_created(user):
             if bool(user.confidentiality.is_international):

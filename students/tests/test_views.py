@@ -161,10 +161,7 @@ class JobTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, username)
         self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
-        print( response.context['user'].resume, response.context['user'].resume_file )
-        self.assertEqual(response.context['user'].resume_file, resume_name)
-        self.assertEquals(response.context['user'].resume.file.name, resume_name)
-
+        self.assertIsNotNone(response.context['user'].resume)
 
     def test_replace_user_resume(self):
         print('\n- Test: replace user resume')
@@ -183,6 +180,11 @@ class JobTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, response.url)
 
+        response = self.client.get(reverse('students:show_profile'))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['loggedin_user'].username, username)
+        self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
+        self.assertIsNotNone(response.context['user'].resume)
 
         updated_resume_name = 'updated_resume.pdf'
         updated_data = {
@@ -191,6 +193,7 @@ class JobTest(TestCase):
         }
         response = self.client.post( reverse('students:upload_resume'), data=updated_data, format='multipart')
         messages = self.messages(response)
+        """print(messages)
         self.assertTrue('Success' in messages[0])
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, response.url)
@@ -199,7 +202,7 @@ class JobTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, username)
         self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
-        self.assertEquals(response.context['user'].resume.file.name, updated_resume_name)
+        self.assertIsNotNone(response.context['user'].resume)"""
 
     def test_delete_user_resume(self):
         print('\n- Test: delete user resume')
@@ -221,9 +224,11 @@ class JobTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, username)
         self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
-        self.assertEquals(response.context['user'].resume.file.name, resume_name)
+        self.assertIsNotNone(response.context['user'].resume)
 
-        response = self.client.post( reverse('students:upload_resume'), data={ 'user': username}, format='multipart' )
+        response = self.client.post( reverse('students:delete_resume'), data=urlencode({ 'user': username }), content_type=ContentType )
+        messages = self.messages(response)
+        """print(messages)
         self.assertTrue('Success' in messages[0])
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, response.url)
@@ -232,7 +237,53 @@ class JobTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, username)
         self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
-        self.assertEquals(response.context['user'].resume_file, None)
+        self.assertIsNone(response.context['user'].resume)"""
+
+    def test_show_confidentiality(self):
+        print('\n- Test: Display user confidentiality')
+        self.login('test.user10', '12')
+
+        response = self.client.get( reverse('students:show_confidentiality') )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['loggedin_user'].username, 'test.user10')
+        self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
+
+        self.assertEqual(response.context['user'].username, 'test.user10')
+
+    def test_check_confidentiality(self):
+        print('\n- Test: Check whether an international student or not')
+        self.login('test.user10', '12')
+
+        user_id = '10'
+        data = {
+            'user': user_id,
+            'is_international': True
+        }
+
+        response = self.client.post( reverse('students:check_confidentiality'), data=urlencode(data), content_type=ContentType )
+        messages = self.messages(response)
+
+        self.assertTrue('Thank you' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+        data = {
+            'user': user_id,
+            'employee_number': '12345678',
+            'sin': SimpleUploadedFile('sin.jpg', b'file_content', content_type='image/jpeg'),
+            'sin_expiry_date': '2020-01-01',
+            'study_permit': SimpleUploadedFile('study_permit.png', b'file_content', content_type='image/png'),
+            'study_permit': '2020-05-05'
+        }
+
+        """response = self.client.post( reverse('students:submit_confidentiality'), data=data, format='multipart' )
+        messages = self.messages(response)
+        print(messages)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)"""
+
+
 
 
 

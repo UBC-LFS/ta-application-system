@@ -34,7 +34,7 @@
         <div>
           File:
           {% if user.resume_file %}
-            <a href="{% url 'students:download_resume' %}" target="_blank">{{ user.resume_file }}</a>
+            <a href="{% url 'students:download_resume' username=user.username filename=user.resume_file %}" target="_blank">{{ user.resume_file }}</a>
             <form action="{% url 'students:delete_resume' %}" method="post" onsubmit="return confirm('Are you sure to delete this resume?')">
               {% csrf_token %}
               <input type="hidden" name="user" value="{{ user.username }}">
