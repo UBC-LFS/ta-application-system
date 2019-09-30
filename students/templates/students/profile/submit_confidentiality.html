@@ -5,18 +5,11 @@
   {% include "students/util/_sidebar.html" %}
 
   <div id="content" class="container-fluid">
-    {% if messages %}
-    	{% for message in messages %}
-        <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
-          {{ message }}
-          <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        </div>
-    	{% endfor %}
-    {% endif %}
+    {% include 'ta_app/_return_messages.html' with data=messages %}
 
     <h3>Submit Confidentiality</h3>
 
-    <p>Valid file types: jpg, jpeg, png, pdf, doc, docx</p>
+    <p>Valid file formats: JPG, JPEG, PNG</p>
 
     <form action="" method="post" enctype="multipart/form-data">
       {% csrf_token %}

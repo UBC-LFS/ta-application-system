@@ -51,11 +51,13 @@ urlpatterns = [
     path('applications/declined/', views.declined_applications, name='declined_applications'),
     path('applications/', views.applications, name='applications'),
 
-    path('hr/', views.hr, name='hr'),
-    path('hr/users/create/', views.create_user, name='create_user'),
-    path('hr/users/', views.users, name='users'),
+
+    path('hr/users/<str:username>/confidentiality/view/', views.view_confidentiality, name='view_confidentiality'),
     path('hr/users/<str:username>/role/<str:role>/', views.show_user, name='show_user'),
-    path('hr/confidentiality/view/', views.view_confidentiality, name='view_confidentiality'),
+    path('hr/users/create/', views.create_user, name='create_user'),
+    path('hr/users/delete/', views.delete_user, name='delete_user'),
+    path('hr/users/', views.users, name='users'),
+    path('hr/', views.hr, name='hr'),
 
     path('preparation/terms/delete/', views.delete_term, name='delete_term'),
     path('preparation/terms/<str:code>/edit/', views.edit_term, name='edit_term'),

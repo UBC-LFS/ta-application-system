@@ -14,11 +14,11 @@ from django.db.models import Q
 
 from datetime import datetime
 
-from . import api
+from users import api as userApi
 from administrators import api as administratorsApi
-from .forms import *
-from administrators.forms import CourseForm, InstructorJobForm, InstructorApplicationForm, ApplicationStatusForm
-from administrators.models import Course, ApplicationStatus
+from users.forms import *
+from administrators.forms import *
+from administrators.models import *
 
 
 from django.forms.models import model_to_dict
@@ -42,6 +42,8 @@ def users(request):
         'total_users': len(users),
     })
 
+
+"""
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET', 'POST'])
@@ -79,7 +81,7 @@ def create_user(request):
         'users': api.get_users(),
         'form': UserForm()
     })
-
+"""
 
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -159,28 +161,7 @@ def edit_user_info(request, username):
             messages.error(request, 'Error! Form is invalid')
     return HttpResponseRedirect( reverse('users:show_user', args=[username]) )
 
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['POST'])
-def delete_user(request):
-    """ delete a user """
 
-    if not api.is_valid_user(request.user):
-        raise PermissionDenied
-
-    loggedin_user = api.loggedin_user(request.user)
-    if not api.is_admin(loggedin_user):
-        raise PermissionDenied
-
-    if request.method == 'POST':
-        user_id = request.POST.get('user')
-        deleted = api.delete_user(user_id)
-        if deleted:
-            messages.success(request, 'Success! {0} deleted'.format(deleted.username))
-        else:
-            messages.error(request, 'Error!')
-
-    return redirect('users:index')
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)

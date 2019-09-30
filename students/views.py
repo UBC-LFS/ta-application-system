@@ -9,6 +9,7 @@ from django.views.decorators.http import require_http_methods
 from django.views.decorators.cache import cache_control
 from django.views.static import serve
 
+from users.models import decrypt_image
 from users.forms import *
 from users import api as userApi
 from administrators.forms import *
@@ -159,23 +160,9 @@ def show_confidentiality(request):
     loggedin_user = userApi.loggedin_user(request.user)
     if 'Student' not in loggedin_user.roles: raise PermissionDenied
 
-    user = userApi.get_user(request.user.id)
-    confidentiality = userApi.has_user_confidentiality_created(user)
-
-    sin_file = None
-    study_permit_file = None
-    if confidentiality != None:
-        sin_file = os.path.basename(confidentiality.sin.name)
-        study_permit_file = os.path.basename(confidentiality.study_permit.name)
-
-    print('sin_file ', user.sin_file)
-    print('study_permit_file ', user.study_permit_file)
     return render(request, 'students/profile/show_confidentiality.html', {
         'loggedin_user': loggedin_user,
-        'user': user,
-        'confidentiality': confidentiality,
-        #'sin_file': sin_file,
-        #'study_permit_file': study_permit_file
+        'user': userApi.get_user_with_data(loggedin_user.id)
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -304,11 +291,13 @@ def edit_confidentiality(request):
         })
     })
 
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+#@login_required(login_url=settings.LOGIN_URL)
+#@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+#@require_http_methods(['GET'])
 def download_sin(request, username, filename):
     ''' '''
-    if not userApi.is_valid_user(request.user): raise PermissionDenied
+    print('download_sin ', username, filename)
+    #if not userApi.is_valid_user(request.user): raise PermissionDenied
     path = 'users/{0}/sin/{1}/'.format(username, filename)
     return serve(request, path, document_root=settings.MEDIA_ROOT)
 
@@ -333,11 +322,12 @@ def delete_sin(request):
 
 
 
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+#@login_required(login_url=settings.LOGIN_URL)
+#@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+#@require_http_methods(['GET'])
 def download_study_permit(request, username, filename):
     ''' '''
-    if not userApi.is_valid_user(request.user): raise PermissionDenied
+    #if not userApi.is_valid_user(request.user): raise PermissionDenied
     path = 'users/{0}/study_permit/{1}/'.format(username, filename)
     return serve(request, path, document_root=settings.MEDIA_ROOT)
 

@@ -756,16 +756,14 @@ def get_degree(degree_id):
         return None
 
 def get_degrees():
-    print("get_degrees")
-    degrees = None
+    ''' Get all degrees '''
+    return Degree.objects.all()
+    """degrees = None
     try:
         degrees = Degree.objects.all().order_by('id')
-        print("haha")
     except Degree.DoesNotExist:
-        print("not ")
         degrees = None
-    print("degrees ", degrees)
-    return degrees
+    return degrees"""
 
 def get_degrees_list():
     print("get_degrees_list")

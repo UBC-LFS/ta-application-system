@@ -37,6 +37,9 @@ EMAIL_HOST = os.environ['TA_APP_EMAIL_HOST']
 EMAIL_FROM = os.environ['TA_APP_EMAIL_FROM']
 
 TA_APP_URL = os.environ['TA_APP_URL']
+ENCRYPT_SALT = os.environ['TA_APP_ENCRYPT_SALT']
+ENCRYPT_PASSWORD = os.environ['TA_APP_ENCRYPT_PASSWORD']
+USER_PASSWORD = 'password'
 
 
 # Application definition
@@ -141,8 +144,6 @@ USE_TZ = True
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
-
-#TA_APP_URL = os.environ['TA_APP_URL']
 
 MEDIA_ROOT = '/srv/www/ta_app_system/media'
 MEDIA_URL = '/media/'
