@@ -389,9 +389,9 @@ def get_offered_applications_by_student(user):
         if ret: applications.append(app)
     return applications
 
-def get_selected_applications():
+def get_selected_applications(apps):
     applications = []
-    for app in Application.objects.all():
+    for app in apps:
         if app.instructor_preference != Application.NONE and app.instructor_preference != Application.NO_PREFERENCE:
             app.resume_file = None
             if userApi.has_user_resume_created(app.applicant) and app.applicant.resume.file != None:

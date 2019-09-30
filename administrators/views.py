@@ -8,8 +8,9 @@ from django.core.exceptions import PermissionDenied
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.cache import cache_control
 from django.contrib.auth.hashers import make_password
+from django.db.models import Q
 
-from administrators.models import ApplicationStatus
+from administrators.models import Application, ApplicationStatus
 from administrators.forms import *
 from administrators import api as adminApi
 
@@ -622,9 +623,52 @@ def selected_applications(request):
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
 
+    year_q = request.GET.get('year')
+    term_q = request.GET.get('term')
+    code_q = request.GET.get('code')
+    number_q = request.GET.get('number')
+    section_q = request.GET.get('section')
+    cwl_q = request.GET.get('cwl')
+
+    filters = None
+    if bool(year_q):
+        if filters:
+            filters = filters & Q(job__session__year__icontains=year_q)
+        else:
+            filters = Q(job__session__year__icontains=year_q)
+    if bool(term_q):
+        if filters:
+            filters = filters & Q(job__session__term__code__icontains=term_q)
+        else:
+            filters = Q(job__session__term__code__icontains=term_q)
+    if bool(code_q):
+        if filters:
+            filters = filters & Q(job__course__code__name__icontains=code_q)
+        else:
+            filters = Q(job__course__code__name__icontains=code_q)
+    if bool(number_q):
+        if filters:
+            filters = filters & Q(job__course__number__name__icontains=number_q)
+        else:
+            filters = Q(job__course__number__name__icontains=number_q)
+    if bool(section_q):
+        if filters:
+            filters = filters & Q(job__course__section__name__icontains=section_q)
+        else:
+            filters = Q(job__course__section__name__icontains=section_q)
+    if bool(cwl_q):
+        if filters:
+            filters = filters & Q(applicant__username__icontains=cwl_q)
+        else:
+            filters = Q(applicant__username__icontains=cwl_q)
+
+    applications = adminApi.get_applications('job')
+    if bool(year_q) or bool(term_q) or bool(code_q) or bool(number_q) or bool(section_q) or bool(cwl_q):
+        applications = Application.objects.filter(filters)
+
     return render(request, 'administrators/applications/selected_applications.html', {
         'loggedin_user': loggedin_user,
-        'selected_applications': adminApi.get_selected_applications(),
+        'selected_applications': adminApi.get_selected_applications(applications),
         'admin_application_form': AdminApplicationForm(),
         'status_form': ApplicationStatusForm(initial={ 'assigned': ApplicationStatus.OFFERED }),
         'classification_choices': adminApi.get_classifications(),
@@ -965,7 +1009,7 @@ def decline_reassign_confirmation(request):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
 def courses(request):
-    ''' '''
+    ''' Display information of courses '''
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
 
@@ -1028,9 +1072,10 @@ def edit_course(request, course_slug):
                 messages.success(request, 'Success! {0} {1} {2} {3} updated'.format(updated_course.code.name, updated_course.number.name, updated_course.section.name, updated_course.term.code))
                 return redirect('administrators:all_courses')
             else:
-                messages.error(request, 'Error!')
+                messages.error(request, 'An error occurred.')
         else:
-            messages.error(request, 'Error! Form is invalid')
+            errors = form.errors.get_json_data()
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
     return render(request, 'administrators/courses/edit_course.html', {
         'loggedin_user': loggedin_user,
@@ -1052,7 +1097,7 @@ def delete_course(request):
         if deleted_course:
             messages.success(request, 'Success! {0} {1} {2} {3} deleted'.format(deleted_course.code.name, deleted_course.number.name, deleted_course.section.name, deleted_course.term.code))
         else:
-            messages.error(request, 'Error!')
+            messages.error(request, 'An error occurred.')
 
     return redirect("administrators:all_courses")
 
