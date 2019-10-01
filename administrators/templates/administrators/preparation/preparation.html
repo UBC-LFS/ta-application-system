@@ -1,28 +1,107 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
 
-<div class="wrapper">
-  {% include "administrators/util/_sidebar.html" %}
+{% include "administrators/util/_sidebar.html" %}
 
-  <div id="content" class="container-fluid">
+<div id="content" class="container-fluid">
+  <h3>Preparation</h3>
 
-    <h3>Preparation</h3>
+  <div class="bd-callout bd-callout-warning">
+    <h5>Overview</h5>
+    <p><i class="fa fa-check-circle-o"></i> text area</p>
+  </div>
 
-    <div class="bd-callout bd-callout-warning">
-      <h5>Checkpoint!</h5>
-      <p>Text area</p>
-    </div>
-
-    <div class="card border-secondary">
-      <h5 class="card-header bg-secondary text-white">Featured</h5>
-      <div class="card-body">
-        <h5 class="card-title">Special title treatment</h5>
-        <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-        <a href="#" class="btn btn-primary">Go somewhere</a>
+  <div class="row">
+    <div class="col-md-4">
+      <div class="card border-secondary">
+        <h5 class="card-header bg-info text-white"><i class="fa fa-info-circle"></i> Featured</h5>
+        <div class="card-body">
+          <h5 class="card-title">
+            <a href="{% url 'administrators:terms' %}">Terms</a>
+          </h5>
+          <p class="card-text">If you would like to see all lists of terms and create new terms, please go to <span class="text-secondary font-weight-bold">Terms</span> page</p>
+        </div>
       </div>
     </div>
-
+    <div class="col-md-4">
+      <div class="card border-secondary">
+        <h5 class="card-header bg-info text-white"><i class="fa fa-info-circle"></i> Featured</h5>
+        <div class="card-body">
+          <h5 class="card-title">
+            <a href="{% url 'administrators:course_codes' %}">Course Codes</a>
+          </h5>
+          <p class="card-text">If you would like to see all lists of course codes and create new course codes, please go to <span class="text-secondary font-weight-bold">Course Codes</span> page</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card border-secondary">
+        <h5 class="card-header bg-info text-white"><i class="fa fa-info-circle"></i> Featured</h5>
+        <div class="card-body">
+          <h5 class="card-title">
+            <a href="{% url 'administrators:course_numbers' %}">Course Numbers</a>
+          </h5>
+          <p class="card-text">If you would like to see all lists of course numbers and create new course numbers, please go to <span class="text-secondary font-weight-bold">Course Numbers</span> page</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card border-secondary">
+        <h5 class="card-header bg-info text-white"><i class="fa fa-info-circle"></i> Featured</h5>
+        <div class="card-body">
+          <h5 class="card-title">
+            <a href="{% url 'administrators:statuses' %}">Statuses</a>
+          </h5>
+          <p class="card-text">If you would like to see all lists of statuses and create new statuses, please go to <span class="text-secondary font-weight-bold">Statuses</span> page</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card border-secondary">
+        <h5 class="card-header bg-info text-white"><i class="fa fa-info-circle"></i> Featured</h5>
+        <div class="card-body">
+          <h5 class="card-title">
+            <a href="{% url 'administrators:programs' %}">Programs</a>
+          </h5>
+          <p class="card-text">If you would like to see all lists of programs and create new programs, please go to <span class="text-secondary font-weight-bold">Programs</span> page</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card border-secondary">
+        <h5 class="card-header bg-info text-white"><i class="fa fa-info-circle"></i> Featured</h5>
+        <div class="card-body">
+          <h5 class="card-title">
+            <a href="{% url 'administrators:degrees' %}">Degrees</a>
+          </h5>
+          <p class="card-text">If you would like to see all lists of degrees and create new degrees, please go to <span class="text-secondary font-weight-bold">Degrees</span> page</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card border-secondary">
+        <h5 class="card-header bg-info text-white"><i class="fa fa-info-circle"></i> Featured</h5>
+        <div class="card-body">
+          <h5 class="card-title">
+            <a href="{% url 'administrators:trainings' %}">Trainings</a>
+          </h5>
+          <p class="card-text">If you would like to see all lists of trainings and create new trainings, please go to <span class="text-secondary font-weight-bold">Trainings</span> page</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card border-secondary">
+        <h5 class="card-header bg-info text-white"><i class="fa fa-info-circle"></i> Featured</h5>
+        <div class="card-body">
+          <h5 class="card-title">
+            <a href="{% url 'administrators:classifications' %}">Classifications</a>
+          </h5>
+          <p class="card-text">If you would like to see all lists of classifications and create new classifications, please go to <span class="text-secondary font-weight-bold">Classifications</span> page</p>
+        </div>
+      </div>
+    </div>
   </div>
+
 </div>
 
 {% endblock %}

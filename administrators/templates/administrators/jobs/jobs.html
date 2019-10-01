@@ -1,35 +1,76 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
 
-<div class="wrapper">
-  {% include "administrators/util/_sidebar.html" %}
+{% include "administrators/util/_sidebar.html" %}
 
-  <div id="content" class="container-fluid">
-    {% if messages %}
-      {% for message in messages %}
-        <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
-          {{ message }}
-          <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+<div id="content" class="container-fluid">
+  {% include 'ta_app/_return_messages.html' with data=messages %}
+
+  <h3>Jobs</h3>
+
+  <div class="bd-callout bd-callout-warning">
+    <h5>Overview</h5>
+    <p><i class="fa fa-check-circle-o"></i> text area</p>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6">
+      <div class="card border-secondary">
+        <h5 class="card-header bg-info text-white"><i class="fa fa-info-circle"></i> Featured</h5>
+        <div class="card-body">
+          <h5 class="card-title">
+            <a href="{% url 'administrators:prepare_jobs' %}">Prepare Jobs</a>
+          </h5>
+          <div class="row">
+            <div class="col-6">
+              If you would like to add or update instructors and assign TA hours for each job, please go to <span class="text-secondary font-weight-bold">Prepare Jobs</span> page
+            </div>
+            <div class="col-6">
+              <h6 class="text-success">Key Functionality</h6>
+              <p class="text-secondary">
+                <i class="fa fa-check-circle-o"></i> Edit job details <br />
+                <i class="fa fa-check-circle-o"></i> Add instructors and TA hours for each job <br />
+              </p>
+            </div>
+          </div>
         </div>
-      {% endfor %}
-    {% endif %}
-
-    <h3>Jobs</h3>
-
-    <div class="bd-callout bd-callout-warning">
-      <h5>Checkpoint!</h5>
-      <p>Text area</p>
+      </div>
     </div>
-
-    <div class="card border-secondary">
-      <h5 class="card-header bg-secondary text-white">Featured</h5>
-      <div class="card-body">
-        <h5 class="card-title">Special title treatment</h5>
-        <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-        <a class="btn btn-primary" href="{% url 'administrators:prepare_jobs' %}">Prepare Jobs</a>
+    <div class="col-md-6">
+      <div class="card border-secondary">
+        <h5 class="card-header bg-info text-white"><i class="fa fa-info-circle"></i> Featured</h5>
+        <div class="card-body">
+          <h5 class="card-title">
+            <a href="{% url 'administrators:progress_jobs' %}">Jobs in Progress</a>
+          </h5>
+          <p class="card-text">If you would like to check and see the progress of jobs, please go to <span class="text-secondary font-weight-bold">Jobs in Progress</span> page</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card border-secondary">
+        <h5 class="card-header bg-info text-white"><i class="fa fa-info-circle"></i> Featured</h5>
+        <div class="card-body">
+          <h5 class="card-title">
+            <a href="{% url 'administrators:instructor_jobs' %}">Jobs by Instructor</a>
+          </h5>
+          <p class="card-text">If you would like to view all lists of jobs by instructor, please go to <span class="text-secondary font-weight-bold">Jobs by Instructor</span> page</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card border-secondary">
+        <h5 class="card-header bg-info text-white"><i class="fa fa-info-circle"></i> Featured</h5>
+        <div class="card-body">
+          <h5 class="card-title">
+            <a href="{% url 'administrators:student_jobs' %}">Jobs by Student</a>
+          </h5>
+          <p class="card-text">If you would like to view all lists of jobs by student, please go to <span class="text-secondary font-weight-bold">Jobs by Student</span> page</p>
+        </div>
       </div>
     </div>
   </div>
+
 </div>
 
 {% endblock %}

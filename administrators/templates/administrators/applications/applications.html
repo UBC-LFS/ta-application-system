@@ -1,37 +1,139 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
 
+{% include "administrators/util/_sidebar.html" %}
 
-<div class="wrapper">
-  {% include "administrators/util/_sidebar.html" %}
+<div id="content" class="container-fluid">
 
-  <div id="content" class="container-fluid">
+  <h3>Applications</h3>
 
-    <h1>Applications</h1>
-
-    <div class="margin-top-30">
-      How Interested, How Qualified: Not at all, Marginally, Somewhat, Most, Very
-    </div>
-
-    <div class="margin-top-30">
-      Instructor Preference: None, No Preference, Acceptable, Requested, Critical Requested
-    </div>
-
-    <ul class="nav margin-top-30">
-      <li class="nav-item">
-        <a class="nav-link" href="{% url 'administrators:selected_applications' %}">Selected Applications</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="{% url 'administrators:offered_applications' %}">Offered Applications</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="{% url 'administrators:accepted_applications' %}">Accepted Applications</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="{% url 'administrators:declined_applications' %}">Declined Applications</a>
-      </li>
-    </ul>
+  <div class="bd-callout bd-callout-warning">
+    <h5 class="text-secondary">Overview</h5>
+    <p><i class="fa fa-check-circle-o"></i> text area</p>
   </div>
+
+  <div class="row">
+    <div class="col-md-6">
+      <div class="card border-secondary">
+        <h5 class="card-header bg-info text-white"><i class="fa fa-info-circle"></i> Featured</h5>
+        <div class="card-body">
+          <h5 class="card-title">
+            <a href="{% url 'administrators:applications_dashboard' %}">Dashboard</a>
+          </h5>
+          <p class="card-text">If you would like to take a look at recent updates of applications, please go to <span class="text-secondary font-weight-bold">Dashboard</span> page</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="card border-secondary">
+        <h5 class="card-header bg-info text-white"><i class="fa fa-info-circle"></i> Featured</h5>
+        <div class="card-body">
+          <h5 class="card-title">
+            <a href="{% url 'administrators:selected_applications' %}">Selected Applications</a>
+          </h5>
+
+          <div class="row">
+            <div class="col-6">
+              If you would like to see all lists of applications selected by instructors, please go to <span class="text-secondary font-weight-bold">Selected Applications</span> page
+            </div>
+            <div class="col-6">
+              <h6 class="text-success">Key Functionality</h6>
+              <p class="text-secondary">
+                <i class="fa fa-check-circle-o"></i> Update applicant's classification and note <br />
+                <i class="fa fa-check-circle-o"></i> Offer and assign TA hours to applicants
+              </p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card border-secondary">
+        <h5 class="card-header bg-info text-white"><i class="fa fa-info-circle"></i> Featured</h5>
+        <div class="card-body">
+          <h5 class="card-title">
+            <a href="{% url 'administrators:offered_applications' %}">Offered Applications</a>
+          </h5>
+          <div class="row">
+            <div class="col-6">
+              If you would like to see all lists of applications offered by administrators, please go to <span class="text-secondary font-weight-bold">Offered Applications</span> page
+            </div>
+            <div class="col-6">
+              <h6 class="text-success">Key Functionality</h6>
+              <p class="text-secondary">
+                <i class="fa fa-check-circle-o"></i> Send an email to students
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card border-secondary">
+        <h5 class="card-header bg-info text-white"><i class="fa fa-info-circle"></i> Featured</h5>
+        <div class="card-body">
+          <h5 class="card-title">
+            <a href="{% url 'administrators:accepted_applications' %}">Accepted Applications</a>
+          </h5>
+          <div class="row">
+            <div class="col-6">
+              If you would like to see all lists of applications accepted by students, please go to <span class="text-secondary font-weight-bold">Accepted Applications</span> page
+            </div>
+            <div class="col-6">
+              <h6 class="text-success">Key Functionality</h6>
+              <p class="text-secondary">
+                <i class="fa fa-check-circle-o"></i> Decline and re-assign new TA hours
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card border-secondary">
+        <h5 class="card-header bg-info text-white"><i class="fa fa-info-circle"></i> Featured</h5>
+        <div class="card-body">
+          <h5 class="card-title">
+            <a href="{% url 'administrators:declined_applications' %}">Declined Applications</a>
+          </h5>
+          <p class="card-text">If you would like to see all lists of applications declined by students, please go to <span class="text-secondary font-weight-bold">Declined Applications</span> page</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card border-secondary">
+        <h5 class="card-header bg-info text-white"><i class="fa fa-info-circle"></i> Featured</h5>
+        <div class="card-body">
+          <h5 class="card-title">
+            <a href="{% url 'administrators:declined_applications' %}">Email History</a>
+          </h5>
+          <div class="row">
+            <div class="col-6">
+              If you would like to view all lists of emails that administrators has sent offered applicants, please go to <span class="text-secondary font-weight-bold">Declined Applications</span> page
+            </div>
+            <div class="col-6">
+              <h6 class="text-success">Key Functionality</h6>
+              <p class="text-secondary">
+                <i class="fa fa-check-circle-o"></i> Send a reminder email to students
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="margin-top-30">
+    How Interested, How Qualified: Not at all, Marginally, Somewhat, Most, Very
+  </div>
+
+  <div class="margin-top-30">
+    Instructor Preference: None, No Preference, Acceptable, Requested, Critical Requested
+  </div>
+
 </div>
+
 
 {% endblock %}

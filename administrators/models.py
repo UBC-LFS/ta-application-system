@@ -47,9 +47,8 @@ class CourseSection(models.Model):
     def __str__(self):
         return self.name
 
-# checked
 class Course(models.Model):
-    """ Create a Course model """
+    ''' Create a Course model '''
     code = models.ForeignKey(CourseCode, on_delete=models.DO_NOTHING, default=4)
     number = models.ForeignKey(CourseNumber, on_delete=models.DO_NOTHING)
     section = models.ForeignKey(CourseSection, on_delete=models.DO_NOTHING, default=1)
@@ -65,7 +64,6 @@ class Course(models.Model):
         return '{0} {1} {2}'.format(self.code, self.number, self.section, self.term.code)
 
     def save(self, *args, **kwargs):
-        """ Make a slug """
         self.slug = slugify(self.code.name  + ' ' + self.number.name + ' ' + self.section.name + ' ' + self.name + ' ' + self.term.code)
         super(Course, self).save(*args, **kwargs)
 
@@ -133,6 +131,7 @@ class Classification(models.Model):
         super(Classification, self).save(*args, **kwargs)
 
     class Meta:
+        unique_together = ['year', 'name']
         ordering = ['-year', '-wage']
 
 class Application(models.Model):
@@ -168,7 +167,7 @@ class Application(models.Model):
     how_interested = models.CharField(max_length=1, choices=PREFERENCE_CHOICES)
     availability = models.BooleanField()
     availability_note = models.TextField(null=True, blank=True)
-    
+
     classification = models.ForeignKey(Classification, on_delete=models.DO_NOTHING, null=True, blank=True)
     note = models.TextField(null=True, blank=True)
 

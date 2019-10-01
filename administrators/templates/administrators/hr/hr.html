@@ -1,27 +1,53 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
 
-
 {% include "administrators/util/_sidebar.html" %}
 
 <div id="content" class="container-fluid">
   <h3>Human Resources</h3>
 
   <div class="bd-callout bd-callout-warning">
-    <h5>Checkpoint!</h5>
-    <p>Text area</p>
+    <h5>Overview</h5>
+    <p><i class="fa fa-check-circle-o"></i> text area</p>
   </div>
 
-  <div class="card border-secondary">
-    <h5 class="card-header bg-secondary text-white">Featured</h5>
-    <div class="card-body">
-      <h5 class="card-title">Special title treatment</h5>
-      <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-      <a href="#" class="btn btn-primary">Go somewhere</a>
+  <div class="row">
+    <div class="col-md-4">
+      <div class="card border-secondary">
+        <h5 class="card-header bg-info text-white"><i class="fa fa-info-circle"></i> Featured</h5>
+        <div class="card-body">
+          <h5 class="card-title">
+            <a href="{% url 'administrators:create_user' %}">Create User</a>
+          </h5>
+          <p class="card-text">If you would like to create new users, please go to <span class="text-secondary font-weight-bold">Create User</span> page</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card border-secondary">
+        <h5 class="card-header bg-info text-white"><i class="fa fa-info-circle"></i> Featured</h5>
+        <div class="card-body">
+          <h5 class="card-title">
+            <a href="{% url 'administrators:users' %}">All Users</a>
+          </h5>
+          <p class="card-text">If you would like to see all lists of users registerd in this system, please go to <span class="text-secondary font-weight-bold">All Users</span> page</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card border-secondary">
+        <h5 class="card-header bg-info text-white"><i class="fa fa-info-circle"></i> Featured</h5>
+        <div class="card-body">
+          <h5 class="card-title">
+            <a href="{% url 'administrators:roles' %}">Roles</a>
+          </h5>
+          <p class="card-text">If you would like to see all lists of user's roles and create new roles, please go to <span class="text-secondary font-weight-bold">Roles</span> page</p>
+        </div>
+      </div>
     </div>
   </div>
 
 </div>
-
 
 {% endblock %}
