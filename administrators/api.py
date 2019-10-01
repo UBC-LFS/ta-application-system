@@ -844,8 +844,10 @@ def delete_course_section(course_section_id):
 
 # ----- classifications -----
 
-def get_classifications():
-    ''' Get all classifications '''
+def get_classifications(option=None):
+    ''' Get classifications '''
+    if option == 'all':
+        return Classification.objects.all()
     return Classification.objects.filter(is_active=True)
 
 def get_classification(classification_id):

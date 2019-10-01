@@ -1070,6 +1070,23 @@ class CourseTest(TestCase):
         self.assertEqual( len(response.context['courses']), total_courses - 1 )
 
 
+class PreparationTest(TestCase):
+    fixtures = DATA
+
+    @classmethod
+    def setUpTestData(cls):
+        print('\nAdministators:Preparation testing has started ==>')
+
+    def login(self, username, password):
+        self.client.post('/accounts/local_login/', data={'username': username, 'password': password})
+
+    def test_view_url_exists_at_desired_location(self):
+        print('\n- Test: view url exists at desired location')
+        self.login('admin', '12')
+
+        response = self.client.get( reverse('administrators:preparation') )
+        self.assertEqual(response.status_code, 200)
+
 
 class DegreeTest(TestCase):
     fixtures = DATA
@@ -1079,7 +1096,7 @@ class DegreeTest(TestCase):
         print('\nAdministators:Degree testing has started ==>')
 
     def login(self, username, password):
-        self.client.post('/accounts/local_login/', data={'username': username, 'password': password})
+        self.client.post('/accounts/local_login/', data={ 'username': username, 'password': password })
 
     def messages(self, res):
         return [m.message for m in get_messages(res.wsgi_request)]
@@ -1099,6 +1116,18 @@ class DegreeTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual( len(response.context['degrees']), 11 )
         self.assertFalse(response.context['form'].is_bound)
+
+        data = { 'name': 'Diploma' }
+        response = self.client.post( reverse('administrators:degrees'), data=urlencode(data), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+        response = self.client.get( reverse('administrators:degrees') )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual( len(response.context['degrees']), 12 )
+        self.assertEqual(response.context['degrees'].last().name, data['name'])
 
     def test_edit_degree(self):
         print('\n- Test: edit degree details')
@@ -1178,6 +1207,18 @@ class ProgramTest(TestCase):
         self.assertEqual( len(response.context['programs']), 9 )
         self.assertFalse(response.context['form'].is_bound)
 
+        data = { 'name': 'Master of Science in Animal' }
+        response = self.client.post( reverse('administrators:programs'), data=urlencode(data), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+        response = self.client.get( reverse('administrators:programs') )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual( len(response.context['programs']), 10 )
+        self.assertEqual(response.context['programs'].last().name, data['name'])
+
     def test_edit_program(self):
         print('\n- Test: edit program details')
         self.login('admin', '12')
@@ -1254,6 +1295,18 @@ class TrainingTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual( len(response.context['trainings']), 5 )
         self.assertFalse(response.context['form'].is_bound)
+
+        data = { 'name': 'new training' }
+        response = self.client.post( reverse('administrators:trainings'), data=urlencode(data), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+        response = self.client.get( reverse('administrators:trainings') )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual( len(response.context['trainings']), 6 )
+        self.assertEqual(response.context['trainings'].last().name, data['name'])
 
     def test_edit_training(self):
         print('\n- Test: edit training details')
@@ -1332,6 +1385,18 @@ class StatusTest(TestCase):
         self.assertEqual( len(response.context['statuses']), 9 )
         self.assertFalse(response.context['form'].is_bound)
 
+        data = { 'name': 'Full Professor' }
+        response = self.client.post( reverse('administrators:statuses'), data=urlencode(data), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+        response = self.client.get( reverse('administrators:statuses') )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual( len(response.context['statuses']), 10 )
+        self.assertEqual(response.context['statuses'].last().name, data['name'])
+
     def test_edit_status(self):
         print('\n- Test: edit status details')
         self.login('admin', '12')
@@ -1408,6 +1473,18 @@ class CourseCodeTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual( len(response.context['course_codes']), 5 )
         self.assertFalse(response.context['form'].is_bound)
+
+        data = { 'name': 'ABC' }
+        response = self.client.post( reverse('administrators:course_codes'), data=urlencode(data), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+        response = self.client.get( reverse('administrators:course_codes') )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual( len(response.context['course_codes']), 6 )
+        self.assertEqual(response.context['course_codes'].last().name, data['name'])
 
     def test_edit_course_code(self):
         print('\n- Test: edit course_code details')
@@ -1487,6 +1564,18 @@ class CourseNumberTest(TestCase):
         self.assertEqual( len(response.context['course_numbers']), 10 )
         self.assertFalse(response.context['form'].is_bound)
 
+        data = { 'name': '500' }
+        response = self.client.post( reverse('administrators:course_numbers'), data=urlencode(data), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+        response = self.client.get( reverse('administrators:course_numbers') )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual( len(response.context['course_numbers']), 11 )
+        self.assertEqual(response.context['course_numbers'].last().name, data['name'])
+
     def test_edit_course_number(self):
         print('\n- Test: edit course_number details')
         self.login('admin', '12')
@@ -1565,6 +1654,18 @@ class CourseSectionTest(TestCase):
         self.assertEqual( len(response.context['course_sections']), 5 )
         self.assertFalse(response.context['form'].is_bound)
 
+        data = { 'name': '006' }
+        response = self.client.post( reverse('administrators:course_sections'), data=urlencode(data), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+        response = self.client.get( reverse('administrators:course_sections') )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual( len(response.context['course_sections']), 6 )
+        self.assertEqual(response.context['course_sections'].last().name, data['name'])
+
     def test_edit_course_section(self):
         print('\n- Test: edit course_section details')
         self.login('admin', '12')
@@ -1642,6 +1743,24 @@ class classificationTest(TestCase):
         self.assertEqual( len(response.context['classifications']), 6 )
         self.assertFalse(response.context['form'].is_bound)
 
+        data = {
+            'year': '2020',
+            'name': 'Marker 2',
+            'wage': '16.05',
+            'is_active': True
+        }
+        response = self.client.post( reverse('administrators:classifications'), data=urlencode(data), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+        response = self.client.get( reverse('administrators:classifications') )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual( len(response.context['classifications']), 7 )
+        self.assertEqual(response.context['classifications'].latest('pk').name, data['name'])
+
+
     def test_edit_classification(self):
         print('\n- Test: edit classification details')
         self.login('admin', '12')
@@ -1666,7 +1785,6 @@ class classificationTest(TestCase):
 
         found = 0
         for classification in classifications:
-            print(classification.slug)
             if classification.slug == '2020-marker-2':
                 found = 1
                 break

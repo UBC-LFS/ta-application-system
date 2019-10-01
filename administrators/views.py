@@ -1624,12 +1624,13 @@ def degrees(request):
             degree = form.save()
             if degree:
                 messages.success(request, 'Success! {0} created'.format(degree.name))
-                return redirect('administrators:degrees')
             else:
                 messages.error(request, 'An error occurred.')
         else:
             errors = form.errors.get_json_data()
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+
+        return redirect('administrators:degrees')
 
     return render(request, 'administrators/preparation/degrees.html', {
         'loggedin_user': loggedin_user,
@@ -1773,7 +1774,7 @@ def classifications(request):
 
     return render(request, 'administrators/preparation/classifications.html', {
         'loggedin_user': loggedin_user,
-        'classifications': adminApi.get_classifications(),
+        'classifications': adminApi.get_classifications('all'),
         'form': ClassificationForm()
     })
 
