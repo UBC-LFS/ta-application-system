@@ -47,10 +47,8 @@ class ClassificationForm(forms.ModelForm):
         model = Classification
         fields = ['year', 'name', 'wage', 'is_active']
 
-
-# checked
 class CourseForm(forms.ModelForm):
-    """ Create a model form for a course """
+    ''' Create a model form for a course '''
     class Meta:
         model = Course
         fields = ['code', 'number','section', 'name', 'term']
