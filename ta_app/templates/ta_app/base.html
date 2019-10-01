@@ -55,6 +55,9 @@
 		{% if 'Admin' in loggedin_user.roles or 'Superadmin' in loggedin_user.roles %}
 			{% include "ta_app/_mobilenavadmin.html" %}
 		{% endif %}
+		{% if 'Instructor' in loggedin_user.roles %}
+			{% include "ta_app/_mobilenavinstructor.html"%}
+		{% endif %}
 		<div id="content-padding" class="padding-top-66">
 			<main>
 				<div class="wrapper">
