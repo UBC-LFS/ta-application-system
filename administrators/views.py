@@ -167,7 +167,7 @@ def delete_user(request):
         if deleted_user:
             messages.success(request, 'Success! {0} {1} ({2}) deleted'.format(deleted_user.first_name, deleted_user.last_name, deleted_user.username))
         else:
-            messages.error(request, 'Error!')
+            messages.error(request, 'An error occurred.')
 
     return redirect('administrators:users')
 
@@ -263,11 +263,12 @@ def create_session_confirmation(request):
                     messages.success(request, 'Success! {0} {1} - {2} created'.format(session.year, session.term.code, session.title))
                     return redirect('administrators:current_sessions')
                 else:
-                    messages.error(request, 'Error! Failed to create jobs')
+                    messages.error(request, 'An error occurred. Failed to create jobs')
             else:
-                messages.error(request, 'Error! Failed to create a session')
+                messages.error(request, 'An error occurred. Failed to create a session')
         else:
-            messages.error(request, 'Error! Form is invalid')
+            errors = form.errors.get_json_data()
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
     else:
         data = request.session.get('session_form_data')
         if data:
@@ -340,11 +341,12 @@ def edit_session(request, session_slug, path):
                     messages.success(request, 'Success! {0} {1} {2} updated'.format(session.year, session.term.code, session.title))
                     return redirect('administrators:{0}_sessions'.format(path))
                 else:
-                    messages.error(request, 'Error!')
+                    messages.error(request, 'An error occurred.')
             else:
-                messages.error(request, 'Error!')
+                messages.error(request, 'An error occurred.')
         else:
-            messages.error(request, 'Error! Form is invalid')
+            errors = form.errors.get_json_data()
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
     return render(request, 'administrators/sessions/edit_session.html', {
         'loggedin_user': loggedin_user,
@@ -370,7 +372,7 @@ def delete_session(request, path):
         if deleted_session:
             messages.success(request, 'Success! {0} {1} {2} deleted'.format(deleted_session.year, deleted_session.term.code, deleted_session.title))
         else:
-            messages.error(request, 'Error! Failed to delete {0} {1} {2}'.format(deleted_session.year, deleted_session.term.code, deleted_session.title))
+            messages.error(request, 'An error occurred. Failed to delete {0} {1} {2}'.format(deleted_session.year, deleted_session.term.code, deleted_session.title))
 
     return redirect('administrators:{0}_sessions'.format(path))
 
@@ -842,7 +844,7 @@ def offered_applications_send_email_confirmation(request):
                 if count == len(applications):
                     messages.success(request, 'Success! Email has sent to {0}'.format( data['receiver'] ))
                 else:
-                    messages.error(request, 'Error!')
+                    messages.error(request, 'An error occurred.')
 
                 del request.session['offered_applications_form_data']
                 return redirect('administrators:offered_applications')
@@ -1033,9 +1035,10 @@ def create_course(request):
                 messages.success(request, 'Success! {0} {1} {2} {3} created'.format(course.code.name, course.number.name, course.section.name, course.term.code))
                 return redirect('administrators:all_courses')
             else:
-                messages.error(request, 'Error!')
+                messages.error(request, 'An error occurred.')
         else:
-            messages.error(request, 'Error! Form is invalid')
+            errors = form.errors.get_json_data()
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
     return render(request, 'administrators/courses/create_course.html', {
         'loggedin_user': loggedin_user,
@@ -1142,9 +1145,10 @@ def terms(request):
                 messages.success(request, 'Success! {0} ({1}) created'.format(term.name, term.code))
                 return redirect('administrators:terms')
             else:
-                messages.error(request, 'Error!')
+                messages.error(request, 'An error occurred.')
         else:
-            messages.error(request, 'Error! Form is invalid')
+            errors = form.errors.get_json_data()
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
     return render(request, 'administrators/preparation/terms.html', {
         'loggedin_user': loggedin_user,
@@ -1168,10 +1172,10 @@ def edit_term(request, code):
             if updated_term:
                 messages.success(request, 'Success! {0} ({1}) updated'.format(updated_term.name, updated_term.code))
             else:
-                messages.error(request, 'Error!')
+                messages.error(request, 'An error occurred.')
         else:
-            print(form.errors.get_json_data())
-            messages.error(request, 'Error! Form is invalid')
+            errors = form.errors.get_json_data()
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
     return redirect("administrators:terms")
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -1188,7 +1192,7 @@ def delete_term(request):
         if deleted_term:
             messages.success(request, 'Success! {0} ({1}) deleted'.format(deleted_term.name, deleted_term.code))
         else:
-            messages.error(request, 'Error!')
+            messages.error(request, 'An error occurred.')
     return redirect("administrators:terms")
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -1196,7 +1200,6 @@ def delete_term(request):
 @require_http_methods(['GET', 'POST'])
 def course_codes(request):
     ''' Display all course codes and create a course code '''
-    print('course_codes')
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
 
@@ -1208,9 +1211,10 @@ def course_codes(request):
                 messages.success(request, 'Success! {0} created'.format(course_code.name))
                 return redirect('administrators:course_codes')
             else:
-                messages.error(request, 'Error!')
+                messages.error(request, 'An error occurred.')
         else:
-            messages.error(request, 'Error! Form is invalid')
+            errors = form.errors.get_json_data()
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
     return render(request, 'administrators/preparation/course_codes.html', {
         'loggedin_user': loggedin_user,
@@ -1234,9 +1238,9 @@ def edit_course_code(request, name):
             if updated_course_code:
                 messages.success(request, 'Success! {0} updated'.format(updated_course_code.name))
             else:
-                messages.error(request, 'Error!')
+                messages.error(request, 'An error occurred.')
         else:
-            messages.error(request, 'Error!')
+            messages.error(request, 'An error occurred.')
     return redirect('administrators:course_codes')
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -1253,7 +1257,7 @@ def delete_course_code(request):
         if deleted_course_code:
             messages.success(request, 'Success! {0} deleted'.format(deleted_course_code.name))
         else:
-            messages.error(request, 'Error!')
+            messages.error(request, 'An error occurred.')
     return redirect('administrators:course_codes')
 
 
@@ -1276,9 +1280,10 @@ def course_numbers(request):
                 messages.success(request, 'Success! {0} created'.format(course_number.name))
                 return redirect('administrators:course_numbers')
             else:
-                messages.error(request, 'Error!')
+                messages.error(request, 'An error occurred.')
         else:
-            messages.error(request, 'Error! Form is invalid')
+            errors = form.errors.get_json_data()
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
     return render(request, 'administrators/preparation/course_numbers.html', {
         'loggedin_user': userApi.loggedin_user(request.user),
@@ -1302,9 +1307,11 @@ def edit_course_number(request, name):
             if updated_course_number:
                 messages.success(request, 'Success! {0} updated'.format(updated_course_number.name))
             else:
-                messages.error(request, 'Error!')
+                messages.error(request, 'An error occurred.')
         else:
-            messages.error(request, 'Error!')
+            errors = form.errors.get_json_data()
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+
     return redirect('administrators:course_numbers')
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -1321,7 +1328,7 @@ def delete_course_number(request):
         if deleted_course_number:
             messages.success(request, 'Success! {0} deleted'.format(deleted_course_number.name))
         else:
-            messages.error(request, 'Error!')
+            messages.error(request, 'An error occurred.')
     return redirect('administrators:course_numbers')
 
 # Course Section
@@ -1342,9 +1349,10 @@ def course_sections(request):
                 messages.success(request, 'Success! {0} created'.format(course_section.name))
                 return redirect('administrators:course_sections')
             else:
-                messages.error(request, 'Error!')
+                messages.error(request, 'An error occurred.')
         else:
-            messages.error(request, 'Error! Form is invalid')
+            errors = form.errors.get_json_data()
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
     return render(request, 'administrators/preparation/course_sections.html', {
         'loggedin_user': userApi.loggedin_user(request.user),
@@ -1368,9 +1376,9 @@ def edit_course_section(request, name):
             if updated_course_section:
                 messages.success(request, 'Success! {0} updated'.format(updated_course_section.name))
             else:
-                messages.error(request, 'Error!')
+                messages.error(request, 'An error occurred.')
         else:
-            messages.error(request, 'Error!')
+            messages.error(request, 'An error occurred.')
     return redirect('administrators:course_sections')
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -1387,7 +1395,7 @@ def delete_course_section(request):
         if deleted_course_section:
             messages.success(request, 'Success! {0} deleted'.format(deleted_course_section.name))
         else:
-            messages.error(request, 'Error!')
+            messages.error(request, 'An error occurred.')
     return redirect('administrators:course_sections')
 
 
@@ -1409,9 +1417,10 @@ def roles(request):
                 messages.success(request, 'Success! {0} created'.format(role.name))
                 return redirect('administrators:roles')
             else:
-                messages.error(request, 'Error!')
+                messages.error(request, 'An error occurred.')
         else:
-            messages.error(request, 'Error! Form is invalid')
+            errors = form.errors.get_json_data()
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
     return render(request, 'administrators/preparation/roles.html', {
         'loggedin_user': loggedin_user,
@@ -1435,9 +1444,10 @@ def edit_role(request, slug):
             if updated_role:
                 messages.success(request, 'Success! {0} updated'.format(updated_role.name))
             else:
-                messages.error(request, 'Error!')
+                messages.error(request, 'An error occurred.')
         else:
-            messages.error(request, 'Error! Form is invalid')
+            errors = form.errors.get_json_data()
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
     return redirect("administrators:roles")
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -1454,7 +1464,7 @@ def delete_role(request):
         if deleted_role:
             messages.success(request, 'Success! {0} deleted'.format(deleted_role.name))
         else:
-            messages.error(request, 'Error!')
+            messages.error(request, 'An error occurred.')
     return redirect("administrators:roles")
 
 
@@ -1477,9 +1487,10 @@ def statuses(request):
                 messages.success(request, 'Success! {0} created'.format(status.name))
                 return redirect('administrators:statuses')
             else:
-                messages.error(request, 'Error!')
+                messages.error(request, 'An error occurred.')
         else:
-            messages.error(request, 'Error! Form is invalid')
+            errors = form.errors.get_json_data()
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
     return render(request, 'administrators/preparation/statuses.html', {
         'loggedin_user': loggedin_user,
@@ -1503,9 +1514,10 @@ def edit_status(request, slug):
             if updated_status:
                 messages.success(request, 'Success! {0} updated'.format(updated_status.name))
             else:
-                messages.error(request, 'Error!')
+                messages.error(request, 'An error occurred.')
         else:
-            messages.error(request, 'Error! Form is invalid')
+            errors = form.errors.get_json_data()
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
     return redirect("administrators:statuses")
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -1522,7 +1534,7 @@ def delete_status(request):
         if deleted_status:
             messages.success(request, 'Success! {0} deleted'.format(deleted_status.name))
         else:
-            messages.error(request, 'Error!')
+            messages.error(request, 'An error occurred.')
     return redirect("administrators:statuses")
 
 
@@ -1545,9 +1557,10 @@ def programs(request):
                 messages.success(request, 'Success! {0} created'.format(program.name))
                 return redirect('administrators:programs')
             else:
-                messages.error(request, 'Error!')
+                messages.error(request, 'An error occurred.')
         else:
-            messages.error(request, 'Error! Form is invalid')
+            errors = form.errors.get_json_data()
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
     return render(request, 'administrators/preparation/programs.html', {
         'loggedin_user': loggedin_user,
@@ -1571,9 +1584,10 @@ def edit_program(request, slug):
             if updated_program:
                 messages.success(request, 'Success! {0} updated'.format(updated_program.name))
             else:
-                messages.error(request, 'Error!')
+                messages.error(request, 'An error occurred.')
         else:
-            messages.error(request, 'Error! Form is invalid')
+            errors = form.errors.get_json_data()
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
     return redirect("administrators:programs")
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -1590,7 +1604,7 @@ def delete_program(request):
         if deleted_program:
             messages.success(request, 'Success! {0} deleted'.format(deleted_program.name))
         else:
-            messages.error(request, 'Error!')
+            messages.error(request, 'An error occurred.')
     return redirect("administrators:programs")
 
 
@@ -1612,9 +1626,10 @@ def degrees(request):
                 messages.success(request, 'Success! {0} created'.format(degree.name))
                 return redirect('administrators:degrees')
             else:
-                messages.error(request, 'Error!')
+                messages.error(request, 'An error occurred.')
         else:
-            messages.error(request, 'Error! Form is invalid')
+            errors = form.errors.get_json_data()
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
     return render(request, 'administrators/preparation/degrees.html', {
         'loggedin_user': loggedin_user,
@@ -1638,9 +1653,11 @@ def edit_degree(request, slug):
             if updated_degree:
                 messages.success(request, 'Success! {0} updated'.format(updated_degree.name))
             else:
-                messages.error(request, 'Error!')
+                messages.error(request, 'An error occurred.')
         else:
-            messages.error(request, 'Error! Form is invalid')
+            errors = form.errors.get_json_data()
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+
     return redirect("administrators:degrees")
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -1657,7 +1674,7 @@ def delete_degree(request):
         if deleted_degree:
             messages.success(request, 'Success! {0} deleted'.format(deleted_degree.name))
         else:
-            messages.error(request, 'Error!')
+            messages.error(request, 'An error occurred.')
     return redirect("administrators:degrees")
 
 
@@ -1679,9 +1696,10 @@ def trainings(request):
                 messages.success(request, 'Success! {0} created'.format(training.name))
                 return redirect('administrators:trainings')
             else:
-                messages.error(request, 'Error!')
+                messages.error(request, 'An error occurred.')
         else:
-            messages.error(request, 'Error! Form is invalid')
+            errors = form.errors.get_json_data()
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
     return render(request, 'administrators/preparation/trainings.html', {
         'loggedin_user': loggedin_user,
@@ -1705,9 +1723,10 @@ def edit_training(request, slug):
             if updated_training:
                 messages.success(request, 'Success! {0} updated'.format(updated_training.name))
             else:
-                messages.error(request, 'Error!')
+                messages.error(request, 'An error occurred.')
         else:
-            messages.error(request, 'Error! Form is invalid')
+            errors = form.errors.get_json_data()
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
     return redirect("administrators:trainings")
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -1724,7 +1743,7 @@ def delete_training(request):
         if deleted_training:
             messages.success(request, 'Success! {0} deleted'.format(deleted_training.name))
         else:
-            messages.error(request, 'Error!')
+            messages.error(request, 'An error occurred.')
     return redirect("administrators:trainings")
 
 
@@ -1747,9 +1766,10 @@ def classifications(request):
                 messages.success(request, 'Success! {0} {1} created'.format(classification.year, classification.name))
                 return redirect('administrators:classifications')
             else:
-                messages.error(request, 'Error!')
+                messages.error(request, 'An error occurred.')
         else:
-            messages.error(request, 'Error! Form is invalid')
+            errors = form.errors.get_json_data()
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
     return render(request, 'administrators/preparation/classifications.html', {
         'loggedin_user': loggedin_user,
@@ -1794,7 +1814,7 @@ def delete_classification(request):
         if deleted_classification:
             messages.success(request, 'Success! {0} deleted'.format(deleted_classification.name))
         else:
-            messages.error(request, 'Error!')
+            messages.error(request, 'An error occurred.')
     return redirect("administrators:classifications")
 
 
@@ -1933,15 +1953,16 @@ def create_session(request):
                 messages.success(request, 'Success!')
                 return redirect('administrators:sessions')
             else:
-                messages.error(request, 'Error!')
+                messages.error(request, 'An error occurred.')
         else:
-            messages.error(request, 'Error!')
+            messages.error(request, 'An error occurred.')
         return render(request, 'administrators/sessions/create_session_confirmation.html', {
             'loggedin_user': userApi.loggedin_user(request.user)
         })
 
     else:
-        messages.error(request, 'Error! Form is invalid')
+        errors = form.errors.get_json_data()
+messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
     return redirect('administrators:sessions')
     """
@@ -1973,7 +1994,7 @@ def edit_course(request, course_slug):
                 messages.success(request, 'Success!')
                 return HttpResponseRedirect( reverse('administrators:show_course', args=[updated_course.slug]) )
             else:
-                messages.error(request, 'Error!')
+                messages.error(request, 'An error occurred.')
 
     return render(request, 'administrators/edit_course.html', {
         'loggedin_user': userApi.loggedin_user(request.user),
@@ -2006,10 +2027,11 @@ def assign_ta_hours(request, session_slug, job_slug):
             if updated_job:
                 messages.success(request, 'Success! {0} TA Hours assigned to {1} {2} - {3} {4} {5}'.format(assigned_ta_hours, updated_job.session.year, updated_job.session.term.code, updated_job.course.code.name, updated_job.course.number.name, updated_job.course.section.name))
             else:
-                messages.error(request, 'Error!')
+                messages.error(request, 'An error occurred.')
         else:
             print(form.errors.get_json_data())
-            messages.error(request, 'Error! Form is invalid')
+            errors = form.errors.get_json_data()
+messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
     return redirect('administrators:prepare_jobs')
 
 
@@ -2036,11 +2058,12 @@ def add_instructors(request, session_slug, job_slug):
                 if updated:
                     messages.success(request, 'Success! {0} {1} {2} {3} {4} updated'.format(updated_job.session.year, updated_job.session.term.code, updated_job.course.code.name, updated_job.course.number.name, updated_job.course.section.name))
                 else:
-                    messages.error(request, 'Error!')
+                    messages.error(request, 'An error occurred.')
             else:
-                messages.error(request, 'Error!')
+                messages.error(request, 'An error occurred.')
         else:
-            messages.error(request, 'Error! Form is invalid')
+            errors = form.errors.get_json_data()
+messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
     return redirect('administrators:jobs')
 """
 
