@@ -41,16 +41,36 @@ class HRTest(TestCase):
     @classmethod
     def setUpTestData(cls):
         print('\nAdministrators:hr testing has started ==>')
+        cls.user = userApi.get_user_by_username('admin')
 
-    def login(self, username, password):
-        self.client.post('/accounts/local_login/', data={'username': username, 'password': password})
+    def login(self, username=None, password=None):
+        if username and password:
+            self.client.post('/accounts/local_login/', data={'username': username, 'password': password})
+        else:
+            self.client.post('/accounts/local_login/', data={'username': self.user.username, 'password': self.user.password})
 
     def messages(self, res):
         return [m.message for m in get_messages(res.wsgi_request)]
 
     def test_view_url_exists_at_desired_location(self):
         print('\n- Test: view url exists at desired location')
-        self.login('admin', '12')
+
+        response = self.client.get( reverse('administrators:hr') )
+        self.assertEqual(response.status_code, 302)
+
+        response = self.client.get( reverse('administrators:users') )
+        self.assertEqual(response.status_code, 302)
+
+        response = self.client.get( reverse('administrators:create_user') )
+        self.assertEqual(response.status_code, 302)
+
+        response = self.client.get( reverse('administrators:view_confidentiality', args=['admin', 'administrator']) )
+        self.assertEqual(response.status_code, 302)
+
+        response = self.client.get( reverse('administrators:show_user', args=['admin', 'administrator']) )
+        self.assertEqual(response.status_code, 302)
+
+        self.login()
 
         response = self.client.get( reverse('administrators:hr') )
         self.assertEqual(response.status_code, 200)
@@ -69,13 +89,15 @@ class HRTest(TestCase):
 
     def test_get_users(self):
         print('\n- Test: get all users')
-        self.login('admin', '12')
+        self.login()
         response = self.client.get(reverse('administrators:users'))
-        self.assertEqual(len(response.context['users']), 30) # 30 users
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.context['users']), 30)
 
     def test_create_user_with_no_profile_in_view(self):
         print('\n- Test: create a user with no profile')
-        self.login('admin', '12')
+        self.login()
+
         data = {
             'first_name': 'test',
             'last_name': 'user100',
@@ -86,7 +108,7 @@ class HRTest(TestCase):
 
         self.assertFalse(userApi.username_exists(data['username']))
         self.assertFalse(userApi.profile_exists_by_username(data['username']))
-
+        
         response = self.client.post(reverse('administrators:create_user'), data=urlencode(data), content_type=ContentType)
         messages = self.messages(response)
         self.assertTrue('An error occurred' in messages[0])
@@ -95,7 +117,8 @@ class HRTest(TestCase):
 
     def test_create_user_in_view(self):
         print('\n- Test: create a user')
-        self.login('admin', '12')
+        self.login()
+
         data = {
             'first_name': 'test',
             'last_name': 'user100',
@@ -122,7 +145,7 @@ class HRTest(TestCase):
 
     def test_create_user_with_duplicates_in_view(self):
         print('\n- Test: create a user with duplicates')
-        self.login('admin', '12')
+        self.login()
         data = {
             'first_name': 'test',
             'last_name': 'user5',
@@ -185,7 +208,7 @@ class HRTest(TestCase):
 
     def test_show_user(self):
         print('\n- Test: show a user')
-        self.login('admin', '12')
+        self.login()
 
         user = userApi.get_user('25')
         response = self.client.get(reverse('administrators:show_user', args=[user.username, 'administrator']))
@@ -197,14 +220,14 @@ class HRTest(TestCase):
 
     def test_show_user_not_exists(self):
         print('\n- Test: show no existing user ')
-        self.login('admin', '12')
+        self.login()
 
         response = self.client.get(reverse('administrators:show_user', args=['zzzzzz', 'administrator']))
         self.assertEqual(response.status_code, 404)
 
     def test_delete_user(self):
         print('\n- Test: delete a user')
-        self.login('admin', '12')
+        self.login()
 
         user = userApi.get_user('25')
         data = { 'user': user.id }
@@ -238,7 +261,7 @@ class HRTest(TestCase):
 
     def test_change_user_roles(self):
         print('\n- Test: change an user roles')
-        self.login('admin', '12')
+        self.login()
 
         user = userApi.get_user('25')
         user_first_role = user.profile.roles.all()[0]
@@ -252,7 +275,7 @@ class HRTest(TestCase):
 
     def test_change_user_roles_with_no_user_id(self):
         print('\n- Test: change an user roles with no user id')
-        self.login('admin', '12')
+        self.login()
 
         user = userApi.get_user('25')
         user_first_role = user.profile.roles.all()[0]
@@ -269,12 +292,16 @@ class SessionTest(TestCase):
     @classmethod
     def setUpTestData(cls):
         print('\nAdministrators:Session testing has started ==>')
+        cls.user = userApi.get_user_by_username('admin')
 
-    def login(self, username, password):
-        self.client.post('/accounts/local_login/', data={'username': username, 'password': password})
+    def login(self, username=None, password=None):
+        if username and password:
+            self.client.post('/accounts/local_login/', data={'username': username, 'password': password})
+        else:
+            self.client.post('/accounts/local_login/', data={'username': self.user.username, 'password': self.user.password})
 
     def test_view_url_exists_at_desired_location(self):
-        self.login('admin', '12')
+        self.login()
         response = self.client.get( reverse('administrators:sessions') )
         self.assertEqual(response.status_code, 200)
 
@@ -298,7 +325,7 @@ class SessionTest(TestCase):
 
     def test_create_session(self):
         print('\n- Test: create a session')
-        self.login('admin', '12')
+        self.login()
         data = {
             'year': '2020',
             'term': '2',
@@ -341,7 +368,7 @@ class SessionTest(TestCase):
 
     def test_delete_session(self):
         print('\n- Test: delete a session')
-        self.login('admin', '12')
+        self.login()
         session_id = '6'
         data = { 'session': session_id }
         response = self.client.post(reverse('administrators:delete_session', args=['current']), data=urlencode(data), content_type=ContentType)
@@ -355,7 +382,7 @@ class SessionTest(TestCase):
 
     def test_edit_session(self):
         print('\n- Test: edit a session')
-        self.login('admin', '12')
+        self.login()
         session_id = '6'
         session = adminApi.get_session(session_id)
         courses = adminApi.get_courses_by_term('6')
@@ -392,9 +419,13 @@ class JobTest(TestCase):
     @classmethod
     def setUpTestData(cls):
         print('\nJob testing has started ==>')
+        cls.user = userApi.get_user_by_username('admin')
 
-    def login(self, username, password):
-        self.client.post('/accounts/local_login/', data={'username': username, 'password': password})
+    def login(self, username=None, password=None):
+        if username and password:
+            self.client.post('/accounts/local_login/', data={'username': username, 'password': password})
+        else:
+            self.client.post('/accounts/local_login/', data={'username': self.user.username, 'password': self.user.password})
 
     def messages(self, res):
         return [m.message for m in get_messages(res.wsgi_request)]
@@ -454,7 +485,7 @@ class JobTest(TestCase):
 
     def test_view_url_exists_at_desired_location(self):
         print('\n- Test: view url exists at desired location')
-        self.login('admin', '12')
+        self.login()
         session_slug = '2019-w1'
         job_slug = 'lfs-252-001-land-food-and-community-quantitative-data-analysis-w1'
 
@@ -491,7 +522,7 @@ class JobTest(TestCase):
 
     def test_prepare_jobs(self):
         print('\n- Test: display all prepare jobs')
-        self.login('admin', '12')
+        self.login()
 
         response = self.client.get( reverse('administrators:prepare_jobs') )
         self.assertEqual(response.status_code, 200)
@@ -501,7 +532,7 @@ class JobTest(TestCase):
 
     def test_progress_jobs(self):
         print('\n- Test: display all progress jobs')
-        self.login('admin', '12')
+        self.login()
 
         response = self.client.get( reverse('administrators:progress_jobs') )
         self.assertEqual(response.status_code, 200)
@@ -511,7 +542,7 @@ class JobTest(TestCase):
 
     def test_instructor_jobs(self):
         print('\n- Test: display all instructor jobs')
-        self.login('admin', '12')
+        self.login()
 
         response = self.client.get( reverse('administrators:instructor_jobs') )
         self.assertEqual(response.status_code, 200)
@@ -521,7 +552,7 @@ class JobTest(TestCase):
 
     def test_student_jobs(self):
         print('\n- Test: display all student jobs')
-        self.login('admin', '12')
+        self.login()
 
         response = self.client.get( reverse('administrators:student_jobs') )
         self.assertEqual(response.status_code, 200)
@@ -531,7 +562,7 @@ class JobTest(TestCase):
 
     def test_show_job_applications(self):
         print('\n- Test: display a job applications')
-        self.login('admin', '12')
+        self.login()
 
         session_slug = '2019-w1'
         job_slug = 'lfs-252-001-land-food-and-community-quantitative-data-analysis-w1'
@@ -548,7 +579,7 @@ class JobTest(TestCase):
 
     def test_instructor_jobs_details(self):
         print('\n- Test: display jobs that an instructor has')
-        self.login('admin', '12')
+        self.login()
 
         username = 'test.user5'
         response = self.client.get( reverse('administrators:instructor_jobs_details', args=[username]) )
@@ -560,7 +591,7 @@ class JobTest(TestCase):
 
     def test_student_jobs_details(self):
         print('\n- Test: display jobs that a student has')
-        self.login('admin', '12')
+        self.login()
 
         username = 'test.user15'
         response = self.client.get( reverse('administrators:student_jobs_details', args=[username]) )
@@ -572,7 +603,7 @@ class JobTest(TestCase):
 
     def test_edit_job(self):
         print('\n- Test: edit a job')
-        self.login('admin', '12')
+        self.login()
 
         session_slug = '2019-w1'
         job_slug = 'lfs-252-001-land-food-and-community-quantitative-data-analysis-w1'
@@ -620,16 +651,20 @@ class ApplicationTest(TestCase):
     @classmethod
     def setUpTestData(cls):
         print('\nJob testing has started ==>')
+        cls.user = userApi.get_user_by_username('admin')
 
-    def login(self, username, password):
-        self.client.post('/accounts/local_login/', data={'username': username, 'password': password})
+    def login(self, username=None, password=None):
+        if username and password:
+            self.client.post('/accounts/local_login/', data={'username': username, 'password': password})
+        else:
+            self.client.post('/accounts/local_login/', data={'username': self.user.username, 'password': self.user.password})
 
     def messages(self, res):
         return [m.message for m in get_messages(res.wsgi_request)]
 
     def test_view_url_exists_at_desired_location(self):
         print('\n- Test: view url exists at desired location')
-        self.login('admin', '12')
+        self.login()
         app_slug = '2019-w1-lfs-250-001-land-food-and-community-i-introduction-to-food-systems-and-sustainability-w1-application-by-testuser10'
 
         response = self.client.get( reverse('administrators:applications') )
@@ -670,7 +705,7 @@ class ApplicationTest(TestCase):
 
     def test_show_application(self):
         print('\n- Test: Display an application details')
-        self.login('admin', '12')
+        self.login()
 
         app_slug = '2019-w1-lfs-250-001-land-food-and-community-i-introduction-to-food-systems-and-sustainability-w1-application-by-testuser10'
         path = 'all'
@@ -685,11 +720,11 @@ class ApplicationTest(TestCase):
 
     def test_applications_dashboard(self):
         print('\n- Test: Display a dashboard to take a look at updates')
-        self.login('admin', '12')
+        self.login()
 
     def test_all_applications(self):
         print('\n- Test: Display all applications')
-        self.login('admin', '12')
+        self.login()
 
         response = self.client.get( reverse('administrators:all_applications') )
         self.assertEqual(response.status_code, 200)
@@ -699,7 +734,7 @@ class ApplicationTest(TestCase):
 
     def test_selected_applications(self):
         print('\n- Test: Display applications selected by instructors')
-        self.login('admin', '12')
+        self.login()
 
         response = self.client.get( reverse('administrators:selected_applications') )
         self.assertEqual(response.status_code, 200)
@@ -713,7 +748,7 @@ class ApplicationTest(TestCase):
 
     def test_offered_applications(self):
         print('\n- Test: Display applications offered by admins')
-        self.login('admin', '12')
+        self.login()
 
         response = self.client.get( reverse('administrators:offered_applications') )
         self.assertEqual(response.status_code, 200)
@@ -723,7 +758,7 @@ class ApplicationTest(TestCase):
 
     def test_accepted_applications(self):
         print('\n- Test: Display applications accepted by students')
-        self.login('admin', '12')
+        self.login()
 
         response = self.client.get( reverse('administrators:accepted_applications') )
         self.assertEqual(response.status_code, 200)
@@ -733,7 +768,7 @@ class ApplicationTest(TestCase):
 
     def test_declined_applications(self):
         print('\n- Test: Display applications declined by students')
-        self.login('admin', '12')
+        self.login()
 
         response = self.client.get( reverse('administrators:declined_applications') )
         self.assertEqual(response.status_code, 200)
@@ -743,7 +778,7 @@ class ApplicationTest(TestCase):
 
     def test_edit_job_application(self):
         print('\n- Test: Edit classification and note in select applications')
-        self.login('admin', '12')
+        self.login()
 
         app_id = '12'
         app = adminApi.get_application(app_id)
@@ -765,7 +800,7 @@ class ApplicationTest(TestCase):
 
     def test_offer_job(self):
         print('\n- Test: Admin can offer a job to each job')
-        self.login('admin', '12')
+        self.login()
 
         app_id = '5'
         app = adminApi.get_application(app_id)
@@ -789,7 +824,7 @@ class ApplicationTest(TestCase):
 
     def test_offered_applications_send_email(self):
         print('\n- Test: Admin can offer a job to each job')
-        self.login('admin', '12')
+        self.login()
 
         curr_emails = adminApi.get_emails()
         self.assertEqual( len(curr_emails), 13 )
@@ -836,7 +871,7 @@ class ApplicationTest(TestCase):
 
     def test_email_history(self):
         print('\n- Test: Display all of email sent by admins to let them know job offers')
-        self.login('admin', '12')
+        self.login()
 
         response = self.client.get(reverse('administrators:email_history'))
         self.assertEqual(response.status_code, 200)
@@ -846,7 +881,7 @@ class ApplicationTest(TestCase):
 
     def test_send_reminder(self):
         print('\n- Test: Send a reminder email')
-        self.login('admin', '12')
+        self.login()
 
         total_emails = len(adminApi.get_emails())
         #print('emails ', len(emails))
@@ -878,7 +913,7 @@ class ApplicationTest(TestCase):
 
     def test_decline_reassign(self):
         print('\n- Test: Decline and reassign a job offer with new assigned hours')
-        self.login('admin', '12')
+        self.login()
 
         app_id = 2
 
@@ -943,16 +978,20 @@ class CourseTest(TestCase):
     @classmethod
     def setUpTestData(cls):
         print('\nAdministators:Course testing has started ==>')
+        cls.user = userApi.get_user_by_username('admin')
 
-    def login(self, username, password):
-        self.client.post('/accounts/local_login/', data={'username': username, 'password': password})
+    def login(self, username=None, password=None):
+        if username and password:
+            self.client.post('/accounts/local_login/', data={'username': username, 'password': password})
+        else:
+            self.client.post('/accounts/local_login/', data={'username': self.user.username, 'password': self.user.password})
 
     def messages(self, res):
         return [m.message for m in get_messages(res.wsgi_request)]
 
     def test_view_url_exists_at_desired_location(self):
         print('\n- Test: view url exists at desired location')
-        self.login('admin', '12')
+        self.login()
 
         course_slug = 'lfs-100-001-introduction-to-land-food-and-community-w1'
 
@@ -971,7 +1010,7 @@ class CourseTest(TestCase):
 
     def test_all_courses(self):
         print('\n- Test: Display all courses and edit/delete a course')
-        self.login('admin', '12')
+        self.login()
 
         response = self.client.get(reverse('administrators:all_courses'))
         self.assertEqual(response.status_code, 200)
@@ -982,7 +1021,7 @@ class CourseTest(TestCase):
 
     def test_create_course(self):
         print('\n- Test: Create a course')
-        self.login('admin', '12')
+        self.login()
 
         total_courses = len(adminApi.get_courses())
 
@@ -1008,7 +1047,7 @@ class CourseTest(TestCase):
 
     def test_edit_course(self):
         print('\n- Test: Edit a course')
-        self.login('admin', '12')
+        self.login()
 
         course_slug = 'lfs-100-001-introduction-to-land-food-and-community-w1'
 
@@ -1051,7 +1090,7 @@ class CourseTest(TestCase):
 
     def test_delete_course(self):
         print('\n- Test: Edit a course')
-        self.login('admin', '12')
+        self.login()
 
         total_courses = len(adminApi.get_courses())
 
@@ -1076,41 +1115,51 @@ class PreparationTest(TestCase):
     @classmethod
     def setUpTestData(cls):
         print('\nAdministators:Preparation testing has started ==>')
+        cls.user = userApi.get_user_by_username('admin')
 
-    def login(self, username, password):
-        self.client.post('/accounts/local_login/', data={'username': username, 'password': password})
-
-    def test_view_url_exists_at_desired_location(self):
-        print('\n- Test: view url exists at desired location')
-        self.login('admin', '12')
-
-        response = self.client.get( reverse('administrators:preparation') )
-        self.assertEqual(response.status_code, 200)
-
-
-class DegreeTest(TestCase):
-    fixtures = DATA
-
-    @classmethod
-    def setUpTestData(cls):
-        print('\nAdministators:Degree testing has started ==>')
-
-    def login(self, username, password):
-        self.client.post('/accounts/local_login/', data={ 'username': username, 'password': password })
+    def login(self, username=None, password=None):
+        if username and password:
+            self.client.post('/accounts/local_login/', data={'username': username, 'password': password})
+        else:
+            self.client.post('/accounts/local_login/', data={'username': self.user.username, 'password': self.user.password})
 
     def messages(self, res):
         return [m.message for m in get_messages(res.wsgi_request)]
 
     def test_view_url_exists_at_desired_location(self):
         print('\n- Test: view url exists at desired location')
-        self.login('admin', '12')
+        self.login()
+
+        response = self.client.get( reverse('administrators:preparation') )
+        self.assertEqual(response.status_code, 200)
 
         response = self.client.get( reverse('administrators:degrees') )
         self.assertEqual(response.status_code, 200)
 
+        response = self.client.get( reverse('administrators:programs') )
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get( reverse('administrators:trainings') )
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get( reverse('administrators:statuses') )
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get( reverse('administrators:course_codes') )
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get( reverse('administrators:course_numbers') )
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get( reverse('administrators:course_sections') )
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get( reverse('administrators:classifications') )
+        self.assertEqual(response.status_code, 200)
+
     def test_degrees(self):
         print('\n- Test: Display all degrees and create a degree')
-        self.login('admin', '12')
+        self.login()
 
         response = self.client.get( reverse('administrators:degrees') )
         self.assertEqual(response.status_code, 200)
@@ -1131,7 +1180,7 @@ class DegreeTest(TestCase):
 
     def test_edit_degree(self):
         print('\n- Test: edit degree details')
-        self.login('admin', '12')
+        self.login()
 
         slug = 'bachelor-of-arts'
 
@@ -1156,7 +1205,7 @@ class DegreeTest(TestCase):
 
     def test_delete_degree(self):
         print('\n- Test: delete a degree')
-        self.login('admin', '12')
+        self.login()
 
         total_degrees = len(userApi.get_degrees())
 
@@ -1176,31 +1225,9 @@ class DegreeTest(TestCase):
             if degree.id == degree_id: found = True
         self.assertFalse(found)
 
-
-
-class ProgramTest(TestCase):
-    fixtures = DATA
-
-    @classmethod
-    def setUpTestData(cls):
-        print('\nAdministators:Program testing has started ==>')
-
-    def login(self, username, password):
-        self.client.post('/accounts/local_login/', data={'username': username, 'password': password})
-
-    def messages(self, res):
-        return [m.message for m in get_messages(res.wsgi_request)]
-
-    def test_view_url_exists_at_desired_location(self):
-        print('\n- Test: view url exists at desired location')
-        self.login('admin', '12')
-
-        response = self.client.get( reverse('administrators:programs') )
-        self.assertEqual(response.status_code, 200)
-
     def test_programs(self):
         print('\n- Test: Display all programs and create a program')
-        self.login('admin', '12')
+        self.login()
 
         response = self.client.get( reverse('administrators:programs') )
         self.assertEqual(response.status_code, 200)
@@ -1221,7 +1248,7 @@ class ProgramTest(TestCase):
 
     def test_edit_program(self):
         print('\n- Test: edit program details')
-        self.login('admin', '12')
+        self.login()
 
         slug = 'master-of-science-in-applied-animal-biology-msc'
 
@@ -1246,7 +1273,7 @@ class ProgramTest(TestCase):
 
     def test_delete_program(self):
         print('\n- Test: delete a program')
-        self.login('admin', '12')
+        self.login()
 
         total_programs = len(userApi.get_programs())
 
@@ -1266,30 +1293,9 @@ class ProgramTest(TestCase):
             if program.id == program_id: found = True
         self.assertFalse(found)
 
-
-class TrainingTest(TestCase):
-    fixtures = DATA
-
-    @classmethod
-    def setUpTestData(cls):
-        print('\nAdministators:training testing has started ==>')
-
-    def login(self, username, password):
-        self.client.post('/accounts/local_login/', data={'username': username, 'password': password})
-
-    def messages(self, res):
-        return [m.message for m in get_messages(res.wsgi_request)]
-
-    def test_view_url_exists_at_desired_location(self):
-        print('\n- Test: view url exists at desired location')
-        self.login('admin', '12')
-
-        response = self.client.get( reverse('administrators:trainings') )
-        self.assertEqual(response.status_code, 200)
-
     def test_trainings(self):
         print('\n- Test: Display all trainings and create a training')
-        self.login('admin', '12')
+        self.login()
 
         response = self.client.get( reverse('administrators:trainings') )
         self.assertEqual(response.status_code, 200)
@@ -1310,7 +1316,7 @@ class TrainingTest(TestCase):
 
     def test_edit_training(self):
         print('\n- Test: edit training details')
-        self.login('admin', '12')
+        self.login()
 
         slug = 'instructional-skills-workshops-for-grad-students'
 
@@ -1335,7 +1341,7 @@ class TrainingTest(TestCase):
 
     def test_delete_training(self):
         print('\n- Test: delete a training')
-        self.login('admin', '12')
+        self.login()
 
         total_trainings = len(userApi.get_trainings())
 
@@ -1355,30 +1361,9 @@ class TrainingTest(TestCase):
             if training.id == training_id: found = True
         self.assertFalse(found)
 
-
-class StatusTest(TestCase):
-    fixtures = DATA
-
-    @classmethod
-    def setUpTestData(cls):
-        print('\nAdministators:status testing has started ==>')
-
-    def login(self, username, password):
-        self.client.post('/accounts/local_login/', data={'username': username, 'password': password})
-
-    def messages(self, res):
-        return [m.message for m in get_messages(res.wsgi_request)]
-
-    def test_view_url_exists_at_desired_location(self):
-        print('\n- Test: view url exists at desired location')
-        self.login('admin', '12')
-
-        response = self.client.get( reverse('administrators:statuses') )
-        self.assertEqual(response.status_code, 200)
-
     def test_statuses(self):
         print('\n- Test: Display all statuss and create a status')
-        self.login('admin', '12')
+        self.login()
 
         response = self.client.get( reverse('administrators:statuses') )
         self.assertEqual(response.status_code, 200)
@@ -1399,7 +1384,7 @@ class StatusTest(TestCase):
 
     def test_edit_status(self):
         print('\n- Test: edit status details')
-        self.login('admin', '12')
+        self.login()
 
         slug = 'undergraduate-student'
 
@@ -1424,7 +1409,7 @@ class StatusTest(TestCase):
 
     def test_delete_status(self):
         print('\n- Test: delete a status')
-        self.login('admin', '12')
+        self.login()
 
         total_statuses = len(userApi.get_statuses())
 
@@ -1444,30 +1429,9 @@ class StatusTest(TestCase):
             if status.id == status_id: found = True
         self.assertFalse(found)
 
-
-class CourseCodeTest(TestCase):
-    fixtures = DATA
-
-    @classmethod
-    def setUpTestData(cls):
-        print('\nAdministators:course_code testing has started ==>')
-
-    def login(self, username, password):
-        self.client.post('/accounts/local_login/', data={'username': username, 'password': password})
-
-    def messages(self, res):
-        return [m.message for m in get_messages(res.wsgi_request)]
-
-    def test_view_url_exists_at_desired_location(self):
-        print('\n- Test: view url exists at desired location')
-        self.login('admin', '12')
-
-        response = self.client.get( reverse('administrators:course_codes') )
-        self.assertEqual(response.status_code, 200)
-
     def test_course_codes(self):
         print('\n- Test: Display all course_codes and create a course_code')
-        self.login('admin', '12')
+        self.login()
 
         response = self.client.get( reverse('administrators:course_codes') )
         self.assertEqual(response.status_code, 200)
@@ -1488,7 +1452,7 @@ class CourseCodeTest(TestCase):
 
     def test_edit_course_code(self):
         print('\n- Test: edit course_code details')
-        self.login('admin', '12')
+        self.login()
 
         name = 'AANB'
 
@@ -1513,7 +1477,7 @@ class CourseCodeTest(TestCase):
 
     def test_delete_course_code(self):
         print('\n- Test: delete a course_code')
-        self.login('admin', '12')
+        self.login()
 
         total_course_codes = len(adminApi.get_course_codes())
 
@@ -1533,31 +1497,9 @@ class CourseCodeTest(TestCase):
             if course_code.id == course_code_id: found = True
         self.assertFalse(found)
 
-
-
-class CourseNumberTest(TestCase):
-    fixtures = DATA
-
-    @classmethod
-    def setUpTestData(cls):
-        print('\nAdministators:course_number testing has started ==>')
-
-    def login(self, username, password):
-        self.client.post('/accounts/local_login/', data={'username': username, 'password': password})
-
-    def messages(self, res):
-        return [m.message for m in get_messages(res.wsgi_request)]
-
-    def test_view_url_exists_at_desired_location(self):
-        print('\n- Test: view url exists at desired location')
-        self.login('admin', '12')
-
-        response = self.client.get( reverse('administrators:course_numbers') )
-        self.assertEqual(response.status_code, 200)
-
     def test_course_numbers(self):
         print('\n- Test: Display all course_numbers and create a course_number')
-        self.login('admin', '12')
+        self.login()
 
         response = self.client.get( reverse('administrators:course_numbers') )
         self.assertEqual(response.status_code, 200)
@@ -1578,7 +1520,7 @@ class CourseNumberTest(TestCase):
 
     def test_edit_course_number(self):
         print('\n- Test: edit course_number details')
-        self.login('admin', '12')
+        self.login()
 
         name = '100'
 
@@ -1603,7 +1545,7 @@ class CourseNumberTest(TestCase):
 
     def test_delete_course_number(self):
         print('\n- Test: delete a course_number')
-        self.login('admin', '12')
+        self.login()
 
         total_course_numbers = len(adminApi.get_course_numbers())
 
@@ -1623,31 +1565,9 @@ class CourseNumberTest(TestCase):
             if course_number.id == course_number_id: found = True
         self.assertFalse(found)
 
-
-
-class CourseSectionTest(TestCase):
-    fixtures = DATA
-
-    @classmethod
-    def setUpTestData(cls):
-        print('\nAdministators:course_section testing has started ==>')
-
-    def login(self, username, password):
-        self.client.post('/accounts/local_login/', data={'username': username, 'password': password})
-
-    def messages(self, res):
-        return [m.message for m in get_messages(res.wsgi_request)]
-
-    def test_view_url_exists_at_desired_location(self):
-        print('\n- Test: view url exists at desired location')
-        self.login('admin', '12')
-
-        response = self.client.get( reverse('administrators:course_sections') )
-        self.assertEqual(response.status_code, 200)
-
     def test_course_sections(self):
         print('\n- Test: Display all course_sections and create a course_section')
-        self.login('admin', '12')
+        self.login()
 
         response = self.client.get( reverse('administrators:course_sections') )
         self.assertEqual(response.status_code, 200)
@@ -1668,7 +1588,7 @@ class CourseSectionTest(TestCase):
 
     def test_edit_course_section(self):
         print('\n- Test: edit course_section details')
-        self.login('admin', '12')
+        self.login()
 
         name = '005'
 
@@ -1693,7 +1613,7 @@ class CourseSectionTest(TestCase):
 
     def test_delete_course_section(self):
         print('\n- Test: delete a course_section')
-        self.login('admin', '12')
+        self.login()
 
         total_course_sections = len(adminApi.get_course_sections())
 
@@ -1713,30 +1633,9 @@ class CourseSectionTest(TestCase):
             if course_section.id == course_section_id: found = True
         self.assertFalse(found)
 
-
-class classificationTest(TestCase):
-    fixtures = DATA
-
-    @classmethod
-    def setUpTestData(cls):
-        print('\nAdministators:classification testing has started ==>')
-
-    def login(self, username, password):
-        self.client.post('/accounts/local_login/', data={'username': username, 'password': password})
-
-    def messages(self, res):
-        return [m.message for m in get_messages(res.wsgi_request)]
-
-    def test_view_url_exists_at_desired_location(self):
-        print('\n- Test: view url exists at desired location')
-        self.login('admin', '12')
-
-        response = self.client.get( reverse('administrators:classifications') )
-        self.assertEqual(response.status_code, 200)
-
     def test_classifications(self):
         print('\n- Test: Display all classifications and create a classification')
-        self.login('admin', '12')
+        self.login()
 
         response = self.client.get( reverse('administrators:classifications') )
         self.assertEqual(response.status_code, 200)
@@ -1763,7 +1662,7 @@ class classificationTest(TestCase):
 
     def test_edit_classification(self):
         print('\n- Test: edit classification details')
-        self.login('admin', '12')
+        self.login()
 
         slug = '2019-marker'
 
@@ -1793,7 +1692,7 @@ class classificationTest(TestCase):
 
     def test_delete_classification(self):
         print('\n- Test: delete a classification')
-        self.login('admin', '12')
+        self.login()
 
         total_classifications = len(adminApi.get_classifications())
 

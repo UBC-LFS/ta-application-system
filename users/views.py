@@ -1,3 +1,4 @@
+
 from django.conf import settings
 from django.shortcuts import render, redirect
 from django.contrib import messages
@@ -285,7 +286,6 @@ def download_sin(request, username, filename):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['POST'])
 def delete_sin(request):
-    """ Delete user's work permit """
 
     if not api.is_valid_user(request.user):
         raise PermissionDenied
@@ -309,7 +309,6 @@ def delete_sin(request):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def download_study_permit(request, username, filename):
-    """ Download user's resume """
 
     if not api.is_valid_user(request.user): raise PermissionDenied
 
@@ -321,7 +320,6 @@ def download_study_permit(request, username, filename):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['POST'])
 def delete_study_permit(request):
-    """ Delete user's study permit """
 
     if not api.is_valid_user(request.user):
         raise PermissionDenied
@@ -352,7 +350,6 @@ def delete_study_permit(request):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET', 'POST'])
 def edit_student(request, username):
-    """ Edit student's profile """
 
     if not api.is_valid_user(request.user):
         raise PermissionDenied
@@ -401,7 +398,6 @@ def edit_student(request, username):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
 def show_student_job(request, username, session_slug, job_slug):
-    """ Dispaly student's jobs """
 
     if not api.is_valid_user(request.user):
         raise PermissionDenied
@@ -429,7 +425,6 @@ def show_student_job(request, username, session_slug, job_slug):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['POST'])
 def accept_offer(request, username, session_slug, job_slug):
-    """ Students accept job offers """
 
     if not api.is_valid_user(request.user):
         raise PermissionDenied
@@ -467,7 +462,6 @@ def accept_offer(request, username, session_slug, job_slug):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['POST'])
 def decline_offer(request, username, session_slug, job_slug):
-    """ Students decline job offers """
 
     if not api.is_valid_user(request.user):
         raise PermissionDenied
@@ -504,7 +498,6 @@ def decline_offer(request, username, session_slug, job_slug):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
 def show_instructor(request, username):
-    """ Display instructor's details """
 
     if not api.is_valid_user(request.user):
         raise PermissionDenied
@@ -523,7 +516,6 @@ def show_instructor(request, username):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET', 'POST'])
 def edit_instructor(request, username):
-    """ Edit an instructor """
 
     if not api.is_valid_user(request.user):
         raise PermissionDenied
@@ -559,7 +551,6 @@ def edit_instructor(request, username):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET', 'POST'])
 def show_instructor_jobs(request, username, session_slug, job_slug):
-    """ Display instructor's jobs """
 
     if not api.is_valid_user(request.user):
         raise PermissionDenied
@@ -599,7 +590,6 @@ def show_instructor_jobs(request, username, session_slug, job_slug):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET', 'POST'])
 def edit_instructor_jobs(request, username, session_slug, job_slug):
-    """ Edit instructor's jobs"""
 
     if not api.is_valid_user(request.user):
         raise PermissionDenied
@@ -639,7 +629,7 @@ def edit_instructor_jobs(request, username, session_slug, job_slug):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET', 'POST'])
 def hr(request):
-    """ Display HR's page """
+    ''' Display HR's page '''
 
     if not api.is_valid_user(request.user): raise PermissionDenied
     loggedin_user = api.loggedin_user(request.user)
@@ -649,7 +639,7 @@ def hr(request):
     total_users = len(users)
 
     # Pagination enables
-    """
+    '''
     user_list = api.get_users()
     total_users = len(user_list)
     query = request.GET.get('q')
@@ -666,7 +656,7 @@ def hr(request):
         users = paginator.page(1)
     except EmptyPage:
         users = paginator.page(paginator.num_pages)
-    """
+    '''
 
 
     return render(request, 'users/hr/hr.html', {
@@ -677,7 +667,7 @@ def hr(request):
 
 
 
-
+"""
 # Training
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -957,7 +947,6 @@ def edit_degree(request, slug):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['POST'])
 def delete_degree(request):
-    """ Delete a dgree """
 
     if not api.is_valid_user(request.user):
         raise PermissionDenied
@@ -1175,7 +1164,7 @@ def delete_status(request):
         else:
             messages.error(request, 'Error!')
     return redirect('users:statuses')
-
+"""
 
 
 """

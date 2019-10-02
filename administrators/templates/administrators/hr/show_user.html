@@ -140,7 +140,7 @@
                 <td class="text-right"><strong>Degrees</strong></td>
                 <td>
                   {% for degree in user.profile.degrees.all %}
-                    {{ degree.name }}, 
+                    {{ degree.name }},
                   {% empty %}
                     None
                   {% endfor %}

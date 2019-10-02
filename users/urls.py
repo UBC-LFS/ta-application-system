@@ -20,28 +20,29 @@ urlpatterns = [
     path('hr/', views.hr, name='hr'),
 
 
-    path('trainings/', views.trainings, name='trainings'),
-    path('trainings/<str:slug>/', views.show_training, name='show_training'),
-    path('trainings/<str:slug>/edit/', views.edit_training, name='edit_training'),
-    path('delete_training/', views.delete_training, name='delete_training'),
+    #path('trainings/', views.trainings, name='trainings'),
+    #path('trainings/<str:slug>/', views.show_training, name='show_training'),
+    #path('trainings/<str:slug>/edit/', views.edit_training, name='edit_training'),
+    #path('delete_training/', views.delete_training, name='delete_training'),
 
-    path('programs/', views.programs, name='programs'),
-    path('programs/<str:slug>/', views.show_program, name='show_program'),
-    path('programs/<str:slug>/edit/', views.edit_program, name='edit_program'),
-    path('delete_program/', views.delete_program, name='delete_program'),
+    #path('programs/', views.programs, name='programs'),
+    #path('programs/<str:slug>/', views.show_program, name='show_program'),
+    #path('programs/<str:slug>/edit/', views.edit_program, name='edit_program'),
+    #path('delete_program/', views.delete_program, name='delete_program'),
 
-    path('degrees/', views.degrees, name='degrees'),
-    path('degrees/<str:slug>/', views.show_degree, name='show_degree'),
-    path('degrees/<str:slug>/edit/', views.edit_degree, name='edit_degree'),
-    path('delete_degree/', views.delete_degree, name='delete_degree'),
+    #path('degrees/', views.degrees, name='degrees'),
+    #path('degrees/<str:slug>/', views.show_degree, name='show_degree'),
+    #path('degrees/<str:slug>/edit/', views.edit_degree, name='edit_degree'),
+    #path('delete_degree/', views.delete_degree, name='delete_degree'),
 
-    path('roles/', views.roles, name='roles'),
-    path('roles/<str:slug>/', views.show_role, name='show_role'),
-    path('roles/<str:slug>/edit/', views.edit_role, name='edit_role'),
-    path('delete_role/', views.delete_role, name='delete_role'),
+    #path('roles/', views.roles, name='roles'),
+    #path('roles/<str:slug>/', views.show_role, name='show_role'),
+    #path('roles/<str:slug>/edit/', views.edit_role, name='edit_role'),
+    #path('delete_role/', views.delete_role, name='delete_role'),
 
-    path('statuses/', views.statuses, name='statuses'),
-    path('statuses/<str:slug>/', views.show_status, name='show_status'),
-    path('statuses/<str:slug>/edit/', views.edit_status, name='edit_status'),
-    path('delete_status/', views.delete_status, name='delete_status'),
+    #path('statuses/', views.statuses, name='statuses'),
+    #path('statuses/<str:slug>/', views.show_status, name='show_status'),
+    #path('statuses/<str:slug>/edit/', views.edit_status, name='edit_status'),
+    #path('delete_status/', views.delete_status, name='delete_status')
+
 ]
