@@ -108,7 +108,7 @@ class HRTest(TestCase):
 
         self.assertFalse(userApi.username_exists(data['username']))
         self.assertFalse(userApi.profile_exists_by_username(data['username']))
-        
+
         response = self.client.post(reverse('administrators:create_user'), data=urlencode(data), content_type=ContentType)
         messages = self.messages(response)
         self.assertTrue('An error occurred' in messages[0])
@@ -286,6 +286,173 @@ class HRTest(TestCase):
 
 
 
+
+class CourseTest(TestCase):
+    fixtures = DATA
+
+    @classmethod
+    def setUpTestData(cls):
+        print('\nAdministators:Course testing has started ==>')
+        cls.user = userApi.get_user_by_username('admin')
+
+    def login(self, username=None, password=None):
+        if username and password:
+            self.client.post('/accounts/local_login/', data={'username': username, 'password': password})
+        else:
+            self.client.post('/accounts/local_login/', data={'username': self.user.username, 'password': self.user.password})
+
+    def messages(self, res):
+        return [m.message for m in get_messages(res.wsgi_request)]
+
+    def test_view_url_exists_at_desired_location(self):
+        print('\n- Test: view url exists at desired location')
+        self.login()
+
+        course_slug = 'lfs-100-001-introduction-to-land-food-and-community-w1'
+
+        response = self.client.get( reverse('administrators:courses') )
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get( reverse('administrators:all_courses') )
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get( reverse('administrators:create_course') )
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get( reverse('administrators:edit_course', args=[course_slug]) )
+        self.assertEqual(response.status_code, 200)
+
+
+    def test_all_courses(self):
+        print('\n- Test: Display all courses and edit/delete a course')
+        self.login()
+
+        response = self.client.get(reverse('administrators:all_courses'))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['loggedin_user'].username, self.user.username)
+        self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
+        self.assertEqual( len(response.context['courses']), 18 )
+
+
+    def test_create_course(self):
+        print('\n- Test: Create a course')
+        self.login()
+
+        total_courses = len(adminApi.get_courses())
+
+        data = {
+            'code': '2',
+            'number': '1',
+            'section': '1',
+            'name': 'new course',
+            'term': '2'
+        }
+        response = self.client.post( reverse('administrators:create_course'), data=urlencode(data), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+        self.assertEqual('/administrators/courses/all/', response.url)
+
+        response = self.client.get(reverse('administrators:all_courses'))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['loggedin_user'].username, self.user.username)
+        self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
+        self.assertEqual( len(response.context['courses']), total_courses + 1 )
+
+        # create the same data for checking duplicated data
+        response = self.client.post( reverse('administrators:create_course'), data=urlencode(data), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue('An error occurred' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+        self.assertEqual('/administrators/courses/create/', response.url)
+
+    def test_edit_course(self):
+        print('\n- Test: Edit a course')
+        self.login()
+
+        course_slug = 'lfs-100-001-introduction-to-land-food-and-community-w1'
+
+        response = self.client.get(reverse('administrators:edit_course', args=[course_slug]))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['loggedin_user'].username, self.user.username)
+        self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
+        self.assertEqual(response.context['course'].slug, course_slug)
+        self.assertFalse(response.context['form'].is_bound)
+
+        course_id = response.context['course'].id
+
+        data = {
+            'code': 2,
+            'number': 1,
+            'section': 1,
+            'name': 'edit course',
+            'term': 2
+        }
+
+        response = self.client.post( reverse('administrators:edit_course', args=[course_slug]), data=urlencode(data), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+        self.assertEqual(response.url, '/administrators/courses/all/')
+
+        course = adminApi.get_course(course_id)
+        response = self.client.get(reverse('administrators:edit_course', args=[course.slug]))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['loggedin_user'].username, self.user.username)
+        self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
+
+        self.assertEqual(response.context['course'].id, course_id)
+        self.assertEqual(response.context['course'].code.id, data['code'])
+        self.assertEqual(response.context['course'].number.id, data['number'])
+        self.assertEqual(response.context['course'].section.id, data['section'])
+        self.assertEqual(response.context['course'].term.id, data['term'])
+        self.assertEqual(response.context['course'].name, data['name'])
+
+    def test_edit_not_existing_course(self):
+        print('\n- Test: Edit a not existing course')
+        self.login()
+
+        course_slug = 'lfs-100-001-introduction-to-land-food-and-community-sa'
+
+        data = {
+            'code': 4,
+            'number': 1,
+            'section': 1,
+            'name': 'Introduction to Land Food and Community',
+            'term': 9
+        }
+        response = self.client.post( reverse('administrators:edit_course', args=[course_slug]), data=urlencode(data), content_type=ContentType )
+        self.assertEqual(response.status_code, 404)
+
+    def test_delete_course(self):
+        print('\n- Test: delete a course')
+        self.login()
+
+        total_courses = len(adminApi.get_courses())
+
+        course_id = 1
+        response = self.client.post( reverse('administrators:delete_course'), data=urlencode({ 'course': course_id }), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+        response = self.client.get(reverse('administrators:all_courses'))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['loggedin_user'].username, self.user.username)
+        self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
+        self.assertEqual( len(response.context['courses']), total_courses - 1 )
+
+    def test_delete_not_existing_course(self):
+        print('\n- Test: delete a not existing course')
+        self.login()
+
+        response = self.client.post( reverse('administrators:delete_course'), data=urlencode({ 'course': 1000 }), content_type=ContentType )
+        self.assertEqual(response.status_code, 404)
+
 class SessionTest(TestCase):
     fixtures = DATA
 
@@ -299,6 +466,9 @@ class SessionTest(TestCase):
             self.client.post('/accounts/local_login/', data={'username': username, 'password': password})
         else:
             self.client.post('/accounts/local_login/', data={'username': self.user.username, 'password': self.user.password})
+
+    def messages(self, res):
+        return [m.message for m in get_messages(res.wsgi_request)]
 
     def test_view_url_exists_at_desired_location(self):
         self.login()
@@ -333,6 +503,7 @@ class SessionTest(TestCase):
             'description': 'new description',
             'note': 'new note'
         }
+        total_sessions = len( adminApi.get_sessions() )
         sessions = adminApi.get_sessions_by_year(data['year'])
         self.assertEqual( sessions.count(), 0 )
 
@@ -341,6 +512,7 @@ class SessionTest(TestCase):
         self.assertRedirects(response, response.url)
 
         response = self.client.get(response.url)
+        self.assertEqual( len(response.context['error_messages']), 0)
         session = self.client.session
         self.assertEqual(session['session_form_data'], data)
         self.assertEqual(response.context['courses'].count(), 6)
@@ -349,13 +521,14 @@ class SessionTest(TestCase):
         data['is_visible'] = False
         data['is_archived'] = False
         response = self.client.post(reverse('administrators:create_session_confirmation'), data=urlencode(data, True), content_type=ContentType)
-        messages = [m.message for m in get_messages(response.wsgi_request)]
+        messages = self.messages(response)
         self.assertTrue('Success' in messages[0])
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, response.url)
 
         sessions = adminApi.get_sessions_by_year(data['year'])
         self.assertEqual( sessions.count(), 1 )
+        self.assertEqual( len(adminApi.get_sessions()), total_sessions + 1 )
         self.assertEqual(sessions[0].year, data['year'])
         self.assertEqual(sessions[0].term.code, 'W1')
         self.assertEqual(sessions[0].term.name, 'Winter Term 1')
@@ -366,18 +539,44 @@ class SessionTest(TestCase):
         self.assertEqual(sessions[0].job_set.count(), 6)
 
 
+    def test_create_existing_session(self):
+        print('\n- Test: create an existing session for checking duplicates')
+        self.login()
+
+        data = {
+            'year': '2019',
+            'term': '2',
+            'title': 'New TA Application',
+            'description': 'new description',
+            'note': 'new note'
+        }
+        response = self.client.post(reverse('administrators:create_session'), data=urlencode(data), content_type=ContentType)
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+        response = self.client.get(response.url)
+        self.assertEqual(response.context['error_messages'], ['Session with this Year and Term already exists.'])
+
     def test_delete_session(self):
         print('\n- Test: delete a session')
         self.login()
         session_id = '6'
         data = { 'session': session_id }
         response = self.client.post(reverse('administrators:delete_session', args=['current']), data=urlencode(data), content_type=ContentType)
-
-        messages = [m.message for m in get_messages(response.wsgi_request)]
+        messages = self.messages(response)
         self.assertTrue('Success' in messages[0])
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, response.url)
         self.assertFalse( adminApi.session_exists(session_id) )
+
+
+    def test_delete_not_existing_sessinon(self):
+        print('\n- Test: delete a not existing session')
+        self.login()
+
+        data = { 'session': '1000' }
+        response = self.client.post(reverse('administrators:delete_session', args=['current']), data=urlencode(data), content_type=ContentType)
+        self.assertEqual(response.status_code, 404)
 
 
     def test_edit_session(self):
@@ -412,6 +611,24 @@ class SessionTest(TestCase):
         self.assertEqual( updated_session.is_visible, eval(data['is_visible']) )
         self.assertEqual( updated_session.job_set.count(), len(data['courses']) )
 
+    def test_edit_not_existing_session(self):
+        print('\n- Test: edit a not existing session')
+        self.login()
+
+        session_id = '1116'
+        data = {
+            'session': session_id,
+            'year': '2019',
+            'term': '6',
+            'title': 'Edited TA Application',
+            'description': 'Edited description',
+            'note': 'Edited note',
+            'is_visible': 'True',
+            'courses': []
+        }
+
+        response = self.client.post(reverse('administrators:edit_session', args=['2019-w9', 'current']), data=urlencode(data, True), content_type=ContentType)
+        self.assertEqual(response.status_code, 404)
 
 class JobTest(TestCase):
     fixtures = DATA
@@ -430,6 +647,7 @@ class JobTest(TestCase):
     def messages(self, res):
         return [m.message for m in get_messages(res.wsgi_request)]
 
+    """
     def apply_jobs(self, user, active_sessions):
         ''' Students apply jobs '''
         num_applications = 0
@@ -481,6 +699,7 @@ class JobTest(TestCase):
                 num_offers += 1
             num += 1
         return num_offers
+    """
 
 
     def test_view_url_exists_at_desired_location(self):
@@ -526,9 +745,70 @@ class JobTest(TestCase):
 
         response = self.client.get( reverse('administrators:prepare_jobs') )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context['loggedin_user'].username, 'admin')
+        self.assertEqual(response.context['loggedin_user'].username, self.user.username)
         self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
         self.assertEqual( len(response.context['jobs']), 21 )
+
+    def test_edit_job(self):
+        print('\n- Test: edit a job')
+        self.login()
+
+        session_slug = '2019-w1'
+        job_slug = 'lfs-252-001-land-food-and-community-quantitative-data-analysis-w1'
+
+        response = self.client.get( reverse('administrators:edit_job', args=[session_slug, job_slug]) )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['loggedin_user'].username, self.user.username)
+        self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
+        session = response.context['session']
+        job = response.context['job']
+        form = response.context['form']
+        self.assertEqual(session.slug, session_slug)
+        self.assertEqual(job.course.slug, job_slug)
+        self.assertFalse(form.is_bound)
+        self.assertEqual(form.instance.id, job.id)
+
+        data = {
+            'title': 'new title',
+            'description': 'new description',
+            'quallification': 'new quallification',
+            'note': 'new note',
+            'assigned_ta_hours': '180.00',
+            'is_active': False,
+            'instructors': ['4', '5', '6']
+        }
+        response = self.client.post( reverse('administrators:edit_job', args=[session_slug, job_slug]), data=urlencode(data, True), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+        updated_job = adminApi.get_session_job_by_slug(session_slug, job_slug)
+        self.assertEqual(updated_job.title, data['title'])
+        self.assertEqual(updated_job.description, data['description'])
+        self.assertEqual(updated_job.note, data['note'])
+        self.assertEqual(updated_job.assigned_ta_hours, float(data['assigned_ta_hours']))
+        self.assertEqual(updated_job.is_active, data['is_active'])
+        self.assertEqual(len(updated_job.instructors.all()), len(data['instructors']))
+
+    def test_edit_not_existing_job(self):
+        print('\n- Test: display all progress jobs')
+        self.login()
+
+        session_slug = '2019-w9'
+        job_slug = 'lfs-252-001-land-food-and-community-quantitative-data-analysis-w9'
+        data = {
+            'title': 'new title',
+            'description': 'new description',
+            'quallification': 'new quallification',
+            'note': 'new note',
+            'assigned_ta_hours': '180.00',
+            'is_active': False,
+            'instructors': ['4', '5', '6']
+        }
+
+        response = self.client.post(reverse('administrators:edit_session', args=[session_slug, job_slug]), data=urlencode(data, True), content_type=ContentType)
+        self.assertEqual(response.status_code, 404)
 
     def test_progress_jobs(self):
         print('\n- Test: display all progress jobs')
@@ -536,7 +816,7 @@ class JobTest(TestCase):
 
         response = self.client.get( reverse('administrators:progress_jobs') )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context['loggedin_user'].username, 'admin')
+        self.assertEqual(response.context['loggedin_user'].username, self.user.username)
         self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
         self.assertEqual( len(response.context['jobs']), 21 )
 
@@ -546,7 +826,7 @@ class JobTest(TestCase):
 
         response = self.client.get( reverse('administrators:instructor_jobs') )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context['loggedin_user'].username, 'admin')
+        self.assertEqual(response.context['loggedin_user'].username, self.user.username)
         self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
         self.assertEqual( len(response.context['instructors']), 5 )
 
@@ -556,7 +836,7 @@ class JobTest(TestCase):
 
         response = self.client.get( reverse('administrators:student_jobs') )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context['loggedin_user'].username, 'admin')
+        self.assertEqual(response.context['loggedin_user'].username, self.user.username)
         self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
         self.assertEqual( len(response.context['students']), 22 )
 
@@ -600,48 +880,6 @@ class JobTest(TestCase):
         self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
         student = response.context['student']
         self.assertEqual(student.username, username)
-
-    def test_edit_job(self):
-        print('\n- Test: edit a job')
-        self.login()
-
-        session_slug = '2019-w1'
-        job_slug = 'lfs-252-001-land-food-and-community-quantitative-data-analysis-w1'
-
-        response = self.client.get( reverse('administrators:edit_job', args=[session_slug, job_slug]) )
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context['loggedin_user'].username, 'admin')
-        self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
-        session = response.context['session']
-        job = response.context['job']
-        form = response.context['form']
-        self.assertEqual(session.slug, session_slug)
-        self.assertEqual(job.course.slug, job_slug)
-        self.assertFalse(form.is_bound)
-        self.assertEqual(form.instance.id, job.id)
-
-        data = {
-            'title': 'new title',
-            'description': 'new description',
-            'quallification': 'new quallification',
-            'note': 'new note',
-            'assigned_ta_hours': '180.00',
-            'is_active': False,
-            'instructors': ['4', '5', '6']
-        }
-        response = self.client.post( reverse('administrators:edit_job', args=[session_slug, job_slug]), data=urlencode(data, True), content_type=ContentType )
-        messages = self.messages(response)
-        self.assertTrue('Success' in messages[0])
-        self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, response.url)
-
-        updated_job = adminApi.get_session_job_by_slug(session_slug, job_slug)
-        self.assertEqual(updated_job.title, data['title'])
-        self.assertEqual(updated_job.description, data['description'])
-        self.assertEqual(updated_job.note, data['note'])
-        self.assertEqual(updated_job.assigned_ta_hours, float(data['assigned_ta_hours']))
-        self.assertEqual(updated_job.is_active, data['is_active'])
-        self.assertEqual(len(updated_job.instructors.all()), len(data['instructors']))
 
 
 
@@ -970,143 +1208,6 @@ class ApplicationTest(TestCase):
         self.assertEqual(status[3]['parent_id'], str(status[2]['id']))
         self.assertEqual(status[4]['assigned'], ApplicationStatus.ACCEPTED)
         self.assertEqual(status[4]['assigned_hours'], float(data['new_assigned_hours']))
-
-
-class CourseTest(TestCase):
-    fixtures = DATA
-
-    @classmethod
-    def setUpTestData(cls):
-        print('\nAdministators:Course testing has started ==>')
-        cls.user = userApi.get_user_by_username('admin')
-
-    def login(self, username=None, password=None):
-        if username and password:
-            self.client.post('/accounts/local_login/', data={'username': username, 'password': password})
-        else:
-            self.client.post('/accounts/local_login/', data={'username': self.user.username, 'password': self.user.password})
-
-    def messages(self, res):
-        return [m.message for m in get_messages(res.wsgi_request)]
-
-    def test_view_url_exists_at_desired_location(self):
-        print('\n- Test: view url exists at desired location')
-        self.login()
-
-        course_slug = 'lfs-100-001-introduction-to-land-food-and-community-w1'
-
-        response = self.client.get( reverse('administrators:courses') )
-        self.assertEqual(response.status_code, 200)
-
-        response = self.client.get( reverse('administrators:all_courses') )
-        self.assertEqual(response.status_code, 200)
-
-        response = self.client.get( reverse('administrators:create_course') )
-        self.assertEqual(response.status_code, 200)
-
-        response = self.client.get( reverse('administrators:edit_course', args=[course_slug]) )
-        self.assertEqual(response.status_code, 200)
-
-
-    def test_all_courses(self):
-        print('\n- Test: Display all courses and edit/delete a course')
-        self.login()
-
-        response = self.client.get(reverse('administrators:all_courses'))
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context['loggedin_user'].username, 'admin')
-        self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
-        self.assertEqual( len(response.context['courses']), 18 )
-
-
-    def test_create_course(self):
-        print('\n- Test: Create a course')
-        self.login()
-
-        total_courses = len(adminApi.get_courses())
-
-        data = {
-            'code': '2',
-            'number': '1',
-            'section': '1',
-            'name': 'new course',
-            'term': '2'
-        }
-        response = self.client.post( reverse('administrators:create_course'), data=urlencode(data), content_type=ContentType )
-        messages = self.messages(response)
-        self.assertTrue('Success' in messages[0])
-        self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, response.url)
-
-        response = self.client.get(reverse('administrators:all_courses'))
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context['loggedin_user'].username, 'admin')
-        self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
-        self.assertEqual( len(response.context['courses']), total_courses + 1 )
-
-
-    def test_edit_course(self):
-        print('\n- Test: Edit a course')
-        self.login()
-
-        course_slug = 'lfs-100-001-introduction-to-land-food-and-community-w1'
-
-        response = self.client.get(reverse('administrators:edit_course', args=[course_slug]))
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context['loggedin_user'].username, 'admin')
-        self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
-        self.assertEqual(response.context['course'].slug, course_slug)
-        self.assertFalse(response.context['form'].is_bound)
-
-        course_id = response.context['course'].id
-
-        data = {
-            'code': 2,
-            'number': 1,
-            'section': 1,
-            'name': 'edit course',
-            'term': 2
-        }
-
-        response = self.client.post( reverse('administrators:edit_course', args=[course_slug]), data=urlencode(data), content_type=ContentType )
-        messages = self.messages(response)
-        self.assertTrue('Success' in messages[0])
-        self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, response.url)
-
-        course = adminApi.get_course(course_id)
-
-        response = self.client.get(reverse('administrators:edit_course', args=[course.slug]))
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context['loggedin_user'].username, 'admin')
-        self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
-
-        self.assertEqual(response.context['course'].id, course_id)
-        self.assertEqual(response.context['course'].code.id, data['code'])
-        self.assertEqual(response.context['course'].number.id, data['number'])
-        self.assertEqual(response.context['course'].section.id, data['section'])
-        self.assertEqual(response.context['course'].term.id, data['term'])
-        self.assertEqual(response.context['course'].name, data['name'])
-
-    def test_delete_course(self):
-        print('\n- Test: Edit a course')
-        self.login()
-
-        total_courses = len(adminApi.get_courses())
-
-        course_id = 1
-
-        response = self.client.post( reverse('administrators:delete_course'), data=urlencode({ 'course': course_id }), content_type=ContentType )
-        messages = self.messages(response)
-        self.assertTrue('Success' in messages[0])
-        self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, response.url)
-
-        response = self.client.get(reverse('administrators:all_courses'))
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context['loggedin_user'].username, 'admin')
-        self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
-        self.assertEqual( len(response.context['courses']), total_courses - 1 )
 
 
 class PreparationTest(TestCase):

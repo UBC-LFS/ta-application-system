@@ -1,61 +1,50 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
 
-<div class="wrapper">
-  {% include "administrators/util/_sidebar.html" %}
+{% include "administrators/util/_sidebar.html" %}
 
-  <div id="content" class="container-fluid">
+<div id="content" class="container-fluid">
 
-    {% if messages %}
-      {% for message in messages %}
-        <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
-          {{ message }}
-          <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        </div>
-      {% endfor %}
-    {% endif %}
+  {% include 'ta_app/_return_messages.html' with data=messages %}
 
-    <h3>All Courses</h3>
-    <small>Total: {{ courses|length }}</small>
-
-    <table class="table table-sm table-striped table-responsive" data-toggle="table" data-sortable="true" data-classes="" data-pagination="true" data-search="true">
-      <thead>
+  <h3>All Courses</h3>
+  <div class="text-secondary">Total Courses: {{ courses|length }}</div>
+  
+  <table class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center" data-toggle="table" data-sortable="true" data-classes="" data-pagination="true" data-search="true">
+    <thead class="thead-light">
+      <tr>
+        <th data-sortable="true">Session ID</th>
+        <th data-sortable="true">Code</th>
+        <th data-sortable="true">Number</th>
+        <th data-sortable="true">Section</th>
+        <th data-sortable="true">Term</th>
+        <th data-sortable="true">Name</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for course in courses %}
         <tr>
-          <th>ID</th>
-          <th data-sortable="true">Code</th>
-          <th data-sortable="true">Number</th>
-          <th data-sortable="true">Section</th>
-          <th data-sortable="true">Term</th>
-          <th data-sortable="true">Name</th>
-          <th></th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for course in courses %}
-          <tr>
-            <td>{{ course.id }}</td>
-            <td>{{ course.code }}</td>
-            <td>{{ course.number }}</td>
-            <td>{{ course.section }}</td>
-            <td>{{ course.term.name }} ({{ course.term.code }})</td>
-            <td>{{ course.name }}</td>
-            <td>
-              <a class="btn btn-sm btn-warning btn-block" href="{% url 'administrators:edit_course' course.slug %}">Edit</a>
-            </td>
-            <td>
+          <td>{{ course.id }}</td>
+          <td>{{ course.code }}</td>
+          <td>{{ course.number }}</td>
+          <td>{{ course.section }}</td>
+          <td>{{ course.term.name }} ({{ course.term.code }})</td>
+          <td class="text-left">{{ course.name }}</td>
+          <td>
+            <div class="btn-toolbar">
+              <a class="btn btn-sm btn-warning mr-2" href="{% url 'administrators:edit_course' course.slug %}">Edit</a>
               <form action="{% url 'administrators:delete_course' %}" method="post" onsubmit="return confirm('Are you sure to delete {{ course.code }} {{ course.number }} {{ course.section }} - {{ course.name }}?');">
                 {% csrf_token %}
                 <input type="hidden" name="course" value="{{ course.id }}" />
-                <input class="btn btn-sm btn-danger btn-block" type="submit" value="Delete" />
+                <input class="btn btn-sm btn-danger" type="submit" value="Delete" />
               </form>
-            </td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-
-  </div>
+            </div>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 
 </div>
 

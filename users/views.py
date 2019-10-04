@@ -493,7 +493,7 @@ def decline_offer(request, username, session_slug, job_slug):
 
 
 # Instructor Profile
-
+"""
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
@@ -621,7 +621,7 @@ def edit_instructor_jobs(request, username, session_slug, job_slug):
         'job': job,
         'form': InstructorJobForm(data=None, instance=job)
     })
-
+"""
 
 # HR
 

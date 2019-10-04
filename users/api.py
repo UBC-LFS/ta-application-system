@@ -368,7 +368,7 @@ def delete_user_resume(username):
     user = get_user_by_username(username)
     file = os.path.basename(user.resume.file.name)
     deleted_resume = user.resume.delete()
-    
+
     # Delete an existing file
     deleted = delete_existing_file(user, 'resume', file)
     return True if deleted_resume and deleted else None

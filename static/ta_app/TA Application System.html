@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<!-- saved from url=(0014)about:internet -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>TA Application System</title>
+	
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="./TA Application System_files/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+	<link href="./TA Application System_files/bootstrap-table.min.css" rel="stylesheet">
+
+	
+	<link rel="stylesheet" type="text/css" href="./TA Application System_files/style.css">
+	<link rel="stylesheet" type="text/css" href="./TA Application System_files/font-awesome.min.css">
+	<link rel="stylesheet" href="./TA Application System_files/jquery.mCustomScrollbar.min.css">
+</head>
+<body>
+
+	
+		<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+			<a class="navbar-brand" href="http://localhost:8000/administrators/sessions/2019-w1/jobs/lfs-100-001-introduction-to-land-food-and-community-w1/path/current/#">TA Applications</a>
+			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+  				<span class="navbar-toggler-icon"></span>
+			</button>
+
+			<div class="collapse navbar-collapse" id="navbarSupportedContent">
+				<ul class="navbar-nav mr-auto">
+					
+					
+					
+					
+						<li class="nav-item">
+							<a id="admin" class="nav-link active" href="http://localhost:8000/administrators/">Administrator's Portal</a>
+						</li>
+						
+					
+    			</ul>
+				<span class="navbar-text">admin ['Admin']</span>
+  			</div>
+		</nav>
+		
+			<ul class="nav justify-content-center bg-primary">
+	<li class="nav-item dropdown">
+    	<a class="nav-link dropdown-toggle text-white" data-toggle="dropdown" href="http://localhost:8000/administrators/courses/" role="button" aria-haspopup="true" aria-expanded="false">Courses</a>
+		<div class="dropdown-menu">
+			<a class="dropdown-item" href="http://localhost:8000/administrators/courses/create/">Create a Course</a>
+			<a class="dropdown-item" href="http://localhost:8000/administrators/courses/all/">All Courses</a>
+		</div>
+	</li>
+
+    <li class="nav-item dropdown">
+    	<a class="nav-link dropdown-toggle text-white" data-toggle="dropdown" href="http://localhost:8000/administrators/sessions/" role="button" aria-haspopup="true" aria-expanded="false">Sessions</a>
+    	<div class="dropdown-menu">
+      		<a class="dropdown-item" href="http://localhost:8000/administrators/sessions/create/">Create a Session</a>
+      		<a class="dropdown-item" href="http://localhost:8000/administrators/sessions/current/">Current Sessions</a>
+      		<a class="dropdown-item" href="http://localhost:8000/administrators/sessions/archived/">Archived Sessions</a>
+    	</div>
+	</li>
+
+    <li class="nav-item dropdown">
+    	<a class="nav-link dropdown-toggle text-white" data-toggle="dropdown" href="http://localhost:8000/administrators/jobs/" role="button" aria-haspopup="true" aria-expanded="false">Jobs</a>
+    	<div class="dropdown-menu">
+      		<a class="dropdown-item" href="http://localhost:8000/administrators/jobs/prepare/">Prepare Jobs</a>
+      		<a class="dropdown-item" href="http://localhost:8000/administrators/jobs/progress/">Jobs in Progress</a>
+      		<a class="dropdown-item" href="http://localhost:8000/administrators/jobs/instructor/">Jobs by Instructor</a>
+      		<a class="dropdown-item" href="http://localhost:8000/administrators/jobs/student/">Jobs by Student</a>
+		</div>
+    </li>
+
+    <li class="nav-item dropdown">
+    	<a class="nav-link dropdown-toggle text-white" data-toggle="dropdown" href="http://localhost:8000/administrators/applications/" role="button" aria-haspopup="true" aria-expanded="false">Applications</a>
+    	<div class="dropdown-menu">
+      		<a class="dropdown-item" href="http://localhost:8000/administrators/applications/selected/">Selected Applications</a>
+      		<a class="dropdown-item" href="http://localhost:8000/administrators/applications/offered/">Offered Applications</a>
+      		<a class="dropdown-item" href="http://localhost:8000/administrators/applications/accepted/">Accepted Applications</a>
+      		<a class="dropdown-item" href="http://localhost:8000/administrators/applications/declined/">Declined Applications</a>
+			<a class="dropdown-item" href="http://localhost:8000/administrators/applications/offered/email_history/">Email History</a>
+		</div>
+    </li>
+
+    <li class="nav-item dropdown">
+    	<a class="nav-link dropdown-toggle text-white" data-toggle="dropdown" href="http://localhost:8000/administrators/hr/" role="button" aria-haspopup="true" aria-expanded="false">Human Resources</a>
+    	<div class="dropdown-menu">
+      		<a class="dropdown-item" href="http://localhost:8000/administrators/hr/users/create/">Create a User</a>
+    		<a class="dropdown-item" href="http://localhost:8000/administrators/hr/users/">All Users</a>
+		</div>
+    </li>
+
+    <li class="nav-item dropdown">
+    	<a class="nav-link dropdown-toggle text-white" data-toggle="dropdown" href="http://localhost:8000/administrators/preparation/" role="button" aria-haspopup="true" aria-expanded="false">Preparation</a>
+    	<div class="dropdown-menu">
+      		<a class="dropdown-item" href="http://localhost:8000/administrators/preparation/terms/">Terms</a>
+      		<a class="dropdown-item" href="http://localhost:8000/administrators/preparation/course_codes/">Course Codes</a>
+      		<a class="dropdown-item" href="http://localhost:8000/administrators/preparation/course_numbers/">Course Numbers</a>
+      		<a class="dropdown-item" href="http://localhost:8000/administrators/preparation/course_sections/">Course Sections</a>
+      		<a class="dropdown-item" href="http://localhost:8000/administrators/hr/roles/">Roles</a>
+      		<a class="dropdown-item" href="http://localhost:8000/administrators/preparation/statuses/">Statuses</a>
+      		<a class="dropdown-item" href="http://localhost:8000/administrators/preparation/programs/">Programs</a>
+      		<a class="dropdown-item" href="http://localhost:8000/administrators/preparation/degrees/">Degrees</a>
+      		<a class="dropdown-item" href="http://localhost:8000/administrators/preparation/trainings/">Trainings</a>
+		</div>
+    </li>
+  </ul>
+
+		
+		
+		<div id="content-padding" class="padding-top-66">
+			<main>
+				<div class="wrapper">
+					
+
+<nav id="sidebar" class="mCustomScrollbar _mCS_1" data-mcs-theme="dark"><div id="mCSB_1" class="mCustomScrollBox mCS-dark mCSB_vertical mCSB_inside" style="max-height: none;" tabindex="0"><div id="mCSB_1_container" class="mCSB_container" style="position:relative; top:0; left:0;" dir="ltr">
+  <ul class="nav flex-column">
+    <li class="nav-item">
+      <h4><a class="nav-link" href="http://localhost:8000/administrators/courses/">Courses</a></h4>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link text-secondary" href="http://localhost:8000/administrators/courses/create/">Create Course</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link text-secondary" href="http://localhost:8000/administrators/courses/all/">All Courses</a>
+    </li>
+
+    <li class="nav-item">
+      <h4><a class="nav-link" href="http://localhost:8000/administrators/sessions/">Sessions</a></h4>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link text-secondary" href="http://localhost:8000/administrators/sessions/create/">Create Session</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link text-secondary" href="http://localhost:8000/administrators/sessions/current/">Current Sessions</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link text-secondary" href="http://localhost:8000/administrators/sessions/archived/">Archived Sessions</a>
+    </li>
+
+    <li class="nav-item">
+      <h4><a class="nav-link" href="http://localhost:8000/administrators/jobs/">Jobs</a></h4>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link text-secondary" href="http://localhost:8000/administrators/jobs/prepare/">Prepare Jobs</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link text-secondary" href="http://localhost:8000/administrators/jobs/progress/">Jobs in Progress</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link text-secondary" href="http://localhost:8000/administrators/jobs/instructor/">Jobs by Instructor</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link text-secondary" href="http://localhost:8000/administrators/jobs/student/">Jobs by Student</a>
+    </li>
+
+    <li class="nav-item">
+      <h4><a class="nav-link" href="http://localhost:8000/administrators/applications/">Applications</a></h4>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link text-secondary" href="http://localhost:8000/administrators/applications/dashboard/">Dashboard</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link text-secondary" href="http://localhost:8000/administrators/applications/all/">All Applications</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link text-secondary" href="http://localhost:8000/administrators/applications/selected/">Selected Applications</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link text-secondary" href="http://localhost:8000/administrators/applications/offered/">Offered Applications</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link text-secondary" href="http://localhost:8000/administrators/applications/accepted/">Accepted Applications</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link text-secondary" href="http://localhost:8000/administrators/applications/declined/">Declined Applications</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link text-secondary" href="http://localhost:8000/administrators/applications/offered/email_history/">Email History</a>
+    </li>
+    <li class="nav-item">
+      <h4><a class="nav-link" href="http://localhost:8000/administrators/hr/">Human Resources</a></h4>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link text-secondary" href="http://localhost:8000/administrators/hr/users/create/">Create User</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link text-secondary" href="http://localhost:8000/administrators/hr/users/">All Users</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link text-secondary" href="http://localhost:8000/administrators/hr/roles/">Roles</a>
+    </li>
+    <li class="nav-item">
+      <h4><a class="nav-link" href="http://localhost:8000/administrators/preparation/">Preparation</a></h4>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link text-secondary" href="http://localhost:8000/administrators/preparation/terms/">Terms</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link text-secondary" href="http://localhost:8000/administrators/preparation/course_codes/">Course Codes</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link text-secondary" href="http://localhost:8000/administrators/preparation/course_numbers/">Course Numbers</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link text-secondary" href="http://localhost:8000/administrators/preparation/course_sections/">Course Sections</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link text-secondary" href="http://localhost:8000/administrators/preparation/statuses/">Statuses</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link text-secondary" href="http://localhost:8000/administrators/preparation/programs/">Programs</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link text-secondary" href="http://localhost:8000/administrators/preparation/degrees/">Degrees</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link text-secondary" href="http://localhost:8000/administrators/preparation/trainings/">Trainings</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link text-secondary" href="http://localhost:8000/administrators/preparation/classifications/">Classifications</a>
+    </li>
+  </ul>
+</div><div id="mCSB_1_scrollbar_vertical" class="mCSB_scrollTools mCSB_1_scrollbar mCS-dark mCSB_scrollTools_vertical" style="display: block;"><div class="mCSB_draggerContainer"><div id="mCSB_1_dragger_vertical" class="mCSB_dragger" style="position: absolute; min-height: 30px; display: block; height: 197px; max-height: 590.424px; top: 0px;"><div class="mCSB_dragger_bar" style="line-height: 30px;"></div></div><div class="mCSB_draggerRail"></div></div></div></div></nav>
+
+
+
+
+<div id="content" class="container-fluid">
+  <h3>Job Details</h3>
+
+  <div class="job-details row justify-content-center">
+    <div class="col-lg-3">
+      <div class="left-content">
+        <img class="ubc-logo mx-auto d-block" src="./TA Application System_files/UBClogo.jpeg" alt="ubc logo">
+
+        <div class="text-center text-secondary margin-top-30 margin-bottom-30">
+          <h4 class="font-weight-normal">Number of Applications</h4>
+          <h3 class="font-weight-bold">4</h3>
+        </div>
+
+        <div class="ta-hours text-center margin-bottom-30 p-2 bg-info text-white">
+          <div class="">
+            <h4 class="font-weight-normal">Assgiend TA Hours</h4>
+            <h3 class="font-weight-bold">200.0 hours</h3>
+          </div>
+
+          <hr class="text-white">
+
+          <div class="">
+            <h4 class="font-weight-normal">Applicants' TA Hours</h4>
+            <h3 class="font-weight-bold">70.0 hours</h3>
+          </div>
+        </div>
+
+        
+  <a class="btn btn-outline-primary btn-block" href="http://localhost:8000/administrators/sessions/2019-w1/path/current/">
+    Back to
+     Current
+    
+    Session Details
+  </a>
+
+
+
+        <div class="margin-top-50">
+          <span>Is active:</span>
+          
+            <span class="badge badge-success">True <i class="fa fa-check-circle" aria-hidden="true"></i></span>
+          
+        </div>
+
+      </div>
+    </div>
+
+    <div class="col-lg-6 offset-lg-1">
+      <div class="right-content">
+
+        <div class="text-secondary">
+          Created at Jan. 1, 2019 <span class="margin-left-right-10">|</span>
+          Updated At Sept. 25, 2019
+        </div>
+
+        <div class="margin-top-30 margin-bottom-30">
+          <h5>2019 Winter Term 1 (W1)</h5>
+          <h5 class="margin-bottom-30">
+            Session Title: <span class="font-weight-normal">TA Application</span>
+          </h5>
+          <h4>LFS 100 001</h4>
+          <div class="text-secondary">Introduction to Land, Food and Community</div>
+        </div>
+
+        <hr class="dotted">
+
+        <h5 class="margin-top-30">Instructors</h5>
+        <ul>
+          
+            <li>test4 user4</li>
+          
+        </ul>
+
+        <div class="margin-bottom-30">
+          <h3 class="font-weight-bold text-secondary">Title:</h3>
+          Job Title
+        </div>
+
+        <div class="margin-bottom-30">
+          <h3 class="font-weight-bold text-secondary">Description:</h3>
+          <p>Job Description</p>
+        </div>
+
+        <div class="margin-bottom-30">
+          <h3 class="font-weight-bold text-secondary">Qualification:</h3>
+          <p>Job Quallification</p>
+        </div>
+
+        <div class="margin-bottom-30">
+          <h3 class="font-weight-bold text-secondary">Note:</h3>
+          <p>Job Note</p>
+        </div>
+
+        <hr class="dotted">
+
+        <ul>
+          <li>Job ID: 7</li>
+          <li>Job Slug: lfs-100-001-introduction-to-land-food-and-community-w1</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+
+  <h3 class="margin-top-30">Applications</h3>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Applicant</th>
+        <th>CWL</th>
+        <th>Status</th>
+        <th>Supervisor Approval</th>
+        <th>How Qualified</th>
+        <th>How Interested</th>
+        <th>Availability</th>
+        <th>Instructor Preference</th>
+        <th>Classification</th>
+        <th>Note</th>
+        <th>Created At</th>
+        <th>Updated At</th>
+      </tr>
+    </thead>
+    <tbody>
+      
+        <tr>
+          <td>1</td>
+          <td>test10 user10</td>
+          <td>test.user10</td>
+          <td>
+            <ul>
+              
+                <li>None: 0.0 hours on Sept. 24, 2019</li>
+              
+            </ul>
+          </td>
+          <td>True</td>
+          <td>Very</td>
+          <td>Most</td>
+          <td>True</td>
+          <td>No Preference</td>
+          <td> </td>
+          <td>None</td>
+          <td>Sept. 24, 2019</td>
+          <td>Sept. 25, 2019</td>
+        </tr>
+      
+        <tr>
+          <td>15</td>
+          <td>test12 user12</td>
+          <td>test.user12</td>
+          <td>
+            <ul>
+              
+                <li>None: 0.0 hours on Sept. 24, 2019</li>
+              
+                <li>Offered: 30.0 hours on Sept. 25, 2019</li>
+              
+                <li>Accepted: 30.0 hours on Sept. 25, 2019</li>
+              
+            </ul>
+          </td>
+          <td>True</td>
+          <td>Very</td>
+          <td>Very</td>
+          <td>True</td>
+          <td>Requested</td>
+          <td>2019 STA</td>
+          <td></td>
+          <td>Sept. 24, 2019</td>
+          <td>Sept. 25, 2019</td>
+        </tr>
+      
+        <tr>
+          <td>23</td>
+          <td>test15 user15</td>
+          <td>test.user15</td>
+          <td>
+            <ul>
+              
+                <li>None: 0.0 hours on Sept. 24, 2019</li>
+              
+                <li>Offered: 40.0 hours on Sept. 25, 2019</li>
+              
+                <li>Accepted: 40.0 hours on Sept. 25, 2019</li>
+              
+            </ul>
+          </td>
+          <td>True</td>
+          <td>Very</td>
+          <td>Most</td>
+          <td>True</td>
+          <td>Critical Requested</td>
+          <td>2019 GTA I</td>
+          <td></td>
+          <td>Sept. 24, 2019</td>
+          <td>Sept. 25, 2019</td>
+        </tr>
+      
+        <tr>
+          <td>32</td>
+          <td>test20 user20</td>
+          <td>test.user20</td>
+          <td>
+            <ul>
+              
+                <li>None: 0.0 hours on Sept. 27, 2019</li>
+              
+                <li>Offered: 10.0 hours on Sept. 27, 2019</li>
+              
+            </ul>
+          </td>
+          <td>False</td>
+          <td>Not at all</td>
+          <td>Marginally</td>
+          <td>False</td>
+          <td>Acceptable</td>
+          <td>2019 Marker</td>
+          <td></td>
+          <td>Sept. 27, 2019</td>
+          <td>Sept. 27, 2019</td>
+        </tr>
+      
+    </tbody>
+  </table>
+</div>
+
+
+
+
+				</div>
+			</main>
+
+			<footer></footer>
+		</div>
+
+	
+
+	<script src="./TA Application System_files/jquery-3.3.1.slim.min.js.download" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+	<script src="./TA Application System_files/popper.min.js.download" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+	<script src="./TA Application System_files/bootstrap.min.js.download" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+	<script src="./TA Application System_files/jquery.mCustomScrollbar.concat.min.js.download"></script>
+	<script src="./TA Application System_files/bootstrap-table.min.js.download"></script>
+	
+	<script type="text/javascript" src="./TA Application System_files/index.js.download"></script>
+
+
+
+</body></html>

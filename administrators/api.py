@@ -55,11 +55,8 @@ def session_exists(session_id):
     return False
 
 def get_session(session_id):
-    """ Get a session """
-    try:
-        return Session.objects.get(id=session_id)
-    except Session.DoesNotExist:
-        return None
+    ''' Get a session '''
+    return get_object_or_404(Session, id=session_id)
 
 def get_session_by_slug(session_slug):
     ''' Get a session by slug '''
@@ -117,16 +114,13 @@ def get_not_visible_active_sessions():
     return Session.objects.filter(is_visible=False, is_archived=False)
 
 
-
-#checked
 def delete_session(session_id):
-    """ Delete a session """
-    try:
-        session = Session.objects.get(id=session_id)
-        session.delete()
-        return session
-    except Session.DoesNotExist:
-        return None
+    ''' Delete a session '''
+
+    session = get_session(session_id)
+    session.delete()
+    return session
+
 
 def update_session_jobs(session, courses):
     new_course_ids = [ course.id for course in courses ]

@@ -1,25 +1,44 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
 
-<div class="wrapper">
-  {% include "administrators//util/_sidebar.html" %}
+{% include "administrators//util/_sidebar.html" %}
 
-  <div id="content" class="container-fluid">
-    <h3>Edit Session</h3>
+{% load static %}
 
-    <h3>{{ session.year }} {{ session.term.name }} {{ session.title }}</h3>
-    <div>ID: {{ session.id }}</div>
-    <div>Slug: {{ session.slug }}</div>
+<div id="content" class="container-fluid">
+  <h3 class="mb-5">Edit Session</h3>
 
-    <form class="edit-session-form" action="" method="post">
-      {% csrf_token %}
-      <table>{{ form.as_table }}</table>
-      <input type="hidden" name="path" value="{{ path }}">
-      <input type="submit" value="Update" />
-    </form>
+  <div class="row justify-content-center">
+    <div class="col-lg-3">
+      <div class="left-content">
+        <img class="ubc-logo mx-auto d-block" src="{% static 'ta_app/images/UBClogo.jpeg' %}" alt="ubc logo" />
 
-    {% include 'administrators/sessions/_go_back.html' with data=path %}
+        <div class="mt-4 mb-5">
+          <h3>{{ session.year }} {{ session.term.name }}</h3>
+          <h4 class="text-secondary">Title: {{ session.title }}</h4>
+        </div>
+
+        {% include 'administrators/sessions/_go_back.html' with data=path %}
+
+        <ul class="mt-5">
+          <li>Session ID: {{ session.id }}</li>
+          <li>Slug: {{ session.slug }}</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-lg-6 offset-lg-1">
+      <div class="right-content">
+        <form class="edit-session-form" action="" method="post">
+          {% csrf_token %}
+          <table>{{ form.as_table }}</table>
+          <input type="hidden" name="path" value="{{ path }}">
+          <input type="submit" value="Update" />
+        </form>
+      </div>
+    </div>
   </div>
+
 </div>
+
 
 {% endblock %}

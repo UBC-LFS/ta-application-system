@@ -7,17 +7,17 @@ urlpatterns = [
     path('index/', views.users, name='users'),
     #path('index/create', views.create_user, name='create_user'),
 
-    path('index/<str:username>/info/edit/', views.edit_user_info, name='edit_user_info'),
-    path('index/<str:username>/profile/edit/', views.edit_profile, name='edit_profile'),
-    path('index/<str:username>/', views.show_user, name='show_user'),
+    #path('index/<str:username>/info/edit/', views.edit_user_info, name='edit_user_info'),
+    #path('index/<str:username>/profile/edit/', views.edit_profile, name='edit_profile'),
+    #path('index/<str:username>/', views.show_user, name='show_user'),
 
 
-    path('instructors/<str:username>/', views.show_instructor, name='show_instructor'),
-    path('instructors/<str:username>/edit/', views.edit_instructor, name='edit_instructor'),
-    path('instructors/<str:username>/sessions/<str:session_slug>/jobs/<str:job_slug>/', views.show_instructor_jobs, name='show_instructor_jobs'),
-    path('instructors/<str:username>/sessions/<str:session_slug>/jobs/<str:job_slug>/edit/', views.edit_instructor_jobs, name='edit_instructor_jobs'),
+    #path('instructors/<str:username>/', views.show_instructor, name='show_instructor'),
+    #path('instructors/<str:username>/edit/', views.edit_instructor, name='edit_instructor'),
+    #path('instructors/<str:username>/sessions/<str:session_slug>/jobs/<str:job_slug>/', views.show_instructor_jobs, name='show_instructor_jobs'),
+    #path('instructors/<str:username>/sessions/<str:session_slug>/jobs/<str:job_slug>/edit/', views.edit_instructor_jobs, name='edit_instructor_jobs'),
 
-    path('hr/', views.hr, name='hr'),
+    #path('hr/', views.hr, name='hr'),
 
 
     #path('trainings/', views.trainings, name='trainings'),
