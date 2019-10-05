@@ -16,17 +16,14 @@ from django.db.models import Q
 from datetime import datetime
 
 from users import api as userApi
-from administrators import api as administratorsApi
+from administrators import api as adminApi
 from users.forms import *
 from administrators.forms import *
 from administrators.models import *
 
 
-from django.forms.models import model_to_dict
 
-
-# Users
-
+"""
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
@@ -44,7 +41,7 @@ def users(request):
     })
 
 
-"""
+
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET', 'POST'])
@@ -84,12 +81,11 @@ def create_user(request):
     })
 """
 
-
+"""
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
 def show_user(request, username):
-    """ Display user details """
 
     if not api.is_valid_user(request.user):
         raise PermissionDenied
@@ -140,7 +136,6 @@ def show_user(request, username):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['POST'])
 def edit_user_info(request, username):
-    """ Edit user's information (first_name, last_name) """
 
     if not api.is_valid_user(request.user):
         raise PermissionDenied
@@ -168,7 +163,6 @@ def edit_user_info(request, username):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET', 'POST'])
 def edit_profile(request, username):
-    """ Edit user's profile """
 
     if not api.is_valid_user(request.user):
         raise PermissionDenied
@@ -219,7 +213,6 @@ def edit_profile(request, username):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET', 'POST'])
 def submit_confidentiality(request, username):
-    """ Submit user's confidentiality """
 
     if not api.is_valid_user(request.user):
         raise PermissionDenied
@@ -489,7 +482,7 @@ def decline_offer(request, username, session_slug, job_slug):
             message.error(request, 'Error! Form is invalid')
 
     return HttpResponseRedirect( reverse('users:show_student_job', args=[username, session_slug, job_slug]) )
-
+"""
 
 
 # Instructor Profile

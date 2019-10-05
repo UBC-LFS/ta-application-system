@@ -7,7 +7,7 @@ from .forms import LocalLoginForm
 from users import api as userApi
 
 def login(request):
-    """ Login page """
+    ''' Login page '''
     return render(request, 'accounts/login.html')
 
 

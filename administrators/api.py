@@ -13,6 +13,15 @@ from users import api as userApi
 
 from datetime import datetime
 
+
+
+def valid_path(path):
+    valid_list = ['administrators', 'human_resources', 'instructors', 'students', 'users']
+    path_list = path.split('/')
+    if path_list[1] in valid_list:
+        return path_list[1]
+    raise Http404
+
 # Courses
 
 def get_courses():
@@ -28,7 +37,7 @@ def get_course_by_slug(course_slug):
     return get_object_or_404(Course, slug=course_slug)
 
 def get_courses_by_term(term_id):
-    ''' '''
+    ''' Get courses by term '''
     try:
         return Course.objects.filter(term__id=term_id)
     except Course.DoesNotExist:
@@ -470,6 +479,28 @@ def get_jobs_with_applications_statistics():
         jobs.append(job)
 
     return jobs
+
+def get_user_job_application_statistics(username):
+    num_apps = 0
+    num_offered = 0
+    num_accepted = 0
+    num_declined = 0
+    for job in Job.objects.all():
+        has_applied_job = False
+        if job.application_set.filter(applicant__username=username).exists():
+            app = job.application_set.get(applicant__username=username)
+            if get_offered(app): num_offered += 1
+            if get_accepted(app): num_accepted += 1
+            if get_declined(app): num_declined += 1
+            num_apps += 1
+
+    return {
+        'num_apps': num_apps,
+        'num_offered': num_offered,
+        'num_accepted': num_accepted,
+        'num_declined': num_declined
+    }
+
 
 def get_offered(app):
     if app.applicationstatus_set.filter(assigned=ApplicationStatus.OFFERED).exists():

@@ -50,6 +50,7 @@ def loggedin_user(user):
     return user
 
 
+
 # Users
 def get_user(user_id):
     ''' '''
@@ -130,6 +131,8 @@ def create_user(data):
         password = make_password(settings.USER_PASSWORD)
     )
     if user:
+
+        # data must have ubc_number and roles
         profile, message = create_profile(user, data)
         if profile:
             return user, None
@@ -141,6 +144,7 @@ def create_user(data):
 def create_profile(user, content):
     ''' Create an user's profile '''
 
+    # content must have ubc_number and roles
     form = UserCreateProfileForm(content)
     if form.is_valid():
         data = form.cleaned_data

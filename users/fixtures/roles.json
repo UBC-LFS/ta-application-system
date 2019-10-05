@@ -3,16 +3,16 @@
     "model": "users.role",
     "pk": 1,
     "fields": {
-      "name": "Student",
-      "slug": "student"
+      "name": "Superadmin",
+      "slug": "superadmin"
     }
   },
   {
     "model": "users.role",
     "pk": 2,
     "fields": {
-      "name": "Instructor",
-      "slug": "instructor"
+      "name": "Admin",
+      "slug": "admin"
     }
   },
   {
@@ -27,16 +27,16 @@
     "model": "users.role",
     "pk": 4,
     "fields": {
-      "name": "Admin",
-      "slug": "admin"
+      "name": "Instructor",
+      "slug": "instructor"
     }
   },
   {
     "model": "users.role",
     "pk": 5,
     "fields": {
-      "name": "Superadmin",
-      "slug": "superadmin"
+      "name": "Student",
+      "slug": "student"
     }
   }
 ]

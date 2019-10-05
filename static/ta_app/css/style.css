@@ -8,18 +8,31 @@
   border-radius: 4px;
 }
 
+.user-details .left-content .user-stats {
+  border: 1px solid #aaa;
+  border-radius: 50%;
+  width: 120px;
+  height: 120px;
+  padding-top: 25px;
+  margin-right: 10px;
+  margin-bottom: 10px;
+}
+
+.line-height-2 {
+  line-height: 2.0;
+}
+
 .featured {
   height: 100%;
 }
 
 hr.dotted {
-	border-top: 1px dashed #8c8b8b;
+	border-top: 1px dashed #aaa;
 }
 
 .bg-grey {
   background-color: #ccc;
 }
-
 
 footer {
   height: 100px;
@@ -27,11 +40,6 @@ footer {
 
 .page-title {
   margin-top: 70px;
-}
-
-.edit-session-form #id_year,
-.edit-session-form #id_term {
-
 }
 
 .margin-left-10 {
