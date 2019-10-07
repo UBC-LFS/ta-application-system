@@ -1,24 +1,64 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
+{% load static %}
+{% include "instructors/util/_sidebar.html" %}
 
-<div class="wrapper">
-  {% include "instructors/util/_sidebar.html" %}
+<div id="content" class="container-fluid">
 
-  <div id="content" class="container-fluid">
+  <h3 class="text-dark-blue mb-5">Profile</h3>
 
-    <h3 class="margin-top-30">Profile</h3>
+  <div class="row justify-content-center user-details">
+    <div class="col-md-3">
+      <div class="left-content">
+        <img class="ubc-logo mx-auto d-block" src="{% static 'ta_app/images/UBClogo.jpeg' %}" alt="ubc logo" />
+        <div class="mt-4 mb-5">
+          <h2>{{ user.first_name }} {{ user.last_name }}</h2>
+          <h4 class="text-secondary">{{ user.username }}</h4>
+          <h5>
+            {% for role in user.profile.roles.all %}
+              <span class="badge badge-info">{{ role.name|upper }}</span>
+            {% endfor %}
+          </h5>
+        </div>
 
-    <ul class="list-group margin-top-30">
-      <li class="list-group-item"><strong>First name:</strong> {{ user.first_name }}</li>
-      <li class="list-group-item"><strong>Last name:</strong> {{ user.last_name }}</li>
-      <li class="list-group-item"><strong>Preferred name:</strong> {{ user.profile.preferred_name }}</li>
-      <li class="list-group-item"><strong>Email:</strong> {{ user.email }}</li>
-      <li class="list-group-item"><strong>CWL:</strong> {{ user.username }}</li>
-      <li class="list-group-item"><strong>UBC Number:</strong> {{ user.profile.ubc_number }}</li>
-      <li class="list-group-item"><strong>Created at:</strong> {{ user.profile.created_at }}</li>
-      <li class="list-group-item"><strong>Updated at:</strong> {{ user.profile.updated_at }}</li>
-    </ul>
+        <a class="btn btn-outline-primary btn-block" href="{{ previous_url }}">Go Back to a Previous Page</a>
+      </div>
+    </div>
+    <div class="col-md-6 offset-md-1">
+      <div class="right-content">
+        <div class="text-secondary mb-4">
+          <h6>User Profile:</h6>
+          Created at {{ user.profile.created_at }} <span class="ml-3 mr-3">|</span>
+          Updated at {{ user.profile.updated_at }}
+        </div>
 
+        <h3 class="line-height-2">
+          <div>
+            <span class="font-weight-bold">Preferred name:</span>
+            {{ user.profile.preferred_name }}
+          </div>
+          <div>
+            <span class="font-weight-bold">UBC Number:</span>
+            {{ user.profile.ubc_number }}
+          </div>
+          <div>
+            <span class="font-weight-bold">E-mail:</span>
+            {{ user.email }}
+          </div>
+        </h3>
+
+        <ul class="mt-2">
+          <li>
+            Date Joined: <span class="text-secondary">{{ user.date_joined }}</span>
+          </li>
+          <li>
+            Last Login: <span class="text-secondary">{{ user.last_login }}</span>
+          </li>
+        </ul>
+
+        <h3 class="mt-4 text-info">My Jobs: {{ user.job_set.all|length }}</h3>
+      </div>
+    </div>
   </div>
 </div>
 

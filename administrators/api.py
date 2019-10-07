@@ -336,7 +336,7 @@ def get_courses_including_applications_by_student(user):
 
 
 def get_courses_by_instructor(user):
-    """ Get courses of an instructor """
+    ''' Get courses of an instructor '''
 
     courses = []
     for course in Course.objects.all():

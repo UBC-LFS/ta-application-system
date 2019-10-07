@@ -6,8 +6,8 @@
 <div id="content" class="container-fluid">
   {% include 'ta_app/_return_messages.html' with data=messages %}
 
-  <h3>Selected Applications</h3>
-  <small>Total: {{ selected_applications|length }}</small>
+  <h3 class="text-dark-blue">Selected Applications</h3>
+  <div class="text-secondary">Total: {{ selected_applications|length }}</div>
 
   <form method="GET">
     <input type="text" name="year" value="{{ request.GET.year }}" placeholder="Year" /> And <br />
@@ -24,7 +24,7 @@
   <table class="table table-responsive">
     <thead>
       <tr>
-        <th>Application ID</th>
+        <th>ID</th>
         <th>Year</th>
         <th>Term</th>
         <th>Job</th>
@@ -44,18 +44,18 @@
       {% for app in selected_applications %}
         <tr>
           <td>
-            <a href="{% url 'administrators:show_application' app_slug=app.slug path='selected' %}">{{ app.id }}</a>
+            <a href="{% url 'show_application' app_slug=app.slug path='selected' portal='Admin' %}">{{ app.id }}</a>
           </td>
           <td>{{ app.job.session.year }}</td>
           <td>{{ app.job.session.term.code }}</td>
           <td>
-            <a href="{% url 'administrators:display_job_details' session_slug=app.job.session.slug job_slug=app.job.course.slug role='administrator' %}">
+            <a href="{% url 'show_job' session_slug=app.job.session.slug job_slug=app.job.course.slug path='selected' portal='Admin' %}">
               {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}
             </a>
           </td>
           <td>{{ app.applicant.first_name }} {{ app.applicant.last_name }}</td>
           <td>
-            <a href="{% url 'administrators:show_user' username=app.applicant.username role='administrator' %}">{{ app.applicant.username }}</a>
+            <a href="{% url 'show_user' username=app.applicant.username path='student' portal='Admin' %}">{{ app.applicant.username }}</a>
           </td>
           <td>
             {% if app.resume_file %}

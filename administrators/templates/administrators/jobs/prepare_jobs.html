@@ -10,7 +10,7 @@
   <div class="text-secondary">Total: {{ jobs|length }}</div>
 
   <table class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center" data-toggle="table" data-sortable="true" data-classes="" data-pagination="true" data-search="true">
-    <thead class="thead-light">
+    <thead>
       <tr>
         <th data-sortable="true">Job ID</th>
         <th data-sortable="true">Year</th>
@@ -28,7 +28,7 @@
       {% for job in jobs %}
         <tr>
           <td>
-            <a href="{% url 'administrators:show_job' session_slug=job.session.slug job_slug=job.course.slug path='prepare' %}">{{ job.id }}</a>
+            <a href="{% url 'show_job' session_slug=job.session.slug job_slug=job.course.slug path='prepare' portal='Admin' %}">{{ job.id }}</a>
           </td>
           <td>{{ job.session.year }}</td>
           <td>{{ job.session.term.code }}</td>

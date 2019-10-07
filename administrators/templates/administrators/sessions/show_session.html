@@ -80,7 +80,7 @@
 
   <h3 class="mt-5 mb-3">Jobs</h3>
   <table class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center">
-    <thead class="thead-light">
+    <thead>
       <tr>
         <th>Job ID</th>
         <th>Year</th>
@@ -95,9 +95,7 @@
     <tbody>
       {% for job in session.job_set.all %}
         <tr>
-          <td>
-            <a href="{% url 'administrators:show_job' session_slug=job.session.slug job_slug=job.course.slug path=path %}">{{ job.id }}</a>
-          </td>
+          <td>{{ job.id }}</td>
           <td>{{ job.session.year }}</td>
           <td>{{ job.course.term.code }}</td>
           <td>{{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</td>

@@ -1,6 +1,9 @@
 .ubc-logo {
-  width: 200px;
+  width: 140px;
   height: auto;
+}
+.text-dark-blue {
+  color: #002145;
 }
 
 .job-details .left-content .ta-hours {
@@ -8,12 +11,12 @@
   border-radius: 4px;
 }
 
-.user-details .left-content .user-stats {
+.user-details .left-content .user-stats,
+.user-details .right-content .user-stats {
   border: 1px solid #aaa;
   border-radius: 50%;
-  width: 120px;
-  height: 120px;
-  padding-top: 25px;
+  width: 5.0rem;
+  height: 5.0rem;
   margin-right: 10px;
   margin-bottom: 10px;
 }

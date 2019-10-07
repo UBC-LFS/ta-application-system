@@ -26,7 +26,14 @@ urlpatterns = [
     path('instructors/', include('instructors.urls')),
     path('students/', include('students.urls')),
     path('summernote/', include('django_summernote.urls')),
-    path('users/<str:username>/path/<str:path>/portal/<str:portal>/', views.show_user, name='show_user')
+    
+    path('users/<str:username>/path/<str:path>/portal/<str:portal>/', views.show_user, name='show_user'),
+    path('sessions/<str:session_slug>/jobs/<str:job_slug>/path/<str:path>/portal/<str:portal>/', views.show_job, name='show_job'),
+    path('applications/<str:app_slug>/path/<str:path>/portal/<str:portal>/', views.show_application, name='show_application'),
+
+
+    path('applications/<str:app_slug>/details/<str:role>/', views.display_application_details, name='display_application_details')
+
     
     #path('admin/', admin.site.urls),
     #path('accounts/admin/', include('django.contrib.auth.urls'))

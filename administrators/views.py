@@ -493,6 +493,7 @@ def jobs(request):
         'loggedin_user': loggedin_user
     })
 
+"""
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
@@ -507,7 +508,7 @@ def show_job(request, session_slug, job_slug, path):
         'job': adminApi.get_session_job_by_slug(session_slug, job_slug),
         'path': path
     })
-
+"""
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -671,6 +672,7 @@ def applications(request):
         'loggedin_user': loggedin_user
     })
 
+"""
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
@@ -682,10 +684,10 @@ def show_application(request, app_slug, path):
     return render(request, 'administrators/applications/show_application.html', {
         'loggedin_user': userApi.loggedin_user(request.user),
         'app': adminApi.get_application_slug(app_slug),
-        'form': AdminApplicationForm(initial={ 'assigned': ApplicationStatus.OFFERED }),
+        #'form': AdminApplicationForm(initial={ 'assigned': ApplicationStatus.OFFERED }),
         'path': path
     })
-
+"""
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
@@ -1885,47 +1887,6 @@ def delete_role(request):
         else:
             messages.error(request, 'An error occurred.')
     return redirect("administrators:roles")
-
-
-
-
-
-
-
-# ----- Utils
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
-def display_job_details(request, session_slug, job_slug, role):
-    ''' '''
-    loggedin_user = userApi.loggedin_user(request.user)
-    #if not userApi.is_admin(loggedin_user): raise PermissionDenied
-    return render(request, 'administrators/util/_display_job_details.html', {
-        'loggedin_user': loggedin_user,
-        'previous_url': request.META['HTTP_REFERER'],
-        'job': adminApi.get_session_job_by_slug(session_slug, job_slug),
-        'role': role
-    })
-
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
-def display_application_details(request, app_slug, role):
-    ''' '''
-    loggedin_user = userApi.loggedin_user(request.user)
-    #if not userApi.is_admin(loggedin_user): raise PermissionDenied
-    return render(request, 'administrators/util/_display_application_details.html', {
-        'loggedin_user': loggedin_user,
-        'previous_url': request.META['HTTP_REFERER'],
-        'application': adminApi.get_application_slug(app_slug),
-        'role': role
-    })
-
-
-
-
 
 
 

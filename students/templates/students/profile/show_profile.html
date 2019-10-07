@@ -1,107 +1,187 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
+{% load static %}
 
-<div class="wrapper">
-  {% include "students/util/_sidebar.html" %}
+{% include 'students/util/_sidebar.html' %}
 
-  <div id="content" class="container-fluid">
-    {% if messages %}
-      {% for message in messages %}
-        <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
-          {{ message }}
-          <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+<div id="content" class="container-fluid">
+  {% include 'ta_app/_return_messages.html' with data=messages %}
+
+  <h3 class="text-dark-blue mb-5">User Details</h3>
+
+  <div class="row justify-content-center user-details">
+    <div class="col-md-3">
+      <div class="left-content">
+        <img class="ubc-logo mx-auto d-block" src="{% static 'ta_app/images/UBClogo.jpeg' %}" alt="ubc logo" />
+
+        <div class="mt-4 mb-3">
+          <h2>{{ user.first_name }} {{ user.last_name }}</h2>
+          <h4 class="text-secondary">{{ user.username }}</h4>
+
+          <h5>
+            {% for role in user.profile.roles.all %}
+              <span class="badge badge-info">{{ role.name|upper }}</span>
+            {% endfor %}
+          </h5>
         </div>
-      {% endfor %}
-    {% endif %}
 
-    <h3>{{ user.first_name }} {{ user.last_name }}'s Profile</h3>
+        <hr class="dotted mt-4 mb-4"/>
 
-    <div class="row margin-top-30 margin-bottom-30">
-      <div class="col-6">
-        <h5>Infomation</h5>
 
-        <ul class="list-group">
-          <li class="list-group-item"><strong>First Name:</strong> {{ user.first_name }}</li>
-          <li class="list-group-item"><strong>Last Name:</strong> {{ user.last_name }}</li>
-          <li class="list-group-item"><strong>CWL:</strong> {{ user.username }}</li>
-          <li class="list-group-item"><strong>Email:</strong> {{ user.email }}</li>
-          <li class="list-group-item"><strong>UBC Number:</strong> {{ user.profile.ubc_number }}</li>
-          <li class="list-group-item"><strong>Date Joined:</strong> {{ user.date_joined }}</li>
-          <li class="list-group-item"><strong>Last Login:</strong> {{ user.last_login }}</li>
-        </ul>
-
-        <h5 class="margin-top-30">Resume</h5>
-        <div>
-          File:
+        <div class="mb-5">
           {% if user.resume_file %}
-            <a href="{% url 'students:download_resume' username=user.username filename=user.resume_file %}" target="_blank">{{ user.resume_file }}</a>
-            <form action="{% url 'students:delete_resume' %}" method="post" onsubmit="return confirm('Are you sure to delete this resume?')">
+            <a class="btn btn-primary d-inline-block" href="{% url 'students:download_resume' username=user.username filename=user.resume_file %}" target="_blank">
+              <i class="fa fa-cloud-download" aria-hidden="true"></i> {{ user.resume_file }}
+            </a>
+            <form class="d-inline-block" action="{% url 'students:delete_resume' %}" method="post" onsubmit="return confirm('Are you sure to delete this resume?')">
               {% csrf_token %}
               <input type="hidden" name="user" value="{{ user.username }}">
-              <input type="submit" value="Delete" />
+              <input class="btn btn-sm btn-danger" type="submit" value="Delete" />
             </form>
-            <div>Uploaded date: {{ user.resume.created_at }}</div>
+            <div class="text-secondary">Uploaded at: {{ user.resume.created_at }}</div>
           {% else %}
-            No resume
+            <button class="btn btn-secondary btn-block" type="button" disabled>
+              <i class="fa fa-cloud-download" aria-hidden="true"></i> No resume
+            </button>
           {% endif %}
 
-          <h5 class="margin-top-30">Upload your resume</h5>
-          <p>Valid file formats: jpg, jpeg, png, pdf, doc, docx</p>
-          <form action="{% url 'students:upload_resume' %}" method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            <table>{{ form.as_table }}</table>
-            <input type="submit" value="Upload" />
-          </form>
+          <div class="card border-secondary mt-3">
+            <div class="card-header bg-secondary text-white">Upload your resume</div>
+            <div class="card-body">
+              <div class="card-text">
+                <p>Valid file formats: jpg, jpeg, png, pdf, doc, docx</p>
+                <form action="{% url 'students:upload_resume' %}" method="post" enctype="multipart/form-data">
+                  {% csrf_token %}
+                  <table>{{ form.as_table }}</table>
+                  <input type="submit" value="Upload" />
+                </form>
+              </div>
+            </div>
+          </div>
+
         </div>
+
+        <a class="btn btn-warning btn-block" href="#">Edit Profile</a>
+        <a class="btn btn-outline-primary btn-block" href="{{ previous_url }}">Go Back to a Previous Page</a>
+
       </div>
+    </div>
 
+    <div class="col-md-6 offset-md-1">
+      <div class="right-content">
 
-      <div class="col-6">
-        <h5>Profile</h5>
+        <div class="text-secondary mb-4">
+          <h6>User Profile:</h6>
+          Created at {{ user.profile.created_at }} <span class="ml-3 mr-3">|</span>
+          Updated at {{ user.profile.updated_at }}
+        </div>
 
-        <ul class="list-group">
-          <li class="list-group-item"><strong>Created at:</strong> {{ user.profile.created_at }}</li>
-          <li class="list-group-item"><strong>Updated at:</strong> {{ user.profile.updated_at }}</li>
-          <li class="list-group-item"><strong>Preferred Name:</strong> {{ user.profile.preferred_name }}</li>
-          <li class="list-group-item"><strong>Qualifications:</strong> {{ user.profile.qualifications }}</li>
-          <li class="list-group-item"><strong>Prior Employment:</strong> {{ user.profile.prior_employment }}</li>
-          <li class="list-group-item"><strong>Special Considerations:</strong> {{ user.profile.special_considerations }}</li>
-          <li class="list-group-item"><strong>Status:</strong> {{ user.profile.status }}</li>
-          <li class="list-group-item"><strong>Program:</strong> {{ user.profile.program }}</li>
-          <li class="list-group-item"><strong>Program Others:</strong> {{ user.profile.program_others }}</li>
-          <li class="list-group-item"><strong>Graduation Date:</strong> {{ user.profile.graduation_date }}</li>
-          <li class="list-group-item">
-            <strong>Degrees:</strong>
+        <section>
+          {% if portal == 'Admin' %}
+            <h4>User ID: <span class="font-weight-normal">{{ user.id }}</span></h4>
+          {% endif %}
+          <h4>Preferred Name: <span class="font-weight-normal">{{ user.profile.preferred_name }}</span></h4>
+          <h4>UBC Number: <span class="font-weight-normal">{{ user.profile.ubc_number }}</span></h4>
+          <h4>Email: <span class="font-weight-normal">{{ user.email }}</span></h4>
+        </section>
+
+        <hr class="dotted mt-4 mb-4"/>
+
+        <section class="line-height-2">
+          <div>
+            <span class="font-weight-bold">Status:</span>
+            {{ user.profile.status }}
+          </div>
+          <div>
+            <span class="font-weight-bold">Program:</span>
+            {{ user.profile.program }}
+          </div>
+          <div>
+            <span class="font-weight-bold">Program Others:</span>
+            {{ user.profile.program_others }}
+          </div>
+          <div>
+            <span class="font-weight-bold">Graduation Date:</span>
+            {{ user.profile.graduation_date }}
+          </div>
+
+          <div>
+            <span class="font-weight-bold">Degrees:</span>
             <ul>
               {% for degree in user.profile.degrees.all %}
                 <li>{{ degree.name }}</li>
               {% empty %}
-                None
+                <li>None</li>
               {% endfor %}
             </ul>
-          </li>
-          <li class="list-group-item">
-            <strong>Trainings:</strong>
+          </div>
+        </section>
+
+        <hr class="dotted mt-4 mb-4"/>
+
+        <section class="line-height-2">
+          <div>
+            <span class="font-weight-bold">Qualifications:</span>
+            {{ user.profile.qualifications }}
+          </div>
+          <div>
+            <span class="font-weight-bold">Prior Employment:</span>
+            {{ user.profile.prior_employment }}
+          </div>
+          <div>
+            <span class="font-weight-bold">Trainings:</span>
             <ul>
-              {% for training in user.profile.trainings.all %}
-                <li>{{ training.name }}</li>
+              {% for degree in user.profile.trainings.all %}
+                <li>{{ degree.name }}</li>
               {% empty %}
-                None
+                <li>None</li>
               {% endfor %}
             </ul>
-          </li>
-          <li class="list-group-item"><strong>Training Details:</strong> {{ user.profile.training_details }}</li>
-          <li class="list-group-item">
-            <strong>LFS TA Training:</strong> {{ user.profile.get_lfs_ta_training_display }}
-            <p><strong>Details:</strong> {{ user.profile.lfs_ta_training_details }}</p>
-          </li>
-          <li class="list-group-item">
-            <strong>Previous TA Experience:</strong> {{ user.profile.get_ta_experience_display }}
-            <p><strong>Details:</strong> {{ user.profile.ta_experience_details }}</p>
-          </li>
-        </ul>
+          </div>
+          <div>
+            <span class="font-weight-bold">LFS TA Training:</span>
+            {{ user.profile.prior_employment }}
+            <p>Details: {{ user.profile.ta_experience_details }}</p>
+          </div>
+          <div>
+            <span class="font-weight-bold">Special Considerations:</span>
+            <p>{{ user.profile.special_considerations }}</p>
+          </div>
+        </section>
+
+        <div class="mt-5">
+          Date Joined: <span class="text-secondary">{{ user.date_joined }}</span>
+        </div>
+        <div>
+          Last Login: <span class="text-secondary">{{ user.last_login }}</span>
+        </div>
+
+        <hr class="dotted mt-4 mb-4"/>
+
+        <section class="text-white">
+          <h5 class="text-secondary">Statistics of Applications</h5>
+
+          <div class="user-stats d-inline-block text-center bg-info">
+            Total
+            <h5>{{ stats.num_apps }}</h5>
+          </div>
+          <div class="user-stats d-inline-block text-center bg-info ">
+            Offered
+            <h5>{{ stats.num_offered }}</h5>
+          </div>
+          <div class="user-stats d-inline-block text-center bg-info">
+            Accepted
+            <h5>{{ stats.num_accepted }}</h5>
+          </div>
+          <div class="user-stats d-inline-block text-center bg-info ">
+            Declined
+            <h5>{{ stats.num_declined }}</h5>
+          </div>
+        </section>
+
       </div>
     </div>
+
   </div>
 </div>
 

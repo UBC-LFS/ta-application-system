@@ -5,13 +5,13 @@
 {% if portal == 'Admin' %}
   {% include "administrators/util/_sidebar.html" %}
 
-{% elif role == 'HR' %}
+{% elif portal == 'HR' %}
   {% include 'human_resources/util/_sidebar.html' %}
 
-{% elif role == 'Instructor' %}
+{% elif portal == 'Instructor' %}
   {% include 'instructors/util/_sidebar.html' %}
 
-{% elif role == 'Student' %}
+{% elif portal == 'Student' %}
   {% include 'students/util/_sidebar.html' %}
 
 {% endif %}
@@ -25,14 +25,16 @@
       <div class="left-content">
         <img class="ubc-logo mx-auto d-block" src="{% static 'ta_app/images/UBClogo.jpeg' %}" alt="ubc logo" />
 
-        <h2 class="mt-4">{{ user.first_name }} {{ user.last_name }}</h2>
-        <h4 class="text-secondary">{{ user.username }}</h4>
+        <div class="mt-4 mb-3">
+          <h2>{{ user.first_name }} {{ user.last_name }}</h2>
+          <h4 class="text-secondary">{{ user.username }}</h4>
 
-        <h5 class="mb-3">
-          {% for role in user.profile.roles.all %}
-            <span class="badge badge-info">{{ role.name|upper }}</span>
-          {% endfor %}
-        </h5>
+          <h5>
+            {% for role in user.profile.roles.all %}
+              <span class="badge badge-info">{{ role.name|upper }}</span>
+            {% endfor %}
+          </h5>
+        </div>
 
         {% if path == 'student' %}
           <div class="mb-5">
@@ -62,23 +64,23 @@
         {% if path == 'student' %}
           <hr class="dotted mt-4 mb-4"/>
           <section class="text-white text-center">
-            <h4 class="text-secondary">Statistics of Applications</h4>
+            <h5 class="text-secondary">Statistics of Applications</h5>
 
             <div class="user-stats d-inline-block text-center bg-info">
               Total
-              <h4>{{ stats.num_apps }}</h4>
+              <h5>{{ stats.num_apps }}</h5>
             </div>
             <div class="user-stats d-inline-block text-center bg-info ">
               Offered
-              <h4>{{ stats.num_offered }}</h4>
+              <h5>{{ stats.num_offered }}</h5>
             </div>
             <div class="user-stats d-inline-block text-center bg-info">
               Accepted
-              <h4>{{ stats.num_accepted }}</h4>
+              <h5>{{ stats.num_accepted }}</h5>
             </div>
             <div class="user-stats d-inline-block text-center bg-info ">
               Declined
-              <h4>{{ stats.num_declined }}</h4>
+              <h5>{{ stats.num_declined }}</h5>
             </div>
           </section>
         {% endif %}

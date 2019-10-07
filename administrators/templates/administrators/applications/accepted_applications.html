@@ -1,29 +1,28 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
 
-
 {% include 'administrators/util/_sidebar.html' %}
 
 <div id="content" class="container-fluid">
 
   {% include 'ta_app/_return_messages.html' with data=messages %}
 
-  <h3>Accpeted Applications</h3>
+  <h3 class="text-dark-blue">Accpeted Applications</h3>
 
-  <table class="table table-responsive-lg">
+  <table class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center" data-toggle="table" data-sortable="true" data-classes="" data-pagination="true" data-search="true">
     <thead>
       <tr>
-        <th>Application ID</th>
-        <th>Year</th>
-        <th>Term</th>
-        <th>Job</th>
-        <th>Applicant</th>
-        <th>Status</th>
-        <th>Instructor Preference</th>
-        <th>Classification</th>
-        <th>Note</th>
-        <th>Created at</th>
-        <th>Updated at</th>
+        <th data-sortable="true">ID</th>
+        <th data-sortable="true">Year</th>
+        <th data-sortable="true">Term</th>
+        <th data-sortable="true">Job</th>
+        <th data-sortable="true">Applicant</th>
+        <th data-sortable="true">Status</th>
+        <th data-sortable="true">Instructor Preference</th>
+        <th data-sortable="true">Classification</th>
+        <th data-sortable="true">Note</th>
+        <th data-sortable="true">Created at</th>
+        <th data-sortable="true">Updated at</th>
         <th>Actions</th>
       </tr>
     </thead>
@@ -31,17 +30,17 @@
       {% for app in accepted_applications %}
         <tr>
           <td>
-            <a href="{% url 'administrators:show_application' app_slug=app.slug path='accepted' %}">{{ app.id }}</a>
+            <a href="{% url 'show_application' app_slug=app.slug path='accepted' portal='Admin' %}">{{ app.id }}</a>
           </td>
           <td>{{ app.job.session.year }}</td>
           <td>{{ app.job.session.term.code }}</td>
           <td>
-            <a href="{% url 'administrators:display_job_details' session_slug=app.job.session.slug job_slug=app.job.course.slug role='administrator' %}">
+            <a href="{% url 'show_job' session_slug=app.job.session.slug job_slug=app.job.course.slug path='accepted' portal='Admin' %}">
               {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}
             </a>
           </td>
           <td>
-            <a href="{% url 'administrators:show_user_accepted_job_summary' username=app.applicant.username %}">{{ app.applicant.first_name }} {{ app.applicant.last_name }}</a>
+            <a href="{% url 'show_user' username=app.applicant.username path='student' portal='Admin' %}">{{ app.applicant.first_name }} {{ app.applicant.last_name }}</a>
           </td>
           <td>
             {% include 'administrators/util/_modal_application_status.html' with data=app %}
@@ -70,7 +69,7 @@
                       </div>
                       <input type="hidden" name="old_assigned_hours" value="{{ app.has_accepted }}" />
                       <input type="hidden" name="application" value="{{ app.id }}" />
-                      <input type="submit" value="Decline & Reassign" />
+                      <input type="submit" value="Decline & Re-assign" />
                     </form>
                   </div>
                 </div>
