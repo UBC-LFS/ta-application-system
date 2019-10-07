@@ -21,8 +21,6 @@ urlpatterns = [
     path('sessions/archived/', views.archived_sessions, name='archived_sessions'),
     path('sessions/', views.sessions, name='sessions'),
 
-
-    path('sessions/<str:session_slug>/jobs/<str:job_slug>/path/<str:path>/', views.show_job, name='show_job'),
     path('jobs/prepare/', views.prepare_jobs, name='prepare_jobs'),
     path('jobs/progress/', views.progress_jobs, name='progress_jobs'),
     path('jobs/student/', views.student_jobs, name='student_jobs'),
@@ -35,7 +33,7 @@ urlpatterns = [
 
     path('applications/offered/send_email/confirmation/', views.offered_applications_send_email_confirmation, name='offered_applications_send_email_confirmation'),
     path('applications/offered/send_email/', views.offered_applications_send_email, name='offered_applications_send_email'),
-    path('applications/<str:app_slug>/details/path/<str:path>/', views.show_application, name='show_application'),
+    #path('applications/<str:app_slug>/details/path/<str:path>/', views.show_application, name='show_application'),
     path('sessions/<str:session_slug>/jobs/<str:job_slug>/offer/', views.offer_job, name='offer_job'),
     path('sessions/<str:session_slug>/jobs/<str:job_slug>/application/edit/', views.edit_job_application, name='edit_job_application'),
     path('applications/offered/email_history/', views.email_history, name='email_history'),
@@ -100,9 +98,6 @@ urlpatterns = [
     path('preparation/classifications/', views.classifications, name='classifications'),
 
     path('preparation/', views.preparation, name='preparation'),
-
-    path('sessions/<str:session_slug>/jobs/<str:job_slug>/details/<str:role>/', views.display_job_details, name='display_job_details'),
-    path('applications/<str:app_slug>/details/<str:role>/', views.display_application_details, name='display_application_details'),
 
     #path('sessions/<str:session_slug>/jobs/<str:job_slug>/assign_ta_hours', views.assign_ta_hours, name='assign_ta_hours'),
     #path('sessions/<str:session_slug>/jobs/<str:job_slug>/add_instructors', views.add_instructors, name='add_instructors'),

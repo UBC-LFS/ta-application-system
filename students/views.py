@@ -42,7 +42,8 @@ def show_profile(request):
     return render(request, 'students/profile/show_profile.html', {
         'loggedin_user': loggedin_user,
         'user': userApi.get_user_by_username_with_resume(loggedin_user.username),
-        'form': ResumeForm(initial={ 'user': loggedin_user })
+        'form': ResumeForm(initial={ 'user': loggedin_user }),
+        'stats': adminApi.get_user_job_application_statistics(loggedin_user.username)
     })
 
 

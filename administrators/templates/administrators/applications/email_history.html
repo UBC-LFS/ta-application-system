@@ -1,75 +1,73 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
 
-<div class="wrapper">
-  {% include "administrators/util/_sidebar.html" %}
+{% include "administrators/util/_sidebar.html" %}
 
-  <div id="content" class="container-fluid">
+<div id="content" class="container-fluid">
 
-    {% include 'ta_app/_return_messages.html' with data=messages %}
+  {% include 'ta_app/_return_messages.html' with data=messages %}
 
-    <h3>Email History</h3>
+  <h3>Email History</h3>
 
-    <table class="table">
-      <thead>
+  <table class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center" data-toggle="table" data-sortable="true" data-classes="" data-pagination="true" data-search="true">
+    <thead>
+      <tr>
+        <th data-sortable="true">Email ID</th>
+        <th data-sortable="true">Sender</th>
+        <th data-sortable="true">Receiver</th>
+        <th data-sortable="true">Title</th>
+        <th data-sortable="true">Email</th>
+        <th data-sortable="true">Type</th>
+        <th data-sortable="true">Application ID</th>
+        <th data-sortable="true">Created at</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for email in emails %}
         <tr>
-          <th>Email ID</th>
-          <th>Sender</th>
-          <th>Receiver</th>
-          <th>Title</th>
-          <th>Email</th>
-          <th>Type</th>
-          <th>Application ID</th>
-          <th>Created at</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for email in emails %}
-          <tr>
-            <td>{{ email.id }}</td>
-            <td>{{ email.sender }}</td>
-            <td>{{ email.receiver }}</td>
-            <td>{{ email.title }}</td>
-            <td>
-              <button type="button" class="btn btn-sm btn-info" data-toggle="modal" data-target="#email-modal-{{ email.id }}">View</button>
-            	<div class="modal fade" id="email-modal-{{ email.id }}" tabindex="-1" role="dialog" aria-labelledby="email-modal-label-{{ email.id }}" aria-hidden="true">
-              	<div class="modal-dialog modal-lg" role="document">
-              	  <div class="modal-content">
-                		<div class="modal-header">
-                		  <h5 class="modal-title" id="email-modal-label-{{ email.id }}">Sent an email to {{ email.receiver }}</h5>
-                		  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                		</div>
-                		<div class="modal-body">
-                      <div>Sender: {{ email.sender }}</div>
-                      <div>Receiver: {{ email.receiver }}</div>
-                		  <h5>{{ email.title }}</h5>
-                      <p>{{ email.message|safe }}</p>
-                		</div>
-              	  </div>
-              	</div>
+          <td>{{ email.id }}</td>
+          <td>{{ email.sender }}</td>
+          <td>{{ email.receiver }}</td>
+          <td>{{ email.title }}</td>
+          <td>
+            <button type="button" class="btn btn-sm btn-info" data-toggle="modal" data-target="#email-modal-{{ email.id }}">View</button>
+          	<div class="modal fade" id="email-modal-{{ email.id }}" tabindex="-1" role="dialog" aria-labelledby="email-modal-label-{{ email.id }}" aria-hidden="true">
+            	<div class="modal-dialog modal-lg" role="document">
+            	  <div class="modal-content">
+              		<div class="modal-header">
+              		  <h5 class="modal-title" id="email-modal-label-{{ email.id }}">Sent an email to {{ email.receiver }}</h5>
+              		  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              		</div>
+              		<div class="modal-body">
+                    <div>Sender: {{ email.sender }}</div>
+                    <div>Receiver: {{ email.receiver }}</div>
+              		  <h5>{{ email.title }}</h5>
+                    <p>{{ email.message|safe }}</p>
+              		</div>
+            	  </div>
             	</div>
-            </td>
-            <td>{{ email.type }}</td>
-            <td>
-              <a href="{% url 'administrators:display_application_details' app_slug=email.application.slug role='administrator' %}">
-                {{ email.application.id }}
-              </a>
-            </td>
-            <td>{{ email.created_at }}</td>
-            <td>
-              <a href="{% url 'administrators:send_reminder' email.id %}">Remind</a>
-            </td>
-          </tr>
-        {% empty %}
-          <tr>
-            <td colspan="6">No emails found</td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+          	</div>
+          </td>
+          <td>{{ email.type }}</td>
+          <td>
+            <a href="{% url 'show_application' app_slug=email.application.slug path='email_history' portal='Admin' %}">
+              {{ email.application.id }}
+            </a>
+          </td>
+          <td>{{ email.created_at }}</td>
+          <td>
+            <a href="{% url 'administrators:send_reminder' email.id %}">Remind</a>
+          </td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="6">No emails found</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 
-  </div>
 </div>
 
 {% endblock %}

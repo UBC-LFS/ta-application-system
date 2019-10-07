@@ -1,53 +1,51 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
 
-<div class="wrapper">
-  {% include 'administrators/util/_sidebar.html' %}
+{% include 'administrators/util/_sidebar.html' %}
 
-  <div id="content" class="container-fluid">
+<div id="content" class="container-fluid">
 
-    <h3>Jobs by Instructor</h3>
+  <h3>Jobs by Instructor</h3>
+  <div class="text-secondary">Total: {{ instructors|length }}</div>
 
-    <table class="table">
-      <thead>
+  <table class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center" data-toggle="table" data-sortable="true" data-classes="" data-pagination="true" data-search="true">
+    <thead>
+      <tr>
+        <th data-sortable="true">User ID</th>
+        <th data-sortable="true">First Name</th>
+        <th data-sortable="true">Last Name</th>
+        <th data-sortable="true">CWL</th>
+        <th data-sortable="true">E-mail</th>
+        <th data-sortable="true">Jobs</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for instructor in instructors %}
         <tr>
-          <th>User ID</th>
-          <th>First Name</th>
-          <th>Last Name</th>
-          <th>CWL</th>
-          <th>E-mail</th>
-          <th>Jobs</th>
+          <td>
+            <a href="{% url 'show_user' username=instructor.username path='instructor' portal='Admin' %}">{{ instructor.id }}</a>
+          </td>
+          <td>{{ instructor.first_name }}</td>
+          <td>{{ instructor.last_name }}</td>
+          <td>{{ instructor.username }}</td>
+          <td>{{ instructor.email }}</td>
+          <td>
+            {% if instructor.job_set.count > 0 %}
+              <a href="{% url 'administrators:instructor_jobs_details' instructor.username %}">{{ instructor.job_set.count }}</a>
+            {% else %}
+              {{ instructor.job_set.count }}
+            {% endif %}
+          </td>
         </tr>
-      </thead>
-      <tbody>
-        {% for instructor in instructors %}
-          <tr>
-            <td>
-              <a href="{% url 'administrators:show_user' username=instructor.username role='administrator' %}">{{ instructor.id }}</a>
-            </td>
-            <td>{{ instructor.first_name }}</td>
-            <td>{{ instructor.last_name }}</td>
-            <td>{{ instructor.username }}</td>
-            <td>{{ instructor.email }}</td>
-            <td>
-              {% if instructor.job_set.count > 0 %}
-                <a href="{% url 'administrators:instructor_jobs_details' instructor.username %}">{{ instructor.job_set.count }}</a>
-              {% else %}
-                {{ instructor.job_set.count }}
-              {% endif %}
-            </td>
-          </tr>
 
-        {% empty %}
-          <tr>
-            <td colspan="5">No instructors found</td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-
+      {% empty %}
+        <tr>
+          <td colspan="5">No instructors found</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 
   </div>
-</div>
 
 {% endblock %}

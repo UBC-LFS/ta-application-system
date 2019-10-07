@@ -16,10 +16,10 @@
           <th data-sortable="true">Year</th>
           <th data-sortable="true">Term</th>
           <th data-sortable="true">Job</th>
-          <th data-sortable="true"># of Applications</th>
-          <th># of Offered</th>
-          <th># of Accepted</th>
-          <th># of Declined</th>
+          <th data-sortable="true">Applications</th>
+          <th data-sortable="true"># of Offered</th>
+          <th data-sortable="true"># of Accepted</th>
+          <th data-sortable="true"># of Declined</th>
           <th data-sortable="true">Assigned TA Hours</th>
           <th data-sortable="true">Applicants' TA Hours</th>
           <th data-sortable="true">Active</th>
@@ -31,7 +31,7 @@
         {% for job in jobs %}
           <tr>
             <td>
-              <a href="{% url 'administrators:show_job' session_slug=job.session.slug job_slug=job.course.slug path='progress' %}">{{ job.id }}</a>
+              <a href="{% url 'show_job' session_slug=job.session.slug job_slug=job.course.slug path='progress' portal='Admin' %}">{{ job.id }}</a>
             </td>
             <td>{{ job.session.year }}</td>
             <td>{{ job.session.term.code }}</td>

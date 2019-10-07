@@ -1,0 +1,112 @@
+{% extends 'ta_app/base.html' %}
+{% block content %}
+{% load static %}
+
+{% if portal == 'Admin' %}
+  {% include "administrators/util/_sidebar.html" %}
+
+{% elif portal == 'HR' %}
+  {% include 'human_resources/util/_sidebar.html' %}
+
+{% elif portal == 'Instructor' %}
+  {% include 'instructors/util/_sidebar.html' %}
+
+{% elif portal == 'Student' %}
+  {% include 'students/util/_sidebar.html' %}
+
+{% endif %}
+
+<div id="content" class="container-fluid">
+
+  <h3 class="text-dark-blue mb-5">Application Details</h3>
+
+  <div class="row justify-content-center user-details">
+    <div class="col-md-3">
+      <div class="left-content">
+        <img class="ubc-logo mx-auto d-block" src="{% static 'ta_app/images/UBClogo.jpeg' %}" alt="ubc logo" />
+
+        <div class="mt-4 mb-3">
+          <h2>{{ app.applicant.first_name }} {{ app.applicant.last_name }}</h2>
+          <h4 class="text-secondary">{{ app.applicant.username }}</h4>
+        </div>
+
+        <a class="btn btn-outline-primary btn-block" href="{{ previous_url }}">Go back to a previous page</a>
+
+      </div>
+    </div>
+    <div class="col-md-6 offset-md-1">
+      <div class="right-content">
+        
+        <h4 class="text-dark-blue">{{ app.job.session.year }} {{ app.job.session.term.code }} - {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</h4>
+        
+        <hr class="dotted" />
+
+        <div class="text-secondary mb-4">
+          Created at {{ app.created_at }} <span class="ml-3 mr-3">|</span>
+          Updated at {{ app.updated_at }}
+        </div>
+
+        <section class="line-height-2">
+          <div>
+            <span class="font-weight-bold text-secondary">Supervisor Approval</span>: 
+            {{ app.supervisor_approval }}
+          </div>
+          <div>
+            <span class="font-weight-bold text-secondary">How Qualified:</span>
+            {{ app.get_how_qualified_display }}
+          </div>
+          <div>
+            <span class="font-weight-bold text-secondary">How Interested:</span>
+            {{ app.get_how_interested_display }}
+          </div>
+          <div>
+            <span class="font-weight-bold text-secondary">Availability:</span>
+            {{ app.availability }}
+          </div>
+          <div>
+            <span class="font-weight-bold text-secondary">Availability Note:</span>
+            {{ app.availability_note }}
+          </div>
+          <div>
+            <span class="font-weight-bold text-secondary">Instructor Preference:</span>
+            {{ app.get_instructor_preference_display }}
+          </div>
+          <div>
+            <span class="font-weight-bold text-secondary">Status:</span>
+            <ul>
+              {% for st in app.applicationstatus_set.all %}
+                <li>{{ st.get_assigned_display }}: {{ st.assigned_hours }} at {{ st.created_at }}</li>
+              {% empty %}
+                <li>No status found</li>
+              {% endfor %}
+            </ul>
+          </div>
+
+          {% if portal == 'Admin' %}
+            <div>
+              <span class="font-weight-bold text-secondary">Classification:</span>
+              {{ app.classification.year }} {{ app.classification.name }}
+            </div>
+            <div>
+              <span class="font-weight-bold text-secondary">Note:</span>
+              {{ app.note }}
+            </div>
+          {% endif %}
+          
+        </section>
+
+        {% if portal == 'Admin' %}
+          <hr class="dotted" />
+
+          <ul>
+            <li>Application ID: {{ app.id }}</li>
+            <li>Slug: {{ app.slug }}</li>
+          </ul>
+        {% endif %}
+
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

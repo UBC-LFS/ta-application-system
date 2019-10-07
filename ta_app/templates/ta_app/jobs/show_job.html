@@ -2,7 +2,19 @@
 {% block content %}
 {% load static %}
 
-{% include "administrators/util/_sidebar.html" %}
+{% if portal == 'Admin' %}
+  {% include "administrators/util/_sidebar.html" %}
+
+{% elif portal == 'HR' %}
+  {% include 'human_resources/util/_sidebar.html' %}
+
+{% elif portal == 'Instructor' %}
+  {% include 'instructors/util/_sidebar.html' %}
+
+{% elif portal == 'Student' %}
+  {% include 'students/util/_sidebar.html' %}
+
+{% endif %}
 
 <div id="content" class="container-fluid">
 
@@ -14,29 +26,29 @@
         <img class="ubc-logo mx-auto d-block" src="{% static 'ta_app/images/UBClogo.jpeg' %}" alt="ubc logo" />
 
         <div class="text-center text-secondary mt-4 mb-4">
-          <h4 class="font-weight-normal">Number of Applications</h4>
+          <h5 class="font-weight-normal">Number of Applications</h5>
           <h3 class="font-weight-bold">{{ job.application_set.all|length }}</h3>
         </div>
 
         <div class="ta-hours text-center bg-info text-white mb-5 p-3">
           <div>
-            <h5 class="font-weight-normal">
+            <h6 class="font-weight-normal">
               <i class="fa fa-star-o" aria-hidden="true"></i> Assgiend TA Hours
               <i class="fa fa-star-o" aria-hidden="true"></i>
-            </h5>
+            </h6>
             <h3 class="font-weight-bold">{{ job.assigned_ta_hours }} hours</h3>
           </div>
           <hr />
           <div>
-            <h5 class="font-weight-normal">
+            <h6 class="font-weight-normal">
               <i class="fa fa-star-o" aria-hidden="true"></i> Applicants' TA Hours
               <i class="fa fa-star-o" aria-hidden="true"></i>
-            </h5>
+            </h6>
             <h3 class="font-weight-bold">{{ job.ta_hours }} hours</h3>
           </div>
         </div>
 
-        {% include 'administrators/jobs/_go_back.html' with data=path job_data=job %}
+        <a class="btn btn-outline-primary btn-block" href="{{ previous_url }}">Go back to a previous page</a>
 
         <div class="mt-5">
           <span>Is active:</span>
@@ -63,7 +75,7 @@
           Session Title: <span class="font-weight-normal">{{ job.session.title }}</span>
         </h5>
 
-        <hr class="dotted">
+        <hr class="dotted" />
 
         <h4>{{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</h4>
         <div class="text-secondary mb-4">{{ job.course.name }}</div>
@@ -96,68 +108,19 @@
           <h3 class="font-weight-bold text-secondary">Note:</h3>
           <p>{{ job.note|safe }}</p>
         </div>
+        
+        {% if portal == 'Admin' %}
+          <hr class="dotted" />
 
-        <hr class="dotted">
-
-        <ul>
-          <li>Job ID: {{ job.id }}</li>
-          <li>Job Slug: {{ job.course.slug }}</li>
-        </ul>
+          <ul>
+            <li>Job ID: {{ job.id }}</li>
+            <li>Job Slug: {{ job.course.slug }}</li>
+          </ul>
+        {% endif %}
       </div>
     </div>
   </div>
 
-  <h3 class="mt-5 mb-3">Applications</h3>
-  <table class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center">
-    <thead class="thead-light">
-      <tr>
-        <th>Application ID</th>
-        <th>Applicant</th>
-        <th>CWL</th>
-        <th>Status</th>
-        <th>Supervisor Approval</th>
-        <th>How Qualified</th>
-        <th>How Interested</th>
-        <th>Availability</th>
-        <th>Instructor Preference</th>
-        <th>Classification</th>
-        <th>Note</th>
-        <th>Created at</th>
-        <th>Updated at</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for app in job.application_set.all %}
-        <tr>
-          <td>{{ app.id }}</td>
-          <td>{{ app.applicant.first_name }} {{ app.applicant.last_name }}</td>
-          <td>{{ app.applicant.username }}</td>
-          <td>
-            <ul>
-              {% for st in app.applicationstatus_set.all %}
-                <li>{{ st.get_assigned_display }}: {{ st.assigned_hours }} hours on {{ st.created_at }}</li>
-              {% endfor %}
-            </ul>
-          </td>
-          <td>{{ app.supervisor_approval }}</td>
-          <td>{{ app.get_how_qualified_display }}</td>
-          <td>{{ app.get_how_interested_display }}</td>
-          <td>{{ app.availability }}</td>
-          <td>{{ app.get_instructor_preference_display }}</td>
-          <td>{{ app.classification.year }} {{ app.classification.name }}</td>
-          <td>{{ app.note }}</td>
-          <td>{{ app.created_at }}</td>
-          <td>{{ app.updated_at }}</td>
-        </tr>
-      {% empty %}
-        <tr>
-          <td colspan="7">No applications found.</td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
 </div>
-
-
 
 {% endblock %}

@@ -1,3 +1,42 @@
+.ubc-logo {
+  width: 140px;
+  height: auto;
+}
+.text-dark-blue {
+  color: #002145;
+}
+
+.job-details .left-content .ta-hours {
+  border: 1px solid #aaa;
+  border-radius: 4px;
+}
+
+.user-details .left-content .user-stats,
+.user-details .right-content .user-stats {
+  border: 1px solid #aaa;
+  border-radius: 50%;
+  width: 5.0rem;
+  height: 5.0rem;
+  margin-right: 10px;
+  margin-bottom: 10px;
+}
+
+.line-height-2 {
+  line-height: 2.0;
+}
+
+.featured {
+  height: 100%;
+}
+
+hr.dotted {
+	border-top: 1px dashed #aaa;
+}
+
+.bg-grey {
+  background-color: #ccc;
+}
+
 footer {
   height: 100px;
 }
@@ -6,9 +45,24 @@ footer {
   margin-top: 70px;
 }
 
-.edit-session-form #id_year,
-.edit-session-form #id_term {
+.margin-left-10 {
+  margin-left: 10px;
+}
 
+.margin-right-10 {
+  margin-right: 10px;
+}
+
+.margin-right-30 {
+  margin-right: 30px;
+}
+
+.margin-left-right-10 {
+  margin: 0 10px;
+}
+
+.margin-left-10 {
+  margin-left: 10px;
 }
 
 .margin-top-10 {
@@ -19,6 +73,10 @@ footer {
   margin-top: 30px;
 }
 
+.margin-top-50 {
+  margin-top: 50px;
+}
+
 .margin-bottom-0 {
   margin-bottom: 0;
 }
@@ -27,9 +85,14 @@ footer {
   margin-bottom: 30px;
 }
 
-.margin-left-10 {
-  margin-left: 10px;
+.margin-bottom-50 {
+  margin-bottom: 50px;
 }
+
+.margin-top-bottom-30 {
+  margin: 30px 0
+}
+
 
 .padding-20 {
   padding: 20px;
