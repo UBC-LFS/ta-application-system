@@ -163,6 +163,8 @@ MESSAGE_TAGS = {
 SUMMERNOTE_THEME = 'bs4'
 SUMMERNOTE_CONFIG = {
     'summernote': {
+        'width': '100%',
+        'height': '400',
         'toolbar': [
           ['style', ['style']],
           ['font', ['bold', 'underline', 'clear']],

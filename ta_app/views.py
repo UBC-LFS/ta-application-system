@@ -27,6 +27,9 @@ def get_previous_url(path, portal):
             previous_url += '/applications/accepted/'
         elif path == 'declined':
             previous_url += '/applications/declined/'
+        elif path == 'email_history':
+            previous_url += '/applications/offered/email_history/'
+
     elif portal == 'Instructor':
         previous_url = '/instructors'
         if path == 'my_jobs':

@@ -1,15 +1,22 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
-
+{% load static %}
 {% include "administrators/util/_sidebar.html" %}
 
 <div id="content" class="container-fluid">
 
   {% include 'ta_app/_return_messages.html' with data=messages %}
 
-  <h3>Create Session Confirmation</h3>
+  <div class="mb-3">
+    <img class="ubc-logo d-inline-block" src="{% static 'ta_app/images/UBClogo.jpeg' %}" alt="ubc logo" />
+    <div class="d-inline-block ml-3">
+      <h3 class="mb-3">Create Session Confirmation</h3>
+      <a class="btn btn-outline-primary" href="{% url 'administrators:create_session' %}">Go back to Create Session</a>
+    </div>
+  </div>
 
   {% if error_messages %}
+
     <div class="alert alert-danger" role="alert">
       A Session form is not available for following reasons.
       <ol>
@@ -19,15 +26,26 @@
       </ol>
       Please try it agagin.
     </div>
-  {% else %}
-    <form action="" method="post">
-      {% csrf_token %}
-      <table>{{ form.as_table }}</table>
-      <input type="submit" value="Confirm to create" />
-    </form>
-  {% endif %}
 
-  <a href="{% url 'administrators:create_session' %}">Go back to Create Session</a>
+  {% else %}
+
+    <div class="row">
+      <div class="col-lg-8 col-md-10 col-sm-12">
+        <form action="" method="post">
+          {% csrf_token %}
+          <table class="table table-borderless table-responsive-md table-sm">{{ form.as_table }}</table>
+          <input class="btn btn-primary" type="submit" value="Confirm to create">
+        </form>
+
+        <div class="bd-callout bd-callout-warning">
+          <h5><i class="fa fa-info-circle" aria-hidden="true"></i> Note</h5>
+          <p>When <code>Is archived</code> is <span class="font-weight-bold">True</span>, <code>Is visible</code> is always <span class="font-weight-bold">False</span>.</p>
+        </div>
+
+      </div>
+    </div>
+
+  {% endif %}
 
 </div>
 

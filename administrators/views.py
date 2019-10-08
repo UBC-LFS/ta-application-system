@@ -19,6 +19,8 @@ from users import api as userApi
 
 from datetime import datetime
 
+from django.contrib.auth.models import User
+
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
@@ -443,9 +445,9 @@ def edit_session(request, session_slug, path):
                     messages.success(request, 'Success! {0} {1} {2} updated'.format(session.year, session.term.code, session.title))
                     return redirect('administrators:{0}_sessions'.format(path))
                 else:
-                    messages.error(request, 'An error occurred.')
+                    messages.error(request, 'An error occurred while updating jobs in a session.')
             else:
-                messages.error(request, 'An error occurred.')
+                messages.error(request, 'An error occurred while updating a session.')
         else:
             errors = form.errors.get_json_data()
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
@@ -616,7 +618,7 @@ def student_jobs_details(request, username):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET', 'POST'])
 def edit_job(request, session_slug, job_slug):
-    ''' '''
+    ''' Edit a job '''
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
 
@@ -639,12 +641,14 @@ def edit_job(request, session_slug, job_slug):
                     messages.success(request, 'Success! {0} {1} {2} {3} {4} updated'.format(updated_job.session.year, updated_job.session.term.code, updated_job.course.code.name, updated_job.course.number.name, updated_job.course.section.name))
                     return redirect('administrators:prepare_jobs')
                 else:
-                    messages.error(request, 'An error occurred.')
+                    messages.error(request, 'An error occurred while updateing instructors of a job.')
             else:
-                messages.error(request, 'An error occurred.')
+                messages.error(request, 'An error occurred while updating a job.')
         else:
             errors = form.errors.get_json_data()
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+
+        return HttpResponseRedirect(reverse('administrators:edit_job', args=[session_slug, job_slug]))
 
     return render(request, 'administrators/jobs/edit_job.html', {
         'loggedin_user': loggedin_user,

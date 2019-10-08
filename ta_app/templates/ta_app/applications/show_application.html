@@ -18,7 +18,7 @@
 
 <div id="content" class="container-fluid">
 
-  <h3 class="text-dark-blue mb-5">Application Details</h3>
+  <h3 class="mb-5">Application Details</h3>
 
   <div class="row justify-content-center user-details">
     <div class="col-md-3">
@@ -36,9 +36,9 @@
     </div>
     <div class="col-md-6 offset-md-1">
       <div class="right-content">
-        
-        <h4 class="text-dark-blue">{{ app.job.session.year }} {{ app.job.session.term.code }} - {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</h4>
-        
+
+        <h4>{{ app.job.session.year }} {{ app.job.session.term.code }} - {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</h4>
+
         <hr class="dotted" />
 
         <div class="text-secondary mb-4">
@@ -48,7 +48,7 @@
 
         <section class="line-height-2">
           <div>
-            <span class="font-weight-bold text-secondary">Supervisor Approval</span>: 
+            <span class="font-weight-bold text-secondary">Supervisor Approval</span>:
             {{ app.supervisor_approval }}
           </div>
           <div>
@@ -92,7 +92,7 @@
               {{ app.note }}
             </div>
           {% endif %}
-          
+
         </section>
 
         {% if portal == 'Admin' %}

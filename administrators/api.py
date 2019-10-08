@@ -297,7 +297,7 @@ def get_recent_ten_job_details(course):
     return Job.objects.filter( Q(course__code=course.code) & Q(course__number=course.number) ).order_by('-created_at')[:10]
 
 def get_applications_applied_by_student(user):
-    """ Get all applications applied by a student """
+    ''' Get all applications applied by a student '''
 
     applications = []
     for job in get_jobs():
@@ -379,7 +379,7 @@ def update_application_classification_note(application_id, data):
 def get_applications(option=None):
     ''' Get all applications '''
     if not option:
-        return Application.objects.all().order_by('id')
+        return Application.objects.all().order_by('-updated_at')
     return Application.objects.all().order_by(option)
 
 def get_application_statuses():

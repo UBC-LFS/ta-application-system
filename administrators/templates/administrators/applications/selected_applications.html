@@ -6,7 +6,7 @@
 <div id="content" class="container-fluid">
   {% include 'ta_app/_return_messages.html' with data=messages %}
 
-  <h3 class="text-dark-blue">Selected Applications</h3>
+  <h3>Selected Applications</h3>
   <div class="text-secondary">Total: {{ selected_applications|length }}</div>
 
   <form method="GET">
@@ -21,7 +21,7 @@
 
   <a href="{% url 'administrators:selected_applications' %}">All</a>
 
-  <table class="table table-responsive">
+  <table class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center">
     <thead>
       <tr>
         <th>ID</th>
@@ -82,28 +82,39 @@
                     <h5 class="modal-title" id="jobApplicationModalLabel-{{ app.id }}">Edit Classification and Note</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                   </div>
-                  <div class="modal-body">
-                    <h4>{{ app.applicant.username }}</h4>
+                  <div class="modal-body text-left">
+                    <h4 class="text-info mb-3">For {{ app.applicant.get_full_name }} ({{ app.applicant.username }})</h4>
+
                     <form action="{% url 'administrators:edit_job_application' session_slug=app.job.session.slug job_slug=app.job.course.slug %}" method="post">
                       {% csrf_token %}
-                      <div>
-                        <label for="classification">Classification:</label>
-                        <select name="classification">
-                          {% for choice in classification_choices %}
-                            {% if choice.id == app.classification.id %}
-                              <option value="{{ choice.id }}" selected>{{ choice.year }} {{ choice.name }}</option>
-                            {% else %}
-                              <option value="{{ choice.id }}">{{ choice.year }} {{ choice.name }}</option>
-                            {% endif %}
-                          {% endfor %}
-                        </select>
-                      </div>
-                      <div>
-                        <label for="note">Note:</label>
-                        <textarea name="note" rows="2" cols="40">{% if app.note %} {{ app.note }} {% endif %}</textarea>
-                      </div>
-                      <input type="hidden" name="application" value="{{ app.id }}">
-                      <input type="submit" value="Update">
+                      <table class="table table-borderless">
+                        <tr>
+                          <td>
+                            <span class="font-weight-bold">Classification:</span>
+                          </td>
+                          <td>
+                            <select name="classification">
+                              {% for choice in classification_choices %}
+                                {% if choice.id == app.classification.id %}
+                                  <option value="{{ choice.id }}" selected>{{ choice.year }} {{ choice.name }}</option>
+                                {% else %}
+                                  <option value="{{ choice.id }}">{{ choice.year }} {{ choice.name }}</option>
+                                {% endif %}
+                              {% endfor %}
+                            </select>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>
+                            <span class="font-weight-bold">Note:</span>
+                          </td>
+                          <td>
+                            <textarea name="note" rows="2" cols="40">{% if app.note %} {{ app.note }} {% endif %}</textarea>
+                          </td>
+                        </tr>
+                      </table>
+                      <input type="hidden" name="application" value="{{ app.id }}" />
+                      <input class="btn btn-warning" type="submit" value="Update" />
                     </form>
                   </div>
                 </div>
@@ -112,7 +123,7 @@
             {% if app.has_offered %}
               Offered
             {% else %}
-              <button type="button" data-toggle="modal" data-target="#jobApplicationOfferModal-{{ app.id }}">Offer</button>
+              <button class="btn btn-sm btn-primary" type="button" data-toggle="modal" data-target="#jobApplicationOfferModal-{{ app.id }}">Offer</button>
               <div class="modal fade" id="jobApplicationOfferModal-{{ app.id }}" tabindex="-1" role="dialog" aria-labelledby="jobApplicationOfferModalLabel-{{ app.id }}" aria-hidden="true">
                 <div class="modal-dialog modal-lg" role="document">
                   <div class="modal-content">
@@ -120,21 +131,27 @@
                       <h5 class="modal-title" id="jobApplicationOfferModalLabel-{{ app.id }}">Offer</h5>
                       <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                     </div>
-                    <div class="modal-body">
-                      <h4>
-                        To {{ app.applicant.username }} for
-                        {{ app.job.session.year }} {{ app.job.session.term.code }} - {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}
-                      </h4>
+                    <div class="modal-body text-left">
+
+                      <h4 class="text-info">To {{ app.applicant.get_full_name }} {{ app.applicant.username }}</h4>
+                      <h6 class="text-secondary mb-3">for {{ app.job.session.year }} {{ app.job.session.term.code }} - {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</h6>
+
                       <form action="{% url 'administrators:offer_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}" method="post">
                         {% csrf_token %}
-                        <div>
-                          <label for="assigned_hours">Assigned Hours:</label>
-                          <input type="number" name="assigned_hours" value="0.0" />
-                        </div>
+                        <table class="table table-borderless">
+                          <tr>
+                            <td>
+                              <span class="font-weight-bold">Assigned Hours:</span>
+                            </td>
+                            <td>
+                              <input type="number" name="assigned_hours" value="0.0" />
+                            </td>
+                          </tr>
+                        </table>
                         <input type="hidden" name="application" value="{{ app.id }}" />
                         <input type="hidden" name="assigned" value="{{ offer_status_code }}" />
                         <input type="hidden" name="applicant" value="{{ app.applicant.id }}" />
-                        <input type="submit" value="Offer" />
+                        <input class="btn btn-primary" type="submit" value="Offer" />
                       </form>
                     </div>
                   </div>

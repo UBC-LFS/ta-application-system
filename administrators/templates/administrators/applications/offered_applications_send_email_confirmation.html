@@ -1,66 +1,98 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
+{% load static %}
+{% include "administrators/util/_sidebar.html" %}
 
-<div class="wrapper">
-  {% include "administrators/util/_sidebar.html" %}
+<div id="content" class="container-fluid">
+  {% include 'ta_app/_return_messages.html' with data=messages %}
 
-  <div id="content" class="container-fluid">
-    {% include 'ta_app/_return_messages.html' with data=messages %}
-    
-    <h3>offered applications send email confirmation</h3>
+  <div class="mb-3">
+    <img class="ubc-logo d-inline-block" src="{% static 'ta_app/images/UBClogo.jpeg' %}" alt="ubc logo" />
+    <div class="d-inline-block ml-3">
+      <h3 class="mb-3">Send Email Confirmation</h3>
+      <a class="btn btn-outline-primary" href="{% url 'administrators:offered_applications' %}">Go back to Offered Applications</a>
+    </div>
+  </div>
 
-    {% if applications|length == 0 %}
+  {% if applications|length == 0 %}
 
     <div class="alert alert-danger" role="alert">
       Please select any one of Offered Applications to send an email, and try again.
     </div>
 
-    {% else %}
+  {% else %}
 
-      <ul>
-        {% for app in applications %}
-          <li>
-            {{ app.applicant.first_name }} {{ app.applicant.last_name }} ({{ app.applicant.email }}):
-            {{ app.job.session.year }} {{ app.job.session.term.code }}-{{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}
-          </li>
-        {% endfor %}
-      </ul>
-
-      <h5>
-        {% if type == 'type1' %} Type 1 {% else %} Type 2 {% endif %}
-        Email
-      </h5>
-
-      <form action="" method="post">
-        {% csrf_token %}
-        <div>Sender: {{ sender }}</div>
-        <div>Receiver: {{ receiver }}</div>
-        <table>{{ form.as_table }}</table>
-
-        {% if type == 'type1' %}
-          <input type="submit" value="Confirm to send an email by Type 1" />
-        {% else  %}
-          <input type="submit" value="Confirm to send an email by Type 2" />
-        {% endif %}
-      </form>
-
-    {% endif %}
-
-    <div class="bd-callout bd-callout-warning">
-      <h5>Note</h5>
-      <p>
-        <ul>
-          <li>Name: {0}</li>
-          <li>Job: {1}</li>
-          <li>Assigned Hours: {2}</li>
-          <li>Classification: {3}</li>
-          <li>URL: {4}</li>
-        </ul>
-      </p>
+    <div class="mt-4 mb-5">
+      <h4 class="text-secondary">List of senders</h4>
+      <table class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Year</th>
+            <th>Term</th>
+            <th>Job</th>
+            <th>Sender</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for app in applications %}
+            <tr>
+              <td>{{ forloop.counter }}</td>
+              <td>{{ app.job.session.year }}</td>
+              <td>{{ app.job.session.term.code }}</td>
+              <td>{{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</td>
+              <td>{{ app.applicant.get_full_name }} ({{ app.applicant.email }})</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
 
-    <a href="{% url 'administrators:offered_applications' %}">Go back to Offered Applications</a>
+    <h5 class="text-info mb-3">
+      {% if type == 'type1' %} Type 1 {% else %} Type 2 {% endif %} Email
+    </h5>
+
+    <div class="row">
+      <div class="col-lg-8 col-md-10 col-sm-12">
+        <form action="" method="post">
+          {% csrf_token %}
+
+          <div class="mb-2">
+            <span class="font-weight-bold">Sender:</span>
+            {{ sender }}
+          </div>
+          <div class="mb-2">
+            <span class="font-weight-bold">Receiver:</span>
+            {{ receiver }}
+          </div>
+
+          <table class="table table-borderless table-responsive-md table-sm">{{ form.as_table }}</table>
+
+          {% if type == 'type1' %}
+            <input class="btn btn-primary" type="submit" value="Confirm to send an email by Type 1" />
+          {% else  %}
+            <input class="btn btn-primary" type="submit" value="Confirm to send an email by Type 2" />
+          {% endif %}
+        </form>
+      </div>
+    </div>
+
+  {% endif %}
+
+  <div class="bd-callout bd-callout-warning">
+    <h5>Note</h5>
+    <p>
+      <ul>
+        <li>Name: {0}</li>
+        <li>Job: {1}</li>
+        <li>Assigned Hours: {2}</li>
+        <li>Classification: {3}</li>
+        <li>URL: {4}</li>
+      </ul>
+    </p>
   </div>
+
+
 </div>
 
 {% endblock %}

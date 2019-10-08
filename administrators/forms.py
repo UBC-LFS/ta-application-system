@@ -1,19 +1,16 @@
 from django import forms
 from django.contrib.auth.models import User
+from django.forms import ModelMultipleChoiceField
 from django_summernote.widgets import SummernoteWidget, SummernoteInplaceWidget
 
-from .models import *
+from administrators.models import *
+from users.models import Role
 
 import datetime as dt
 
 
-ROLES = {
-    'Student': 1,
-    'Instructor': 2,
-    'Hr': 3,
-    'Admin': 4,
-    'Superadmin': 5
-}
+
+ROLES = { role.name: role.id for role in Role.objects.all() }
 
 def current_year():
     return dt.date.today().year
@@ -49,6 +46,9 @@ class ClassificationForm(forms.ModelForm):
 
 class CourseForm(forms.ModelForm):
     ''' Create a model form for a course '''
+    name = forms.CharField(
+        widget=forms.TextInput(attrs={ 'class':'form-control' })
+    )
     class Meta:
         model = Course
         fields = ['code', 'number','section', 'name', 'term']
@@ -59,8 +59,15 @@ class CourseForm(forms.ModelForm):
 class SessionForm(forms.ModelForm):
     ''' Create a model form for a Session '''
     next_year = current_year() + 1
-    year = forms.CharField(initial=next_year)
-    title = forms.CharField(initial='TA Application')
+    year = forms.CharField(
+        initial=next_year,
+        widget=forms.TextInput(attrs={ 'class':'form-control' })
+    )
+    title = forms.CharField(
+        initial='TA Application',
+        widget=forms.TextInput(attrs={ 'class':'form-control' })
+    )
+
     class Meta:
         model = Session
         fields = ['year', 'term', 'title', 'description', 'note']
@@ -71,13 +78,17 @@ class SessionForm(forms.ModelForm):
 
     field_order = ['year', 'term', 'title', 'description', 'note']
 
-
-# checked
 class SessionConfirmationForm(forms.ModelForm):
-    """ Create a model form for a Session """
+    ''' Create a model form for a Session '''
     this_year = current_year()
-    year = forms.CharField(initial=this_year)
-    title = forms.CharField(initial='TA Application')
+    year = forms.CharField(
+        initial=this_year,
+        widget=forms.TextInput(attrs={ 'class':'form-control' })
+    )
+    title = forms.CharField(
+        initial='TA Application',
+        widget=forms.TextInput(attrs={ 'class':'form-control' })
+    )
     courses = forms.ModelMultipleChoiceField(
         required=False,
         queryset=Course.objects.all(),
@@ -102,9 +113,22 @@ class SessionConfirmationForm(forms.ModelForm):
             term = kwargs['initial']['term']
             self.fields['courses'].queryset = Course.objects.filter(term__id=term.id)
 
+class MyModelMultipleChoiceField(ModelMultipleChoiceField):
+    ''' Help to display user's full name for queryset in ModelMultipleChoiceField '''
+    def label_from_instance(self, obj):
+        return obj.get_full_name()
+
 class AdminJobForm(forms.ModelForm):
-    instructors = forms.ModelMultipleChoiceField(
-        queryset=User.objects.filter(profile__roles=ROLES['Instructor']),
+    title = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={ 'class':'form-control' })
+    )
+    assigned_ta_hours = forms.FloatField(
+        widget=forms.TextInput(attrs={ 'class':'form-control' })
+    )
+
+    instructors = MyModelMultipleChoiceField(
+        queryset=User.objects.filter(profile__roles=ROLES['Instructor']).order_by('pk'),
         widget=forms.CheckboxSelectMultiple()
     )
     class Meta:
@@ -198,6 +222,9 @@ class JobForm(forms.ModelForm):
 
 
 class EmailForm(forms.ModelForm):
+    title = forms.CharField(
+        widget=forms.TextInput(attrs={ 'class':'form-control' })
+    )
     class Meta:
         model = Email
         fields = ['sender', 'receiver','title', 'message', 'type']
@@ -209,6 +236,9 @@ class EmailForm(forms.ModelForm):
         }
 
 class ReminderForm(forms.ModelForm):
+    title = forms.CharField(
+        widget=forms.TextInput(attrs={ 'class':'form-control' })
+    )
     class Meta:
         model = Email
         fields = ['application', 'sender', 'receiver','title', 'message', 'type']

@@ -1,40 +1,37 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
-
+{% load static %}
 {% include "administrators//util/_sidebar.html" %}
 
-{% load static %}
-
 <div id="content" class="container-fluid">
-  <h3 class="mb-5">Edit Session</h3>
 
-  <div class="row justify-content-center">
-    <div class="col-md-3">
-      <div class="left-content">
-        <img class="ubc-logo mx-auto d-block" src="{% static 'ta_app/images/UBClogo.jpeg' %}" alt="ubc logo" />
-
-        <div class="mt-4 mb-5">
-          <h3>{{ session.year }} {{ session.term.name }}</h3>
-          <h4 class="text-secondary">Title: {{ session.title }}</h4>
-        </div>
-
-        {% include 'administrators/sessions/_go_back.html' with data=path %}
-
-        <ul class="mt-5">
-          <li>Session ID: {{ session.id }}</li>
-          <li>Slug: {{ session.slug }}</li>
-        </ul>
-      </div>
+  <div class="mb-3">
+    <img class="ubc-logo d-inline-block" src="{% static 'ta_app/images/UBClogo.jpeg' %}" alt="ubc logo" />
+    <div class="d-inline-block ml-3">
+      <h3 class="mb-3">Edit Session</h3>
+      {% include 'administrators/sessions/_go_back.html' with data=path %}
     </div>
-    <div class="col-md-6 offset-md-1">
-      <div class="right-content">
-        <form class="edit-session-form" action="" method="post">
-          {% csrf_token %}
-          <table>{{ form.as_table }}</table>
-          <input type="hidden" name="path" value="{{ path }}">
-          <input type="submit" value="Update" />
-        </form>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-8 col-md-10 col-sm-12">
+      <div class="mt-4 mb-5">
+        <h3>{{ session.year }} {{ session.term.name }} ({{ session.term.code }})</h3>
+        <h4 class="text-secondary">Title: {{ session.title }}</h4>
       </div>
+
+      <form action="" method="post">
+        {% csrf_token %}
+        <table class="table table-borderless table-responsive-md table-sm">{{ form.as_table }}</table>
+        <input type="hidden" name="path" value="{{ path }}" />
+        <input class="btn btn-warning" type="submit" value="Update Session" />
+      </form>
+
+      <div class="bd-callout bd-callout-warning">
+        <h5><i class="fa fa-info-circle" aria-hidden="true"></i> Note</h5>
+        <p>When <code>Is archived</code> is <span class="font-weight-bold">True</span>, <code>Is visible</code> is always <span class="font-weight-bold">False</span>.</p>
+      </div>
+
     </div>
   </div>
 

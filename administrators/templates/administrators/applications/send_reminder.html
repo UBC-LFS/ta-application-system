@@ -1,18 +1,28 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
-
+{% load static %}
 {% include 'administrators/util/_sidebar.html' %}
 
 <div id="content" class="container-fluid">
 
-  <h3>Send Reminder</h3>
-  <form action="" method="post">
-    {% csrf_token %}
-    <table>{{ form.as_table }}</table>
-    <input type="submit" value="Send Reminder" />
-  </form>
+  <div class="mb-3">
+    <img class="ubc-logo d-inline-block" src="{% static 'ta_app/images/UBClogo.jpeg' %}" alt="ubc logo" />
+    <div class="d-inline-block ml-3">
+      <h3 class="mb-3">Send Reminder</h3>
+      <a class="btn btn-outline-primary" href="{% url 'administrators:email_history' %}">Go back to Email History</a>
+    </div>
+  </div>
 
-  <a href="{% url 'administrators:email_history' %}">Go back to Email History</a>
+  <div class="row">
+    <div class="col-lg-8 col-md-10 col-sm-12">
+      <form action="" method="post">
+        {% csrf_token %}
+        <table class="table table-borderless table-responsive-md table-sm">{{ form.as_table }}</table>
+        <input class="btn btn-primary" type="submit" value="Send Reminder" />
+      </form>
+    </div>
+  </div>
+
 </div>
 
 {% endblock %}

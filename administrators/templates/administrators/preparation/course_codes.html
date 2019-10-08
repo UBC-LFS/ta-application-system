@@ -8,64 +8,77 @@
   {% include 'ta_app/_return_messages.html' with data=messages %}
 
   <h3>Course Codes</h3>
+  <div class="text-secondary">Total: {{ course_codes|length }}</div>
 
-  <table class="table">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Code</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for code in course_codes %}
+  <section class="mt-3 mb-3">
+    <h5>Create Course Code</h5>
+    <form action="{% url 'administrators:course_codes' %}" method="post">
+      {% csrf_token %}
+      <table>{{ form.as_table }}</table>
+      <input class="btn btn-primary" type="submit" value="Create" />
+    </form>
+  </section>
+
+  <div class="d-inline-block">
+    <table class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center" data-toggle="table" data-sortable="true" data-classes="" data-pagination="true" data-search="true">
+      <thead>
         <tr>
-          <td>{{ code.id }}</td>
-          <td>{{ code.name }}</td>
-          <td>
-            <button class="btn btn-warning btn-sm" type="button" data-toggle="modal" data-target="#course-code-edit-modal-{{ code.id }}">Edit</button>
-            <div class="modal fade" id="course-code-edit-modal-{{ code.id }}" tabindex="-1" role="dialog" aria-labelledby="course-code-edit-modal-label-{{ code.id }}" aria-hidden="true">
-      			  <div class="modal-dialog modal-lg" role="document">
-      			    <div class="modal-content">
-      			      <div class="modal-header">
-      			        <h5 class="modal-title" id="course-code-edit-modal-label-{{ code.id }}">Edit a Course Codes</h5>
-      			        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-      			      </div>
-      			      <div class="modal-body">
-      							<form action="{% url 'administrators:edit_course_code' code.name %}" method="post">
-      								{% csrf_token %}
-                      <input type="text" name="name" maxlength="5" value="{{ code.name }}" />
-      								<input type="submit" value="Update" />
-      							</form>
-      			      </div>
-      			    </div>
-      			  </div>
-      			</div>
-
-            <form action="{% url 'administrators:delete_course_code' %}" method="post" onsubmit="return confirm('Are you sure to delete this course code - {{ code.name }} ?')">
-              {% csrf_token %}
-              <input type="hidden" name="course_code" value="{{ code.id }}" />
-              <input class="btn btn-danger btn-sm" type="submit" value="Delete">
-            </form>
-          </td>
+          <th data-sortable="true">ID</th>
+          <th data-sortable="true">Code</th>
+          <th>Actions</th>
         </tr>
+      </thead>
+      <tbody>
+        {% for code in course_codes %}
+          <tr>
+            <td>{{ code.id }}</td>
+            <td>{{ code.name }}</td>
+            <td>
+              <div class="btn-toolbar">
+                <button class="btn btn-sm btn-warning mr-2" type="button" data-toggle="modal" data-target="#course-code-edit-modal-{{ code.id }}">Edit</button>
 
-      {% empty %}
-        <tr>
-          <td colspan="2">No course codes found.</td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+                <div class="modal fade" id="course-code-edit-modal-{{ code.id }}" tabindex="-1" role="dialog" aria-labelledby="course-code-edit-modal-label-{{ code.id }}" aria-hidden="true">
+                  <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="course-code-edit-modal-label-{{ code.id }}">Edit Course Code</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                      </div>
+                      <div class="modal-body text-left">
+                        <form action="{% url 'administrators:edit_course_code' code.name %}" method="post">
+                          {% csrf_token %}
 
-  <hr />
+                          <table class="table table-borderless">
+                            <tr>
+                              <td><label for="id_name" class="font-weight-bold">Code:</label></td>
+                              <td><input id="id_name" type="text" name="name" maxlength="5" value="{{ code.name }}" /></td>
+                            </tr>
+                          </table>
 
-  <h3>Create a Course Code</h3>
-  <form action="{% url 'administrators:course_codes' %}" method="post">
-    {% csrf_token %}
-    <table>{{ form.as_table }}</table>
-    <input type="submit" value="Create" />
-  </form>
+                          <input class="btn btn-warning" type="submit" value="Update Course Code" />
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <form action="{% url 'administrators:delete_course_code' %}" method="post" onsubmit="return confirm('Are you sure to delete this course code - {{ code.name }} ?')">
+                  {% csrf_token %}
+                  <input type="hidden" name="course_code" value="{{ code.id }}" />
+                  <input class="btn btn-sm btn-danger" type="submit" value="Delete" />
+                </form>
+              </div>
+            </td>
+          </tr>
+
+        {% empty %}
+          <tr>
+            <td colspan="2">No course codes found.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 
 </div>
 

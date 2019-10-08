@@ -7,6 +7,7 @@
   {% include 'ta_app/_return_messages.html' with data=messages %}
 
   <h3>Offered Applications</h3>
+  <div class="text-secondary">Total: {{ offered_applications|length }}</div>
 
   {% if offered_applications|length > 0 %}
     <form action="{% url 'administrators:offered_applications_send_email' %}" method="post">
@@ -65,7 +66,7 @@
         </tbody>
       </table>
 
-      <div>
+      <div class="mt-4 mb-4">
         <h5>Select Email Type:</h5>
         <label class="radio-inline"><input type="radio" name="email_type" value="type1" checked />Type 1</label>
         <label class="radio-inline"><input type="radio" name="email_type" value="type2" />Type 2</label>

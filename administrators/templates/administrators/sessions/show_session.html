@@ -17,7 +17,7 @@
           <h3 class="font-weight-bold">{{ session.job_set.all|length }}</h3>
         </div>
 
-        <a class="btn btn-warning btn-block" href="{% url 'administrators:edit_session' session_slug=session.slug path='current' %}">Edit</a>
+        <a class="btn btn-warning btn-block" href="{% url 'administrators:edit_session' session_slug=session.slug path='current' %}">Edit Session</a>
         {% include 'administrators/sessions/_go_back.html' with data=path %}
 
         <div class="mt-5">

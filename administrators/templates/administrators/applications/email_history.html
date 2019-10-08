@@ -8,6 +8,7 @@
   {% include 'ta_app/_return_messages.html' with data=messages %}
 
   <h3>Email History</h3>
+  <div class="text-secondary">Total: {{ emails|length }}</div>
 
   <table class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center" data-toggle="table" data-sortable="true" data-classes="" data-pagination="true" data-search="true">
     <thead>
@@ -15,7 +16,6 @@
         <th data-sortable="true">Email ID</th>
         <th data-sortable="true">Sender</th>
         <th data-sortable="true">Receiver</th>
-        <th data-sortable="true">Title</th>
         <th data-sortable="true">Email</th>
         <th data-sortable="true">Type</th>
         <th data-sortable="true">Application ID</th>
@@ -29,7 +29,6 @@
           <td>{{ email.id }}</td>
           <td>{{ email.sender }}</td>
           <td>{{ email.receiver }}</td>
-          <td>{{ email.title }}</td>
           <td>
             <button type="button" class="btn btn-sm btn-info" data-toggle="modal" data-target="#email-modal-{{ email.id }}">View</button>
           	<div class="modal fade" id="email-modal-{{ email.id }}" tabindex="-1" role="dialog" aria-labelledby="email-modal-label-{{ email.id }}" aria-hidden="true">
@@ -39,11 +38,24 @@
               		  <h5 class="modal-title" id="email-modal-label-{{ email.id }}">Sent an email to {{ email.receiver }}</h5>
               		  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
               		</div>
-              		<div class="modal-body">
-                    <div>Sender: {{ email.sender }}</div>
-                    <div>Receiver: {{ email.receiver }}</div>
-              		  <h5>{{ email.title }}</h5>
-                    <p>{{ email.message|safe }}</p>
+              		<div class="modal-body text-left">
+                    <section class="line-height-2">
+                      <div>
+                        <span class="font-weight-bold">Sender:</span>
+                        {{ email.sender }}
+                      </div>
+                      <div>
+                        <span class="font-weight-bold">Receiver:</span>
+                        {{ email.receiver }}
+                      </div>
+                    </section>
+
+                    <hr />
+
+                    <section>
+                      <h5 class="text-secondary mb-3">{{ email.title }}</h5>
+                      <p>{{ email.message|safe }}</p>
+                    </section>
               		</div>
             	  </div>
             	</div>
