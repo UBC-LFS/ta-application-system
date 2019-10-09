@@ -39,7 +39,7 @@
             <span class="font-weight-bold">{{ app.job.assigned_ta_hours }}</span> hours
           </div>
           <div>
-            Applicants' TA hours:
+            Accumulated TA hours:
             <span class="font-weight-bold">{{ app.job.ta_hours }}</span> hours
           </div>
         </div>
@@ -53,7 +53,7 @@
             <span class="font-weight-bold">{{ app.job.assigned_ta_hours }}</span> hours
           </div>
           <div>
-            Applicants' TA hours: <span class="font-weight-bold">{{ new_ta_hours }}</span> hours
+            Accumulated TA hours: <span class="font-weight-bold">{{ new_ta_hours }}</span> hours
             ({{ app.job.ta_hours }} - {{ old_assigned_hours }} + {{ new_assigned_hours }})
           </div>
         </div>
@@ -75,7 +75,7 @@
 
   {% else %}
     <div class="alert alert-danger" role="alert">
-      Please select any one of Accepted Applications to decline and re-assign a job offer with assgiend hours, and try again.
+      Please select any one of Accepted Applications to decline and re-assign a job offer with assigned hours, and try again.
     </div>
   {% endif %}
 </div>

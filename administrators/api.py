@@ -293,8 +293,8 @@ def update_job_ta_hours(session_slug, job_slug, ta_hours):
     saved = job.save(update_fields=['ta_hours', 'updated_at'])
     return True if job else False
 
-def get_recent_ten_job_details(course):
-    return Job.objects.filter( Q(course__code=course.code) & Q(course__number=course.number) ).order_by('-created_at')[:10]
+def get_recent_ten_job_details(course, year):
+    return Job.objects.filter( Q(session__year__lte=year) & Q(course__code=course.code) & Q(course__number=course.number) ).order_by('-created_at')[:10]
 
 def get_applications_applied_by_student(user):
     ''' Get all applications applied by a student '''

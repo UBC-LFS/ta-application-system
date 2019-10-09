@@ -141,8 +141,8 @@ class Application(models.Model):
         ('1', 'Not at all'),
         ('2', 'Marginally'),
         ('3', 'Somewhat'),
-        ('4', 'Most'),
-        ('5', 'Very')
+        ('4', 'Very'),
+        ('5', 'Most')
     ]
 
     NONE = '0'

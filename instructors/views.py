@@ -84,7 +84,7 @@ def edit_job(request, session_slug, job_slug):
         'session': adminApi.get_session_by_slug(session_slug),
         'job': job,
         'form': InstructorJobForm(data=None, instance=job),
-        'jobs': adminApi.get_recent_ten_job_details(job.course)
+        'jobs': adminApi.get_recent_ten_job_details(job.course, job.session.year)
     })
 
 

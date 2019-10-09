@@ -1,5 +1,5 @@
-<button type="button" class="btn btn-sm btn-link" data-toggle="modal" data-target="#job-details-modal-{{ data.id }}">
-  {{ data.session.year }} {{ data.session.term.code }} - {{ data.course.code.name }} {{ data.course.number.name }} {{ data.course.section.name }}
+<button class="btn btn-sm btn-info" type="button" data-toggle="modal" data-target="#job-details-modal-{{ data.id }}">
+  <i class="fa fa-file-text-o" aria-hidden="true"></i>
 </button>
 
 <div class="modal fade" id="job-details-modal-{{ data.id }}" tabindex="-1" role="dialog" aria-labelledby="job-details-modal-label-{{ data.id }}" aria-hidden="true">
@@ -9,43 +9,38 @@
         <h5 class="modal-title" id="job-details-modal-label-{{ data.id }}">Job Details</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
       </div>
-      <div class="modal-body">
-        <h5>{{ data.session.year }} {{ data.session.term.name }}</h5>
-        <h4>{{ data.course.code.name }} {{ data.course.number.name }} {{ data.course.section.name }}</h4>
-        <div>{{ data.course.name }}</div>
+      <div class="modal-body text-left">
+
+        <div class="">
+          <h4>{{ data.session.year }} {{ data.session.term.name }}</h4>
+          <h5>{{ data.course.code.name }} {{ data.course.number.name }} {{ data.course.section.name }}</h5>
+          <div class="text-secondary">{{ data.course.name }}</div>
+        </div>
 
         <hr />
 
-        <div>
-          <h5>Title: {{ data.title }}</h5>
-
-          {{  role  }}
-
-          {% if role == 'administrator' %}
-            <div>ID: {{ data.id }}</div>
-            <div>Is Active: {{ data.is_active }}</div>
-          {% endif %}
-
-          <small>Created at: {{ data.created_at }} | Updated At: {{ data.updated_at }}</small>
+        <div class="mb-4">
+          <h5 class="font-weight-bold">Title:</h5>
+          {{ data.title }}
         </div>
 
-        <div>
-          <h5>Description</h5>
-          {{ data.description|safe }}
+        <div class="mb-4">
+          <h5 class="font-weight-bold">Description:</h5>
+          <p>{{ data.description|safe }}</p>
         </div>
 
-        <div>
-          <h5>Qualification</h5>
-          {{ data.qualification|safe }}
+        <div class="mb-4">
+          <h5 class="font-weight-bold">Qualification:</h5>
+          <p>{{ data.qualification|safe }}</p>
         </div>
 
-        <div>
-          <h5>Note</h5>
-          {{ data.note|safe }}
+        <div class="mb-4">
+          <h5 class="font-weight-bold">Note:</h5>
+          <p>{{ data.note|safe }}</p>
         </div>
 
-        <div>
-          <h5>Instructors</h5>
+        <div class="mb-4">
+          <h5>Instructors:</h5>
           <ul>
             {% for instructor in data.instructors.all %}
               <li>{{ instructor.first_name }} {{ instructor.last_name }}</li>
@@ -54,6 +49,19 @@
             {% endfor %}
           </ul>
         </div>
+
+        <div class="text-secondary">
+          Created at {{ data.created_at }} <span class="ml-3 mr-3">|</span>
+          Updated at {{ data.updated_at }}
+        </div>
+
+        {% if role == 'administrator' %}
+          <ul>
+            <li>Job ID: {{ data.id }}</li>
+            <li>Is Active: {{ data.is_active }}</li>
+          </ul>
+        {% endif %}
+
       </div>
     </div>
   </div>

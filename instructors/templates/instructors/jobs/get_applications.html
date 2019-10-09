@@ -1,36 +1,48 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
+{% include "instructors/util/_sidebar.html" %}
 
-<div class="wrapper">
-  {% include "instructors/util/_sidebar.html" %}
+<div id="content" class="container-fluid">
+  {% include 'ta_app/_return_messages.html' with data=messages %}
 
-  <div id="content" class="container-fluid">
+  <h3>Applications</h3>
+  <div class="text-secondary">Total: {{ job.application_set.all|length }}</div>
 
-    {% include 'ta_app/_return_messages.html' with data=messages %}
+  <a class="btn btn-outline-primary" href="{% url 'instructors:my_jobs' %}">Go back to My Jobs</a>
 
-    <h3>Applications</h3>
-    <h5>{{ job.session.year }} {{ job.session.term.code }} - {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</h5>
+  <section class="my-4">
+    <h3>{{ job.session.year }} {{ job.session.term.name }} ({{ job.session.term.code }})</h3>
+    <h4 class="text-secondary">- {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</h4>
 
-    <div>Assigned TA Hours: {{ job.assigned_ta_hours }} hours</div>
-    <div>
-      Applicants' TA Hours: {{ job.ta_hours }} hours
-      <p>Note: Applicants' TA Hours are accumulated when they accept their job offers with assigned hours.</p>
+    <ul>
+      <li>
+        Assigned TA Hours: {{ job.assigned_ta_hours }} hours
+      </li>
+      <li>
+        Accumulated TA hours: {{ job.ta_hours }} hours
+      </li>
+    </ul>
+    <div class="bd-callout bd-callout-warning">
+      <h5>Note</h5>
+      <p>Accumulated TA hours are accumulated when they accept their job offers with assigned hours.</p>
     </div>
+  </section>
 
-    <table class="table table-responsive">
+  <div class="d-inline-block">
+    <table class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center" data-toggle="table" data-sortable="true" data-classes="" data-pagination="true" data-search="true">
       <thead>
         <tr>
-          <th>Applicant</th>
-          <th>CWL</th>
-          <th>Supervisor Approval</th>
-          <th>How Qualified</th>
-          <th>How Interested</th>
-          <th>Availability</th>
-          <th>Availability Note</th>
-          <th>Status</th>
-          <th>Created at</th>
-          <th>Updated at</th>
-          <th>Instructor Preference</th>
+          <th data-sortable="true">Applicant</th>
+          <th data-sortable="true">CWL</th>
+          <th data-sortable="true">Supervisor <br />Approval</th>
+          <th data-sortable="true">How <br />Qualified</th>
+          <th data-sortable="true">How <br />Interested</th>
+          <th data-sortable="true">Availability</th>
+          <th data-sortable="true">Availability <br />Note</th>
+          <th data-sortable="true">Status</th>
+          <th data-sortable="true">Created at</th>
+          <th data-sortable="true">Updated at</th>
+          <th>Instructor <br />Preference</th>
         </tr>
       </thead>
       <tbody>
@@ -74,11 +86,8 @@
         {% endfor %}
       </tbody>
     </table>
-
-
-    <a href="{% url 'instructors:my_jobs' %}">Bo back to My Jobs</a>
-
   </div>
+
 </div>
 
 {% endblock %}

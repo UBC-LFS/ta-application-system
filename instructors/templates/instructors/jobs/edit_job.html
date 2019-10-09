@@ -1,53 +1,63 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
+{% load static %}
+{% include "instructors/util/_sidebar.html" %}
 
-<div class="wrapper">
-    {% include "instructors/util/_sidebar.html" %}
+<div id="content" class="container-fluid">
+  <div class="mb-3">
+    <img class="ubc-logo d-inline-block" src="{% static 'ta_app/images/UBClogo.jpeg' %}" alt="ubc logo" />
+    <div class="d-inline-block ml-3">
+      <h3 class="mb-3">Edit Job</h3>
+      <a class="btn btn-outline-primary" href="{% url 'instructors:my_jobs' %}">Go back to My Jobs</a>
+    </div>
+  </div>
 
-  <div id="content" class="container-fluid">
-    <h3>Edit a Job</h3>
+  <div class="row">
+    <div class="col-lg-8 col-md-10 col-sm-12">
+      <div class="mt-4 mb-5">
+        <div class="text-secondary mb-4">
+          Created at {{ session.created_at }} <span class="ml-3 mr-3">|</span>
+          Updated at {{ session.updated_at }}
+        </div>
 
-    <div class="row">
-      <div class="col-md-9">
-        <h5>{{ job.session.year }} {{ job.session.term.code }} - {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</h5>
-        <small>Created at: {{ job.created_at }} | Updated at: {{ job.updated_at }}</small>
+        <h4>{{ job.session.year }} {{ job.session.term.name }} ({{ job.session.term.code }})</h4>
+        <h5 class="text-secondary">- {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</h5>
 
-        <h5>Intstructors:</h5>
-        <ul>
+        <div class="">
+          <span class="font-weight-bold">Intstructors:</span>
           {% for instructor in job.instructors.all %}
-            <li>{{ instructor.username }}</li>
+            {{ instructor.username }},
           {% empty %}
-            <li>No instructors</li>
+            No instructors
           {% endfor %}
-        </ul>
-
-        <form action="" method="post">
-          {% csrf_token %}
-          <table>
-            {{ form.as_table }}
-          </table>
-          <input type="submit" value="Update">
-        </form>
+        </div>
       </div>
 
-      <div class="col-md-3">
-        <h5>Recent Job Details</h5>
-        <ol>
-          {% for job in jobs %}
-            <li>
-              {% include 'administrators/util/_modal_job_details.html' with data=job %}
-            </li>
-          {% empty %}
-            <li>No recent job details found</li>
-          {% endfor %}
-        </ol>
-      </div>
+      <form action="" method="post">
+        {% csrf_token %}
+        <table class="table table-borderless table-responsive-md table-sm">{{ form.as_table }}</table>
+        <input class="btn btn-warning" type="submit" value="Update Job">
+      </form>
 
     </div>
-
-    <a href="{% url 'instructors:my_jobs' %}">Go back to My Jobs</a>
-
   </div>
+
+  <hr class="dotted my-4" />
+
+  <div>
+    <h5 class="text-info">Recent Job Details</h5>
+    <ol>
+      {% for job in jobs %}
+        <li>
+          {% include 'administrators/util/_modal_job_details.html' with data=job %}
+        </li>
+      {% empty %}
+        <li>No recent job details found</li>
+      {% endfor %}
+    </ol>
+  </div>
+
 </div>
+
 
 {% endblock %}

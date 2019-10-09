@@ -33,14 +33,14 @@
         <div class="ta-hours text-center bg-info text-white mb-5 p-3">
           <div>
             <h6 class="font-weight-normal">
-              <i class="fa fa-star-o" aria-hidden="true"></i> Assgiend TA Hours
+              <i class="fa fa-star-o" aria-hidden="true"></i> Assigned TA Hours
             </h6>
             <h3 class="font-weight-bold">{{ job.assigned_ta_hours }} hours</h3>
           </div>
           <hr />
           <div>
             <h6 class="font-weight-normal">
-              <i class="fa fa-star-o" aria-hidden="true"></i> Applicants' TA Hours
+              <i class="fa fa-star-o" aria-hidden="true"></i> Accumulated TA hours
             </h6>
             <h3 class="font-weight-bold">{{ job.ta_hours }} hours</h3>
           </div>
@@ -106,7 +106,7 @@
           <h3 class="font-weight-bold text-secondary">Note:</h3>
           <p>{{ job.note|safe }}</p>
         </div>
-        
+
         {% if portal == 'Admin' %}
           <hr class="dotted" />
 

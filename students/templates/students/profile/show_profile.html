@@ -25,45 +25,29 @@
           </h5>
         </div>
 
-        <hr class="dotted mt-4 mb-4"/>
-
-
-        <div class="mb-5">
-          {% if user.resume_file %}
-            <a class="btn btn-primary d-inline-block" href="{% url 'students:download_resume' username=user.username filename=user.resume_file %}" target="_blank">
-              <i class="fa fa-cloud-download" aria-hidden="true"></i> {{ user.resume_file }}
-            </a>
-            <form class="d-inline-block" action="{% url 'students:delete_resume' %}" method="post" onsubmit="return confirm('Are you sure to delete this resume?')">
-              {% csrf_token %}
-              <input type="hidden" name="user" value="{{ user.username }}">
-              <input class="btn btn-sm btn-danger" type="submit" value="Delete" />
-            </form>
-            <div class="text-secondary">Uploaded at: {{ user.resume.created_at }}</div>
-          {% else %}
-            <button class="btn btn-secondary btn-block" type="button" disabled>
-              <i class="fa fa-cloud-download" aria-hidden="true"></i> No resume
-            </button>
-          {% endif %}
-
-          <div class="card border-secondary mt-3">
-            <div class="card-header bg-secondary text-white">Upload your resume</div>
-            <div class="card-body">
-              <div class="card-text">
-                <p>Valid file formats: jpg, jpeg, png, pdf, doc, docx</p>
-                <form action="{% url 'students:upload_resume' %}" method="post" enctype="multipart/form-data">
-                  {% csrf_token %}
-                  <table>{{ form.as_table }}</table>
-                  <input type="submit" value="Upload" />
-                </form>
-              </div>
-            </div>
-          </div>
-
+        <div class="text-secondary my-5 d-inline-block border-secondary">
+          <h6>Statistics of Applications</h6>
+          <table class="table table-sm table-borderless table-hover table-striped">
+            <tr>
+              <td><span class="font-weight-bold">Total:</span></td>
+              <td>{{ stats.num_apps }}</td>
+            </tr>
+            <tr>
+              <td><span class="font-weight-bold">Offered:</span></td>
+              <td>{{ stats.num_offered }}</td>
+            </tr>
+            <tr>
+              <td><span class="font-weight-bold">Accepted:</span></td>
+              <td>{{ stats.num_accepted }}</td>
+            </tr>
+            <tr>
+              <td><span class="font-weight-bold">Declined:</span></td>
+              <td>{{ stats.num_declined }}</td>
+            </tr>
+          </table>
         </div>
 
-        <a class="btn btn-warning btn-block" href="#">Edit Profile</a>
-        <a class="btn btn-outline-primary btn-block" href="{{ previous_url }}">Go Back to a Previous Page</a>
-
+        <a class="btn btn-warning btn-block" href="{% url 'students:edit_profile' %}">Edit Profile</a>
       </div>
     </div>
 
@@ -158,26 +142,40 @@
 
         <hr class="dotted mt-4 mb-4"/>
 
-        <section class="text-white">
-          <h5 class="text-secondary">Statistics of Applications</h5>
+        <div class="mb-5">
+          {% if user.resume_file %}
+            <a class="btn btn-primary d-inline-block" href="{% url 'students:download_resume' username=user.username filename=user.resume_file %}" target="_blank">
+              <i class="fa fa-cloud-download" aria-hidden="true"></i> {{ user.resume_file }}
+            </a>
+            <form class="d-inline-block" action="{% url 'students:delete_resume' %}" method="post" onsubmit="return confirm('Are you sure to delete this resume?')">
+              {% csrf_token %}
+              <input type="hidden" name="user" value="{{ user.username }}">
+              <input class="btn btn-sm btn-danger" type="submit" value="Delete" />
+            </form>
+            <div class="text-secondary">Uploaded at: {{ user.resume.created_at }}</div>
+          {% else %}
+            <button class="btn btn-secondary btn-block" type="button" disabled>
+              <i class="fa fa-cloud-download" aria-hidden="true"></i> No resume
+            </button>
+          {% endif %}
 
-          <div class="user-stats d-inline-block text-center bg-info">
-            Total
-            <h5>{{ stats.num_apps }}</h5>
+          <div class="d-inline-block">
+            <div class="card border-secondary mt-3">
+              <div class="card-header bg-secondary text-white">Upload your resume</div>
+              <div class="card-body">
+                <div class="card-text">
+                  <p>Valid file formats: jpg, jpeg, png, pdf, doc, docx</p>
+                  <form action="{% url 'students:upload_resume' %}" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <table>{{ form.as_table }}</table>
+                    <input type="submit" value="Upload" />
+                  </form>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="user-stats d-inline-block text-center bg-info ">
-            Offered
-            <h5>{{ stats.num_offered }}</h5>
-          </div>
-          <div class="user-stats d-inline-block text-center bg-info">
-            Accepted
-            <h5>{{ stats.num_accepted }}</h5>
-          </div>
-          <div class="user-stats d-inline-block text-center bg-info ">
-            Declined
-            <h5>{{ stats.num_declined }}</h5>
-          </div>
-        </section>
+
+        </div>
 
       </div>
     </div>

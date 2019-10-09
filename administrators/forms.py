@@ -144,6 +144,10 @@ class AdminJobForm(forms.ModelForm):
 
 class InstructorJobForm(forms.ModelForm):
     ''' Create a model form for job details of an instructor '''
+    title = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={ 'class':'form-control' })
+    )
     class Meta:
         model = Job
         fields = ['title', 'description', 'qualification', 'note']
@@ -189,11 +193,16 @@ class AdminApplicationForm(forms.ModelForm):
             'note': forms.Textarea(attrs={'rows':2})
         }
 
-#checked
 class ApplicationForm(forms.ModelForm):
-    """ Create a model form for an application for students """
-    how_qualified = forms.ChoiceField(choices=Application.PREFERENCE_CHOICES, widget=forms.RadioSelect)
-    how_interested = forms.ChoiceField(choices=Application.PREFERENCE_CHOICES, widget=forms.RadioSelect)
+    ''' Create a model form for an application for students '''
+    how_qualified = forms.ChoiceField(
+        choices=Application.PREFERENCE_CHOICES, widget=forms.RadioSelect,
+        label='How qualifed are you?'
+    )
+    how_interested = forms.ChoiceField(
+        choices=Application.PREFERENCE_CHOICES, widget=forms.RadioSelect,
+        label='How interested are you?'
+    )
 
     class Meta:
         model = Application
@@ -201,7 +210,15 @@ class ApplicationForm(forms.ModelForm):
         widgets = {
             'applicant': forms.HiddenInput(),
             'job': forms.HiddenInput(),
-            'availability_note': forms.Textarea(attrs={'rows':2})
+            'availability_note': forms.Textarea(attrs={ 'rows':2, 'class':'form-control' })
+        }
+        labels = {
+            'supervisor_approval': 'Supervisor Approval',
+            'availability': 'Availability requirements',
+            'availability_note': 'Availability notes'
+        }
+        help_texts = {
+            'supervisor_approval': 'My supervisor has approved for me to TA up to a maximum of 12 hours/week.'
         }
 
 
