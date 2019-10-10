@@ -1,92 +1,86 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
+{% load static %}
+{% include "students/util/_sidebar.html" %}
 
-<div class="wrapper">
-  {% include "students/util/_sidebar.html" %}
+<div id="content" class="container-fluid">
 
-  <div id="content" class="container-fluid">
-
-    <h3>Accept or Decline your offer</h3>
-
-    <h5>Job Details</h5>
-    <div>Year Term: {{ job.session.year }} {{ job.session.term.name }}</div>
-    <div>Title: {{ job.title }}</div>
-    <div>Description: {{ job.description }}</div>
-    <div>Qualification: {{ job.qualification }}</div>
-    <div>Note: {{ job.note }}</div>
-    <div>
-      Instructors:
-      <ul>
-        {% for instructor in job.instructors.all %}
-          <li>{{ instructor.first_name }} {{ instructor.last_name }}</li>
-        {% empty %}
-          No instructors found.
-        {% endfor %}
-      </ul>
+  <div class="mb-3">
+    <img class="ubc-logo d-inline-block" src="{% static 'ta_app/images/UBClogo.jpeg' %}" alt="ubc logo" />
+    <div class="d-inline-block ml-3 align-middle">
+      <h3 class="mb-3">Accept or Decline a Job Offer</h3>
+      <a class="btn btn-outline-primary" href="{% url 'students:offered_jobs' %}">Go back to Offered Jobs</a>
     </div>
+  </div>
 
-    <h5>Application Details</h5>
-    <div>Applicant: {{ application.applicant.username }}</div>
-    <div>Created at: {{ application.created_at }}</div>
-    <div>Updated_at: {{ application.updated_at }}</div>
-    <div>
-      Status:
-      <ul>
-        {% for st in application.applicationstatus_set.all %}
-          <li>{{ st.get_assigned_display }}: {{ st.assigned_hours }} hours on {{ st.created_at }}</li>
-        {% endfor %}
-      </ul>
-    </div>
-    <div>Supervisor Approval: {{ application.supervisor_approval }}</div>
-    <div>How qualified: {{ application.get_how_qualified_display }}</div>
-    <div>How interested: {{ application.get_how_interested_display }}</div>
+  <h4>{{ job.session.year }} {{ job.session.term.name }} ({{ job.session.term.code }})</h4>
+  <div>
+    <span class="h5 text-secondary">- {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</span>
+    {% include 'administrators/util/_modal_job_details.html' with data=job role='student' %}
+  </div>
 
-    <hr />
+  <div class="bd-callout bd-callout-warning">
+    <h5>Checkpoint!</h5>
+    <p>Text area</p>
+  </div>
 
-    <div class="bd-callout bd-callout-warning">
-      <h5>Checkpoint!</h5>
-      <p>Text area</p>
-    </div>
+  {% if get_offered and not get_accepted and not get_declined %}
+    <h5 class="text-info">
+      <i class="fa fa-hand-peace-o" aria-hidden="true"></i> Congratulations! You get a Job Offer.
+    </h5>
+    <p>You are assigned <span class="font-weight-bold">{{ get_offered.assigned_hours }} hours</span> for this job.</p>
 
-    <div class="card border-secondary">
-      <h5 class="card-header bg-secondary text-white">Featured</h5>
-      <div class="card-body">
-        <h5 class="card-title">Special title treatment</h5>
-        <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-        <a href="#" class="btn btn-primary">Go somewhere</a>
-      </div>
-    </div>
-
-
-    {% if get_offered and not get_accepted and not get_declined %}
-      <h5>Congratulations! You get a job offer</h5>
-      <p>You are assigned {{ get_offered.assigned_hours }} hours for this job.</p>
-      
+    <div class="d-inline-block">
       <form action="{% url 'students:accept_offer' session_slug=job.session.slug job_slug=job.course.slug %}" method="post">
         {% csrf_token %}
         <input type="hidden" name="application" value="{{ application.id }}" />
         <input type="hidden" name="assigned_hours" value="{{ get_offered.assigned_hours }}" />
-        <input type="submit" value="Accept" />
+        <input class="btn btn-primary" type="submit" value="Accept" />
       </form>
+    </div>
 
+    <div class="d-inline-block">
       <form action="{% url 'students:decline_offer' session_slug=job.session.slug job_slug=job.course.slug %}" method="post">
         {% csrf_token %}
         <input type="hidden" name="application" value="{{ application.id }}" />
-        <input type="submit" value="Decline" />
+        <input class="btn btn-secondary" type="submit" value="Decline" />
       </form>
-    {% endif %}
+    </div>
 
-    {% if get_accepted and not get_declined %}
-      <p>You accpeted a job offer.</p>
-    {% endif %}
+  {% endif %}
 
-    {% if not get_accepted and get_declined %}
-      <p>You declined a job offer.</p>
-    {% endif %}
+  {% if get_accepted and not get_declined %}
+    <div class="d-inline-block">
+      <div class="alert alert-success" role="alert">
+        <i class="fa fa-info-circle" aria-hidden="true"></i> You accpeted a job offer.
+      </div>
+    </div>
+  {% endif %}
 
-    <a href="{% url 'students:offered_jobs' %}">Go back to Offered Jobs</a>
+  {% if not get_accepted and get_declined %}
+    <div class="d-inline-block">
+      <div class="alert alert-success" role="alert">
+        <i class="fa fa-info-circle" aria-hidden="true"></i> You declined a job offer.
+      </div>
+    </div>
+  {% endif %}
 
-  </div>
+  {% if get_accepted and not get_declined %}
+    <div class="d-inline-block">
+      <div class="alert alert-success" role="alert">
+        <i class="fa fa-info-circle" aria-hidden="true"></i> You accpeted a job offer.
+      </div>
+    </div>
+  {% endif %}
+
+  {% if get_accepted and get_declined %}
+    <div class="d-inline-block">
+      <div class="alert alert-success" role="alert">
+        <i class="fa fa-info-circle" aria-hidden="true"></i> Your job offer were declined and re-assigned.
+      </div>
+    </div>
+  {% endif %}
+
 </div>
 
 {% endblock %}

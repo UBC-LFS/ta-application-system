@@ -166,6 +166,12 @@ def get_jobs():
     ''' Get all jobs '''
     return Job.objects.all()
 
+def get_job_by_session_slug_job_slug(session_slug, job_slug):
+    return get_object_or_404(Job, Q(session__slug=session_slug) & Q(course__slug=job_slug) )
+
+
+
+# to be removed
 def get_session_job_by_slug(session_slug, job_slug):
     ''' Get a job by session slug and job slug '''
     session = get_session_by_slug(session_slug)
@@ -215,6 +221,11 @@ def get_job_application_applied_by_student(user):
     return jobs
 
 
+def get_jobs_applied_by_user(user):
+    return Job.objects.filter(application__applicant__id=user.id)
+
+
+# to be removed
 def get_jobs_applied_by_student(user):
     ''' Get all jobs applied by a student '''
     jobs = []
@@ -225,9 +236,11 @@ def get_jobs_applied_by_student(user):
             jobs.append(job)
     return jobs
 
-#checked
+
+
+# to be modified
 def get_job_applied_by_student(user, session_slug, job_slug):
-    """ Get a job applied by a student """
+    ''' Get a job applied by a student '''
     jobs = get_jobs_applied_by_student(user)
     for job in jobs:
         if job.session.slug == session_slug and job.course.slug == job_slug:
@@ -241,28 +254,12 @@ def get_application_by_student_id_job(user_id, job):
         return job.application_set.get(applicant__id=user_id)
     return None
 
-'''
-def get_application_by_student_id_job(user_id, job):
-    try:
-        return job.applications.get(applicant__id=user_id)
-    except Application.DoesNotExist:
-        return None
-'''
-
-#checked
 def get_application_by_student_job(user, job):
+    ''' '''
     try:
         return job.application_set.get(applicant__id=user.id)
     except Application.DoesNotExist:
         return None
-
-'''
-def get_application_by_student_job(user, job):
-    try:
-        return job.applications.get(applicant__id=user.id)
-    except Application.DoesNotExist:
-        return None
-'''
 
 def create_jobs(session, courses):
     objs = [ Job(session=session, course=course) for course in courses ]
@@ -430,6 +427,37 @@ def get_accepted_applications():
 
     return applications
 
+
+# best
+def get_application_with_status_by_user(user, job, option):
+    ''' Get an application with status '''
+    if job.application_set.filter(applicant__id=user.id).exists():
+        app = job.application_set.get(applicant__id=user.id)
+        status = app.applicationstatus_set.filter(assigned=option).latest('created_at')
+        app.status = status
+        
+        app.cancelled = False
+        if app.applicationstatus_set.filter(assigned=ApplicationStatus.CANCELLED).exists():
+            app.cancelled = app.applicationstatus_set.get(assigned=ApplicationStatus.CANCELLED)
+
+        return app
+    return None
+
+
+# best
+def get_application_by_user(user):
+    return Application.objects.filter(applicant_id=user.id)
+
+# best
+def get_apps_with_option_by_user(user, option):
+    apps = Application.objects.filter( Q(applicant_id=user.id) & Q(applicationstatus__assigned=option) )
+    for app in apps:
+        app.status = app.applicationstatus_set.filter(assigned=option).latest('created_at')
+    return apps
+
+
+
+
 def get_accepted_status(app):
     for st in app.applicationstatus_set.all().order_by('-id'):
         if st.assigned == ApplicationStatus.ACCEPTED:
@@ -544,6 +572,7 @@ def get_offered_jobs_by_student(user, student_jobs):
                         'course_section': job.course.section.name,
                         'assigned_status': 'Offered',
                         'assigned_hours': status.assigned_hours,
+                        'assigned_created_at': status.created_at,
                         'session_slug': job.session.slug,
                         'job_slug': job.course.slug,
                         'accepted': accepted,
@@ -572,6 +601,7 @@ def get_accepted_jobs_by_student(user, student_jobs):
                         'course_section': job.course.section.name,
                         'assigned_status': 'Accepted',
                         'assigned_hours': status.assigned_hours,
+                        'assigned_created_at': status.created_at,
                         'session_slug': job.session.slug,
                         'job_slug': job.course.slug
                     })
@@ -581,6 +611,11 @@ def get_accepted_jobs_by_student(user, student_jobs):
                     else:
                         summary[year_term] = status.assigned_hours
     return jobs, summary
+
+
+def get_jobs_with_status_by_user(user, option):
+    jobs = Job.objects.filter(application__applicant__id=user.id)
+    pass
 
 
 def get_declined_jobs_by_student(user, student_jobs):
@@ -598,6 +633,7 @@ def get_declined_jobs_by_student(user, student_jobs):
                         'course_section': job.course.section.name,
                         'assigned_status': 'Declined',
                         'assigned_hours': status.assigned_hours,
+                        'assigned_created_at': status.created_at,
                         'session_slug': job.session.slug,
                         'job_slug': job.course.slug
                     })

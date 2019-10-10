@@ -83,11 +83,15 @@ class ConfidentialityNonInternationalForm(forms.ModelForm):
 class ConfidentialityInternationalForm(forms.ModelForm):
     sin_expiry_date = forms.DateField(
         required=False,
-        widget=forms.SelectDateWidget(years=range(DATE.year, DATE.year + 20))
+        widget=forms.SelectDateWidget(years=range(DATE.year, DATE.year + 20)),
+        label='SIN Expiry Date',
+        help_text='Valid file formats: JPG, JPEG, PNG'
     )
     study_permit_expiry_date = forms.DateField(
         required=False,
-        widget=forms.SelectDateWidget(years=range(DATE.year, DATE.year + 20))
+        widget=forms.SelectDateWidget(years=range(DATE.year, DATE.year + 20)),
+        label='Study Permit Expiry Date',
+        help_text='Valid file formats: JPG, JPEG, PNG'
     )
     class Meta:
         model = Confidentiality
@@ -97,6 +101,12 @@ class ConfidentialityInternationalForm(forms.ModelForm):
             'sin': forms.FileInput(),
             'study_permit': forms.FileInput()
         }
+        labels = {
+            'employee_number': 'Employee Number',
+            'sin': 'Social Insurance Number (SIN)',
+            'study_permit': 'Study Permit'
+        }
+
 
 class ConfidentialityForm(forms.ModelForm):
     sin_expiry_date = forms.DateField(

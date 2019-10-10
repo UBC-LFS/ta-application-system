@@ -1,0 +1,33 @@
+{% extends 'ta_app/base.html' %}
+{% block content %}
+{% load static %}
+{% include "students/util/_sidebar.html" %}
+
+<div id="content" class="container-fluid">
+
+  <div class="mb-3">
+    <img class="ubc-logo d-inline-block" src="{% static 'ta_app/images/UBClogo.jpeg' %}" alt="ubc logo" />
+    <div class="d-inline-block ml-3">
+      <h3 class="mb-3">Cancel an Accepted Job</h3>
+      <a class="btn btn-outline-primary" href="{% url 'students:accepted_jobs' %}">Go back to Accepted Jobs</a>
+    </div>
+  </div>
+
+  {% if app.cancelled %}
+
+  <div class="d-inline-block">
+    <div class="alert alert-danger" role="alert">You've already cancelled this accepted job.</div>
+  </div>
+
+  {% else %}
+    <form action="" method="post" onsubmit="return confirm('Are you sure to cancel this accepted job - {{ job.session.year}}{{ job.session.term.code }} {{ job.course.code.name }}{{ job.course.number.name }}{{ job.course.section.name }}?')">
+      {% csrf_token %}
+      <input type="hidden" name="assigned_hours" value="{{ app.status.assigned_hours }}" />
+      <input type="hidden" name="application" value="{{ app.id }}" />
+      <input class="btn btn-danger" type="submit" value="Cancel" />
+    </form>
+  {% endif %}
+
+</div>
+
+{% endblock %}

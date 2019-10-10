@@ -9,12 +9,10 @@
   <div class="mb-3">
     <img class="ubc-logo d-inline-block" src="{% static 'ta_app/images/UBClogo.jpeg' %}" alt="ubc logo" />
     <div class="d-inline-block ml-3">
-      <h3>{{ session.year }} {{ session.term.name }}</h3>
+      <h3>{{ session.year }} {{ session.term.name }} ({{ session.term.code }})</h3>
       <a class="btn btn-outline-primary" href="{% url 'students:explore_jobs' %}">Go back to Explore Jobs</a>
     </div>
   </div>
-
-
 
   <h5 class="mt-5">Available Jobs</h5>
   <div class="text-secondary">Total: {{ jobs|length }}</div>
@@ -51,9 +49,9 @@
             <td>
                 <a href="{% url 'students:apply_job' session_slug=job.session.slug job_slug=job.course.slug %}">
                   {% if job.has_applied %}
-                    Applied
+                    <span class="text-secondary">Applied</span>
                   {% else %}
-                    Apply
+                    APPLY
                   {% endif %}
                 </a>
             </td>

@@ -4,7 +4,8 @@
 {% include 'students/util/_sidebar.html' %}
 
 <div id="content" class="container-fluid">
-
+  {% include 'ta_app/_return_messages.html' with data=messages %}
+  
   <h3>Accpeted Jobs</h3>
 
   <h5>Summary</h5>
@@ -38,6 +39,8 @@
         <th>Job</th>
         <th>Assigned Status</th>
         <th>Assigned Hours</th>
+        <th>Accepted at</th>
+        <th>Actions</th>
       </tr>
     </thead>
     <tbody>
@@ -50,8 +53,14 @@
             {{ job.course_code }} {{ job.course_number }} {{ job.course_section }}
           </a>
         </td>
-        <td>{{ job.assigned_status }}</td>
+        <td>
+          <span class="badge badge-success">{{ job.assigned_status }}</span>
+        </td>
         <td>{{ job.assigned_hours }} hours</td>
+        <td>{{ job.assigned_created_at }}</td>
+        <td>
+          <a href="{% url 'students:cancel_job' session_slug=job.session_slug job_slug=job.job_slug %}">Cancel</a>
+        </td>
       </tr>
       {% empty %}
         <tr>

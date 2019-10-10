@@ -40,35 +40,39 @@
 	      <th>Job</th>
 	      <th>Assigned Status</th>
 	      <th>Assigned Hours</th>
+				<th>Offered at</th>
 	      <th>Your Decision</th>
 	      <th>Actions</th>
 	    </tr>
 	  </thead>
 	  <tbody>
 	    {% for job in offered_jobs %}
-	    <tr>
-	      <td>{{ job.year }}</td>
-	      <td>{{ job.term }}</td>
-	      <td>
-	        <a href="{% url 'show_job' session_slug=job.session_slug job_slug=job.job_slug path='offered' portal='Student' %}">
-	          {{ job.course_code }} {{ job.course_number }} {{ job.course_section }}
-	        </a>
-	      </td>
-	      <td>{{ job.assigned_status }}</td>
-	      <td>{{ job.assigned_hours }} hours</td>
-	      <td>
-	        {% if job.accepted %}
-	          {{ job.accepted.get_assigned_display }}: {{ job.accepted.assigned_hours }} hours on {{ job.accepted.created_at }}
-	        {% elif job.declined %}
-	          {{ job.declined.get_assigned_display }}: {{ job.declined.assigned_hours }} hours on {{ job.declined.created_at }}
-	        {% else %}
-	          None
-	        {% endif %}
-	      </td>
-	      <td>
-	        <a href="{% url 'students:offered_job' session_slug=job.session_slug job_slug=job.job_slug %}">Accept / Decline</a>
-	      </td>
-	    </tr>
+		    <tr>
+		      <td>{{ job.year }}</td>
+		      <td>{{ job.term }}</td>
+		      <td>
+		        <a href="{% url 'show_job' session_slug=job.session_slug job_slug=job.job_slug path='offered' portal='Student' %}">
+		          {{ job.course_code }} {{ job.course_number }} {{ job.course_section }}
+		        </a>
+		      </td>
+		      <td>
+						<span class="badge badge-warning">{{ job.assigned_status }}</span>
+					</td>
+		      <td>{{ job.assigned_hours }} hours</td>
+					<td>{{ job.assigned_created_at }}</td>
+		      <td>
+		        {% if job.accepted %}
+							<span class="badge badge-success">{{ job.accepted.get_assigned_display }}</span>
+		        {% elif job.declined %}
+							<span class="badge badge-danger">{{ job.declined.get_assigned_display }}</span>
+		        {% else %}
+							<span class="badge badge-secondary">None</span>
+		        {% endif %}
+		      </td>
+		      <td>
+		        <a href="{% url 'students:offered_job' session_slug=job.session_slug job_slug=job.job_slug %}">Accept / Decline</a>
+		      </td>
+		    </tr>
 	    {% empty %}
 	      <tr>
 	        <td colspan="3">No offered jobs found</td>

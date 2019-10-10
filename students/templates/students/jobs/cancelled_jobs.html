@@ -1,0 +1,49 @@
+{% extends 'ta_app/base.html' %}
+{% block content %}
+
+{% include 'students/util/_sidebar.html' %}
+
+<div id="content" class="container-fluid">
+  {% include 'ta_app/_return_messages.html' with data=messages %}
+
+  <h3>Cancelled Jobs</h3>
+
+  <h5>List</h5>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Year</th>
+        <th>Term</th>
+        <th>Job</th>
+        <th>Assigned Status</th>
+        <th>Assigned Hours</th>
+        <th>Accepted at</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for app in apps %}
+      <tr>
+        <td>{{ app.job.session.year }}</td>
+        <td>{{ app.job.session.term.code }}</td>
+        <td>
+          <a href="{% url 'show_job' session_slug=app.job.session.slug job_slug=app.job.course.slug path='cancelled' portal='Student' %}">
+            {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}
+          </a>
+        </td>
+        <td>
+          <span class="badge badge-danger">{{ app.status.get_assigned_display }}</span>
+        </td>
+        <td>{{ app.status.assigned_hours }} hours</td>
+        <td>{{ app.status.created_at }}</td>
+      </tr>
+      {% empty %}
+        <tr>
+          <td colspan="3">No accepted jobs found</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+</div>
+
+{% endblock %}

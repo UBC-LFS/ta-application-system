@@ -192,7 +192,8 @@ class ApplicationStatus(models.Model):
     OFFERED = '1'
     ACCEPTED = '2'
     DECLINED = '3'
-    ASSSIGNED_CHOICES = [(NONE, 'None'), (OFFERED, 'Offered'),(ACCEPTED, 'Accepted'), (DECLINED, 'Declined')]
+    CANCELLED = '4'
+    ASSSIGNED_CHOICES = [(NONE, 'None'), (OFFERED, 'Offered'), (ACCEPTED, 'Accepted'), (DECLINED, 'Declined'), (CANCELLED, 'Cancelled')]
 
     application = models.ForeignKey(Application, on_delete=models.CASCADE)
     assigned = models.CharField(max_length=1, choices=ASSSIGNED_CHOICES, default=NONE)

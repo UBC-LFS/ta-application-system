@@ -185,12 +185,13 @@ def check_confidentiality(request):
             form = ConfidentialityCheckForm(request.POST, instance=loggedin_user.confidentiality)
         else:
             form = ConfidentialityCheckForm(request.POST)
+
         if form.is_valid():
             confidentiality = form.save()
             if confidentiality:
-                messages.info(request, 'Thank you for selecting.')
+                messages.info(request, 'Please submit your information.')
             else:
-                messages.error(request, 'An error occurred.')
+                messages.error(request, 'An error occurred while saving confidentiality.')
         else:
             errors = form.errors.get_json_data()
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
@@ -227,10 +228,10 @@ def submit_confidentiality(request):
 
             updated_confidentiality.save()
             if updated_confidentiality:
-                messages.success(request, 'Success! {0} - confidentiality created'.format(user.username))
+                messages.success(request, 'Success! {0} - confidentiality submitted'.format(user.username))
                 return redirect('students:show_confidentiality')
             else:
-                messages.error(request, 'An error occurred.')
+                messages.error(request, 'An error occurred while saving confidentiality.')
         else:
             errors = form.errors.get_json_data()
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
@@ -438,7 +439,8 @@ def applied_jobs(request):
 
     return render(request, 'students/jobs/applied_jobs.html', {
         'loggedin_user': loggedin_user,
-        'applied_jobs': adminApi.get_jobs_applied_by_student(loggedin_user)
+        'applied_jobs': adminApi.get_jobs_applied_by_student(loggedin_user),
+        'app_stats_none': ApplicationStatus.NONE
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -475,6 +477,43 @@ def accepted_jobs(request):
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET', 'POST'])
+def cancel_job(request, session_slug, job_slug):
+    ''' Cancel an accepted job '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if 'Student' not in loggedin_user.roles: raise PermissionDenied
+
+    job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
+    app = adminApi.get_application_with_status_by_user(loggedin_user, job, ApplicationStatus.ACCEPTED)
+    for st in app.applicationstatus_set.all():
+        print(st.assigned, st.assigned_hours)
+    print(app.status.id, app.status.assigned_hours, app.status.created_at)
+    print(app.cancelled)
+    if request.method == 'POST':
+        app_id = request.POST.get('application')
+        assigned_hours = request.POST.get('assigned_hours')
+        form = ApplicationStatusReassignForm({ 'application': app_id, 'assigned': ApplicationStatus.CANCELLED, 'assigned_hours': 0.00, 'parent_id': app.status.id })
+        if form.is_valid():
+            cancelled_status = form.save()
+            if cancelled_status:
+                updated = adminApi.update_job_ta_hours(app.job.session.slug, app.job.course.slug, 0.0 - float(assigned_hours))
+                if updated:
+                    messages.success(request, 'Success! Application of {0}{1} {2}{3}{4} cancelled.'.format(job.session.year, job.session.term.code, job.course.code.name, job.course.number.name, job.course.section.name))
+                else:
+                    messages.error(request, 'An error occurred. Failed to update ta hours in a job')
+            else:
+                messages.error(request, 'An error occurred while saving application status.')
+        else:
+            errors = form.errors.get_json_data()
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+
+    return render(request, 'students/jobs/cancel_job.html', {
+        'loggedin_user': loggedin_user,
+        'app': app
+    })
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
 def declined_jobs(request):
     ''' Display jobs declined by a student '''
@@ -485,6 +524,19 @@ def declined_jobs(request):
     return render(request, 'students/jobs/declined_jobs.html', {
         'loggedin_user': loggedin_user,
         'declined_jobs': adminApi.get_declined_jobs_by_student(loggedin_user, student_jobs)
+    })
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def cancelled_jobs(request):
+    ''' Display jobs cancelled by a student '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if 'Student' not in loggedin_user.roles: raise PermissionDenied
+
+    return render(request, 'students/jobs/cancelled_jobs.html', {
+        'loggedin_user': loggedin_user,
+        'apps': adminApi.get_apps_with_option_by_user(loggedin_user, ApplicationStatus.CANCELLED)
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -563,6 +615,8 @@ def decline_offer(request, session_slug, job_slug):
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
     return redirect('students:offered_jobs')
+
+
 
 
 # -------------

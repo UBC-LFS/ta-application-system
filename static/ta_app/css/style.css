@@ -1,5 +1,5 @@
 .ubc-logo {
-  width: 130px;
+  width: 110px;
   height: auto;
 }
 .text-dark-blue {
@@ -14,6 +14,7 @@
   border: 1px solid #aaa;
   border-radius: 4px;
 }
+
 
 .field-wrapper > label {
   margin: 0;

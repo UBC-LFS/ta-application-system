@@ -17,6 +17,7 @@
         <th>Job</th>
         <th>Assigned Status</th>
         <th>Assigned Hours</th>
+        <th>Declined at</th>
       </tr>
     </thead>
     <tbody>
@@ -29,8 +30,11 @@
             {{ job.course_code }} {{ job.course_number }} {{ job.course_section }}
           </a>
         </td>
-        <td>{{ job.assigned_status }}</td>
+        <td>
+          <span class="badge badge-danger">{{ job.assigned_status }}</span>
+        </td>
         <td>{{ job.assigned_hours }} hours</td>
+        <td>{{ job.assigned_created_at }}</td>
       </tr>
       {% empty %}
         <tr>

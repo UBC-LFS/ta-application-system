@@ -1,29 +1,45 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
+{% load static %}
+{% include "students/util/_sidebar.html" %}
 
-<div class="wrapper">
-  {% include "students/util/_sidebar.html" %}
+<div id="content" class="container-fluid">
+  {% include 'ta_app/_return_messages.html' with data=messages %}
 
-  <div id="content" class="container-fluid">
-    {% include 'ta_app/_return_messages.html' with data=messages %}
-
-    <h3>Submit Confidentiality</h3>
-
-    {% if form %}
-      <p>Valid file formats: JPG, JPEG, PNG</p>
-      <form action="" method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        <table>{{ form.as_table }}</table>
-        <input type="submit" value="Submit" />
-      </form>
-    {% else %}
-      <div class="alert alert-danger" role="alert">
-        An error occurred. Please select your confidentiality.
-      </div>
-    {% endif %}
-
-    <a class="btn btn-secondary margin-top-10" href="{% url 'students:show_confidentiality' %}">Back</a>
+  <div class="mb-3">
+    <img class="ubc-logo d-inline-block" src="{% static 'ta_app/images/UBClogo.jpeg' %}" alt="ubc logo" />
+    <div class="d-inline-block ml-3">
+      <h3>Submit Confidentiality</h3>
+      <a class="btn btn-outline-primary" href="{% url 'students:show_confidentiality' %}">Go back to Confidentiality</a>
+    </div>
   </div>
+
+  {% if form %}
+
+    <form action="" method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      {% for field in form.visible_fields  %}
+        <div class="field-wrapper my-4">
+          {{ field.label_tag }}
+          {% if field.help_text %}
+            <div class="help">{{ field.help_text|safe }}</div>
+          {% endif %}
+          {{ field }}
+        </div>
+      {% endfor %}
+
+      {% for field in form.hidden_fields %}
+        {{ field }}
+      {% endfor %}
+
+      <input class="btn btn-primary" type="submit" value="Submit" />
+    </form>
+  {% else %}
+    <div class="alert alert-danger" role="alert">
+      An error occurred. Please select your confidentiality.
+    </div>
+  {% endif %}
 </div>
 
 {% endblock %}

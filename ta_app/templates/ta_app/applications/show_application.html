@@ -48,47 +48,49 @@
 
         <section class="line-height-2">
           <div>
-            <span class="font-weight-bold text-secondary">Supervisor Approval</span>:
+            <span class="font-weight-bold">Supervisor Approval</span>:
             {{ app.supervisor_approval }}
           </div>
           <div>
-            <span class="font-weight-bold text-secondary">How Qualified:</span>
+            <span class="font-weight-bold">How Qualified:</span>
             {{ app.get_how_qualified_display }}
           </div>
           <div>
-            <span class="font-weight-bold text-secondary">How Interested:</span>
+            <span class="font-weight-bold">How Interested:</span>
             {{ app.get_how_interested_display }}
           </div>
           <div>
-            <span class="font-weight-bold text-secondary">Availability:</span>
+            <span class="font-weight-bold">Availability:</span>
             {{ app.availability }}
           </div>
           <div>
-            <span class="font-weight-bold text-secondary">Availability Note:</span>
+            <span class="font-weight-bold">Availability Note:</span>
             {{ app.availability_note }}
           </div>
           <div>
-            <span class="font-weight-bold text-secondary">Instructor Preference:</span>
+            <span class="font-weight-bold">Instructor Preference:</span>
             {{ app.get_instructor_preference_display }}
           </div>
-          <div>
-            <span class="font-weight-bold text-secondary">Status:</span>
-            <ul>
-              {% for st in app.applicationstatus_set.all %}
-                <li>{{ st.get_assigned_display }}: {{ st.assigned_hours }} at {{ st.created_at }}</li>
-              {% empty %}
-                <li>No status found</li>
-              {% endfor %}
-            </ul>
-          </div>
+
 
           {% if portal == 'Admin' %}
             <div>
-              <span class="font-weight-bold text-secondary">Classification:</span>
+              <span class="font-weight-bold">Status:</span>
+              <ul>
+                {% for st in app.applicationstatus_set.all %}
+                  <li>{{ st.get_assigned_display }}: {{ st.assigned_hours }} at {{ st.created_at }}</li>
+                {% empty %}
+                  <li>No status found</li>
+                {% endfor %}
+              </ul>
+            </div>
+          
+            <div>
+              <span class="font-weight-bold">Classification:</span>
               {{ app.classification.year }} {{ app.classification.name }}
             </div>
             <div>
-              <span class="font-weight-bold text-secondary">Note:</span>
+              <span class="font-weight-bold">Note:</span>
               {{ app.note }}
             </div>
           {% endif %}
