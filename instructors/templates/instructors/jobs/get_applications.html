@@ -1,34 +1,39 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
+{% load static %}
 {% include "instructors/util/_sidebar.html" %}
 
 <div id="content" class="container-fluid">
   {% include 'ta_app/_return_messages.html' with data=messages %}
 
-  <h3>Applications</h3>
-  <div class="text-secondary">Total: {{ job.application_set.all|length }}</div>
-
-  <a class="btn btn-outline-primary" href="{% url 'instructors:my_jobs' %}">Go back to My Jobs</a>
+  <div class="mb-3">
+    <img class="ubc-logo d-inline-block" src="{% static 'ta_app/images/UBClogo.jpeg' %}" alt="ubc logo" />
+    <div class="d-inline-block ml-3">
+      <h3>Applications <small class="text-muted">Total: {{ job.application_set.all|length }}</small></h3>
+      <a class="btn btn-outline-primary" href="{% url 'instructors:my_jobs' %}">Go back to My Jobs</a>
+    </div>
+  </div>
 
   <section class="my-4">
-    <h3>{{ job.session.year }} {{ job.session.term.name }} ({{ job.session.term.code }})</h3>
-    <h4 class="text-secondary">- {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</h4>
+    <h4>{{ job.session.year }} {{ job.session.term.name }} ({{ job.session.term.code }})</h4>
+    <h5 class="text-secondary"> {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</h5>
 
-    <ul>
-      <li>
-        Assigned TA Hours: {{ job.assigned_ta_hours }} hours
-      </li>
-      <li>
-        Accumulated TA hours: {{ job.ta_hours }} hours
-      </li>
-    </ul>
-    <div class="bd-callout bd-callout-warning">
-      <h5>Note</h5>
-      <p>Accumulated TA hours are accumulated when they accept their job offers with assigned hours.</p>
+    <div class="card border-success d-inline-block mt-4">
+      <div class="card-header bg-success text-white">TA hours</div>
+      <div class="card-body">
+        Accumulated TA hours are accumulated when students accept their job offers with assigned hours.
+        <ul>
+          <li>Assigned TA Hours: <span class="font-weight-bold text-danger">{{ job.assigned_ta_hours }}</span> hours</li>
+          <li>Accumulated TA hours: <span class="font-weight-bold text-danger">{{ job.ta_hours }}</span> hours</li>
+        </ul>
+      </div>
     </div>
   </section>
 
   <div class="d-inline-block">
+
+    {% include 'students/util/job_preferences.html' %}
+
     <table class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center" data-toggle="table" data-sortable="true" data-classes="" data-pagination="true" data-search="true">
       <thead>
         <tr>
@@ -39,8 +44,7 @@
           <th data-sortable="true">How <br />Interested</th>
           <th data-sortable="true">Availability</th>
           <th data-sortable="true">Availability <br />Note</th>
-          <th data-sortable="true">Status</th>
-          <th data-sortable="true">Created at</th>
+          <th data-sortable="true">Applied at</th>
           <th data-sortable="true">Updated at</th>
           <th>Instructor <br />Preference</th>
         </tr>
@@ -49,9 +53,7 @@
         {% for app in job.application_set.all %}
           <tr>
             <td>
-              <a href="{% url 'administrators:show_user' username=app.applicant.username role='instructor' %}">
-                {{ app.applicant.first_name }} {{ app.applicant.last_name }}
-              </a>
+              {{ app.applicant.get_full_name }}
             </td>
             <td>{{ app.applicant.username }}</td>
             <td>{{ app.supervisor_approval }}</td>
@@ -59,7 +61,6 @@
             <td>{{ app.get_how_interested_display }}</td>
             <td>{{ app.availability }}</td>
             <td>{{ app.availability_note }}</td>
-            <td>{% include 'administrators/util/_display_app_status.html' with data=app %}</td>
             <td>{{ app.created_at }}</td>
             <td>{{ app.updated_at }}</td>
             <td>
@@ -75,7 +76,7 @@
                   {% endfor %}
                 </select>
                 <input type="hidden" name="application" value="{{ app.id }}" />
-                <input type="submit" value="Select" />
+                <input class="btn btn-sm btn-primary" type="submit" value="Select" />
               </form>
             </td>
           </tr>

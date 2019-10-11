@@ -13,19 +13,35 @@
     </div>
   </div>
 
+  <h4>{{ app.job.session.year }} {{ app.job.session.term.name }} ({{ app.job.session.term.code }})</h4>
+  <h5 class="text-secondary">{{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</h5>
+
   {% if app.cancelled %}
 
-  <div class="d-inline-block">
-    <div class="alert alert-danger" role="alert">You've already cancelled this accepted job.</div>
-  </div>
+    <div class="d-inline-block">
+      <div class="alert alert-danger" role="alert">You've already cancelled this accepted job.</div>
+    </div>
 
   {% else %}
-    <form action="" method="post" onsubmit="return confirm('Are you sure to cancel this accepted job - {{ job.session.year}}{{ job.session.term.code }} {{ job.course.code.name }}{{ job.course.number.name }}{{ job.course.section.name }}?')">
+
+    <div class="bd-callout bd-callout-warning">
+      <h5>Confirmation</h5>
+      <p>Text area</p>
+    </div>
+
+    <h4 class="text-info">Are you sure to cancel this accepted job?</h4>
+    <p class="text-secondary">Please click the Cancel button below if you would like to cancel your job.</p>
+
+    <form action="" method="post" onsubmit="return confirm('Are you sure to cancel this accepted job: {{ app.job.session.year}} {{ app.job.session.term.code }} - {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}?')">
       {% csrf_token %}
       <input type="hidden" name="assigned_hours" value="{{ app.status.assigned_hours }}" />
       <input type="hidden" name="application" value="{{ app.id }}" />
-      <input class="btn btn-danger" type="submit" value="Cancel" />
+
+      <input class="btn btn-danger" type="submit" value="Confirm to cancel this accepted job" />
     </form>
+
+    <div class="mt-5 text-secondary">If not, please click the Back button below.</div>
+    <a class="btn btn-outline-primary" href="{% url 'students:accepted_jobs' %}">Go back to Accepted Jobs</a>
   {% endif %}
 
 </div>

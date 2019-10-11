@@ -1,0 +1,96 @@
+<section class="mt-4">
+  <div class="mb-5">
+    <h6>Preferred Name:</h6>
+    <span class="text-secondary">{{ data.profile.preferred_name }}</span>
+  </div>
+
+  <div class="mb-5">
+    <h6>Status:</h6>
+    <span class="text-secondary">{{ data.profile.status }}</span>
+  </div>
+
+  <div class="mb-5">
+    <h6>Current Program:</h6>
+    <span class="text-secondary">{{ data.profile.program }}</span>
+  </div>
+
+  <div class="mb-5">
+    <h6>Other Program:</h6>
+    <span class="text-secondary">{{ data.profile.program_others }}</span>
+  </div>
+
+  <div class="mb-5">
+    <h6>Anticipated Graduation:</h6>
+    <span class="text-secondary">{{ data.profile.graduation_date }}</span>
+  </div>
+
+  <div class="mb-5">
+    <h6>Most Recent Degree:</h6>
+    <ul>
+      {% for degree in data.profile.degrees.all %}
+        <li>{{ degree.name }}</li>
+      {% empty %}
+        <li>None</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <div class="mb-5">
+    <h6>Training:</h6>
+    <ul>
+      {% for training in user.profile.trainings.all %}
+        <li>{{ training.name }}</li>
+      {% empty %}
+        <li>None</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <div class="mb-5">
+    <h6>Training Details:</h6>
+    <span class="text-secondary">{{ data.profile.training_details }}</span>
+  </div>
+
+  <div class="mb-5">
+    <h6>LFS TA Training:</h6>
+    <span class="text-secondary">{{ data.profile.lfs_ta_training }}</span>
+  </div>
+
+  <div class="mb-5">
+    <h6>LFS TA Training Details:</h6>
+    <span class="text-secondary">{{ data.profile.lfs_ta_training_details }}</span>
+  </div>
+
+  <div class="mb-5">
+    <h6>Previous TA Experience:</h6>
+    <span class="text-secondary">{{ data.profile.ta_experience }}</span>
+  </div>
+
+  <div class="mb-5">
+    <h6>Previous TA Experience Details:</h6>
+    <span class="text-secondary">{{ data.profile.ta_experience_details }}</span>
+  </div>
+
+  <div class="mb-5">
+    <h6>Explanation of Qualifications:</h6>
+    <span class="text-secondary">{{ data.profile.qualifications }}</span>
+  </div>
+
+  <div class="mb-5">
+    <h6>Information on Prior Employment:</h6>
+    <span class="text-secondary">{{ data.profile.prior_employment }}</span>
+  </div>
+
+  <div class="mb-5">
+    <h6>Special Considerations:</h6>
+    <span class="text-secondary">{{ data.profile.special_considerations }}</span>
+  </div>
+
+</section>
+
+<div class="text-secondary">
+  <ul>
+    <li>Created at {{ user.profile.created_at }}</li>
+    <li>Updated at {{ user.profile.updated_at }}</li>
+  </ul>
+</div>

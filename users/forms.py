@@ -197,7 +197,8 @@ class StudentProfileForm(forms.ModelForm):
     preferred_name = forms.CharField(
         required=False,
         widget=forms.TextInput(attrs={ 'class':'form-control' }),
-        help_text='The use of a Preferred name is optional'
+        label='Preferred Name',
+        help_text='The use of a Preferred name is optional',
     )
 
     graduation_date = forms.DateField(
@@ -215,7 +216,8 @@ class StudentProfileForm(forms.ModelForm):
     trainings = forms.ModelMultipleChoiceField(
         required=False,
         queryset=Training.objects.all(),
-        widget=forms.CheckboxSelectMultiple()
+        widget=forms.CheckboxSelectMultiple(),
+        label='Training',
     )
     class Meta:
         model = Profile

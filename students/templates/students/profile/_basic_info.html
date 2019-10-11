@@ -1,0 +1,63 @@
+<section class="mt-4">
+  <div class="mb-4">
+    <h5>CWL:</h5>
+    <span class="text-secondary">{{ data.username }}</span>
+  </div>
+
+  <div class="mb-4">
+    <h5>UBC Number:</h5>
+    <span class="text-secondary">{{ data.profile.ubc_number }}</span>
+  </div>
+
+  <div class="mb-4">
+    <h5>E-mail:</h5>
+    <span class="text-secondary">{{ data.email }}</span>
+  </div>
+
+  <ul class="text-secondary mb-4">
+    <li>Date Joined: {{ data.date_joined }}</li>
+    <li>Last Login: {{ data.last_login }}</li>
+  </ul>
+</section>
+
+<section class="mt-5">
+  <h4 class="text-info">Resume</h4>
+
+  {% if user.resume_file %}
+    <div class="">
+      <a class="btn btn-link" href="{% url 'students:download_resume' username=data.username filename=data.resume_file %}" target="_blank">
+        <i class="fa fa-cloud-download" aria-hidden="true"></i> {{ user.resume_file }}
+      </a>
+      <br />
+      <small class="text-muted">Uploaded at {{ data.resume.created_at }}</small>
+    </div>
+
+    <div class="">
+      <form class="d-inline-block" action="{% url 'students:delete_resume' %}" method="post" onsubmit="return confirm('Are you sure to delete this resume?')">
+        {% csrf_token %}
+        <input type="hidden" name="user" value="{{ data.username }}">
+        <input class="btn btn-sm btn-danger" type="submit" value="Delete" />
+      </form>
+    </div>
+
+  {% else %}
+    <button class="btn btn-secondary btn-block" type="button" disabled>
+      <i class="fa fa-cloud-download" aria-hidden="true"></i> No resume
+    </button>
+  {% endif %}
+
+  <div class="d-inline-block card border-secondary mt-3">
+    <div class="card-header bg-secondary text-white">Upload your resume</div>
+    <div class="card-body">
+      <div class="card-text">
+        <p>Valid file formats: jpg, jpeg, png, pdf, doc, docx</p>
+        <form action="{% url 'students:upload_resume' %}" method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          <table>{{ form.as_table }}</table>
+          <input class="btn btn-primary" type="submit" value="Upload" />
+        </form>
+      </div>
+    </div>
+  </div>
+
+</section>

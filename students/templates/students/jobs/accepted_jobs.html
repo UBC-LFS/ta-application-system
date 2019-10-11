@@ -1,74 +1,89 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
-
+{% load static %}
 {% include 'students/util/_sidebar.html' %}
 
 <div id="content" class="container-fluid">
   {% include 'ta_app/_return_messages.html' with data=messages %}
-  
-  <h3>Accpeted Jobs</h3>
 
-  <h5>Summary</h5>
-  <table class="table">
-    <thead>
-      <tr>
-        <th>Year-Term</th>
-        <th>Total Assigned Hours</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for year_term, assigned_hours in accepted_summary.items %}
-        <tr>
-          <td>{{ year_term }}</td>
-          <td>{{ assigned_hours }} hours</td>
-        </tr>
-      {% empty %}
-        <tr>
-          <td colspan="2">No summary available</td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  <div class="mb-3">
+    <img class="ubc-logo d-inline-block" src="{% static 'ta_app/images/UBClogo.jpeg' %}" alt="ubc logo" />
+    <div class="d-inline-block ml-3">
+      <h3>Accpeted Jobs</h3>
+      <div class="text-secondary">Total: {{ apps|length }}</div>
+    </div>
+  </div>
 
-  <h5>List</h5>
-  <table class="table">
-    <thead>
-      <tr>
-        <th>Year</th>
-        <th>Term</th>
-        <th>Job</th>
-        <th>Assigned Status</th>
-        <th>Assigned Hours</th>
-        <th>Accepted at</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for job in accepted_jobs %}
-      <tr>
-        <td>{{ job.year }}</td>
-        <td>{{ job.term }}</td>
-        <td>
-          <a href="{% url 'show_job' session_slug=job.session_slug job_slug=job.job_slug path='accepted' portal='Student' %}">
-            {{ job.course_code }} {{ job.course_number }} {{ job.course_section }}
-          </a>
-        </td>
-        <td>
-          <span class="badge badge-success">{{ job.assigned_status }}</span>
-        </td>
-        <td>{{ job.assigned_hours }} hours</td>
-        <td>{{ job.assigned_created_at }}</td>
-        <td>
-          <a href="{% url 'students:cancel_job' session_slug=job.session_slug job_slug=job.job_slug %}">Cancel</a>
-        </td>
-      </tr>
-      {% empty %}
+  <div class="d-inline-block">
+    <h5>Summary</h5>
+    <table class="table table-sm">
+      <thead>
         <tr>
-          <td colspan="3">No accepted jobs found</td>
+          <th>Year-Term</th>
+          <th>Total Assigned Hours</th>
         </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+        {% for year_term, assigned_hours in total_assigned_hours.items %}
+          <tr>
+            <td>{{ year_term }}</td>
+            <td>{{ assigned_hours }} hours</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="2">No summary available</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <table class="table table-bordered table-hover table-striped table-responsive-md text-center" data-toggle="table" data-sortable="true" data-classes="" data-pagination="true" data-search="true">
+      <thead>
+        <tr>
+          <th>Year</th>
+          <th>Term</th>
+          <th>Job</th>
+          <th>Assigned Status</th>
+          <th>Assigned Hours</th>
+          <th>Accepted at</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for app in apps %}
+        <tr>
+          <td>{{ app.job.session.year }}</td>
+          <td>{{ app.job.session.term.code }}</td>
+          <td>
+            <a href="{% url 'show_job' session_slug=app.job.session.slug job_slug=app.job.course.slug path='accepted' portal='Student' %}">
+              {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}
+            </a>
+          </td>
+          <td>
+            <span class="badge badge-success">{{ app.accepted.get_assigned_display.upper }}</span>
+          </td>
+          <td>{{ app.accepted.assigned_hours }} hours</td>
+          <td>{{ app.accepted.created_at }}</td>
+          <td>
+            {% if app.cancelled %}
+              <div class="">
+                <span class="badge badge-secondary">{{ app.cancelled.get_assigned_display.upper }}</span>
+                <small class="text-muted">{{ app.cancelled.created_at }}</small>
+              </div>
+            {% else %}
+              <a href="{% url 'students:cancel_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}">Cancel</a>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+          <tr>
+            <td colspan="3">No accepted jobs found</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+  </div>
 
 </div>
 

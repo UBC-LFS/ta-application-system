@@ -34,6 +34,9 @@ def get_previous_url(path, portal):
         previous_url = '/instructors'
         if path == 'my_jobs':
             previous_url += '/my_jobs/'
+        if path == 'get_applications':
+            previous_url += path
+
     elif portal == 'Student':
         previous_url = '/students'
         if path == 'applied':

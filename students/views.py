@@ -391,7 +391,7 @@ def available_jobs(request, session_slug):
     return render(request, 'students/jobs/available_jobs.html', {
         'loggedin_user': loggedin_user,
         'session': adminApi.get_session_by_slug(session_slug),
-        'jobs': adminApi.get_jobs_with_student_applied(session_slug, loggedin_user)
+        'jobs': adminApi.get_available_jobs_to_apply(loggedin_user, session_slug)
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -437,10 +437,10 @@ def applied_jobs(request):
     loggedin_user = userApi.loggedin_user(request.user)
     if 'Student' not in loggedin_user.roles: raise PermissionDenied
 
+    apps, total_assigned_hours = adminApi.get_applications_with_status_by_user(loggedin_user, ApplicationStatus.NONE)
     return render(request, 'students/jobs/applied_jobs.html', {
         'loggedin_user': loggedin_user,
-        'applied_jobs': adminApi.get_jobs_applied_by_student(loggedin_user),
-        'app_stats_none': ApplicationStatus.NONE
+        'apps': apps
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -451,12 +451,11 @@ def offered_jobs(request):
     loggedin_user = userApi.loggedin_user(request.user)
     if 'Student' not in loggedin_user.roles: raise PermissionDenied
 
-    student_jobs = adminApi.get_jobs_applied_by_student(loggedin_user)
-    offered_jobs, offered_summary = adminApi.get_offered_jobs_by_student(loggedin_user, student_jobs)
+    apps, total_assigned_hours = adminApi.get_applications_with_status_by_user(loggedin_user, ApplicationStatus.OFFERED)
     return render(request, 'students/jobs/offered_jobs.html', {
         'loggedin_user': loggedin_user,
-        'offered_jobs': offered_jobs,
-        'offered_summary': offered_summary
+        'apps': apps,
+        'total_assigned_hours': total_assigned_hours
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -467,12 +466,11 @@ def accepted_jobs(request):
     loggedin_user = userApi.loggedin_user(request.user)
     if 'Student' not in loggedin_user.roles: raise PermissionDenied
 
-    student_jobs = adminApi.get_jobs_applied_by_student(loggedin_user)
-    accepted_jobs, accepted_summary = adminApi.get_accepted_jobs_by_student(loggedin_user, student_jobs)
+    apps, total_assigned_hours = adminApi.get_applications_with_status_by_user(loggedin_user, ApplicationStatus.ACCEPTED)
     return render(request, 'students/jobs/accepted_jobs.html', {
         'loggedin_user': loggedin_user,
-        'accepted_jobs': accepted_jobs,
-        'accepted_summary': accepted_summary
+        'apps': apps,
+        'total_assigned_hours': total_assigned_hours
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -485,27 +483,23 @@ def cancel_job(request, session_slug, job_slug):
 
     job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
     app = adminApi.get_application_with_status_by_user(loggedin_user, job, ApplicationStatus.ACCEPTED)
-    for st in app.applicationstatus_set.all():
-        print(st.assigned, st.assigned_hours)
-    print(app.status.id, app.status.assigned_hours, app.status.created_at)
-    print(app.cancelled)
+
     if request.method == 'POST':
         app_id = request.POST.get('application')
         assigned_hours = request.POST.get('assigned_hours')
-        form = ApplicationStatusReassignForm({ 'application': app_id, 'assigned': ApplicationStatus.CANCELLED, 'assigned_hours': 0.00, 'parent_id': app.status.id })
+        form = ApplicationStatusReassignForm({ 'application': app_id, 'assigned': ApplicationStatus.CANCELLED, 'assigned_hours': assigned_hours, 'parent_id': app.status.id })
         if form.is_valid():
             cancelled_status = form.save()
             if cancelled_status:
-                updated = adminApi.update_job_ta_hours(app.job.session.slug, app.job.course.slug, 0.0 - float(assigned_hours))
-                if updated:
-                    messages.success(request, 'Success! Application of {0}{1} {2}{3}{4} cancelled.'.format(job.session.year, job.session.term.code, job.course.code.name, job.course.number.name, job.course.section.name))
-                else:
-                    messages.error(request, 'An error occurred. Failed to update ta hours in a job')
+                messages.success(request, 'Success! Application of {0} {1} - {2} {3} {4} cancelled.'.format(job.session.year, job.session.term.code, job.course.code.name, job.course.number.name, job.course.section.name))
+                return redirect('students:accepted_jobs')
             else:
                 messages.error(request, 'An error occurred while saving application status.')
         else:
             errors = form.errors.get_json_data()
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+
+        return HttpResponseRedirect( reverse('students:cancel_job', args=[session_slug, job_slug]) )
 
     return render(request, 'students/jobs/cancel_job.html', {
         'loggedin_user': loggedin_user,
@@ -520,12 +514,13 @@ def declined_jobs(request):
     loggedin_user = userApi.loggedin_user(request.user)
     if 'Student' not in loggedin_user.roles: raise PermissionDenied
 
-    student_jobs = adminApi.get_jobs_applied_by_student(loggedin_user)
+    apps, total_assigned_hours = adminApi.get_applications_with_status_by_user(loggedin_user, ApplicationStatus.DECLINED)
     return render(request, 'students/jobs/declined_jobs.html', {
         'loggedin_user': loggedin_user,
-        'declined_jobs': adminApi.get_declined_jobs_by_student(loggedin_user, student_jobs)
+        'apps': apps
     })
 
+"""
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
@@ -538,6 +533,7 @@ def cancelled_jobs(request):
         'loggedin_user': loggedin_user,
         'apps': adminApi.get_apps_with_option_by_user(loggedin_user, ApplicationStatus.CANCELLED)
     })
+"""
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
