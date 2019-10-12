@@ -1,23 +1,15 @@
 {% extends "ta_app/base.html" %}
 {% block content %}
-{% load static %}
-{% include "students/util/_sidebar.html" %}
+{% include "ta_app/sidebars/_student_sidebar.html" %}
 
 <div id="content" class="container-fluid">
   {% include 'ta_app/_return_messages.html' with data=messages %}
 
-  <div class="mb-3">
-    <img class="ubc-logo d-inline-block" src="{% static 'ta_app/images/UBClogo.jpeg' %}" alt="ubc logo" />
-    <div class="d-inline-block ml-3">
-      <h3>{{ session.year }} {{ session.term.name }} ({{ session.term.code }})</h3>
-      <a class="btn btn-outline-primary" href="{% url 'students:explore_jobs' %}">Go back to Explore Jobs</a>
-    </div>
-  </div>
+  {% include 'ta_app/pages/_header.html' with title='Available Jobs' text=jobs|length %}
+
+  <div><a class="btn btn-outline-primary" href="{% url 'students:explore_jobs' %}">Go back to Explore Jobs</a></div>
 
   <div class="d-inline-block">
-    <h5 class="mt-3">Available Jobs</h5>
-    <div class="text-secondary">Total: {{ jobs|length }}</div>
-
     <table class="table table-bordered table-hover table-striped table-responsive-md text-center" data-toggle="table" data-sortable="true" data-classes="" data-pagination="true" data-search="true">
       <thead>
         <tr>
@@ -36,11 +28,13 @@
             <td class="text-left">
               {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}
               - <small class="text-muted">{{ job.course.name }}</small>
-              {% include 'administrators/util/_modal_job_details.html' with data=job role='student' %}
+              {% include 'ta_app/jobs/_modal_job_details.html' with data=job %}
             </td>
             <td>
               {% for instructor in job.instructors.all %}
-                {{ instructor.first_name }} {{ instructor.last_name }},
+                {{ instructor.get_full_name }},
+              {% empty %}
+                No instructors found.
               {% endfor %}
             </td>
             <td>
@@ -55,7 +49,6 @@
         {% endfor %}
       </tbody>
     </table>
-
   </div>
 
 </div>

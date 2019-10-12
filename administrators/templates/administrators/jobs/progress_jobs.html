@@ -1,13 +1,9 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
-
-<div class="wrapper">
-  {% include 'administrators/util/_sidebar.html' %}
+{% include "ta_app/sidebars/_administrator_sidebar.html" %}
 
   <div id="content" class="container-fluid">
-
-    <h3>Jobs in Progress</h3>
-    <div class="text-secondary">Total: {{ jobs|length }}</div>
+    {% include 'ta_app/pages/_header.html' with title='Jobs in Progress' text=jobs|length %}
 
     <table class="table table-sm table-striped" data-toggle="table" data-sortable="true" data-classes="" data-pagination="true" data-search="true">
       <thead>
@@ -23,15 +19,15 @@
           <th data-sortable="true">Assigned <br />TA Hours</th>
           <th data-sortable="true">Applicants' <br />TA Hours</th>
           <th data-sortable="true">Active</th>
-          <th>Created at</th>
-          <th>Updated at</th>
+          <th data-sortable="true">Created at</th>
+          <th data-sortable="true">Updated at</th>
         </tr>
       </thead>
       <tbody>
         {% for job in jobs %}
           <tr>
             <td>
-              <a href="{% url 'show_job' session_slug=job.session.slug job_slug=job.course.slug path='progress' portal='Admin' %}">{{ job.id }}</a>
+              <a href="{% url 'administrators:show_job' session_slug=job.session.slug job_slug=job.course.slug %}">{{ job.id }}</a>
             </td>
             <td>{{ job.session.year }}</td>
             <td>{{ job.session.term.code }}</td>
@@ -57,6 +53,5 @@
     </table>
 
   </div>
-</div>
 
 {% endblock %}

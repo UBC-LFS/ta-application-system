@@ -495,22 +495,18 @@ def jobs(request):
         'loggedin_user': loggedin_user
     })
 
-"""
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
-def show_job(request, session_slug, job_slug, path):
+@require_http_methods(['GET', 'POST'])
+def show_job(request, session_slug, job_slug):
     ''' Display job details '''
     loggedin_user = userApi.loggedin_user(request.user)
-    if not userApi.is_admin(loggedin_user): raise PermissionDenied
+    if 'Student' not in loggedin_user.roles: raise PermissionDenied
 
     return render(request, 'administrators/jobs/show_job.html', {
         'loggedin_user': loggedin_user,
-        'session': adminApi.get_session_by_slug(session_slug),
-        'job': adminApi.get_session_job_by_slug(session_slug, job_slug),
-        'path': path
+        'job': adminApi.get_session_job_by_slug(session_slug, job_slug)
     })
-"""
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)

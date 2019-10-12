@@ -1,9 +1,16 @@
+body {
+  font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji" !important;
+  color: #212529 !important;
+  font-weight: 400 !important;
+}
+
 .ubc-logo {
-  width: 110px;
+  width: 70px;
   height: auto;
 }
+
 .text-dark-blue {
-  color: #002145;
+  color: 	#002145;
 }
 
 .bg-dark-blue {

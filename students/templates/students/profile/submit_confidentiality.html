@@ -1,18 +1,13 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
-{% load static %}
-{% include "students/util/_sidebar.html" %}
+{% include "ta_app/sidebars/_student_sidebar.html" %}
 
 <div id="content" class="container-fluid">
   {% include 'ta_app/_return_messages.html' with data=messages %}
 
-  <div class="mb-3">
-    <img class="ubc-logo d-inline-block" src="{% static 'ta_app/images/UBClogo.jpeg' %}" alt="ubc logo" />
-    <div class="d-inline-block ml-3">
-      <h3>Submit Confidentiality</h3>
-      <a class="btn btn-outline-primary" href="{% url 'students:show_confidentiality' %}">Go back to Confidentiality</a>
-    </div>
-  </div>
+  {% include 'ta_app/pages/_header.html' with title='Submit Confidentiality' %}
+
+  <div><a class="btn btn-outline-primary" href="{% url 'students:show_confidentiality' %}">Go back to Confidentiality</a></div>
 
   {% if form %}
 

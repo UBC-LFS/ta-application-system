@@ -1,13 +1,9 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
+{% include "ta_app/sidebars/_instructor_sidebar.html" %}
 
-<div class="wrapper">
-  {% include "instructors/util/_sidebar.html" %}
-
-  <div id="content" class="container-fluid">
-    <h1>Instructor's Portal</h1>
-
-  </div>
+<div id="content" class="container-fluid">
+  <h1>Instructor's Portal</h1>
 </div>
 
 {% endblock %}

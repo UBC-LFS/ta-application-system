@@ -1,50 +1,54 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
-{% load static %}
-{% include "students/util/_sidebar.html" %}
+{% include "ta_app/sidebars/_student_sidebar.html" %}
 
 <div id="content" class="container-fluid">
+  {% include 'ta_app/pages/_header.html' with title='Accept or Decline a Job Offer' %}
 
-  <div class="mb-3">
-    <img class="ubc-logo d-inline-block" src="{% static 'ta_app/images/UBClogo.jpeg' %}" alt="ubc logo" />
-    <div class="d-inline-block ml-3 align-middle">
-      <h3 class="mb-3">Accept or Decline a Job Offer</h3>
-      <a class="btn btn-outline-primary" href="{% url 'students:offered_jobs' %}">Go back to Offered Jobs</a>
-    </div>
-  </div>
+  <div><a class="btn btn-outline-primary" href="{% url 'students:offered_jobs' %}">Go back to Offered Jobs</a></div>
 
-  <h4>{{ job.session.year }} {{ job.session.term.name }} ({{ job.session.term.code }})</h4>
-  <div>
-    <span class="h5 text-secondary">- {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</span>
-    {% include 'administrators/util/_modal_job_details.html' with data=job role='student' %}
-  </div>
-
-  <div class="bd-callout bd-callout-warning">
-    <h5>Checkpoint!</h5>
-    <p>Text area</p>
+  <h5 class="mt-4">{{ job.session.year }} {{ job.session.term.name }} ({{ job.session.term.code }})</h5>
+  <div class="mb-5">
+    <span class="h4">
+      {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }} <br />
+      <small class="text-muted">- {{ job.course.name }}</small>
+    </span>
+    {% include 'ta_app/jobs/_modal_job_details.html' with data=job %}
   </div>
 
   {% if get_offered and not get_accepted and not get_declined %}
-    <h5 class="text-info">
-      <i class="fa fa-hand-peace-o" aria-hidden="true"></i> Congratulations! You get a Job Offer.
-    </h5>
-    <p>You are assigned <span class="font-weight-bold">{{ get_offered.assigned_hours }} hours</span> for this job.</p>
-
-    <div class="d-inline-block">
-      <form action="{% url 'students:accept_offer' session_slug=job.session.slug job_slug=job.course.slug %}" method="post">
-        {% csrf_token %}
-        <input type="hidden" name="application" value="{{ application.id }}" />
-        <input type="hidden" name="assigned_hours" value="{{ get_offered.assigned_hours }}" />
-        <input class="btn btn-primary" type="submit" value="Accept" />
-      </form>
+    <div class="card border-secondary d-inline-block">
+      <div class="card-header bg-secondary text-white">Message</div>
+      <div class="card-body">
+        <h5 class="text-info">
+          <i class="fa fa-hand-peace-o" aria-hidden="true"></i> Congratulations! You get a Job Offer.
+        </h5>
+        <p>You are assigned <span class="font-weight-bold text-danger">{{ get_offered.assigned_hours }} hours</span> for this job.</p>
+      </div>
     </div>
 
-    <div class="d-inline-block">
-      <form action="{% url 'students:decline_offer' session_slug=job.session.slug job_slug=job.course.slug %}" method="post">
-        {% csrf_token %}
-        <input type="hidden" name="application" value="{{ application.id }}" />
-        <input class="btn btn-secondary" type="submit" value="Decline" />
-      </form>
+    <div class="bd-callout bd-callout-warning">
+      <h5>Checkpoint!</h5>
+      <p>Please select one of two buttons below.</p>
+    </div>
+
+    <div>
+      <div class="d-inline-block">
+        <form action="{% url 'students:accept_offer' session_slug=job.session.slug job_slug=job.course.slug %}" method="post">
+          {% csrf_token %}
+          <input type="hidden" name="application" value="{{ application.id }}" />
+          <input type="hidden" name="assigned_hours" value="{{ get_offered.assigned_hours }}" />
+          <input class="btn btn-primary" type="submit" value="Accept" />
+        </form>
+      </div>
+
+      <div class="d-inline-block">
+        <form action="{% url 'students:decline_offer' session_slug=job.session.slug job_slug=job.course.slug %}" method="post">
+          {% csrf_token %}
+          <input type="hidden" name="application" value="{{ application.id }}" />
+          <input class="btn btn-secondary" type="submit" value="Decline" />
+        </form>
+      </div>
     </div>
 
   {% endif %}

@@ -1,84 +1,65 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
-{% load static %}
-{% include "administrators/util/_sidebar.html" %}
+{% include "ta_app/sidebars/_administrator_sidebar.html" %}
 
 <div id="content" class="container-fluid">
+  {% include 'ta_app/pages/_header.html' with title='Session Details' %}
 
-  <h3 class="mb-5">Session Details</h3>
-
-  <div class="row justify-content-center">
-    <div class="col-md-3">
-      <div class="left-content">
-        <img class="ubc-logo mx-auto d-block" src="{% static 'ta_app/images/UBClogo.jpeg' %}" alt="ubc logo" />
-
-        <div class="text-center text-secondary mt-4 mb-4">
-          <h4 class="font-weight-normal">Number of Jobs</h4>
-          <h3 class="font-weight-bold">{{ session.job_set.all|length }}</h3>
-        </div>
-
-        <a class="btn btn-warning btn-block" href="{% url 'administrators:edit_session' session_slug=session.slug path='current' %}">Edit Session</a>
-        {% include 'administrators/sessions/_go_back.html' with data=path %}
-
-        <div class="mt-5">
-          <span>Is visible:</span>
-          {% if session.is_visible %}
-            <span class="badge badge-success">{{ session.is_visible }} <i class="fa fa-check-circle" aria-hidden="true"></i></span>
-          {% else %}
-            <span class="badge badge-danger">{{ session.is_visible }} <i class="fa fa-stop-circle" aria-hidden="true"></i></span>
-          {% endif %}
-        </div>
-        <div>
-          <span>Is archived:</span>
-          {% if session.is_archived %}
-            <span class="badge badge-success">{{ session.is_archived }} <i class="fa fa-check-circle" aria-hidden="true"></i></span>
-          {% else %}
-            <span class="badge badge-danger">{{ session.is_archived }} <i class="fa fa-stop-circle" aria-hidden="true"></i></span>
-          {% endif %}
-        </div>
-
-      </div>
-    </div>
-
-    <div class="col-md-6 offset-md-1">
-      <div class="right-content">
-
-        <div class="text-secondary">
-          Created at {{ session.created_at }} <span class="ml-3 mr-3">|</span>
-          Updated at {{ session.updated_at }}
-        </div>
-
-        <h2 class="mt-4 mb-4">
-          {{ session.year }} {{ session.term.name }} ({{ session.term.code }})
-        </h2>
-
-        <div class="mb-4">
-          <h3 class="font-weight-bold text-secondary">Title:</h3>
-          {{ session.title }}
-        </div>
-
-        <div class="mb-4">
-          <h3 class="font-weight-bold text-secondary">Description:</h3>
-          <p>{{ session.description|safe }}</p>
-        </div>
-
-        <div class="mb-4">
-          <h3 class="font-weight-bold text-secondary">Note:</h3>
-          <p>{{ session.note|safe }}</p>
-        </div>
-
-        <hr class="dotted mt-4">
-
-        <ul>
-          <li>Session ID: {{ session.id }}</li>
-          <li>Slug: {{ session.slug }}</li>
-        </ul>
-
-      </div>
-    </div>
+  <div class="mb-5">
+    {% include 'administrators/sessions/_go_back.html' with data=path %}
+    <a class="btn btn-warning" href="{% url 'administrators:edit_session' session_slug=session.slug path='current' %}">Edit Session</a>
   </div>
 
-  <h3 class="mt-5 mb-3">Jobs</h3>
+  <small class="text-secondary">
+    Created at {{ session.created_at }} <span class="mx-2">|</span>
+    Updated at {{ session.updated_at }}
+  </small>
+
+  <h5 class="my-4">
+    {{ session.year }} {{ session.term.name }} ({{ session.term.code }})
+  </h5>
+
+  <div class="mb-4">
+    <h5>Title:</h5>
+    <span class="text-secondary">{{ session.title }}</span>
+  </div>
+
+  <div class="mb-4">
+    <h5>Description:</h5>
+    <span class="text-secondary">{{ session.description|safe }}</span>
+  </div>
+
+  <div class="mb-4">
+    <h5>Note:</h5>
+    <span class="text-secondary">{{ session.note|safe }}</span>
+  </div>
+
+  <ul>
+    <li>
+      Is visible:
+      {% if session.is_visible %}
+        <span class="badge badge-success">{{ session.is_visible }} <i class="fa fa-check-circle" aria-hidden="true"></i></span>
+      {% else %}
+        <span class="badge badge-danger">{{ session.is_visible }} <i class="fa fa-stop-circle" aria-hidden="true"></i></span>
+      {% endif %}
+    </li>
+    <li>
+      Is archived:
+      {% if session.is_archived %}
+        <span class="badge badge-success">{{ session.is_archived }} <i class="fa fa-check-circle" aria-hidden="true"></i></span>
+      {% else %}
+        <span class="badge badge-danger">{{ session.is_archived }} <i class="fa fa-stop-circle" aria-hidden="true"></i></span>
+      {% endif %}
+    </li>
+    <li>Session ID: {{ session.id }}</li>
+    <li>Slug: {{ session.slug }}</li>
+  </ul>
+
+  <h4 class="mt-5 mb-3">
+    Jobs
+    <small class="text-muted">(Total: {{ session.job_set.all|length }})</small>
+  </h4>
+
   <table class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center">
     <thead>
       <tr>
@@ -98,10 +79,13 @@
           <td>{{ job.id }}</td>
           <td>{{ job.session.year }}</td>
           <td>{{ job.course.term.code }}</td>
-          <td>{{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</td>
+          <td>
+            {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}
+            {% include 'ta_app/jobs/_modal_job_details.html' with data=job %}
+          </td>
           <td>
             {% for instructor in job.instructors.all %}
-              {{ instructor.first_name }} {{ instructor.last_name }},
+              {{ instructor.get_full_name }},
             {% empty %}
               None
             {% endfor %}

@@ -1,40 +1,33 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
-{% load static %}
-{% include "students/util/_sidebar.html" %}
+{% include "ta_app/sidebars/_student_sidebar.html" %}
 
 <div id="content" class="container-fluid">
+  {% include 'ta_app/pages/_header.html' with title='Edit Profile' %}
 
-  <div class="mb-3">
-    <img class="ubc-logo d-inline-block" src="{% static 'ta_app/images/UBClogo.jpeg' %}" alt="ubc logo" />
-    <div class="d-inline-block ml-3">
-      <h3 class="mb-3">Edit Profile</h3>
-      <a class="btn btn-outline-primary" href="{% url 'students:show_profile' %}">Go back to Profifle</a>
-    </div>
-  </div>
+  <div><a class="btn btn-outline-primary" href="{% url 'students:show_profile' %}">Go back to Profile</a></div>
 
-  <div class="row">
-    <div class="col-lg-8 col-md-10 col-sm-12">
-      <form action="" method="post">
-        {% csrf_token %}
+  <div class="d-inline-block">
+    <form action="" method="post">
+      {% csrf_token %}
 
-        {% for field in form.visible_fields %}
-          <div class="field-wrapper my-5">
-            {{ field.label_tag }}
-            {% if field.help_text %}
-              <div class="help">{{ field.help_text|safe }}</div>
-            {% endif %}
-            {{ field }}
-          </div>
-        {% endfor %}
-        
-        {% for field in form.hidden_fields %}
+      {% for field in form.visible_fields %}
+        <div class="field-wrapper my-5">
+          {{ field.label_tag }}
+          {% if field.help_text %}
+            <div class="help">{{ field.help_text|safe }}</div>
+          {% endif %}
           {{ field }}
-        {% endfor %}
+        </div>
+      {% endfor %}
 
-        <input class="btn btn-warning" type="submit" value="Update Profile"/>
-      </form>
-    </div>
+      {% for field in form.hidden_fields %}
+        {{ field }}
+      {% endfor %}
+
+      <a class="btn btn-outline-primary" href="{% url 'students:show_profile' %}">Go back to Profile</a>
+      <input class="btn btn-warning" type="submit" value="Update Profile" />
+    </form>
   </div>
 
 </div>

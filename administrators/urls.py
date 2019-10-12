@@ -30,6 +30,7 @@ urlpatterns = [
     path('students/<str:username>/job/details/', views.student_jobs_details, name='student_jobs_details'),
     path('sessions/<str:session_slug>/jobs/<str:job_slug>/edit/', views.edit_job, name='edit_job'),
     path('sessions/<str:session_slug>/jobs/<str:job_slug>/applications', views.show_job_applications, name='show_job_applications'),
+    path('sessions/<str:session_slug>/jobs/<str:job_slug>/', views.show_job, name='show_job'),
 
     path('applications/offered/send_email/confirmation/', views.offered_applications_send_email_confirmation, name='offered_applications_send_email_confirmation'),
     path('applications/offered/send_email/', views.offered_applications_send_email, name='offered_applications_send_email'),

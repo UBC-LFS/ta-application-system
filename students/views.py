@@ -445,6 +445,32 @@ def applied_jobs(request):
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET', 'POST'])
+def show_job(request, session_slug, job_slug):
+    ''' Display job details '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if 'Student' not in loggedin_user.roles: raise PermissionDenied
+
+    return render(request, 'students/jobs/show_job.html', {
+        'loggedin_user': loggedin_user,
+        'job': adminApi.get_session_job_by_slug(session_slug, job_slug)
+    })
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET', 'POST'])
+def show_application(request, app_slug):
+    ''' Display job details '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if 'Student' not in loggedin_user.roles: raise PermissionDenied
+
+    return render(request, 'students/jobs/show_application.html', {
+        'loggedin_user': loggedin_user,
+        'app': adminApi.get_application_by_slug(app_slug)
+    })
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
 def offered_jobs(request):
     ''' Display jobs offered from admins '''

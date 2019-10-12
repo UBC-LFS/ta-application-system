@@ -1,53 +1,13 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
-{% load static %}
-{% include "students/util/_sidebar.html" %}
+{% include "ta_app/sidebars/_student_sidebar.html" %}
 
 <div id="content" class="container-fluid">
+  {% include 'ta_app/pages/_header.html' with title='Apply Job' %}
 
-  <div class="mb-3">
-    <img class="ubc-logo d-inline-block" src="{% static 'ta_app/images/UBClogo.jpeg' %}" alt="ubc logo" />
-    <div class="d-inline-block ml-3">
-      <h3 class="mb-3">Apply Job</h3>
-      <a class="btn btn-outline-primary" href="{% url 'students:available_jobs' session_slug=job.session.slug %}">Go back to Available Jobs</a>
-    </div>
-  </div>
+  <div class="mb-5"><a class="btn btn-outline-primary" href="{% url 'students:available_jobs' session_slug=job.session.slug %}">Go back to Available Jobs</a></div>
 
-  <div class="my-4">
-    <h5>{{ job.session.year }} {{ job.session.term.code }} - {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</h5>
-    <h6 class="text-secondary">{{ job.course.name }}</h6>
-    <p>
-      Intstructors:
-      {% for instructor in job.instructors.all %}
-        {{ instructor.first_name }} {{ instructor.last_name }},
-      {% empty %}
-        No instructors
-      {% endfor %}
-    </p>
-  </div>
-
-  <section>
-    <div class="">
-      <span class="font-weight-bold">Title:</span>
-      <span class="text-secondary">{{ job.title }}</span>
-    </div>
-
-    <div class="my-4">
-      <div class="font-weight-bold">Description:</div>
-      <div class="text-secondary">{{ job.description }}</div>
-    </div>
-
-    <div class="">
-      <div class="font-weight-bold">Qalifications:</div>
-      <div class="text-secondary">{{ job.qualification }}</div>
-    </div>
-
-    <div class="my-4">
-      <div class="font-weight-bold">Note:</div>
-      <div class="text-secondary">{{ job.note }}</div>
-    </div>
-
-  </section>
+  {% include 'ta_app/jobs/_job_details.html' with data=job %}
 
   <hr class="dotted" />
 

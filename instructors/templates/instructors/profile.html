@@ -1,48 +1,11 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
-{% load static %}
-{% include "instructors/util/_sidebar.html" %}
+{% include "ta_app/sidebars/_instructor_sidebar.html" %}
 
 <div id="content" class="container-fluid">
+  {% include 'ta_app/pages/_header.html' with title=user.get_full_name %}
 
-  <div class="mb-3">
-    <img class="ubc-logo d-inline-block" src="{% static 'ta_app/images/UBClogo.jpeg' %}" alt="ubc logo" />
-    <div class="d-inline-block ml-3">
-      <h3>{{ user.get_full_name }}</h3>
-      {% for role in user.profile.roles.all %}
-        <span class="badge badge-info">{{ role.name|upper }}</span>
-      {% endfor %}
-    </div>
-  </div>
-
-  <section>
-    <div class="mb-4">
-      <h5>CWL:</h5>
-      <span class="text-secondary">{{ user.username }}</span>
-    </div>
-    <div class="mb-4">
-      <h5>Preferred name:</h5>
-      <span class="text-secondary">{{ user.profile.preferred_name }}</span>
-    </div>
-    <div class="mb-4">
-      <h5>UBC Number:</h5>
-      <span class="text-secondary">{{ user.profile.ubc_number }}</span>
-    </div>
-    <div class="mb-4">
-      <h5>E-mail:</h5>
-      <span class="text-secondary">{{ user.email }}</span>
-    </div>
-  </section>
-
-  <ul class="">
-    <li>
-      Date Joined: <span class="text-secondary">{{ user.date_joined }}</span>
-    </li>
-    <li>
-      Last Login: <span class="text-secondary">{{ user.last_login }}</span>
-    </li>
-  </ul>
-
+  {% include 'ta_app/users/_basic_info.html' with data=user%}
 </div>
 
 {% endblock %}

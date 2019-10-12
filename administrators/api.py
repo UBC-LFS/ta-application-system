@@ -556,7 +556,7 @@ def get_application(app_id):
     ''' Get an application '''
     return get_object_or_404(Application, id=app_id)
 
-def get_application_slug(app_slug):
+def get_application_by_slug(app_slug):
     ''' Get an application by slug '''
     return get_object_or_404(Application, slug=app_slug)
 

@@ -1,28 +1,25 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
-{% load static %}
-{% include "instructors/util/_sidebar.html" %}
+{% include "ta_app/sidebars/_instructor_sidebar.html" %}
 
 <div id="content" class="container-fluid">
-  <div class="mb-3">
-    <img class="ubc-logo d-inline-block" src="{% static 'ta_app/images/UBClogo.jpeg' %}" alt="ubc logo" />
-    <div class="d-inline-block ml-3">
-      <h3 class="mb-3">Edit Job</h3>
-      <a class="btn btn-outline-primary" href="{% url 'instructors:my_jobs' %}">Go back to My Jobs</a>
-    </div>
-  </div>
 
-  <section class="d-inline-block">
-    <div class="text-secondary mb-4">
-      Created at {{ job.created_at }} <span class="ml-3 mr-3">|</span>
+  {% include 'ta_app/pages/_header.html' with title='Edit Job' %}
+
+  <div><a class="btn btn-outline-primary" href="{% url 'instructors:my_jobs' %}">Go back to My Jobs</a></div>
+
+  <section class="d-inline-block mt-3">
+    <small class="text-muted">
+      Created at {{ job.created_at }} <span class="mx-2">|</span>
       Updated at {{ job.updated_at }}
-    </div>
+    </small>
 
-    <div>
-      <h4>{{ job.session.year }} {{ job.session.term.name }} ({{ job.session.term.code }})</h4>
-      <h5 class="text-secondary">
-        {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}
-      </h5>
+    <div class="mt-4">
+      <h5 class="text-success">{{ job.session.year }} {{ job.session.term.name }} ({{ job.session.term.code }})</h5>
+      <h4>
+        {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }} <br />
+        <small class="text-muted">- {{ job.course.name }}</small>
+      </h4>
     </div>
 
     <div>

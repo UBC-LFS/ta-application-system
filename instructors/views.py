@@ -117,3 +117,16 @@ def get_applications(request, session_slug, job_slug):
         'job': adminApi.get_session_job_by_slug(session_slug, job_slug),
         'instructor_preference_choices': Application.INSTRUCTOR_PREFERENCE_CHOICES
     })
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET', 'POST'])
+def show_job(request, session_slug, job_slug):
+    ''' Display job details '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if 'Instructor' not in loggedin_user.roles: raise PermissionDenied
+
+    return render(request, 'instructors/jobs/show_job.html', {
+        'loggedin_user': loggedin_user,
+        'job': adminApi.get_session_job_by_slug(session_slug, job_slug)
+    })

@@ -1,34 +1,72 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
-{% load static %}
-{% include 'students/util/_sidebar.html' %}
+{% include "ta_app/sidebars/_student_sidebar.html" %}
 
 <div id="content" class="container-fluid">
   {% include 'ta_app/_return_messages.html' with data=messages %}
 
-  <div class="mb-3">
-    <img class="ubc-logo d-inline-block" src="{% static 'ta_app/images/UBClogo.jpeg' %}" alt="ubc logo" />
-    <div class="d-inline-block ml-3">
-      <h3 class="mb-3">{{ user.get_full_name }}</h3>
-      <a class="btn btn-warning" href="{% url 'students:edit_profile' %}">Edit Profile</a>
-    </div>
-  </div>
+  {% include 'ta_app/pages/_header.html' with title=user.get_full_name %}
 
-  <nav>
-    <div class="nav nav-tabs" id="nav-tab" role="tablist">
-      <a class="nav-item nav-link active" id="nav-basic-info-tab" data-toggle="tab" href="#nav-basic-info" role="tab" aria-controls="nav-basic-info" aria-selected="true">Basic Information</a>
-      <a class="nav-item nav-link" id="nav-profile-tab" data-toggle="tab" href="#nav-profile" role="tab" aria-controls="nav-profile" aria-selected="false">Profile</a>
-    </div>
-  </nav>
-  <div class="tab-content" id="nav-tabContent">
-    <div class="tab-pane fade show active" id="nav-basic-info" role="tabpanel" aria-labelledby="nav-basic-info-tab">
-      {% include 'students/profile/_basic_info.html' with data=user %}
-    </div>
-    <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
-      {% include 'students/profile/_profile.html' with data=user %}
-    </div>
-  </div>
+  <div><a class="btn btn-warning" href="{% url 'students:edit_profile' %}">Edit Profile</a></div>
 
+  <section class="mt-5">
+    <nav>
+      <div class="nav nav-tabs" id="nav-tab" role="tablist">
+        <a class="nav-item nav-link active" id="nav-basic-info-tab" data-toggle="tab" href="#nav-basic-info" role="tab" aria-controls="nav-basic-info" aria-selected="true">Basic Information</a>
+        <a class="nav-item nav-link" id="nav-profile-tab" data-toggle="tab" href="#nav-profile" role="tab" aria-controls="nav-profile" aria-selected="false">Profile</a>
+      </div>
+    </nav>
+    <div class="tab-content" id="nav-tabContent">
+      <div class="tab-pane fade show active" id="nav-basic-info" role="tabpanel" aria-labelledby="nav-basic-info-tab">
+        {% include 'ta_app/users/_basic_info.html' with data=user %}
+
+        <section class="mt-5">
+          <h4 class="text-info">Resume</h4>
+
+          {% if user.resume_file %}
+            <div class="">
+              <a class="btn btn-link" href="{% url 'students:download_resume' username=user.username filename=user.resume_file %}" target="_blank">
+                <i class="fa fa-cloud-download" aria-hidden="true"></i> {{ user.resume_file }}
+              </a>
+              <br />
+              <small class="text-muted">Uploaded at {{ user.resume.created_at }}</small>
+            </div>
+
+            <div class="">
+              <form class="d-inline-block" action="{% url 'students:delete_resume' %}" method="post" onsubmit="return confirm('Are you sure to delete this resume?')">
+                {% csrf_token %}
+                <input type="hidden" name="user" value="{{ user.username }}">
+                <input class="btn btn-sm btn-danger" type="submit" value="Delete" />
+              </form>
+            </div>
+
+          {% else %}
+            <button class="btn btn-secondary btn-block" type="button" disabled>
+              <i class="fa fa-cloud-download" aria-hidden="true"></i> No resume
+            </button>
+          {% endif %}
+
+          <div class="d-inline-block card border-secondary mt-3">
+            <div class="card-header bg-secondary text-white">Upload your resume</div>
+            <div class="card-body">
+              <div class="card-text">
+                <p>Valid file formats: jpg, jpeg, png, pdf, doc, docx</p>
+                <form action="{% url 'students:upload_resume' %}" method="post" enctype="multipart/form-data">
+                  {% csrf_token %}
+                  <table>{{ form.as_table }}</table>
+                  <input class="btn btn-primary" type="submit" value="Upload" />
+                </form>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+      <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
+        {% include 'ta_app/users/_profile.html' with data=user %}
+      </div>
+    </div>
+  </section>
 </div>
 
 {% endblock %}

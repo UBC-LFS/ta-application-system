@@ -1,17 +1,10 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
-{% load static %}
-{% include 'students/util/_sidebar.html' %}
+{% include "ta_app/sidebars/_student_sidebar.html" %}
 
 <div id="content" class="container-fluid">
 
-  <div class="mb-3">
-    <img class="ubc-logo d-inline-block" src="{% static 'ta_app/images/UBClogo.jpeg' %}" alt="ubc logo" />
-    <div class="d-inline-block ml-3">
-      <h3>Declined Jobs</h3>
-      <div class="text-secondary">Total: {{ apps|length }}</div>
-    </div>
-  </div>
+  {% include 'ta_app/pages/_header.html' with title='Declined Jobs' text=apps|length %}
 
   <div class="d-inline-block">
     <table class="table table-bordered table-hover table-striped table-responsive-md text-center" data-toggle="table" data-sortable="true" data-classes="" data-pagination="true" data-search="true">
@@ -31,7 +24,7 @@
           <td>{{ app.job.session.year }}</td>
           <td>{{ app.job.session.term.code }}</td>
           <td>
-            <a href="{% url 'show_job' session_slug=app.job.session.slug job_slug=app.job.course.slug path='declined' portal='Student' %}">
+            <a href="{% url 'students:show_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}">
               {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}
             </a>
           </td>

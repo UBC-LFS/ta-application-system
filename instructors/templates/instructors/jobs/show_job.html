@@ -1,0 +1,13 @@
+{% extends 'ta_app/base.html' %}
+{% block content %}
+{% include "ta_app/sidebars/_instructor_sidebar.html" %}
+
+<div id="content" class="container-fluid">
+
+  {% include 'ta_app/pages/_header.html' with title='Job Details' %}
+
+  <div class="mb-5"><a class="btn btn-outline-primary" href="{% url 'instructors:my_jobs' %}">Go back to My Jobs</a></div>
+
+  {% include 'ta_app/jobs/_job_details.html' with data=job %}
+
+{% endblock %}

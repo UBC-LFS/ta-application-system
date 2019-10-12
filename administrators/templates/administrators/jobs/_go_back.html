@@ -1,9 +1,9 @@
 {% if data == 'prepare' %}
-  <a class="btn btn-outline-primary btn-block" href="{% url 'administrators:prepare_jobs' %}">Go back to Prepare Jobs</a>
+  <a class="btn btn-outline-primary" href="{% url 'administrators:prepare_jobs' %}">Go back to Prepare Jobs</a>
 {% elif data == 'progress' %}
-  <a class="btn btn-outline-primary btn-block" href="{% url 'administrators:progress_jobs' %}">Go back to Jobs in Progress</a>
+  <a class="btn btn-outline-primary" href="{% url 'administrators:progress_jobs' %}">Go back to Jobs in Progress</a>
 {% elif data == 'current' or data == 'archived' %}
-  <a class="btn btn-outline-primary btn-block" href="{% url 'administrators:show_session' session_slug=job_data.session.slug path=data %}">
+  <a class="btn btn-outline-primary" href="{% url 'administrators:show_session' session_slug=job_data.session.slug path=data %}">
     Back to
     {% if data == 'current' %} Current
     {% else %} Archived
@@ -11,6 +11,6 @@
     Session Details
   </a>
 {% else %}
-  <a class="btn btn-outline-primary btn-block" href="{% url 'administrators:jobs' %}">Go back to Jobs</a>
+  <a class="btn btn-outline-primary" href="{% url 'administrators:jobs' %}">Go back to Jobs</a>
 
 {% endif %}

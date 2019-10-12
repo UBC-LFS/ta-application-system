@@ -1,25 +1,23 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
-{% load static %}
-{% include "instructors/util/_sidebar.html" %}
+{% include "ta_app/sidebars/_instructor_sidebar.html" %}
 
 <div id="content" class="container-fluid">
   {% include 'ta_app/_return_messages.html' with data=messages %}
 
-  <div class="mb-3">
-    <img class="ubc-logo d-inline-block" src="{% static 'ta_app/images/UBClogo.jpeg' %}" alt="ubc logo" />
-    <div class="d-inline-block ml-3">
-      <h3>Applications <small class="text-muted">Total: {{ job.application_set.all|length }}</small></h3>
-      <a class="btn btn-outline-primary" href="{% url 'instructors:my_jobs' %}">Go back to My Jobs</a>
-    </div>
-  </div>
+  {% include 'ta_app/pages/_header.html' with title=user.get_full_name text=job.application_set.all|length %}
 
-  <section class="my-4">
-    <h4>{{ job.session.year }} {{ job.session.term.name }} ({{ job.session.term.code }})</h4>
-    <h5 class="text-secondary"> {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</h5>
+  <div class="mb-5"><a class="btn btn-outline-primary" href="{% url 'instructors:my_jobs' %}">Go back to My Jobs</a></div>
 
-    <div class="card border-success d-inline-block mt-4">
-      <div class="card-header bg-success text-white">TA hours</div>
+  <section class="mb-4">
+    <h5>{{ job.session.year }} {{ job.session.term.name }} ({{ job.session.term.code }})</h5>
+    <h4>
+      {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }} <br />
+      <small class="text-muted">- {{ job.course.name }}</small>
+    </h4>
+
+    <div class="card border-info d-inline-block mt-4">
+      <div class="card-header bg-info text-white">TA hours</div>
       <div class="card-body">
         Accumulated TA hours are accumulated when students accept their job offers with assigned hours.
         <ul>
@@ -32,7 +30,7 @@
 
   <div class="d-inline-block">
 
-    {% include 'students/util/job_preferences.html' %}
+    {% include 'ta_app/pages/_job_preferences.html' %}
 
     <table class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center" data-toggle="table" data-sortable="true" data-classes="" data-pagination="true" data-search="true">
       <thead>

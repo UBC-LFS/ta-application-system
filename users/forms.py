@@ -198,7 +198,7 @@ class StudentProfileForm(forms.ModelForm):
         required=False,
         widget=forms.TextInput(attrs={ 'class':'form-control' }),
         label='Preferred Name',
-        help_text='The use of a Preferred name is optional',
+        help_text='The use of a Preferred Name is optional',
     )
 
     graduation_date = forms.DateField(
