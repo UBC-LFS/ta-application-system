@@ -21,7 +21,20 @@
 
   <a href="{% url 'administrators:selected_applications' %}">All</a>
 
-  <table class="table table-responsive">
+  <table
+    class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center"
+    data-toggle="table"
+    data-sortable="true"
+    data-classes=""
+    data-pagination="true"
+    data-search="true"
+    data-page-size="50"
+    data-page-list="[50, 100, All]"
+    data-show-export="true"
+    data-click-to-select="true"
+    data-show-toggle="true"
+    data-show-columns="true"
+  >
     <thead>
       <tr>
         <th>ID</th>
@@ -112,7 +125,7 @@
             {% if app.has_offered %}
               Offered
             {% else %}
-              <button type="button" data-toggle="modal" data-target="#jobApplicationOfferModal-{{ app.id }}">Offer</button>
+              <button class="btn btn-sm btn-success" type="button" data-toggle="modal" data-target="#jobApplicationOfferModal-{{ app.id }}">Offer</button>
               <div class="modal fade" id="jobApplicationOfferModal-{{ app.id }}" tabindex="-1" role="dialog" aria-labelledby="jobApplicationOfferModalLabel-{{ app.id }}" aria-hidden="true">
                 <div class="modal-dialog modal-lg" role="document">
                   <div class="modal-content">

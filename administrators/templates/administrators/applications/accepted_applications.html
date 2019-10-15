@@ -9,7 +9,20 @@
 
   <h3 class="text-dark-blue">Accpeted Applications</h3>
 
-  <table class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center" data-toggle="table" data-sortable="true" data-classes="" data-pagination="true" data-search="true">
+  <table
+    class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center"
+    data-toggle="table"
+    data-sortable="true"
+    data-classes=""
+    data-pagination="true"
+    data-search="true"
+    data-page-size="50"
+    data-page-list="[50, 100, 200, All]"
+    data-show-export="true"
+    data-click-to-select="true"
+    data-show-toggle="true"
+    data-show-columns="true"
+  >
     <thead>
       <tr>
         <th data-sortable="true">ID</th>
@@ -51,7 +64,7 @@
           <td>{{ app.created_at }}</td>
           <td>{{ app.updated_at }}</td>
           <td>
-            <button type="button" data-toggle="modal" data-target="#jobApplicationModal-{{ app.id }}">Decline & Reassign</button>
+            <button class="btn btn-sm btn-danger" type="button" data-toggle="modal" data-target="#jobApplicationModal-{{ app.id }}">Decline & Reassign</button>
             <div class="modal fade" id="jobApplicationModal-{{ app.id }}" tabindex="-1" role="dialog" aria-labelledby="jobApplicationModalLabel-{{ app.id }}" aria-hidden="true">
               <div class="modal-dialog modal-lg" role="document">
                 <div class="modal-content">
@@ -69,7 +82,7 @@
                       </div>
                       <input type="hidden" name="old_assigned_hours" value="{{ app.has_accepted }}" />
                       <input type="hidden" name="application" value="{{ app.id }}" />
-                      <input type="submit" value="Decline & Re-assign" />
+                      <input class="btn btn-sm btn-warning" type="submit" value="Decline & Re-assign" />
                     </form>
                   </div>
                 </div>

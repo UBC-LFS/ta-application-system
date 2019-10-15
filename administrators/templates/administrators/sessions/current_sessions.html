@@ -10,7 +10,18 @@
   <h3>Current Sessions</h3>
   <div class="text-secondary">Total: {{ current_sessions|length }}</div>
 
-  <table class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center" data-toggle="table" data-sortable="true" data-classes="" data-pagination="true" data-search="true">
+  <table
+    class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center"
+    data-toggle="table"
+    data-sortable="true"
+    data-classes=""
+    data-pagination="true"
+    data-search="true"
+    data-show-export="true"
+    data-click-to-select="true"
+    data-show-toggle="true"
+    data-show-columns="true"
+    >
     <thead>
       <tr>
         <th data-sortable="true">Session ID</th>

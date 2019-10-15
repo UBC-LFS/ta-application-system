@@ -51,8 +51,7 @@
 
 		{% if 'Admin' in loggedin_user.roles or 'Superadmin' in loggedin_user.roles %}
 			{% include "ta_app/_mobilenavadmin.html" %}
-		{% endif %}
-		{% if 'Instructor' in loggedin_user.roles %}
+		{% elif 'Instructor' in loggedin_user.roles %}
 			{% include "ta_app/_mobilenavinstructor.html"%}
 		{% endif %}
 
@@ -75,6 +74,11 @@
 	<script src="https://unpkg.com/bootstrap-table@1.15.4/dist/bootstrap-table.min.js"></script>
 	{% load static %}
 	<script type="text/javascript" src="{% static 'ta_app/js/index.js' %}"></script>
+	<script src="https://unpkg.com/tableexport.jquery.plugin/tableExport.min.js"></script>
+	<script src="https://unpkg.com/tableexport.jquery.plugin/libs/jsPDF/jspdf.min.js"></script>
+	<script src="https://unpkg.com/tableexport.jquery.plugin/libs/jsPDF-AutoTable/jspdf.plugin.autotable.js"></script>
+	<script src="https://unpkg.com/bootstrap-table@1.15.4/dist/bootstrap-table.min.js"></script>
+	<script src="https://unpkg.com/bootstrap-table@1.15.4/dist/extensions/export/bootstrap-table-export.min.js"></script>
 
 </body>
 </html>
