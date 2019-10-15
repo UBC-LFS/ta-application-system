@@ -8,7 +8,7 @@
   {% include 'ta_app/pages/_header.html' with title='All Users' text=users|length %}
 
   <table
-    class="table table-sm table-striped"
+    class="table table-sm table-hover table-striped table-responsive-md"
     data-toggle="table"
     data-sortable="true"
     data-classes=""
@@ -18,7 +18,6 @@
     data-page-list="[50, 100, 200, All]"
     data-show-export="true"
     data-click-to-select="true"
-    data-show-toggle="true"
     data-show-columns="true"
   >
     <thead>
@@ -94,8 +93,6 @@
               </div>
             </div>
           </div>
-        </td>
-        <td>
           <form action="{% url 'administrators:delete_user' %}" method="post" onsubmit="return confirm('Are you sure to delete {{ user.first_name }} {{ user.last_name }} ({{ user.username }})?');">
             {% csrf_token %}
             <input type="hidden" name="user" value="{{ user.id }}">
