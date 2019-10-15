@@ -1,88 +1,83 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
-
-{% include "administrators/util/_sidebar.html" %}
+{% include "ta_app/sidebars/_administrator_sidebar.html" %}
 
 <div id="content" class="container-fluid">
-
   {% include 'ta_app/_return_messages.html' with data=messages %}
 
-  <h3>Course Sections</h3>
-  <div class="text-secondary">Total: {{ course_sections|length }}</div>
+  {% include 'ta_app/pages/_header.html' with title='Course Sections' text=course_sections|length %}
 
-  <section class="mt-5">
-    <div class="d-inline-block align-text-top mr-5">
-      <h5>Create Course Section</h5>
-      <form action="{% url 'administrators:course_sections' %}" method="post">
-        {% csrf_token %}
-        <table>{{ form.as_table }}</table>
-        <input class="btn btn-primary mt-3" type="submit" value="Create" />
-      </form>
-    </div>
+  <div class="my-5">
+    <h5>Create Course Section</h5>
+    <form action="{% url 'administrators:course_sections' %}" method="post">
+      {% csrf_token %}
+      <table>{{ form.as_table }}</table>
+      <input class="btn btn-primary mt-3" type="submit" value="Create" />
+    </form>
+  </div>
 
-    <div class="d-inline-block align-text-top">
-      <table class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center">
-        <thead>
+  <div class="d-inline-block">
+    <table class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for section in course_sections %}
           <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for section in course_sections %}
-            <tr>
-              <td>{{ section.id }}</td>
-              <td>{{ section.name }}</td>
-              <td>
-                <div class="btn-toolbar">
-                  <button class="btn btn-sm btn-warning mr-2" type="button" data-toggle="modal" data-target="#course-section-edit-modal-{{ section.id }}">Edit</button>
+            <td>{{ section.id }}</td>
+            <td>{{ section.name }}</td>
+            <td>
+              <div class="btn-toolbar">
+                <button class="btn btn-sm btn-warning mr-2" type="button" data-toggle="modal" data-target="#course-section-edit-modal-{{ section.id }}">Edit</button>
 
-                  <div class="modal fade" id="course-section-edit-modal-{{ section.id }}" tabindex="-1" role="dialog" aria-labelledby="course-section-edit-modal-label-{{ section.id }}" aria-hidden="true">
-                    <div class="modal-dialog modal-lg" role="document">
-                      <div class="modal-content">
-                        <div class="modal-header">
-                          <h5 class="modal-title" id="course-section-edit-modal-label-{{ section.id }}">Course Sections: Edit</h5>
-                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                          </button>
-                        </div>
-                        <div class="modal-body text-left">
-                          <form action="{% url 'administrators:edit_course_section' section.name %}" method="post">
-                            {% csrf_token %}
+                <div class="modal fade" id="course-section-edit-modal-{{ section.id }}" tabindex="-1" role="dialog" aria-labelledby="course-section-edit-modal-label-{{ section.id }}" aria-hidden="true">
+                  <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="course-section-edit-modal-label-{{ section.id }}">Course Sections: Edit</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body text-left">
+                        <form action="{% url 'administrators:edit_course_section' section.name %}" method="post">
+                          {% csrf_token %}
 
-                            <table class="table table-borderless">
-                              <tr>
-                                <td><label for="id_name" class="font-weight-bold">Name:</label></td>
-                                <td><input id="id_name" type="text" name="name" maxlength="5" value="{{ section.name }}" /></td>
-                              </tr>
-                            </table>
+                          <table class="table table-borderless">
+                            <tr>
+                              <td><label for="id_name" class="font-weight-bold">Name:</label></td>
+                              <td><input id="id_name" type="text" name="name" maxlength="5" value="{{ section.name }}" /></td>
+                            </tr>
+                          </table>
 
-                            <input class="btn btn-warning" type="submit" value="Update"/>
-                          </form>
-                        </div>
+                          <input class="btn btn-warning" type="submit" value="Update"/>
+                        </form>
                       </div>
                     </div>
                   </div>
-
-                  <form action="{% url 'administrators:delete_course_section' %}" method="post" onsubmit="return confirm('Are you sure to delete this course section - {{ section.name }} ?')">
-                    {% csrf_token %}
-                    <input type="hidden" name="course_section" value="{{ section.id }}" />
-                    <input class="btn btn-sm btn-danger" type="submit" value="Delete" />
-                  </form>
                 </div>
-              </td>
-            </tr>
 
-          {% empty %}
-            <tr>
-              <td colspan="2">No course sections found.</td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-  </section>
+                <form action="{% url 'administrators:delete_course_section' %}" method="post" onsubmit="return confirm('Are you sure to delete this course section - {{ section.name }} ?')">
+                  {% csrf_token %}
+                  <input type="hidden" name="course_section" value="{{ section.id }}" />
+                  <input class="btn btn-sm btn-danger" type="submit" value="Delete" />
+                </form>
+              </div>
+            </td>
+          </tr>
+
+        {% empty %}
+          <tr>
+            <td colspan="2">No course sections found.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 
 </div>
 

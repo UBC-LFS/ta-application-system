@@ -1,13 +1,11 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
-
-{% include 'administrators/util/_sidebar.html' %}
+{% include "ta_app/sidebars/_administrator_sidebar.html" %}
 
 <div id="content" class="container-fluid">
   {% include 'ta_app/_return_messages.html' with data=messages %}
 
-  <h3>Selected Applications</h3>
-  <div class="text-secondary">Total: {{ selected_applications|length }}</div>
+  {% include 'ta_app/pages/_header.html' with title='Selected Applications' text=selected_applications|length %}
 
   <form method="GET">
     <input type="text" name="year" value="{{ request.GET.year }}" placeholder="Year" /> And <br />
@@ -44,18 +42,18 @@
       {% for app in selected_applications %}
         <tr>
           <td>
-            <a href="{% url 'show_application' app_slug=app.slug path='selected' portal='Admin' %}">{{ app.id }}</a>
+            <a href="{% url 'administrators:show_application' app_slug=app.slug path='selected' %}">{{ app.id }}</a>
           </td>
           <td>{{ app.job.session.year }}</td>
           <td>{{ app.job.session.term.code }}</td>
           <td>
-            <a href="{% url 'show_job' session_slug=app.job.session.slug job_slug=app.job.course.slug path='selected' portal='Admin' %}">
+            <a href="{% url 'administrators:show_job' session_slug=app.job.session.slug job_slug=app.job.course.slug path='selected' %}">
               {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}
             </a>
           </td>
           <td>{{ app.applicant.first_name }} {{ app.applicant.last_name }}</td>
           <td>
-            <a href="{% url 'show_user' username=app.applicant.username path='student' portal='Admin' %}">{{ app.applicant.username }}</a>
+            <a href="{% url 'administrators:show_user' username=app.applicant.username path='selected' %}">{{ app.applicant.username }}</a>
           </td>
           <td>
             {% if app.resume_file %}

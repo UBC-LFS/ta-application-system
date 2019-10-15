@@ -1,82 +1,70 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
-{% load static %}
-{% include "administrators/util/_sidebar.html" %}
+{% include "ta_app/sidebars/_administrator_sidebar.html" %}
 
 <div id="content" class="container-fluid">
+  {% include 'ta_app/pages/_header.html' with title='Instructor Jobs' text=instructor.job_set.all|length %}
 
-  <div class="mb-3">
-    <img class="ubc-logo d-inline-block" src="{% static 'ta_app/images/UBClogo.jpeg' %}" alt="ubc logo" />
-    <div class="d-inline-block ml-3">
-      <h3 class="mb-3">Instructor Jobs and Details</h3>
-      <a class="btn btn-outline-primary" href="{% url 'administrators:instructor_jobs' %}">Go back to Jobs by Instructor</a>
-    </div>
+  <div class="mb-4"><a class="btn btn-outline-primary" href="{% url 'administrators:instructor_jobs' %}">Go back to Jobs by Instructor</a></div>
+
+  <div class="d-inline-block bg-light-gray p-4 mb-4">
+    <h5 class="text-primary">Instructor Infomation</h5>
+    <table>
+      <tr>
+        <td>Name:</td>
+        <td>{{ user.get_full_name }}</td>
+      </tr>
+      <tr>
+        <td>CWL:</td>
+        <td>{{ user.username }}</td>
+      </tr>
+      <tr>
+        <td>E-mail:</td>
+        <td>{{ user.email }}</td>
+      </tr>
+    </table>
   </div>
 
-  <div class="card border-secondary w-50 mb-5">
-    <div class="card-header bg-secondary text-white">Infomation</div>
-    <div class="card-body">
-      <p class="card-text">
-        <span class="font-weight-bold">User ID:</span> {{ instructor.id }}
-      </p>
-      <p class="card-text">
-        <span class="font-weight-bold">Name:</span> {{ instructor.get_full_name }}
-      </p>
-      <p class="card-text">
-        <span class="font-weight-bold">Preferred Name:</span> {{ instructor.profile.preferred_name }}
-      </p>
-      <p class="card-text">
-        <span class="font-weight-bold">CWL:</span> {{ instructor.username }}
-      </p>
-      <p class="card-text">
-        <span class="font-weight-bold">E-mail:</span> {{ instructor.email }}
-      </p>
-    </div>
+  <div class="d-inline-block">
+    <table class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center" data-toggle="table" data-sortable="true" data-classes="" data-pagination="true" data-search="true">
+      <thead>
+        <tr>
+          <th data-sortable="true">Job ID</th>
+          <th data-sortable="true">Year</th>
+          <th data-sortable="true">Term</th>
+          <th data-sortable="true">Job</th>
+          <th data-sortable="true">Applicants</th>
+          <th data-sortable="true">Active</th>
+          <th data-sortable="true">Created at</th>
+          <th data-sortable="true">Updated at</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for job in user.job_set.all %}
+        <tr>
+          <td>{{ job.id }}</td>
+          <td>{{ job.session.year }}</td>
+          <td>{{ job.session.term.code }}</td>
+          <td>{{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</td>
+          <td class="text-left">
+            {% for app in job.application_set.all %}
+              {% include 'ta_app/users/_modal_user_details.html' with data=app.applicant %}
+            {% empty %}
+              No applicants
+            {% endfor %}
+          </td>
+          <td>{{ job.is_active }}</td>
+          <td>{{ job.created_at }}</td>
+          <td>{{ job.updated_at }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="5">No jobs found</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
-
-  <h5>Instructor Jobs</h5>
-
-  <table class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center" data-toggle="table" data-sortable="true" data-classes="" data-pagination="true" data-search="true">
-    <thead>
-      <tr>
-        <th data-sortable="true">Job ID</th>
-        <th data-sortable="true">Year</th>
-        <th data-sortable="true">Term</th>
-        <th data-sortable="true">Job</th>
-        <th>Applicants</th>
-        <th>Active</th>
-        <th data-sortable="true">Created at</th>
-        <th data-sortable="true">Updated at</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for job in instructor.job_set.all %}
-      <tr>
-        <td>{{ job.id }}</td>
-        <td>{{ job.session.year }}</td>
-        <td>{{ job.session.term.code }}</td>
-        <td>{{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</td>
-        <td class="text-left">
-          {% for app in job.application_set.all %}
-            <span class="mr-2">{{ app.applicant.first_name }} {{ app.applicant.last_name }}</span>
-          {% empty %}
-            No applicants
-          {% endfor %}
-        </td>
-        <td>{{ job.is_active }}</td>
-        <td>{{ job.created_at }}</td>
-        <td>{{ job.updated_at }}</td>
-      </tr>
-      {% empty %}
-      <tr>
-        <td colspan="5">No jobs found</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-
-  </table>
-
-
 
 </div>
 

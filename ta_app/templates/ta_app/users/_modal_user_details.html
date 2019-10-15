@@ -1,66 +1,22 @@
-<button class="btn btn-sm btn-info" type="button" data-toggle="modal" data-target="#job-details-modal-{{ data.id }}">
-  <i class="fa fa-file-text-o" aria-hidden="true"></i>
+<button class="btn btn-sm btn-link" type="button" data-toggle="modal" data-target="#user-details-modal-{{ data.id }}">
+  {{ data.get_full_name }}
 </button>
 
-<div class="modal fade" id="job-details-modal-{{ data.id }}" tabindex="-1" role="dialog" aria-labelledby="job-details-modal-label-{{ data.id }}" aria-hidden="true">
+<div class="modal fade" id="user-details-modal-{{ data.id }}" tabindex="-1" role="dialog" aria-labelledby="user-details-modal-label-{{ data.id }}" aria-hidden="true">
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="job-details-modal-label-{{ data.id }}">Job Details</h5>
+        <h5 class="modal-title" id="user-details-modal-label-{{ data.id }}">User Details</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
       </div>
       <div class="modal-body text-left">
+        <h4 class="text-info">Basic Information</h4>
+        {% include 'ta_app/users/_basic_info.html' with data=data %}
 
-        <div class="">
-          <h4>{{ data.session.year }} {{ data.session.term.name }} ({{ data.session.term.code }})</h4>
-          <h5>{{ data.course.code.name }} {{ data.course.number.name }} {{ data.course.section.name }}</h5>
-          <div class="text-secondary">{{ data.course.name }}</div>
-        </div>
+        <hr class="dotted" />
 
-        <hr />
-
-        <div class="mb-4">
-          <h5 class="font-weight-bold">Title:</h5>
-          {{ data.title }}
-        </div>
-
-        <div class="mb-4">
-          <h5 class="font-weight-bold">Description:</h5>
-          <p>{{ data.description|safe }}</p>
-        </div>
-
-        <div class="mb-4">
-          <h5 class="font-weight-bold">Qualification:</h5>
-          <p>{{ data.qualification|safe }}</p>
-        </div>
-
-        <div class="mb-4">
-          <h5 class="font-weight-bold">Note:</h5>
-          <p>{{ data.note|safe }}</p>
-        </div>
-
-        <div class="mb-4">
-          <h5>Instructors:</h5>
-          <ul>
-            {% for instructor in data.instructors.all %}
-              <li>{{ instructor.first_name }} {{ instructor.last_name }}</li>
-            {% empty %}
-              No instructors found.
-            {% endfor %}
-          </ul>
-        </div>
-
-        <div class="text-secondary">
-          Created at {{ data.created_at }} <span class="ml-3 mr-3">|</span>
-          Updated at {{ data.updated_at }}
-        </div>
-
-        {% if role == 'administrator' %}
-          <ul>
-            <li>Job ID: {{ data.id }}</li>
-            <li>Is Active: {{ data.is_active }}</li>
-          </ul>
-        {% endif %}
+        <h4 class="text-info">Profile</h4>
+        {% include 'ta_app/users/_profile.html' with data=data %}
 
       </div>
     </div>

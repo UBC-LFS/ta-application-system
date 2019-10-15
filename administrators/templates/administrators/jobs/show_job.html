@@ -4,7 +4,7 @@
 
 <div id="content" class="container-fluid">
   {% include 'ta_app/pages/_header.html' with title='Job Details' %}
-  {% include 'administrators/jobs/_go_back.html' with data='prepare' job_data=job %}
+  {% include 'administrators/jobs/_go_back.html' with data=path %}
 
   <div class="mb-4"></div>
   {% include 'ta_app/jobs/_job_details.html' with data=job %}
@@ -34,7 +34,7 @@
 
   <h4 class="mt-5 mb-3">
     Applications
-    <small class="text-muted">{{ job.application_set.all|length }}</small>
+    <small class="text-muted">Total: {{ job.application_set.all|length }}</small>
   </h4>
 
   <table class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center">

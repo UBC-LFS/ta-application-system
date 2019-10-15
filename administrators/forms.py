@@ -9,8 +9,14 @@ from users.models import Role
 import datetime as dt
 
 
-
-ROLES = { role.name: role.id for role in Role.objects.all() }
+#ROLES = { role.name: role.id for role in Role.objects.all() }
+ROLES = {
+    'Superadmin': 1,
+    'Admin': 2,
+    'HR': 3,
+    'Instructor': 4,
+    'Student': 5
+}
 
 def current_year():
     return dt.date.today().year
@@ -19,39 +25,60 @@ class CourseCodeForm(forms.ModelForm):
     class Meta:
         model = CourseCode
         fields = ['name']
+        widgets = {
+            'name': forms.TextInput(attrs={ 'class': 'form-control' })
+        }
 
 class CourseNumberForm(forms.ModelForm):
     class Meta:
         model = CourseNumber
         fields = ['name']
+        widgets = {
+            'name': forms.TextInput(attrs={ 'class': 'form-control' })
+        }
 
 class CourseSectionForm(forms.ModelForm):
     class Meta:
         model = CourseSection
         fields = ['name']
+        widgets = {
+            'name': forms.TextInput(attrs={ 'class': 'form-control' })
+        }
 
-
-#checked
 class TermForm(forms.ModelForm):
-    """ Create a model form for a term """
+    ''' Create a model form for a term '''
     class Meta:
         model = Term
         fields = ['code', 'name']
+        widgets = {
+            'code': forms.TextInput(attrs={ 'class': 'form-control' }),
+            'name': forms.TextInput(attrs={ 'class': 'form-control' })
+        }
+
 
 
 class ClassificationForm(forms.ModelForm):
     class Meta:
         model = Classification
         fields = ['year', 'name', 'wage', 'is_active']
+        widgets = {
+            'year': forms.TextInput(attrs={ 'class': 'form-control' }),
+            'name': forms.TextInput(attrs={ 'class': 'form-control' }),
+            'wage': forms.NumberInput(attrs={ 'class': 'form-control' })
+        }
 
 class CourseForm(forms.ModelForm):
     ''' Create a model form for a course '''
-    name = forms.CharField(
-        widget=forms.TextInput(attrs={ 'class':'form-control' })
-    )
     class Meta:
         model = Course
         fields = ['code', 'number','section', 'name', 'term']
+        widgets = {
+            'code': forms.Select(attrs={ 'class': 'form-control' }),
+            'number': forms.Select(attrs={ 'class': 'form-control' }),
+            'section': forms.Select(attrs={ 'class': 'form-control' }),
+            'name': forms.TextInput(attrs={ 'class': 'form-control' }),
+            'term': forms.Select(attrs={ 'class': 'form-control' })
+        }
 
     field_order = ['code', 'number','section', 'name', 'term']
 
@@ -61,17 +88,18 @@ class SessionForm(forms.ModelForm):
     next_year = current_year() + 1
     year = forms.CharField(
         initial=next_year,
-        widget=forms.TextInput(attrs={ 'class':'form-control' })
+        widget=forms.TextInput(attrs={ 'class': 'form-control' })
     )
     title = forms.CharField(
         initial='TA Application',
-        widget=forms.TextInput(attrs={ 'class':'form-control' })
+        widget=forms.TextInput(attrs={ 'class': 'form-control' })
     )
 
     class Meta:
         model = Session
         fields = ['year', 'term', 'title', 'description', 'note']
         widgets = {
+            'term': forms.Select(attrs={ 'class': 'form-control' }),
             'description': SummernoteWidget(),
             'note': SummernoteWidget()
         }
@@ -83,11 +111,11 @@ class SessionConfirmationForm(forms.ModelForm):
     this_year = current_year()
     year = forms.CharField(
         initial=this_year,
-        widget=forms.TextInput(attrs={ 'class':'form-control' })
+        widget=forms.TextInput(attrs={ 'class': 'form-control' })
     )
     title = forms.CharField(
         initial='TA Application',
-        widget=forms.TextInput(attrs={ 'class':'form-control' })
+        widget=forms.TextInput(attrs={ 'class': 'form-control' })
     )
     courses = forms.ModelMultipleChoiceField(
         required=False,
@@ -99,6 +127,7 @@ class SessionConfirmationForm(forms.ModelForm):
         model = Session
         fields = ['year', 'term', 'title', 'description', 'note', 'courses', 'is_visible', 'is_archived']
         widgets = {
+            'term': forms.Select(attrs={ 'class':'form-control' }),
             'description': SummernoteWidget(),
             'note': SummernoteWidget()
         }
@@ -119,14 +148,14 @@ class MyModelMultipleChoiceField(ModelMultipleChoiceField):
         return obj.get_full_name()
 
 class AdminJobForm(forms.ModelForm):
+    ''' '''
     title = forms.CharField(
         required=False,
-        widget=forms.TextInput(attrs={ 'class':'form-control' })
+        widget=forms.TextInput(attrs={ 'class': 'form-control' })
     )
     assigned_ta_hours = forms.FloatField(
-        widget=forms.TextInput(attrs={ 'class':'form-control' })
+        widget=forms.TextInput(attrs={ 'class': 'form-control' })
     )
-
     instructors = MyModelMultipleChoiceField(
         queryset=User.objects.filter(profile__roles=ROLES['Instructor']).order_by('pk'),
         widget=forms.CheckboxSelectMultiple()
@@ -146,7 +175,7 @@ class InstructorJobForm(forms.ModelForm):
     ''' Create a model form for job details of an instructor '''
     title = forms.CharField(
         required=False,
-        widget=forms.TextInput(attrs={ 'class':'form-control' })
+        widget=forms.TextInput(attrs={ 'class': 'form-control' })
     )
     class Meta:
         model = Job
@@ -190,7 +219,7 @@ class AdminApplicationForm(forms.ModelForm):
         model = Application
         fields = ['classification', 'note']
         widgets = {
-            'note': forms.Textarea(attrs={'rows':2})
+            'note': forms.Textarea(attrs={ 'rows': 2 })
         }
 
 class ApplicationForm(forms.ModelForm):

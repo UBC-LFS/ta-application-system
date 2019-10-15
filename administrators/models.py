@@ -49,9 +49,9 @@ class CourseSection(models.Model):
 
 class Course(models.Model):
     ''' Create a Course model '''
-    code = models.ForeignKey(CourseCode, on_delete=models.DO_NOTHING, default=4)
+    code = models.ForeignKey(CourseCode, on_delete=models.DO_NOTHING)
     number = models.ForeignKey(CourseNumber, on_delete=models.DO_NOTHING)
-    section = models.ForeignKey(CourseSection, on_delete=models.DO_NOTHING, default=1)
+    section = models.ForeignKey(CourseSection, on_delete=models.DO_NOTHING)
     term = models.ForeignKey(Term, on_delete=models.DO_NOTHING)
     name = models.CharField(max_length=256, null=True)
     slug = models.SlugField(max_length=256, unique=True)

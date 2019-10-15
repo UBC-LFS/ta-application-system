@@ -1,10 +1,9 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
-
-{% include "administrators/util/_sidebar.html" %}
+{% include "ta_app/sidebars/_administrator_sidebar.html" %}
 
 <div id="content" class="container-fluid">
-  <h3>Preparation</h3>
+  {% include 'ta_app/pages/_header.html' with title='Preparation' %}
 
   <div class="bd-callout bd-callout-warning">
     <h5>Overview</h5>

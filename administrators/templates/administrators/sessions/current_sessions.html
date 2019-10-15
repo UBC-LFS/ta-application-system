@@ -41,9 +41,10 @@
           <td>
             <div class="btn-toolbar">
               <a class="btn btn-sm btn-link mr-2" href="{% url 'administrators:edit_session' session_slug=session.slug path='current' %}">Edit</a>
+
               <form action="{% url 'administrators:delete_session' path='current' %}" method="post" onsubmit="return confirm('Are you sure to delete {{ session.year }} {{ session.term }} - {{ session.title }}?');">
                 {% csrf_token %}
-                <input type="hidden" name="session" value="{{ session.id }}">
+                <input type="hidden" name="session" value="{{ session.id }}" />
                 <input type="submit" value="Delete" class="btn btn-sm btn-danger"/>
               </form>
             </div>

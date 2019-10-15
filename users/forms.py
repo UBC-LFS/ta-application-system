@@ -11,26 +11,41 @@ class TrainingForm(forms.ModelForm):
     class Meta:
         model = Training
         fields = ['name']
+        widgets = {
+            'name': forms.TextInput(attrs={ 'class':'form-control' })
+        }
 
 class ProgramForm(forms.ModelForm):
     class Meta:
         model = Program
         fields = ['name']
+        widgets = {
+            'name': forms.TextInput(attrs={ 'class':'form-control' })
+        }
 
 class DegreeForm(forms.ModelForm):
     class Meta:
         model = Degree
         fields = ['name']
+        widgets = {
+            'name': forms.TextInput(attrs={ 'class':'form-control' })
+        }
 
 class RoleForm(forms.ModelForm):
     class Meta:
         model = Role
         fields = ['name']
+        widgets = {
+            'name': forms.TextInput(attrs={ 'class':'form-control' })
+        }
 
 class StatusForm(forms.ModelForm):
     class Meta:
         model = Status
         fields = ['name']
+        widgets = {
+            'name': forms.TextInput(attrs={ 'class':'form-control' })
+        }
 
 """
 class UserInfoForm(forms.ModelForm):

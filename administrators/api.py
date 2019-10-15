@@ -202,7 +202,7 @@ def get_application_with_status_by_user(user, job, option):
         app = job.application_set.get(applicant__id=user.id)
         status = app.applicationstatus_set.filter(assigned=option).latest('created_at')
         app.status = status
-        
+
         app.cancelled = None
         cancelled = app.applicationstatus_set.filter(assigned=ApplicationStatus.CANCELLED)
         if cancelled.exists(): app.cancelled = cancelled.latest('created_at')
@@ -228,7 +228,7 @@ def get_applications_with_status_by_user(user, status):
 
             offered = app.applicationstatus_set.filter(assigned=ApplicationStatus.OFFERED)
             if offered.exists(): app.offered =offered.latest('created_at')
-                        
+
             accpeted = app.applicationstatus_set.filter(assigned=ApplicationStatus.ACCEPTED)
             if accpeted.exists(): app.accepted = accpeted.latest('created_at')
 
@@ -267,6 +267,8 @@ def get_applications_with_status_by_user(user, status):
 
 
 
+def get_application_slug(app_slug):
+    return get_object_or_404(Application, slug=app_slug)
 
 
 
@@ -304,7 +306,7 @@ def get_jobs_with_student_applied(session_slug, user):
 
 
 
-    
+
 
 def get_jobs_applied_by_user(user):
     return Job.objects.filter(application__applicant__id=user.id)

@@ -1,9 +1,3 @@
-body {
-  font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji" !important;
-  color: #212529 !important;
-  font-weight: 400 !important;
-}
-
 .ubc-logo {
   width: 70px;
   height: auto;
@@ -16,6 +10,11 @@ body {
 .bg-dark-blue {
   background-color: #002145;
 }
+
+.bg-light-gray {
+  background-color: #E6E6E6;
+}
+
 
 .job-details .left-content .ta-hours {
   border: 1px solid #aaa;

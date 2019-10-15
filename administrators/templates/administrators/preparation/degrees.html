@@ -1,87 +1,82 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
-
-{% include "administrators/util/_sidebar.html" %}
+{% include "ta_app/sidebars/_administrator_sidebar.html" %}
 
 <div id="content" class="container-fluid">
-
   {% include 'ta_app/_return_messages.html' with data=messages %}
 
-  <h3>Degrees</h3>
-  <div class="text-secondary">Total: {{ degrees|length }}</div>
+  {% include 'ta_app/pages/_header.html' with title='Degrees' text=degrees|length %}
 
-  <section class="mt-5">
+  <div class="my-5">
+    <h3>Create Degree</h3>
+    <form action="{% url 'administrators:degrees' %}" method="post">
+      {% csrf_token %}
+      <table>{{ form.as_table }}</table>
+      <input class="btn btn-primary mt-3" type="submit" value="Create" />
+    </form>
+  </div>
 
-    <div class="d-inline-block align-text-top mr-5">
-      <h3>Create Degree</h3>
-      <form action="{% url 'administrators:degrees' %}" method="post">
-        {% csrf_token %}
-        <table>{{ form.as_table }}</table>
-        <input class="btn btn-primary mt-3" type="submit" value="Create" />
-      </form>
-    </div>
-    <div class="d-inline-block align-text-top">
-      <table class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center">
-        <thead>
+  <div class="d-inline-block">
+    <table class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Slug</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for degree in degrees %}
           <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Slug</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for degree in degrees %}
-            <tr>
-              <td>{{ degree.id }}</td>
-              <td>{{ degree.name }}</td>
-              <td>{{ degree.slug }}</td>
-              <td>
-                <div class="btn-toolbar">
-                  <button class="btn btn-sm btn-warning mr-2" type="button" data-toggle="modal" data-target="#degree-edit-modal-{{ degree.id }}">Edit</button>
+            <td>{{ degree.id }}</td>
+            <td>{{ degree.name }}</td>
+            <td>{{ degree.slug }}</td>
+            <td>
+              <div class="btn-toolbar">
+                <button class="btn btn-sm btn-warning mr-2" type="button" data-toggle="modal" data-target="#degree-edit-modal-{{ degree.id }}">Edit</button>
 
-                  <div class="modal fade" id="degree-edit-modal-{{ degree.id }}" tabindex="-1" role="dialog" aria-labelledby="degree-edit-modal-label-{{ degree.id }}" aria-hidden="true">
-                    <div class="modal-dialog modal-lg" role="document">
-                      <div class="modal-content">
-                        <div class="modal-header">
-                          <h5 class="modal-title" id="degree-edit-modal-label-{{ degree.id }}">Edit a Degree</h5>
-                          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                        </div>
-                        <div class="modal-body text-left">
-                          <form action="{% url 'administrators:edit_degree' degree.slug %}" method="post">
-                            {% csrf_token %}
+                <div class="modal fade" id="degree-edit-modal-{{ degree.id }}" tabindex="-1" role="dialog" aria-labelledby="degree-edit-modal-label-{{ degree.id }}" aria-hidden="true">
+                  <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="degree-edit-modal-label-{{ degree.id }}">Edit a Degree</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                      </div>
+                      <div class="modal-body text-left">
+                        <form action="{% url 'administrators:edit_degree' degree.slug %}" method="post">
+                          {% csrf_token %}
 
-                            <table class="table table-borderless">
-                              <tr>
-                                <td><label for="id_name" class="font-weight-bold">Name:</label></td>
-                                <td><input id="name" type="text" name="name" value="{{ degree.name }}" /></td>
-                              </tr>
-                            </table>
+                          <table class="table table-borderless">
+                            <tr>
+                              <td><label for="id_name" class="font-weight-bold">Name:</label></td>
+                              <td><input id="name" type="text" name="name" value="{{ degree.name }}" /></td>
+                            </tr>
+                          </table>
 
-                            <input class="btn btn-warning" type="submit" value="Update" />
-                          </form>
-                        </div>
+                          <input class="btn btn-warning" type="submit" value="Update" />
+                        </form>
                       </div>
                     </div>
                   </div>
-
-                  <form action="{% url 'administrators:delete_degree' %}" method="post" onsubmit="return confirm('Are you sure to delete this degree - {{ degree.name }} ?')">
-                    {% csrf_token %}
-                    <input type="hidden" name="degree" value="{{ degree.id }}" />
-                    <input class="btn btn-sm btn-danger" type="submit" value="Delete" />
-                  </form>
                 </div>
-              </td>
-            </tr>
-          {% empty %}
-            <tr>
-              <td colspan="2">No degrees found.</td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-  </section>
+
+                <form action="{% url 'administrators:delete_degree' %}" method="post" onsubmit="return confirm('Are you sure to delete this degree - {{ degree.name }} ?')">
+                  {% csrf_token %}
+                  <input type="hidden" name="degree" value="{{ degree.id }}" />
+                  <input class="btn btn-sm btn-danger" type="submit" value="Delete" />
+                </form>
+              </div>
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="2">No degrees found.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 
 </div>
 

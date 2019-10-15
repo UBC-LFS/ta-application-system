@@ -1,8 +1,8 @@
-{% if data == 'prepare' %}
-  <a class="btn btn-outline-primary" href="{% url 'administrators:prepare_jobs' %}">Go back to Prepare Jobs</a>
+{% if data == 'instructor' %}
+  <a class="btn btn-outline-primary" href="{% url 'administrators:instructor_jobs' %}">Go back to Jobs by Instructor</a>
 
-{% elif data == 'progress' %}
-  <a class="btn btn-outline-primary" href="{% url 'administrators:progress_jobs' %}">Go back to Jobs in Progress</a>
+{% elif data == 'student' %}
+  <a class="btn btn-outline-primary" href="{% url 'administrators:student_jobs' %}">Go back to Jobs by Student</a>
 
 {% elif data == 'dashboard' %}
   <a class="btn btn-outline-primary" href="{% url 'administrators:applications_dashboard' %}">Go back to Dashboard</a>
@@ -21,6 +21,9 @@
 
 {% elif data == 'declined' %}
   <a class="btn btn-outline-primary" href="{% url 'administrators:declined_applications' %}">Go back to Declined Applications</a>
+
+{% elif data == 'users' %}
+  <a class="btn btn-outline-primary" href="{% url 'administrators:users' %}">Go back to All Users</a>
 
 {% else %}
   <a class="btn btn-outline-primary" href="{% url 'administrators:jobs' %}">Go back to Jobs</a>

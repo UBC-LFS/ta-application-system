@@ -1,16 +1,13 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
-
-{% include "administrators/util/_sidebar.html" %}
+{% include "ta_app/sidebars/_administrator_sidebar.html" %}
 
 <div id="content" class="container-fluid">
-
   {% include 'ta_app/_return_messages.html' with data=messages %}
 
-  <h3>Programs</h3>
-  <div class="text-secondary">Total: {{ programs|length }}</div>
+  {% include 'ta_app/pages/_header.html' with title='Programs' text=programs|length %}
 
-  <div class="mt-5 mb-5">
+  <div class="my-5">
     <h3>Create Program</h3>
     <form action="{% url 'administrators:programs' %}" method="post">
       {% csrf_token %}

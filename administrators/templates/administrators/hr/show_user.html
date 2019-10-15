@@ -1,173 +1,57 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
-
-{% if role == 'administrator' %}
-  {% include 'administrators/util/_sidebar.html' %}
-{% elif role == 'human_resource' %}
-  {% include 'human_resources/util/_sidebar.html' %}
-{% elif role == 'instructor' %}
-  {% include 'instructors/util/_sidebar.html' %}
-{% elif role == 'student' %}
-  {% include 'students/util/_sidebar.html' %}
-{% endif %}
+{% include "ta_app/sidebars/_administrator_sidebar.html" %}
 
 <div id="content" class="container-fluid">
+  {% include 'ta_app/pages/_header.html' with title=user.get_full_name %}
 
-  <div class="row justify-content-center">
-    <div class="col-lg-3">
-      <div class="text-center">
-        <img class="rounded" src="https://faculty.arts.ubc.ca/jhelliwell/images/UBClogo.jpeg" style="width: 100%; max-width: 300px;"/>
-      </div>
-      <h2 class="margin-top-10">{{ user.first_name }} {{ user.last_name }}</h2>
-      <h3 class="text-secondary">{{ user.username }}</h3>
-        {% for role in user.profile.roles.all %}
-          <h5>{{ role.name }}</h5>
-        {% endfor %}
-
-      <hr/>
-
-      <h3 class="margin-top-10">Resume:</h3>
-      {% if user.resume_file %}
-        <a href="{% url 'students:download_resume' username=user.username filename=user.resume_file %}" target="_blank">
-          {{ user.resume_file }}
-        </a>
-        | {{ user.resume.created_at }}
-      {% else %}
-        No resume
-      {% endif %}
-
-      <hr/>
-
-      <a class="btn btn-warning btn-block" href="#">Edit Profile</a>
-      <a class="btn btn-outline-primary btn-block" href="{{ previous_url }}">Go Back to a Previous Page</a>
-
-      <hr/>
-    </div>
-    <div class="col-lg-6">
-      <div class="card">
-        <h5 class="card-header">Information</h5>
-        <div class="card-body">
-          <table class="table table-borderless table-sm">
-            <tbody>
-              {% if role == 'administrator' %}
-                <tr>
-                  <td class="text-right col-4"><strong>User ID</strong></td>
-                  <td class="col-8">{{ user.id }}</td>
-                </tr>
-                <tr>
-                  <td class="text-right"><strong>Date Joined</strong></td>
-                  <td>{{ user.date_joined }}</td>
-                </tr>
-                <tr>
-                  <td class="text-right"><strong>Last Login</strong></td>
-                  <td>{{ user.last_login }}</td>
-                </tr>
-              {% endif %}
-              <tr>
-                <td class="text-right"><strong>First Name</strong></td>
-                <td>{{ user.first_name }}</td>
-              </tr>
-              <tr>
-                <td class="text-right"><strong>Last Name</strong></td>
-                <td>{{ user.last_name }}</td>
-              </tr>
-              <tr>
-                <td class="text-right"><strong>CWL</strong></td>
-                <td>{{ user.username }}</td>
-              </tr>
-              <tr>
-                <td class="text-right"><strong>Email</strong></td>
-                <td>{{ user.email }}</td>
-              </tr>
-              <tr>
-                <td class="text-right"><strong>UBC Number</strong></td>
-                <td>{{ user.profile.ubc_number }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-      <div class="card margin-top-30">
-        <h5 class="card-header">Profile</h5>
-        <div class="card-body">
-          <table class="table table-borderless table-sm">
-            <tbody>
-              <tr>
-                <td class="text-right col-4"><strong>Preferred Name</strong></td>
-                <td class="col-8">{{ user.profile.preferred_name }}</td>
-              </tr>
-              <tr>
-                <td class="text-right"><strong>Created At</strong></td>
-                <td>{{ user.profile.created_at }}</td>
-              </tr>
-              <tr>
-                <td class="text-right"><strong>Updated At</strong></td>
-                <td>{{ user.profile.updated_at }}</td>
-              </tr>
-              <tr>
-                <td class="text-right"><strong>Roles</strong></td>
-                <td>
-                  {% for role in user.profile.roles.all %}
-                    {{ role.name }},
-                  {% endfor %}
-                </td>
-              </tr>
-              <tr>
-                <td class="text-right"><strong>Qualifications</strong></td>
-                <td>{{ user.profile.qualifications }}</td>
-              </tr>
-              <tr>
-                <td class="text-right"><strong>Prior Employment</strong></td>
-                <td>{{ user.profile.prior_employment }}</td>
-              </tr>
-              <tr>
-                <td class="text-right"><strong>Special Considerations</strong></td>
-                <td>{{ user.profile.special_considerations }}</td>
-              </tr>
-              <tr>
-                <td class="text-right"><strong>Status</strong></td>
-                <td>{{ user.profile.status }}</td>
-              </tr>
-              <tr>
-                <td class="text-right"><strong>Program</strong></td>
-                <td>{{ user.profile.program }}</td>
-              </tr>
-              <tr>
-                <td class="text-right"><strong>Graduation Date</strong></td>
-                <td>{{ user.profile.graduation_date }}</td>
-              </tr>
-              <tr>
-                <td class="text-right"><strong>Degrees</strong></td>
-                <td>
-                  {% for degree in user.profile.degrees.all %}
-                    {{ degree.name }},
-                  {% empty %}
-                    None
-                  {% endfor %}
-                </td>
-              </tr>
-              <tr>
-                <td class="text-right"><strong>Trainings</strong></td>
-                <td>
-                  {% for degree in user.profile.trainings.all %}
-                    {{ degree.name }}
-                  {% empty %}
-                    None
-                  {% endfor %}
-                </td>
-              </tr>
-              <tr>
-                <td class="text-right"><strong>LFS TA Training</strong></td>
-                <td>
-                  {{ user.profile.get_lfs_ta_training_display }}
-                  <p>Details: {{ user.profile.ta_experience_details }}</p>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
+  <div class="mb-4">
+    {% include 'administrators/hr/_go_back.html' with data=path %}
   </div>
+
+  <section>
+    <nav>
+      <div class="nav nav-tabs" id="nav-tab" role="tablist">
+        <a class="nav-item nav-link active" id="nav-basic-info-tab" data-toggle="tab" href="#nav-basic-info" role="tab" aria-controls="nav-basic-info" aria-selected="true">Basic Information</a>
+        <a class="nav-item nav-link" id="nav-profile-tab" data-toggle="tab" href="#nav-profile" role="tab" aria-controls="nav-profile" aria-selected="false">Profile</a>
+      </div>
+    </nav>
+    <div class="tab-content" id="nav-tabContent">
+      <div class="tab-pane fade show active" id="nav-basic-info" role="tabpanel" aria-labelledby="nav-basic-info-tab">
+        <h4 class="text-info my-4">Basic Information</h4>
+
+        <div class="mb-4">
+          <h5>User ID:</h5>
+          <span class="text-secondary">{{ user.id }}</span>
+        </div>
+
+        <div class="mb-4">
+          <h5>Role:</h5>
+          {% for role in user.profile.roles.all %}
+            <span class="badge badge-secondary">{{ role.name.upper }}</span>
+          {% endfor %}
+        </div>
+
+        {% include 'ta_app/users/_basic_info.html' with data=user %}
+
+        <h4>Resume:</h4>
+        {% if user.resume_file %}
+          <a href="{% url 'students:download_resume' username=user.username filename=user.resume_file %}" target="_blank">
+            {{ user.resume_file }}
+          </a>
+          | {{ user.resume.created_at }}
+        {% else %}
+          No resume
+        {% endif %}
+      </div>
+      <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
+        <h4 class="text-info my-4">Profile</h4>
+
+        {% include 'ta_app/users/_profile.html' with data=user %}
+      </div>
+    </div>
+
+  </section>
+</div>
 
 {% endblock %}
