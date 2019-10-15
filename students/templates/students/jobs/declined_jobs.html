@@ -1,44 +1,47 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
-
-{% include 'students/util/_sidebar.html' %}
+{% include "ta_app/sidebars/_student_sidebar.html" %}
 
 <div id="content" class="container-fluid">
 
-  <h3>Declined Jobs</h3>
+  {% include 'ta_app/pages/_header.html' with title='Declined Jobs' text=apps|length %}
 
-
-  <h5>List</h5>
-  <table class="table">
-    <thead>
-      <tr>
-        <th>Year</th>
-        <th>Term</th>
-        <th>Job</th>
-        <th>Assigned Status</th>
-        <th>Assigned Hours</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for job in declined_jobs %}
-      <tr>
-        <td>{{ job.year }}</td>
-        <td>{{ job.term }}</td>
-        <td>
-          <a href="{% url 'show_job' session_slug=job.session_slug job_slug=job.job_slug path='declined' portal='Student' %}">
-            {{ job.course_code }} {{ job.course_number }} {{ job.course_section }}
-          </a>
-        </td>
-        <td>{{ job.assigned_status }}</td>
-        <td>{{ job.assigned_hours }} hours</td>
-      </tr>
-      {% empty %}
+  <div class="d-inline-block">
+    <table class="table table-bordered table-hover table-striped table-responsive-md text-center" data-toggle="table" data-sortable="true" data-classes="" data-pagination="true" data-search="true">
+      <thead>
         <tr>
-          <td colspan="3">No declined jobs found</td>
+          <th>Year</th>
+          <th>Term</th>
+          <th>Job</th>
+          <th>Assigned Status</th>
+          <th>Assigned Hours</th>
+          <th>Declined at</th>
         </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+        {% for app in apps %}
+        <tr>
+          <td>{{ app.job.session.year }}</td>
+          <td>{{ app.job.session.term.code }}</td>
+          <td>
+            <a href="{% url 'students:show_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}">
+              {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}
+            </a>
+          </td>
+          <td>
+            <span class="badge badge-danger">{{ app.declined.get_assigned_display }}</span>
+          </td>
+          <td>{{ app.declined.assigned_hours }} hours</td>
+          <td>{{ app.declined.created_at }}</td>
+        </tr>
+        {% empty %}
+          <tr>
+            <td colspan="3">No declined jobs found</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 
 </div>
 

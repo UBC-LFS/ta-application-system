@@ -23,30 +23,30 @@
   <div class="job-details row justify-content-center">
     <div class="col-md-3">
       <div class="left-content">
-        <img class="ubc-logo mx-auto d-block" src="{% static 'ta_app/images/UBClogo.jpeg' %}" alt="ubc logo" />
+        <img class="ubc-logo mx-auto d-block mb-4" src="{% static 'ta_app/images/UBClogo.jpeg' %}" alt="ubc logo" />
 
-        <div class="text-center text-secondary mt-4 mb-4">
-          <h5 class="font-weight-normal">Number of Applications</h5>
-          <h3 class="font-weight-bold">{{ job.application_set.all|length }}</h3>
-        </div>
+        {% if portal == 'Admin' or portal == 'Instructor' %}
+          <div class="text-center text-secondary mb-4">
+            <h5 class="font-weight-normal">Number of Applications</h5>
+            <h3 class="font-weight-bold">{{ job.application_set.all|length }}</h3>
+          </div>        
 
-        <div class="ta-hours text-center bg-info text-white mb-5 p-3">
-          <div>
-            <h6 class="font-weight-normal">
-              <i class="fa fa-star-o" aria-hidden="true"></i> Assgiend TA Hours
-              <i class="fa fa-star-o" aria-hidden="true"></i>
-            </h6>
-            <h3 class="font-weight-bold">{{ job.assigned_ta_hours }} hours</h3>
+          <div class="ta-hours text-center bg-info text-white mb-5 p-3">
+            <div>
+              <h6 class="font-weight-normal">
+                <i class="fa fa-star-o" aria-hidden="true"></i> Assigned TA Hours
+              </h6>
+              <h3 class="font-weight-bold">{{ job.assigned_ta_hours }} hours</h3>
+            </div>
+            <hr />
+            <div>
+              <h6 class="font-weight-normal">
+                <i class="fa fa-star-o" aria-hidden="true"></i> Accumulated TA hours
+              </h6>
+              <h3 class="font-weight-bold">{{ job.ta_hours }} hours</h3>
+            </div>
           </div>
-          <hr />
-          <div>
-            <h6 class="font-weight-normal">
-              <i class="fa fa-star-o" aria-hidden="true"></i> Applicants' TA Hours
-              <i class="fa fa-star-o" aria-hidden="true"></i>
-            </h6>
-            <h3 class="font-weight-bold">{{ job.ta_hours }} hours</h3>
-          </div>
-        </div>
+        {% endif %}
 
         <a class="btn btn-outline-primary btn-block" href="{{ previous_url }}">Go back to a previous page</a>
 
@@ -90,25 +90,25 @@
         </ul>
 
         <div class="mb-4">
-          <h3 class="font-weight-bold text-secondary">Title:</h3>
-          {{ job.title }}
+          <h5>Title:</h5>
+          <span class="text-secondary">{{ job.title }}</span>
         </div>
 
         <div class="mb-4">
-          <h3 class="font-weight-bold text-secondary">Description:</h3>
-          <p>{{ job.description|safe }}</p>
+          <h5>Description:</h5>
+          <p class="text-secondary">{{ job.description|safe }}</p>
         </div>
 
         <div class="mb-4">
-          <h3 class="font-weight-bold text-secondary">Qualification:</h3>
-          <p>{{ job.qualification|safe }}</p>
+          <h5>Qualification:</h5>
+          <p class="text-secondary">{{ job.qualification|safe }}</p>
         </div>
 
         <div class="mb-4">
-          <h3 class="font-weight-bold text-secondary">Note:</h3>
-          <p>{{ job.note|safe }}</p>
+          <h5>Note:</h5>
+          <p class="text-secondary">{{ job.note|safe }}</p>
         </div>
-        
+
         {% if portal == 'Admin' %}
           <hr class="dotted" />
 

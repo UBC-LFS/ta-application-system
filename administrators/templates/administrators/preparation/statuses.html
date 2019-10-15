@@ -1,72 +1,83 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
-
-{% include "administrators/util/_sidebar.html" %}
+{% include "ta_app/sidebars/_administrator_sidebar.html" %}
 
 <div id="content" class="container-fluid">
-
   {% include 'ta_app/_return_messages.html' with data=messages %}
 
-  <h3>Statuses</h3>
+  {% include 'ta_app/pages/_header.html' with title='Statuses' text=statuses|length %}
 
-  <table class="table">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Status</th>
-        <th>Slug</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for status in statuses %}
+  <div class="my-5">
+    <h5>Create Status</h5>
+    <form action="{% url 'administrators:statuses' %}" method="post">
+      {% csrf_token %}
+      <table>{{ form.as_table }}</table>
+      <input class="btn btn-primary mt-3" type="submit" value="Create" />
+    </form>
+  </div>
+
+  <div class="d-inline-block">
+    <table class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center">
+      <thead>
         <tr>
-          <td>{{ status.id }}</td>
-          <td>{{ status.name }}</td>
-          <td>{{ status.slug }}</td>
-          <td>
-            <button type="button" data-toggle="modal" data-target="#status-edit-modal-{{ status.id }}">Edit</button>
-            <div class="modal fade" id="status-edit-modal-{{ status.id }}" tabindex="-1" role="dialog" aria-labelledby="status-edit-modal-label-{{ status.id }}" aria-hidden="true">
-      			  <div class="modal-dialog modal-lg" role="document">
-      			    <div class="modal-content">
-      			      <div class="modal-header">
-      			        <h5 class="modal-title" id="status-edit-modal-label-{{ status.id }}">Edit a Status</h5>
-      			        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-      			      </div>
-      			      <div class="modal-body">
-      							<form action="{% url 'administrators:edit_status' status.slug %}" method="post">
-      								{% csrf_token %}
-                      <input type="text" name="name" value="{{ status.name }}" />
-      								<input type="submit" value="Update" />
-      							</form>
-      			      </div>
-      			    </div>
-      			  </div>
-      			</div>
-
-            <form action="{% url 'administrators:delete_status' %}" method="post" onsubmit="return confirm('Are you sure to delete this status - {{ status.name }} ?')">
-              {% csrf_token %}
-              <input type="hidden" name="status" value="{{ status.id }}" />
-              <input type="submit" value="Delete" />
-            </form>
-          </td>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Slug</th>
+          <th>Actions</th>
         </tr>
-      {% empty %}
-        <tr>
-          <td colspan="2">No statuses found.</td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+        {% for status in statuses %}
+          <tr>
+            <td>{{ status.id }}</td>
+            <td>{{ status.name }}</td>
+            <td>{{ status.slug }}</td>
+            <td>
+              <div class="btn-toolbar">
 
-  <hr />
+                <button class="btn btn-sm btn-warning mr-2" type="button" data-toggle="modal" data-target="#status-edit-modal-{{ status.id }}">Edit</button>
 
-  <h3>Create a status</h3>
-  <form action="{% url 'administrators:statuses' %}" method="post">
-    {% csrf_token %}
-    <table>{{ form.as_table }}</table>
-    <input type="submit" value="Create" />
-  </form>
+                <div class="modal fade" id="status-edit-modal-{{ status.id }}" tabindex="-1" role="dialog" aria-labelledby="status-edit-modal-label-{{ status.id }}" aria-hidden="true">
+                  <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="status-edit-modal-label-{{ status.id }}">Edit Status</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                      </div>
+                      <div class="modal-body text-left">
+                        <form action="{% url 'administrators:edit_status' status.slug %}" method="post">
+                          {% csrf_token %}
+
+                          <table class="table table-borderless">
+                            <tr>
+                              <td><label for="id_name" class="font-weight-bold">Name:</label></td>
+                              <td><input id="id_name" type="text" name="name" value="{{ status.name }}" /></td>
+                            </tr>
+                          </table>
+
+                          <input class="btn btn-warning" type="submit" value="Update Status" />
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <form action="{% url 'administrators:delete_status' %}" method="post" onsubmit="return confirm('Are you sure to delete this status - {{ status.name }} ?')">
+                  {% csrf_token %}
+                  <input type="hidden" name="status" value="{{ status.id }}" />
+                  <input class="btn btn-sm btn-danger" type="submit" value="Delete" />
+                </form>
+              </div>
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="2">No statuses found.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 
 </div>
 

@@ -42,7 +42,7 @@
               <a class="btn btn-success btn-block" href="{% url 'students:download_resume' username=user.username filename=user.resume_file %}" target="_blank">
                 <i class="fa fa-cloud-download" aria-hidden="true"></i> {{ user.resume_file }}
               </a>
-              <div class="text-secondary">{{ user.resume.created_at }}</div>
+              <div class="text-secondary">Uploaded at: {{ user.resume.created_at }}</div>
             {% else %}
               <button class="btn btn-secondary btn-block" type="button" disabled>
                 <i class="fa fa-cloud-download" aria-hidden="true"></i> No resume
@@ -51,7 +51,6 @@
           </div>
         {% endif %}
 
-        <a class="btn btn-warning btn-block" href="#">Edit Profile</a>
         <a class="btn btn-outline-primary btn-block" href="{{ previous_url }}">Go Back to a Previous Page</a>
 
         <div class="mt-5">
@@ -60,30 +59,6 @@
         <div>
           Last Login: <span class="text-secondary">{{ user.last_login }}</span>
         </div>
-
-        {% if path == 'student' %}
-          <hr class="dotted mt-4 mb-4"/>
-          <section class="text-white text-center">
-            <h5 class="text-secondary">Statistics of Applications</h5>
-
-            <div class="user-stats d-inline-block text-center bg-info">
-              Total
-              <h5>{{ stats.num_apps }}</h5>
-            </div>
-            <div class="user-stats d-inline-block text-center bg-info ">
-              Offered
-              <h5>{{ stats.num_offered }}</h5>
-            </div>
-            <div class="user-stats d-inline-block text-center bg-info">
-              Accepted
-              <h5>{{ stats.num_accepted }}</h5>
-            </div>
-            <div class="user-stats d-inline-block text-center bg-info ">
-              Declined
-              <h5>{{ stats.num_declined }}</h5>
-            </div>
-          </section>
-        {% endif %}
 
       </div>
     </div>
@@ -138,8 +113,6 @@
           </div>
         </section>
 
-        <hr class="dotted mt-4 mb-4"/>
-
         <section class="line-height-2">
           <div>
             <span class="font-weight-bold">Qualifications:</span>
@@ -169,6 +142,31 @@
             <p>{{ user.profile.special_considerations }}</p>
           </div>
         </section>
+
+        {% if path == 'student' %}
+          <hr class="dotted mt-4 mb-4" />
+
+          <section class="text-white">
+            <h5 class="text-secondary">Statistics of Applications</h5>
+
+            <div class="user-stats d-inline-block text-center bg-info">
+              Total
+              <h5>{{ stats.num_apps }}</h5>
+            </div>
+            <div class="user-stats d-inline-block text-center bg-info ">
+              Offered
+              <h5>{{ stats.num_offered }}</h5>
+            </div>
+            <div class="user-stats d-inline-block text-center bg-info">
+              Accepted
+              <h5>{{ stats.num_accepted }}</h5>
+            </div>
+            <div class="user-stats d-inline-block text-center bg-info ">
+              Declined
+              <h5>{{ stats.num_declined }}</h5>
+            </div>
+          </section>
+        {% endif %}
 
       </div>
     </div>

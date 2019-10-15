@@ -1,61 +1,56 @@
 {% extends "ta_app/base.html" %}
 {% block content %}
+{% include "ta_app/sidebars/_student_sidebar.html" %}
 
-<div class="wrapper">
-  {% include "students/util/_sidebar.html" %}
+<div id="content" class="container-fluid">
+  {% include 'ta_app/_return_messages.html' with data=messages %}
 
-  <div id="content" class="container-fluid">
+  {% include 'ta_app/pages/_header.html' with title='Available Jobs' text=jobs|length %}
 
-    {% include 'ta_app/_return_messages.html' with data=messages %}
+  <div><a class="btn btn-outline-primary" href="{% url 'students:explore_jobs' %}">Go back to Explore Jobs</a></div>
 
-    <h3 class="margin-top-30">{{ session.year }} {{ session.term.name }} {{ session.title }}</h3>
-
-    <h5 class="margin-top-30">Available Jobs</h5>
-
-    <table class="table">
+  <div class="d-inline-block">
+    <table class="table table-bordered table-hover table-striped table-responsive-md text-center" data-toggle="table" data-sortable="true" data-classes="" data-pagination="true" data-search="true">
       <thead>
         <tr>
-          <th>Year</th>
-          <th>Term</th>
-          <th>Job</th>
-          <th>Title</th>
-          <th>Instructors</th>
+          <th data-sortable="true">Year</th>
+          <th data-sortable="true">Term</th>
+          <th data-sortable="true">Job</th>
+          <th data-sortable="true">Instructors</th>
           <th>Actions</th>
         </tr>
       </thead>
       <tbody>
         {% for job in jobs %}
-          {% if job.is_active %}
-            <tr>
-              <td>{{ job.session.year }}</td>
-              <td>{{ job.session.term.code }}</td>
-              <td>{{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</td>
-              <td>{{ job.title }}</td>
-              <td>
-                {% for instructor in job.instructors.all %}
-                  {{ instructor.first_name }} {{ instructor.last_name }},
-                {% endfor %}
-              </td>
-              <td>
-                  <a href="{% url 'students:apply_job' session_slug=job.session.slug job_slug=job.course.slug %}">
-                    {% if job.has_applied %}
-                      Applied
-                    {% else %}
-                      Apply
-                    {% endif %}
-                  </a>
-              </td>
-            </tr>
-          {% endif %}
-        {% empty %}
-          No jobs available yet.
+          <tr>
+            <td>{{ job.session.year }}</td>
+            <td>{{ job.session.term.code }}</td>
+            <td class="text-left">
+              {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}
+              - <small class="text-muted">{{ job.course.name }}</small>
+              {% include 'ta_app/jobs/_modal_job_details.html' with data=job %}
+            </td>
+            <td>
+              {% for instructor in job.instructors.all %}
+                {{ instructor.get_full_name }},
+              {% empty %}
+                No instructors found.
+              {% endfor %}
+            </td>
+            <td>
+              {% if job.app %}
+                <span class="badge badge-info">APPLIED</span>
+                <small class="text-muted">{{ job.app.created_at }}</small>
+              {% else %}
+                <a href="{% url 'students:apply_job' session_slug=job.session.slug job_slug=job.course.slug %}">Apply</a>
+              {% endif %}
+            </td>
+          </tr>
         {% endfor %}
       </tbody>
     </table>
-
-    <a href="{% url 'students:explore_jobs' %}">Go back to Explore Jobs</a>
-
   </div>
+
 </div>
 
 {% endblock %}

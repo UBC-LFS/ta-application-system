@@ -1,16 +1,19 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
-
-{% include 'administrators/util/_sidebar.html' %}
+{% include "ta_app/sidebars/_administrator_sidebar.html" %}
 
 <div id="content" class="container-fluid">
+  {% include 'ta_app/pages/_header.html' with title='Job Applications' text=job.application_set.all|length %}
 
-  <h3>Job Applications</h3>
+  <div class="mb-4"><a class="btn btn-outline-primary" href="{% url 'administrators:progress_jobs' %}">Go back to Jobs in Progress</a></div>
 
-  <h5>{{ job.session.year }} {{ job.session.term.name }}</h5>
-  <h4>{{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</h4>
+  <h5 class="mt-4">{{ job.session.year }} {{ job.session.term.name }} ({{ job.session.term.code }})</h5>
+  <h4>
+    {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }} <br />
+    <small class="text-muted">- {{ job.course.name }}</small>
+  </h4>
 
-  <table class="table">
+  <table class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center" data-toggle="table" data-sortable="true" data-classes="" data-pagination="true" data-search="true">
     <thead>
       <tr>
         <th>Application ID</th>
@@ -26,12 +29,8 @@
     <tbody>
       {% for app in job.application_set.all %}
         <tr>
-          <td>
-            <a href="{% url 'administrators:display_application_details' app_slug=app.slug role='administrator' %}">{{ app.id }}</a>
-          </td>
-          <td>
-            <a href="{% url 'administrators:show_user' username=app.applicant.username role='administrator' %}">{{ app.applicant.first_name }} {{ app.applicant.last_name }}</a>
-          </td>
+          <td>{{ app.id }}</td>
+          <td>{{ app.applicant.first_name }} {{ app.applicant.last_name }}</td>
           <td>
             {% include 'administrators/util/_display_app_status.html' with data=app %}
           </td>
@@ -46,9 +45,6 @@
       {% endfor %}
     </tbody>
   </table>
-
-  <a href="{% url 'administrators:progress_jobs' %}">Go back to Jobs in Progress</a>
-
 </div>
 
 {% endblock %}

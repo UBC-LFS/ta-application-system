@@ -1,24 +1,22 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
-
-{% include 'administrators/util/_sidebar.html' %}
+{% include "ta_app/sidebars/_administrator_sidebar.html" %}
 
 <div id="content" class="container-fluid">
-
-  <h3>Dashboard</h3>
+  {% include 'ta_app/pages/_header.html' with title='Dashboard' %}
 
   <h5 class="text-secondary">Application Status: Get a glance</h5>
   <table class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center" data-toggle="table" data-sortable="true" data-classes="" data-pagination="true" data-search="true" data-page-size="50" data-page-list="[50, 100, 200, All]">
     <thead>
       <tr>
-        <th data-sortable="true">Status ID</th>
+        <th data-sortable="true">Status<br /> ID</th>
         <th data-sortable="true">Status</th>
         <th data-sortable="true">Applicant</th>
         <th data-sortable="true">CWL</th>
         <th data-sortable="true">Year</th>
         <th data-sortable="true">Term</th>
         <th data-sortable="true">Job</th>
-        <th data-sortable="true">Application ID</th>
+        <th data-sortable="true">Application<br /> ID</th>
         <th data-sortable="true">Created at</th>
       </tr>
     </thead>
@@ -43,17 +41,17 @@
           </td>
           <td>{{ st.application.applicant.first_name }} {{ st.application.applicant.last_name }}</td>
           <td>
-            <a href="{% url 'show_user' username=st.application.applicant.username path='student' portal='Admin' %}">{{ st.application.applicant.username }}</a>
+            <a href="{% url 'administrators:show_user' username=st.application.applicant.username path='dashboard' %}">{{ st.application.applicant.username }}</a>
           </td>
           <td>{{ st.application.job.session.year }}</td>
           <td>{{ st.application.job.session.term.code }}</td>
           <td>
-            <a href="{% url 'show_job' session_slug=st.application.job.session.slug job_slug=st.application.job.course.slug path='dashboard' portal='Admin' %}">
+            <a href="{% url 'administrators:show_job' session_slug=st.application.job.session.slug job_slug=st.application.job.course.slug path='applications_dashboard' %}">
               {{ st.application.job.course.code.name }} {{ st.application.job.course.number.name }} {{ st.application.job.course.section.name }}
             </a>
           </td>
           <td>
-            <a href="{% url 'show_application' app_slug=st.application.slug path='dashboard' portal='Admin' %}">{{ st.application.id }}</a>
+            <a href="{% url 'administrators:show_application' app_slug=st.application.slug path='dashboard' %}">{{ st.application.id }}</a>
           </td>
           <td>{{ st.created_at }}</td>
         </tr>
@@ -86,10 +84,10 @@
           {% endif %}
         </td>
         <td>
-          <a href="{% url 'administrators:show_user' username=app.applicant.username role='administrator' %}">{{ app.applicant.first_name }} {{ app.applicant.last_name }}</a>
+          <a href="{% url 'administrators:show_user' username=app.applicant.username path='applications_dashboard' %}">{{ app.applicant.first_name }} {{ app.applicant.last_name }}</a>
         </td>
         <td>
-          <a href="{% url 'administrators:show_application' app_slug=app.slug path='dashboard' %}">{{ app.id }}</a>
+          <a href="{% url 'administrators:show_application' app_slug=app.slug %}">{{ app.id }}</a>
         </td>
         <td>{{ app.updated_at }}</td>
       </tr>

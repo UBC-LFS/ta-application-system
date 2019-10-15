@@ -1,16 +1,28 @@
 {% if data == 'prepare' %}
-  <a class="btn btn-outline-primary btn-block" href="{% url 'administrators:prepare_jobs' %}">Go back to Prepare Jobs</a>
+  <a class="btn btn-outline-primary" href="{% url 'administrators:prepare_jobs' %}">Go back to Prepare Jobs</a>
+
 {% elif data == 'progress' %}
-  <a class="btn btn-outline-primary btn-block" href="{% url 'administrators:progress_jobs' %}">Go back to Jobs in Progress</a>
-{% elif data == 'current' or data == 'archived' %}
-  <a class="btn btn-outline-primary btn-block" href="{% url 'administrators:show_session' session_slug=job_data.session.slug path=data %}">
-    Back to
-    {% if data == 'current' %} Current
-    {% else %} Archived
-    {% endif %}
-    Session Details
-  </a>
+  <a class="btn btn-outline-primary" href="{% url 'administrators:progress_jobs' %}">Go back to Jobs in Progress</a>
+
+{% elif data == 'dashboard' %}
+  <a class="btn btn-outline-primary" href="{% url 'administrators:applications_dashboard' %}">Go back to Dashboard</a>
+
+{% elif data == 'all' %}
+  <a class="btn btn-outline-primary" href="{% url 'administrators:all_applications' %}">Go back to All Applications</a>
+
+{% elif data == 'selected' %}
+  <a class="btn btn-outline-primary" href="{% url 'administrators:selected_applications' %}">Go back to Selected Applications</a>
+
+{% elif data == 'offered' %}
+  <a class="btn btn-outline-primary" href="{% url 'administrators:offered_applications' %}">Go back to Offered Applications</a>
+
+{% elif data == 'accepted' %}
+  <a class="btn btn-outline-primary" href="{% url 'administrators:accepted_applications' %}">Go back to Accepted Applications</a>
+
+{% elif data == 'declined' %}
+  <a class="btn btn-outline-primary" href="{% url 'administrators:declined_applications' %}">Go back to Declined Applications</a>
+
 {% else %}
-  <a class="btn btn-outline-primary btn-block" href="{% url 'administrators:jobs' %}">Go back to Jobs</a>
+  <a class="btn btn-outline-primary" href="{% url 'administrators:jobs' %}">Go back to Jobs</a>
 
 {% endif %}

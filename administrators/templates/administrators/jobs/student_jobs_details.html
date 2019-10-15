@@ -1,175 +1,202 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
-
-{% include "administrators/util/_sidebar.html" %}
+{% include "ta_app/sidebars/_administrator_sidebar.html" %}
 
 <div id="content" class="container-fluid">
+  {% include 'ta_app/pages/_header.html' with title='Student Jobs' %}
 
-  <h3>Student Jobs and Details</h3>
+  <div class="mb-4"><a class="btn btn-outline-primary" href="{% url 'administrators:student_jobs' %}">Go back to Jobs by Student</a></div>
 
-  <div>Student ID: {{ student.id }}</div>
-  <div>First Name: {{ student.first_name }}</div>
-  <div>Last Name: {{ student.last_name }}</div>
-  <div>Preferred Name: {{ student.profile.preferred_name }}</div>
-  <div>CWL: {{ student.username }}</div>
-  <div>E-mail: {{ student.email }}</div>
-
-  <hr />
-
-  <h3>Offered Jobs</h3>
-
-  		<h5>Summary</h5>
-  		<table class="table">
-  		  <thead>
-  		    <tr>
-  		      <th>Year-Term</th>
-  		      <th>Total Assigned Hours</th>
-  		    </tr>
-  		  </thead>
-  		  <tbody>
-  		    {% for year_term, assigned_hours in offered_summary.items %}
-  		      <tr>
-  		        <td>{{ year_term }}</td>
-  		        <td>{{ assigned_hours }} hours</td>
-  		      </tr>
-  		    {% empty %}
-  		      <tr>
-  		        <td colspan="2">No summary available</td>
-  		      </tr>
-  		    {% endfor %}
-  		  </tbody>
-  		</table>
-
-  		<h5>List</h5>
-  		<table class="table">
-  		  <thead>
-  		    <tr>
-  		      <th>Year</th>
-  		      <th>Term</th>
-  		      <th>Job</th>
-  		      <th>Assigned Status</th>
-  		      <th>Assigned Hours</th>
-  		    </tr>
-  		  </thead>
-  		  <tbody>
-  		    {% for job in offered_jobs %}
-  		    <tr>
-  		      <td>{{ job.year }}</td>
-  		      <td>{{ job.term }}</td>
-  		      <td>{{ job.course_code }} {{ job.course_number }} {{ job.course_section }}</td>
-  		      <td>{{ job.assigned_status }}</td>
-  		      <td>{{ job.assigned_hours }} hours</td>
-  		    </tr>
-  		    {% empty %}
-  		      <tr>
-  		        <td colspan="3">No offered jobs found</td>
-  		      </tr>
-  		    {% endfor %}
-  		  </tbody>
-  		</table>
-
-  <hr />
-
-  <h3>Accpeted Jobs</h3>
-
-  <h5>Summary</h5>
-  <table class="table">
-    <thead>
+  <div class="d-inline-block bg-light-gray p-4 mb-4">
+    <h5 class="text-primary">Student Infomation</h5>
+    <table>
       <tr>
-        <th>Year-Term</th>
-        <th>Total Assigned Hours</th>
+        <td>Name:</td>
+        <td>{{ user.get_full_name }}</td>
       </tr>
-    </thead>
-    <tbody>
-      {% for year_term, assigned_hours in accepted_summary.items %}
-        <tr>
-          <td>{{ year_term }}</td>
-          <td>{{ assigned_hours }} hours</td>
-        </tr>
-      {% empty %}
-        <tr>
-          <td colspan="2">No summary available</td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-
-  <h5>List</h5>
-  <table class="table">
-    <thead>
       <tr>
-        <th>Year</th>
-        <th>Term</th>
-        <th>Job</th>
-        <th>Assigned Status</th>
-        <th>Assigned Hours</th>
+        <td>CWL:</td>
+        <td>{{ user.username }}</td>
       </tr>
-    </thead>
-    <tbody>
-      {% for job in accepted_jobs %}
       <tr>
-        <td>{{ job.year }}</td>
-        <td>{{ job.term }}</td>
-        <td>{{ job.course_code }} {{ job.course_number }} {{ job.course_section }}</td>
-        <td>{{ job.assigned_status }}</td>
-        <td>{{ job.assigned_hours }} hours</td>
+        <td>E-mail:</td>
+        <td>{{ user.email }}</td>
       </tr>
-      {% empty %}
-        <tr>
-          <td colspan="3">No accepted jobs found</td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+    </table>
+  </div>
 
+  <ul class="nav nav-tabs" id="myTab" role="tablist">
+    <li class="nav-item">
+      <a class="nav-link active" id="all-applications-tab" data-toggle="tab" href="#all-applications" role="tab" aria-controls="all-applications" aria-selected="false">All Applications</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" id="offered-jobs-tab" data-toggle="tab" href="#offered-jobs" role="tab" aria-controls="offered-jobs" aria-selected="true">Offered Jobs</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" id="accepted-jobs-tab" data-toggle="tab" href="#accepted-jobs" role="tab" aria-controls="accepted-jobs" aria-selected="false">Accpeted Jobs</a>
+    </li>
+  </ul>
+  <div class="tab-content" id="myTabContent">
+    <div class="tab-pane fade show active" id="all-applications" role="tabpanel" aria-labelledby="all-applications-tab">
+      <h3 class="text-info mt-5 mb-3">
+        All Applications
+        <small class="text-muted">(Total: {{ user.application_set.all|length }})</small>
+      </h3>
+      <table class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center" data-toggle="table" data-sortable="true" data-classes="" data-pagination="true" data-search="true">
+        <thead>
+          <tr>
+            <th>application<br /> ID</th>
+            <th>Year</th>
+            <th>Term</th>
+            <th>Job</th>
+            <th>Assigned<br /> TA Hours</th>
+            <th>Applicant's<br /> TA Hours</th>
+            <th>Status</th>
+            <th>Created at</th>
+            <th>Updated at</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for app in user.application_set.all %}
+            <tr>
+              <td>{{ app.id }}</td>
+              <td>{{ app.job.session.year }}</td>
+              <td>{{ app.job.session.term.code }}</td>
+              <td>{{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</td>
+              <td>{{ app.job.assigned_ta_hours }} hours</td>
+              <td>{{ app.job.ta_hours }} hours</td>
+              <td>
+                <ul>
+                  {% for st in app.applicationstatus_set.all %}
+                    <li>{{ st.get_assigned_display }}: {{ st.assigned_hours }} hours on {{ st.created_at }}</li>
+                  {% empty %}
+                    <li>No status found</li>
+                  {% endfor %}
+                </ul>
+              </td>
+              <td>{{ app.created_at }}</td>
+              <td>{{ app.updated_at }}</td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="6">No jobs found</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="tab-pane fade" id="offered-jobs" role="tabpanel" aria-labelledby="offered-jobs-tab">
+      <h4 class="text-info mt-5 mb-3">Offered Jobs</h4>
 
-  <hr />
+      <h5 class="text-secondary">Summary</h5>
+      <table class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center">
+        <thead>
+          <tr>
+            <th>Year-Term</th>
+            <th>Total Assigned Hours</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for year_term, assigned_hours in offered_total_assigned_hours.items %}
+            <tr>
+              <td>{{ year_term }}</td>
+              <td>{{ assigned_hours }} hours</td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="2">No total assigned hours available</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
 
-  <h3>Applications</h3>
-  <table class="table table-responsive">
-    <thead>
-      <tr>
-        <th>Application ID</th>
-        <th>Year</th>
-        <th>Term</th>
-        <th>Job</th>
-        <th>Assigned TA Hours</th>
-        <th>Applicant TA Hours</th>
-        <th>Status</th>
-        <th>Created at</th>
-        <th>Updated at</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for app in student.application_set.all %}
-        <tr>
-          <td>{{ app.id }}</td>
-          <td>{{ app.job.session.year }}</td>
-          <td>{{ app.job.session.term.code }}</td>
-          <td>{{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</td>
-          <td>{{ app.job.assigned_ta_hours }} hours</td>
-          <td>{{ app.job.ta_hours }} hours</td>
-          <td>
-            <ul>
-              {% for st in app.applicationstatus_set.all %}
-                <li>{{ st.get_assigned_display }}: {{ st.assigned_hours }} hours on {{ st.created_at }}</li>
-              {% empty %}
-                <li>No status found</li>
-              {% endfor %}
-            </ul>
-          </td>
-          <td>{{ app.created_at }}</td>
-          <td>{{ app.updated_at }}</td>
-        </tr>
-      {% empty %}
-        <tr>
-          <td colspan="6">No jobs found</td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+      <h5 class="text-secondary">List</h5>
+      <table class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center">
+        <thead>
+          <tr>
+            <th>Year</th>
+            <th>Term</th>
+            <th>Job</th>
+            <th>Assigned Status</th>
+            <th>Assigned Hours</th>
+            <th>Offered at</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for app in offered_apps %}
+          <tr>
+            <td>{{ app.job.session.year }}</td>
+            <td>{{ app.job.session.term.code }}</td>
+            <td>{{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</td>
+            <td>{{ app.offered.get_assigned_display }}</td>
+            <td>{{ app.offered.assigned_hours }} hours</td>
+            <td>{{ app.offered.created_at }}</td>
+          </tr>
+          {% empty %}
+            <tr>
+              <td colspan="3">No offered jobs found</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
 
-  <a href="{% url 'administrators:student_jobs' %}">Go back to Jobs by Student</a>
+    </div>
+    <div class="tab-pane fade" id="accepted-jobs" role="tabpanel" aria-labelledby="accepted-jobs-tab">
+      <h3 class="text-info mt-5 mb-3">Accpeted Jobs</h3>
+
+      <h5 class="text-secondary">Summary</h5>
+      <table class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center">
+        <thead>
+          <tr>
+            <th>Year-Term</th>
+            <th>Total Assigned Hours</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for year_term, assigned_hours in accepted_total_assigned_hours.items %}
+            <tr>
+              <td>{{ year_term }}</td>
+              <td>{{ assigned_hours }} hours</td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="2">No total assigned hours available</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <h5 class="text-secondary">List</h5>
+      <table class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center">
+        <thead>
+          <tr>
+            <th>Year</th>
+            <th>Term</th>
+            <th>Job</th>
+            <th>Assigned Status</th>
+            <th>Assigned Hours</th>
+            <th>Accepted at</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for app in accepted_apps %}
+          <tr>
+            <td>{{ app.job.session.year }}</td>
+            <td>{{ app.job.session.term.code }}</td>
+            <td>{{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</td>
+            <td>{{ app.accepted.get_assigned_display }}</td>
+            <td>{{ app.accepted.assigned_hours }} hours</td>
+            <td>{{ app.accepted.created_at }}</td>
+          </tr>
+          {% empty %}
+            <tr>
+              <td colspan="3">No accepted jobs found</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
 
 </div>
 

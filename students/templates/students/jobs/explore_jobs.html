@@ -1,47 +1,55 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
+{% load static %}
+{% include "ta_app/sidebars/_student_sidebar.html" %}
 
-<div class="wrapper">
-	{% include "students/util/_sidebar.html" %}
+<div id="content" class="container-fluid">
+	{% include 'ta_app/_return_messages.html' with data=messages %}
 
-	<div id="content" class="container-fluid">
-		{% if messages %}
-			{% for message in messages %}
-				<div class="alert alert-info">{{ message }}</div>
-			{% endfor %}
-		{% endif %}
+	{% include 'ta_app/pages/_header.html' with title='Explore Jobs' %}
 
-			<div class="row">
-				<div class="col-7">
-					<div class="row">
-						{% for session in visible_current_sessions %}
-							<div class="card margin-top-30 padding-20">
-								<h5><a href="{% url 'students:available_jobs' session.slug %}">{{ session.year }} {{ session.term.name }} {{ session.title }}</a></h5>
-								<p class="margin-bottom-0">Number of jobs: {{ session.job_set.count }}</p>
-								<p class="margin-bottom-0">Description: {{ session.description }}</p>
-								<p>Note: {{ session.note }}</p>
-							</div>
-						{% empty %}
-							No current sessions found.
-						{% endfor %}
+	<div class="row">
+		<div class="col-md-7">
+			{% for session in visible_current_sessions %}
+
+				<div class="card p-3 m-3">
+					<div>
+						<img class="d-inline-block" src="{% static 'ta_app/images/UBClogo.jpeg' %}" width="30" alt="ubc logo" />
+						<h6 class="d-inline-block">{{ session.year }} {{ session.term.name }} ({{ session.term.code }})</h6>
+					</div>
+					<hr class="mt-1 mb-0" />
+					<div>
+						<h5><a href="{% url 'students:available_jobs' session.slug %}">{{ session.title }} ({{ session.job_set.count }})</a></h5>
+						{% if session.description %}
+							<div class="text-secondary">{{ session.description }}</div>
+						{% endif %}
+
+						{% if session.note %}
+							<small class="text-muted">Note: {{ session.note }}</small>
+						{% endif %}
 					</div>
 				</div>
 
-				<div class="col-5">
-					<h4>Summary of applied jobs</h4>
-					<ul>
-						{% for job in applied_jobs %}
-							<li>{{ job.session.year }} {{ job.session.term.code }} - {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</li>
-						{% empty %}
-							<li>No applied jobs found</li>
-						{% endfor %}
-					</ul>
-				</div>
+			{% empty %}
 
-			</div>
+				<div class="alert alert-primary" role="alert">No current sessions found.</div>
 
+			{% endfor %}
 		</div>
+
+		<div class="col-md-5">
+			<h5 class="text-info">Recent Applied Jobs</h5>
+			<ul class="text-secondary">
+				{% for job in applied_jobs %}
+					<li>{{ job.session.year }} {{ job.session.term.code }} - {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</li>
+				{% empty %}
+					<li>No applied jobs found</li>
+				{% endfor %}
+			</ul>
+		</div>
+
 	</div>
+
 </div>
 
 {% endblock %}

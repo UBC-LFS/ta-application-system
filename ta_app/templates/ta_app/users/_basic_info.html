@@ -1,0 +1,23 @@
+<section class="my-4">
+  <div class="mb-4">
+    <h5>CWL:</h5>
+    <span class="text-secondary">{{ data.username }}</span>
+  </div>
+  <div class="mb-4">
+    <h5>Preferred name:</h5>
+    <span class="text-secondary">{{ data.profile.preferred_name }}</span>
+  </div>
+  <div class="mb-4">
+    <h5>UBC Number:</h5>
+    <span class="text-secondary">{{ data.profile.ubc_number }}</span>
+  </div>
+  <div class="mb-4">
+    <h5>E-mail:</h5>
+    <span class="text-secondary">{{ data.email }}</span>
+  </div>
+
+  <small class="text-muted">
+    Date Joined at {{ data.date_joined }} <span class="mx-2">|</span>
+    Last Login at {{ data.last_login }}
+  </small>
+</section>

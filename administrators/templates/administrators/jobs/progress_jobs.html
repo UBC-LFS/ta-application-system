@@ -1,13 +1,9 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
-
-<div class="wrapper">
-  {% include 'administrators/util/_sidebar.html' %}
+{% include "ta_app/sidebars/_administrator_sidebar.html" %}
 
   <div id="content" class="container-fluid">
-
-    <h3>Jobs in Progress</h3>
-    <small>Total: {{ jobs|length }}</small>
+    {% include 'ta_app/pages/_header.html' with title='Jobs in Progress' text=jobs|length %}
 
     <table
       class="table table-sm table-striped"
@@ -25,26 +21,26 @@
     >
       <thead>
         <tr>
-          <th data-sortable="true">Job ID</th>
+          <th data-sortable="true">ID</th>
           <th data-sortable="true">Year</th>
           <th data-sortable="true">Term</th>
           <th data-sortable="true">Job</th>
           <th data-sortable="true">Applications</th>
-          <th data-sortable="true"># of Offered</th>
-          <th data-sortable="true"># of Accepted</th>
-          <th data-sortable="true"># of Declined</th>
-          <th data-sortable="true">Assigned TA Hours</th>
-          <th data-sortable="true">Applicants' TA Hours</th>
+          <th data-sortable="true"># of <br />Offered</th>
+          <th data-sortable="true"># of <br />Accepted</th>
+          <th data-sortable="true"># of <br />Declined</th>
+          <th data-sortable="true">Assigned <br />TA Hours</th>
+          <th data-sortable="true">Applicants' <br />TA Hours</th>
           <th data-sortable="true">Active</th>
-          <th>Created at</th>
-          <th>Updated at</th>
+          <th data-sortable="true">Created at</th>
+          <th data-sortable="true">Updated at</th>
         </tr>
       </thead>
       <tbody>
         {% for job in jobs %}
           <tr>
             <td>
-              <a href="{% url 'show_job' session_slug=job.session.slug job_slug=job.course.slug path='progress' portal='Admin' %}">{{ job.id }}</a>
+              <a href="{% url 'administrators:show_job' session_slug=job.session.slug job_slug=job.course.slug path='progress' %}">{{ job.id }}</a>
             </td>
             <td>{{ job.session.year }}</td>
             <td>{{ job.session.term.code }}</td>
@@ -65,13 +61,10 @@
             <td>{{ job.created_at }}</td>
             <td>{{ job.updated_at }}</td>
           </tr>
-          {% empty %}
-            No jobs found
         {% endfor %}
       </tbody>
     </table>
 
   </div>
-</div>
 
 {% endblock %}

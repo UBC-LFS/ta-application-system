@@ -1,60 +1,83 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
 
-<div class="wrapper">
-  {% include 'administrators/util/_sidebar.html' %}
+{% include 'administrators/util/_sidebar.html' %}
 
-  <div id="content" class="container-fluid">
-    <h3>Decline and Reassign</h3>
+<div id="content" class="container-fluid">
+  <h3>Decline and Re-assign</h3>
 
-    {% if app %}
-      <h5>
-        {{ app.job.session.year }} {{ app.job.session.term.code }} -
-        {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}
-      </h5>
-
-      <div>Application ID: {{ app.id }}</div>
-      <div>Slug: {{ app.slug }}</div>
-      <div>Name: {{ app.applicant.first_name }} {{ app.applicant.last_name }}</div>
-      <div>CWL: {{ app.applicant.username }}</div>
-
-      <h2>Confirmation: Are you sure to decline and re-assign?</h2>
+  {% if app %}
+    <section class="mt-4 mb-5 text-secondary">
       <div>
-        Current Assigned hours: {{ old_assigned_hours }} hours -> New Assigned hours: {{ new_assigned_hours }} hours
+        <span class="font-weight-bold">User:</span>
+        {{ app.applicant.get_full_name }} ({{ app.applicant.username }})
       </div>
-
-      <h5>Result</h5>
-
       <div>
-        <h5>Current Status</h5>
-        <div>Assigned TA hours: {{ app.job.assigned_ta_hours }} hours</div>
-        <div>Applicants' TA hours: {{ app.job.ta_hours }} hours</div>
+        <span class="font-weight-bold">Application (ID: {{ app.id }}):</span>
+        <span>
+          {{ app.job.session.year }} {{ app.job.session.term.code }} -
+          {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}
+        </span>
+      </div>
+    </section>
+
+    <section class="mb-5">
+      <h3 class="text-info">Are you sure to decline and re-assign?</h3>
+
+      <div class="alert alert-success mt-4 d-inline-block" role="alert">
+        <i class="fa fa-info-circle" aria-hidden="true"></i>
+        Assigned hours will change
+        from <span class="font-weight-bold text-danger">{{ old_assigned_hours }}</span> hours
+        to <span class="font-weight-bold text-danger">{{ new_assigned_hours }}</span> hours.
       </div>
 
-      <div>
-        <h5>New Status</h5>
-        <div>Assigned TA hours: {{ app.job.assigned_ta_hours }} hours</div>
-        <div>Applicants' TA hours: {{ new_ta_hours }} hours ({{ app.job.ta_hours }} - {{ old_assigned_hours }} + {{ new_assigned_hours }})</div>
+      <div class="">
+        <div class="d-inline-block">
+          <h5>Current</h5>
+          <div>
+            Assigned TA hours:
+            <span class="font-weight-bold">{{ app.job.assigned_ta_hours }}</span> hours
+          </div>
+          <div>
+            Accumulated TA hours:
+            <span class="font-weight-bold">{{ app.job.ta_hours }}</span> hours
+          </div>
+        </div>
+        <div class="d-inline-block ml-3 mr-3">
+          <h3 class="text-danger"><i class="fa fa-long-arrow-right" aria-hidden="true"></i></h3>
+        </div>
+        <div class="d-inline-block">
+          <h5>New</h5>
+          <div>
+            Assigned TA hours:
+            <span class="font-weight-bold">{{ app.job.assigned_ta_hours }}</span> hours
+          </div>
+          <div>
+            Accumulated TA hours: <span class="font-weight-bold">{{ new_ta_hours }}</span> hours
+            ({{ app.job.ta_hours }} - {{ old_assigned_hours }} + {{ new_assigned_hours }})
+          </div>
+        </div>
       </div>
+    </section>
 
-      <hr />
+    <form action="" method="post">
+      {% csrf_token %}
 
-      <form action="" method="post">
-        {% csrf_token %}
-        <div>Assigned hours: {{ new_assigned_hours }} hours</div>
-        <input type="hidden" name="application" value="{{ app.id }}" />
-        <input type="hidden" name="old_assigned_hours" value="{{ old_assigned_hours }}" />
-        <input type="hidden" name="new_assigned_hours" value="{{ new_assigned_hours }}" />
-        <input type="submit" value="Confirm to decline and reassign" />
-      </form>
+      <h4>New Assigned hours: {{ new_assigned_hours }} hours</h4>
 
-      <a href="{% url 'administrators:accepted_applications' %}">Go back to Accepted Applications</a>
-    {% else %}
-      <div class="alert alert-danger" role="alert">
-        Please select any one of Accepted Applications to decline and re-assign a job offer with assgiend hours, and try again.
-      </div>
-    {% endif %}
-  </div>
+      <input type="hidden" name="application" value="{{ app.id }}" />
+      <input type="hidden" name="old_assigned_hours" value="{{ old_assigned_hours }}" />
+      <input type="hidden" name="new_assigned_hours" value="{{ new_assigned_hours }}" />
+      <input class="btn btn-primary" type="submit" value="Confirm to decline and re-assign" />
+    </form>
+
+    <a class="btn btn-outline-primary mt-5" href="{% url 'administrators:accepted_applications' %}">Go back to Accepted Applications</a>
+
+  {% else %}
+    <div class="alert alert-danger" role="alert">
+      Please select any one of Accepted Applications to decline and re-assign a job offer with assigned hours, and try again.
+    </div>
+  {% endif %}
 </div>
 
 {% endblock %}

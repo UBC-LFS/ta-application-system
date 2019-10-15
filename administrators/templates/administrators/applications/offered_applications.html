@@ -1,12 +1,11 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
-
-{% include 'administrators/util/_sidebar.html' %}
+{% include "ta_app/sidebars/_administrator_sidebar.html" %}
 
 <div id="content" class="container-fluid">
   {% include 'ta_app/_return_messages.html' with data=messages %}
 
-  <h3>Offered Applications</h3>
+  {% include 'ta_app/pages/_header.html' with title='Offered Applications' text=offered_applications|length %}
 
   {% if offered_applications|length > 0 %}
     <form action="{% url 'administrators:offered_applications_send_email' %}" method="post">
@@ -45,17 +44,17 @@
           {% for app in offered_applications %}
             <tr>
               <td>
-                <a href="{% url 'show_application' app_slug=app.slug path='offered' portal='Admin' %}">{{ app.id }}</a>
+                <a href="{% url 'administrators:show_application' app_slug=app.slug path='offered' %}">{{ app.id }}</a>
               </td>
               <td>{{ app.job.session.year }}</td>
               <td>{{ app.job.session.term.code }}</td>
               <td>
-                <a href="{% url 'show_job' session_slug=app.job.session.slug job_slug=app.job.course.slug path='offered' portal='Admin' %}">
+                <a href="{% url 'administrators:show_job' session_slug=app.job.session.slug job_slug=app.job.course.slug path='offered' %}">
                   {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}
                 </a>
               </td>
               <td>
-                <a href="{% url 'show_user' username=app.applicant.username path='student' portal='Admin' %}">{{ app.applicant.first_name }} {{ app.applicant.last_name }}</a>
+                <a href="{% url 'administrators:show_user' username=app.applicant.username path='offered' %}">{{ app.applicant.first_name }} {{ app.applicant.last_name }}</a>
               </td>
               <td>
                 {{ app.applicationstatus_set.all.last.get_assigned_display }}
@@ -78,7 +77,7 @@
         </tbody>
       </table>
 
-      <div>
+      <div class="mt-4 mb-4">
         <h5>Select Email Type:</h5>
         <label class="radio-inline"><input type="radio" name="email_type" value="type1" checked />Type 1</label>
         <label class="radio-inline"><input type="radio" name="email_type" value="type2" />Type 2</label>

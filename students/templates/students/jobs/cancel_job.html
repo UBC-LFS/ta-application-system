@@ -1,0 +1,46 @@
+{% extends 'ta_app/base.html' %}
+{% block content %}
+{% include "ta_app/sidebars/_student_sidebar.html" %}
+
+<div id="content" class="container-fluid">
+  {% include 'ta_app/pages/_header.html' with title='Cancel an Accepted Job' %}
+
+  <div><a class="btn btn-outline-primary" href="{% url 'students:accepted_jobs' %}">Go back to Accepted Jobs</a></div>
+
+  <h5 class="mt-5">{{ app.job.session.year }} {{ app.job.session.term.name }} ({{ app.job.session.term.code }})</h5>
+  <h4 class="mb-5">
+    {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }} <br />
+    <small class="text-muted">- {{ data.job.course.name }}</small>
+  </h4>
+  
+  {% if app.cancelled %}
+
+    <div class="d-inline-block">
+      <div class="alert alert-danger" role="alert">You've already cancelled this accepted job.</div>
+    </div>
+
+  {% else %}
+
+    <div class="bd-callout bd-callout-warning">
+      <h5>Confirmation</h5>
+      <p>Text area</p>
+    </div>
+
+    <h4 class="text-info">Are you sure to cancel this accepted job?</h4>
+    <p class="text-secondary">Please click the Cancel button below if you would like to cancel your job.</p>
+
+    <form action="" method="post" onsubmit="return confirm('Are you sure to cancel this accepted job: {{ app.job.session.year}} {{ app.job.session.term.code }} - {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}?')">
+      {% csrf_token %}
+      <input type="hidden" name="assigned_hours" value="{{ app.status.assigned_hours }}" />
+      <input type="hidden" name="application" value="{{ app.id }}" />
+
+      <input class="btn btn-danger" type="submit" value="Confirm to cancel this accepted job" />
+    </form>
+
+    <div class="mt-5 text-secondary">If not, please click the Back button below.</div>
+    <a class="btn btn-outline-primary" href="{% url 'students:accepted_jobs' %}">Go back to Accepted Jobs</a>
+  {% endif %}
+
+</div>
+
+{% endblock %}

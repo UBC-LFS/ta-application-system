@@ -1,34 +1,48 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
-
-{% include "administrators/util/_sidebar.html" %}
+{% include "ta_app/sidebars/_administrator_sidebar.html" %}
 
 <div id="content" class="container-fluid">
 	{% include 'ta_app/_return_messages.html' with data=messages %}
 
-	<h3>Create User</h3>
+	{% include 'ta_app/pages/_header.html' with title='Create User' %}
 
 	<form action="" method="post">
 		{% csrf_token %}
-		<table>{{ user_form.as_table }}</table>
+		{% for field in form.visible_fields  %}
+			<div class="field-wrapper my-4">
+				{{ field.label_tag }}
+				{% if field.help_text %}
+					<div class="help">{{ field.help_text|safe }}</div>
+				{% endif %}
+				{{ field }}
+			</div>
+		{% endfor %}
 
-		<div>
+		{% for field in form.hidden_fields %}
+			{{ field }}
+		{% endfor %}
+
+		<div class="field-wrapper my-4">
 			<label for="id_preferred_name">Preferred Name (Optional):</label>
 			<input type="text" name="preferred_name" id="id_preferred_name" />
 		</div>
 
-    <div>
+    <div class="field-wrapper my-4">
 			<label for="id_ubc_number">UBC Number:</label>
 			<input type="text" name="ubc_number" id="id_ubc_number" />
 		</div>
 
-		<h5>Roles:</h5>
-		{% for role in roles %}
-			<div>
-				<input type="checkbox" name="roles" value="{{ role.id }}" /> {{ role.name }}
-			</div>
-		{% endfor %}
-		<input type="submit" value="Create" />
+		<div class="field-wrapper my-4">
+			<label for="id_roles">Roles:</label>
+			{% for role in roles %}
+				<div>
+					<input type="checkbox" name="roles" value="{{ role.id }}" /> {{ role.name }}
+				</div>
+			{% endfor %}
+		</div>
+
+		<input class="btn btn-primary" type="submit" value="Create" />
 	</form>
 </div>
 

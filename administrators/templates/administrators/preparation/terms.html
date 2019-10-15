@@ -1,89 +1,82 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
-
-
-{% include "administrators/util/_sidebar.html" %}
+{% include "ta_app/sidebars/_administrator_sidebar.html" %}
 
 <div id="content" class="container-fluid">
-
   {% include 'ta_app/_return_messages.html' with data=messages %}
 
-  <h3>Terms</h3>
+  {% include 'ta_app/pages/_header.html' with title='Terms' text=terms|length %}
 
-  <h5 class="margin-top-30">Terms</h5>
+  <div class="my-5">
+    <h5>Create Term</h5>
+    <form action="" method="post">
+      {% csrf_token %}
+      <table>{{ form.as_table }}</table>
+      <input class="btn btn-primary mt-3" value="Create" type="submit" />
+    </form>
+  </div>
 
-  <table
-    class="table table-sm table-striped"
-    data-toggle="table"
-    data-sortable="true"
-    data-classes=""
-    data-pagination="true"
-    data-search="true"
-    data-page-size="50"
-    data-page-list="[50, 100, 200, All]"
-    data-show-export="true"
-    data-click-to-select="true"
-    data-show-toggle="true"
-    data-show-columns="true"
-  >
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Code</th>
-        <th>Name</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for term in terms %}
+  <div class="d-inline-block">
+    <table class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center">
+      <thead>
         <tr>
-          <td>{{ term.id }}</td>
-          <td>{{ term.code }}</td>
-          <td>{{ term.name }}</td>
-          <td>
-            <button class="btn btn-sm btn-warning" type="button" data-toggle="modal" data-target="#term-edit-modal-{{ term.id }}">Edit</button>
-            <div class="modal fade" id="term-edit-modal-{{ term.id }}" tabindex="-1" role="dialog" aria-labelledby="term-edit-modal-label-{{ term.id }}" aria-hidden="true">
-      			  <div class="modal-dialog modal-lg" role="document">
-      			    <div class="modal-content">
-      			      <div class="modal-header">
-      			        <h5 class="modal-title" id="term-edit-modal-label-{{ term.id }}">Edit a Term</h5>
-      			        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-      			      </div>
-      			      <div class="modal-body">
-      							<form action="{% url 'administrators:edit_term' term.code %}" method="post">
-      								{% csrf_token %}
-                      <div>
-                        <label for="code">Code:</label>
-                        <input type="text" name="code" maxlength="2" value="{{ term.code }}" />
-                      </div>
-                      <div>
-                        <label for="name">Name:</label>
-                        <input type="text" name="name" maxlength="256" value="{{ term.name }}" />
-                      </div>
-      								<input type="submit" value="Update" />
-      							</form>
-      			      </div>
-      			    </div>
-      			  </div>
-      			</div>
-
-            <form action="{% url 'administrators:delete_term' %}" method="post" onsubmit="return confirm('Are you sure to delete {{ term.code }} - {{ term.name }}?');">
-    					{% csrf_token %}
-              <input type="hidden" name="term" value="{{ term.id }}">
-    					<input class="btn btn-sm btn-danger" type="submit" value="Delete" />
-    				</form>
-          </td>
+          <th>ID</th>
+          <th>Code</th>
+          <th>Name</th>
+          <th>Actions</th>
         </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+        {% for term in terms %}
+          <tr>
+            <td>{{ term.id }}</td>
+            <td>{{ term.code }}</td>
+            <td>{{ term.name }}</td>
+            <td>
+              <div class="btn-toolbar">
+                <button class="btn btn-sm btn-warning mr-2" type="button" data-toggle="modal" data-target="#term-edit-modal-{{ term.id }}">Edit</button>
 
-  <h5>Create a term</h5>
-  <form action="" method="post">
-    {% csrf_token %}
-    <table>{{ form.as_table }}</table>
-    <input value="Create" type="submit" />
-  </form>
+                <div class="modal fade" id="term-edit-modal-{{ term.id }}" tabindex="-1" role="dialog" aria-labelledby="term-edit-modal-label-{{ term.id }}" aria-hidden="true">
+                  <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="term-edit-modal-label-{{ term.id }}">Edit Term</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                      </div>
+                      <div class="modal-body text-left">
+                        <form action="{% url 'administrators:edit_term' term.code %}" method="post">
+                          {% csrf_token %}
+
+                          <table class="table table-borderless">
+                            <tr>
+                              <td><label for="id_code" class="font-weight-bold">Code:</label></td>
+                              <td><input id="id_code" type="text" name="code" maxlength="2" value="{{ term.code }}" /></td>
+                            </tr>
+                            <tr>
+                              <td><label for="id_name" class="font-weight-bold">Name:</label></td>
+                              <td><input id="id_name" type="text" name="name" maxlength="256" value="{{ term.name }}" /></td>
+                            </tr>
+                          </table>
+
+                          <input class="btn btn-warning" type="submit" value="Update Term" />
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <form action="{% url 'administrators:delete_term' %}" method="post" onsubmit="return confirm('Are you sure to delete {{ term.code }} - {{ term.name }}?');">
+                  {% csrf_token %}
+                  <input type="hidden" name="term" value="{{ term.id }}" />
+                  <input class="btn btn-sm btn-danger" type="submit" value="Delete" />
+                </form>
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 
 </div>
 

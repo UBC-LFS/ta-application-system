@@ -1,53 +1,78 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
+{% include "ta_app/sidebars/_instructor_sidebar.html" %}
 
-<div class="wrapper">
-    {% include "instructors/util/_sidebar.html" %}
+<div id="content" class="container-fluid">
 
-  <div id="content" class="container-fluid">
-    <h3>Edit a Job</h3>
+  {% include 'ta_app/pages/_header.html' with title='Edit Job' %}
 
-    <div class="row">
-      <div class="col-md-9">
-        <h5>{{ job.session.year }} {{ job.session.term.code }} - {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</h5>
-        <small>Created at: {{ job.created_at }} | Updated at: {{ job.updated_at }}</small>
+  <div><a class="btn btn-outline-primary" href="{% url 'instructors:my_jobs' %}">Go back to My Jobs</a></div>
 
-        <h5>Intstructors:</h5>
-        <ul>
-          {% for instructor in job.instructors.all %}
-            <li>{{ instructor.username }}</li>
-          {% empty %}
-            <li>No instructors</li>
-          {% endfor %}
-        </ul>
+  <section class="d-inline-block mt-3">
+    <small class="text-muted">
+      Created at {{ job.created_at }} <span class="mx-2">|</span>
+      Updated at {{ job.updated_at }}
+    </small>
 
-        <form action="" method="post">
-          {% csrf_token %}
-          <table>
-            {{ form.as_table }}
-          </table>
-          <input type="submit" value="Update">
-        </form>
-      </div>
-
-      <div class="col-md-3">
-        <h5>Recent Job Details</h5>
-        <ol>
-          {% for job in jobs %}
-            <li>
-              {% include 'administrators/util/_modal_job_details.html' with data=job %}
-            </li>
-          {% empty %}
-            <li>No recent job details found</li>
-          {% endfor %}
-        </ol>
-      </div>
-
+    <div class="mt-4">
+      <h5 class="text-success">{{ job.session.year }} {{ job.session.term.name }} ({{ job.session.term.code }})</h5>
+      <h4>
+        {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }} <br />
+        <small class="text-muted">- {{ job.course.name }}</small>
+      </h4>
     </div>
 
-    <a href="{% url 'instructors:my_jobs' %}">Go back to My Jobs</a>
+    <div>
+      <span class="font-weight-bold">Intstructors:</span>
+      {% for instructor in job.instructors.all %}
+        {{ instructor.username }},
+      {% empty %}
+        No instructors
+      {% endfor %}
+    </div>
 
+    <div class="bd-callout bd-callout-warning">
+      <h5>Checkpoint!</h5>
+      <p>Text area</p>
+    </div>
+
+    <form action="" method="post">
+      {% csrf_token %}
+
+      {% for field in form.visible_fields %}
+        <div class="field-wrapper my-5">
+          {{ field.label_tag }}
+          {% if field.help_text %}
+            <div class="help">{{ field.help_text|safe }}</div>
+          {% endif %}
+          {{ field }}
+        </div>
+      {% endfor %}
+
+      {% for field in form.hidden_fields %}
+        {{ field }}
+      {% endfor %}
+
+      <input class="btn btn-warning" type="submit" value="Update Job" />
+      <a class="btn btn-outline-primary" href="{% url 'instructors:my_jobs' %}">Go back to My Jobs</a>
+    </form>
+  </section>
+
+  <div class="mt-5">
+    <h5 class="text-info">Recent Job Details</h5>
+    <ol class="text-secondary">
+      {% for job in jobs %}
+        <li>
+          {{ job.session.year }} {{ job.session.term.code }} - {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}
+          {% include 'administrators/util/_modal_job_details.html' with data=job %}
+        </li>
+      {% empty %}
+        <li>No recent job details found</li>
+      {% endfor %}
+    </ol>
   </div>
+
 </div>
+
 
 {% endblock %}

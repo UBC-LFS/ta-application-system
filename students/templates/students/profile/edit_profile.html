@@ -1,18 +1,35 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
+{% include "ta_app/sidebars/_student_sidebar.html" %}
 
-<div class="wrapper">
-  {% include "students/util/_sidebar.html" %}
+<div id="content" class="container-fluid">
+  {% include 'ta_app/pages/_header.html' with title='Edit Profile' %}
 
-  <div id="content" class="container-fluid">
-    <h3>Edit Profile</h3>
+  <div><a class="btn btn-outline-primary" href="{% url 'students:show_profile' %}">Go back to Profile</a></div>
 
+  <div class="d-inline-block">
     <form action="" method="post">
       {% csrf_token %}
-      <table>{{ form.as_table }}</table>
-      <input type="submit" value="Update Profile"/>
+
+      {% for field in form.visible_fields %}
+        <div class="field-wrapper my-5">
+          {{ field.label_tag }}
+          {% if field.help_text %}
+            <div class="help">{{ field.help_text|safe }}</div>
+          {% endif %}
+          {{ field }}
+        </div>
+      {% endfor %}
+
+      {% for field in form.hidden_fields %}
+        {{ field }}
+      {% endfor %}
+
+      <a class="btn btn-outline-primary" href="{% url 'students:show_profile' %}">Go back to Profile</a>
+      <input class="btn btn-warning" type="submit" value="Update Profile" />
     </form>
   </div>
+
 </div>
 
 {% endblock %}

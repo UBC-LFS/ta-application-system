@@ -1,101 +1,107 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
-
-{% include "administrators/util/_sidebar.html" %}
+{% include "ta_app/sidebars/_administrator_sidebar.html" %}
 
 <div id="content" class="container-fluid">
-
   {% include 'ta_app/_return_messages.html' with data=messages %}
 
-  <h3>Classifications</h3>
+  {% include 'ta_app/pages/_header.html' with title='Classifications' text=classifications|length %}
 
-  <table class="table">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Year</th>
-        <th>Name</th>
-        <th>Wage</th>
-        <th>Is active</th>
-        <th>Slug</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for classification in classifications %}
+  <div class="mt-5 mb-5">
+    <h3>Create Classification</h3>
+    <form action="{% url 'administrators:classifications' %}" method="post">
+      {% csrf_token %}
+      <table>{{ form.as_table }}</table>
+      <input class="btn btn-primary mt-3" type="submit" value="Create" />
+    </form>
+  </div>
+
+  <div class="d-inline-block">
+
+    <table class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center">
+      <thead>
         <tr>
-          <td>{{ classification.id }}</td>
-          <td>{{ classification.year }}</td>
-          <td>{{ classification.name }}</td>
-          <td>${{ classification.wage }}</td>
-          <td>{{ classification.is_active }}</td>
-          <td>{{ classification.slug }}</td>
-          <td>
-            <button type="button" data-toggle="modal" data-target="#classification-edit-modal-{{ classification.id }}">Edit</button>
-            <div class="modal fade" id="classification-edit-modal-{{ classification.id }}" tabindex="-1" role="dialog" aria-labelledby="classification-edit-modal-label-{{ classification.id }}" aria-hidden="true">
-      			  <div class="modal-dialog modal-lg" role="document">
-      			    <div class="modal-content">
-      			      <div class="modal-header">
-      			        <h5 class="modal-title" id="classification-edit-modal-label-{{ classification.id }}">Edit a Classification</h5>
-      			        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-      			      </div>
-      			      <div class="modal-body">
-      							<form action="{% url 'administrators:edit_classification' classification.slug %}" method="post">
-      								{% csrf_token %}
-                      <div>
-                        <label for="id_year">Year: </label>
-                        <input id="id_year" type="text" name="year" value="{{ classification.year }}" />
-                      </div>
-
-                      <div>
-                        <label for="id_name">Name: </label>
-                        <input id="id_name" type="text" name="name" value="{{ classification.name }}" />
-                      </div>
-
-                      <div>
-                        <label for="id_wage">Wage: </label>
-                        <input id="id_wage" type="number" name="wage" value="{{ classification.wage }}" />
-                      </div>
-
-                      <div>
-                        <label for="id_is_active">Is active: </label>
-                        {% if classification.is_active %}
-                          <input id="id_is_active" type="checkbox" name="id_is_active" checked />
-                        {% else %}
-                          <input id="id_is_active" type="checkbox" name="id_is_active" />
-                        {% endif %}
-                      </div>
-
-      								<input type="submit" value="Update" />
-      							</form>
-      			      </div>
-      			    </div>
-      			  </div>
-      			</div>
-
-            <form action="{% url 'administrators:delete_classification' %}" method="post" onsubmit="return confirm('Are you sure to delete this classification - {{ classification.name }} ?')">
-              {% csrf_token %}
-              <input type="hidden" name="classification" value="{{ classification.id }}" />
-              <input type="submit" value="Delete" />
-            </form>
-          </td>
+          <th>ID</th>
+          <th>Year</th>
+          <th>Name</th>
+          <th>Wage</th>
+          <th>Is active</th>
+          <th>Slug</th>
+          <th>Actions</th>
         </tr>
-      {% empty %}
-        <tr>
-          <td colspan="2">No classifications found.</td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+        {% for classification in classifications %}
+          <tr>
+            <td>{{ classification.id }}</td>
+            <td>{{ classification.year }}</td>
+            <td>{{ classification.name }}</td>
+            <td>${{ classification.wage }}</td>
+            <td>{{ classification.is_active }}</td>
+            <td>{{ classification.slug }}</td>
+            <td>
+              <div class="btn-toolbar">
+                <button class="btn btn-sm btn-warning mr-2" type="button" data-toggle="modal" data-target="#classification-edit-modal-{{ classification.id }}">Edit</button>
 
-  <hr />
+                <div class="modal fade" id="classification-edit-modal-{{ classification.id }}" tabindex="-1" role="dialog" aria-labelledby="classification-edit-modal-label-{{ classification.id }}" aria-hidden="true">
+          			  <div class="modal-dialog modal-lg" role="document">
+          			    <div class="modal-content">
+          			      <div class="modal-header">
+          			        <h5 class="modal-title" id="classification-edit-modal-label-{{ classification.id }}">Edit a Classification</h5>
+          			        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          			      </div>
+          			      <div class="modal-body text-left">
+          							<form action="{% url 'administrators:edit_classification' classification.slug %}" method="post">
+          								{% csrf_token %}
 
-  <h3>Create a Classification</h3>
-  <form action="{% url 'administrators:classifications' %}" method="post">
-    {% csrf_token %}
-    <table>{{ form.as_table }}</table>
-    <input type="submit" value="Create" />
-  </form>
+                          <table class="table table-borderless">
+                            <tr>
+                              <td><label for="id_year" class="font-weight-bold">Year:</label></td>
+                              <td><input id="id_year" type="text" name="year" value="{{ classification.year }}" /></td>
+                            </tr>
+                            <tr>
+                              <td><label for="id_name" class="font-weight-bold">Name:</label></td>
+                              <td><input id="id_name" type="text" name="name" value="{{ classification.name }}" /></td>
+                            </tr>
+                            <tr>
+                              <td><label for="id_wage" class="font-weight-bold">Wage:</label></td>
+                              <td><input id="id_wage" type="number" name="wage" value="{{ classification.wage }}" /></td>
+                            </tr>
+                            <tr>
+                              <td><label for="id_is_active" class="font-weight-bold">Is active:</label></td>
+                              <td>
+                                {% if classification.is_active %}
+                                  <input id="id_is_active" type="checkbox" name="id_is_active" checked />
+                                {% else %}
+                                  <input id="id_is_active" type="checkbox" name="id_is_active" />
+                                {% endif %}
+                              </td>
+                            </tr>
+                          </table>
+
+          								<input class="btn btn-warning" type="submit" value="Update" />
+          							</form>
+          			      </div>
+          			    </div>
+          			  </div>
+          			</div>
+
+                <form action="{% url 'administrators:delete_classification' %}" method="post" onsubmit="return confirm('Are you sure to delete this classification - {{ classification.name }} ?')">
+                  {% csrf_token %}
+                  <input type="hidden" name="classification" value="{{ classification.id }}" />
+                  <input class="btn btn-sm btn-danger" type="submit" value="Delete" />
+                </form>
+              </div>
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="2">No classifications found.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 
 </div>
 

@@ -1,115 +1,44 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
-{% load static %}
-
-{% include "administrators/util/_sidebar.html" %}
+{% include "ta_app/sidebars/_administrator_sidebar.html" %}
 
 <div id="content" class="container-fluid">
+  {% include 'ta_app/pages/_header.html' with title='Job Details' %}
+  {% include 'administrators/jobs/_go_back.html' with data=path %}
 
-  <h3 class="mb-5">Job Details</h3>
+  <div class="mb-4"></div>
+  {% include 'ta_app/jobs/_job_details.html' with data=job %}
 
-  <div class="job-details row justify-content-center">
-    <div class="col-md-3">
-      <div class="left-content">
-        <img class="ubc-logo mx-auto d-block" src="{% static 'ta_app/images/UBClogo.jpeg' %}" alt="ubc logo" />
-
-        <div class="text-center text-secondary mt-4 mb-4">
-          <h4 class="font-weight-normal">Number of Applications</h4>
-          <h3 class="font-weight-bold">{{ job.application_set.all|length }}</h3>
-        </div>
-
-        <div class="ta-hours text-center bg-info text-white mb-5 p-3">
-          <div>
-            <h5 class="font-weight-normal">
-              <i class="fa fa-star-o" aria-hidden="true"></i> Assgiend TA Hours
-              <i class="fa fa-star-o" aria-hidden="true"></i>
-            </h5>
-            <h3 class="font-weight-bold">{{ job.assigned_ta_hours }} hours</h3>
-          </div>
-          <hr />
-          <div>
-            <h5 class="font-weight-normal">
-              <i class="fa fa-star-o" aria-hidden="true"></i> Applicants' TA Hours
-              <i class="fa fa-star-o" aria-hidden="true"></i>
-            </h5>
-            <h3 class="font-weight-bold">{{ job.ta_hours }} hours</h3>
-          </div>
-        </div>
-
-        {% include 'administrators/jobs/_go_back.html' with data=path job_data=job %}
-
-        <div class="mt-5">
-          <span>Is active:</span>
-          {% if job.is_active %}
-            <span class="badge badge-success">{{ job.is_active }} <i class="fa fa-check-circle" aria-hidden="true"></i></span>
-          {% else %}
-            <span class="badge badge-danger">{{ job.is_active }} <i class="fa fa-stop-circle" aria-hidden="true"></i></span>
-          {% endif %}
-        </div>
-
-      </div>
+  <div class="text-center bg-info text-white mb-5 p-3 d-inline-block">
+    <div>
+      <h5 class="font-weight-normal">
+        <i class="fa fa-star-o" aria-hidden="true"></i> Assigned TA Hours
+        <i class="fa fa-star-o" aria-hidden="true"></i>
+      </h5>
+      <h3 class="font-weight-bold">{{ job.assigned_ta_hours }} hours</h3>
     </div>
-
-    <div class="col-md-6 offset-md-1">
-      <div class="right-content">
-
-        <div class="text-secondary mb-4">
-          Created at {{ job.created_at }} <span class="ml-3 mr-3">|</span>
-          Updated at {{ job.updated_at }}
-        </div>
-
-        <h5>{{ job.session.year }} {{ job.session.term.name }} ({{ job.session.term.code }})</h5>
-        <h5 class="mb-3">
-          Session Title: <span class="font-weight-normal">{{ job.session.title }}</span>
-        </h5>
-
-        <hr class="dotted">
-
-        <h4>{{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</h4>
-        <div class="text-secondary mb-4">{{ job.course.name }}</div>
-
-        <h5>Instructors:</h5>
-        <ul class="mb-4">
-          {% for instructor in job.instructors.all %}
-            <li>{{ instructor.first_name }} {{ instructor.last_name }}</li>
-          {% empty %}
-            No instructors found.
-          {% endfor %}
-        </ul>
-
-        <div class="mb-4">
-          <h3 class="font-weight-bold text-secondary">Title:</h3>
-          {{ job.title }}
-        </div>
-
-        <div class="mb-4">
-          <h3 class="font-weight-bold text-secondary">Description:</h3>
-          <p>{{ job.description|safe }}</p>
-        </div>
-
-        <div class="mb-4">
-          <h3 class="font-weight-bold text-secondary">Qualification:</h3>
-          <p>{{ job.qualification|safe }}</p>
-        </div>
-
-        <div class="mb-4">
-          <h3 class="font-weight-bold text-secondary">Note:</h3>
-          <p>{{ job.note|safe }}</p>
-        </div>
-
-        <hr class="dotted">
-
-        <ul>
-          <li>Job ID: {{ job.id }}</li>
-          <li>Job Slug: {{ job.course.slug }}</li>
-        </ul>
-      </div>
+    <hr />
+    <div>
+      <h5 class="font-weight-normal">
+        <i class="fa fa-star-o" aria-hidden="true"></i> Accumulated TA hours
+        <i class="fa fa-star-o" aria-hidden="true"></i>
+      </h5>
+      <h3 class="font-weight-bold">{{ job.ta_hours }} hours</h3>
     </div>
   </div>
 
-  <h3 class="mt-5 mb-3">Applications</h3>
+  <ul class="mt-3">
+    <li>Job ID: {{ job.id }}</li>
+    <li>Job Slug: {{ job.course.slug }}</li>
+  </ul>
+
+  <h4 class="mt-5 mb-3">
+    Applications
+    <small class="text-muted">Total: {{ job.application_set.all|length }}</small>
+  </h4>
+
   <table class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center">
-    <thead class="thead-light">
+    <thead>
       <tr>
         <th>Application ID</th>
         <th>Applicant</th>
@@ -156,6 +85,7 @@
       {% endfor %}
     </tbody>
   </table>
+
 </div>
 
 

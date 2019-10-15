@@ -1,12 +1,9 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
-
-{% include 'administrators/util/_sidebar.html' %}
+{% include "ta_app/sidebars/_administrator_sidebar.html" %}
 
 <div id="content" class="container-fluid">
-
-  <h3>Jobs by Student</h3>
-  <div class="text-secondary">Total: {{ students|length }}</div>
+  {% include 'ta_app/pages/_header.html' with title='Jobs by Student' text=students|length %}
 
   <table
     class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center"
@@ -36,7 +33,7 @@
       {% for student in students %}
         <tr>
           <td>
-            <a href="{% url 'show_user' username=student.username path='student' portal='Admin' %}">{{ student.id }}</a>
+            <a href="{% url 'administrators:show_user' username=student.username path='student' %}">{{ student.id }}</a>
           </td>
           <td>{{ student.first_name }}</td>
           <td>{{ student.last_name }}</td>

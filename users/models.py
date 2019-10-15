@@ -23,7 +23,6 @@ from administrators.models import Course
 import datetime as dt
 
 
-
 class Role(models.Model):
     SUPERADMIN = 'Superadmin'
     ADMIN = 'Admin'

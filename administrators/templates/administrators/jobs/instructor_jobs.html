@@ -1,12 +1,9 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
-
-{% include 'administrators/util/_sidebar.html' %}
+{% include "ta_app/sidebars/_administrator_sidebar.html" %}
 
 <div id="content" class="container-fluid">
-
-  <h3>Jobs by Instructor</h3>
-  <div class="text-secondary">Total: {{ instructors|length }}</div>
+  {% include 'ta_app/pages/_header.html' with title='Jobs by Instructor' text=instructors|length %}
 
   <table
     class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center"
@@ -27,6 +24,7 @@
         <th data-sortable="true">User ID</th>
         <th data-sortable="true">First Name</th>
         <th data-sortable="true">Last Name</th>
+        <th data-sortable="true">Preferred Name</th>
         <th data-sortable="true">CWL</th>
         <th data-sortable="true">E-mail</th>
         <th data-sortable="true">Jobs</th>
@@ -36,10 +34,11 @@
       {% for instructor in instructors %}
         <tr>
           <td>
-            <a href="{% url 'show_user' username=instructor.username path='instructor' portal='Admin' %}">{{ instructor.id }}</a>
+            <a href="{% url 'administrators:show_user' username=instructor.username path='instructor' %}">{{ instructor.id }}</a>
           </td>
           <td>{{ instructor.first_name }}</td>
           <td>{{ instructor.last_name }}</td>
+          <td>{{ instructor.profile.preferred_name }}</td>
           <td>{{ instructor.username }}</td>
           <td>{{ instructor.email }}</td>
           <td>

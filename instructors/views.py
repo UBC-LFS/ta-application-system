@@ -72,19 +72,20 @@ def edit_job(request, session_slug, job_slug):
             job.updated_at = datetime.now()
             job.save()
             if job:
-                messages.success(request, 'Success! {0} {1} {2} - job details updated'.format(job.course.code.name, job.course.number.name, job.course.section.name))
+                messages.success(request, 'Success! {0} {1} - {2} {3} {4}: job details updated'.format(job.session.year, job.session.term.code, job.course.code.name, job.course.number.name, job.course.section.name))
                 return redirect('instructors:my_jobs')
             else:
-                messages.error(request, 'Error!')
+                messages.error(request, 'An error occurred while updating job details.')
         else:
-            messages.error(request, 'Error! Form is invalid')
+            errors = form.errors.get_json_data()
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+
 
     return render(request, 'instructors/jobs/edit_job.html', {
         'loggedin_user': loggedin_user,
-        'session': adminApi.get_session_by_slug(session_slug),
         'job': job,
         'form': InstructorJobForm(data=None, instance=job),
-        'jobs': adminApi.get_recent_ten_job_details(job.course)
+        'jobs': adminApi.get_recent_ten_job_details(job.course, job.session.year)
     })
 
 
@@ -106,12 +107,26 @@ def get_applications(request, session_slug, job_slug):
                 messages.success(request, 'Success! Instructor Preference is selected for {0} '.format(updated_application.applicant.username))
                 return HttpResponseRedirect( reverse('instructors:get_applications', args=[session_slug, job_slug]) )
             else:
-                messages.error(request, 'Error!')
+                messages.error(request, 'An error occurred.')
         else:
-            messages.error(request, 'Error! Form is invalid')
+            errors = form.errors.get_json_data()
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
     return render(request, 'instructors/jobs/get_applications.html', {
         'loggedin_user': loggedin_user,
         'job': adminApi.get_session_job_by_slug(session_slug, job_slug),
         'instructor_preference_choices': Application.INSTRUCTOR_PREFERENCE_CHOICES
+    })
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET', 'POST'])
+def show_job(request, session_slug, job_slug):
+    ''' Display job details '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if 'Instructor' not in loggedin_user.roles: raise PermissionDenied
+
+    return render(request, 'instructors/jobs/show_job.html', {
+        'loggedin_user': loggedin_user,
+        'job': adminApi.get_session_job_by_slug(session_slug, job_slug)
     })

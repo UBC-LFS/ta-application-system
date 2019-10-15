@@ -1,45 +1,57 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
+{% include "ta_app/sidebars/_instructor_sidebar.html" %}
 
-<div class="wrapper">
-  {% include "instructors/util/_sidebar.html" %}
+<div id="content" class="container-fluid">
+  {% include 'ta_app/_return_messages.html' with data=messages %}
 
-  <div id="content" class="container-fluid">
+  {% include 'ta_app/pages/_header.html' with title=user.get_full_name text=job.application_set.all|length %}
 
-    {% include 'ta_app/_return_messages.html' with data=messages %}
+  <div class="mb-5"><a class="btn btn-outline-primary" href="{% url 'instructors:my_jobs' %}">Go back to My Jobs</a></div>
 
-    <h3>Applications</h3>
-    <h5>{{ job.session.year }} {{ job.session.term.code }} - {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</h5>
+  <section class="mb-4">
+    <h5>{{ job.session.year }} {{ job.session.term.name }} ({{ job.session.term.code }})</h5>
+    <h4>
+      {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }} <br />
+      <small class="text-muted">- {{ job.course.name }}</small>
+    </h4>
 
-    <div>Assigned TA Hours: {{ job.assigned_ta_hours }} hours</div>
-    <div>
-      Applicants' TA Hours: {{ job.ta_hours }} hours
-      <p>Note: Applicants' TA Hours are accumulated when they accept their job offers with assigned hours.</p>
+    <div class="card border-info d-inline-block mt-4">
+      <div class="card-header bg-info text-white">TA hours</div>
+      <div class="card-body">
+        Accumulated TA hours are accumulated when students accept their job offers with assigned hours.
+        <ul>
+          <li>Assigned TA Hours: <span class="font-weight-bold text-danger">{{ job.assigned_ta_hours }}</span> hours</li>
+          <li>Accumulated TA hours: <span class="font-weight-bold text-danger">{{ job.ta_hours }}</span> hours</li>
+        </ul>
+      </div>
     </div>
+  </section>
 
-    <table class="table table-responsive">
+  <div class="d-inline-block">
+
+    {% include 'ta_app/pages/_job_preferences.html' %}
+
+    <table class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center" data-toggle="table" data-sortable="true" data-classes="" data-pagination="true" data-search="true">
       <thead>
         <tr>
-          <th>Applicant</th>
-          <th>CWL</th>
-          <th>Supervisor Approval</th>
-          <th>How Qualified</th>
-          <th>How Interested</th>
-          <th>Availability</th>
-          <th>Availability Note</th>
-          <th>Status</th>
-          <th>Created at</th>
-          <th>Updated at</th>
-          <th>Instructor Preference</th>
+          <th data-sortable="true">Applicant</th>
+          <th data-sortable="true">CWL</th>
+          <th data-sortable="true">Supervisor <br />Approval</th>
+          <th data-sortable="true">How <br />Qualified</th>
+          <th data-sortable="true">How <br />Interested</th>
+          <th data-sortable="true">Availability</th>
+          <th data-sortable="true">Availability <br />Note</th>
+          <th data-sortable="true">Applied at</th>
+          <th data-sortable="true">Updated at</th>
+          <th>Instructor <br />Preference</th>
         </tr>
       </thead>
       <tbody>
         {% for app in job.application_set.all %}
           <tr>
             <td>
-              <a href="{% url 'administrators:show_user' username=app.applicant.username role='instructor' %}">
-                {{ app.applicant.first_name }} {{ app.applicant.last_name }}
-              </a>
+              {{ app.applicant.get_full_name }}
             </td>
             <td>{{ app.applicant.username }}</td>
             <td>{{ app.supervisor_approval }}</td>
@@ -47,7 +59,6 @@
             <td>{{ app.get_how_interested_display }}</td>
             <td>{{ app.availability }}</td>
             <td>{{ app.availability_note }}</td>
-            <td>{% include 'administrators/util/_display_app_status.html' with data=app %}</td>
             <td>{{ app.created_at }}</td>
             <td>{{ app.updated_at }}</td>
             <td>
@@ -63,7 +74,7 @@
                   {% endfor %}
                 </select>
                 <input type="hidden" name="application" value="{{ app.id }}" />
-                <input type="submit" value="Select" />
+                <input class="btn btn-sm btn-primary" type="submit" value="Select" />
               </form>
             </td>
           </tr>
@@ -74,11 +85,8 @@
         {% endfor %}
       </tbody>
     </table>
-
-
-    <a href="{% url 'instructors:my_jobs' %}">Bo back to My Jobs</a>
-
   </div>
+
 </div>
 
 {% endblock %}

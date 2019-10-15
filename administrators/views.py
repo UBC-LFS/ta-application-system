@@ -19,6 +19,8 @@ from users import api as userApi
 
 from datetime import datetime
 
+from django.contrib.auth.models import User
+
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
@@ -77,26 +79,20 @@ def create_user(request):
         'loggedin_user': loggedin_user,
         'users': userApi.get_users(),
         'roles': userApi.get_roles(),
-        'user_form': UserForm()
+        'form': UserForm()
     })
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
-def show_user(request, username, role):
+def show_user(request, username, path):
     ''' Display an user's details '''
     loggedin_user = userApi.loggedin_user(request.user)
 
-    # Create a hyperlink to go back to the previous page
-    previous_url = None
-    if 'HTTP_REFERER' in request.META:
-        previous_url = request.META['HTTP_REFERER']
-
     return render(request, 'administrators/hr/show_user.html', {
         'loggedin_user': loggedin_user,
-        'previous_url': previous_url,
         'user': userApi.get_user_by_username_with_resume(username),
-        'role': role
+        'path': path
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -141,7 +137,7 @@ def users(request):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
-def view_confidentiality(request, username, role):
+def view_confidentiality(request, username):
     ''' display an user's confidentiality '''
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user) and 'HR' not in loggedin_user.roles: raise PermissionDenied
@@ -149,8 +145,7 @@ def view_confidentiality(request, username, role):
     user = userApi.get_user_by_username(username)
     return render(request, 'administrators/hr/view_confidentiality.html', {
         'loggedin_user': loggedin_user,
-        'user': userApi.get_user_with_data(user.id),
-        'role': role
+        'user': userApi.get_user_with_data(user.id)
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -443,9 +438,9 @@ def edit_session(request, session_slug, path):
                     messages.success(request, 'Success! {0} {1} {2} updated'.format(session.year, session.term.code, session.title))
                     return redirect('administrators:{0}_sessions'.format(path))
                 else:
-                    messages.error(request, 'An error occurred.')
+                    messages.error(request, 'An error occurred while updating jobs in a session.')
             else:
-                messages.error(request, 'An error occurred.')
+                messages.error(request, 'An error occurred while updating a session.')
         else:
             errors = form.errors.get_json_data()
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
@@ -493,22 +488,19 @@ def jobs(request):
         'loggedin_user': loggedin_user
     })
 
-"""
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
+@require_http_methods(['GET', 'POST'])
 def show_job(request, session_slug, job_slug, path):
     ''' Display job details '''
     loggedin_user = userApi.loggedin_user(request.user)
-    if not userApi.is_admin(loggedin_user): raise PermissionDenied
+    if 'Student' not in loggedin_user.roles: raise PermissionDenied
 
     return render(request, 'administrators/jobs/show_job.html', {
         'loggedin_user': loggedin_user,
-        'session': adminApi.get_session_by_slug(session_slug),
         'job': adminApi.get_session_job_by_slug(session_slug, job_slug),
         'path': path
     })
-"""
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -584,10 +576,9 @@ def instructor_jobs_details(request, username):
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
 
-    instructor = userApi.get_user_by_username(username)
     return render(request, 'administrators/jobs/instructor_jobs_details.html', {
         'loggedin_user': loggedin_user,
-        'instructor': instructor
+        'user': userApi.get_user_by_username(username)
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -600,15 +591,17 @@ def student_jobs_details(request, username):
 
     user = userApi.get_user_by_username(username)
     student_jobs = adminApi.get_jobs_applied_by_student(user)
-    offered_jobs, offered_summary = adminApi.get_offered_jobs_by_student(user, student_jobs)
-    accepted_jobs, accepted_summary = adminApi.get_accepted_jobs_by_student(user, student_jobs)
+    #offered_jobs, offered_summary = adminApi.get_offered_jobs_by_student(user, student_jobs)
+    offered_apps, offered_total_assigned_hours = adminApi.get_applications_with_status_by_user(user, ApplicationStatus.OFFERED)
+    #accepted_jobs, accepted_summary = adminApi.get_accepted_jobs_by_student(user, student_jobs)
+    accepted_apps, accepted_total_assigned_hours = adminApi.get_applications_with_status_by_user(user, ApplicationStatus.ACCEPTED)
     return render(request, 'administrators/jobs/student_jobs_details.html', {
         'loggedin_user': loggedin_user,
-        'offered_jobs': offered_jobs,
-        'offered_summary': offered_summary,
-        'accepted_jobs': accepted_jobs,
-        'accepted_summary': accepted_summary,
-        'student': user
+        'user': user,
+        'offered_apps': offered_apps,
+        'offered_total_assigned_hours': offered_total_assigned_hours,
+        'accepted_apps': accepted_apps,
+        'accepted_total_assigned_hours': accepted_total_assigned_hours
     })
 
 
@@ -616,14 +609,12 @@ def student_jobs_details(request, username):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET', 'POST'])
 def edit_job(request, session_slug, job_slug):
-    ''' '''
+    ''' Edit a job '''
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
 
-    session = adminApi.get_session_by_slug(session_slug)
     job = adminApi.get_session_job_by_slug(session_slug, job_slug)
     job_instructors = job.instructors.all()
-
     if request.method == 'POST':
         form = AdminJobForm(request.POST, instance=job)
         if form.is_valid():
@@ -639,17 +630,17 @@ def edit_job(request, session_slug, job_slug):
                     messages.success(request, 'Success! {0} {1} {2} {3} {4} updated'.format(updated_job.session.year, updated_job.session.term.code, updated_job.course.code.name, updated_job.course.number.name, updated_job.course.section.name))
                     return redirect('administrators:prepare_jobs')
                 else:
-                    messages.error(request, 'An error occurred.')
+                    messages.error(request, 'An error occurred while updateing instructors of a job.')
             else:
-                messages.error(request, 'An error occurred.')
+                messages.error(request, 'An error occurred while updating a job.')
         else:
             errors = form.errors.get_json_data()
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
+        return HttpResponseRedirect(reverse('administrators:edit_job', args=[session_slug, job_slug]))
+
     return render(request, 'administrators/jobs/edit_job.html', {
         'loggedin_user': loggedin_user,
-        'session': session,
-        'job': job,
         'form': AdminJobForm(data=None, instance=job, initial={
             'instructors': job_instructors
         })
@@ -672,7 +663,6 @@ def applications(request):
         'loggedin_user': loggedin_user
     })
 
-"""
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
@@ -684,10 +674,10 @@ def show_application(request, app_slug, path):
     return render(request, 'administrators/applications/show_application.html', {
         'loggedin_user': userApi.loggedin_user(request.user),
         'app': adminApi.get_application_slug(app_slug),
-        #'form': AdminApplicationForm(initial={ 'assigned': ApplicationStatus.OFFERED }),
         'path': path
+        #'form': AdminApplicationForm(initial={ 'assigned': ApplicationStatus.OFFERED })
     })
-"""
+
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])

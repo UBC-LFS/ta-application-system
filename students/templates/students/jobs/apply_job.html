@@ -1,57 +1,98 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
+{% include "ta_app/sidebars/_student_sidebar.html" %}
 
+<div id="content" class="container-fluid">
+  {% include 'ta_app/pages/_header.html' with title='Apply Job' %}
 
-<div class="wrapper">
-  {% include "students/util/_sidebar.html" %}
+  <div class="mb-5"><a class="btn btn-outline-primary" href="{% url 'students:available_jobs' session_slug=job.session.slug %}">Go back to Available Jobs</a></div>
 
-  <div id="content" class="container-fluid">
+  {% include 'ta_app/jobs/_job_details.html' with data=job %}
 
-    <h3>Job Details</h3>
+  <hr class="dotted" />
 
-    <h5>
-      {{ job.session.year }} {{ job.session.term.code }} - {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}
-    </h5>
-    <p>{{ job.course.name }}</p>
-    <p>
-      Intstructors:
-      {% for instructor in job.instructors.all %}
-        {{ instructor.first_name }} {{ instructor.last_name }},
-      {% empty %}
-        No instructors
-      {% endfor %}
-    </p>
+  {% if has_applied_job %}
 
-    <p>Job Title:</p>
-    <p>{{ job.title }}</p>
-
-    <p>Job Description:</p>
-    <p>{{ job.description }}</p>
-
-    <p>Job Qalification:</p>
-    <p>{{ job.qualification }}</p>
-
-    <p>Job Note:</p>
-    <p>{{ job.note }}</p>
-
-    <hr />
-
-    {% if has_applied_job %}
-      <p>
+    <div class="d-inline-block">
+      <div class="alert alert-secondary" role="alert">
         You have already applied for this job. Please check your jobs in <a href="{% url 'students:applied_jobs' %}">Applied Jobs</a>
-      </p>
+      </div>
+    </div>
 
-    {% else %}
-      <form action="" method="post">
-        {% csrf_token %}
-        <table>{{ form.as_table }} </table>
-        <input type="submit" value="Apply">
-      </form>
-    {% endif %}
+  {% else %}
 
-    <a href="{% url 'students:available_jobs' session_slug=job.session.slug %}">Go back to Available Jobs</a>
+    <div class="row">
+      <div class="col-lg-8 col-md-10 col-sm-12">
 
-  </div>
+        <h5 class="text-info">Application</h5>
+
+        <div class="bd-callout bd-callout-warning">
+          <h5>Job preferences</h5>
+          <p>To place you as a TA, we need information about your qulifications and your preferences. We will also independently assess your qulifications, but your perspective is critical for qulifications, treat the scale as follow:</p>
+          <ul>
+            <li>1: Not at all</li>
+            <li>2: Marginally (can learn with much effort)</li>
+            <li>3: Somewhat (can learn with some effort)</li>
+            <li>4: Very (just need brushing-up)</li>
+            <li>5: Most (expert with course material)</li>
+          </ul>
+        </div>
+
+        <form action="" method="post">
+          {% csrf_token %}
+
+          {% for field in form.visible_fields  %}
+            <div class="field-wrapper my-5">
+              {% if field.id_for_label == 'id_supervisor_approval' %}
+
+                {{ field.label_tag }}
+                {% if field.help_text %}
+                  <div class="help">{{ field.help_text|safe }}</div>
+                {% endif %}
+                {{ field }} <span class="font-weight-bold">Yes</span>
+
+              {% elif field.id_for_label == 'id_availability' %}
+
+                {{ field.label_tag }}
+                <div class="help">
+                  By accepting any TA appointment within LFS, you are expected to be available for the duration of the assignment:
+                  <ul>
+                    <li>
+                      Winter Session: Term 1 - September 1 to December 31; Term 2 - January 1 to April 30
+                    </li>
+                    <li>
+                      Summer Session: Term 1 - May 1 to June 30; Term 2 - July 1 to August 31
+                    </li>
+                  </ul>
+                  Keep in mind that final exams are not controlled by LFS and may be scheduled up to the final day of the exam period and that final exam marking could take place after the end of the examination period. If you need to be absend for any period of time, you are expected to contact the course instructor and arrange for a proper replacement. If you already have plans to be absent at any time during the duration of the assignment, you should describe these plans in the additional comments box below AND inform your course instructor as soon as you are assigned.
+                </div>
+                {% if field.help_text %}
+                  <div class="help">{{ field.help_text|safe }}</div>
+                {% endif %}
+                {{ field }} <span class="font-weight-bold">I understand</span>
+
+              {% else %}
+
+                {{ field.label_tag }}
+                {% if field.help_text %}
+                  <div class="help">{{ field.help_text|safe }}</div>
+                {% endif %}
+                {{ field }}
+
+              {% endif %}
+            </div>
+          {% endfor %}
+
+          {% for field in form.hidden_fields %}
+            {{ field }}
+          {% endfor %}
+          <input class="btn btn-primary" type="submit" value="Submit application" />
+        </form>
+      </div>
+    </div>
+
+  {% endif %}
+
 </div>
 
 {% endblock %}

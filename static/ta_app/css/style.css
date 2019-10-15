@@ -1,24 +1,43 @@
 .ubc-logo {
-  width: 140px;
+  width: 70px;
   height: auto;
 }
+
 .text-dark-blue {
-  color: #002145;
+  color: 	#002145;
 }
+
+.bg-dark-blue {
+  background-color: #002145;
+}
+
+.bg-light-gray {
+  background-color: #E6E6E6;
+}
+
 
 .job-details .left-content .ta-hours {
   border: 1px solid #aaa;
   border-radius: 4px;
 }
 
-.user-details .left-content .user-stats,
-.user-details .right-content .user-stats {
-  border: 1px solid #aaa;
-  border-radius: 50%;
-  width: 5.0rem;
-  height: 5.0rem;
-  margin-right: 10px;
-  margin-bottom: 10px;
+
+.field-wrapper > label {
+  margin: 0;
+  font-weight: bold;
+  display: block;
+  margin-bottom: 5px;
+}
+
+.field-wrapper > ul {
+  list-style: none;
+  margin-left: -20px;
+}
+
+.help {
+  color: #6c757d;
+  font-size: 0.8rem;
+  margin-bottom: 5px;
 }
 
 .line-height-2 {

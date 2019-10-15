@@ -6,7 +6,7 @@ app_name = 'students'
 urlpatterns = [
     path('', views.index, name='index'),
     path('profile/', views.show_profile, name='show_profile'),
-    path('profile/<str:username>/edit/', views.edit_profile, name='edit_profile'),
+    path('profile/edit/', views.edit_profile, name='edit_profile'),
     #path('profile/<str:username>/confidentiality/submit/', views.submit_confidentiality, name='submit_confidentiality'),
     path('profile/resume/upload/', views.upload_resume, name='upload_resume'),
     path('profile/resume/delete/', views.delete_resume, name='delete_resume'),
@@ -26,12 +26,15 @@ urlpatterns = [
     path('sessions/<str:session_slug>/jobs/<str:job_slug>/offered/', views.offered_job, name='offered_job'),
     path('sessions/<str:session_slug>/jobs/<str:job_slug>/accept_offer/', views.accept_offer, name='accept_offer'),
     path('sessions/<str:session_slug>/jobs/<str:job_slug>/decline_offer/', views.decline_offer, name='decline_offer'),
+    path('sessions/<str:session_slug>/jobs/<str:job_slug>/cancel/', views.cancel_job, name='cancel_job'),
     path('sessions/<str:session_slug>/jobs/available/', views.available_jobs, name='available_jobs'),
+    path('sessions/<str:session_slug>/jobs/<str:job_slug>/', views.show_job, name='show_job'),
 
     path('jobs/accepted/', views.accepted_jobs, name='accepted_jobs'),
     path('jobs/declined/', views.declined_jobs, name='declined_jobs'),
     path('jobs/applied/', views.applied_jobs, name='applied_jobs'),
     path('jobs/offered/', views.offered_jobs, name='offered_jobs'),
+    path('applications/<str:app_slug>', views.show_application, name='show_application')
 
     #path('students/<str:username>/edit/', views.edit_student, name='edit_student'),
     #path('students/<str:username>/applied/sessions/<str:session_slug>/jobs/<str:job_slug>/', views.show_student_job, name='show_student_job'),

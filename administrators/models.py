@@ -49,9 +49,9 @@ class CourseSection(models.Model):
 
 class Course(models.Model):
     ''' Create a Course model '''
-    code = models.ForeignKey(CourseCode, on_delete=models.DO_NOTHING, default=4)
+    code = models.ForeignKey(CourseCode, on_delete=models.DO_NOTHING)
     number = models.ForeignKey(CourseNumber, on_delete=models.DO_NOTHING)
-    section = models.ForeignKey(CourseSection, on_delete=models.DO_NOTHING, default=1)
+    section = models.ForeignKey(CourseSection, on_delete=models.DO_NOTHING)
     term = models.ForeignKey(Term, on_delete=models.DO_NOTHING)
     name = models.CharField(max_length=256, null=True)
     slug = models.SlugField(max_length=256, unique=True)
@@ -141,8 +141,8 @@ class Application(models.Model):
         ('1', 'Not at all'),
         ('2', 'Marginally'),
         ('3', 'Somewhat'),
-        ('4', 'Most'),
-        ('5', 'Very')
+        ('4', 'Very'),
+        ('5', 'Most')
     ]
 
     NONE = '0'
@@ -192,7 +192,8 @@ class ApplicationStatus(models.Model):
     OFFERED = '1'
     ACCEPTED = '2'
     DECLINED = '3'
-    ASSSIGNED_CHOICES = [(NONE, 'None'), (OFFERED, 'Offered'),(ACCEPTED, 'Accepted'), (DECLINED, 'Declined')]
+    CANCELLED = '4'
+    ASSSIGNED_CHOICES = [(NONE, 'None'), (OFFERED, 'Offered'), (ACCEPTED, 'Accepted'), (DECLINED, 'Declined'), (CANCELLED, 'Cancelled')]
 
     application = models.ForeignKey(Application, on_delete=models.CASCADE)
     assigned = models.CharField(max_length=1, choices=ASSSIGNED_CHOICES, default=NONE)
