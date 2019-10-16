@@ -10,6 +10,7 @@ from users.models import *
 from administrators import api as adminApi
 from users import api as userApi
 
+LOGIN_URL = '/accounts/local_login/'
 ContentType='application/x-www-form-urlencoded'
 
 DATA = [
@@ -35,6 +36,8 @@ DATA = [
     'users/fixtures/users.json'
 ]
 
+"""
+
 class HRTest(TestCase):
     fixtures = DATA
 
@@ -45,9 +48,9 @@ class HRTest(TestCase):
 
     def login(self, username=None, password=None):
         if username and password:
-            self.client.post('/accounts/local_login/', data={'username': username, 'password': password})
+            self.client.post(LOGIN_URL, data={'username': username, 'password': password})
         else:
-            self.client.post('/accounts/local_login/', data={'username': self.user.username, 'password': self.user.password})
+            self.client.post(LOGIN_URL, data={'username': self.user.username, 'password': self.user.password})
 
     def messages(self, res):
         return [m.message for m in get_messages(res.wsgi_request)]
@@ -64,10 +67,10 @@ class HRTest(TestCase):
         response = self.client.get( reverse('administrators:create_user') )
         self.assertEqual(response.status_code, 302)
 
-        response = self.client.get( reverse('administrators:view_confidentiality', args=['admin', 'administrator']) )
+        response = self.client.get( reverse('administrators:view_confidentiality', args=['admin']) )
         self.assertEqual(response.status_code, 302)
 
-        response = self.client.get( reverse('administrators:show_user', args=['admin', 'administrator']) )
+        response = self.client.get( reverse('administrators:show_user', args=['admin', 'instructor']) )
         self.assertEqual(response.status_code, 302)
 
         self.login()
@@ -81,10 +84,10 @@ class HRTest(TestCase):
         response = self.client.get( reverse('administrators:create_user') )
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get( reverse('administrators:view_confidentiality', args=['admin', 'administrator']) )
+        response = self.client.get( reverse('administrators:view_confidentiality', args=['admin']) )
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get( reverse('administrators:show_user', args=['admin', 'administrator']) )
+        response = self.client.get( reverse('administrators:show_user', args=['admin', 'instructor']) )
         self.assertEqual(response.status_code, 200)
 
     def test_get_users(self):
@@ -211,12 +214,11 @@ class HRTest(TestCase):
         self.login()
 
         user = userApi.get_user('25')
-        response = self.client.get(reverse('administrators:show_user', args=[user.username, 'administrator']))
+        response = self.client.get(reverse('administrators:show_user', args=[user.username, 'instructor']))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, 'admin')
         self.assertEqual(response.context['user'].username, user.username)
-        self.assertEqual(response.context['previous_url'], None)
-        self.assertEqual(response.context['role'], 'administrator')
+        self.assertEqual(response.context['path'], 'instructor')
 
     def test_show_user_not_exists(self):
         print('\n- Test: show no existing user ')
@@ -284,8 +286,9 @@ class HRTest(TestCase):
         response = self.client.post(reverse('administrators:users'), data=urlencode({ 'roles': ['2', '3'] }, True), content_type=ContentType)
         self.assertEqual(response.status_code, 404)
 
+"""
 
-
+"""
 
 class CourseTest(TestCase):
     fixtures = DATA
@@ -297,9 +300,9 @@ class CourseTest(TestCase):
 
     def login(self, username=None, password=None):
         if username and password:
-            self.client.post('/accounts/local_login/', data={'username': username, 'password': password})
+            self.client.post(LOGIN_URL, data={'username': username, 'password': password})
         else:
-            self.client.post('/accounts/local_login/', data={'username': self.user.username, 'password': self.user.password})
+            self.client.post(LOGIN_URL, data={'username': self.user.username, 'password': self.user.password})
 
     def messages(self, res):
         return [m.message for m in get_messages(res.wsgi_request)]
@@ -330,7 +333,7 @@ class CourseTest(TestCase):
         response = self.client.get(reverse('administrators:all_courses'))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, self.user.username)
-        self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
+        self.assertEqual(response.context['loggedin_user'].roles, ['Admin', 'HR', 'Instructor', 'Student'])
         self.assertEqual( len(response.context['courses']), 18 )
 
 
@@ -357,7 +360,7 @@ class CourseTest(TestCase):
         response = self.client.get(reverse('administrators:all_courses'))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, self.user.username)
-        self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
+        self.assertEqual(response.context['loggedin_user'].roles, ['Admin', 'HR', 'Instructor', 'Student'])
         self.assertEqual( len(response.context['courses']), total_courses + 1 )
 
         # create the same data for checking duplicated data
@@ -377,7 +380,7 @@ class CourseTest(TestCase):
         response = self.client.get(reverse('administrators:edit_course', args=[course_slug]))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, self.user.username)
-        self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
+        self.assertEqual(response.context['loggedin_user'].roles, ['Admin', 'HR', 'Instructor', 'Student'])
         self.assertEqual(response.context['course'].slug, course_slug)
         self.assertFalse(response.context['form'].is_bound)
 
@@ -402,7 +405,7 @@ class CourseTest(TestCase):
         response = self.client.get(reverse('administrators:edit_course', args=[course.slug]))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, self.user.username)
-        self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
+        self.assertEqual(response.context['loggedin_user'].roles, ['Admin', 'HR', 'Instructor', 'Student'])
 
         self.assertEqual(response.context['course'].id, course_id)
         self.assertEqual(response.context['course'].code.id, data['code'])
@@ -443,7 +446,7 @@ class CourseTest(TestCase):
         response = self.client.get(reverse('administrators:all_courses'))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, self.user.username)
-        self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
+        self.assertEqual(response.context['loggedin_user'].roles, ['Admin', 'HR', 'Instructor', 'Student'])
         self.assertEqual( len(response.context['courses']), total_courses - 1 )
 
     def test_delete_not_existing_course(self):
@@ -452,6 +455,56 @@ class CourseTest(TestCase):
 
         response = self.client.post( reverse('administrators:delete_course'), data=urlencode({ 'course': 1000 }), content_type=ContentType )
         self.assertEqual(response.status_code, 404)
+
+    def test_create_new_course_with_zero_base(self):
+        print('\n- Test: create a new course with zero base')
+        self.login()
+
+        response = self.client.post( reverse('administrators:course_codes'), data=urlencode({ 'name': 'ABC' }), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+        response = self.client.post( reverse('administrators:course_numbers'), data=urlencode({ 'name': '111' }), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+        response = self.client.post( reverse('administrators:course_sections'), data=urlencode({ 'name': '501' }), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+        response = self.client.post( reverse('administrators:terms'), data=urlencode({ 'code': 'N', 'name': 'New Term' }), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+        course_code = adminApi.get_course_code_by_name('ABC')
+        course_number = adminApi.get_course_number_by_name('111')
+        course_section = adminApi.get_course_section_by_name('501')
+        term = adminApi.get_term_by_code('N')
+
+        data = {
+            'code': course_code.id,
+            'number': course_number.id,
+            'section': course_section.id,
+            'name': 'New Course',
+            'term': term.id
+        }
+        response = self.client.post( reverse('administrators:create_course'), data=urlencode(data), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+"""
+
+"""
 
 class SessionTest(TestCase):
     fixtures = DATA
@@ -463,9 +516,9 @@ class SessionTest(TestCase):
 
     def login(self, username=None, password=None):
         if username and password:
-            self.client.post('/accounts/local_login/', data={'username': username, 'password': password})
+            self.client.post(LOGIN_URL, data={'username': username, 'password': password})
         else:
-            self.client.post('/accounts/local_login/', data={'username': self.user.username, 'password': self.user.password})
+            self.client.post(LOGIN_URL, data={'username': self.user.username, 'password': self.user.password})
 
     def messages(self, res):
         return [m.message for m in get_messages(res.wsgi_request)]
@@ -630,6 +683,9 @@ class SessionTest(TestCase):
         response = self.client.post(reverse('administrators:edit_session', args=['2019-w9', 'current']), data=urlencode(data, True), content_type=ContentType)
         self.assertEqual(response.status_code, 404)
 
+"""
+
+"""
 class JobTest(TestCase):
     fixtures = DATA
 
@@ -640,14 +696,14 @@ class JobTest(TestCase):
 
     def login(self, username=None, password=None):
         if username and password:
-            self.client.post('/accounts/local_login/', data={'username': username, 'password': password})
+            self.client.post(LOGIN_URL, data={'username': username, 'password': password})
         else:
-            self.client.post('/accounts/local_login/', data={'username': self.user.username, 'password': self.user.password})
+            self.client.post(LOGIN_URL, data={'username': self.user.username, 'password': self.user.password})
 
     def messages(self, res):
         return [m.message for m in get_messages(res.wsgi_request)]
 
-    """
+
     def apply_jobs(self, user, active_sessions):
         ''' Students apply jobs '''
         num_applications = 0
@@ -699,7 +755,7 @@ class JobTest(TestCase):
                 num_offers += 1
             num += 1
         return num_offers
-    """
+
 
 
     def test_view_url_exists_at_desired_location(self):
@@ -746,7 +802,7 @@ class JobTest(TestCase):
         response = self.client.get( reverse('administrators:prepare_jobs') )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, self.user.username)
-        self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
+        self.assertEqual(response.context['loggedin_user'].roles, ['Admin', 'HR', 'Instructor', 'Student'])
         self.assertEqual( len(response.context['jobs']), 21 )
 
     def test_edit_job(self):
@@ -755,18 +811,18 @@ class JobTest(TestCase):
 
         session_slug = '2019-w1'
         job_slug = 'lfs-252-001-land-food-and-community-quantitative-data-analysis-w1'
+        job = adminApi.get_session_job_by_slug(session_slug, job_slug)
 
         response = self.client.get( reverse('administrators:edit_job', args=[session_slug, job_slug]) )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, self.user.username)
-        self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
-        session = response.context['session']
-        job = response.context['job']
+        self.assertEqual(response.context['loggedin_user'].roles, ['Admin', 'HR', 'Instructor', 'Student'])
         form = response.context['form']
-        self.assertEqual(session.slug, session_slug)
-        self.assertEqual(job.course.slug, job_slug)
         self.assertFalse(form.is_bound)
         self.assertEqual(form.instance.id, job.id)
+        self.assertEqual( len(form.initial['instructors']), len(job.instructors.all()))
+        self.assertEqual( form.initial['instructors'][0].username, job.instructors.all().first().username )
+        self.assertEqual( form.initial['instructors'][1].username, job.instructors.all().last().username )
 
         data = {
             'title': 'new title',
@@ -817,7 +873,7 @@ class JobTest(TestCase):
         response = self.client.get( reverse('administrators:progress_jobs') )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, self.user.username)
-        self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
+        self.assertEqual(response.context['loggedin_user'].roles, ['Admin', 'HR', 'Instructor', 'Student'])
         self.assertEqual( len(response.context['jobs']), 21 )
 
     def test_instructor_jobs(self):
@@ -827,8 +883,8 @@ class JobTest(TestCase):
         response = self.client.get( reverse('administrators:instructor_jobs') )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, self.user.username)
-        self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
-        self.assertEqual( len(response.context['instructors']), 5 )
+        self.assertEqual(response.context['loggedin_user'].roles, ['Admin', 'HR', 'Instructor', 'Student'])
+        self.assertEqual( len(response.context['instructors']), 6 )
 
     def test_student_jobs(self):
         print('\n- Test: display all student jobs')
@@ -837,8 +893,8 @@ class JobTest(TestCase):
         response = self.client.get( reverse('administrators:student_jobs') )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, self.user.username)
-        self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
-        self.assertEqual( len(response.context['students']), 22 )
+        self.assertEqual(response.context['loggedin_user'].roles, ['Admin', 'HR', 'Instructor', 'Student'])
+        self.assertEqual( len(response.context['students']), 23 )
 
     def test_show_job_applications(self):
         print('\n- Test: display a job applications')
@@ -850,7 +906,7 @@ class JobTest(TestCase):
         response = self.client.get( reverse('administrators:show_job_applications', args=[session_slug, job_slug]) )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, 'admin')
-        self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
+        self.assertEqual(response.context['loggedin_user'].roles, ['Admin', 'HR', 'Instructor', 'Student'])
         job = response.context['job']
         self.assertEqual(job.session.year, '2019')
         self.assertEqual(job.session.term.code, 'W1')
@@ -865,9 +921,7 @@ class JobTest(TestCase):
         response = self.client.get( reverse('administrators:instructor_jobs_details', args=[username]) )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, 'admin')
-        self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
-        instructor = response.context['instructor']
-        self.assertEqual(instructor.username, username)
+        self.assertEqual(response.context['loggedin_user'].roles, ['Admin', 'HR', 'Instructor', 'Student'])
 
     def test_student_jobs_details(self):
         print('\n- Test: display jobs that a student has')
@@ -877,10 +931,16 @@ class JobTest(TestCase):
         response = self.client.get( reverse('administrators:student_jobs_details', args=[username]) )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, 'admin')
-        self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
-        student = response.context['student']
-        self.assertEqual(student.username, username)
+        self.assertEqual(response.context['loggedin_user'].roles, ['Admin', 'HR', 'Instructor', 'Student'])
+        self.assertEqual(response.context['user'].username, username)
+        self.assertEqual( len(response.context['offered_apps']), 5 )
+        self.assertEqual( response.context['offered_total_assigned_hours']['2019-W1'], 100.0 )
+        self.assertEqual( response.context['offered_total_assigned_hours']['2019-S'], 80.0 )
+        self.assertEqual( len(response.context['accepted_apps']), 4 )
+        self.assertEqual( response.context['accepted_total_assigned_hours']['2019-W1'], 60.0 )
+        self.assertEqual( response.context['accepted_total_assigned_hours']['2019-S'], 80.0 )
 
+"""
 
 
 class ApplicationTest(TestCase):
@@ -893,9 +953,9 @@ class ApplicationTest(TestCase):
 
     def login(self, username=None, password=None):
         if username and password:
-            self.client.post('/accounts/local_login/', data={'username': username, 'password': password})
+            self.client.post(LOGIN_URL, data={'username': username, 'password': password})
         else:
-            self.client.post('/accounts/local_login/', data={'username': self.user.username, 'password': self.user.password})
+            self.client.post(LOGIN_URL, data={'username': self.user.username, 'password': self.user.password})
 
     def messages(self, res):
         return [m.message for m in get_messages(res.wsgi_request)]
@@ -951,9 +1011,8 @@ class ApplicationTest(TestCase):
         response = self.client.get( reverse('administrators:show_application', args=[app_slug, path]) )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, 'admin')
-        self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
+        self.assertEqual(response.context['loggedin_user'].roles, ['Admin', 'HR', 'Instructor', 'Student'])
         self.assertEqual(response.context['app'].slug, app_slug)
-        self.assertFalse(response.context['form'].is_bound)
         self.assertEqual(response.context['path'], path)
 
     def test_applications_dashboard(self):
@@ -967,7 +1026,7 @@ class ApplicationTest(TestCase):
         response = self.client.get( reverse('administrators:all_applications') )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, 'admin')
-        self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
+        self.assertEqual(response.context['loggedin_user'].roles, ['Admin', 'HR', 'Instructor', 'Student'])
         self.assertEqual( len(response.context['applications']), 33)
 
     def test_selected_applications(self):
@@ -977,7 +1036,7 @@ class ApplicationTest(TestCase):
         response = self.client.get( reverse('administrators:selected_applications') )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, 'admin')
-        self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
+        self.assertEqual(response.context['loggedin_user'].roles, ['Admin', 'HR', 'Instructor', 'Student'])
         self.assertEqual( len(response.context['selected_applications']), 23)
         self.assertFalse(response.context['admin_application_form'].is_bound)
         self.assertFalse(response.context['status_form'].is_bound)
@@ -991,7 +1050,7 @@ class ApplicationTest(TestCase):
         response = self.client.get( reverse('administrators:offered_applications') )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, 'admin')
-        self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
+        self.assertEqual(response.context['loggedin_user'].roles, ['Admin', 'HR', 'Instructor', 'Student'])
         self.assertEqual( len(response.context['offered_applications']), 15)
 
     def test_accepted_applications(self):
@@ -1001,7 +1060,7 @@ class ApplicationTest(TestCase):
         response = self.client.get( reverse('administrators:accepted_applications') )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, 'admin')
-        self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
+        self.assertEqual(response.context['loggedin_user'].roles, ['Admin', 'HR', 'Instructor', 'Student'])
         self.assertEqual( len(response.context['accepted_applications']), 12)
 
     def test_declined_applications(self):
@@ -1011,7 +1070,7 @@ class ApplicationTest(TestCase):
         response = self.client.get( reverse('administrators:declined_applications') )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, 'admin')
-        self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
+        self.assertEqual(response.context['loggedin_user'].roles, ['Admin', 'HR', 'Instructor', 'Student'])
         self.assertEqual( len(response.context['declined_applications']), 3)
 
     def test_edit_job_application(self):
@@ -1114,7 +1173,7 @@ class ApplicationTest(TestCase):
         response = self.client.get(reverse('administrators:email_history'))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, 'admin')
-        self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
+        self.assertEqual(response.context['loggedin_user'].roles, ['Admin', 'HR', 'Instructor', 'Student'])
         self.assertEqual( len(response.context['emails']), 13 )
 
     def test_send_reminder(self):
@@ -1128,7 +1187,7 @@ class ApplicationTest(TestCase):
         response = self.client.get(reverse('administrators:send_reminder', args=[email_id]))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, 'admin')
-        self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
+        self.assertEqual(response.context['loggedin_user'].roles, ['Admin', 'HR', 'Instructor', 'Student'])
         email = response.context['form'].instance
         self.assertEqual( email.id, int(email_id) )
 
@@ -1209,6 +1268,7 @@ class ApplicationTest(TestCase):
         self.assertEqual(status[4]['assigned'], ApplicationStatus.ACCEPTED)
         self.assertEqual(status[4]['assigned_hours'], float(data['new_assigned_hours']))
 
+"""
 
 class PreparationTest(TestCase):
     fixtures = DATA
@@ -1220,9 +1280,9 @@ class PreparationTest(TestCase):
 
     def login(self, username=None, password=None):
         if username and password:
-            self.client.post('/accounts/local_login/', data={'username': username, 'password': password})
+            self.client.post(LOGIN_URL, data={'username': username, 'password': password})
         else:
-            self.client.post('/accounts/local_login/', data={'username': self.user.username, 'password': self.user.password})
+            self.client.post(LOGIN_URL, data={'username': self.user.username, 'password': self.user.password})
 
     def messages(self, res):
         return [m.message for m in get_messages(res.wsgi_request)]
@@ -1812,3 +1872,4 @@ class PreparationTest(TestCase):
         for classification in response.context['classifications']:
             if classification.id == classification_id: found = True
         self.assertFalse(found)
+"""

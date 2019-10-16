@@ -34,3 +34,29 @@ def users_confidentiality(request):
         'loggedin_user': loggedin_user,
         'users': userApi.get_users()
     })
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def show_user(request, username):
+    ''' Display an user's details '''
+    loggedin_user = userApi.loggedin_user(request.user)
+
+    return render(request, 'human_resources/show_user.html', {
+        'loggedin_user': loggedin_user,
+        'user': userApi.get_user_by_username_with_resume(username),
+    })
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def view_confidentiality(request, username):
+    ''' display an user's confidentiality '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user) and 'HR' not in loggedin_user.roles: raise PermissionDenied
+
+    user = userApi.get_user_by_username(username)
+    return render(request, 'human_resources/view_confidentiality.html', {
+        'loggedin_user': loggedin_user,
+        'user': userApi.get_user_with_data(user.id)
+    })

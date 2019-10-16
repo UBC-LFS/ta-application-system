@@ -1,0 +1,40 @@
+<section>
+  <div class="mb-4">
+    <h5>International Student:</h5>
+    {% if user.confidentiality.is_international %}
+      {{ user.confidentiality.is_international }}
+    {% else %}
+      <span class="text-secondary">None</span>
+    {% endif %}
+  </div>
+
+  <div class="mb-4">
+    <h5>Social Insurance Number (SIN):</h5>
+    {% if user.sin_data %}
+      <img src="{{ user.sin_data.url }}" width="{{ user.sin_data.width }}" height="{{ user.sin_data.height }}" alt="SIN-image" />
+
+      <a href="{{ user.sin_data.url }}" download="{{ user.sin_data.filename }}">{{ user.sin_data.filename }}</a>
+      <div class="mb-4">
+        <h5>SIN Expiry Date:</h5>
+        {{ user.confidentiality.sin_expiry_date }}
+      </div>
+    {% else %}
+      <span class="text-secondary">None</span>
+    {% endif %}
+  </div>
+
+  <div>
+    <h5>Study Permit:</h5>
+    {% if user.study_permit_data %}
+      <img src="{{ user.study_permit_data.url }}" width="{{ user.study_permit_data.width }}" height="{{ user.study_permit_data.height }}" alt="Study-Permit-image" />
+
+      <a href="{{ user.study_permit_data.url }}" download="{{ user.study_permit_data.filename }}">{{ user.study_permit_data.filename }}</a>
+      <div class="mb-4">
+        <h5>Study Permit Expiry Date:</h5>
+        {{ user.confidentiality.study_permit_expiry_date }}
+      </div>
+    {% else %}
+      <span class="text-secondary">None</span>
+    {% endif %}
+  </div>
+</section>

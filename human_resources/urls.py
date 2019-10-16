@@ -5,5 +5,7 @@ app_name = 'human_resources'
 
 urlpatterns = [
     path('', views.index, name='index'),
-    path('users/confidentiality/', views.users_confidentiality, name='users_confidentiality')
+    path('users/confidentiality/', views.users_confidentiality, name='users_confidentiality'),
+    path('users/confidentiality/<str:username>/', views.view_confidentiality, name='view_confidentiality'),
+    path('users/<str:username>/', views.show_user, name='show_user')
 ]

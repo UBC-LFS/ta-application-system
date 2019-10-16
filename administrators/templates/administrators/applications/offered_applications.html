@@ -21,7 +21,6 @@
         data-page-list="[50, 100, 200, All]"
         data-show-export="true"
         data-click-to-select="true"
-        data-show-toggle="true"
         data-show-columns="true"
       >
         <thead>
@@ -56,10 +55,7 @@
               <td>
                 <a href="{% url 'administrators:show_user' username=app.applicant.username path='offered' %}">{{ app.applicant.first_name }} {{ app.applicant.last_name }}</a>
               </td>
-              <td>
-                {{ app.applicationstatus_set.all.last.get_assigned_display }}
-                <div class="float-right">{% include 'administrators/util/_modal_application_status.html' with data=app %}</div>
-              </td>
+              <td>{% include 'ta_app/applications/_modal_app_status.html' with data=app %}</td>
               <td>{{ app.get_instructor_preference_display }}</td>
               <td>{{ app.classification.year }} {{ app.classification.name }}</td>
               <td>{{ app.note }}</td>

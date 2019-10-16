@@ -278,7 +278,7 @@ def delete_course(request):
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET', 'POST'])
+@require_http_methods(['GET'])
 def sessions(request):
     ''' Display all information of sessions and create a session '''
     loggedin_user = userApi.loggedin_user(request.user)
@@ -590,11 +590,12 @@ def student_jobs_details(request, username):
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
 
     user = userApi.get_user_by_username(username)
-    student_jobs = adminApi.get_jobs_applied_by_student(user)
-    #offered_jobs, offered_summary = adminApi.get_offered_jobs_by_student(user, student_jobs)
     offered_apps, offered_total_assigned_hours = adminApi.get_applications_with_status_by_user(user, ApplicationStatus.OFFERED)
-    #accepted_jobs, accepted_summary = adminApi.get_accepted_jobs_by_student(user, student_jobs)
     accepted_apps, accepted_total_assigned_hours = adminApi.get_applications_with_status_by_user(user, ApplicationStatus.ACCEPTED)
+
+    #student_jobs = adminApi.get_jobs_applied_by_student(user)
+    #offered_jobs, offered_summary = adminApi.get_offered_jobs_by_student(user, student_jobs)
+    #accepted_jobs, accepted_summary = adminApi.get_accepted_jobs_by_student(user, student_jobs)
     return render(request, 'administrators/jobs/student_jobs_details.html', {
         'loggedin_user': loggedin_user,
         'user': user,
@@ -675,7 +676,6 @@ def show_application(request, app_slug, path):
         'loggedin_user': userApi.loggedin_user(request.user),
         'app': adminApi.get_application_slug(app_slug),
         'path': path
-        #'form': AdminApplicationForm(initial={ 'assigned': ApplicationStatus.OFFERED })
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -768,7 +768,13 @@ def selected_applications(request):
         'admin_application_form': AdminApplicationForm(),
         'status_form': ApplicationStatusForm(initial={ 'assigned': ApplicationStatus.OFFERED }),
         'classification_choices': adminApi.get_classifications(),
-        'offer_status_code': ApplicationStatus.OFFERED
+        'offer_status_code': ApplicationStatus.OFFERED,
+        'app_status': {
+            'applied': ApplicationStatus.NONE,
+            'offered': ApplicationStatus.OFFERED,
+            'accepted': ApplicationStatus.ACCEPTED,
+            'declined': ApplicationStatus.DECLINED
+        }
     })
 
 @login_required(login_url=settings.LOGIN_URL)

@@ -14,7 +14,6 @@
     data-search="true"
     data-show-export="true"
     data-click-to-select="true"
-    data-show-toggle="true"
     data-show-columns="true"
   >
     <thead>
@@ -48,7 +47,7 @@
           <td>
             <a href="{% url 'administrators:show_user' username=app.applicant.username path='declined' %}">{{ app.applicant.first_name }} {{ app.applicant.last_name }}</a>
           </td>
-          <td>{% include 'administrators/util/_modal_application_status.html' with data=app %}</td>
+          <td>{% include 'ta_app/applications/_modal_app_status.html' with data=app %}</td>
           <td>{{ app.get_instructor_preference_display }}</td>
           <td>{{ app.classification.year }} {{ app.classification.name }}</td>
           <td>{{ app.note }}</td>
