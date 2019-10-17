@@ -48,7 +48,7 @@ class JobTest(TestCase):
         response = self.client.get( reverse('instructors:edit_job', args=[session_slug, job_slug]) )
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get( reverse('instructors:get_applications', args=[session_slug, job_slug]) )
+        response = self.client.get( reverse('instructors:my_applications', args=[session_slug, job_slug]) )
         self.assertEqual(response.status_code, 200)
 
     def test_profile(self):
@@ -82,9 +82,9 @@ class JobTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, 'test.user4')
         self.assertEqual(response.context['loggedin_user'].roles, ['Instructor'])
-        self.assertEqual(response.context['session'].slug, session_slug)
         self.assertEqual(response.context['job'].course.slug, job_slug)
         self.assertFalse(response.context['form'].is_bound)
+        self.assertEqual(response.context['form'].instance, response.context['job'])
         self.assertEqual( len(response.context['jobs']), 4 )
 
         data = {
@@ -107,14 +107,14 @@ class JobTest(TestCase):
         self.assertEqual(response.context['job'].qualification, data['qualification'])
         self.assertEqual(response.context['job'].note, data['note'])
 
-    def test_get_applications(self):
+    def test_my_applications(self):
         print('\n- Display applications applied by students')
         self.login('test.user4', '12')
 
         session_slug = '2019-w1'
         job_slug = 'lfs-100-001-introduction-to-land-food-and-community-w1'
 
-        response = self.client.get( reverse('instructors:get_applications', args=[session_slug, job_slug]) )
+        response = self.client.get( reverse('instructors:my_applications', args=[session_slug, job_slug]) )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, 'test.user4')
         self.assertEqual(response.context['loggedin_user'].roles, ['Instructor'])
@@ -127,12 +127,12 @@ class JobTest(TestCase):
             'application': '1',
             'instructor_preference': '4'
         }
-        response = self.client.post( reverse('instructors:get_applications', args=[session_slug, job_slug]), data=urlencode(data), content_type=ContentType )
+        response = self.client.post( reverse('instructors:my_applications', args=[session_slug, job_slug]), data=urlencode(data), content_type=ContentType )
         messages = self.messages(response)
         self.assertTrue('Success' in messages[0])
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, response.url)
 
-        response = self.client.get( reverse('instructors:get_applications', args=[session_slug, job_slug]) )
+        response = self.client.get( reverse('instructors:my_applications', args=[session_slug, job_slug]) )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['job'].application_set.first().instructor_preference, '4')

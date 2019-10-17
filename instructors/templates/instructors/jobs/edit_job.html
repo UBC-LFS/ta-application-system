@@ -10,12 +10,12 @@
 
   <section class="d-inline-block mt-3">
     <small class="text-muted">
-      Created at {{ job.created_at }} <span class="mx-2">|</span>
+      Created at {{ job.created_at }} <span class="dot mx-1 align-middle"></span>
       Updated at {{ job.updated_at }}
     </small>
 
     <div class="mt-4">
-      <h5 class="text-success">{{ job.session.year }} {{ job.session.term.name }} ({{ job.session.term.code }})</h5>
+      <h5>{{ job.session.year }} {{ job.session.term.name }} ({{ job.session.term.code }})</h5>
       <h4>
         {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }} <br />
         <small class="text-muted">- {{ job.course.name }}</small>
@@ -29,11 +29,6 @@
       {% empty %}
         No instructors
       {% endfor %}
-    </div>
-
-    <div class="bd-callout bd-callout-warning">
-      <h5>Checkpoint!</h5>
-      <p>Text area</p>
     </div>
 
     <form action="" method="post">
@@ -54,23 +49,24 @@
       {% endfor %}
 
       <input class="btn btn-warning" type="submit" value="Update Job" />
-      <a class="btn btn-outline-primary" href="{% url 'instructors:my_jobs' %}">Go back to My Jobs</a>
     </form>
   </section>
 
   <div class="mt-5">
     <h5 class="text-info">Recent Job Details</h5>
-    <ol class="text-secondary">
+    <ol>
       {% for job in jobs %}
         <li>
-          {{ job.session.year }} {{ job.session.term.code }} - {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}
-          {% include 'administrators/util/_modal_job_details.html' with data=job %}
+          <span class="text-secondary">{{ job.session.year }} {{ job.session.term.code }} - {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</span>
+          {% include 'ta_app/jobs/_modal_job_details.html' with data=job %}
         </li>
       {% empty %}
         <li>No recent job details found</li>
       {% endfor %}
     </ol>
   </div>
+
+  <div class="my-4"><a class="btn btn-outline-primary" href="{% url 'instructors:my_jobs' %}">Go back to My Jobs</a></div>
 
 </div>
 

@@ -20,6 +20,19 @@
   border-radius: 4px;
 }
 
+.search-field input {
+  margin: 5px 0;
+  padding: 5px;
+  font-size: 0.85rem;
+}
+
+.dot {
+  height: 5px;
+  width: 5px;
+  background-color: #6c757d;
+  border-radius: 50%;
+  display: inline-block;
+}
 
 .field-wrapper > label {
   margin: 0;

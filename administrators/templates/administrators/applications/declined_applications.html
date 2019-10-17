@@ -29,6 +29,7 @@
         <th data-sortable="true">Note</th>
         <th data-sortable="true">Created at</th>
         <th data-sortable="true">Updated at</th>
+        <th data-sortable="true">Declined at</th>
       </tr>
     </thead>
     <tbody>
@@ -53,6 +54,7 @@
           <td>{{ app.note }}</td>
           <td>{{ app.created_at }}</td>
           <td>{{ app.updated_at }}</td>
+          <td>{{ app.declined.created_at }}</td>
         </tr>
       {% empty %}
         <tr>

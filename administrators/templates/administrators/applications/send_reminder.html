@@ -25,11 +25,13 @@
         {% for field in form.hidden_fields %}
           {{ field }}
         {% endfor %}
-        
+
         <input class="btn btn-primary" type="submit" value="Send Reminder" />
       </form>
     </div>
   </div>
+
+  <div class="my-4"><a class="btn btn-outline-primary" href="{% url 'administrators:email_history' %}">Go back to Email History</a></div>
 
 </div>
 

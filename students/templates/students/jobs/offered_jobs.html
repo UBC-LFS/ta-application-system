@@ -3,7 +3,6 @@
 {% include "ta_app/sidebars/_student_sidebar.html" %}
 
 <div id="content" class="container-fluid">
-
 	{% include 'ta_app/_return_messages.html' with data=messages %}
 
 	{% include 'ta_app/pages/_header.html' with title='Offered Jobs' text=apps|length %}
@@ -50,7 +49,7 @@
 						<td>{{ app.job.session.year }}</td>
 						<td>{{ app.job.session.term.code }}</td>
 						<td>
-							<a href="{% url 'students:show_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}">
+							<a href="{% url 'students:show_job' session_slug=app.job.session.slug job_slug=app.job.course.slug path='offered' %}">
 								{{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}
 							</a>
 						</td>
@@ -61,10 +60,10 @@
 						<td>{{ app.offered.created_at }}</td>
 						<td>
 							{% if app.accepted %}
-								<span class="badge badge-success">{{ app.accepted.get_assigned_display.upper }}</span>
+								<span class="badge badge-success">{{ app.accepted.get_assigned_display.upper }}</span><br />
 								<small class="text-muted">{{ app.accepted.created_at }}</small>
 							{% elif app.declined %}
-								<span class="badge badge-danger">{{ app.declined.get_assigned_display.upper }}</span>
+								<span class="badge badge-danger">{{ app.declined.get_assigned_display.upper }}</span><br />
 								<small class="text-muted">{{ app.declined.created_at }}</small>
 							{% else %}
 								<a href="{% url 'students:offered_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}">Accept / Decline</a>

@@ -48,7 +48,7 @@
           <td>{{ app.job.session.year }}</td>
           <td>{{ app.job.session.term.code }}</td>
           <td>
-            <a href="{% url 'students:show_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}">
+            <a href="{% url 'students:show_job' session_slug=app.job.session.slug job_slug=app.job.course.slug path='accepted' %}">
               {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}
             </a>
           </td>

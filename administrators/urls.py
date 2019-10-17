@@ -48,7 +48,7 @@ urlpatterns = [
     path('applications/offered/', views.offered_applications, name='offered_applications'),
     path('applications/accepted/', views.accepted_applications, name='accepted_applications'),
     path('applications/declined/', views.declined_applications, name='declined_applications'),
-    path('applications/<str:username>/jobs/accepted/', views.show_user_accepted_job_summary, name='show_user_accepted_job_summary'),
+    #path('applications/<str:username>/jobs/accepted/', views.show_user_accepted_job_summary, name='show_user_accepted_job_summary'),
     path('applications/<str:app_slug>/p/<str:path>/', views.show_application, name='show_application'),
     path('applications/', views.applications, name='applications'),
 

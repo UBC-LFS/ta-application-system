@@ -28,11 +28,12 @@
         <th data-sortable="true">Job</th>
         <th data-sortable="true">Applicant</th>
         <th data-sortable="true">Status</th>
-        <th data-sortable="true">Instructor Preference</th>
+        <th data-sortable="true">Instructor<br /> Preference</th>
         <th data-sortable="true">Classification</th>
         <th data-sortable="true">Note</th>
         <th data-sortable="true">Created at</th>
         <th data-sortable="true">Updated at</th>
+        <th data-sortable="true">Accpeted at</th>
         <th>Actions</th>
       </tr>
     </thead>
@@ -58,6 +59,7 @@
           <td>{{ app.note }}</td>
           <td>{{ app.created_at }}</td>
           <td>{{ app.updated_at }}</td>
+          <td>{{ app.accepted.created_at }}</td>
           <td>
             <button class="btn btn-sm btn-warning" type="button" data-toggle="modal" data-target="#job-application-modal-{{ app.id }}">Decline & Re-assign</button>
 
@@ -81,12 +83,12 @@
                             <span class="font-weight-bold">Assigned Hours:</span>
                           </td>
                           <td>
-                            <input type="number" name="new_assigned_hours" value="{{ app.has_accepted }}" />
+                            <input type="number" name="new_assigned_hours" value="{{ app.accepted.assigned_hours }}" />
                           </td>
                         </tr>
                       </table>
 
-                      <input type="hidden" name="old_assigned_hours" value="{{ app.has_accepted }}" />
+                      <input type="hidden" name="old_assigned_hours" value="{{ app.accepted.assigned_hours }}" />
                       <input type="hidden" name="application" value="{{ app.id }}" />
                       <input class="btn btn-sm btn-warning" type="submit" value="Decline & Re-assign" />
                     </form>

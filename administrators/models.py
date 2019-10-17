@@ -181,7 +181,6 @@ class Application(models.Model):
         ordering = ['job', 'applicant']
 
     def save(self, *args, **kwargs):
-        """ Make a slug """
         self.slug = slugify(self.job.session.slug + ' ' + self.job.course.slug + ' application by ' + self.applicant.username)
         super(Application, self).save(*args, **kwargs)
 

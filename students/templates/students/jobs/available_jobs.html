@@ -39,7 +39,7 @@
             </td>
             <td>
               {% if job.app %}
-                <span class="badge badge-info">APPLIED</span>
+                <span class="badge badge-secondary">APPLIED</span><br />
                 <small class="text-muted">{{ job.app.created_at }}</small>
               {% else %}
                 <a href="{% url 'students:apply_job' session_slug=job.session.slug job_slug=job.course.slug %}">Apply</a>

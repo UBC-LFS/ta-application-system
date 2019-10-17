@@ -36,7 +36,6 @@ DATA = [
     'users/fixtures/users.json'
 ]
 
-"""
 
 class HRTest(TestCase):
     fixtures = DATA
@@ -286,9 +285,6 @@ class HRTest(TestCase):
         response = self.client.post(reverse('administrators:users'), data=urlencode({ 'roles': ['2', '3'] }, True), content_type=ContentType)
         self.assertEqual(response.status_code, 404)
 
-"""
-
-"""
 
 class CourseTest(TestCase):
     fixtures = DATA
@@ -502,10 +498,6 @@ class CourseTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, response.url)
 
-"""
-
-"""
-
 class SessionTest(TestCase):
     fixtures = DATA
 
@@ -683,9 +675,6 @@ class SessionTest(TestCase):
         response = self.client.post(reverse('administrators:edit_session', args=['2019-w9', 'current']), data=urlencode(data, True), content_type=ContentType)
         self.assertEqual(response.status_code, 404)
 
-"""
-
-"""
 class JobTest(TestCase):
     fixtures = DATA
 
@@ -755,8 +744,6 @@ class JobTest(TestCase):
                 num_offers += 1
             num += 1
         return num_offers
-
-
 
     def test_view_url_exists_at_desired_location(self):
         print('\n- Test: view url exists at desired location')
@@ -939,9 +926,6 @@ class JobTest(TestCase):
         self.assertEqual( len(response.context['accepted_apps']), 4 )
         self.assertEqual( response.context['accepted_total_assigned_hours']['2019-W1'], 60.0 )
         self.assertEqual( response.context['accepted_total_assigned_hours']['2019-S'], 80.0 )
-
-"""
-
 
 class ApplicationTest(TestCase):
     fixtures = DATA
@@ -1227,7 +1211,7 @@ class ApplicationTest(TestCase):
         data = {
             'application': str(application.id),
             'new_assigned_hours': '70.0',
-            'old_assigned_hours': str(application.has_accepted)
+            'old_assigned_hours': str(application.accepted.assigned_hours)
         }
         response = self.client.post(reverse('administrators:decline_reassign'), data=urlencode(data), content_type=ContentType)
         self.assertEqual(response.status_code, 302)
@@ -1267,8 +1251,6 @@ class ApplicationTest(TestCase):
         self.assertEqual(status[3]['parent_id'], str(status[2]['id']))
         self.assertEqual(status[4]['assigned'], ApplicationStatus.ACCEPTED)
         self.assertEqual(status[4]['assigned_hours'], float(data['new_assigned_hours']))
-
-"""
 
 class PreparationTest(TestCase):
     fixtures = DATA
@@ -1872,4 +1854,3 @@ class PreparationTest(TestCase):
         for classification in response.context['classifications']:
             if classification.id == classification_id: found = True
         self.assertFalse(found)
-"""

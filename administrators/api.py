@@ -53,30 +53,18 @@ def delete_course(course_id):
 # Sessions
 
 
-def get_sessions():
-    """ Get all sessions """
-    return Session.objects.all()
-
-def session_exists(session_id):
-    """ Check a session exists """
-    if Session.objects.filter(id=session_id).exists():
-        return True
-    return False
-
 def get_session(session_id):
     ''' Get a session '''
     return get_object_or_404(Session, id=session_id)
 
-def get_session_by_slug(session_slug):
-    ''' Get a session by slug '''
-    return get_object_or_404(Session, slug=session_slug)
-
-def get_sessions_by_year(year):
-    """ Get sessions by year """
-    return Session.objects.filter(year=year)
+def delete_session(session_id):
+    ''' Delete a session '''
+    session = get_session(session_id)
+    session.delete()
+    return session
 
 def get_current_sessions():
-    ''' '''
+    ''' Get current sessions '''
     sessions = []
     for session in Session.objects.all():
         if not session.is_archived:
@@ -89,7 +77,7 @@ def get_current_sessions():
     return sessions
 
 def get_archived_sessions():
-    ''' '''
+    ''' Get archived sessions '''
     sessions = []
     for session in Session.objects.all():
         if session.is_archived:
@@ -101,37 +89,12 @@ def get_archived_sessions():
             sessions.append(session)
     return sessions
 
-def get_active_sessions():
-    return []
-
-def get_inactive_sessions():
-    return []
-
-def get_visible_current_sessions():
-    sessions = []
-    for session in Session.objects.all():
-        if session.is_visible and not session.is_archived:
-            count = 0
-            for job in session.job_set.all():
-                if job.instructors.count() > 0:
-                    count += 1
-            session.num_instructors = count
-            sessions.append(session)
-    return sessions
-
-def get_not_visible_active_sessions():
-    return Session.objects.filter(is_visible=False, is_archived=False)
-
-
-def delete_session(session_id):
-    ''' Delete a session '''
-
-    session = get_session(session_id)
-    session.delete()
-    return session
-
+def get_session_by_slug(session_slug):
+    ''' Get a session by slug '''
+    return get_object_or_404(Session, slug=session_slug)
 
 def update_session_jobs(session, courses):
+    ''' Update courses/jobs in a session '''
     new_course_ids = [ course.id for course in courses ]
     jobs = Job.objects.filter(session_id=session.id)
     old_course_ids = [ job.course_id for job in jobs ]
@@ -159,6 +122,53 @@ def update_session_jobs(session, courses):
         else:
             return None
 
+def get_visible_current_sessions():
+    ''' Get visible current sessions '''
+    return Session.objects.filter( Q(is_visible=True) & Q(is_archived=False) )
+
+    """
+    sessions = []
+    for session in Session.objects.all():
+        if session.is_visible and not session.is_archived:
+            count = 0
+            for job in session.job_set.all():
+                if job.instructors.count() > 0:
+                    count += 1
+            session.num_instructors = count
+            sessions.append(session)
+    return sessions"""
+
+
+
+
+
+def get_sessions():
+    """ Get all sessions """
+    return Session.objects.all()
+
+def session_exists(session_id):
+    """ Check a session exists """
+    if Session.objects.filter(id=session_id).exists():
+        return True
+    return False
+
+def get_sessions_by_year(year):
+    """ Get sessions by year """
+    return Session.objects.filter(year=year)
+
+def get_active_sessions():
+    return []
+
+def get_inactive_sessions():
+    return []
+
+
+
+def get_not_visible_active_sessions():
+    return Session.objects.filter(is_visible=False, is_archived=False)
+
+
+
 
 # Jobs
 
@@ -167,11 +177,33 @@ def get_jobs():
     return Job.objects.all()
 
 def get_job_by_session_slug_job_slug(session_slug, job_slug):
+    ''' Get a job by session_slug and job_slug '''
     return get_object_or_404(Job, Q(session__slug=session_slug) & Q(course__slug=job_slug) )
 
+def get_jobs_with_applications_statistics():
+    ''' get jobs with statistics of applications '''
+    jobs = []
+    for job in Job.objects.all():
+        offered_app = 0
+        accepted_app = 0
+        declined_app = 0
+        for app in job.application_set.all():
+            if get_offered(app): offered_app += 1
+            if get_accepted(app): accepted_app += 1
+            if get_declined(app): declined_app += 1
 
+        job.offered_applications = offered_app
+        job.accepted_applications = accepted_app
+        job.declined_applications = declined_app
+        jobs.append(job)
 
-# students
+    return jobs
+
+def update_job_instructors(job, old_instructors, new_instructors):
+    ''' Update instructors in a job '''
+    job.instructors.remove( *old_instructors )
+    job.instructors.add( *list(new_instructors) )
+    return True if job else None
 
 def get_available_jobs_to_apply(user, session_slug):
     ''' Get available jobs to apply '''
@@ -181,6 +213,93 @@ def get_available_jobs_to_apply(user, session_slug):
         app = job.application_set.filter(applicant__id=user.id)
         if app.exists(): job.app = app.latest('created_at')
     return jobs
+
+def update_job_ta_hours(session_slug, job_slug, ta_hours):
+    ''' Update ta hours in a job '''
+    job = get_job_by_session_slug_job_slug(session_slug, job_slug)
+    new_hours = job.ta_hours + float(ta_hours)
+    job.ta_hours = new_hours
+    job.updated_at = datetime.now()
+    saved = job.save(update_fields=['ta_hours', 'updated_at'])
+    return True if job else False
+
+def get_recent_ten_job_details(course, year):
+    ''' Get recent ten job '''
+    return Job.objects.filter( Q(session__year__lte=year) & Q(course__code=course.code) & Q(course__number=course.number) ).order_by('-created_at')[:10]
+
+def get_jobs_applied_by_student(user):
+    ''' Get all jobs applied by a student '''
+    return Job.objects.filter(application__applicant__id=user.id)
+
+
+def get_jobs_applied_by_student1(user):
+    ''' Get all jobs applied by a student '''
+    jobs = []
+    for job in get_jobs():
+        if job.application_set.filter(applicant__id=user.id).exists():
+            my_application = job.application_set.get(applicant__id=user.id)
+            job.my_application = my_application
+            jobs.append(job)
+    return jobs
+
+def create_application_status(app):
+    ''' Create a status of an application '''
+    app_status = ApplicationStatus.objects.create(application=app, assigned=ApplicationStatus.NONE, assigned_hours=0.0)
+    return app_status if app_status else None
+
+
+def has_applied_job(session_slug, job_slug, user):
+    ''' Check if a user has applied for a job or not '''
+    job = get_job_by_session_slug_job_slug(session_slug, job_slug)
+    if job.application_set.filter(applicant__id=user.id).exists():
+        return True
+    return False
+
+    """session = get_session_by_slug(session_slug)
+    for job in session.job_set.all():
+        if job.course.slug == job_slug:
+            if job.application_set.filter(applicant__id=user.id).exists():
+                return True
+    return False"""
+
+
+
+# Applications
+
+def get_application(app_id):
+    ''' Get an application '''
+    return get_object_or_404(Application, id=app_id)
+
+def get_application_by_slug(app_slug):
+    ''' Get an application by slug '''
+    return get_object_or_404(Application, slug=app_slug)
+
+def get_applications(option=None):
+    ''' Get all applications '''
+    if option: return Application.objects.all().order_by(option)
+    return Application.objects.all().order_by('-updated_at')
+
+def get_application_statuses():
+    ''' Get all statuses of an application '''
+    return ApplicationStatus.objects.all().order_by('-id')
+
+def get_offered(app):
+    ''' Get an application offered '''
+    offered_app = app.applicationstatus_set.filter(assigned=ApplicationStatus.OFFERED)
+    if offered_app.exists(): return offered_app
+    return False
+
+def get_accepted(app):
+    ''' Get an application accepted '''
+    accepted_app = app.applicationstatus_set.filter(assigned=ApplicationStatus.ACCEPTED)
+    if accepted_app.exists(): return accepted_app
+    return False
+
+def get_declined(app):
+    ''' Get an application declined '''
+    declined_app = app.applicationstatus_set.filter(assigned=ApplicationStatus.DECLINED)
+    if declined_app.exists(): return declined_app
+    return False
 
 
 # best
@@ -214,12 +333,18 @@ def get_application_with_status_by_user(user, job, option):
 def get_applications_with_status_by_user(user, status):
     ''' Get applications of a student with status '''
     total_assigned_hours = {}
+
     apps = Application.objects.filter( Q(applicant_id=user.id) & Q(applicationstatus__assigned=status) ).distinct()
+
     for app in apps:
         if status == ApplicationStatus.NONE:
             app.applied = None
             applied = app.applicationstatus_set.filter(assigned=ApplicationStatus.NONE)
             if applied.exists(): app.applied = applied.latest('created_at')
+
+            app.selected = None
+            if app.instructor_preference == Application.ACCEPTABLE or app.instructor_preference == Application.REQUESTED or app.instructor_preference == Application.CRITICAL_REQUESTED:
+                app.selected = True
 
         elif status == ApplicationStatus.OFFERED:
             app.offered = None
@@ -227,7 +352,7 @@ def get_applications_with_status_by_user(user, status):
             app.declined = None
 
             offered = app.applicationstatus_set.filter(assigned=ApplicationStatus.OFFERED)
-            if offered.exists(): app.offered =offered.latest('created_at')
+            if offered.exists(): app.offered = offered.latest('created_at')
 
             accpeted = app.applicationstatus_set.filter(assigned=ApplicationStatus.ACCEPTED)
             if accpeted.exists(): app.accepted = accpeted.latest('created_at')
@@ -262,18 +387,215 @@ def get_applications_with_status_by_user(user, status):
 
     return apps, total_assigned_hours
 
+def get_selected_applications():
+    ''' Get applications selected by instructors '''
+    apps = Application.objects.filter( ~Q(instructor_preference=Application.NONE) & ~Q(instructor_preference=Application.NO_PREFERENCE) ).order_by('job')
+    for app in apps:
+        if app.instructor_preference != Application.NONE and app.instructor_preference != Application.NO_PREFERENCE:
+            app.resume_file = None
+            if userApi.has_user_resume_created(app.applicant) and app.applicant.resume.file != None:
+                app.resume_file = os.path.basename(app.applicant.resume.file.name)
+
+
+            app.offered = None
+            offered = app.applicationstatus_set.filter(assigned=ApplicationStatus.OFFERED)
+            if offered.exists(): app.offered = offered.latest('created_at')
+    return apps
+
+def get_applications_by_status(status):
+    ''' Get applications by status '''
+    apps = Application.objects.filter(applicationstatus__assigned=status).distinct()
+    for app in apps:
+        found_status = app.applicationstatus_set.filter(assigned=status)
+
+        if status == ApplicationStatus.OFFERED:
+            app.offered = None
+            if found_status.exists(): app.offered = found_status.latest('created_at')
+
+        elif status == ApplicationStatus.ACCEPTED:
+            app.accepted = None
+            if found_status.exists(): app.accepted = found_status.latest('created_at')
+
+        elif status == ApplicationStatus.DECLINED:
+            app.declined = None
+            if found_status.exists(): app.declined = found_status.latest('created_at')
+    return apps
+
+
+def update_application_classification_note(app_id, data):
+    ''' Update classification and note in an application '''
+    classification = data.get('classification')
+    note = data.get('note')
+
+    app = get_application(app_id)
+    app.classification = classification
+    app.note = note
+    app.save(update_fields=['classification', 'note'])
+    return app
+
+def get_email(email_id):
+    ''' Get an email '''
+    return get_object_or_404(Email, id=email_id)
+
+def get_emails():
+    ''' Get emails '''
+    return Email.objects.all()
+
+def send_and_create_email(app, sender, receiver, title, message, type):
+    ''' Send and create an email '''
+    # Reference: https://docs.djangoproject.com/en/2.2/topics/email/
+    #sent = send_mail(title, message, sender, [receiver], fail_silently=False)
+    msg = EmailMultiAlternatives(title, message, sender, [receiver])
+    msg.attach_alternative(message, "text/html")
+    msg.send()
+
+    created_email = Email.objects.create(
+        application = app,
+        sender = sender,
+        receiver = receiver,
+        title = title,
+        message = message,
+        type = type
+    )
+    return True if msg and created_email else False
+    """
+    if sent and created_email:
+        print( 'Email has sent to {0} and is created'.format(receiver) )
+        return True
+    elif sent and not created_email:
+        print( 'Email has sent to {0} and is created'.format(receiver) )
+        if created_email:
+            print('The Email sent to {0} is created'.format(receiver))
+        else:
+            print('The Email sent to {0} is NOT created'.format(receiver))
+    else:
+        messages.error(request, 'Error! Failed to send an email to {0}'.format(receiver))
+    return False"""
+
+def get_accepted_status(app):
+    ''' Get an accepted status of an application'''
+    return app.applicationstatus_set.filter(assigned=ApplicationStatus.ACCEPTED).latest('created_at')
+
+def update_application_instructor_preference(application_id, instructor_preference):
+    ''' Update an instructor preference in an application '''
+    application = get_object_or_404(Application, id=application_id)
+    application.instructor_preference = instructor_preference
+    application.updated_at = datetime.now()
+    application.save(update_fields=['instructor_preference', 'updated_at'])
+    return application
+
+# ----- Terms -----
+
+def get_terms():
+    ''' Get all terms '''
+    return Term.objects.all()
+
+def get_term(term_id):
+    ''' Get a term by id '''
+    return get_object_or_404(Term, id=term_id)
+
+def get_term_by_code(code):
+    ''' Get a term by code '''
+    return get_object_or_404(Term, code=code)
+
+def delete_term(term_id):
+    ''' Delete a term '''
+    term = get_term(term_id)
+    term.delete()
+    return term if term else False
+
+
+# Course Codes
+
+
+def get_course_codes():
+    ''' '''
+    return CourseCode.objects.all()
+
+def get_course_code(course_code_id):
+    ''' '''
+    return get_object_or_404(CourseCode, id=course_code_id)
+
+def get_course_code_by_name(name):
+    ''' '''
+    return get_object_or_404(CourseCode, name=name)
+
+def delete_course_code(course_code_id):
+    ''' '''
+    course_code = get_course_code(course_code_id)
+    course_code.delete()
+    return course_code if course_code else False
+
+
+
+# Course numbers
+def get_course_numbers():
+    ''' '''
+    return CourseNumber.objects.all()
+
+def get_course_number(course_number_id):
+    ''' '''
+    return get_object_or_404(CourseNumber, id=course_number_id)
+
+def get_course_number_by_name(name):
+    ''' '''
+    return get_object_or_404(CourseNumber, name=name)
+
+def delete_course_number(course_number_id):
+    ''' '''
+    course_number = get_course_number(course_number_id)
+    course_number.delete()
+    return course_number if course_number else False
+
+
+# Course codes
+def get_course_sections():
+    ''' '''
+    return CourseSection.objects.all()
+
+def get_course_section(course_section_id):
+    ''' '''
+    return get_object_or_404(CourseSection, id=course_section_id)
+
+def get_course_section_by_name(name):
+    ''' '''
+    return get_object_or_404(CourseSection, name=name)
+
+def delete_course_section(course_section_id):
+    ''' '''
+    course_section =get_course_section(course_section_id)
+    course_section.delete()
+    return course_section if course_section else False
+
+
+
+# ----- classifications -----
+
+def get_classifications(option=None):
+    ''' Get classifications '''
+    if option == 'all':
+        return Classification.objects.all()
+    return Classification.objects.filter(is_active=True)
+
+def get_classification(classification_id):
+    ''' Get a classification by id '''
+    return get_object_or_404(Classification, id=classification_id)
+
+def get_classification_by_slug(slug):
+    ''' Get a classification by code '''
+    return get_object_or_404(Classification, slug=slug)
+
+def delete_classification(classification_id):
+    ''' Delete a classification '''
+    classification = get_classification(classification_id)
+    classification.delete()
+    return classification if classification else False
 
 
 
 
 
-def get_application_slug(app_slug):
-    return get_object_or_404(Application, slug=app_slug)
-
-
-
-
-
+#-------------------------------------
 
 
 # to be removed
@@ -312,14 +634,7 @@ def get_jobs_applied_by_user(user):
     return Job.objects.filter(application__applicant__id=user.id)
 
 
-def has_applied_job(session_slug, job_slug, user):
-    """ Check if a user has applied for a job or not """
-    session = get_session_by_slug(session_slug)
-    for job in session.job_set.all():
-        if job.course.slug == job_slug:
-            if job.application_set.filter(applicant__id=user.id).exists():
-                return True
-    return False
+
 
 
 def get_job_application_applied_by_student(user):
@@ -334,21 +649,6 @@ def get_job_application_applied_by_student(user):
     """
     return jobs
 
-
-
-# to be removed
-def get_jobs_applied_by_student(user):
-    ''' Get all jobs applied by a student '''
-    jobs = []
-    for job in get_jobs():
-        if job.application_set.filter(applicant__id=user.id).exists():
-            my_application = job.application_set.get(applicant__id=user.id)
-            job.my_application = my_application
-            jobs.append(job)
-    return jobs
-
-
-
 # to be modified
 def get_job_applied_by_student(user, session_slug, job_slug):
     ''' Get a job applied by a student '''
@@ -359,11 +659,6 @@ def get_job_applied_by_student(user, session_slug, job_slug):
     return None
 
 
-def get_application_by_student_id_job(user_id, job):
-    ''' '''
-    if job.application_set.filter(applicant__id=user_id).exists():
-        return job.application_set.get(applicant__id=user_id)
-    return None
 
 def get_application_by_student_job(user, job):
     ''' '''
@@ -373,6 +668,7 @@ def get_application_by_student_job(user, job):
         return None
 
 def create_jobs(session, courses):
+    ''' Create jobs in a session '''
     objs = [ Job(session=session, course=course) for course in courses ]
     jobs = Job.objects.bulk_create(objs)
     return True if jobs else None
@@ -384,25 +680,6 @@ def delete_jobs_by_session_id(session):
 def delete_jobs_by_course_ids(session, course_ids):
     result = Job.objects.filter(session_id=session.id, course_id__in=course_ids).delete()
     return True if result else None
-
-
-
-def update_job_instructors(job, old_instructors, new_instructors):
-    job.instructors.remove( *old_instructors )
-    job.instructors.add( *list(new_instructors) )
-    return True if job else None
-
-
-def update_job_ta_hours(session_slug, job_slug, ta_hours):
-    job = get_session_job_by_slug(session_slug, job_slug)
-    new_hours = job.ta_hours + float(ta_hours)
-    job.ta_hours = new_hours
-    job.updated_at = datetime.now()
-    saved = job.save(update_fields=['ta_hours', 'updated_at'])
-    return True if job else False
-
-def get_recent_ten_job_details(course, year):
-    return Job.objects.filter( Q(session__year__lte=year) & Q(course__code=course.code) & Q(course__number=course.number) ).order_by('-created_at')[:10]
 
 def get_applications_applied_by_student(user):
     ''' Get all applications applied by a student '''
@@ -463,36 +740,6 @@ def get_courses_by_instructor(user):
 
 # Applications
 
-def update_application_instructor_preference(application_id, instructor_preference):
-    application = get_object_or_404(Application, id=application_id)
-    application.instructor_preference = instructor_preference
-    application.updated_at = datetime.now()
-    application.save(update_fields=['instructor_preference', 'updated_at'])
-    return application
-
-
-def update_application_classification_note(application_id, data):
-    classification = data.get('classification')
-    note = data.get('note')
-    try:
-        application = get_application(application_id)
-        application.classification = classification
-        application.note = note
-        application.save(update_fields=['classification', 'note'])
-        return application
-    except Application.DoesNotExist:
-        return None
-
-
-def get_applications(option=None):
-    ''' Get all applications '''
-    if not option:
-        return Application.objects.all().order_by('-updated_at')
-    return Application.objects.all().order_by(option)
-
-def get_application_statuses():
-    return ApplicationStatus.objects.all().order_by('-id')
-
 def get_offered_applications_by_student(user):
     applications = []
     for app in get_applications_applied_by_student(user):
@@ -500,67 +747,6 @@ def get_offered_applications_by_student(user):
         if ret: applications.append(app)
     return applications
 
-def get_selected_applications(apps):
-    applications = []
-    for app in apps:
-        if app.instructor_preference != Application.NONE and app.instructor_preference != Application.NO_PREFERENCE:
-            app.resume_file = None
-            if userApi.has_user_resume_created(app.applicant) and app.applicant.resume.file != None:
-                app.resume_file = os.path.basename(app.applicant.resume.file.name)
-
-            app.has_offered = None
-            for st in app.applicationstatus_set.all():
-                if st.assigned == ApplicationStatus.OFFERED:
-                    app.has_offered = st.assigned_hours
-            applications.append(app)
-    return applications
-
-def get_offered_applications():
-    applications = []
-    for app in get_applications():
-        offered = get_offered(app)
-        if offered:
-            applications.append(app)
-    return applications
-
-
-def get_accepted_applications():
-    applications = []
-    for app in get_applications():
-        app.has_accepted = None
-
-        for st in app.applicationstatus_set.all().order_by('id'):
-            if st.assigned == ApplicationStatus.ACCEPTED:
-                app.has_accepted = st.assigned_hours
-
-        if app.has_accepted:
-            applications.append(app)
-
-    return applications
-
-
-
-def get_accepted_status(app):
-    for st in app.applicationstatus_set.all().order_by('-id'):
-        if st.assigned == ApplicationStatus.ACCEPTED:
-            return st
-    return None
-
-def get_declined_applications():
-    applications = []
-    for app in get_applications():
-        declined = get_declined(app)
-        if declined:
-            applications.append(app)
-    return applications
-
-def get_application(app_id):
-    ''' Get an application '''
-    return get_object_or_404(Application, id=app_id)
-
-def get_application_by_slug(app_slug):
-    ''' Get an application by slug '''
-    return get_object_or_404(Application, slug=app_slug)
 
 def get_applications_by_student(user):
     applications = get_applications()
@@ -571,25 +757,8 @@ def temp():
         for app in job.application_set.all():
             print(app.id, app.applicationstatus_set.all())
 
-def get_jobs_with_applications_statistics():
-    ''' '''
-    jobs = []
-    for job in Job.objects.all():
-        offered_app = 0
-        accepted_app = 0
-        declined_app = 0
-        for app in job.application_set.all():
-            if get_offered(app): offered_app += 1
-            if get_accepted(app): accepted_app += 1
-            if get_declined(app): declined_app += 1
 
-        job.offered_applications = offered_app
-        job.accepted_applications = accepted_app
-        job.declined_applications = declined_app
-        jobs.append(job)
-
-    return jobs
-
+"""
 def get_user_job_application_statistics(username):
     num_apps = 0
     num_offered = 0
@@ -610,23 +779,9 @@ def get_user_job_application_statistics(username):
         'num_accepted': num_accepted,
         'num_declined': num_declined
     }
+"""
 
 
-def get_offered(app):
-    if app.applicationstatus_set.filter(assigned=ApplicationStatus.OFFERED).exists():
-        return app.applicationstatus_set.filter(assigned=ApplicationStatus.OFFERED)
-    return False
-
-def get_accepted(app):
-    if app.applicationstatus_set.filter(assigned=ApplicationStatus.ACCEPTED).exists():
-        return app.applicationstatus_set.filter(assigned=ApplicationStatus.ACCEPTED)
-    return False
-
-
-def get_declined(app):
-    if app.applicationstatus_set.filter(assigned=ApplicationStatus.DECLINED).exists():
-        return app.applicationstatus_set.filter(assigned=ApplicationStatus.DECLINED)
-    return False
 
 """
 def get_offered_jobs_by_student(user, student_jobs):
@@ -722,22 +877,6 @@ def get_declined_jobs_by_student(user, student_jobs):
 def get_jobs_with_status_by_user(user, option):
     jobs = Job.objects.filter(application__applicant__id=user.id)
     pass
-
-
-
-
-def student_apply_job(app):
-    app_status = ApplicationStatus.objects.create(application=app, assigned=ApplicationStatus.NONE, assigned_hours=0.0)
-    return app_status if app_status else None
-
-
-
-def get_email(email_id):
-    ''' '''
-    return get_object_or_404(Email, id=email_id)
-
-def get_emails():
-    return Email.objects.all()
 
 
 """
@@ -902,156 +1041,6 @@ def delete_statuses():
 
     statuses = ApplicationStatus.objects.all().delete()
     return True if statuses else None
-
-
-
-# ----- Terms -----
-
-def get_terms():
-    ''' Get all terms '''
-    return Term.objects.all()
-
-def get_term(term_id):
-    ''' Get a term by id '''
-    return get_object_or_404(Term, id=term_id)
-
-def get_term_by_code(code):
-    ''' Get a term by code '''
-    return get_object_or_404(Term, code=code)
-
-def delete_term(term_id):
-    ''' Delete a term '''
-    term = get_term(term_id)
-    term.delete()
-    return term if term else False
-
-
-# Course Codes
-
-
-def get_course_codes():
-    ''' '''
-    return CourseCode.objects.all()
-
-def get_course_code(course_code_id):
-    ''' '''
-    return get_object_or_404(CourseCode, id=course_code_id)
-
-def get_course_code_by_name(name):
-    ''' '''
-    return get_object_or_404(CourseCode, name=name)
-
-def delete_course_code(course_code_id):
-    ''' '''
-    course_code = get_course_code(course_code_id)
-    course_code.delete()
-    return course_code if course_code else False
-
-
-
-# Course numbers
-def get_course_numbers():
-    ''' '''
-    return CourseNumber.objects.all()
-
-def get_course_number(course_number_id):
-    ''' '''
-    return get_object_or_404(CourseNumber, id=course_number_id)
-
-def get_course_number_by_name(name):
-    ''' '''
-    return get_object_or_404(CourseNumber, name=name)
-
-def delete_course_number(course_number_id):
-    ''' '''
-    course_number = get_course_number(course_number_id)
-    course_number.delete()
-    return course_number if course_number else False
-
-
-# Course codes
-def get_course_sections():
-    ''' '''
-    return CourseSection.objects.all()
-
-def get_course_section(course_section_id):
-    ''' '''
-    return get_object_or_404(CourseSection, id=course_section_id)
-
-def get_course_section_by_name(name):
-    ''' '''
-    return get_object_or_404(CourseSection, name=name)
-
-def delete_course_section(course_section_id):
-    ''' '''
-    course_section =get_course_section(course_section_id)
-    course_section.delete()
-    return course_section if course_section else False
-
-
-
-# ----- classifications -----
-
-def get_classifications(option=None):
-    ''' Get classifications '''
-    if option == 'all':
-        return Classification.objects.all()
-    return Classification.objects.filter(is_active=True)
-
-def get_classification(classification_id):
-    ''' Get a classification by id '''
-    return get_object_or_404(Classification, id=classification_id)
-
-def get_classification_by_slug(slug):
-    ''' Get a classification by code '''
-    return get_object_or_404(Classification, slug=slug)
-
-def delete_classification(classification_id):
-    ''' Delete a classification '''
-    classification = get_classification(classification_id)
-    classification.delete()
-    return classification if classification else False
-
-
-
-
-
-
-
-def send_and_create_email(app, sender, receiver, title, message, type):
-    # Reference: https://docs.djangoproject.com/en/2.2/topics/email/
-    #sent = send_mail(title, message, sender, [receiver], fail_silently=False)
-    msg = EmailMultiAlternatives(title, message, sender, [receiver])
-    msg.attach_alternative(message, "text/html")
-    msg.send()
-
-    created_email = Email.objects.create(
-        application = app,
-        sender = sender,
-        receiver = receiver,
-        title = title,
-        message = message,
-        type = type
-    )
-    return True if msg and created_email else False
-    """
-    if sent and created_email:
-        print( 'Email has sent to {0} and is created'.format(receiver) )
-        return True
-    elif sent and not created_email:
-        print( 'Email has sent to {0} and is created'.format(receiver) )
-        if created_email:
-            print('The Email sent to {0} is created'.format(receiver))
-        else:
-            print('The Email sent to {0} is NOT created'.format(receiver))
-    else:
-        messages.error(request, 'Error! Failed to send an email to {0}'.format(receiver))
-    return False"""
-
-
-def get_emails():
-    return Email.objects.all()
-
 
 # to be removed
 def get_jobs_of_instructor(user):

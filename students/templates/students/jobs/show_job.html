@@ -6,7 +6,7 @@
 
   {% include 'ta_app/pages/_header.html' with title='Job Details' %}
 
-  <div class="mb-5"><a class="btn btn-outline-primary" href="#">Go back</a></div>
+  <div class="mb-4">{% include 'students/jobs/_go_back.html' with data=path %}</div>
 
   {% include 'ta_app/jobs/_job_details.html' with data=job %}
 

@@ -7,17 +7,18 @@
 
   {% include 'ta_app/pages/_header.html' with title='Selected Applications' text=selected_applications|length %}
 
-  <form method="GET">
-    <input type="text" name="year" value="{{ request.GET.year }}" placeholder="Year" /> And <br />
-    <input type="text" name="term" value="{{ request.GET.term }}" placeholder="Term" /> And <br />
-    <input type="text" name="code" value="{{ request.GET.code }}" placeholder="Code" /> And <br />
-    <input type="text" name="number" value="{{ request.GET.number }}" placeholder="Number" /> And <br />
-    <input type="text" name="section" value="{{ request.GET.section }}" placeholder="Section" /> And <br />
-    <input type="text" name="cwl" value="{{ request.GET.cwl }}" placeholder="CWL" /> <br />
-    <button type="submit" name="action">Search</button>
-  </form>
-
-  <a href="{% url 'administrators:selected_applications' %}">All</a>
+  <div class="search-field bg-light-gray p-4 d-inline-block">
+    <form method="GET">
+      <input type="text" name="year" value="{{ request.GET.year }}" placeholder="Year" /> and
+      <input type="text" name="term" value="{{ request.GET.term }}" placeholder="Term" /> <br />
+      <input type="text" name="code" value="{{ request.GET.code }}" placeholder="Job Code" /> and
+      <input type="text" name="number" value="{{ request.GET.number }}" placeholder="Job Number" /> and
+      <input type="text" name="section" value="{{ request.GET.section }}" placeholder="Job Section" /> <br />
+      <input type="text" name="cwl" value="{{ request.GET.cwl }}" placeholder="CWL" /> <br />
+      <button class="btn btn-sm btn-secondary" type="submit" name="action">Search</button>
+      <a class="btn btn-sm btn-light" href="{% url 'administrators:selected_applications' %}">Clear</a>
+    </form>
+  </div>
 
   <table
     class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center"
@@ -34,19 +35,19 @@
   >
     <thead>
       <tr>
-        <th>ID</th>
-        <th>Year</th>
-        <th>Term</th>
-        <th>Job</th>
-        <th>Applicant</th>
-        <th>CWL</th>
+        <th data-sortable="true">ID</th>
+        <th data-sortable="true">Year</th>
+        <th data-sortable="true">Term</th>
+        <th data-sortable="true">Job</th>
+        <th data-sortable="true">Applicant</th>
+        <th data-sortable="true">CWL</th>
         <th>Resume</th>
-        <th>Status</th>
-        <th>Instructor<br /> Preference</th>
-        <th>Classification</th>
+        <th data-sortable="true">Instructor<br /> Preference</th>
+        <th data-sortable="true">Classification</th>
         <th>Note</th>
-        <th>Created at</th>
-        <th>Updated at</th>
+        <th data-sortable="true">Created at</th>
+        <th data-sortable="true">Updated at</th>
+        <th data-sortable="true">Offered at</th>
         <th>Actions</th>
       </tr>
     </thead>
@@ -74,26 +75,16 @@
               No
             {% endif %}
           </td>
-          <td>
-            {% if app.applicationstatus_set.all.last.assigned == app_status.applied %}
-              <span class="badge badge-warning">APPLIED</span>
-            {% elif app.applicationstatus_set.all.last.assigned == app_status.offered %}
-              <span class="badge badge-primary">OFFERED</span>
-            {% elif app.applicationstatus_set.all.last.assigned == app_status.accepted %}
-              <span class="badge badge-success">ACCPETED</span>
-            {% elif app.applicationstatus_set.all.last.assigned == app_status.declined %}
-              <span class="badge badge-secondary">DECLINED</span>
-            {% else %}
-              <span class="badge badge-danger">{{ app.applicationstatus_set.all.last.get_assigned_display }}</span>
-            {% endif %}
-
-            {% include 'ta_app/applications/_modal_app_status.html' with data=app %}
-          </td>
           <td>{{ app.get_instructor_preference_display }}</td>
           <td>{{ app.classification.name }}</td>
           <td>{{ app.note }}</td>
           <td>{{ app.created_at }}</td>
           <td>{{ app.updated_at }}</td>
+          <td>
+            {% if app.offered %}
+              {{ app.offered.created_at }}
+            {% endif %}
+          </td>
           <td>
             <div class="btn-toolbar">
               <button class="btn btn-sm btn-warning" type="button" data-toggle="modal" data-target="#job-application-modal-{{ app.id }}">Edit</button>
@@ -143,8 +134,11 @@
                   </div>
                 </div>
               </div>
-              {% if app.has_offered %}
+
+              {% if app.offered %}
+
                 <button class="btn btn-sm btn-primary" type="button" disabled>Offered</button>
+
               {% else %}
                 <button class="btn btn-sm btn-primary" type="button" data-toggle="modal" data-target="#job-application-offer-modal-{{ app.id }}">Offer</button>
 
