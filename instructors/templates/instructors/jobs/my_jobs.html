@@ -5,7 +5,7 @@
 <div id="content" class="container-fluid">
   {% include 'ta_app/_return_messages.html' with data=messages %}
 
-  {% include 'ta_app/pages/_header.html' with title='My Jobs' text=user.job_set.all|length %}
+  {% include 'ta_app/pages/_header.html' with title='My Jobs' text=loggedin_user.job_set.all|length %}
 
   <div class="d-inline-block">
     <table class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center" data-toggle="table" data-sortable="true" data-classes="" data-pagination="true" data-search="true">
@@ -22,7 +22,7 @@
         </tr>
       </thead>
       <tbody>
-        {% for job in user.job_set.all %}
+        {% for job in loggedin_user.job_set.all %}
         <tr>
           <td>{{ job.session.year }}</td>
           <td>{{ job.session.term.code }}</td>
@@ -31,7 +31,7 @@
           </td>
           <td>
             {% if job.application_set.count > 0 %}
-              <a href="{% url 'instructors:get_applications' session_slug=job.session.slug job_slug=job.course.slug %}">
+              <a href="{% url 'instructors:my_applications' session_slug=job.session.slug job_slug=job.course.slug %}">
                 {{ job.application_set.count }}
               </a>
             {% else %}

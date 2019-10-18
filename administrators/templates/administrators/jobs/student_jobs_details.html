@@ -45,12 +45,12 @@
       <table class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center" data-toggle="table" data-sortable="true" data-classes="" data-pagination="true" data-search="true">
         <thead>
           <tr>
-            <th>application<br /> ID</th>
+            <th>Application<br /> ID</th>
             <th>Year</th>
             <th>Term</th>
             <th>Job</th>
             <th>Assigned<br /> TA Hours</th>
-            <th>Applicant's<br /> TA Hours</th>
+            <th>Accumulated<br /> TA Hours</th>
             <th>Status</th>
             <th>Created at</th>
             <th>Updated at</th>
@@ -65,15 +65,7 @@
               <td>{{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</td>
               <td>{{ app.job.assigned_ta_hours }} hours</td>
               <td>{{ app.job.ta_hours }} hours</td>
-              <td>
-                <ul>
-                  {% for st in app.applicationstatus_set.all %}
-                    <li>{{ st.get_assigned_display }}: {{ st.assigned_hours }} hours on {{ st.created_at }}</li>
-                  {% empty %}
-                    <li>No status found</li>
-                  {% endfor %}
-                </ul>
-              </td>
+              <td>{% include 'ta_app/applications/_modal_app_status.html' with data=app %}</td>
               <td>{{ app.created_at }}</td>
               <td>{{ app.updated_at }}</td>
             </tr>
@@ -197,7 +189,6 @@
       </table>
     </div>
   </div>
-
 </div>
 
 {% endblock %}

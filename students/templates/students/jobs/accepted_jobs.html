@@ -33,12 +33,12 @@
     <table class="table table-bordered table-hover table-striped table-responsive-md text-center" data-toggle="table" data-sortable="true" data-classes="" data-pagination="true" data-search="true">
       <thead>
         <tr>
-          <th>Year</th>
-          <th>Term</th>
-          <th>Job</th>
-          <th>Assigned Status</th>
-          <th>Assigned Hours</th>
-          <th>Accepted at</th>
+          <th data-sortable="true">Year</th>
+          <th data-sortable="true">Term</th>
+          <th data-sortable="true">Job</th>
+          <th data-sortable="true">Assigned Status</th>
+          <th data-sortable="true">Assigned Hours</th>
+          <th data-sortable="true">Accepted at</th>
           <th>Actions</th>
         </tr>
       </thead>
@@ -48,7 +48,7 @@
           <td>{{ app.job.session.year }}</td>
           <td>{{ app.job.session.term.code }}</td>
           <td>
-            <a href="{% url 'students:show_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}">
+            <a href="{% url 'students:show_job' session_slug=app.job.session.slug job_slug=app.job.course.slug path='accepted' %}">
               {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}
             </a>
           </td>
@@ -58,20 +58,18 @@
           <td>{{ app.accepted.assigned_hours }} hours</td>
           <td>{{ app.accepted.created_at }}</td>
           <td>
-            {% if app.cancelled %}
-              <div class="">
-                <span class="badge badge-secondary">{{ app.cancelled.get_assigned_display.upper }}</span>
+            {% if app.is_terminated %}
+
+              {% if app.cancelled %}
+                <div class="badge badge-secondary d-block">{{ app.cancelled.get_assigned_display.upper }}</div>
                 <small class="text-muted">{{ app.cancelled.created_at }}</small>
-              </div>
-            {% else %}
-              <a href="{% url 'students:cancel_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}">Cancel</a>
+              {% else %}
+                <a href="{% url 'students:cancel_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}">Cancel</a>
+              {% endif %}
+
             {% endif %}
           </td>
         </tr>
-        {% empty %}
-          <tr>
-            <td colspan="3">No accepted jobs found</td>
-          </tr>
         {% endfor %}
       </tbody>
     </table>

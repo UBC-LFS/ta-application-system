@@ -44,24 +44,33 @@
 						</li>
 					{% endif %}
     		</ul>
-				<span class="text-white">{{ loggedin_user.username }} {{ loggedin_user.roles }}</span>
+				{% comment %} <span class="text-white">{{ loggedin_user.username }} {{ loggedin_user.roles }}</span> {% endcomment %}
+				<div class="dropdown">
+  					<button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    					{{ loggedin_user.username }}
+  					</button>
+  					<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+					  	{% for role in loggedin_user.roles %}
+							<a class="dropdown-item" href="#">{{ role }}</a>
+						{% endfor %}
+  					</div>
+				</div>
 				<a class="text-white ml-4" href="#">Logout</a>
   		</div>
 		</nav>
 
 		{% if 'Admin' in loggedin_user.roles or 'Superadmin' in loggedin_user.roles %}
-			{% include "ta_app/_mobilenavadmin.html" %}
+			{% include "ta_app/sidebars/_mobilenavadmin.html" %}
 		{% elif 'Instructor' in loggedin_user.roles %}
-			{% include "ta_app/_mobilenavinstructor.html"%}
+			{% include "ta_app/sidebars/_mobilenavinstructor.html"%}
 		{% endif %}
 
 		<div id="content-padding" class="padding-top-66">
 			<main class="wrapper">
 				{% block content %}{% endblock %}
 			</main>
-
-			<footer>University of British Columbia</footer>
 		</div>
+		
 
 	{% endif %}
 

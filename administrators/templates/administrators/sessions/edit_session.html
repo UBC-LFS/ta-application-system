@@ -35,7 +35,6 @@
 
         <input type="hidden" name="path" value="{{ path }}" />
 
-        {% include 'administrators/sessions/_go_back.html' with data=path %}
         <input class="btn btn-warning" type="submit" value="Update Session" />
       </form>
 
@@ -43,6 +42,8 @@
         <h5><i class="fa fa-info-circle" aria-hidden="true"></i> Note</h5>
         <p>When <code>Is archived</code> is <span class="font-weight-bold">True</span>, <code>Is visible</code> is always <span class="font-weight-bold">False</span>.</p>
       </div>
+
+      {% include 'administrators/sessions/_go_back.html' with data=path %}
 
     </div>
   </div>

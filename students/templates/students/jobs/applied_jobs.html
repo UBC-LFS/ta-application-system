@@ -24,14 +24,25 @@
             <td>{{ app.job.session.year }}</td>
             <td>{{ app.job.session.term.code }}</td>
             <td>
-              <a href="{% url 'students:show_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}">
+              <a href="{% url 'students:show_job' session_slug=app.job.session.slug job_slug=app.job.course.slug path='applied' %}">
                 {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}
               </a>
             </td>
             <td>
-              <a href="{% url 'students:show_application' app_slug=app.slug %}">View</a>
+              <a href="{% url 'students:show_application' app_slug=app.slug path='applied' %}">View</a>
             </td>
             <td>{{ app.applied.created_at }}</td>
+            <td>
+              {% for st in app.applicationstatus_set.all %}
+                <div class="">{{ st.id }} | {{ st.get_assigned_display }} | {{ st.assigned_hours }} | {{ st.created_at }} | {{ st.parent_id }}</div>
+              {% endfor %}
+
+              {% if app.selected %}
+                <span class="badge badge-info">SELECTED</span>
+              {% else %}
+                <span class="badge badge-secondary">NONE</span>
+              {% endif %}
+            </td>
           </tr>
         {% endfor %}
       </tbody>

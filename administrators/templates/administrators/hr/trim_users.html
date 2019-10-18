@@ -1,0 +1,71 @@
+{% extends 'ta_app/base.html' %}
+{% block content %}
+{% include "ta_app/sidebars/_administrator_sidebar.html" %}
+
+<div id="content" class="container-fluid">
+  {% include 'ta_app/_return_messages.html' with data=messages %}
+
+  {% include 'ta_app/pages/_header.html' with title='Trim Users' text=users|length %}
+
+  <div class="bd-callout bd-callout-warning">
+    <h5>Notice</h5>
+    <p>
+      Users who logged in before the date (<span class="font-weight-bold text-danger">{{ target_date }}</span>) are in the table below. If you want to remove their information of profile, resume and confidentiality, please click the button below.
+    </p>
+  </div>
+
+  <form action="" method="post" onsubmit="return confirm('Are you sure to remove the information of those users?')">
+    {% csrf_token %}
+
+    <table
+      class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center"
+      data-toggle="table"
+      data-sortable="true"
+      data-classes=""
+      data-pagination="true"
+      data-search="true"
+      data-page-size="50"
+      data-page-list="[50, 100, 200, All]"
+      data-show-export="true"
+      data-click-to-select="true"
+      data-show-columns="true"
+    >
+      <thead>
+        <tr>
+          <th>Select</th>
+          <th data-sortable="true">User ID</th>
+          <th data-sortable="true">Full Name</th>
+          <th data-sortable="true">CWL</th>
+          <th data-sortable="true">UBC Number</th>
+          <th data-sortable="true">Role</th>
+          <th data-sortable="true">Date Joined</th>
+          <th data-sortable="true">Last Login</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for user in users %}
+          <tr>
+            <td>
+              <input type="checkbox" name="user" value="{{ user.id }}" checked />
+            </td>
+            <td>
+              <a href="{% url 'administrators:show_user' username=user.username path='trim' %}">{{ user.id }}</a>
+            </td>
+            <td>{{ user.get_full_name }}</td>
+            <td>{{ user.username }}</td>
+            <td>{{ user.profile.ubc_number }}</td>
+            <td>{% for role in user.profile.roles.all %} {{ role.name }}, {% endfor %}</td>
+            <td>{{ user.date_joined }}</td>
+            <td>{{ user.last_login }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <input class="btn btn btn-danger" type="submit" value="Delete profile, resume and confidentiality" />
+
+  </form>
+
+</div>
+
+{% endblock %}

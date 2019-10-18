@@ -5,7 +5,7 @@
 <div id="content" class="container-fluid">
   {% include 'ta_app/_return_messages.html' with data=messages %}
 
-  {% include 'ta_app/pages/_header.html' with title=user.get_full_name text=job.application_set.all|length %}
+  {% include 'ta_app/pages/_header.html' with title='My Applications' text=job.application_set.all|length %}
 
   <div class="mb-5"><a class="btn btn-outline-primary" href="{% url 'instructors:my_jobs' %}">Go back to My Jobs</a></div>
 
@@ -29,19 +29,12 @@
   </section>
 
   <div class="d-inline-block">
-
-    {% include 'ta_app/pages/_job_preferences.html' %}
-
     <table class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center" data-toggle="table" data-sortable="true" data-classes="" data-pagination="true" data-search="true">
       <thead>
         <tr>
           <th data-sortable="true">Applicant</th>
           <th data-sortable="true">CWL</th>
-          <th data-sortable="true">Supervisor <br />Approval</th>
-          <th data-sortable="true">How <br />Qualified</th>
-          <th data-sortable="true">How <br />Interested</th>
-          <th data-sortable="true">Availability</th>
-          <th data-sortable="true">Availability <br />Note</th>
+          <th data-sortable="true">Application</th>
           <th data-sortable="true">Applied at</th>
           <th data-sortable="true">Updated at</th>
           <th>Instructor <br />Preference</th>
@@ -50,15 +43,11 @@
       <tbody>
         {% for app in job.application_set.all %}
           <tr>
+            <td>{{ app.applicant.get_full_name }}</td>
             <td>
-              {{ app.applicant.get_full_name }}
+              <a href="{% url 'instructors:show_user' session_slug=job.session.slug job_slug=job.course.slug username=app.applicant.username %}">{{ app.applicant.username }}</a>
             </td>
-            <td>{{ app.applicant.username }}</td>
-            <td>{{ app.supervisor_approval }}</td>
-            <td>{{ app.get_how_qualified_display }}</td>
-            <td>{{ app.get_how_interested_display }}</td>
-            <td>{{ app.availability }}</td>
-            <td>{{ app.availability_note }}</td>
+            <td>{% include 'ta_app/applications/_modal_app_details.html' with data=app %}</td>
             <td>{{ app.created_at }}</td>
             <td>{{ app.updated_at }}</td>
             <td>
@@ -78,13 +67,13 @@
               </form>
             </td>
           </tr>
-        {% empty %}
-          <tr>
-            <td>No applications found</td>
-          </tr>
         {% endfor %}
       </tbody>
     </table>
+
+    {% include 'ta_app/pages/_job_preferences.html' %}
+
+    <div class="my-4"><a class="btn btn-outline-primary" href="{% url 'instructors:my_jobs' %}">Go back to My Jobs</a></div>
   </div>
 
 </div>

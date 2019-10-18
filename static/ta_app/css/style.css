@@ -15,12 +15,24 @@
   background-color: #E6E6E6;
 }
 
-
 .job-details .left-content .ta-hours {
   border: 1px solid #aaa;
   border-radius: 4px;
 }
 
+.search-field input {
+  margin: 5px 0;
+  padding: 5px;
+  font-size: 0.85rem;
+}
+
+.dot {
+  height: 5px;
+  width: 5px;
+  background-color: #6c757d;
+  border-radius: 50%;
+  display: inline-block;
+}
 
 .field-wrapper > label {
   margin: 0;
@@ -57,7 +69,11 @@ hr.dotted {
 }
 
 footer {
-  height: 100px;
+  margin-top: auto;
+  padding: 1rem;
+  left: 0;
+  bottom: 0;
+  right: 0;
 }
 
 .page-title {
@@ -199,8 +215,9 @@ footer {
 #content {
   position: absolute;
   top: 56;
-  right: 0;
+  right: calc(100% - 300px - 1300px);
   width: calc(100% - 300px);
+  max-width: 1300px;
 }
 
 /* .sidebar {
@@ -280,9 +297,14 @@ footer {
 
 /* Large devices (desktops, 992px and up) */
 @media (min-width: 992px) and (max-width: 1199.98px) {
+  #content {
+    right:0;
+  }
 }
 
 /* Extra large devices (large desktops, 1200px and up) */
-@media (min-width: 1200px) {
-
+@media (min-width: 1200px) and (max-width: 1600px) {
+  #content {
+    right:0;
+  }
 }

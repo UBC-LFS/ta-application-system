@@ -2,6 +2,7 @@
 	<li class="nav-item dropdown">
     	<a class="nav-link dropdown-toggle text-white" data-toggle="dropdown" href="{% url 'administrators:courses' %}" role="button" aria-haspopup="true" aria-expanded="false">Courses</a>
 		<div class="dropdown-menu">
+			<a class="dropdown-item" href="{% url 'administrators:courses' %}">Courses</a>
 			<a class="dropdown-item" href="{% url 'administrators:create_course' %}">Create a Course</a>
 			<a class="dropdown-item" href="{% url 'administrators:all_courses' %}">All Courses</a>
 		</div>
@@ -10,6 +11,7 @@
     <li class="nav-item dropdown">
     	<a class="nav-link dropdown-toggle text-white" data-toggle="dropdown" href="{% url 'administrators:sessions' %}" role="button" aria-haspopup="true" aria-expanded="false">Sessions</a>
     	<div class="dropdown-menu">
+			<a class="dropdown-item" href="{% url 'administrators:sessions' %}">Sessions</a>
       		<a class="dropdown-item" href="{% url 'administrators:create_session' %}">Create a Session</a>
       		<a class="dropdown-item" href="{% url 'administrators:current_sessions' %}">Current Sessions</a>
       		<a class="dropdown-item" href="{% url 'administrators:archived_sessions' %}">Archived Sessions</a>
@@ -19,6 +21,7 @@
     <li class="nav-item dropdown">
     	<a class="nav-link dropdown-toggle text-white" data-toggle="dropdown" href="{% url 'administrators:jobs' %}" role="button" aria-haspopup="true" aria-expanded="false">Jobs</a>
     	<div class="dropdown-menu">
+			<a class="dropdown-item" href="{% url 'administrators:jobs' %}">Jobs</a>
       		<a class="dropdown-item" href="{% url 'administrators:prepare_jobs' %}">Prepare Jobs</a>
       		<a class="dropdown-item" href="{% url 'administrators:progress_jobs' %}">Jobs in Progress</a>
       		<a class="dropdown-item" href="{% url 'administrators:instructor_jobs' %}">Jobs by Instructor</a>
@@ -29,6 +32,7 @@
     <li class="nav-item dropdown">
     	<a class="nav-link dropdown-toggle text-white" data-toggle="dropdown" href="{% url 'administrators:applications' %}" role="button" aria-haspopup="true" aria-expanded="false">Applications</a>
     	<div class="dropdown-menu">
+			<a class="dropdown-item" href="{% url 'administrators:applications' %}">Applications</a>
       		<a class="dropdown-item" href="{% url 'administrators:selected_applications' %}">Selected Applications</a>
       		<a class="dropdown-item" href="{% url 'administrators:offered_applications' %}">Offered Applications</a>
       		<a class="dropdown-item" href="{% url 'administrators:accepted_applications' %}">Accepted Applications</a>
@@ -40,6 +44,7 @@
     <li class="nav-item dropdown">
     	<a class="nav-link dropdown-toggle text-white" data-toggle="dropdown" href="{% url 'administrators:hr' %}" role="button" aria-haspopup="true" aria-expanded="false">Human Resources</a>
     	<div class="dropdown-menu">
+			<a class="dropdown-item" href="{% url 'administrators:hr' %}">Human Resources</a>
       		<a class="dropdown-item" href="{% url 'administrators:create_user' %}">Create a User</a>
     		<a class="dropdown-item" href="{% url 'administrators:users' %}">All Users</a>
 		</div>
@@ -48,6 +53,7 @@
     <li class="nav-item dropdown">
     	<a class="nav-link dropdown-toggle text-white" data-toggle="dropdown" href="{% url 'administrators:preparation' %}" role="button" aria-haspopup="true" aria-expanded="false">Preparation</a>
     	<div class="dropdown-menu">
+			<a class="dropdown-item" href="{% url 'administrators:preparation' %}">Preparation</a>
       		<a class="dropdown-item" href="{% url 'administrators:terms' %}">Terms</a>
       		<a class="dropdown-item" href="{% url 'administrators:course_codes' %}">Course Codes</a>
       		<a class="dropdown-item" href="{% url 'administrators:course_numbers' %}">Course Numbers</a>

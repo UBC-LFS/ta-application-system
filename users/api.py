@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 
 from users.models import *
 from users.forms import UserCreateProfileForm
-from datetime import datetime
+from datetime import datetime, date, timedelta
 
 # to be removed
 from django.utils.crypto import get_random_string
@@ -71,6 +71,7 @@ def get_user_by_username_with_resume(username):
 
 def get_user_with_data(user_id):
     ''' Get a user by id '''
+
     user = get_user(user_id)
 
     if has_user_resume_created(user) and bool(user.resume.file):
@@ -91,16 +92,10 @@ def get_user_with_data(user_id):
     return user
 
 
-
-
-def get_users():
-    ''' '''
-    return User.objects.all().order_by('id')
-
 def get_users_with_data():
     ''' Get all users '''
     users = []
-    for user in get_users():
+    for user in User.objects.all():
         if has_user_resume_created(user) and bool(user.resume.file):
             user.resume_file = os.path.basename(user.resume.file.name)
         else:
@@ -120,9 +115,19 @@ def get_users_with_data():
     return users
 
 
+
+def get_users(option=None):
+    ''' Get all users '''
+    if option == 'trim':
+        target_date = date.today() - timedelta(days=3*365)
+        return User.objects.filter(last_login__lt=target_date), target_date
+
+    return User.objects.all().order_by('id')
+
+
+
 def create_user(data):
     ''' Create a user when receiving data from SAML '''
-
     user = User.objects.create(
         first_name = data['first_name'],
         last_name = data['last_name'],
@@ -165,13 +170,21 @@ def create_profile(user, content):
 
 
 def delete_user(user_id):
-    """ Delete a user """
-    try:
-        user = User.objects.get(id=user_id)
-        user.delete()
-        return user
-    except User.DoesNotExist:
-        return None
+    ''' Delete a user '''
+    user = get_user(user_id)
+    user.delete()
+    return user
+
+
+
+
+
+
+
+
+
+
+# for testing
 
 def user_exists(user):
     """ Check user exists """
@@ -242,14 +255,15 @@ def delete_users():
 
 
 
-# Profile CRUD
+# Profile
 
 def get_instructors():
-    instructors = []
-    for profile in Profile.objects.all():
-        if profile.roles.filter(slug='instructor').exists():
-            instructors.append(profile.user)
-    return instructors
+    ''' Get instructors '''
+    return User.objects.filter(profile__roles__name='Instructor').order_by('id')
+
+def get_students():
+    ''' Get students '''
+    return User.objects.filter(profile__roles__name='Student').order_by('id')
 
 
 def update_user_profile_roles(profile, old_roles, data):
@@ -278,9 +292,10 @@ def update_user_profile(profile, old_roles, old_degrees, old_trainings, data):
 
     return True if profile else None
 
-#checked
+
 def update_student_profile_degrees_trainings(profile, old_degrees, old_trainings, data):
-    """ Update degrees and trainings of a student profile """
+    ''' Update degrees and trainings of a student profile '''
+
     # Remove current degrees and trainings
     profile.degrees.remove( *old_degrees )
     profile.trainings.remove( *old_trainings )
@@ -339,22 +354,20 @@ def file_exists(user, folder, file):
     return exists
 """
 
-def get_instructors():
-    ''' '''
-    instructors = []
-    for user in get_users():
-        if user.profile.roles.filter(name='Instructor').exists():
-            instructors.append(user)
-    return instructors
 
 
-def get_students():
-    ''' '''
-    students = []
-    for user in get_users():
-        if user.profile.roles.filter(name='Student').exists():
-            students.append(user)
-    return students
+def delete_profile_resume_confidentiality(user_id):
+    user = get_user(user_id)
+    
+    resume = delete_user_resume(user.username)
+    sin = delete_user_sin(user.username)
+    study_permit = delete_user_study_permit(user.username)
+    user.confidentiality.delete()
+    user.profile.delete()
+
+    return True if user and resume and sin and study_permit else False
+
+
 
 
 def delete_existing_file(user, folder, file):
@@ -369,6 +382,7 @@ def delete_existing_file(user, folder, file):
     return deleted
 
 def delete_user_resume(username):
+    ''' Delete user's resume '''
     user = get_user_by_username(username)
     file = os.path.basename(user.resume.file.name)
     deleted_resume = user.resume.delete()
@@ -379,6 +393,7 @@ def delete_user_resume(username):
 
 
 def delete_user_sin(username):
+    ''' Delete user's SIN '''
     user = get_user_by_username(username)
     file = os.path.basename(user.confidentiality.sin.name)
     user.confidentiality.sin = None
@@ -391,6 +406,7 @@ def delete_user_sin(username):
 
 
 def delete_user_study_permit(username):
+    ''' Delete user's study permit '''
     user = get_user_by_username(username)
     file = os.path.basename(user.confidentiality.study_permit.name)
     user.confidentiality.study_permit = None
@@ -529,6 +545,7 @@ def delete_training(training_id):
 # Confidentiality
 
 def has_user_confidentiality_created(user):
+    ''' Check whether an user creates confidentiality or not '''
     try:
         return user.confidentiality
     except Confidentiality.DoesNotExist:

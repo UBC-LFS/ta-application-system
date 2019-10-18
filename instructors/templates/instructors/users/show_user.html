@@ -1,0 +1,57 @@
+{% extends 'ta_app/base.html' %}
+{% block content %}
+{% include "ta_app/sidebars/_administrator_sidebar.html" %}
+
+<div id="content" class="container-fluid">
+  {% include 'ta_app/pages/_header.html' with title=user.get_full_name %}
+
+  <div class="mb-4">
+    <a class="btn btn-outline-primary" href="{% url 'instructors:get_applications' session_slug=session_slug job_slug=job_slug %}">Go back to My Applications</a>
+  </div>
+
+  <section>
+    <nav>
+      <div class="nav nav-tabs" id="nav-tab" role="tablist">
+        <a class="nav-item nav-link active" id="nav-basic-info-tab" data-toggle="tab" href="#nav-basic-info" role="tab" aria-controls="nav-basic-info" aria-selected="true">Basic Information</a>
+        <a class="nav-item nav-link" id="nav-profile-tab" data-toggle="tab" href="#nav-profile" role="tab" aria-controls="nav-profile" aria-selected="false">Profile</a>
+      </div>
+    </nav>
+    <div class="tab-content" id="nav-tabContent">
+      <div class="tab-pane fade show active" id="nav-basic-info" role="tabpanel" aria-labelledby="nav-basic-info-tab">
+        <h4 class="text-info my-4">Basic Information</h4>
+
+        <div class="mb-4">
+          <h5>User ID:</h5>
+          <span class="text-secondary">{{ user.id }}</span>
+        </div>
+
+        <div class="mb-4">
+          <h5>Role:</h5>
+          {% for role in user.profile.roles.all %}
+            <span class="badge badge-secondary">{{ role.name.upper }}</span>
+          {% endfor %}
+        </div>
+
+        {% include 'ta_app/users/_basic_info.html' with data=user %}
+
+        <h4>Resume:</h4>
+        {% if user.resume_file %}
+          <a href="{% url 'students:download_resume' username=user.username filename=user.resume_file %}" target="_blank">
+            {{ user.resume_file }}
+          </a>
+          | {{ user.resume.created_at }}
+        {% else %}
+          No resume
+        {% endif %}
+      </div>
+      <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
+        <h4 class="text-info my-4">Profile</h4>
+
+        {% include 'ta_app/users/_profile.html' with data=user %}
+      </div>
+    </div>
+
+  </section>
+</div>
+
+{% endblock %}

@@ -25,7 +25,7 @@
   </div>
 
   <div class="mb-5">
-    <h6>Most Recent Degree:</h6>
+    <h6>Most Recent Degrees:</h6>
     <ul>
       {% for degree in data.profile.degrees.all %}
         <li>{{ degree.name }}</li>
@@ -33,6 +33,11 @@
         <li>None</li>
       {% endfor %}
     </ul>
+  </div>
+
+  <div class="mb-5">
+    <h6>Degree Details:</h6>
+    <span class="text-secondary">{{ data.profile.degree_details }}</span>
   </div>
 
   <div class="mb-5">
@@ -53,7 +58,7 @@
 
   <div class="mb-5">
     <h6>LFS TA Training:</h6>
-    <span class="text-secondary">{{ data.profile.lfs_ta_training }}</span>
+    <span class="text-secondary">{{ data.profile.get_lfs_ta_training_display }}</span>
   </div>
 
   <div class="mb-5">
@@ -63,7 +68,7 @@
 
   <div class="mb-5">
     <h6>Previous TA Experience:</h6>
-    <span class="text-secondary">{{ data.profile.ta_experience }}</span>
+    <span class="text-secondary">{{ data.profile.get_ta_experience_display }}</span>
   </div>
 
   <div class="mb-5">
@@ -87,7 +92,7 @@
   </div>
 
   <small class="text-muted">
-    Created at {{ data.profile.created_at }} <span class="mx-2">|</span>
+    Created at {{ data.profile.created_at }} <span class="dot mx-1 align-middle"></span>
     Updated at {{ data.profile.updated_at }}
   </small>
 </section>

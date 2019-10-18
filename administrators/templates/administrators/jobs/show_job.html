@@ -32,62 +32,50 @@
     <li>Job Slug: {{ job.course.slug }}</li>
   </ul>
 
-  <h4 class="mt-5 mb-3">
+  <h4 class="text-info mt-5 mb-3">
     Applications
     <small class="text-muted">Total: {{ job.application_set.all|length }}</small>
   </h4>
 
-  <table class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center">
-    <thead>
-      <tr>
-        <th>Application ID</th>
-        <th>Applicant</th>
-        <th>CWL</th>
-        <th>Status</th>
-        <th>Supervisor Approval</th>
-        <th>How Qualified</th>
-        <th>How Interested</th>
-        <th>Availability</th>
-        <th>Instructor Preference</th>
-        <th>Classification</th>
-        <th>Note</th>
-        <th>Created at</th>
-        <th>Updated at</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for app in job.application_set.all %}
+  <div class="d-inline-block">
+    <table class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center">
+      <thead>
         <tr>
-          <td>{{ app.id }}</td>
-          <td>{{ app.applicant.first_name }} {{ app.applicant.last_name }}</td>
-          <td>{{ app.applicant.username }}</td>
-          <td>
-            <ul>
-              {% for st in app.applicationstatus_set.all %}
-                <li>{{ st.get_assigned_display }}: {{ st.assigned_hours }} hours on {{ st.created_at }}</li>
-              {% endfor %}
-            </ul>
-          </td>
-          <td>{{ app.supervisor_approval }}</td>
-          <td>{{ app.get_how_qualified_display }}</td>
-          <td>{{ app.get_how_interested_display }}</td>
-          <td>{{ app.availability }}</td>
-          <td>{{ app.get_instructor_preference_display }}</td>
-          <td>{{ app.classification.year }} {{ app.classification.name }}</td>
-          <td>{{ app.note }}</td>
-          <td>{{ app.created_at }}</td>
-          <td>{{ app.updated_at }}</td>
+          <th>Application ID</th>
+          <th>Applicant</th>
+          <th>CWL</th>
+          <th>Application</th>
+          <th>Status</th>
+          <th>Instructor Preference</th>
+          <th>Classification</th>
+          <th>Note</th>
+          <th>Created at</th>
+          <th>Updated at</th>
         </tr>
-      {% empty %}
-        <tr>
-          <td colspan="7">No applications found.</td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+        {% for app in job.application_set.all %}
+          <tr>
+            <td>{{ app.id }}</td>
+            <td>{{ app.applicant.first_name }} {{ app.applicant.last_name }}</td>
+            <td>{{ app.applicant.username }}</td>
+            <td>{% include 'ta_app/applications/_modal_app_details.html' with data=app %}</td>
+            <td>{% include 'ta_app/applications/_modal_app_status.html' with data=app %}</td>
+            <td>{{ app.get_instructor_preference_display }}</td>
+            <td>{{ app.classification.year }} {{ app.classification.name }}</td>
+            <td>{{ app.note }}</td>
+            <td>{{ app.created_at }}</td>
+            <td>{{ app.updated_at }}</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="7">No applications found.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 
 </div>
-
-
 
 {% endblock %}

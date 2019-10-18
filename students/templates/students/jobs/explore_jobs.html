@@ -19,7 +19,7 @@
 					</div>
 					<hr class="mt-1 mb-0" />
 					<div>
-						<h5><a href="{% url 'students:available_jobs' session.slug %}">{{ session.title }} ({{ session.job_set.count }})</a></h5>
+						<h5><a href="{% url 'students:available_jobs' session.slug %}">{{ session.title }} (Jobs: {{ session.job_set.count }})</a></h5>
 						{% if session.description %}
 							<div class="text-secondary">{{ session.description }}</div>
 						{% endif %}

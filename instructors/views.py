@@ -21,7 +21,7 @@ from datetime import datetime
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
 def index(request):
-    ''' '''
+    ''' Index page of an instructor's portal '''
     loggedin_user = userApi.loggedin_user(request.user)
     if 'Instructor' not in loggedin_user.roles: raise PermissionDenied
 
@@ -37,11 +37,24 @@ def profile(request):
     loggedin_user = userApi.loggedin_user(request.user)
     if 'Instructor' not in loggedin_user.roles: raise PermissionDenied
 
-    return render(request, 'instructors/profile.html', {
+    return render(request, 'instructors/users/profile.html', {
         'loggedin_user': loggedin_user,
         'user': loggedin_user
     })
 
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def show_user(request, session_slug, job_slug, username):
+    ''' Display an user's details '''
+    loggedin_user = userApi.loggedin_user(request.user)
+
+    return render(request, 'instructors/users/show_user.html', {
+        'loggedin_user': loggedin_user,
+        'user': userApi.get_user_by_username_with_resume(username),
+        'session_slug': session_slug,
+        'job_slug': job_slug
+    })
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -52,8 +65,7 @@ def my_jobs(request):
     if 'Instructor' not in loggedin_user.roles: raise PermissionDenied
 
     return render(request, 'instructors/jobs/my_jobs.html', {
-        'loggedin_user': loggedin_user,
-        'user': loggedin_user
+        'loggedin_user': loggedin_user
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -64,7 +76,7 @@ def edit_job(request, session_slug, job_slug):
     loggedin_user = userApi.loggedin_user(request.user)
     if 'Instructor' not in loggedin_user.roles: raise PermissionDenied
 
-    job = adminApi.get_session_job_by_slug(session_slug, job_slug)
+    job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
     if request.method == 'POST':
         form = InstructorJobForm(request.POST, instance=job)
         if form.is_valid():
@@ -88,11 +100,23 @@ def edit_job(request, session_slug, job_slug):
         'jobs': adminApi.get_recent_ten_job_details(job.course, job.session.year)
     })
 
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET', 'POST'])
+def show_job(request, session_slug, job_slug):
+    ''' Display job details '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if 'Instructor' not in loggedin_user.roles: raise PermissionDenied
+
+    return render(request, 'instructors/jobs/show_job.html', {
+        'loggedin_user': loggedin_user,
+        'job': adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
+    })
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET', 'POST'])
-def get_applications(request, session_slug, job_slug):
+def my_applications(request, session_slug, job_slug):
     ''' Display applications applied by students '''
     loggedin_user = userApi.loggedin_user(request.user)
     if 'Instructor' not in loggedin_user.roles: raise PermissionDenied
@@ -104,29 +128,16 @@ def get_applications(request, session_slug, job_slug):
             instructor_preference = request.POST.get('instructor_preference')
             updated_application = adminApi.update_application_instructor_preference(application_id, instructor_preference)
             if updated_application:
-                messages.success(request, 'Success! Instructor Preference is selected for {0} '.format(updated_application.applicant.username))
-                return HttpResponseRedirect( reverse('instructors:get_applications', args=[session_slug, job_slug]) )
+                messages.success(request, 'Success! {0} is selected.'.format(updated_application.applicant.username))
+                return HttpResponseRedirect( reverse('instructors:my_applications', args=[session_slug, job_slug]) )
             else:
-                messages.error(request, 'An error occurred.')
+                messages.error(request, 'An error occurred while updating an instructor_preference.')
         else:
             errors = form.errors.get_json_data()
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
-    return render(request, 'instructors/jobs/get_applications.html', {
+    return render(request, 'instructors/jobs/my_applications.html', {
         'loggedin_user': loggedin_user,
-        'job': adminApi.get_session_job_by_slug(session_slug, job_slug),
+        'job': adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug),
         'instructor_preference_choices': Application.INSTRUCTOR_PREFERENCE_CHOICES
-    })
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET', 'POST'])
-def show_job(request, session_slug, job_slug):
-    ''' Display job details '''
-    loggedin_user = userApi.loggedin_user(request.user)
-    if 'Instructor' not in loggedin_user.roles: raise PermissionDenied
-
-    return render(request, 'instructors/jobs/show_job.html', {
-        'loggedin_user': loggedin_user,
-        'job': adminApi.get_session_job_by_slug(session_slug, job_slug)
     })

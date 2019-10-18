@@ -8,7 +8,7 @@
   {% include 'ta_app/pages/_header.html' with title='All Users' text=users|length %}
 
   <table
-    class="table table-sm table-hover table-striped table-responsive-md"
+    class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center"
     data-toggle="table"
     data-sortable="true"
     data-classes=""
@@ -24,85 +24,87 @@
       <tr>
         <th data-sortable="true">User ID</th>
         <th data-sortable="true">First Name</th>
-        <th data-sortable="true">Prefered Name</th>
         <th data-sortable="true">Last Name</th>
+        <th data-sortable="true">Prefered Name</th>
         <th data-sortable="true">CWL</th>
         <th data-sortable="true">UBC Number</th>
-        <th data-sortable="true">Role</th>
         <th data-sortable="true">Email</th>
+        <th data-sortable="true">Role</th>
         <th>Confidentiality</th>
         <th>Actions</th>
       </tr>
     </thead>
     <tbody>
-    {% for user in users %}
-      <tr>
-        <td>
-          <a href="{% url 'administrators:show_user' username=user.username path='users' %}">{{ user.id }}</a>
-        </td>
-        <td>{{ user.first_name }}</td>
-        <td>{{ user.profile.preferred_name }}</td>
-        <td>{{ user.last_name }}</td>
-        <td>{{ user.username }}</td>
-        <td>{{ user.profile.ubc_number }}</td>
-        <td>
-          {% for role in user.profile.roles.all %}
-            {{ role.name }},
-          {% endfor %}
-        </td>
-        <td>{{ user.email }}</td>
-        <td>
-          <a href="{% url 'administrators:view_confidentiality' username=user.username %}">View</a>
-        </td>
-        <td>
-          <div class="btn-toolbar">
-            <button type="button" class="btn btn-sm btn-warning" data-toggle="modal" data-target="#users-modal-{{ user.id }}">Change Role</button>
+      {% for user in users %}
+        <tr>
+          <td>
+            <a href="{% url 'administrators:show_user' username=user.username path='users' %}">{{ user.id }}</a>
+          </td>
+          <td>{{ user.first_name }}</td>
+          <td>{{ user.last_name }}</td>
+          <td>{{ user.profile.preferred_name }}</td>
+          <td>{{ user.username }}</td>
+          <td>{{ user.profile.ubc_number }}</td>
+          <td>{{ user.email }}</td>
+          <td>
+            {% for role in user.profile.roles.all %}
+              {{ role.name }},
+            {% endfor %}
+          </td>
+          <td>
+            <a href="{% url 'administrators:view_confidentiality' username=user.username %}">View</a>
+          </td>
+          <td>
+            <div class="btn-toolbar">
+              <button type="button" class="btn btn-sm btn-warning mr-2" data-toggle="modal" data-target="#users-modal-{{ user.id }}">Change Role</button>
 
-            <div class="modal fade" id="users-modal-{{ user.id }}" tabindex="-1" role="dialog" aria-labelledby="users-modal-label-{{ user.id }}" aria-hidden="true">
-              <div class="modal-dialog modal-lg" role="document">
-                <div class="modal-content">
-                  <div class="modal-header">
-                    <h5 class="modal-title" id="users-modal-label-{{ user.id }}">Change Role</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                      <span aria-hidden="true">&times;</span>
-                    </button>
-                  </div>
-                  <div class="modal-body text-left">
-                    <h5 class="mb-4">
-                      {{ user.get_full_name }}
-                      <small class="text-muted">{{ user.username }}</small>
-                    </h5>
+              <div class="modal fade" id="users-modal-{{ user.id }}" tabindex="-1" role="dialog" aria-labelledby="users-modal-label-{{ user.id }}" aria-hidden="true">
+                <div class="modal-dialog modal-lg" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="users-modal-label-{{ user.id }}">Change Role</h5>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body text-left">
+                      <h5 class="mb-4">
+                        {{ user.get_full_name }}
+                        <small class="text-muted">{{ user.username }}</small>
+                      </h5>
 
-                    <form action="" method="post">
-                      {% csrf_token %}
-                      {% for role in roles %}
-                        <div>
-                          <input type="checkbox" name="roles" value="{{ role.id }}"
-                            {% if role in user.profile.roles.all %}
-                              checked
-                            {% endif %}
-                          /> {{ role.name }}
-                        </div>
-                      {% endfor %}
-                      <input type="hidden" name="user" value="{{ user.id }}" />
-                      <input class="btn btn-warning mt-4" type="submit" value="Change" />
-                    </form>
+                      <form action="" method="post">
+                        {% csrf_token %}
+                        {% for role in roles %}
+                          <div>
+                            <input type="checkbox" name="roles" value="{{ role.id }}"
+                              {% if role in user.profile.roles.all %}
+                                checked
+                              {% endif %}
+                            /> {{ role.name }}
+                          </div>
+                        {% endfor %}
+                        <input type="hidden" name="user" value="{{ user.id }}" />
+                        <input class="btn btn-warning mt-4" type="submit" value="Change" />
+                      </form>
 
+                    </div>
                   </div>
                 </div>
               </div>
+
+              <form action="{% url 'administrators:delete_user' %}" method="post" onsubmit="return confirm('Are you sure to delete {{ user.first_name }} {{ user.last_name }} ({{ user.username }})?');">
+                {% csrf_token %}
+                <input type="hidden" name="user" value="{{ user.id }}" />
+                <input class="btn btn-sm btn-danger" type="submit" value="Delete" />
+              </form>
             </div>
-          </div>
-          <form action="{% url 'administrators:delete_user' %}" method="post" onsubmit="return confirm('Are you sure to delete {{ user.first_name }} {{ user.last_name }} ({{ user.username }})?');">
-            {% csrf_token %}
-            <input type="hidden" name="user" value="{{ user.id }}">
-            <input class="btn btn-sm btn-danger" type="submit" value="Delete" />
-          </form>
-        </td>
-      </tr>
-    {% endfor %}
+          </td>
+        </tr>
+      {% endfor %}
     </tbody>
   </table>
+  <footer class="text-center">University of British Columbia</footer>
 </div>
 
 

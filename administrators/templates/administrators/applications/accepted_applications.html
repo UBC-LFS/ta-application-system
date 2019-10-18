@@ -28,11 +28,12 @@
         <th data-sortable="true">Job</th>
         <th data-sortable="true">Applicant</th>
         <th data-sortable="true">Status</th>
-        <th data-sortable="true">Instructor Preference</th>
+        <th data-sortable="true">Instructor<br /> Preference</th>
         <th data-sortable="true">Classification</th>
         <th data-sortable="true">Note</th>
         <th data-sortable="true">Created at</th>
         <th data-sortable="true">Updated at</th>
+        <th data-sortable="true">Accpeted at</th>
         <th>Actions</th>
       </tr>
     </thead>
@@ -52,61 +53,72 @@
           <td>
             <a href="{% url 'administrators:show_user' username=app.applicant.username path='accepted' %}">{{ app.applicant.first_name }} {{ app.applicant.last_name }}</a>
           </td>
-          <td>
-            {% include 'administrators/util/_modal_application_status.html' with data=app %}
-          </td>
+          <td>{% include 'ta_app/applications/_modal_app_status.html' with data=app %}</td>
           <td>{{ app.classification.year }} {{ app.classification.name }}</td>
           <td>{{ app.get_instructor_preference_display }}</td>
           <td>{{ app.note }}</td>
           <td>{{ app.created_at }}</td>
           <td>{{ app.updated_at }}</td>
+          <td>{{ app.accepted.created_at }}</td>
           <td>
-            <button class="btn btn-sm btn-danger" type="button" data-toggle="modal" data-target="#jobApplicationModal-{{ app.id }}">Decline & Reassign</button>
-            <div class="modal fade" id="jobApplicationModal-{{ app.id }}" tabindex="-1" role="dialog" aria-labelledby="jobApplicationModalLabel-{{ app.id }}" aria-hidden="true">
-              <div class="modal-dialog modal-lg" role="document">
-                <div class="modal-content">
-                  <div class="modal-header">
-                    <h5 class="modal-title" id="jobApplicationModalLabel-{{ app.id }}">Decline & Reassign</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                  </div>
-                  <div class="modal-body text-left">
+            <div class="btn-toolbar">
 
-                    <h4 class="text-info">To {{ app.applicant.get_full_name }} ({{ app.applicant.username }})</h4>
-                    <h6 class="text-secondary mb-3">for {{ app.job.session.year }} {{ app.job.session.term.code }} - {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</h6>
+              <button class="btn btn-sm btn-warning mr-2" type="button" data-toggle="modal" data-target="#job-application-modal-{{ app.id }}">Decline & Re-assign</button>
 
-                    <form action="{% url 'administrators:decline_reassign' %}" method="post">
-                      {% csrf_token %}
-                      <table class="table table-borderless">
-                        <tr>
-                          <td>
-                            <span class="font-weight-bold">Assigned Hours:</span>
-                          </td>
-                          <td>
-                            <input type="number" name="new_assigned_hours" value="{{ app.has_accepted }}" />
-                          </td>
-                        </tr>
-                      </table>
+              <div class="modal fade" id="job-application-modal-{{ app.id }}" tabindex="-1" role="dialog" aria-labelledby="job-application-modal-label-{{ app.id }}" aria-hidden="true">
+                <div class="modal-dialog modal-lg" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="job-application-modal-label-{{ app.id }}">Decline & Reassign</h5>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    </div>
+                    <div class="modal-body text-left">
 
-                      <input type="hidden" name="old_assigned_hours" value="{{ app.has_accepted }}" />
-                      <input type="hidden" name="application" value="{{ app.id }}" />
-                      <input class="btn btn-sm btn-warning" type="submit" value="Decline & Re-assign" />
-                    </form>
+                      <h4 class="text-info">To {{ app.applicant.get_full_name }} ({{ app.applicant.username }})</h4>
+                      <h6 class="text-secondary mb-3">for {{ app.job.session.year }} {{ app.job.session.term.code }} - {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</h6>
+
+                      <form action="{% url 'administrators:decline_reassign' %}" method="post">
+                        {% csrf_token %}
+                        <table class="table table-borderless">
+                          <tr>
+                            <td>
+                              <span class="font-weight-bold">Assigned Hours:</span>
+                            </td>
+                            <td>
+                              <input type="number" name="new_assigned_hours" value="{{ app.accepted.assigned_hours }}" />
+                            </td>
+                          </tr>
+                        </table>
+
+                        <input type="hidden" name="old_assigned_hours" value="{{ app.accepted.assigned_hours }}" />
+                        <input type="hidden" name="application" value="{{ app.id }}" />
+                        <input class="btn btn-sm btn-warning" type="submit" value="Decline & Re-assign" />
+                      </form>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
 
+              {% if app.is_terminated %}
+
+                <button class="btn btn-sm btn-danger" type="button" disabled>Terminated</button>
+
+              {% else %}
+                <form action="{% url 'administrators:terminate' app_slug=app.slug %}" method="post" onsubmit="return confirm('Are you sure to terminate this application (ID: {{ app.id }}))?');">
+                  {% csrf_token %}
+                  <input type="hidden" name="application" value="{{ app.id }}" />
+                  <input class="btn btn-sm btn-danger" type="submit" value="Terminate" />
+                </form>
+              {% endif %}
+
+            </div>
           </td>
-        </tr>
-      {% empty %}
-        <tr>
-          <td colspan="14">No applications found.</td>
         </tr>
       {% endfor %}
     </tbody>
   </table>
 
-
+  <footer class="text-center">University of British Columbia</footer>
 </div>
 
 

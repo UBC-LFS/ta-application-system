@@ -162,11 +162,42 @@ def delete_user(request):
         if deleted_user:
             messages.success(request, 'Success! {0} {1} ({2}) deleted'.format(deleted_user.first_name, deleted_user.last_name, deleted_user.username))
         else:
-            messages.error(request, 'An error occurred.')
+            messages.error(request, 'An error occurred while deleting a user.')
 
     return redirect('administrators:users')
 
 
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET', 'POST'])
+def trim_users(request):
+    ''' Trim users who have no actions for 3 years '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user) and 'HR' not in loggedin_user.roles: raise PermissionDenied
+
+    users = None
+    target_date = None
+    if request.method == 'POST':
+        data = request.POST.getlist('user')
+        count = 0
+        for user_id in data:
+            deleted = userApi.delete_profile_resume_confidentiality(user_id)
+            if deleted: count += 1
+
+        if count == len(data):
+            messages.success(request, 'Success! The information of {0} deleted'.format(data))
+        else:
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+
+        return redirect('administrators:trim_users')
+    else:
+        users, target_date = userApi.get_users('trim')
+
+    return render(request, 'administrators/hr/trim_users.html', {
+        'loggedin_user': loggedin_user,
+        'users': users,
+        'target_date': target_date
+    })
 
 
 # Courses
@@ -278,7 +309,7 @@ def delete_course(request):
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET', 'POST'])
+@require_http_methods(['GET'])
 def sessions(request):
     ''' Display all information of sessions and create a session '''
     loggedin_user = userApi.loggedin_user(request.user)
@@ -498,7 +529,7 @@ def show_job(request, session_slug, job_slug, path):
 
     return render(request, 'administrators/jobs/show_job.html', {
         'loggedin_user': loggedin_user,
-        'job': adminApi.get_session_job_by_slug(session_slug, job_slug),
+        'job': adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug),
         'path': path
     })
 
@@ -536,6 +567,7 @@ def instructor_jobs(request):
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
 
+    instructors = userApi.get_instructors()
     return render(request, 'administrators/jobs/instructor_jobs.html', {
         'loggedin_user': loggedin_user,
         'instructors': userApi.get_instructors()
@@ -564,7 +596,7 @@ def show_job_applications(request, session_slug, job_slug):
 
     return render(request, 'administrators/jobs/show_job_applications.html', {
         'loggedin_user': loggedin_user,
-        'job': adminApi.get_session_job_by_slug(session_slug, job_slug)
+        'job': adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
     })
 
 
@@ -590,11 +622,12 @@ def student_jobs_details(request, username):
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
 
     user = userApi.get_user_by_username(username)
-    student_jobs = adminApi.get_jobs_applied_by_student(user)
-    #offered_jobs, offered_summary = adminApi.get_offered_jobs_by_student(user, student_jobs)
     offered_apps, offered_total_assigned_hours = adminApi.get_applications_with_status_by_user(user, ApplicationStatus.OFFERED)
-    #accepted_jobs, accepted_summary = adminApi.get_accepted_jobs_by_student(user, student_jobs)
     accepted_apps, accepted_total_assigned_hours = adminApi.get_applications_with_status_by_user(user, ApplicationStatus.ACCEPTED)
+
+    #student_jobs = adminApi.get_jobs_applied_by_student(user)
+    #offered_jobs, offered_summary = adminApi.get_offered_jobs_by_student(user, student_jobs)
+    #accepted_jobs, accepted_summary = adminApi.get_accepted_jobs_by_student(user, student_jobs)
     return render(request, 'administrators/jobs/student_jobs_details.html', {
         'loggedin_user': loggedin_user,
         'user': user,
@@ -613,7 +646,7 @@ def edit_job(request, session_slug, job_slug):
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
 
-    job = adminApi.get_session_job_by_slug(session_slug, job_slug)
+    job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
     job_instructors = job.instructors.all()
     if request.method == 'POST':
         form = AdminJobForm(request.POST, instance=job)
@@ -673,9 +706,8 @@ def show_application(request, app_slug, path):
 
     return render(request, 'administrators/applications/show_application.html', {
         'loggedin_user': userApi.loggedin_user(request.user),
-        'app': adminApi.get_application_slug(app_slug),
+        'app': adminApi.get_application_by_slug(app_slug),
         'path': path
-        #'form': AdminApplicationForm(initial={ 'assigned': ApplicationStatus.OFFERED })
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -688,7 +720,7 @@ def applications_dashboard(request):
 
     return render(request, 'administrators/applications/applications_dashboard.html', {
         'loggedin_user': loggedin_user,
-        'applications': adminApi.get_applications('-updated_at'),
+        'applications': adminApi.get_applications(),
         'statuses': adminApi.get_application_statuses(),
         'app_status': {
             'applied': ApplicationStatus.NONE,
@@ -729,42 +761,43 @@ def selected_applications(request):
     filters = None
     if bool(year_q):
         if filters:
-            filters = filters & Q(job__session__year__icontains=year_q)
+            filters = filters & Q(job__session__year__iexact=year_q)
         else:
-            filters = Q(job__session__year__icontains=year_q)
+            filters = Q(job__session__year__iexact=year_q)
     if bool(term_q):
         if filters:
-            filters = filters & Q(job__session__term__code__icontains=term_q)
+            filters = filters & Q(job__session__term__code__iexact=term_q)
         else:
-            filters = Q(job__session__term__code__icontains=term_q)
+            filters = Q(job__session__term__code__iexact=term_q)
     if bool(code_q):
         if filters:
-            filters = filters & Q(job__course__code__name__icontains=code_q)
+            filters = filters & Q(job__course__code__name__iexact=code_q)
         else:
-            filters = Q(job__course__code__name__icontains=code_q)
+            filters = Q(job__course__code__name__iexact=code_q)
     if bool(number_q):
         if filters:
-            filters = filters & Q(job__course__number__name__icontains=number_q)
+            filters = filters & Q(job__course__number__name__iexact=number_q)
         else:
-            filters = Q(job__course__number__name__icontains=number_q)
+            filters = Q(job__course__number__name__iexact=number_q)
     if bool(section_q):
         if filters:
-            filters = filters & Q(job__course__section__name__icontains=section_q)
+            filters = filters & Q(job__course__section__name__iexact=section_q)
         else:
-            filters = Q(job__course__section__name__icontains=section_q)
+            filters = Q(job__course__section__name__iexact=section_q)
     if bool(cwl_q):
         if filters:
-            filters = filters & Q(applicant__username__icontains=cwl_q)
+            filters = filters & Q(applicant__username__iexact=cwl_q)
         else:
-            filters = Q(applicant__username__icontains=cwl_q)
+            filters = Q(applicant__username__iexact=cwl_q)
 
-    applications = adminApi.get_applications('job')
+    apps = adminApi.get_selected_applications()
     if bool(year_q) or bool(term_q) or bool(code_q) or bool(number_q) or bool(section_q) or bool(cwl_q):
-        applications = Application.objects.filter(filters)
+        print(filters)
+        apps = Application.objects.filter(filters)
 
     return render(request, 'administrators/applications/selected_applications.html', {
         'loggedin_user': loggedin_user,
-        'selected_applications': adminApi.get_selected_applications(applications),
+        'selected_applications': apps,
         'admin_application_form': AdminApplicationForm(),
         'status_form': ApplicationStatusForm(initial={ 'assigned': ApplicationStatus.OFFERED }),
         'classification_choices': adminApi.get_classifications(),
@@ -781,7 +814,7 @@ def offered_applications(request):
 
     return render(request, 'administrators/applications/offered_applications.html', {
         'loggedin_user': loggedin_user,
-        'offered_applications': adminApi.get_offered_applications()
+        'offered_applications': adminApi.get_applications_by_status(ApplicationStatus.OFFERED)
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -794,9 +827,23 @@ def accepted_applications(request):
 
     return render(request, 'administrators/applications/accepted_applications.html', {
         'loggedin_user': loggedin_user,
-        'accepted_applications': adminApi.get_accepted_applications()
+        'accepted_applications': adminApi.get_applications_by_status(ApplicationStatus.ACCEPTED)
     })
 
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def declined_applications(request):
+    ''' Display applications declined by students '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user): raise PermissionDenied
+
+    return render(request, 'administrators/applications/declined_applications.html', {
+        'loggedin_user': loggedin_user,
+        'declined_applications': adminApi.get_applications_by_status(ApplicationStatus.DECLINED)
+    })
+
+"""
 def show_user_accepted_job_summary(request, username):
     ''' Display a summary of user's accepted applications '''
     loggedin_user = userApi.loggedin_user(request.user)
@@ -810,20 +857,7 @@ def show_user_accepted_job_summary(request, username):
         'user': user,
         'accepted_jobs': accepted_jobs,
         'accepted_summary': accepted_summary
-    })
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
-def declined_applications(request):
-    ''' Display applications declined by students '''
-    loggedin_user = userApi.loggedin_user(request.user)
-    if not userApi.is_admin(loggedin_user): raise PermissionDenied
-
-    return render(request, 'administrators/applications/declined_applications.html', {
-        'loggedin_user': loggedin_user,
-        'declined_applications': adminApi.get_declined_applications()
-    })
+    })"""
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -834,13 +868,13 @@ def edit_job_application(request, session_slug, job_slug):
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
 
     if request.method == 'POST':
-        application_id = request.POST.get('application')
+        app_id = request.POST.get('application')
         form = AdminApplicationForm(request.POST)
         if form.is_valid():
             data = form.cleaned_data
-            updated_application = adminApi.update_application_classification_note(application_id, data)
-            if updated_application:
-                messages.success(request, 'Success! {0} - classification and note updated'.format(updated_application.applicant.username))
+            updated_app = adminApi.update_application_classification_note(app_id, data)
+            if updated_app:
+                messages.success(request, 'Success! {0} - classification and note updated'.format(updated_app.applicant.username))
             else:
                 messages.error(request, 'An error occurred. Failed to update classification and note.')
         else:
@@ -864,9 +898,9 @@ def offer_job(request, session_slug, job_slug):
         if form.is_valid():
             status = form.save()
             if status:
-                job = adminApi.get_session_job_by_slug(session_slug, job_slug)
-                app = adminApi.get_application_by_student_id_job(applicant_id, job)
-                messages.success(request, 'Success! You offered this user ({0} {1}) {2} hours for this job ({3} {4} - {5} {6} {7})'.format(app.applicant.first_name, app.applicant.last_name, assigned_hours, app.job.session.year, app.job.session.term.code, app.job.course.code.name, app.job.course.number.name, app.job.course.section.name))
+                job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
+                applicant = userApi.get_user(applicant_id)
+                messages.success(request, 'Success! You offered this user ({0} {1}) {2} hours for this job ({3} {4} - {5} {6} {7})'.format(applicant.first_name, applicant.last_name, assigned_hours, job.session.year, job.session.term.code, job.course.code.name, job.course.number.name, job.course.section.name))
             else:
                 messages.error(request, 'An error occurred. Failed to offer a job.')
         else:
@@ -1064,13 +1098,13 @@ def decline_reassign_confirmation(request):
                 if reassigned_status:
                     updated = adminApi.update_job_ta_hours(app.job.session.slug, app.job.course.slug, float(new_assigned_hours) - float(old_assigned_hours))
                     if updated:
-                        messages.success(request, 'Success! Application (ID: {0}) updated'.format(app_id))
+                        messages.success(request, 'Success! The status of Application (ID: {0}) updated'.format(app_id))
                     else:
                         messages.error(request, 'An error occurred. Failed to update ta hours in a job')
                 else:
-                    messages.error(request, 'An error occurred.')
+                    messages.error(request, 'An error occurred while updating a reassigned status.')
             else:
-                messages.error(request, 'An error occurred.')
+                messages.error(request, 'An error occurred while saving a declined status.')
         else:
             errors = form.errors.get_json_data()
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
@@ -1095,15 +1129,23 @@ def decline_reassign_confirmation(request):
         'new_ta_hours': new_ta_hours
     })
 
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['POST'])
+def terminate(request, app_slug):
+    ''' Terminate an application, then students can can their accepted jobs '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user): raise PermissionDenied
 
+    if request.method == 'POST':
+        app_id = request.POST.get('application')
+        terminated_app = adminApi.terminate_application(app_id)
+        if terminated_app:
+            messages.success(request, 'Success! Application (ID: {0}) terminated.'.format(terminated_app.id))
+        else:
+            messages.error(request, 'An error occurred while termniating an application.')
 
-
-
-
-
-
-
-
+    return redirect('administrators:accepted_applications')
 
 
 # ------------- Preparation -------------

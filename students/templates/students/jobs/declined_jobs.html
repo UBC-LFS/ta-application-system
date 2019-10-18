@@ -10,34 +10,32 @@
     <table class="table table-bordered table-hover table-striped table-responsive-md text-center" data-toggle="table" data-sortable="true" data-classes="" data-pagination="true" data-search="true">
       <thead>
         <tr>
-          <th>Year</th>
-          <th>Term</th>
-          <th>Job</th>
-          <th>Assigned Status</th>
-          <th>Assigned Hours</th>
+          <th data-sortable="true">Year</th>
+          <th data-sortable="true">Term</th>
+          <th data-sortable="true">Job</th>
+          <th data-sortable="true">Assigned Status</th>
+          <th data-sortable="true">Assigned Hours</th>
           <th>Declined at</th>
         </tr>
       </thead>
       <tbody>
         {% for app in apps %}
-        <tr>
-          <td>{{ app.job.session.year }}</td>
-          <td>{{ app.job.session.term.code }}</td>
-          <td>
-            <a href="{% url 'students:show_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}">
-              {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}
-            </a>
-          </td>
-          <td>
-            <span class="badge badge-danger">{{ app.declined.get_assigned_display }}</span>
-          </td>
-          <td>{{ app.declined.assigned_hours }} hours</td>
-          <td>{{ app.declined.created_at }}</td>
-        </tr>
-        {% empty %}
-          <tr>
-            <td colspan="3">No declined jobs found</td>
-          </tr>
+          {% if app.declined %}
+            <tr>
+              <td>{{ app.job.session.year }}</td>
+              <td>{{ app.job.session.term.code }}</td>
+              <td>
+                <a href="{% url 'students:show_job' session_slug=app.job.session.slug job_slug=app.job.course.slug path='declined' %}">
+                  {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}
+                </a>
+              </td>
+              <td>
+                <span class="badge badge-danger">{{ app.declined.get_assigned_display }}</span>
+              </td>
+              <td>{{ app.declined.assigned_hours }} hours</td>
+              <td>{{ app.declined.created_at }}</td>
+            </tr>
+          {% endif %}
         {% endfor %}
       </tbody>
     </table>
