@@ -41,7 +41,7 @@ class JobTest(TestCase):
         response = self.client.get( reverse('students:show_profile') )
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get( reverse('students:edit_profile', args=['test.user10']) )
+        response = self.client.get( reverse('students:edit_profile') )
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get( reverse('students:show_confidentiality') )
@@ -74,7 +74,7 @@ class JobTest(TestCase):
         response = self.client.get( reverse('students:declined_jobs') )
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get( reverse('students:offered_job', args=[session_slug, 'lfs-150-001-scholarly-writing-and-argumentation-in-land-and-food-systems-w1']) )
+        response = self.client.get( reverse('students:accept_decline_job', args=[session_slug, 'lfs-150-001-scholarly-writing-and-argumentation-in-land-and-food-systems-w1']) )
         self.assertEqual(response.status_code, 200)
 
     def test_show_profile(self):
@@ -110,7 +110,7 @@ class JobTest(TestCase):
             'ta_experience_details': 'Ta experience details'
         }
 
-        response = self.client.post( reverse('students:edit_profile', args=['test.user10']), data=urlencode(data, True), content_type=ContentType )
+        response = self.client.post( reverse('students:edit_profile'), data=urlencode(data, True), content_type=ContentType )
         messages = self.messages(response)
         self.assertTrue('Success' in messages[0])
         self.assertEqual(response.status_code, 302)
@@ -262,8 +262,7 @@ class JobTest(TestCase):
 
         response = self.client.post( reverse('students:check_confidentiality'), data=urlencode(data), content_type=ContentType )
         messages = self.messages(response)
-
-        self.assertTrue('Thank you' in messages[0])
+        self.assertTrue('Please submit your information' in messages[0])
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, response.url)
 
@@ -359,7 +358,7 @@ class JobTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, 'test.user10')
         self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
-        self.assertEqual( len(response.context['applied_jobs']), 9 )
+        self.assertEqual( len(response.context['apps']), 9 )
 
     def test_offered_jobs(self):
         print('\n- Test: Display jobs offered from admins')
@@ -369,8 +368,8 @@ class JobTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, 'test.user10')
         self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
-        self.assertEqual( len(response.context['offered_jobs']), 4 )
-        self.assertEqual( len(response.context['offered_summary']), 2 )
+        self.assertEqual( len(response.context['apps']), 4 )
+        self.assertEqual( len(response.context['total_assigned_hours']), 2 )
 
     def test_accepted_jobs(self):
         print('\n- Test: Display jobs accepted by a student')
@@ -380,8 +379,8 @@ class JobTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, 'test.user10')
         self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
-        self.assertEqual( len(response.context['accepted_jobs']), 3 )
-        self.assertEqual( len(response.context['accepted_summary']), 2 )
+        self.assertEqual( len(response.context['apps']), 3 )
+        self.assertEqual( len(response.context['total_assigned_hours']), 2 )
 
     def test_declined_jobs(self):
         print('\n- Test: Display jobs declined by a student')
@@ -391,25 +390,26 @@ class JobTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, 'test.user10')
         self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
-        self.assertEqual( len(response.context['declined_jobs']), 2 )
+        self.assertEqual( len(response.context['apps']), 2 )
 
-    def test_offered_job(self):
+    def test_accept_decline_job(self):
         print('\n- Test: Display a job to select accept or decline a job offer')
         self.login('test.user20', '20')
 
         session_slug = '2019-w1'
         job_slug = 'lfs-100-001-introduction-to-land-food-and-community-w1'
 
-        response = self.client.get( reverse('students:offered_job', args=[session_slug, job_slug]) )
+        response = self.client.get( reverse('students:accept_decline_job', args=[session_slug, job_slug]) )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, 'test.user20')
         self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
-        self.assertEqual(response.context['job'].course.slug, job_slug)
-        self.assertEqual(response.context['application'].applicant.username, 'test.user20')
-        self.assertEqual(response.context['get_offered'].assigned, ApplicationStatus.OFFERED)
-        self.assertEqual(response.context['get_offered'].assigned_hours, 10.0)
-        self.assertFalse(response.context['get_accepted'])
-        self.assertFalse( response.context['get_declined'] )
+        self.assertEqual(response.context['app'].job.session.slug, session_slug)
+        self.assertEqual(response.context['app'].job.course.slug, job_slug)
+        self.assertEqual(response.context['app'].applicant.username, 'test.user20')
+        self.assertEqual(response.context['app'].offered.get_assigned_display(), 'Offered')
+        self.assertEqual(response.context['app'].offered.assigned_hours, 10.0)
+        self.assertFalse(response.context['app'].accepted)
+        self.assertFalse( response.context['app'].declined )
 
     def test_accept_offer(self):
         print('\n- Test: Students accept a job offer')
@@ -418,16 +418,16 @@ class JobTest(TestCase):
         session_slug = '2019-w1'
         job_slug = 'lfs-100-001-introduction-to-land-food-and-community-w1'
 
-        response = self.client.get( reverse('students:offered_job', args=[session_slug, job_slug]) )
+        response = self.client.get( reverse('students:accept_decline_job', args=[session_slug, job_slug]) )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, 'test.user20')
         self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
-        self.assertEqual(response.context['job'].course.slug, job_slug)
-        self.assertEqual(response.context['application'].applicant.username, 'test.user20')
+        self.assertEqual(response.context['app'].job.course.slug, job_slug)
+        self.assertEqual(response.context['app'].applicant.username, 'test.user20')
 
         data = {
-            'application': response.context['application'].id,
-            'assigned_hours': response.context['get_offered'].assigned_hours
+            'application': response.context['app'].id,
+            'assigned_hours': response.context['app'].offered.assigned_hours
         }
 
         response = self.client.post( reverse('students:accept_offer', args=[session_slug, job_slug]), data=urlencode(data), content_type=ContentType )
@@ -441,14 +441,14 @@ class JobTest(TestCase):
         self.assertEqual(response.context['loggedin_user'].username, 'test.user20')
         self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
 
-        accepted_jobs = response.context['accepted_jobs']
-        accepted_summary = response.context['accepted_summary']
-        self.assertEqual( len(accepted_jobs), 1 )
-        self.assertEqual(accepted_jobs[0]['session_slug'], session_slug)
-        self.assertEqual(accepted_jobs[0]['job_slug'], job_slug)
-        self.assertEqual(accepted_jobs[0]['assigned_status'], 'Accepted')
-        self.assertEqual(accepted_jobs[0]['assigned_hours'], data['assigned_hours'])
-        self.assertEqual(accepted_summary[session_slug.upper()], data['assigned_hours'])
+        apps = response.context['apps']
+        total_assigned_hours = response.context['total_assigned_hours']
+        self.assertEqual( len(apps), 1 )
+        self.assertEqual(apps[0].job.session.slug, session_slug)
+        self.assertEqual(apps[0].job.course.slug, job_slug)
+        self.assertEqual(apps[0].accepted.get_assigned_display(), 'Accepted')
+        self.assertEqual(apps[0].accepted.assigned_hours, data['assigned_hours'])
+        self.assertEqual(total_assigned_hours[session_slug.upper()], data['assigned_hours'])
 
     def test_decline_offer(self):
         print('\n- Test: Students decline job offers')
@@ -457,16 +457,17 @@ class JobTest(TestCase):
         session_slug = '2019-w1'
         job_slug = 'lfs-100-001-introduction-to-land-food-and-community-w1'
 
-        response = self.client.get( reverse('students:offered_job', args=[session_slug, job_slug]) )
+        response = self.client.get( reverse('students:accept_decline_job', args=[session_slug, job_slug]) )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, 'test.user20')
         self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
-        self.assertEqual(response.context['job'].course.slug, job_slug)
-        self.assertEqual(response.context['application'].applicant.username, 'test.user20')
+        self.assertEqual(response.context['app'].job.session.slug, session_slug)
+        self.assertEqual(response.context['app'].job.course.slug, job_slug)
+        self.assertEqual(response.context['app'].applicant.username, 'test.user20')
 
         data = {
-            'application': response.context['application'].id,
-            'assigned_hours': response.context['get_offered'].assigned_hours
+            'application': response.context['app'].id,
+            'assigned_hours': response.context['app'].offered.assigned_hours
         }
 
         response = self.client.post( reverse('students:decline_offer', args=[session_slug, job_slug]), data=urlencode(data), content_type=ContentType )
@@ -480,9 +481,9 @@ class JobTest(TestCase):
         self.assertEqual(response.context['loggedin_user'].username, 'test.user20')
         self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
 
-        accepted_jobs = response.context['declined_jobs']
-        self.assertEqual( len(accepted_jobs), 1 )
-        self.assertEqual(accepted_jobs[0]['session_slug'], session_slug)
-        self.assertEqual(accepted_jobs[0]['job_slug'], job_slug)
-        self.assertEqual(accepted_jobs[0]['assigned_status'], 'Declined')
-        self.assertEqual(accepted_jobs[0]['assigned_hours'], 0.0)
+        apps = response.context['apps']
+        self.assertEqual( len(apps), 1 )
+        self.assertEqual(apps[0].job.session.slug, session_slug)
+        self.assertEqual(apps[0].job.course.slug, job_slug)
+        self.assertEqual(apps[0].declined.get_assigned_display(), 'Declined')
+        self.assertEqual(apps[0].declined.assigned_hours, 0.0)

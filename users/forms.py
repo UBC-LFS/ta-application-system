@@ -225,8 +225,8 @@ class StudentProfileForm(forms.ModelForm):
         required=False,
         queryset=Degree.objects.all(),
         widget=forms.CheckboxSelectMultiple(),
-        label='Most Recent Degree',
-        help_text='Please indicate your most recent completed or conferred degree (ex. BSc - Biochemistry - U of T, November 24, 2014)'
+        label='Most Recent Degrees',
+        help_text='Please select your most recent degrees.'
     )
     trainings = forms.ModelMultipleChoiceField(
         required=False,
@@ -238,12 +238,13 @@ class StudentProfileForm(forms.ModelForm):
         model = Profile
         fields = [
             'preferred_name', 'qualifications','prior_employment', 'special_considerations',
-            'status', 'program', 'program_others','graduation_date', 'degrees', 'trainings',
+            'status', 'program', 'program_others','graduation_date', 'degrees', 'degree_details', 'trainings',
             'training_details', 'lfs_ta_training', 'lfs_ta_training_details', 'ta_experience',
             'ta_experience_details'
         ]
         widgets = {
             'program_others': forms.Textarea(attrs={ 'rows':2, 'class':'form-control' }),
+            'degree_details': forms.Textarea(attrs={ 'rows':2, 'class':'form-control' }),
             'training_details': forms.Textarea(attrs={ 'rows':2, 'class':'form-control' }),
             'lfs_ta_training_details': forms.Textarea(attrs={ 'rows':2, 'class':'form-control' }),
             'qualifications': forms.Textarea(attrs={ 'rows':2, 'class':'form-control' }),
@@ -254,6 +255,7 @@ class StudentProfileForm(forms.ModelForm):
         labels = {
             'program': 'Current Program',
             'program_others': 'Other Program',
+            'degree_details': 'Degree Details',
             'training_details': 'Training Details',
             'lfs_ta_training': 'LFS TA Training',
             'lfs_ta_training_details': 'LFS TA Training Details',
@@ -266,6 +268,7 @@ class StudentProfileForm(forms.ModelForm):
         help_texts = {
             'program': 'What program will you be registered in during the next Session?',
             'program_others': 'Please indicate your program if you select Others in the Current Program above.',
+            'degree_details': 'Please indicate your most recent completed or conferred degrees (ex. BSc - Biochemistry - U of T, November 24, 2014)',
             'training_details': 'If you have completed TA and/or PBL training, please provide some details (name of workshop, dates of workshop, etc) in the text box.',
             'lfs_ta_training_details': 'Have you completed any LFS TA training sessions? If yes, please provide details (name of session/workshop, dates, etc).',
             'ta_experience_details': 'If yes, please list course name & session (example: FHN 350 002, 2010W Term 2)',
@@ -276,7 +279,7 @@ class StudentProfileForm(forms.ModelForm):
 
     field_order = [
         'preferred_name', 'status', 'program', 'program_others','graduation_date',
-        'degrees', 'trainings', 'training_details',
+        'degrees', 'degree_details', 'trainings', 'training_details',
         'lfs_ta_training', 'lfs_ta_training_details', 'ta_experience','ta_experience_details',
         'qualifications','prior_employment', 'special_considerations'
     ]

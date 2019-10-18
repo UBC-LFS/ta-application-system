@@ -128,7 +128,7 @@ def my_applications(request, session_slug, job_slug):
             instructor_preference = request.POST.get('instructor_preference')
             updated_application = adminApi.update_application_instructor_preference(application_id, instructor_preference)
             if updated_application:
-                messages.success(request, 'Success! Instructor Preference is selected for {0} '.format(updated_application.applicant.username))
+                messages.success(request, 'Success! {0} is selected.'.format(updated_application.applicant.username))
                 return HttpResponseRedirect( reverse('instructors:my_applications', args=[session_slug, job_slug]) )
             else:
                 messages.error(request, 'An error occurred while updating an instructor_preference.')

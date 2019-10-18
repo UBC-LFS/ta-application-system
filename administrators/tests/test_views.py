@@ -642,10 +642,10 @@ class SessionTest(TestCase):
         }
 
         response = self.client.post(reverse('administrators:edit_session', args=[session.slug, 'current']), data=urlencode(data, True), content_type=ContentType)
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, response.url)
-        messages = [m.message for m in get_messages(response.wsgi_request)]
-        self.assertTrue('Success' in messages[0])
 
         updated_session = adminApi.get_session(session_id)
         self.assertEqual( updated_session.id, int(data['session']) )
@@ -798,7 +798,7 @@ class JobTest(TestCase):
 
         session_slug = '2019-w1'
         job_slug = 'lfs-252-001-land-food-and-community-quantitative-data-analysis-w1'
-        job = adminApi.get_session_job_by_slug(session_slug, job_slug)
+        job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
 
         response = self.client.get( reverse('administrators:edit_job', args=[session_slug, job_slug]) )
         self.assertEqual(response.status_code, 200)
@@ -826,7 +826,7 @@ class JobTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, response.url)
 
-        updated_job = adminApi.get_session_job_by_slug(session_slug, job_slug)
+        updated_job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
         self.assertEqual(updated_job.title, data['title'])
         self.assertEqual(updated_job.description, data['description'])
         self.assertEqual(updated_job.note, data['note'])
@@ -1374,7 +1374,7 @@ class PreparationTest(TestCase):
 
         response = self.client.get( reverse('administrators:programs') )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual( len(response.context['programs']), 9 )
+        self.assertEqual( len(response.context['programs']), 16 )
         self.assertFalse(response.context['form'].is_bound)
 
         data = { 'name': 'Master of Science in Animal' }
@@ -1386,7 +1386,7 @@ class PreparationTest(TestCase):
 
         response = self.client.get( reverse('administrators:programs') )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual( len(response.context['programs']), 10 )
+        self.assertEqual( len(response.context['programs']), 17 )
         self.assertEqual(response.context['programs'].last().name, data['name'])
 
     def test_edit_program(self):

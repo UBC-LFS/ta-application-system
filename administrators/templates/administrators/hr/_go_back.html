@@ -25,6 +25,9 @@
 {% elif data == 'users' %}
   <a class="btn btn-outline-primary" href="{% url 'administrators:users' %}">Go back to All Users</a>
 
+{% elif data == 'trim' %}
+  <a class="btn btn-outline-primary" href="{% url 'administrators:trim_users' %}">Go back to Trim Users</a>
+
 {% else %}
   <a class="btn btn-outline-primary" href="{% url 'administrators:jobs' %}">Go back to Jobs</a>
 

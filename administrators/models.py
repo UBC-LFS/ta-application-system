@@ -4,8 +4,6 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils.text import slugify
 
-
-
 class Term(models.Model):
     """ Create a Term model """
     code = models.CharField(max_length=2, unique=True)
@@ -172,6 +170,7 @@ class Application(models.Model):
     note = models.TextField(null=True, blank=True)
 
     instructor_preference = models.CharField(max_length=1, choices=INSTRUCTOR_PREFERENCE_CHOICES, default='0')
+    is_terminated = models.BooleanField(default=False)
 
     created_at = models.DateField(default=dt.date.today)
     updated_at = models.DateField(default=dt.date.today)

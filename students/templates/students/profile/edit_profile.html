@@ -25,10 +25,11 @@
         {{ field }}
       {% endfor %}
 
-      <a class="btn btn-outline-primary" href="{% url 'students:show_profile' %}">Go back to Profile</a>
       <input class="btn btn-warning" type="submit" value="Update Profile" />
     </form>
   </div>
+
+  <div class="my-4"><a class="btn btn-outline-primary" href="{% url 'students:show_profile' %}">Go back to Profile</a></div>
 
 </div>
 

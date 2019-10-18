@@ -167,6 +167,37 @@ def delete_user(request):
     return redirect('administrators:users')
 
 
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET', 'POST'])
+def trim_users(request):
+    ''' Trim users who have no actions for 3 years '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user) and 'HR' not in loggedin_user.roles: raise PermissionDenied
+
+    users = None
+    target_date = None
+    if request.method == 'POST':
+        data = request.POST.getlist('user')
+        count = 0
+        for user_id in data:
+            deleted = userApi.delete_profile_resume_confidentiality(user_id)
+            if deleted: count += 1
+
+        if count == len(data):
+            messages.success(request, 'Success! The information of {0} deleted'.format(data))
+        else:
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+
+        return redirect('administrators:trim_users')
+    else:
+        users, target_date = userApi.get_users('trim')
+
+    return render(request, 'administrators/hr/trim_users.html', {
+        'loggedin_user': loggedin_user,
+        'users': users,
+        'target_date': target_date
+    })
 
 
 # Courses
@@ -1071,9 +1102,9 @@ def decline_reassign_confirmation(request):
                     else:
                         messages.error(request, 'An error occurred. Failed to update ta hours in a job')
                 else:
-                    messages.error(request, 'An error occurred.')
+                    messages.error(request, 'An error occurred while updating a reassigned status.')
             else:
-                messages.error(request, 'An error occurred.')
+                messages.error(request, 'An error occurred while saving a declined status.')
         else:
             errors = form.errors.get_json_data()
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
@@ -1098,15 +1129,23 @@ def decline_reassign_confirmation(request):
         'new_ta_hours': new_ta_hours
     })
 
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['POST'])
+def terminate(request, app_slug):
+    ''' Terminate an application, then students can can their accepted jobs '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user): raise PermissionDenied
 
+    if request.method == 'POST':
+        app_id = request.POST.get('application')
+        terminated_app = adminApi.terminate_application(app_id)
+        if terminated_app:
+            messages.success(request, 'Success! Application (ID: {0}) terminated.'.format(terminated_app.id))
+        else:
+            messages.error(request, 'An error occurred while termniating an application.')
 
-
-
-
-
-
-
-
+    return redirect('administrators:accepted_applications')
 
 
 # ------------- Preparation -------------

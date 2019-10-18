@@ -26,8 +26,8 @@ urlpatterns = [
     path('jobs/student/', views.student_jobs, name='student_jobs'),
     path('jobs/instructor/', views.instructor_jobs, name='instructor_jobs'),
     path('jobs/', views.jobs, name='jobs'),
-    path('instructors/<str:username>/jobs/', views.instructor_jobs_details, name='instructor_jobs_details'),
-    path('students/<str:username>/jobs/', views.student_jobs_details, name='student_jobs_details'),
+    path('instructor/<str:username>/jobs/', views.instructor_jobs_details, name='instructor_jobs_details'),
+    path('student/<str:username>/jobs/', views.student_jobs_details, name='student_jobs_details'),
     path('sessions/<str:session_slug>/jobs/<str:job_slug>/edit/', views.edit_job, name='edit_job'),
     path('sessions/<str:session_slug>/jobs/<str:job_slug>/applications/', views.show_job_applications, name='show_job_applications'),
     path('sessions/<str:session_slug>/jobs/<str:job_slug>/p/<str:path>/', views.show_job, name='show_job'),
@@ -41,6 +41,7 @@ urlpatterns = [
     path('emails/<str:email_id>/reminder/', views.send_reminder, name='send_reminder'),
     path('applications/decline_reassign/confirmation/', views.decline_reassign_confirmation, name='decline_reassign_confirmation'),
     path('applications/decline_reassign/', views.decline_reassign, name='decline_reassign'),
+    path('applications/<str:app_slug>/terminate/', views.terminate, name='terminate'),
 
     path('applications/dashboard/', views.applications_dashboard, name='applications_dashboard'),
     path('applications/all/', views.all_applications, name='all_applications'),
@@ -58,6 +59,7 @@ urlpatterns = [
     path('hr/users/delete/', views.delete_user, name='delete_user'),
     path('hr/users/<str:username>/p/<str:path>/', views.show_user, name='show_user'),
     path('hr/users/all/', views.users, name='users'),
+    path('hr/users/trim/', views.trim_users, name='trim_users'),
     path('hr/roles/delete/', views.delete_role, name='delete_role'),
     path('hr/roles/<str:slug>/edit/', views.edit_role, name='edit_role'),
     path('hr/roles/', views.roles, name='roles'),
@@ -99,9 +101,5 @@ urlpatterns = [
     path('preparation/classifications/<str:slug>/edit/', views.edit_classification, name='edit_classification'),
     path('preparation/classifications/', views.classifications, name='classifications'),
 
-    path('preparation/', views.preparation, name='preparation'),
-
-    #path('sessions/<str:session_slug>/jobs/<str:job_slug>/assign_ta_hours', views.assign_ta_hours, name='assign_ta_hours'),
-    #path('sessions/<str:session_slug>/jobs/<str:job_slug>/add_instructors', views.add_instructors, name='add_instructors'),
-
+    path('preparation/', views.preparation, name='preparation')
 ]

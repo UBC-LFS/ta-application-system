@@ -34,12 +34,12 @@
 		<table class="table table-bordered table-hover table-striped table-responsive-md text-center" data-toggle="table" data-sortable="true" data-classes="" data-pagination="true" data-search="true">
 			<thead>
 				<tr>
-					<th>Year</th>
-					<th>Term</th>
-					<th>Job</th>
-					<th>Assigned Status</th>
-					<th>Assigned Hours</th>
-					<th>Offered at</th>
+					<th data-sortable="true">Year</th>
+					<th data-sortable="true">Term</th>
+					<th data-sortable="true">Job</th>
+					<th data-sortable="true">Assigned Status</th>
+					<th data-sortable="true">Assigned Hours</th>
+					<th data-sortable="true">Offered at</th>
 					<th>Actions</th>
 				</tr>
 			</thead>
@@ -66,13 +66,9 @@
 								<span class="badge badge-danger">{{ app.declined.get_assigned_display.upper }}</span><br />
 								<small class="text-muted">{{ app.declined.created_at }}</small>
 							{% else %}
-								<a href="{% url 'students:offered_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}">Accept / Decline</a>
+								<a href="{% url 'students:accept_decline_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}">Accept / Decline</a>
 							{% endif %}
 						</td>
-					</tr>
-				{% empty %}
-					<tr>
-						<td colspan="3">No offered jobs found</td>
 					</tr>
 				{% endfor %}
 			</tbody>

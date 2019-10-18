@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 
 from users.models import *
 from users.forms import UserCreateProfileForm
-from datetime import datetime
+from datetime import datetime, date, timedelta
 
 # to be removed
 from django.utils.crypto import get_random_string
@@ -95,7 +95,7 @@ def get_user_with_data(user_id):
 def get_users_with_data():
     ''' Get all users '''
     users = []
-    for user in get_users():
+    for user in User.objects.all():
         if has_user_resume_created(user) and bool(user.resume.file):
             user.resume_file = os.path.basename(user.resume.file.name)
         else:
@@ -114,9 +114,17 @@ def get_users_with_data():
         users.append(user)
     return users
 
-def get_users():
+
+
+def get_users(option=None):
     ''' Get all users '''
+    if option == 'trim':
+        target_date = date.today() - timedelta(days=3*365)
+        return User.objects.filter(last_login__lt=target_date), target_date
+
     return User.objects.all().order_by('id')
+
+
 
 def create_user(data):
     ''' Create a user when receiving data from SAML '''
@@ -166,6 +174,17 @@ def delete_user(user_id):
     user = get_user(user_id)
     user.delete()
     return user
+
+
+
+
+
+
+
+
+
+
+# for testing
 
 def user_exists(user):
     """ Check user exists """
@@ -236,7 +255,7 @@ def delete_users():
 
 
 
-# Profile CRUD
+# Profile
 
 def get_instructors():
     ''' Get instructors '''
@@ -336,6 +355,17 @@ def file_exists(user, folder, file):
 """
 
 
+
+def delete_profile_resume_confidentiality(user_id):
+    user = get_user(user_id)
+    
+    resume = delete_user_resume(user.username)
+    sin = delete_user_sin(user.username)
+    study_permit = delete_user_study_permit(user.username)
+    user.confidentiality.delete()
+    user.profile.delete()
+
+    return True if user and resume and sin and study_permit else False
 
 
 

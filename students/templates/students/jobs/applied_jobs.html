@@ -33,8 +33,12 @@
             </td>
             <td>{{ app.applied.created_at }}</td>
             <td>
+              {% for st in app.applicationstatus_set.all %}
+                <div class="">{{ st.id }} | {{ st.get_assigned_display }} | {{ st.assigned_hours }} | {{ st.created_at }} | {{ st.parent_id }}</div>
+              {% endfor %}
+
               {% if app.selected %}
-                <span class="badge badge-success"><i class="fa fa-hand-peace-o" aria-hidden="true"></i> SELECTED</span>
+                <span class="badge badge-info">SELECTED</span>
               {% else %}
                 <span class="badge badge-secondary">NONE</span>
               {% endif %}

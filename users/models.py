@@ -158,6 +158,7 @@ class Profile(models.Model):
     graduation_date = models.DateField(null=True, blank=True)
 
     degrees = models.ManyToManyField(Degree)
+    degree_details = models.TextField(null=True, blank=True)
     trainings = models.ManyToManyField(Training)
     training_details = models.TextField(null=True, blank=True)
 
