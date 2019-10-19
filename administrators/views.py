@@ -25,7 +25,7 @@ from django.contrib.auth.models import User
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
 def index(request):
-    ''' index page of Administrator's portal '''
+    ''' Index page of Administrator's portal '''
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
 
@@ -181,7 +181,7 @@ def trim_users(request):
         data = request.POST.getlist('user')
         count = 0
         for user_id in data:
-            deleted = userApi.delete_profile_resume_confidentiality(user_id)
+            deleted = userApi.trim_profile_resume_confidentiality(user_id)
             if deleted: count += 1
 
         if count == len(data):

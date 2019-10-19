@@ -110,7 +110,6 @@ class Confidentiality(models.Model):
     updated_at = models.DateField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
-        ''' '''
         if self.sin:
             self.sin = encrypt_image(self.sin)
 
@@ -131,6 +130,7 @@ class Resume(models.Model):
         null=True,
         blank=True
     )
+    
     created_at = models.DateField(null=True, blank=True)
 
 
@@ -168,6 +168,7 @@ class Profile(models.Model):
     ta_experience = models.CharField(max_length=1, choices=LFS_TA_TRAINING_CHOICES, null=True, blank=True)
     ta_experience_details = models.TextField(null=True, blank=True)
 
+    is_trimmed = models.BooleanField(default=False)
     created_at = models.DateField(default=dt.date.today)
     updated_at = models.DateField(default=dt.date.today)
 
@@ -193,6 +194,7 @@ def encrypt_algorithm():
 
 def encrypt_image(obj):
     ''' '''
+    print(obj, type(obj))
     file_split = os.path.splitext(obj.name)
     file_name = file_split[0]
     file_extension = file_split[1]

@@ -368,7 +368,7 @@ class JobTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, 'test.user10')
         self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
-        self.assertEqual( len(response.context['apps']), 4 )
+        self.assertEqual( len(response.context['apps']), 5 )
         self.assertEqual( len(response.context['total_assigned_hours']), 2 )
 
     def test_accepted_jobs(self):

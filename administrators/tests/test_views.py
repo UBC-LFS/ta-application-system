@@ -1021,7 +1021,7 @@ class ApplicationTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, 'admin')
         self.assertEqual(response.context['loggedin_user'].roles, ['Admin', 'HR', 'Instructor', 'Student'])
-        self.assertEqual( len(response.context['selected_applications']), 23)
+        self.assertEqual( len(response.context['selected_applications']), 24)
         self.assertFalse(response.context['admin_application_form'].is_bound)
         self.assertFalse(response.context['status_form'].is_bound)
         self.assertEqual( len(response.context['classification_choices']), 6)
@@ -1035,7 +1035,7 @@ class ApplicationTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, 'admin')
         self.assertEqual(response.context['loggedin_user'].roles, ['Admin', 'HR', 'Instructor', 'Student'])
-        self.assertEqual( len(response.context['offered_applications']), 15)
+        self.assertEqual( len(response.context['offered_applications']), 16)
 
     def test_accepted_applications(self):
         print('\n- Test: Display applications accepted by students')

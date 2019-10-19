@@ -6,69 +6,72 @@
   {% include 'ta_app/pages/_header.html' with title='Dashboard' %}
 
   <h5 class="text-secondary">Application Status: Get a glance</h5>
-  <table class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center"
-    data-toggle="table"
-    data-sortable="true"
-    data-classes=""
-    data-pagination="true"
-    data-search="true"
-    data-page-size="50"
-    data-page-list="[50, 100, All]"
-    data-show-export="true"
-    data-click-to-select="true"
-    data-show-columns="true"
-  >
-    <thead>
-      <tr>
-        <th data-sortable="true">Status<br /> ID</th>
-        <th data-sortable="true">Status</th>
-        <th data-sortable="true">Applicant</th>
-        <th data-sortable="true">CWL</th>
-        <th data-sortable="true">Year</th>
-        <th data-sortable="true">Term</th>
-        <th data-sortable="true">Job</th>
-        <th data-sortable="true">Application<br /> ID</th>
-        <th data-sortable="true">Created at</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for st in statuses %}
+  <div class="d-inline-block">
+    <table
+      class="table table-bordered table-hover table-striped table-responsive-md text-center"
+      data-toggle="table"
+      data-sortable="true"
+      data-classes=""
+      data-pagination="true"
+      data-search="true"
+      data-page-size="50"
+      data-page-list="[50, 100, All]"
+      data-show-export="true"
+      data-click-to-select="true"
+      data-show-columns="true"
+    >
+      <thead>
         <tr>
-          <td>{{ st.id }}</td>
-          <td>
-            {% if st.parent_id %}
-              <span class="badge badge-danger">Declined & Re-assigned</span>
-            {% else %}
-              {% if st.assigned == app_status.applied %}
-                <span class="badge badge-warning">APPLIED</span>
-              {% elif st.assigned == app_status.offered %}
-                <span class="badge badge-primary">OFFERED</span>
-              {% elif st.assigned == app_status.accepted %}
-                <span class="badge badge-success">ACCPETED</span>
-              {% elif st.assigned == app_status.declined %}
-                <span class="badge badge-secondary">DECLINED</span>
-              {% endif %}
-            {% endif %}
-          </td>
-          <td>{{ st.application.applicant.first_name }} {{ st.application.applicant.last_name }}</td>
-          <td>
-            <a href="{% url 'administrators:show_user' username=st.application.applicant.username path='dashboard' %}">{{ st.application.applicant.username }}</a>
-          </td>
-          <td>{{ st.application.job.session.year }}</td>
-          <td>{{ st.application.job.session.term.code }}</td>
-          <td>
-            <a href="{% url 'administrators:show_job' session_slug=st.application.job.session.slug job_slug=st.application.job.course.slug path='applications_dashboard' %}">
-              {{ st.application.job.course.code.name }} {{ st.application.job.course.number.name }} {{ st.application.job.course.section.name }}
-            </a>
-          </td>
-          <td>
-            <a href="{% url 'administrators:show_application' app_slug=st.application.slug path='dashboard' %}">{{ st.application.id }}</a>
-          </td>
-          <td>{{ st.created_at }}</td>
+          <th data-sortable="true">Status<br /> ID</th>
+          <th data-sortable="true">Status</th>
+          <th data-sortable="true">Applicant</th>
+          <th data-sortable="true">CWL</th>
+          <th data-sortable="true">Year</th>
+          <th data-sortable="true">Term</th>
+          <th data-sortable="true">Job</th>
+          <th data-sortable="true">Application<br /> ID</th>
+          <th data-sortable="true">Created at</th>
         </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+        {% for st in statuses %}
+          <tr>
+            <td>{{ st.id }}</td>
+            <td>
+              {% if st.parent_id %}
+                <span class="badge badge-danger">Declined & Re-assigned</span>
+              {% else %}
+                {% if st.assigned == app_status.applied %}
+                  <span class="badge badge-warning">APPLIED</span>
+                {% elif st.assigned == app_status.offered %}
+                  <span class="badge badge-primary">OFFERED</span>
+                {% elif st.assigned == app_status.accepted %}
+                  <span class="badge badge-success">ACCPETED</span>
+                {% elif st.assigned == app_status.declined %}
+                  <span class="badge badge-secondary">DECLINED</span>
+                {% endif %}
+              {% endif %}
+            </td>
+            <td>{{ st.application.applicant.first_name }} {{ st.application.applicant.last_name }}</td>
+            <td>
+              <a href="{% url 'administrators:show_user' username=st.application.applicant.username path='dashboard' %}">{{ st.application.applicant.username }}</a>
+            </td>
+            <td>{{ st.application.job.session.year }}</td>
+            <td>{{ st.application.job.session.term.code }}</td>
+            <td>
+              <a href="{% url 'administrators:show_job' session_slug=st.application.job.session.slug job_slug=st.application.job.course.slug path='applications_dashboard' %}">
+                {{ st.application.job.course.code.name }} {{ st.application.job.course.number.name }} {{ st.application.job.course.section.name }}
+              </a>
+            </td>
+            <td>
+              <a href="{% url 'administrators:show_application' app_slug=st.application.slug path='dashboard' %}">{{ st.application.id }}</a>
+            </td>
+            <td>{{ st.created_at }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 
   {% comment %}
   <h3>Dashboard of Applications</h3>

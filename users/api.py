@@ -4,6 +4,7 @@ from django.shortcuts import get_object_or_404
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
+from django.db.models import Q
 
 from users.models import *
 from users.forms import UserCreateProfileForm
@@ -120,7 +121,7 @@ def get_users(option=None):
     ''' Get all users '''
     if option == 'trim':
         target_date = date.today() - timedelta(days=3*365)
-        return User.objects.filter(last_login__lt=target_date), target_date
+        return User.objects.filter( Q(last_login__lt=target_date) & Q(profile__is_trimmed=False) ), target_date
 
     return User.objects.all().order_by('id')
 
@@ -354,24 +355,60 @@ def file_exists(user, folder, file):
     return exists
 """
 
+def trim_profile(user):
+    user.profile.preferred_name = None
+
+    user.profile.qualifications = None
+    user.profile.prior_employment = None
+    user.profile.special_considerations = None
+
+    user.profile.status = None
+    user.profile.program = None
+    user.profile.program_others = None
+    user.profile.graduation_date = None
+
+    user.profile.degrees = None
+    user.profile.degree_details = None
+    user.profile.trainings = None
+    user.profile.training_details = None
+
+    user.profile.lfs_ta_training = None
+    user.profile.lfs_ta_training_details = None
+
+    user.profile.ta_experience = None
+    user.profile.ta_experience_details = None
+
+    user.profile.is_trimmed = True
+    user.profile.created_at = None
+    user.profile.updated_at = None
+
+    user.profile.save(update_fields=[
+        'preferred_name', 'qualifications','prior_employment', 'special_considerations',
+        'status', 'program', 'program_others', 'graduation_date', 
+        'degrees', 'degree_details', 'trainings', 'training_details',
+        'lfs_ta_training', 'lfs_ta_training_details', 'ta_experience', 'ta_experience_details',
+        'is_trimmed', 'created_at', 'updated_at'
+    ])
+    return user.profile if user.profile else None
 
 
-def delete_profile_resume_confidentiality(user_id):
+def trim_profile_resume_confidentiality(user_id):
+    ''' Trim user's profile, resume and confidentiality '''
     user = get_user(user_id)
-    
-    resume = delete_user_resume(user.username)
-    sin = delete_user_sin(user.username)
-    study_permit = delete_user_study_permit(user.username)
+
+    sin = delete_user_sin(user)
+    study_permit = delete_user_study_permit(user)
     user.confidentiality.delete()
-    user.profile.delete()
 
-    return True if user and resume and sin and study_permit else False
-
-
+    resume = delete_user_resume(user)
+    user.resume.delete()
+    profile = trim_profile(user)
+    
+    return True if user and resume and sin and study_permit and profile else False
 
 
 def delete_existing_file(user, folder, file):
-    """ Delete an existing file """
+    ''' Delete an existing file '''
     deleted = False
     dir_path = os.path.join(settings.MEDIA_ROOT, 'users', str(user.username), folder)
     for root, dirs, files in os.walk(dir_path):
@@ -381,41 +418,50 @@ def delete_existing_file(user, folder, file):
                 deleted = True
     return deleted
 
-def delete_user_resume(username):
+def delete_user_resume(user):
     ''' Delete user's resume '''
-    user = get_user_by_username(username)
-    file = os.path.basename(user.resume.file.name)
-    deleted_resume = user.resume.delete()
+    if not isinstance(user, User): user = get_user_by_username(user)
 
-    # Delete an existing file
-    deleted = delete_existing_file(user, 'resume', file)
-    return True if deleted_resume and deleted else None
+    if has_user_resume_created(user) and bool(user.resume.file):
+        file = os.path.basename(user.resume.file.name)
+        deleted_resume = user.resume.delete()
+
+        # Delete an existing file
+        deleted = delete_existing_file(user, 'resume', file)
+        return True if deleted_resume and deleted else None
+    return False
 
 
-def delete_user_sin(username):
+def delete_user_sin(user):
     ''' Delete user's SIN '''
-    user = get_user_by_username(username)
-    file = os.path.basename(user.confidentiality.sin.name)
-    user.confidentiality.sin = None
-    user.confidentiality.sin_expiry_date = None
-    user.confidentiality.save(update_fields=['sin', 'sin_expiry_date'])
+    if not isinstance(user, User): user = get_user_by_username(user)
 
-    # Delete an existing file
-    deleted = delete_existing_file(user, 'sin', file)
-    return True if user.confidentiality and deleted else None
+    if has_user_confidentiality_created(user) and bool(user.confidentiality.sin):
+        file = os.path.basename(user.confidentiality.sin.name)
+        user.confidentiality.sin = None
+        user.confidentiality.sin_expiry_date = None
+        user.confidentiality.save(update_fields=['sin', 'sin_expiry_date'])
+
+        # Delete an existing file
+        deleted = delete_existing_file(user, 'sin', file)
+        return True if user.confidentiality and deleted else None
+    return False
 
 
 def delete_user_study_permit(username):
     ''' Delete user's study permit '''
-    user = get_user_by_username(username)
-    file = os.path.basename(user.confidentiality.study_permit.name)
-    user.confidentiality.study_permit = None
-    user.confidentiality.study_permit_expiry_date = None
-    user.confidentiality.save(update_fields=['study_permit', 'study_permit_expiry_date'])
+    if not isinstance(user, User): user = get_user_by_username(user)
 
-    # Delete an existing file
-    deleted = delete_existing_file(user, 'study_permit', file)
-    return True if user.confidentiality and deleted else None
+    if has_user_confidentiality_created(user) and bool(user.confidentiality.study_permit):
+        file = os.path.basename(user.confidentiality.study_permit.name)
+        user.confidentiality.study_permit = None
+        user.confidentiality.study_permit_expiry_date = None
+        user.confidentiality.save(update_fields=['study_permit', 'study_permit_expiry_date'])
+
+        # Delete an existing file
+        deleted = delete_existing_file(user, 'study_permit', file)
+        return True if user.confidentiality and deleted else None
+    return False
 
 
 def create_user_resume(user):

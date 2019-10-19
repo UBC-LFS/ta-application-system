@@ -109,7 +109,7 @@ def upload_resume(request):
         if form.is_valid():
             resume = form.save(commit=False)
             if user.resume_file and old_resume != None and len(old_resume.name) > 0:
-                deleted_resume = userApi.delete_user_resume(user.username)
+                deleted_resume = userApi.delete_user_resume(user)
                 if not deleted_resume:
                     messages.warning(request, 'Warning! Resume is not deleted')
 
@@ -272,14 +272,14 @@ def edit_confidentiality(request):
 
             if sin_file != None:
                 if len(old_sin.name) > 0:
-                    deleted_sin_file = userApi.delete_user_sin(loggedin_user.username)
+                    deleted_sin_file = userApi.delete_user_sin(loggedin_user)
                     if not deleted_sin_file:
                         messages.warning(request, 'Warning! Previous SIN file was not deleted')
                 loggedin_user.confidentiality.sin = sin_file
 
             if study_permit_file != None:
                 if len(old_study_permit.name) > 0:
-                    deleted_study_permit_file = userApi.delete_user_study_permit(loggedin_user.username)
+                    deleted_study_permit_file = userApi.delete_user_study_permit(loggedin_user)
                     if not deleted_study_permit_file:
                         messages.warning(request, 'Warning! Previous study permit file was not deleted')
                 loggedin_user.confidentiality.study_permit = study_permit_file
