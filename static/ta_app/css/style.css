@@ -69,11 +69,13 @@ hr.dotted {
 }
 
 footer {
-  margin-top: auto;
-  padding: 1rem;
-  left: 0;
-  bottom: 0;
-  right: 0;
+  position: fixed;
+  height: 30px;
+  width: calc(100% - 300px);
+  left: 300px;
+  bottom:0;
+  z-index: 999;
+  background-color: white;
 }
 
 .page-title {
@@ -215,9 +217,8 @@ footer {
 #content {
   position: absolute;
   top: 56;
-  right: calc(100% - 300px - 1300px);
+  right: 0;
   width: calc(100% - 300px);
-  max-width: 1300px;
 }
 
 /* .sidebar {
@@ -245,6 +246,10 @@ footer {
     display: none;
   }
 
+  footer {
+    margin-bottom: -1000px;
+  }
+
   #content-padding {
     padding-top:10px;
   }
@@ -259,6 +264,10 @@ footer {
 @media (min-width: 576px) and (max-width: 767.98px) {
   .navbar {
     position: static;
+  }
+  
+  footer {
+    margin-bottom: -1000px;
   }
 
   #sidebar {
@@ -285,6 +294,10 @@ footer {
     display: none;
   }
 
+  footer{
+    margin-bottom: -1000px;
+  }
+
   #content-padding {
     padding-top:10px;
   }
@@ -297,14 +310,10 @@ footer {
 
 /* Large devices (desktops, 992px and up) */
 @media (min-width: 992px) and (max-width: 1199.98px) {
-  #content {
-    right:0;
-  }
+
 }
 
 /* Extra large devices (large desktops, 1200px and up) */
 @media (min-width: 1200px) and (max-width: 1600px) {
-  #content {
-    right:0;
-  }
+
 }
