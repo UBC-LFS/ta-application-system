@@ -1,5 +1,42 @@
 $(document).ready(function () {
   console.log("js ready");
+  var contentHeight = $("#content").height()
+  var screenHeight = $(window).height();
+  if (contentHeight > screenHeight) {
+    document.getElementById("footer").style.marginTop = contentHeight + "px";
+  } else {
+    var defaultHeight = screenHeight - 140;
+    document.getElementById("footer").style.marginTop = defaultHeight + "px";
+  }
+
+
+
+  function onElementHeightChange(elm, callback) {
+    var lastHeight = elm.clientHeight, newHeight;
+    (function run() {
+      newHeight = elm.clientHeight;
+      if (lastHeight != newHeight)
+        callback();
+      lastHeight = newHeight;
+
+      if (elm.onElementHeightChangeTimer)
+        clearTimeout(elm.onElementHeightChangeTimer);
+
+      elm.onElementHeightChangeTimer = setTimeout(run, 200);
+    })();
+  }
+
+
+  onElementHeightChange(document.getElementById("content"), function () {
+    var contentHeight = $("#content").height()
+    var screenHeight = $(window).height();
+    if (contentHeight > screenHeight) {
+      document.getElementById("footer").style.marginTop = contentHeight + "px";
+    } else {
+      var defaultHeight = screenHeight - 140;
+      document.getElementById("footer").style.marginTop = defaultHeight + "px";
+    }
+  });
 
   if (window.location.href.indexOf("administrators") > -1) {
     document.getElementById('admin').classList.add("active");
@@ -8,7 +45,7 @@ $(document).ready(function () {
       document.getElementById('admin').classList.remove("active");
     }
   }
-  
+
   if (window.location.href.indexOf("human_resources") > -1) {
     document.getElementById('hr').classList.add("active");
   } else {
@@ -32,5 +69,4 @@ $(document).ready(function () {
       document.getElementById('student').classList.remove("active");
     }
   }
-
 });

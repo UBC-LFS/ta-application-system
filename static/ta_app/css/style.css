@@ -69,11 +69,9 @@ hr.dotted {
 }
 
 footer {
-  position: fixed;
   height: 30px;
-  width: calc(100% - 300px);
-  left: 300px;
-  bottom:0;
+  width: 100%;
+  margin-top: 100vh;
   z-index: 999;
   background-color: white;
 }
@@ -206,7 +204,7 @@ footer {
 
 #sidebar {
   width: 300px;
-  height: calc(100vh - 56px);
+  height: calc(100vh - 76px);
   position: fixed;
   top: 56px;
   left:0;
