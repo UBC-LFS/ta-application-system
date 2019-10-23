@@ -17,7 +17,6 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
-
 from administrators.models import Course
 
 import datetime as dt
@@ -110,11 +109,16 @@ class Confidentiality(models.Model):
     updated_at = models.DateField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
-        if self.sin:
-            self.sin = encrypt_image(self.sin)
+        print('save =======')
+        print('sin ', self.sin)
+        print('study_permit ', self.study_permit)
+        print('self', self)
+        print('args', args)
+        print('kwargs', kwargs)
 
-        if self.study_permit:
-            self.study_permit = encrypt_image(self.study_permit)
+        if not kwargs['update_fields']:
+            if bool(self.sin): self.sin = encrypt_image(self.sin)
+            if bool(self.study_permit): self.study_permit = encrypt_image(self.study_permit)
 
         super(Confidentiality, self).save(*args, **kwargs)
 
@@ -193,8 +197,7 @@ def encrypt_algorithm():
     ).derive(settings.ENCRYPT_PASSWORD.encode('utf-8'))))
 
 def encrypt_image(obj):
-    ''' '''
-    print(obj, type(obj))
+    ''' Enrypte an impage '''
     file_split = os.path.splitext(obj.name)
     file_name = file_split[0]
     file_extension = file_split[1]
@@ -223,14 +226,19 @@ def encrypt_image(obj):
 
     fernet = encrypt_algorithm()
     encrypted = fernet.encrypt(output.read())
-
     content = ContentFile(encrypted)
+
+    img.close()
+    content.close()
+    output.close()
+
     return InMemoryUploadedFile(content,'ImageField', '{0}.jpg'.format(file_name), 'image/jpeg', sys.getsizeof(content), None)
 
-def decrypt_image(username, obj, type):
+def decrypt_image(username, obj, type, delete=None):
     filename = os.path.basename(obj.file.name)
     path = settings.TA_APP_URL + '/students/confidentiality/' + username + '/' + type + '/' + filename + '/download/'
     content = requests.get(path, stream=True).raw.read()
+    path = None
 
     fernet = encrypt_algorithm()
     decrypted = fernet.decrypt(content)
@@ -238,8 +246,14 @@ def decrypt_image(username, obj, type):
 
     imageStream = BytesIO(decrypted)
     img = PILImage.open(imageStream)
-    width, height = img.size
+    imageStream.seek(0)
+    imageStream.close()
 
+    width, height = img.size
+    
+    img.seek(0)
+    img.close()
+    
     return {
         'filename': filename,
         'url': url,

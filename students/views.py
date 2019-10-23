@@ -1,3 +1,4 @@
+import os
 from django.conf import settings
 from django.shortcuts import render, redirect
 from django.urls import reverse
@@ -10,7 +11,6 @@ from django.views.decorators.cache import cache_control
 from django.views.static import serve
 from django.db.models import Q
 
-from users.models import decrypt_image
 from users.forms import *
 from users import api as userApi
 from administrators.forms import *
@@ -258,33 +258,67 @@ def edit_confidentiality(request):
     if 'Student' not in loggedin_user.roles: raise PermissionDenied
 
     confidentiality = userApi.has_user_confidentiality_created(loggedin_user)
+    sin_file = None
+    study_permit_file = None
     if request.method == 'POST':
-        old_sin = loggedin_user.confidentiality.sin
-        old_study_permit = loggedin_user.confidentiality.study_permit
-
         form = ConfidentialityForm(request.POST, request.FILES, instance=loggedin_user.confidentiality)
         if form.is_valid():
+            print('post ', request.POST)
+            data = form.cleaned_data            
+            print('data ', data)
+
+            user_id = request.POST.get('user')
+            user = userApi.get_user(user_id)
+
+            updated_confidentiality = userApi.updated_confidentiality(user, form.cleaned_data)
+            
+
+
+            """is_international = request.POST.get('is_international')
+            employee_number = request.POST.get('employee_number')
+            
             sin_file = request.FILES.get('sin')
+            sin_expiry_date = data['sin_expiry_date']
+
             study_permit_file = request.FILES.get('study_permit')
+            study_permit_expiry_date = data['study_permit_expiry_date']
 
-            updated_confidentiality = form.save(commit=False)
-            updated_confidentiality.updated_at = datetime.now()
+            print('user', user)
+            print('is_international', is_international)
+            print('employee_number', employee_number)
+            print('sin_file', sin_file)
+            print('sin_expiry_date', sin_expiry_date)
+            print('study_permit_file', study_permit_file)
+            print('study_permit_expiry_date', study_permit_expiry_date)"""
 
-            if sin_file != None:
-                if len(old_sin.name) > 0:
+
+
+            #updated_confidentiality = form.save(commit=False)
+            #updated_confidentiality.updated_at = datetime.now()
+
+            #if is_international:
+            #    study_permit_file = request.FILES.get('study_permit')   
+            #else:
+            #    userApi.delete_user_study_permit(loggedin_user)
+
+            """
+            if new_sin:
+                if bool(old_sin):
                     deleted_sin_file = userApi.delete_user_sin(loggedin_user)
                     if not deleted_sin_file:
                         messages.warning(request, 'Warning! Previous SIN file was not deleted')
-                loggedin_user.confidentiality.sin = sin_file
+                loggedin_user.confidentiality.sin = new_sin
 
-            if study_permit_file != None:
-                if len(old_study_permit.name) > 0:
+            if new_study_permit:
+                if bool(old_study_permit):
                     deleted_study_permit_file = userApi.delete_user_study_permit(loggedin_user)
                     if not deleted_study_permit_file:
                         messages.warning(request, 'Warning! Previous study permit file was not deleted')
-                loggedin_user.confidentiality.study_permit = study_permit_file
+                loggedin_user.confidentiality.study_permit = new_study_permit
+            """
 
-            updated_confidentiality.save()
+            #updated_confidentiality.save()
+            #print(updated_confidentiality)
 
             if updated_confidentiality:
                 messages.success(request, 'Success! {0} - confidentiality updated'.format(loggedin_user.username))
@@ -295,8 +329,18 @@ def edit_confidentiality(request):
             errors = form.errors.get_json_data()
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
+    else:
+        if bool(loggedin_user.confidentiality.sin):
+            sin_file = os.path.basename(loggedin_user.confidentiality.sin.name)
+
+        if bool(loggedin_user.confidentiality.study_permit):
+            study_permit_file = os.path.basename(loggedin_user.confidentiality.study_permit.name)
+
+
     return render(request, 'students/profile/edit_confidentiality.html', {
         'loggedin_user': loggedin_user,
+        'sin_file': sin_file,
+        'study_permit_file': study_permit_file,
         'form': ConfidentialityForm(data=None, instance=confidentiality, initial={
             'user': loggedin_user
         })
@@ -327,7 +371,7 @@ def delete_sin(request):
         else:
             messages.error(request, 'An error occurred while deleting a SIN.')
 
-    return redirect('students:show_confidentiality')
+    return redirect('students:edit_confidentiality')
 
 
 
@@ -353,11 +397,11 @@ def delete_study_permit(request):
         username = request.POST.get('user')
         deleted_study_permit = userApi.delete_user_study_permit(username)
         if deleted_study_permit:
-            messages.success(request, 'Success! {0} - study permit deleted'.format(username))
+            messages.success(request, 'Success! {0} - Study Permit deleted'.format(username))
         else:
             messages.error(request, 'An error occurred while deleting a study permit.')
 
-    return redirect('students:show_confidentiality')
+    return redirect('students:edit_confidentiality')
 
 
 

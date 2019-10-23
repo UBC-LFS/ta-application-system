@@ -92,21 +92,27 @@ class ConfidentialityNonInternationalForm(forms.ModelForm):
         model = Confidentiality
         fields = ['user', 'employee_number', 'sin']
         widgets = {
-            'user': forms.HiddenInput()
+            'user': forms.HiddenInput(),
+            'sin': forms.FileInput()
         }
+        labels = {
+            'sin': 'Social Insurance Number (SIN)'
+        }
+        help_texts = {
+            'sin': 'Valid file formats: JPG, JPEG, PNG'
+        }
+
 
 class ConfidentialityInternationalForm(forms.ModelForm):
     sin_expiry_date = forms.DateField(
         required=False,
         widget=forms.SelectDateWidget(years=range(DATE.year, DATE.year + 20)),
-        label='SIN Expiry Date',
-        help_text='Valid file formats: JPG, JPEG, PNG'
+        label='SIN Expiry Date'
     )
     study_permit_expiry_date = forms.DateField(
         required=False,
         widget=forms.SelectDateWidget(years=range(DATE.year, DATE.year + 20)),
-        label='Study Permit Expiry Date',
-        help_text='Valid file formats: JPG, JPEG, PNG'
+        label='Study Permit Expiry Date'
     )
     class Meta:
         model = Confidentiality
@@ -121,16 +127,22 @@ class ConfidentialityInternationalForm(forms.ModelForm):
             'sin': 'Social Insurance Number (SIN)',
             'study_permit': 'Study Permit'
         }
+        help_texts = {
+            'sin': 'Valid file formats: JPG, JPEG, PNG',
+            'study_permit': 'Valid file formats: JPG, JPEG, PNG'
+        }
 
 
 class ConfidentialityForm(forms.ModelForm):
     sin_expiry_date = forms.DateField(
         required=False,
-        widget=forms.SelectDateWidget(years=range(DATE.year, DATE.year + 20))
+        widget=forms.SelectDateWidget(years=range(DATE.year, DATE.year + 20)),
+        label='SIN Expiry Date'
     )
     study_permit_expiry_date = forms.DateField(
         required=False,
-        widget=forms.SelectDateWidget(years=range(DATE.year, DATE.year + 20))
+        widget=forms.SelectDateWidget(years=range(DATE.year, DATE.year + 20)),
+        label='Study Permit Expiry Date'
     )
     class Meta:
         model = Confidentiality
@@ -139,6 +151,16 @@ class ConfidentialityForm(forms.ModelForm):
             'user': forms.HiddenInput(),
             'sin': forms.FileInput(),
             'study_permit': forms.FileInput()
+        }
+        labels = {
+            'is_international': 'Are you an International Student?',
+            'employee_number': 'Employee Number',
+            'sin': 'Social Insurance Number (SIN)',
+            'study_permit': 'Study Permit'
+        }
+        help_texts = {
+            'sin': 'Valid file formats: JPG, JPEG, PNG',
+            'study_permit': 'Valid file formats: JPG, JPEG, PNG'
         }
 
 class ResumeForm(forms.ModelForm):

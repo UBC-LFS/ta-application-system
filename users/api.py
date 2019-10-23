@@ -6,6 +6,10 @@ from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
 from django.db.models import Q
 
+import shutil
+from PIL import Image
+
+
 from users.models import *
 from users.forms import UserCreateProfileForm
 from datetime import datetime, date, timedelta
@@ -401,66 +405,40 @@ def trim_profile_resume_confidentiality(user_id):
     user.confidentiality.delete()
 
     resume = delete_user_resume(user)
-    user.resume.delete()
     profile = trim_profile(user)
     
     return True if user and resume and sin and study_permit and profile else False
 
-
-def delete_existing_file(user, folder, file):
-    ''' Delete an existing file '''
-    deleted = False
-    dir_path = os.path.join(settings.MEDIA_ROOT, 'users', str(user.username), folder)
-    for root, dirs, files in os.walk(dir_path):
-        for filename in files:
-            if filename == file:
-                os.remove(os.path.join(dir_path, filename))
-                deleted = True
-    return deleted
 
 def delete_user_resume(user):
     ''' Delete user's resume '''
     if not isinstance(user, User): user = get_user_by_username(user)
 
     if has_user_resume_created(user) and bool(user.resume.file):
-        file = os.path.basename(user.resume.file.name)
-        deleted_resume = user.resume.delete()
-
-        # Delete an existing file
-        deleted = delete_existing_file(user, 'resume', file)
-        return True if deleted_resume and deleted else None
+        user.resume.file.delete()
+        deleted = user.resume.delete()
+        return True if deleted and not bool(user.resume.file) else False
     return False
-
 
 def delete_user_sin(user):
     ''' Delete user's SIN '''
     if not isinstance(user, User): user = get_user_by_username(user)
 
     if has_user_confidentiality_created(user) and bool(user.confidentiality.sin):
-        file = os.path.basename(user.confidentiality.sin.name)
-        user.confidentiality.sin = None
-        user.confidentiality.sin_expiry_date = None
-        user.confidentiality.save(update_fields=['sin', 'sin_expiry_date'])
-
-        # Delete an existing file
-        deleted = delete_existing_file(user, 'sin', file)
-        return True if user.confidentiality and deleted else None
+        user.confidentiality.sin.delete(save=False)
+        deleted = Confidentiality.objects.filter(user_id=user.id).update(sin=None, sin_expiry_date=None)
+        return True if deleted and not bool(user.confidentiality.sin) else False
     return False
 
 
-def delete_user_study_permit(username):
+def delete_user_study_permit(user):
     ''' Delete user's study permit '''
     if not isinstance(user, User): user = get_user_by_username(user)
 
     if has_user_confidentiality_created(user) and bool(user.confidentiality.study_permit):
-        file = os.path.basename(user.confidentiality.study_permit.name)
-        user.confidentiality.study_permit = None
-        user.confidentiality.study_permit_expiry_date = None
-        user.confidentiality.save(update_fields=['study_permit', 'study_permit_expiry_date'])
-
-        # Delete an existing file
-        deleted = delete_existing_file(user, 'study_permit', file)
-        return True if user.confidentiality and deleted else None
+        user.confidentiality.study_permit.delete(save=False)
+        deleted = Confidentiality.objects.filter(user_id=user.id).update(study_permit=None, study_permit_expiry_date=None)
+        return True if deleted and not bool(user.confidentiality.study_permit) else False
     return False
 
 
@@ -472,6 +450,75 @@ def create_user_resume(user):
 def create_user_confidentiality(user):
     confidentiality = Confidentiality.objects.create(user_id=user.id)
     return True if confidentiality else None
+
+
+def updated_confidentiality(user, data):
+    
+    
+
+    update_fields = []
+
+    if user.confidentiality.is_international != data['is_international']:
+        user.confidentiality.is_international = data['is_international']
+        update_fields.append('is_international')
+
+    if user.confidentiality.employee_number != data['employee_number']:
+        user.confidentiality.employee_number = data['employee_number']
+        update_fields.append('employee_number')
+
+    print(user.confidentiality.sin_expiry_date)
+
+    if user.confidentiality.sin_expiry_date != data['sin_expiry_date']:
+        user.confidentiality.sin_expiry_date = data['sin_expiry_date']
+        update_fields.append('sin_expiry_date')
+
+    if user.confidentiality.study_permit_expiry_date != data['study_permit_expiry_date']:
+        user.confidentiality.study_permit_expiry_date = data['study_permit_expiry_date']
+        update_fields.append('study_permit_expiry_date')
+
+    
+    #old_sin = user.confidentiality.sin
+    if bool(user.confidentiality.sin):
+        if user.confidentiality.sin != data['sin']:
+            user.confidentiality.sin.delete(save=False)
+            Confidentiality.objects.filter(user_id=user.id).update(sin=None)
+            user.confidentiality.sin = data['sin']
+            update_fields.append('sin')
+    else:
+        if data['sin']:
+            user.confidentiality.sin = data['sin']
+            update_fields.append('sin')
+
+
+    old_study_permit = user.confidentiality.study_permit
+    if bool(old_study_permit):
+        if old_study_permit != data['study_permit']:
+            user.confidentiality.study_permit.delete(save=False)
+            Confidentiality.objects.filter(user_id=user.id).update(study_permit=None)
+            user.confidentiality.study_permit = data['study_permit']
+            update_fields.append('study_permit')
+    else:
+        if data['study_permit']:
+            user.confidentiality.study_permit = data['study_permit']
+            update_fields.append('study_permit')
+
+    print('update_fields ', update_fields)
+
+    if len(update_fields) > 0:
+        if not data['is_international']:
+            user.confidentiality.sin_expiry_date = None
+
+            if 'sin_expiry_date' not in update_fields: 
+                update_fields.append('sin_expiry_date')
+
+            user.confidentiality.study_permit_expiry_date = None
+            if 'study_permit_expiry_date' not in update_fields: 
+                update_fields.append('study_permit_expiry_date')
+
+        print('update_fields ', update_fields)
+        user.confidentiality.save(update_fields=update_fields)
+
+    return True
 
 
 # ----- Roles -----
@@ -634,3 +681,28 @@ def get_profile(user):
         return Profile.objects.get(user_id=user.id)
     except Profile.DoesNotExist:
         return None
+
+
+"""
+def delete_existing_file(user, folder, file):
+    ''' Delete an existing file '''
+    deleted = False
+        
+    for root, dirs, files in os.walk(dir_path):     
+        for filename in files:
+            if filename == file and os.path.isfile( os.path.join(dir_path, filename) ):
+                
+                os.remove( os.path.join(dir_path, filename) )
+                os.rmdir(dir_path)
+
+                #print( decrypted_file )
+                #print( 'decrypted_file ', os.path.join(dir_path, decrypted_file['filename']) )
+                #print( type(decrypted_file['filename']) )
+                
+                #print( filename )
+                #os.remove(os.path.join(dir_path, filename))
+
+                deleted = True
+       
+    return deleted
+"""

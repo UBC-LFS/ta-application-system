@@ -11,6 +11,10 @@
 
     <section>
       <div class="mb-4">
+        <h5>Are you an International Student?:</h5>
+        <span class="text-secondary">{{ loggedin_user.confidentiality.is_international }}</span>
+      </div>
+      <div class="mb-4">
         <h5>Employee Number:</h5>
         <span class="text-secondary">{{ user.confidentiality.employee_number }}</span>
       </div>
@@ -22,11 +26,14 @@
           <img src="{{ user.sin_data.url }}" width="150" height="120" alt="SIN-image" /><br />
           <a href="{{ user.sin_data.url }}" download="{{ user.sin_data.filename }}">{{ user.sin_data.filename }}</a>
 
-          <form action="{% url 'students:delete_sin' %}" method="post" onsubmit="return confirm('Are you sure to delete this SIN file?')">
-            {% csrf_token %}
-            <input type="hidden" name="user" value="{{ loggedin_user.username }}" />
-            <input class="btn btn-sm btn-danger" type="submit" value="Delete" />
-          </form>
+          {% comment %}
+            <form action="{% url 'students:delete_sin' %}" method="post" onsubmit="return confirm('Are you sure to delete this SIN file?')">
+              {% csrf_token %}
+              <input type="hidden" name="user" value="{{ loggedin_user.username }}" />
+              <input class="btn btn-sm btn-danger" type="submit" value="Delete" />
+            </form>
+          {% endcomment %}
+
         {% else %}
           None
         {% endif %}
@@ -49,11 +56,14 @@
             <img src="{{ user.study_permit_data.url }}" width="150" height="120" alt="Study-Permit-image" /><br />
             <a href="{{ user.study_permit_data.url }}" download="{{ user.study_permit_data.filename }}">{{ user.study_permit_data.filename }}</a>
 
-            <form action="{% url 'students:delete_study_permit' %}" method="post" onsubmit="return confirm('Are you sure to delete this Study Permit file?')">
-              {% csrf_token %}
-              <input type="hidden" name="user" value="{{ loggedin_user.username }}" />
-              <input class="btn btn-sm btn-danger" type="submit" value="Delete" />
-            </form>
+            {% comment %}
+              <form action="{% url 'students:delete_study_permit' %}" method="post" onsubmit="return confirm('Are you sure to delete this Study Permit file?')">
+                {% csrf_token %}
+                <input type="hidden" name="user" value="{{ loggedin_user.username }}" />
+                <input class="btn btn-sm btn-danger" type="submit" value="Delete" />
+              </form>
+            {% endcomment %}
+
           {% else %}
             None
           {% endif %}
