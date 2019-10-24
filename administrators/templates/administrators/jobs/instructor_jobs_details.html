@@ -7,26 +7,41 @@
 
   <div class="mb-4"><a class="btn btn-outline-primary" href="{% url 'administrators:instructor_jobs' %}">Go back to Jobs by Instructor</a></div>
 
-  <div class="d-inline-block bg-light-gray p-4 mb-4">
-    <h5 class="text-primary">Instructor Infomation</h5>
-    <table>
-      <tr>
-        <td>Name:</td>
-        <td>{{ user.get_full_name }}</td>
-      </tr>
-      <tr>
-        <td>CWL:</td>
-        <td>{{ user.username }}</td>
-      </tr>
-      <tr>
-        <td>E-mail:</td>
-        <td>{{ user.email }}</td>
-      </tr>
-    </table>
+  <div>
+    <div class="bg-light-gray p-4 mb-4 d-inline-block">
+      <h5 class="text-primary">Instructor Infomation</h5>
+      <table>
+        <tr>
+          <td>Name:</td>
+          <td>{{ user.get_full_name }}</td>
+        </tr>
+        <tr>
+          <td>CWL:</td>
+          <td>{{ user.username }}</td>
+        </tr>
+        <tr>
+          <td>E-mail:</td>
+          <td>{{ user.email }}</td>
+        </tr>
+      </table>
+    </div>
+
   </div>
 
   <div class="d-inline-block">
-    <table class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center" data-toggle="table" data-sortable="true" data-classes="" data-pagination="true" data-search="true">
+    <table
+      class="table table-bordered table-hover table-striped table-responsive-md text-center"
+      data-toggle="table"
+      data-sortable="true"
+      data-classes=""
+      data-pagination="true"
+      data-search="true"
+      data-page-size="50"
+      data-page-list="[50, 100, 200, All]"
+      data-show-export="true"
+      data-click-to-select="true"
+      data-show-columns="true"
+    >
       <thead>
         <tr>
           <th data-sortable="true">Job ID</th>
@@ -66,7 +81,8 @@
     </table>
   </div>
 
-</div>
+  <div class="mt-4"><a class="btn btn-outline-primary" href="{% url 'administrators:instructor_jobs' %}">Go back to Jobs by Instructor</a></div>
 
+</div>
 
 {% endblock %}

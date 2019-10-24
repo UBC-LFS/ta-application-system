@@ -7,56 +7,57 @@
 
   {% include 'ta_app/pages/_header.html' with title='All Courses' text=courses|length %}
 
-  <table
-    id="courseTable"
-    class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center"
-    data-toggle="table"
-    data-sortable="true"
-    data-classes=""
-    data-pagination="true"
-    data-search="true"
-    data-page-size="50"
-    data-page-list="[50, 100, All]"
-    data-show-export="true"
-    data-click-to-select="true"
-    data-show-toggle="true"
-    data-show-columns="true"
+  <div class="d-inline-block">
+    <table
+      class="table table-bordered table-hover table-striped table-responsive-md text-center"
+      data-toggle="table"
+      data-sortable="true"
+      data-classes=""
+      data-pagination="true"
+      data-search="true"
+      data-page-size="50"
+      data-page-list="[50, 100, All]"
+      data-show-export="true"
+      data-click-to-select="true"
+      data-show-columns="true"
     >
-    <thead>
-      <tr>
-        <th data-sortable="true">ID</th>
-        <th data-sortable="true">Code</th>
-        <th data-sortable="true">Number</th>
-        <th data-sortable="true">Section</th>
-        <th data-sortable="true">Term</th>
-        <th data-sortable="true">Name</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for course in courses %}
+      <thead>
         <tr>
-          <td>{{ course.id }}</td>
-          <td>{{ course.code }}</td>
-          <td>{{ course.number }}</td>
-          <td>{{ course.section }}</td>
-          <td>{{ course.term.name }} ({{ course.term.code }})</td>
-          <td class="text-left">{{ course.name }}</td>
-          <td>
-            <div class="btn-toolbar">
-              <a class="btn btn-sm btn-link mr-2" href="{% url 'administrators:edit_course' course.slug %}">Edit</a>
-
-              <form action="{% url 'administrators:delete_course' %}" method="post" onsubmit="return confirm('Are you sure to delete {{ course.code }} {{ course.number }} {{ course.section }} - {{ course.name }}?');">
-                {% csrf_token %}
-                <input type="hidden" name="course" value="{{ course.id }}" />
-                <input class="btn btn-sm btn-danger" type="submit" value="Delete" />
-              </form>
-            </div>
-          </td>
+          <th data-sortable="true">ID</th>
+          <th data-sortable="true">Code</th>
+          <th data-sortable="true">Number</th>
+          <th data-sortable="true">Section</th>
+          <th data-sortable="true">Term</th>
+          <th data-sortable="true">Name</th>
+          <th>Actions</th>
         </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+        {% for course in courses %}
+          <tr>
+            <td>{{ course.id }}</td>
+            <td>{{ course.code }}</td>
+            <td>{{ course.number }}</td>
+            <td>{{ course.section }}</td>
+            <td>{{ course.term.name }} ({{ course.term.code }})</td>
+            <td class="text-left">{{ course.name }}</td>
+            <td>
+              <div class="btn-toolbar">
+                <a class="btn btn-sm btn-link mr-2" href="{% url 'administrators:edit_course' course.slug %}">Edit</a>
+
+                <form action="{% url 'administrators:delete_course' %}" method="post" onsubmit="return confirm('Are you sure to delete {{ course.code }} {{ course.number }} {{ course.section }} - {{ course.name }}?');">
+                  {% csrf_token %}
+                  <input type="hidden" name="course" value="{{ course.id }}" />
+                  <input class="btn btn-sm btn-danger" type="submit" value="Delete" />
+                </form>
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
 </div>
 
 {% endblock %}

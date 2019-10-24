@@ -264,19 +264,19 @@ def edit_confidentiality(request):
         form = ConfidentialityForm(request.POST, request.FILES, instance=loggedin_user.confidentiality)
         if form.is_valid():
             print('post ', request.POST)
-            data = form.cleaned_data            
+            data = form.cleaned_data
             print('data ', data)
 
             user_id = request.POST.get('user')
             user = userApi.get_user(user_id)
 
             updated_confidentiality = userApi.updated_confidentiality(user, form.cleaned_data)
-            
+
 
 
             """is_international = request.POST.get('is_international')
             employee_number = request.POST.get('employee_number')
-            
+
             sin_file = request.FILES.get('sin')
             sin_expiry_date = data['sin_expiry_date']
 
@@ -297,7 +297,7 @@ def edit_confidentiality(request):
             #updated_confidentiality.updated_at = datetime.now()
 
             #if is_international:
-            #    study_permit_file = request.FILES.get('study_permit')   
+            #    study_permit_file = request.FILES.get('study_permit')
             #else:
             #    userApi.delete_user_study_permit(loggedin_user)
 
@@ -474,73 +474,16 @@ def apply_job(request, session_slug, job_slug):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
-def applied_jobs(request):
-    ''' Display jobs applied by a student '''
+def status_jobs(request):
+    ''' Display status of jobs and total accepted assigned hours '''
     loggedin_user = userApi.loggedin_user(request.user)
     if 'Student' not in loggedin_user.roles: raise PermissionDenied
 
-    apps, total_assigned_hours = adminApi.get_applications_with_status_by_user(loggedin_user, ApplicationStatus.NONE)
-    return render(request, 'students/jobs/applied_jobs.html', {
-        'loggedin_user': loggedin_user,
-        'apps': apps
-    })
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET', 'POST'])
-def show_job(request, session_slug, job_slug, path):
-    ''' Display job details '''
-    loggedin_user = userApi.loggedin_user(request.user)
-    if 'Student' not in loggedin_user.roles: raise PermissionDenied
-
-    return render(request, 'students/jobs/show_job.html', {
-        'loggedin_user': loggedin_user,
-        'job': adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug),
-        'path': path
-    })
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET', 'POST'])
-def show_application(request, app_slug, path):
-    ''' Display job details '''
-    loggedin_user = userApi.loggedin_user(request.user)
-    if 'Student' not in loggedin_user.roles: raise PermissionDenied
-
-    return render(request, 'students/jobs/show_application.html', {
-        'loggedin_user': loggedin_user,
-        'app': adminApi.get_application_by_slug(app_slug),
-        'path': path
-    })
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
-def offered_jobs(request):
-    ''' Display jobs offered from admins '''
-    loggedin_user = userApi.loggedin_user(request.user)
-    if 'Student' not in loggedin_user.roles: raise PermissionDenied
-
-    apps, total_assigned_hours = adminApi.get_applications_with_status_by_user(loggedin_user, ApplicationStatus.OFFERED, 'first')
-    return render(request, 'students/jobs/offered_jobs.html', {
+    apps, total_accepted_assigned_hours = adminApi.get_applications_with_status(loggedin_user)
+    return render(request, 'students/jobs/status_jobs.html', {
         'loggedin_user': loggedin_user,
         'apps': apps,
-        'total_assigned_hours': total_assigned_hours
-    })
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
-def accepted_jobs(request):
-    ''' Display jobs accepted by a student '''
-    loggedin_user = userApi.loggedin_user(request.user)
-    if 'Student' not in loggedin_user.roles: raise PermissionDenied
-
-    apps, total_assigned_hours = adminApi.get_applications_with_status_by_user(loggedin_user, ApplicationStatus.ACCEPTED)
-    return render(request, 'students/jobs/accepted_jobs.html', {
-        'loggedin_user': loggedin_user,
-        'apps': apps,
-        'total_assigned_hours': total_assigned_hours
+        'total_accepted_assigned_hours': total_accepted_assigned_hours
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -562,7 +505,7 @@ def cancel_job(request, session_slug, job_slug):
             cancelled_status = form.save()
             if cancelled_status:
                 messages.success(request, 'Success! Application of {0} {1} - {2} {3} {4} cancelled.'.format(job.session.year, job.session.term.code, job.course.code.name, job.course.number.name, job.course.section.name))
-                return redirect('students:accepted_jobs')
+                return redirect('students:status_jobs')
             else:
                 messages.error(request, 'An error occurred while saving application status.')
         else:
@@ -574,20 +517,6 @@ def cancel_job(request, session_slug, job_slug):
     return render(request, 'students/jobs/cancel_job.html', {
         'loggedin_user': loggedin_user,
         'app': app
-    })
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
-def declined_jobs(request):
-    ''' Display jobs declined by a student '''
-    loggedin_user = userApi.loggedin_user(request.user)
-    if 'Student' not in loggedin_user.roles: raise PermissionDenied
-
-    apps, total_assigned_hours = adminApi.get_applications_with_status_by_user(loggedin_user, ApplicationStatus.DECLINED, 'declined only')
-    return render(request, 'students/jobs/declined_jobs.html', {
-        'loggedin_user': loggedin_user,
-        'apps': apps
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -642,7 +571,7 @@ def accept_offer(request, session_slug, job_slug):
             errors = form.errors.get_json_data()
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
-    return redirect('students:offered_jobs')
+    return redirect('students:status_jobs')
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -667,13 +596,98 @@ def decline_offer(request, session_slug, job_slug):
             errors = form.errors.get_json_data()
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
-    return redirect('students:offered_jobs')
+    return redirect('students:status_jobs')
 
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET', 'POST'])
+def show_job(request, session_slug, job_slug):
+    ''' Display job details '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if 'Student' not in loggedin_user.roles: raise PermissionDenied
 
+    return render(request, 'students/jobs/show_job.html', {
+        'loggedin_user': loggedin_user,
+        'job': adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
+    })
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET', 'POST'])
+def show_application(request, app_slug):
+    ''' Display job details '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if 'Student' not in loggedin_user.roles: raise PermissionDenied
+
+    return render(request, 'students/jobs/show_application.html', {
+        'loggedin_user': loggedin_user,
+        'app': adminApi.get_application_by_slug(app_slug)
+    })
 
 
 # -------------
 """
+
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def applied_jobs(request):
+    ''' Display jobs applied by a student '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if 'Student' not in loggedin_user.roles: raise PermissionDenied
+
+    apps, total_assigned_hours = adminApi.get_applications_with_status_by_user(loggedin_user, ApplicationStatus.NONE)
+    return render(request, 'students/jobs/applied_jobs.html', {
+        'loggedin_user': loggedin_user,
+        'apps': apps
+    })
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def offered_jobs(request):
+    ''' Display jobs offered from admins '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if 'Student' not in loggedin_user.roles: raise PermissionDenied
+
+    apps, total_assigned_hours = adminApi.get_applications_with_status_by_user(loggedin_user, ApplicationStatus.OFFERED, 'first')
+    return render(request, 'students/jobs/offered_jobs.html', {
+        'loggedin_user': loggedin_user,
+        'apps': apps,
+        'total_assigned_hours': total_assigned_hours
+    })
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def accepted_jobs(request):
+    ''' Display jobs accepted by a student '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if 'Student' not in loggedin_user.roles: raise PermissionDenied
+
+    apps, total_assigned_hours = adminApi.get_applications_with_status_by_user(loggedin_user, ApplicationStatus.ACCEPTED)
+    return render(request, 'students/jobs/accepted_jobs.html', {
+        'loggedin_user': loggedin_user,
+        'apps': apps,
+        'total_assigned_hours': total_assigned_hours
+    })
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def declined_jobs(request):
+    ''' Display jobs declined by a student '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if 'Student' not in loggedin_user.roles: raise PermissionDenied
+
+    apps, total_assigned_hours = adminApi.get_applications_with_status_by_user(loggedin_user, ApplicationStatus.DECLINED, 'declined only')
+    return render(request, 'students/jobs/declined_jobs.html', {
+        'loggedin_user': loggedin_user,
+        'apps': apps
+    })
+
+
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET', 'POST'])

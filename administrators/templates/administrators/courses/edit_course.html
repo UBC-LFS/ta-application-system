@@ -25,12 +25,13 @@
         {% for field in form.hidden_fields %}
           {{ field }}
         {% endfor %}
-        
-        <a class="btn btn-outline-primary" href="{% url 'administrators:all_courses' %}">Back to All Courses</a>
+
         <input class="btn btn-warning" value="Update Course" type="submit" />
       </form>
     </div>
   </div>
+
+  <div class="mt-5"><a class="btn btn-outline-primary" href="{% url 'administrators:all_courses' %}">Back to All Courses</a></div>
 
 </div>
 

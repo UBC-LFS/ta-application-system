@@ -5,7 +5,7 @@
 <div id="content" class="container-fluid">
   {% include 'ta_app/pages/_header.html' with title='Accept or Decline a Job Offer' %}
 
-  <div><a class="btn btn-outline-primary" href="{% url 'students:offered_jobs' %}">Go back to Offered Jobs</a></div>
+  <div><a class="btn btn-outline-primary" href="{% url 'students:status_jobs' %}">Go back to Status</a></div>
 
   <h5 class="mt-4">{{ app.job.session.year }} {{ app.job.session.term.name }} ({{ app.job.session.term.code }})</h5>
 
@@ -17,76 +17,73 @@
     {% include 'ta_app/jobs/_modal_job_details.html' with data=job %}
   </div>
 
-  {% if app.offered and not app.accepted and not app.declined %}
-    <div class="card border-secondary d-inline-block">
-      <div class="card-header bg-secondary text-white">Message</div>
-      <div class="card-body">
-        <h5 class="text-info">
-          <i class="fa fa-hand-peace-o" aria-hidden="true"></i> Congratulations! You get a Job Offer.
-        </h5>
-        <p>You are assigned <span class="font-weight-bold text-danger">{{ app.offered.assigned_hours }} hours</span> for this job.</p>
+  {% if app.offered %}
+
+    {% if not app.accepted and not app.declined %}
+
+      <div class="card border-secondary d-inline-block">
+        <div class="card-header bg-secondary text-white">Message</div>
+        <div class="card-body">
+          <h5 class="text-info">
+            <i class="fa fa-hand-peace-o" aria-hidden="true"></i> Congratulations! You get a Job Offer.
+          </h5>
+          <p>You are assigned <span class="font-weight-bold text-danger">{{ app.offered.assigned_hours }} hours</span> for this job.</p>
+        </div>
       </div>
-    </div>
 
-    <div class="bd-callout bd-callout-warning">
-      <h5>Checkpoint!</h5>
-      <p>Please select one of two buttons below.</p>
-    </div>
+      <div class="bd-callout bd-callout-warning">
+        <h5>Checkpoint!</h5>
+        <p>Please select one of two buttons below.</p>
+      </div>
 
-    <div>
+      <div>
+        <div class="d-inline-block">
+          <form action="{% url 'students:accept_offer' session_slug=app.job.session.slug job_slug=app.job.course.slug %}" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="application" value="{{ app.id }}" />
+            <input type="hidden" name="assigned_hours" value="{{ app.offered.assigned_hours }}" />
+            <input class="btn btn-primary" type="submit" value="Accept" />
+          </form>
+        </div>
+
+        <div class="d-inline-block">
+          <form action="{% url 'students:decline_offer' session_slug=app.job.session.slug job_slug=app.job.course.slug %}" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="application" value="{{ app.id }}" />
+            <input class="btn btn-secondary" type="submit" value="Decline" />
+          </form>
+        </div>
+      </div>
+
+    {% elif app.accepted and not app.declined %}
+
       <div class="d-inline-block">
-        <form action="{% url 'students:accept_offer' session_slug=app.job.session.slug job_slug=app.job.course.slug %}" method="post">
-          {% csrf_token %}
-          <input type="hidden" name="application" value="{{ app.id }}" />
-          <input type="hidden" name="assigned_hours" value="{{ app.offered.assigned_hours }}" />
-          <input class="btn btn-primary" type="submit" value="Accept" />
-        </form>
+        <div class="alert alert-success" role="alert">
+          <i class="fa fa-info-circle" aria-hidden="true"></i> You accpeted a job offer.
+        </div>
       </div>
+
+    {% elif not app.accepted and app.declined %}
 
       <div class="d-inline-block">
-        <form action="{% url 'students:decline_offer' session_slug=app.job.session.slug job_slug=app.job.course.slug %}" method="post">
-          {% csrf_token %}
-          <input type="hidden" name="application" value="{{ app.id }}" />
-          <input class="btn btn-secondary" type="submit" value="Decline" />
-        </form>
+        <div class="alert alert-success" role="alert">
+          <i class="fa fa-info-circle" aria-hidden="true"></i> You declined a job offer.
+        </div>
       </div>
-    </div>
+
+    {% elif app.accepted and app.declined %}
+
+      <div class="d-inline-block">
+        <div class="alert alert-success" role="alert">
+          <i class="fa fa-info-circle" aria-hidden="true"></i> Your job offer were declined and re-assigned.
+        </div>
+      </div>
+
+    {% endif %}
 
   {% endif %}
 
-  {% if app.accepted and not app.declined %}
-    <div class="d-inline-block">
-      <div class="alert alert-success" role="alert">
-        <i class="fa fa-info-circle" aria-hidden="true"></i> You accpeted a job offer.
-      </div>
-    </div>
-  {% endif %}
-
-  {% if not app.accepted and app.declined %}
-    <div class="d-inline-block">
-      <div class="alert alert-success" role="alert">
-        <i class="fa fa-info-circle" aria-hidden="true"></i> You declined a job offer.
-      </div>
-    </div>
-  {% endif %}
-
-  {% if app.accepted and not app.declined %}
-    <div class="d-inline-block">
-      <div class="alert alert-success" role="alert">
-        <i class="fa fa-info-circle" aria-hidden="true"></i> You accpeted a job offer.
-      </div>
-    </div>
-  {% endif %}
-
-  {% if app.accepted and app.declined %}
-    <div class="d-inline-block">
-      <div class="alert alert-success" role="alert">
-        <i class="fa fa-info-circle" aria-hidden="true"></i> Your job offer were declined and re-assigned.
-      </div>
-    </div>
-  {% endif %}
-
-  <div class="my-4"><a class="btn btn-outline-primary" href="{% url 'students:offered_jobs' %}">Go back to Offered Jobs</a></div>
+  <div><a class="btn btn-outline-primary" href="{% url 'students:status_jobs' %}">Go back to Status</a></div>
 </div>
 
 {% endblock %}

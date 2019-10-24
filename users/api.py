@@ -451,13 +451,13 @@ def create_user_confidentiality(user):
     confidentiality = Confidentiality.objects.create(user_id=user.id)
     return True if confidentiality else None
 
+from django.core.files.storage import Storage, FileSystemStorage
+from django.core.files import File
 
 def updated_confidentiality(user, data):
-    
-    
-
+    ''' Update user's confidentiality '''
     update_fields = []
-
+    
     if user.confidentiality.is_international != data['is_international']:
         user.confidentiality.is_international = data['is_international']
         update_fields.append('is_international')
@@ -465,8 +465,6 @@ def updated_confidentiality(user, data):
     if user.confidentiality.employee_number != data['employee_number']:
         user.confidentiality.employee_number = data['employee_number']
         update_fields.append('employee_number')
-
-    print(user.confidentiality.sin_expiry_date)
 
     if user.confidentiality.sin_expiry_date != data['sin_expiry_date']:
         user.confidentiality.sin_expiry_date = data['sin_expiry_date']
@@ -476,12 +474,16 @@ def updated_confidentiality(user, data):
         user.confidentiality.study_permit_expiry_date = data['study_permit_expiry_date']
         update_fields.append('study_permit_expiry_date')
 
-    
-    #old_sin = user.confidentiality.sin
-    if bool(user.confidentiality.sin):
-        if user.confidentiality.sin != data['sin']:
+    old_sin = user.confidentiality.sin    
+    if bool(old_sin):
+        if old_sin != data['sin']:
+            
+            user.confidentiality.sin.close()
+            print('sin closed? ', user.confidentiality.sin.closed)
+
             user.confidentiality.sin.delete(save=False)
             Confidentiality.objects.filter(user_id=user.id).update(sin=None)
+            
             user.confidentiality.sin = data['sin']
             update_fields.append('sin')
     else:
@@ -489,18 +491,22 @@ def updated_confidentiality(user, data):
             user.confidentiality.sin = data['sin']
             update_fields.append('sin')
 
-
     old_study_permit = user.confidentiality.study_permit
     if bool(old_study_permit):
         if old_study_permit != data['study_permit']:
+            user.confidentiality.study_permit.close()
+            print('study_permit closed? ', user.confidentiality.sin.closed)
+            
             user.confidentiality.study_permit.delete(save=False)
             Confidentiality.objects.filter(user_id=user.id).update(study_permit=None)
+            
             user.confidentiality.study_permit = data['study_permit']
             update_fields.append('study_permit')
     else:
         if data['study_permit']:
             user.confidentiality.study_permit = data['study_permit']
             update_fields.append('study_permit')
+
 
     print('update_fields ', update_fields)
 
@@ -510,6 +516,12 @@ def updated_confidentiality(user, data):
 
             if 'sin_expiry_date' not in update_fields: 
                 update_fields.append('sin_expiry_date')
+
+            user.confidentiality.study_permit.close()
+            print('study_permit closed? ', user.confidentiality.study_permit.closed)
+            
+            user.confidentiality.study_permit.delete(save=False)
+            Confidentiality.objects.filter(user_id=user.id).update(study_permit=None)
 
             user.confidentiality.study_permit_expiry_date = None
             if 'study_permit_expiry_date' not in update_fields: 

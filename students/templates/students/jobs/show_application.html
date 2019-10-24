@@ -5,8 +5,10 @@
 <div id="content" class="container-fluid">
   {% include 'ta_app/pages/_header.html' with title='Application Details' %}
 
-  <div class="mb-4">{% include 'students/jobs/_go_back.html' with data=path %}</div>
+  <div><a class="btn btn-outline-primary" href="{% url 'students:status_jobs' %}">Go back to Status</a></div>
 
   {% include 'ta_app/applications/_app_details.html' with data=app %}
+
+  <div><a class="btn btn-outline-primary" href="{% url 'students:status_jobs' %}">Go back to Status</a></div>
 
 {% endblock %}

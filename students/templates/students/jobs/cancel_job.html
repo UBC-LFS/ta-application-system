@@ -5,14 +5,14 @@
 <div id="content" class="container-fluid">
   {% include 'ta_app/pages/_header.html' with title='Cancel an Accepted Job' %}
 
-  <div><a class="btn btn-outline-primary" href="{% url 'students:accepted_jobs' %}">Go back to Accepted Jobs</a></div>
+  <div><a class="btn btn-outline-primary" href="{% url 'students:status_jobs' %}">Go back to Status</a></div>
 
   <h5 class="mt-5">{{ app.job.session.year }} {{ app.job.session.term.name }} ({{ app.job.session.term.code }})</h5>
   <h4 class="mb-5">
     {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }} <br />
-    <small class="text-muted">- {{ data.job.course.name }}</small>
+    <small class="text-muted">- {{ app.job.course.name }}</small>
   </h4>
-  
+
   {% if app.cancelled %}
 
     <div class="d-inline-block">
@@ -38,7 +38,8 @@
     </form>
 
     <div class="mt-5 text-secondary">If not, please click the Back button below.</div>
-    <a class="btn btn-outline-primary" href="{% url 'students:accepted_jobs' %}">Go back to Accepted Jobs</a>
+
+    <div><a class="btn btn-outline-primary" href="{% url 'students:status_jobs' %}">Go back to Status</a></div>
   {% endif %}
 
 </div>

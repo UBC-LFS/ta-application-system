@@ -720,14 +720,15 @@ def applications_dashboard(request):
 
     return render(request, 'administrators/applications/applications_dashboard.html', {
         'loggedin_user': loggedin_user,
-        'applications': adminApi.get_applications(),
         'statuses': adminApi.get_application_statuses(),
         'app_status': {
             'applied': ApplicationStatus.NONE,
             'offered': ApplicationStatus.OFFERED,
             'accepted': ApplicationStatus.ACCEPTED,
-            'declined': ApplicationStatus.DECLINED
-        }
+            'declined': ApplicationStatus.DECLINED,
+            'cancelled': ApplicationStatus.CANCELLED
+        },
+        'applications': adminApi.get_applications()
     })
 
 @login_required(login_url=settings.LOGIN_URL)

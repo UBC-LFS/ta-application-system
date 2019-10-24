@@ -7,62 +7,68 @@
 
   {% include 'ta_app/pages/_header.html' with title='Current Sessions' text=current_sessions|length %}
 
-  <table class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center"
-    data-toggle="table"
-    data-sortable="true"
-    data-classes=""
-    data-pagination="true"
-    data-search="true"
-    data-show-export="true"
-    data-click-to-select="true"
-    data-show-columns="true"
-  >
-    <thead>
-      <tr>
-        <th data-sortable="true">ID</th>
-        <th data-sortable="true">Year</th>
-        <th data-sortable="true">Term</th>
-        <th data-sortable="true">Title</th>
-        <th data-sortable="true">Jobs</th>
-        <th data-sortable="true">Count<br />Instructors added</th>
-        <th data-sortable="true">Is visible</th>
-        <th data-sortable="true">Is archived</th>
-        <th data-sortable="true">Created at</th>
-        <th data-sortable="true">Updated at</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for session in current_sessions %}
+  <div class="d-inline-block">
+
+    <table
+      class="table table-bordered table-hover table-striped table-responsive-md text-center"
+      data-toggle="table"
+      data-sortable="true"
+      data-classes=""
+      data-pagination="true"
+      data-search="true"
+      data-page-size="50"
+      data-page-list="[50, 100, 200, all]"
+      data-show-export="true"
+      data-click-to-select="true"
+      data-show-columns="true"
+    >
+      <thead>
         <tr>
-          <td>
-            <a href="{% url 'administrators:show_session' session_slug=session.slug path='current' %}">{{ session.id }}</a>
-          </td>
-          <td>{{ session.year }}</td>
-          <td>{{ session.term.code }}</td>
-          <td>{{ session.title }}</td>
-          <td>{{ session.job_set.count }}</td>
-          <td>{{ session.num_instructors }}</td>
-          <td>{{ session.is_visible }}</td>
-          <td>{{ session.is_archived }}</td>
-          <td>{{ session.created_at }}</td>
-          <td>{{ session.updated_at }}</td>
-          <td>
-            <div class="btn-toolbar">
-              <a class="btn btn-sm btn-link mr-2" href="{% url 'administrators:edit_session' session_slug=session.slug path='current' %}">Edit</a>
-
-              <form action="{% url 'administrators:delete_session' path='current' %}" method="post" onsubmit="return confirm('Are you sure to delete {{ session.year }} {{ session.term }} - {{ session.title }}?');">
-                {% csrf_token %}
-                <input type="hidden" name="session" value="{{ session.id }}" />
-                <input type="submit" value="Delete" class="btn btn-sm btn-danger"/>
-              </form>
-            </div>
-          </td>
+          <th data-sortable="true">ID</th>
+          <th data-sortable="true">Year</th>
+          <th data-sortable="true">Term</th>
+          <th data-sortable="true">Title</th>
+          <th data-sortable="true">Jobs</th>
+          <th data-sortable="true">Count<br />Instructors added</th>
+          <th data-sortable="true">Is visible</th>
+          <th data-sortable="true">Is archived</th>
+          <th data-sortable="true">Created at</th>
+          <th data-sortable="true">Updated at</th>
+          <th>Actions</th>
         </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+        {% for session in current_sessions %}
+          <tr>
+            <td>
+              <a href="{% url 'administrators:show_session' session_slug=session.slug path='current' %}">{{ session.id }}</a>
+            </td>
+            <td>{{ session.year }}</td>
+            <td>{{ session.term.code }}</td>
+            <td>{{ session.title }}</td>
+            <td>{{ session.job_set.count }}</td>
+            <td>{{ session.num_instructors }}</td>
+            <td>{{ session.is_visible }}</td>
+            <td>{{ session.is_archived }}</td>
+            <td>{{ session.created_at }}</td>
+            <td>{{ session.updated_at }}</td>
+            <td>
+              <div class="btn-toolbar">
+                <a class="btn btn-sm btn-link mr-2" href="{% url 'administrators:edit_session' session_slug=session.slug path='current' %}">Edit</a>
 
+                <form action="{% url 'administrators:delete_session' path='current' %}" method="post" onsubmit="return confirm('Are you sure to delete {{ session.year }} {{ session.term }} - {{ session.title }}?');">
+                  {% csrf_token %}
+                  <input type="hidden" name="session" value="{{ session.id }}" />
+                  <input type="submit" value="Delete" class="btn btn-sm btn-danger"/>
+                </form>
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+  </div>
 </div>
 
 

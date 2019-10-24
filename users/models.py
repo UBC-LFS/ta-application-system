@@ -119,6 +119,12 @@ class Confidentiality(models.Model):
         if not kwargs['update_fields']:
             if bool(self.sin): self.sin = encrypt_image(self.sin)
             if bool(self.study_permit): self.study_permit = encrypt_image(self.study_permit)
+        else:
+            if 'sin' in kwargs['update_fields']:
+                self.sin = encrypt_image(self.sin)
+            if 'study_permit' in kwargs['update_fields']:
+                self.study_permit = encrypt_image(self.study_permit)
+
 
         super(Confidentiality, self).save(*args, **kwargs)
 

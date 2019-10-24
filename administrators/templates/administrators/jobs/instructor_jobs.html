@@ -5,58 +5,62 @@
 <div id="content" class="container-fluid">
   {% include 'ta_app/pages/_header.html' with title='Jobs by Instructor' text=instructors|length %}
 
-  <table
-    class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center"
-    data-toggle="table"
-    data-sortable="true"
-    data-classes=""
-    data-pagination="true"
-    data-search="true"
-    data-page-size="50"
-    data-page-list="[50, 100, All]"
-    data-show-export="true"
-    data-click-to-select="true"
-    data-show-columns="true"
-  >
-    <thead>
-      <tr>
-        <th data-sortable="true">User ID</th>
-        <th data-sortable="true">First Name</th>
-        <th data-sortable="true">Last Name</th>
-        <th data-sortable="true">Preferred Name</th>
-        <th data-sortable="true">CWL</th>
-        <th data-sortable="true">E-mail</th>
-        <th data-sortable="true">Jobs</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for instructor in instructors %}
-        <tr>
-          <td>
-            <a href="{% url 'administrators:show_user' username=instructor.username path='instructor' %}">{{ instructor.id }}</a>
-          </td>
-          <td>{{ instructor.first_name }}</td>
-          <td>{{ instructor.last_name }}</td>
-          <td>{{ instructor.profile.preferred_name }}</td>
-          <td>{{ instructor.username }}</td>
-          <td>{{ instructor.email }}</td>
-          <td>
-            {% if instructor.job_set.count > 0 %}
-              <a href="{% url 'administrators:instructor_jobs_details' instructor.username %}">{{ instructor.job_set.count }}</a>
-            {% else %}
-              {{ instructor.job_set.count }}
-            {% endif %}
-          </td>
-        </tr>
+  <div class="d-inline-block">
 
-      {% empty %}
+    <table
+      class="table table-bordered table-hover table-striped table-responsive-md text-center"
+      data-toggle="table"
+      data-sortable="true"
+      data-classes=""
+      data-pagination="true"
+      data-search="true"
+      data-page-size="50"
+      data-page-list="[50, 100, 200, all]"
+      data-show-export="true"
+      data-click-to-select="true"
+      data-show-columns="true"
+    >
+      <thead>
         <tr>
-          <td colspan="5">No instructors found</td>
+          <th data-sortable="true">User ID</th>
+          <th data-sortable="true">First Name</th>
+          <th data-sortable="true">Last Name</th>
+          <th data-sortable="true">Preferred Name</th>
+          <th data-sortable="true">CWL</th>
+          <th data-sortable="true">E-mail</th>
+          <th data-sortable="true">Jobs</th>
         </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+        {% for instructor in instructors %}
+          <tr>
+            <td>
+              <a href="{% url 'administrators:show_user' username=instructor.username path='instructor' %}">{{ instructor.id }}</a>
+            </td>
+            <td>{{ instructor.first_name }}</td>
+            <td>{{ instructor.last_name }}</td>
+            <td>{{ instructor.profile.preferred_name }}</td>
+            <td>{{ instructor.username }}</td>
+            <td>{{ instructor.email }}</td>
+            <td>
+              {% if instructor.job_set.count > 0 %}
+                <a href="{% url 'administrators:instructor_jobs_details' instructor.username %}">{{ instructor.job_set.count }}</a>
+              {% else %}
+                {{ instructor.job_set.count }}
+              {% endif %}
+            </td>
+          </tr>
+
+        {% empty %}
+          <tr>
+            <td colspan="5">No instructors found</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
 
   </div>
+
+</div>
 
 {% endblock %}

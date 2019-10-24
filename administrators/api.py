@@ -333,6 +333,54 @@ def get_application_with_status_by_user(user, job, option):
     return None
 
 # Very important
+def get_applications_with_status(user):
+    '''  Get applications with status and total accepted assgiend hours '''
+    total_accepted_assigned_hours = {}
+
+    apps = Application.objects.filter(applicant_id=user.id).distinct()
+    for app in apps:
+        status = app.applicationstatus_set.all().last()
+    
+        app.applied = None
+        applied = app.applicationstatus_set.filter(assigned=ApplicationStatus.NONE)
+        if applied.exists(): app.applied = applied.first()
+
+
+        if status.assigned == ApplicationStatus.OFFERED:
+            app.offered = None
+
+            offered = app.applicationstatus_set.filter(assigned=ApplicationStatus.OFFERED)
+            if offered.exists(): app.offered = offered.first()
+
+        elif status.assigned == ApplicationStatus.ACCEPTED:
+            app.accepted = None
+
+            accepted = app.applicationstatus_set.filter(assigned=ApplicationStatus.ACCEPTED)
+            if accepted.exists(): app.accepted = accepted.latest('created_at')
+
+            year_term = '{0}-{1}'.format(app.job.session.year, app.job.session.term.code)
+            if year_term in total_accepted_assigned_hours.keys():
+                total_accepted_assigned_hours[year_term] += app.accepted.assigned_hours
+            else:
+                total_accepted_assigned_hours[year_term] = app.accepted.assigned_hours
+
+        elif status.assigned == ApplicationStatus.DECLINED:
+            app.declined = None
+            declined = app.applicationstatus_set.filter(assigned=ApplicationStatus.DECLINED)
+            if declined.exists(): app.declined = declined.latest('created_at')
+
+        elif status.assigned == ApplicationStatus.CANCELLED:
+            app.cancelled = None
+            cancelled = app.applicationstatus_set.filter(assigned=ApplicationStatus.CANCELLED)
+            if cancelled.exists(): app.cancelled = cancelled.latest('created_at')
+
+        else:
+            pass
+
+    return apps, total_accepted_assigned_hours
+
+
+# Very important
 def get_applications_with_status_by_user(user, status, option=None):
     ''' Get applications of a student with status '''
     total_assigned_hours = {}
