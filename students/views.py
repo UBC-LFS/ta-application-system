@@ -263,14 +263,49 @@ def edit_confidentiality(request):
     if request.method == 'POST':
         form = ConfidentialityForm(request.POST, request.FILES, instance=loggedin_user.confidentiality)
         if form.is_valid():
+
             print('post ', request.POST)
+            print(request.FILES.get('sin'), request.FILES.get('study_permit'))
+
             data = form.cleaned_data
             print('data ', data)
+            print(data.get('sin'), data.get('study_permit'))
 
             user_id = request.POST.get('user')
             user = userApi.get_user(user_id)
 
-            updated_confidentiality = userApi.updated_confidentiality(user, form.cleaned_data)
+
+            sin_study_permit_errors = []
+            if not request.FILES.get('sin') and bool(user.confidentiality.sin):
+                sin_study_permit_errors.append('SIN')
+            if not request.FILES.get('study_permit') and bool(user.confidentiality.study_permit):
+                sin_study_permit_errors.append('Study Permit')
+
+            if len(sin_study_permit_errors) > 0:
+                msg = ' and '.join(sin_study_permit_errors)
+                messages.error(request, 'An error occurred. Please delete your previous {0} information first, and then try again.'.format(msg))
+                return redirect('students:edit_confidentiality')
+
+
+            print('is_international ', request.POST.get('is_international'), bool(request.POST.get('is_international')))
+            # if an internation student
+            if request.POST.get('is_international') == 'true':
+                print('is_international')
+                pass
+
+            # if a canadian citizen/PR
+            else:
+                sin_expiry_date = userApi.create_expiry_date(request.POST.get('sin_expiry_date_year'), request.POST.get('sin_expiry_date_month'), request.POST.get('sin_expiry_date_day'))
+                study_permit_expiry_date = userApi.create_expiry_date(request.POST.get('study_permit_expiry_date_year'), request.POST.get('study_permit_expiry_date_month'), request.POST.get('study_permit_expiry_date_day'))
+
+                print('sin_expiry_date ', sin_expiry_date)
+                print('study_permit_expiry_date ', study_permit_expiry_date)
+                print("here")
+                if sin_expiry_date != False or study_permit_expiry_date != False or request.FILES.get('study_permit'):
+                    messages.error(request, 'An error occurred. If you are not an International Student, you won\'t need to update SIN Expiry Date, Study Permit or Study Permit Expiry Date.')
+                    return redirect('students:edit_confidentiality')
+
+            updated_confidentiality = userApi.updated_confidentiality(user, request.POST, request.FILES, form.cleaned_data)
 
 
 

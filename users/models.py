@@ -116,14 +116,14 @@ class Confidentiality(models.Model):
         print('args', args)
         print('kwargs', kwargs)
 
-        if not kwargs['update_fields']:
-            if bool(self.sin): self.sin = encrypt_image(self.sin)
-            if bool(self.study_permit): self.study_permit = encrypt_image(self.study_permit)
-        else:
+        if 'update_fields' in kwargs:
             if 'sin' in kwargs['update_fields']:
                 self.sin = encrypt_image(self.sin)
             if 'study_permit' in kwargs['update_fields']:
                 self.study_permit = encrypt_image(self.study_permit)
+        else:
+            if bool(self.sin): self.sin = encrypt_image(self.sin)
+            if bool(self.study_permit): self.study_permit = encrypt_image(self.study_permit)
 
 
         super(Confidentiality, self).save(*args, **kwargs)
@@ -140,7 +140,7 @@ class Resume(models.Model):
         null=True,
         blank=True
     )
-    
+
     created_at = models.DateField(null=True, blank=True)
 
 
@@ -256,10 +256,10 @@ def decrypt_image(username, obj, type, delete=None):
     imageStream.close()
 
     width, height = img.size
-    
+
     img.seek(0)
     img.close()
-    
+
     return {
         'filename': filename,
         'url': url,
