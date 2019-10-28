@@ -1,0 +1,20 @@
+<ul class="nav justify-content-center bg-primary">
+	<li class="nav-item dropdown">
+    	<a class="nav-link dropdown-toggle text-white" data-toggle="dropdown" href="{% url 'administrators:courses' %}" role="button" aria-haspopup="true" aria-expanded="false">Profile</a>
+		<div class="dropdown-menu">
+			<a class="dropdown-item" href="{% url 'students:show_profile' %}">Profile</a>
+			<a class="dropdown-item" href="{% url 'students:edit_profile' %}">Edit Profile</a>
+			<a class="dropdown-item" href="{% url 'students:show_confidentiality' %}">Confidentiality</a>
+		</div>
+	</li>
+	<li class="nav-item dropdown">
+    	<a class="nav-link dropdown-toggle text-white" data-toggle="dropdown" href="{% url 'administrators:courses' %}" role="button" aria-haspopup="true" aria-expanded="false">Explore Jobs</a>
+		<div class="dropdown-menu">
+			<a class="dropdown-item" href="{% url 'students:explore_jobs' %}">Explore Jobs</a>
+			<a class="dropdown-item" href="{% url 'students:applied_jobs' %}">Applied Jobs</a>
+			<a class="dropdown-item" href="{% url 'students:offered_jobs' %}">Offered Jobs</a>
+			<a class="dropdown-item" href="{% url 'students:accepted_jobs' %}">Accepted Jobs</a>
+			<a class="dropdown-item" href="{% url 'students:declined_jobs' %}">Declined Jobs</a>
+		</div>
+	</li>
+</ul>

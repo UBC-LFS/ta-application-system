@@ -62,7 +62,9 @@
 		{% if 'Admin' in loggedin_user.roles or 'Superadmin' in loggedin_user.roles %}
 			{% include "ta_app/sidebars/_mobilenavadmin.html" %}
 		{% elif 'Instructor' in loggedin_user.roles %}
-			{% include "ta_app/sidebars/_mobilenavinstructor.html"%}
+			{% include "ta_app/sidebars/_mobilenavinstructor.html" %}
+		{% elif 'Student' in loggedin_user.roles%}
+			{% include "ta_app/sidebars/_mobilenavstudent.html" %}
 		{% endif %}
 
 		<div id="content-padding" class="padding-top-66">

@@ -8,7 +8,14 @@
   {% include 'ta_app/pages/_header.html' with title='My Jobs' text=loggedin_user.job_set.all|length %}
 
   <div class="d-inline-block">
-    <table class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center" data-toggle="table" data-sortable="true" data-classes="" data-pagination="true" data-search="true">
+    <table
+      class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center"
+      data-toggle="table"
+      data-sortable="true"
+      data-classes=""
+      data-pagination="true"
+      data-search="true"
+    >
       <thead>
         <tr>
           <th data-sortable="true">Year</th>

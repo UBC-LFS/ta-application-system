@@ -1,8 +1,12 @@
 $(document).ready(function () {
   console.log("js ready");
+
   var contentHeight = $("#content").height()
   var screenHeight = $(window).height();
-  if (contentHeight > screenHeight) {
+  console.log(contentHeight);
+  console.log(screenHeight);
+
+  if (contentHeight > screenHeight - 140) {
     document.getElementById("footer").style.marginTop = contentHeight + "px";
   } else {
     var defaultHeight = screenHeight - 140;
