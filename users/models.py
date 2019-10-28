@@ -234,9 +234,9 @@ def encrypt_image(obj):
     encrypted = fernet.encrypt(output.read())
     content = ContentFile(encrypted)
 
-    img.close()
-    content.close()
-    output.close()
+    #img.close()
+    #content.close()
+    #output.close()
 
     return InMemoryUploadedFile(content,'ImageField', '{0}.jpg'.format(file_name), 'image/jpeg', sys.getsizeof(content), None)
 
@@ -244,7 +244,7 @@ def decrypt_image(username, obj, type, delete=None):
     filename = os.path.basename(obj.file.name)
     path = settings.TA_APP_URL + '/students/confidentiality/' + username + '/' + type + '/' + filename + '/download/'
     content = requests.get(path, stream=True).raw.read()
-    path = None
+    #path = None
 
     fernet = encrypt_algorithm()
     decrypted = fernet.decrypt(content)
@@ -252,13 +252,13 @@ def decrypt_image(username, obj, type, delete=None):
 
     imageStream = BytesIO(decrypted)
     img = PILImage.open(imageStream)
-    imageStream.seek(0)
-    imageStream.close()
+    #imageStream.seek(0)
+    #imageStream.close()
 
     width, height = img.size
 
-    img.seek(0)
-    img.close()
+    #img.seek(0)
+    #img.close()
 
     return {
         'filename': filename,

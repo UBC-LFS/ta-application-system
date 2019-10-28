@@ -433,9 +433,15 @@ def delete_user_sin(user):
     if not isinstance(user, User): user = get_user_by_username(user)
 
     if has_user_confidentiality_created(user) and bool(user.confidentiality.sin):
-        user.confidentiality.sin.delete(save=False)
-        deleted = Confidentiality.objects.filter(user_id=user.id).update(sin=None, sin_expiry_date=None)
-        return True if deleted and not bool(user.confidentiality.sin) else False
+        user.confidentiality.sin.close()
+        print('user.confidentiality.sin.closed ', user.confidentiality.sin.closed)
+        if user.confidentiality.sin.closed:
+            try:
+                user.confidentiality.sin.delete(save=False)
+                deleted = Confidentiality.objects.filter(user_id=user.id).update(sin=None, sin_expiry_date=None)
+                return True if deleted and not bool(user.confidentiality.sin) else False
+            except OSError:
+                return False
     return False
 
 
@@ -444,9 +450,15 @@ def delete_user_study_permit(user):
     if not isinstance(user, User): user = get_user_by_username(user)
 
     if has_user_confidentiality_created(user) and bool(user.confidentiality.study_permit):
-        user.confidentiality.study_permit.delete(save=False)
-        deleted = Confidentiality.objects.filter(user_id=user.id).update(study_permit=None, study_permit_expiry_date=None)
-        return True if deleted and not bool(user.confidentiality.study_permit) else False
+        user.confidentiality.study_permit.close()
+        print('user.confidentiality.study_permit.closed ', user.confidentiality.study_permit.closed)
+        if user.confidentiality.study_permit.closed:
+            try:
+                user.confidentiality.study_permit.delete(save=False)
+                deleted = Confidentiality.objects.filter(user_id=user.id).update(study_permit=None, study_permit_expiry_date=None)
+                return True if deleted and not bool(user.confidentiality.study_permit) else False
+            except OSError:
+                return False
     return False
 
 

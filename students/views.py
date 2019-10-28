@@ -382,7 +382,7 @@ def delete_sin(request):
         if deleted_sin:
             messages.success(request, 'Success! {0} - SIN deleted'.format(username))
         else:
-            messages.error(request, 'An error occurred while deleting a SIN.')
+            messages.error(request, 'An error occurred while deleting a SIN. Please try again.')
 
     return redirect('students:edit_confidentiality')
 
@@ -412,7 +412,7 @@ def delete_study_permit(request):
         if deleted_study_permit:
             messages.success(request, 'Success! {0} - Study Permit deleted'.format(username))
         else:
-            messages.error(request, 'An error occurred while deleting a study permit.')
+            messages.error(request, 'An error occurred while deleting a study permit. Please try again.')
 
     return redirect('students:edit_confidentiality')
 

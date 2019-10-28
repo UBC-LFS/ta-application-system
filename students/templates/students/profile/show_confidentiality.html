@@ -25,7 +25,7 @@
         <h3>Details</h3>
         <div>
           <h5>Are you an International Student?:</h5>
-          <span>{{ loggedin_user.confidentiality.is_international }}</span>
+          <span>{{ user.confidentiality.is_international }}</span>
         </div>
 
         <div>
@@ -37,13 +37,13 @@
           <h5>Social Insurance Number (SIN):</h5>
 
           {% if user.sin_data %}
-            <img src="{{ user.sin_data.url }}" width="150" height="120" alt="SIN-image" /><br />
-            <a href="{{ user.sin_data.url }}" download="{{ user.sin_data.filename }}">{{ user.sin_data.filename }}</a>
+            <img class="img-fluid" src="{{ user.sin_data.url }}" width="400" height="300" alt="SIN-image" /><br />
 
             {% comment %}
+              <a href="{{ user.sin_data.url }}" download="{{ user.sin_data.filename }}">{{ user.sin_data.filename }}</a>
               <form action="{% url 'students:delete_sin' %}" method="post" onsubmit="return confirm('Are you sure to delete this SIN file?')">
                 {% csrf_token %}
-                <input type="hidden" name="user" value="{{ loggedin_user.username }}" />
+                <input type="hidden" name="user" value="{{ user.username }}" />
                 <input class="btn btn-sm btn-danger" type="submit" value="Delete" />
               </form>
             {% endcomment %}
@@ -57,20 +57,20 @@
 
           <div>
             <h5>SIN Expiry Date:</h5>
-            <span>{{ loggedin_user.confidentiality.sin_expiry_date }}</span>
+            <span>{{ user.confidentiality.sin_expiry_date }}</span>
           </div>
 
           <div>
             <h5>Study Permit:</h5>
 
             {% if user.study_permit_data %}
-              <img src="{{ user.study_permit_data.url }}" width="150" height="120" alt="Study-Permit-image" /><br />
-              <a href="{{ user.study_permit_data.url }}" download="{{ user.study_permit_data.filename }}">{{ user.study_permit_data.filename }}</a>
+              <img class="img-fluid" src="{{ user.study_permit_data.url }}" width="400" height="300" alt="Study-Permit-image" /><br />
 
               {% comment %}
+                <a href="{{ user.study_permit_data.url }}" download="{{ user.study_permit_data.filename }}">{{ user.study_permit_data.filename }}</a>
                 <form action="{% url 'students:delete_study_permit' %}" method="post" onsubmit="return confirm('Are you sure to delete this Study Permit file?')">
                   {% csrf_token %}
-                  <input type="hidden" name="user" value="{{ loggedin_user.username }}" />
+                  <input type="hidden" name="user" value="{{ user.username }}" />
                   <input class="btn btn-sm btn-danger" type="submit" value="Delete" />
                 </form>
               {% endcomment %}
@@ -85,6 +85,29 @@
             <span>{{ user.confidentiality.study_permit_expiry_date }}</span>
           </div>
         {% endif %}
+
+        <div>
+          <h5>Created at:</h5>
+          <span>
+            {% if user.confidentiality.created_at %}
+              {{ user.confidentiality.created_at }}
+            {% else %}
+              None
+            {% endif %}
+          </span>
+        </div>
+
+        <div>
+          <h5>Updated at:</h5>
+          <span>
+            {% if user.confidentiality.updated_at %}
+              {{ user.confidentiality.updated_at }}
+            {% else %}
+              None
+            {% endif %}
+          </span>
+        </div>
+
       </div>
 
       <a class="btn btn-primary" href="{% url 'students:edit_confidentiality' %}">Edit Confidentiality</a>
