@@ -1,0 +1,91 @@
+{% extends 'ta_app/base.html' %}
+{% block content %}
+
+{% include 'instructors/_menu.html' %}
+{% include 'ta_app/_return_messages.html' with data=messages %}
+<div class="row">
+  <div class="col-md-4">
+    {% include 'ta_app/pages/_header.html' with title='Applications' text=job.application_set.all|length %}
+
+    <div class="bg-prompt">
+      <div class="prompt p-4 mb-4">
+        <h4>{{ loggedin_user.get_full_name }}</h4>
+        <p>{{ loggedin_user.username }}</p>
+
+        <a class="btn btn-sm btn-outline-primary" href="{% url 'instructors:show_jobs' %}">Jobs</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-8">
+
+    <div class="board">
+      <h3>{{ job.session.year }} {{ job.session.term.name }} ({{ job.session.term.code }})</h3>
+      <h4>
+        {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }} <br />
+        <small class="text-muted">{{ job.course.name }}</small>
+      </h4>
+
+      <div class="card border-info  mt-4">
+        <div class="card-header bg-info text-white">TA hours</div>
+        <div class="card-body">
+          Accumulated TA hours are accumulated when students accept their job offers with assigned hours.
+          <ul>
+            <li>Assigned TA Hours: <span class="font-weight-bold text-danger">{{ job.assigned_ta_hours }}</span> hours</li>
+            <li>Accumulated TA hours: <span class="font-weight-bold text-danger">{{ job.ta_hours }}</span> hours</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    {% include 'ta_app/pages/_job_preferences.html' %}
+
+  </div>
+</div>
+
+<div>
+  <table class="table table-bordered table-hover table-striped table-responsive-md text-center" data-toggle="table" data-sortable="true" data-classes="" data-pagination="true" data-search="true">
+    <thead>
+      <tr>
+        <th data-sortable="true">Applicant</th>
+        <th data-sortable="true">CWL</th>
+        <th data-sortable="true">Application</th>
+        <th data-sortable="true">Applied at</th>
+        <th data-sortable="true">Updated at</th>
+        <th>Instructor <br />Preference</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for app in job.application_set.all %}
+        <tr>
+          <td>{{ app.applicant.get_full_name }}</td>
+          <td>
+            <a href="{% url 'instructors:show_user' session_slug=job.session.slug job_slug=job.course.slug username=app.applicant.username %}">{{ app.applicant.username }}</a>
+          </td>
+          <td>{% include 'ta_app/applications/_modal_app_details.html' with data=app %}</td>
+          <td>{{ app.created_at }}</td>
+          <td>{{ app.updated_at }}</td>
+          <td>
+            <form action="" method="post" onsubmit="return confirm('Are you sure to select this preference for {{ app.applicant.first_name }} {{ app.applicant.last_name }} ?');">
+              {% csrf_token %}
+              <select name="instructor_preference">
+                {% for choice in instructor_preference_choices %}
+                  {% if choice.0 == app.instructor_preference %}
+                    <option value="{{ choice.0 }}" selected>{{ choice.1 }}</option>
+                  {% else %}
+                    <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+                  {% endif %}
+                {% endfor %}
+              </select>
+              <input type="hidden" name="application" value="{{ app.id }}" />
+              <input class="btn btn-sm btn-primary" type="submit" value="Select" />
+            </form>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+</div>
+
+{% endblock %}

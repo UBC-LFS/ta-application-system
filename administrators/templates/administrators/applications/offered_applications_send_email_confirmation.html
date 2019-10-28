@@ -1,67 +1,105 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
-{% include "ta_app/sidebars/_administrator_sidebar.html" %}
 
-<div id="content" class="container-fluid">
-  {% include 'ta_app/_return_messages.html' with data=messages %}
+{% include 'administrators/_menu.html' %}
+{% include 'ta_app/_return_messages.html' with data=messages %}
+<div class="row">
+  <div class="col-md-4">
+    {% include 'ta_app/pages/_header.html' with title='Send Email' %}
 
-  {% include 'ta_app/pages/_header.html' with title='Confirmation of Send Email' %}
+    <div class="bg-prompt">
+      <div class="prompt p-4 mb-4">
+        <h4>
+          {% if type == 'type1' %} Type 1 {% else %} Type 2 {% endif %} Email
+        </h4>
+        <p>There are <span class="font-weight-bold">{{ applications|length }}</span> receiver(s) selected.</p>
 
-  <div class="mb-4"><a class="btn btn-outline-primary" href="{% url 'administrators:offered_applications' %}">Go back to Offered Applications</a></div>
-
-  {% if applications|length == 0 %}
-
-    <div class="alert alert-danger" role="alert">
-      Please select any one of Offered Applications to send an email, and try again.
+        <a class="btn btn-sm btn-outline-primary" href="{% url 'administrators:offered_applications' %}">Offered Applications</a>
+      </div>
     </div>
 
-  {% else %}
+    <div class="bd-callout bd-callout-warning">
+      <h4>Note</h4>
+      <p>
+        <ul>
+          <li>Name: {0}</li>
+          <li>Job: {1}</li>
+          <li>Assigned Hours: {2}</li>
+          <li>Classification: {3}</li>
+          <li>URL: {4}</li>
+        </ul>
+      </p>
+    </div>
 
-    <div class="mt-4 mb-5">
-      <h4 class="text-secondary">List of senders</h4>
-      <table class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Year</th>
-            <th>Term</th>
-            <th>Job</th>
-            <th>Sender</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for app in applications %}
+  </div>
+
+  <div class="col-md-8">
+
+    {% if applications|length == 0 %}
+
+      <div class="alert alert-danger" role="alert">
+        Please select any one of Offered Applications to send an email, and try again.
+      </div>
+
+    {% else %}
+
+      <div class="mt-4 mb-5">
+        <h4 class="text-info">Receivers</h4>
+        <table class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center">
+          <thead>
             <tr>
-              <td>{{ forloop.counter }}</td>
-              <td>{{ app.job.session.year }}</td>
-              <td>{{ app.job.session.term.code }}</td>
-              <td>{{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</td>
-              <td>{{ app.applicant.get_full_name }} ({{ app.applicant.email }})</td>
+              <th>#</th>
+              <th>Year</th>
+              <th>Term</th>
+              <th>Job</th>
+              <th>Sender</th>
             </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody>
+            {% for app in applications %}
+              <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ app.job.session.year }}</td>
+                <td>{{ app.job.session.term.code }}</td>
+                <td>{{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</td>
+                <td>{{ app.applicant.get_full_name }} ({{ app.applicant.email }})</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
 
-    <h5 class="text-info mb-3">
-      {% if type == 'type1' %} Type 1 {% else %} Type 2 {% endif %} Email
-    </h5>
+      <div class="board">
+        <h3>Form</h3>
 
-    <div class="row">
-      <div class="col-lg-8 col-md-10 col-sm-12">
         <form action="" method="post">
           {% csrf_token %}
 
-          <div class="mb-2">
-            <span class="font-weight-bold">Sender:</span>
-            {{ sender }}
-          </div>
-          <div class="mb-2">
-            <span class="font-weight-bold">Receiver:</span>
-            {{ receiver }}
+          <div>
+            <h5>Sender:</h5>
+            <span>{{ sender }}</span>
           </div>
 
-          <table class="table table-borderless table-responsive-md table-sm">{{ form.as_table }}</table>
+          <div>
+            <h5>Receiver:</h5>
+            <span>{{ receiver }}</span>
+          </div>
+
+          <hr />
+
+          {% for field in form.visible_fields  %}
+            <div class="field-wrapper my-4">
+              {{ field.label_tag }}
+              {% if field.help_text %}
+                <div class="help">{{ field.help_text|safe }}</div>
+              {% endif %}
+              {{ field }}
+            </div>
+          {% endfor %}
+
+          {% for field in form.hidden_fields %}
+            {{ field }}
+          {% endfor %}
 
           {% if type == 'type1' %}
             <input class="btn btn-primary" type="submit" value="Confirm to send an email by Type 1" />
@@ -70,24 +108,11 @@
           {% endif %}
         </form>
       </div>
-    </div>
 
-  {% endif %}
 
-  <div class="bd-callout bd-callout-warning">
-    <h5>Note</h5>
-    <p>
-      <ul>
-        <li>Name: {0}</li>
-        <li>Job: {1}</li>
-        <li>Assigned Hours: {2}</li>
-        <li>Classification: {3}</li>
-        <li>URL: {4}</li>
-      </ul>
-    </p>
+    {% endif %}
+
   </div>
-
-
 </div>
 
 {% endblock %}

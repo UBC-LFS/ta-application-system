@@ -1,22 +1,26 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
-{% include "ta_app/sidebars/_administrator_sidebar.html" %}
 
-<div id="content" class="container-fluid">
-  {% include 'ta_app/_return_messages.html' with data=messages %}
+{% include 'administrators/_menu.html' %}
+{% include 'ta_app/_return_messages.html' with data=messages %}
+<div class="row">
+  <div class="col-md-5">
+    {% include 'ta_app/pages/_header.html' with title='Classifications' text=classifications|length %}
 
-  {% include 'ta_app/pages/_header.html' with title='Classifications' text=classifications|length %}
+    <div class="bg-prompt">
+      <div class="prompt p-4 mb-4">
+        <h4>Create Classification</h4>
 
-  <div class="mt-5 mb-5">
-    <h5>Create Classification</h5>
-    <form action="{% url 'administrators:classifications' %}" method="post">
-      {% csrf_token %}
-      <table>{{ form.as_table }}</table>
-      <input class="btn btn-primary mt-3" type="submit" value="Create" />
-    </form>
+        <form action="{% url 'administrators:classifications' %}" method="post">
+          {% csrf_token %}
+          <table>{{ form.as_table }}</table>
+          <input class="btn btn-primary mt-3" type="submit" value="Create" />
+        </form>
+      </div>
+    </div>
   </div>
 
-  <div class="d-inline-block">
+  <div class="col-md-7">
 
     <table class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center">
       <thead>
@@ -26,7 +30,6 @@
           <th>Name</th>
           <th>Wage</th>
           <th>Is active</th>
-          <th>Slug</th>
           <th>Actions</th>
         </tr>
       </thead>
@@ -38,21 +41,20 @@
             <td>{{ classification.name }}</td>
             <td>${{ classification.wage }}</td>
             <td>{{ classification.is_active }}</td>
-            <td>{{ classification.slug }}</td>
             <td>
               <div class="btn-toolbar">
                 <button class="btn btn-sm btn-warning mr-2" type="button" data-toggle="modal" data-target="#classification-edit-modal-{{ classification.id }}">Edit</button>
 
                 <div class="modal fade" id="classification-edit-modal-{{ classification.id }}" tabindex="-1" role="dialog" aria-labelledby="classification-edit-modal-label-{{ classification.id }}" aria-hidden="true">
-          			  <div class="modal-dialog modal-lg" role="document">
-          			    <div class="modal-content">
-          			      <div class="modal-header">
-          			        <h5 class="modal-title" id="classification-edit-modal-label-{{ classification.id }}">Edit a Classification</h5>
-          			        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-          			      </div>
-          			      <div class="modal-body text-left">
-          							<form action="{% url 'administrators:edit_classification' classification.slug %}" method="post">
-          								{% csrf_token %}
+                  <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="classification-edit-modal-label-{{ classification.id }}">Edit a Classification</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                      </div>
+                      <div class="modal-body text-left">
+                        <form action="{% url 'administrators:edit_classification' classification.slug %}" method="post">
+                          {% csrf_token %}
 
                           <table class="table table-borderless">
                             <tr>
@@ -79,12 +81,12 @@
                             </tr>
                           </table>
 
-          								<input class="btn btn-warning" type="submit" value="Update" />
-          							</form>
-          			      </div>
-          			    </div>
-          			  </div>
-          			</div>
+                          <input class="btn btn-warning" type="submit" value="Update" />
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
                 <form action="{% url 'administrators:delete_classification' %}" method="post" onsubmit="return confirm('Are you sure to delete this classification - {{ classification.name }} ?')">
                   {% csrf_token %}
@@ -96,14 +98,13 @@
           </tr>
         {% empty %}
           <tr>
-            <td colspan="2">No classifications found.</td>
+            <td colspan="6">No classifications found.</td>
           </tr>
         {% endfor %}
       </tbody>
     </table>
+
   </div>
-
 </div>
-
 
 {% endblock %}

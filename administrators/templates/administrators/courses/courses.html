@@ -1,12 +1,12 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
-{% include "ta_app/sidebars/_administrator_sidebar.html" %}
 
-<div id="content" class="container-fluid">
+{% include 'administrators/_menu.html' %}
+<div>
   {% include 'ta_app/pages/_header.html' with title='Courses' %}
 
   <div class="bd-callout bd-callout-warning">
-    <h5>Overview</h5>
+    <h4>Overview</h4>
     <p><i class="fa fa-check-circle-o"></i> text area</p>
   </div>
 
@@ -35,7 +35,6 @@
       </div>
     </div>
   </div>
-
 
 </div>
 

@@ -239,6 +239,7 @@ def create_course(request):
 
     return render(request, 'administrators/courses/create_course.html', {
         'loggedin_user': loggedin_user,
+        'courses': adminApi.get_courses(),
         'form': CourseForm()
     })
 
@@ -333,6 +334,8 @@ def create_session(request):
 
     return render(request, 'administrators/sessions/create_session.html', {
         'loggedin_user': loggedin_user,
+        'current_sessions': adminApi.get_current_sessions(),
+        'archived_sessions': adminApi.get_archived_sessions(),
         'form': SessionForm()
     })
 
@@ -390,8 +393,10 @@ def create_session_confirmation(request):
 
     return render(request, 'administrators/sessions/create_session_confirmation.html', {
         'loggedin_user': loggedin_user,
-        'form': form,
+        'current_sessions': adminApi.get_current_sessions(),
+        'archived_sessions': adminApi.get_archived_sessions(),
         'courses': courses,
+        'form': form,
         'error_messages': error_messages
     })
 
@@ -432,6 +437,7 @@ def show_session(request, session_slug, path):
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
 
+    print(path)
     return render(request, 'administrators/sessions/show_session.html', {
         'loggedin_user': loggedin_user,
         'session': adminApi.get_session_by_slug(session_slug),
@@ -674,6 +680,7 @@ def edit_job(request, session_slug, job_slug):
 
     return render(request, 'administrators/jobs/edit_job.html', {
         'loggedin_user': loggedin_user,
+        'job': job,
         'form': AdminJobForm(data=None, instance=job, initial={
             'instructors': job_instructors
         })

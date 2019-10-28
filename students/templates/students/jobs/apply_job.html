@@ -1,42 +1,36 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
-{% include "ta_app/sidebars/_student_sidebar.html" %}
 
-<div id="content" class="container-fluid">
-  {% include 'ta_app/pages/_header.html' with title='Apply Job' %}
+{% include 'students/_menu.html' %}
+<div class="row">
+  <div class="col-md-4">
+    {% include 'ta_app/pages/_header.html' with title='Apply Job' %}
 
-  <div class="mb-5"><a class="btn btn-outline-primary" href="{% url 'students:available_jobs' session_slug=job.session.slug %}">Go back to Available Jobs</a></div>
+    <div class="bg-prompt">
+      <div class="prompt p-4 mb-4">
+        <h4>{{ loggedin_user.get_full_name }}</h4>
+				<p>{{ loggedin_user.username }}</p>
 
-  {% include 'ta_app/jobs/_job_details.html' with data=job %}
-
-  <hr class="dotted" />
-
-  {% if has_applied_job %}
-
-    <div class="d-inline-block">
-      <div class="alert alert-secondary" role="alert">
-        You have already applied for this job. Please check your jobs in <a href="{% url 'students:applied_jobs' %}">Applied Jobs</a>
+        <a class="btn btn-sm btn-outline-primary" href="{% url 'students:available_jobs' session_slug=job.session.slug %}">Available Jobs</a>
       </div>
     </div>
+  </div>
 
-  {% else %}
+  <div class="col-md-8">
+    <div class="board">
 
-    <div class="row">
-      <div class="col-lg-8 col-md-10 col-sm-12">
+      {% if has_applied_job %}
 
-        <h5 class="text-info">Application</h5>
-
-        <div class="bd-callout bd-callout-warning">
-          <h5>Job preferences</h5>
-          <p>To place you as a TA, we need information about your qulifications and your preferences. We will also independently assess your qulifications, but your perspective is critical for qulifications, treat the scale as follow:</p>
-          <ul>
-            <li>1: Not at all</li>
-            <li>2: Marginally (can learn with much effort)</li>
-            <li>3: Somewhat (can learn with some effort)</li>
-            <li>4: Very (just need brushing-up)</li>
-            <li>5: Most (expert with course material)</li>
-          </ul>
+        <div class="alert alert-info" role="alert">
+          You have already applied for this job. Please check your jobs in <a href="{% url 'students:status_jobs' %}">Applied Jobs</a>
         </div>
+
+      {% else %}
+
+        <h3>Application Form</h3>
+        <p>Job Details: {% include 'ta_app/jobs/_modal_job_details.html' with data=job %}</p>
+
+        {% include 'ta_app/pages/_job_preferences.html' %}
 
         <form action="" method="post">
           {% csrf_token %}
@@ -86,13 +80,16 @@
           {% for field in form.hidden_fields %}
             {{ field }}
           {% endfor %}
+
+          <a class="btn btn-outline-primary" href="{% url 'students:available_jobs' session_slug=job.session.slug %}">Cancel</a>
           <input class="btn btn-primary" type="submit" value="Submit application" />
         </form>
-      </div>
+
+      {% endif %}
+
     </div>
 
-  {% endif %}
-
+  </div>
 </div>
 
 {% endblock %}

@@ -1,15 +1,27 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
-{% include "ta_app/sidebars/_student_sidebar.html" %}
 
-<div id="content" class="container-fluid">
+{% include 'students/_menu.html' %}
+<div class="row">
+  <div class="col-md-4">
+    {% include 'ta_app/pages/_header.html' with title='Job Details' %}
 
-  {% include 'ta_app/pages/_header.html' with title='Job Details' %}
+    <div class="bg-prompt">
+      <div class="prompt p-4 mb-4">
+        <h4>{{ loggedin_user.get_full_name }}</h4>
+				<p>{{ loggedin_user.username }}</p>
 
-  <div><a class="btn btn-outline-primary" href="{% url 'students:status_jobs' %}">Go back to Status</a></div>
+        <a class="btn btn-sm btn-outline-primary" href="{% url 'students:status_jobs' %}">Status</a>
+      </div>
+    </div>
+  </div>
 
-  {% include 'ta_app/jobs/_job_details.html' with data=job %}
-
-  <div><a class="btn btn-outline-primary" href="{% url 'students:status_jobs' %}">Go back to Status</a></div>
+  <div class="col-md-8">
+    <div class="board">
+      <h3>Details</h3>
+      {% include 'ta_app/jobs/_job_details.html' with data=job %}
+    </div>
+  </div>
+</div>
 
 {% endblock %}

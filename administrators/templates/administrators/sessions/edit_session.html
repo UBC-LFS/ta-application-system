@@ -1,20 +1,31 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
-{% include "ta_app/sidebars/_administrator_sidebar.html" %}
 
-<div id="content" class="container-fluid">
-  {% include 'ta_app/pages/_header.html' with title='Edit Session' %}
+{% include 'administrators/_menu.html' %}
 
-  {% include 'administrators/sessions/_go_back.html' with data=path %}
+<div class="row">
+  <div class="col-md-4">
+    {% include 'ta_app/pages/_header.html' with title='Edit Session' %}
 
-  <div class="row">
-    <div class="col-lg-8 col-md-10 col-sm-12">
-      <div class="my-5">
-        <h5>
-          {{ session.year }} {{ session.term.name }} ({{ session.term.code }}) <br />
-          <small class="text-muted">- {{ session.title }}</small>
-        </h5>
+    <div class="bg-prompt">
+      <div class="prompt p-4 mb-4">
+        <h4>{{ session.year }} {{ session.term.name }} ({{ session.term.code }})</h4>
+        <p>{{ session.title }}</p>
+
+        <a class="btn btn-sm btn-outline-primary" href="{% url 'administrators:show_session' session_slug=session.slug path=path %}">Session Details</a>
       </div>
+    </div>
+
+    <div class="bd-callout bd-callout-warning">
+      <h4><i class="fa fa-info-circle" aria-hidden="true"></i> Note</h4>
+      <p>When <code>Is archived</code> is <span class="font-weight-bold">True</span>, <code>Is visible</code> is always <span class="font-weight-bold">False</span>.</p>
+    </div>
+
+  </div>
+
+  <div class="col-md-8">
+    <div class="board">
+      <h3>Form</h3>
 
       <form action="" method="post">
         {% csrf_token %}
@@ -34,21 +45,13 @@
         {% endfor %}
 
         <input type="hidden" name="path" value="{{ path }}" />
-
-        <input class="btn btn-warning" type="submit" value="Update Session" />
+        
+        <a class="btn btn-outline-primary" href="{% url 'administrators:show_session' session_slug=session.slug path=path %}">Cancel</a>
+        <input class="btn btn-primary" type="submit" value="Update" />
       </form>
-
-      <div class="bd-callout bd-callout-warning">
-        <h5><i class="fa fa-info-circle" aria-hidden="true"></i> Note</h5>
-        <p>When <code>Is archived</code> is <span class="font-weight-bold">True</span>, <code>Is visible</code> is always <span class="font-weight-bold">False</span>.</p>
-      </div>
-
-      {% include 'administrators/sessions/_go_back.html' with data=path %}
-
     </div>
   </div>
 
 </div>
-
 
 {% endblock %}

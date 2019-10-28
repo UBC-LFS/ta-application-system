@@ -1,15 +1,23 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
-{% include "ta_app/sidebars/_student_sidebar.html" %}
 
-<div id="content" class="container-fluid">
-  {% include 'ta_app/_return_messages.html' with data=messages %}
+{% include 'students/_menu.html' %}
+{% include 'ta_app/_return_messages.html' with data=messages %}
+<div class="row">
+  <div class="col-md-4">
+    {% include 'ta_app/pages/_header.html' with title='User Details' %}
 
-  {% include 'ta_app/pages/_header.html' with title=user.get_full_name %}
+    <div class="bg-prompt">
+      <div class="prompt p-4 mb-4">
+        <h4>{{ user.get_full_name }}</h4>
 
-  <div><a class="btn btn-warning" href="{% url 'students:edit_profile' %}">Edit Profile</a></div>
+        <a class="btn btn btn-warning" href="{% url 'students:edit_profile' %}">Edit Profile</a>
+      </div>
+    </div>
+  </div>
 
-  <section class="mt-5">
+  <div class="col-md-8">
+
     <nav>
       <div class="nav nav-tabs" id="nav-tab" role="tablist">
         <a class="nav-item nav-link active" id="nav-basic-info-tab" data-toggle="tab" href="#nav-basic-info" role="tab" aria-controls="nav-basic-info" aria-selected="true">Basic Information</a>
@@ -20,22 +28,26 @@
 
     <div class="tab-content" id="nav-tabContent">
       <div class="tab-pane fade show active" id="nav-basic-info" role="tabpanel" aria-labelledby="nav-basic-info-tab">
-        <h4 class="text-info mt-3">Basic Information</h4>
-        {% include 'ta_app/users/_basic_info.html' with data=user %}
+        <div class="board">
+          <h3>Basic Information</h3>
+          {% include 'ta_app/users/_basic_info.html' with data=user %}
+        </div>
       </div>
-      
+
       <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
-        <h4 class="text-info mt-3">Profile</h4>
-        {% include 'ta_app/users/_profile.html' with data=user %}
+        <div class="board">
+          <h3>Profile</h3>
+          {% include 'ta_app/users/_profile.html' with data=user %}
+        </div>
       </div>
 
       <div class="tab-pane fade" id="nav-resume" role="tabpanel" aria-labelledby="nav-resume">
 
-        <section class="mt-3">
-          <h4 class="text-info mb-4">Resume</h4>
+        <div class="board">
+          <h3>Resume</h3>
 
           {% if user.resume_file %}
-            <div class="">
+            <div>
               <a class="btn btn-link" href="{% url 'students:download_resume' username=user.username filename=user.resume_file %}" target="_blank">
                 <i class="fa fa-cloud-download" aria-hidden="true"></i> {{ user.resume_file }}
               </a>
@@ -43,8 +55,8 @@
               <small class="text-muted">Uploaded at {{ user.resume.created_at }}</small>
             </div>
 
-            <div class="">
-              <form class="d-inline-block" action="{% url 'students:delete_resume' %}" method="post" onsubmit="return confirm('Are you sure to delete this resume?')">
+            <div>
+              <form class="" action="{% url 'students:delete_resume' %}" method="post" onsubmit="return confirm('Are you sure to delete this resume?')">
                 {% csrf_token %}
                 <input type="hidden" name="user" value="{{ user.username }}">
                 <input class="btn btn-sm btn-danger" type="submit" value="Delete" />
@@ -61,26 +73,27 @@
 
           {% endif %}
 
-          <div class="d-inline-block card border-secondary mt-3">
+          <div class=" card border-secondary mt-3">
             <div class="card-body">
               <div class="card-text">
-                <h5 class="card-title text-secondary">Upload your resume</h5>
+                <h5 class="card-title">Upload your resume</h5>
+
                 <small class="text-muted">Valid file formats: jpg, jpeg, png, pdf, doc, docx</small>
                 <form action="{% url 'students:upload_resume' %}" method="post" enctype="multipart/form-data">
                   {% csrf_token %}
                   <table>{{ form.as_table }}</table>
-                  <input class="btn btn-primary" type="submit" value="Upload" />
+                  <input class="btn btn-primary mt-4" type="submit" value="Upload" />
                 </form>
               </div>
             </div>
           </div>
-        </section>
-
+        </div>
 
       </div>
 
     </div>
-  </section>
+
+  </div>
 </div>
 
 {% endblock %}

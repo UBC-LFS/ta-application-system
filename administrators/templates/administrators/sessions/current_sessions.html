@@ -1,14 +1,21 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
-{% include "ta_app/sidebars/_administrator_sidebar.html" %}
+{% include 'administrators/_menu.html' %}
 
-<div id="content" class="container-fluid">
+<div>
   {% include 'ta_app/_return_messages.html' with data=messages %}
 
   {% include 'ta_app/pages/_header.html' with title='Current Sessions' text=current_sessions|length %}
 
-  <div class="d-inline-block">
+  <div class="bg-prompt">
+    <div class="prompt p-4 text-center mb-4 rounded-1">
+      <h4>New</h4>
+      <p class="col-8 mx-auto">If you would like to create a new session, please click the botton below.</p>
+      <a class="btn btn-sm btn-outline-primary" href="{% url 'administrators:create_session' %}">Create Session</a>
+    </div>
+  </div>
 
+  <div>
     <table
       class="table table-bordered table-hover table-striped table-responsive-md text-center"
       data-toggle="table"
@@ -27,7 +34,6 @@
           <th data-sortable="true">ID</th>
           <th data-sortable="true">Year</th>
           <th data-sortable="true">Term</th>
-          <th data-sortable="true">Title</th>
           <th data-sortable="true">Jobs</th>
           <th data-sortable="true">Count<br />Instructors added</th>
           <th data-sortable="true">Is visible</th>
@@ -45,7 +51,6 @@
             </td>
             <td>{{ session.year }}</td>
             <td>{{ session.term.code }}</td>
-            <td>{{ session.title }}</td>
             <td>{{ session.job_set.count }}</td>
             <td>{{ session.num_instructors }}</td>
             <td>{{ session.is_visible }}</td>
@@ -67,8 +72,8 @@
         {% endfor %}
       </tbody>
     </table>
-
   </div>
+
 </div>
 
 

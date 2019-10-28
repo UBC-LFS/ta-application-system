@@ -1,22 +1,27 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
-{% include "ta_app/sidebars/_administrator_sidebar.html" %}
 
-<div id="content" class="container-fluid">
-  {% include 'ta_app/_return_messages.html' with data=messages %}
+{% include 'administrators/_menu.html' %}
+{% include 'ta_app/_return_messages.html' with data=messages %}
+<div class="row">
+  <div class="col-md-5">
+    {% include 'ta_app/pages/_header.html' with title='Course Numbers' text=course_numbers|length %}
 
-  {% include 'ta_app/pages/_header.html' with title='Course Numbers' text=course_numbers|length %}
+    <div class="bg-prompt">
+      <div class="prompt p-4 mb-4">
+        <h4>Create Course Number</h4>
 
-  <div class="my-5">
-    <h5>Create Course Number</h5>
-    <form action="{% url 'administrators:course_numbers' %}" method="post">
-      {% csrf_token %}
-      <table>{{ form.as_table }}</table>
-      <input class="btn btn-primary mt-3" type="submit" value="Create" />
-    </form>
+        <form action="{% url 'administrators:course_numbers' %}" method="post">
+          {% csrf_token %}
+          <table>{{ form.as_table }}</table>
+          <input class="btn btn-primary mt-3" type="submit" value="Create" />
+        </form>
+      </div>
+    </div>
   </div>
 
-  <div class="d-inline-block">
+  <div class="col-md-7">
+
     <table class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center">
       <thead>
         <tr>
@@ -73,8 +78,8 @@
         {% endfor %}
       </tbody>
     </table>
-  </div>
 
+  </div>
 </div>
 
 {% endblock %}

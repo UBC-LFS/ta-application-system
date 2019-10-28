@@ -1,13 +1,13 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
-{% include "ta_app/sidebars/_administrator_sidebar.html" %}
+{% include 'administrators/_menu.html' %}
 
-<div id="content" class="container-fluid">
+<div>
   {% include 'ta_app/_return_messages.html' with data=messages %}
 
   {% include 'ta_app/pages/_header.html' with title='Selected Applications' text=selected_applications|length %}
 
-  <div class="search-field bg-light-gray p-4 d-inline-block">
+  <div class="search-field bg-light-gray p-4 ">
     <form method="GET">
       <input type="text" name="year" value="{{ request.GET.year }}" placeholder="Year" /> and
       <input type="text" name="term" value="{{ request.GET.term }}" placeholder="Term" /> <br />
@@ -20,7 +20,7 @@
     </form>
   </div>
 
-  <div class="d-inline-block">
+  <div>
 
     <table
       class="table table-bordered table-hover table-striped table-responsive-md text-center"
@@ -42,7 +42,6 @@
           <th data-sortable="true">Term</th>
           <th data-sortable="true">Job</th>
           <th data-sortable="true">Applicant</th>
-          <th data-sortable="true">CWL</th>
           <th>Resume</th>
           <th data-sortable="true">Instructor<br /> Preference</th>
           <th data-sortable="true">Classification</th>
@@ -66,9 +65,8 @@
                 {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}
               </a>
             </td>
-            <td>{{ app.applicant.first_name }} {{ app.applicant.last_name }}</td>
             <td>
-              <a href="{% url 'administrators:show_user' username=app.applicant.username path='selected' %}">{{ app.applicant.username }}</a>
+              <a href="{% url 'administrators:show_user' username=app.applicant.username path='selected' %}">{{ app.applicant.get_full_name }}</a>
             </td>
             <td>
               {% if app.resume_file %}
@@ -110,6 +108,7 @@
                               </td>
                               <td>
                                 <select name="classification">
+                                  <option value="">Select</option>
                                   {% for choice in classification_choices %}
                                     {% if choice.id == app.classification.id %}
                                       <option value="{{ choice.id }}" selected>{{ choice.year }} {{ choice.name }}</option>
@@ -153,7 +152,9 @@
                         </div>
                         <div class="modal-body text-left">
 
-                          <h4 class="text-info">To {{ app.applicant.get_full_name }} {{ app.applicant.username }}</h4>
+                          <h4>
+                            To {{ app.applicant.get_full_name }} <small class="text-muted">({{ app.applicant.username }})</small>
+                          </h4>
                           <h6 class="text-secondary mb-3">for {{ app.job.session.year }} {{ app.job.session.term.code }} - {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</h6>
 
                           <form action="{% url 'administrators:offer_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}" method="post">

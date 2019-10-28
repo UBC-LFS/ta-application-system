@@ -1,80 +1,110 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
-{% include "ta_app/sidebars/_administrator_sidebar.html" %}
 
-<div id="content" class="container-fluid">
-  {% include 'ta_app/pages/_header.html' with title='Job Details' %}
-  {% include 'administrators/jobs/_go_back.html' with data=path %}
+{% include 'administrators/_menu.html' %}
 
-  <div class="mb-4"></div>
-  {% include 'ta_app/jobs/_job_details.html' with data=job %}
+<div class="row">
+  <div class="col-md-4">
+    {% include 'ta_app/pages/_header.html' with title='Job Details' %}
 
-  <div class="text-center bg-info text-white mb-5 p-3 d-inline-block">
-    <div>
-      <h5 class="font-weight-normal">
-        <i class="fa fa-star-o" aria-hidden="true"></i> Assigned TA Hours
-        <i class="fa fa-star-o" aria-hidden="true"></i>
-      </h5>
-      <h3 class="font-weight-bold">{{ job.assigned_ta_hours }} hours</h3>
+    <div class="bg-prompt">
+      <div class="prompt p-4 mb-4">
+        <h4>{{ job.session.year }} {{ job.session.term.name }} ({{ job.session.term.code }})</h4>
+        <p>{{ job.session.title }}</p>
+
+        {% include 'administrators/jobs/_go_back.html' with data=path %}
+        <a class="btn btn-sm btn-success" href="{% url 'administrators:edit_job' session_slug=job.session.slug job_slug=job.course.slug %}">Edit Job</a>
+      </div>
     </div>
-    <hr />
-    <div>
-      <h5 class="font-weight-normal">
-        <i class="fa fa-star-o" aria-hidden="true"></i> Accumulated TA hours
-        <i class="fa fa-star-o" aria-hidden="true"></i>
-      </h5>
-      <h3 class="font-weight-bold">{{ job.ta_hours }} hours</h3>
+
+    <div class="text-center bg-info text-white mb-5 p-3">
+      <div>
+        <h5 class="font-weight-normal">
+          <i class="fa fa-star-o" aria-hidden="true"></i> Assigned TA Hours
+          <i class="fa fa-star-o" aria-hidden="true"></i>
+        </h5>
+        <h3 class="font-weight-bold">{{ job.assigned_ta_hours }} hours</h3>
+      </div>
+      <hr />
+      <div>
+        <h5 class="font-weight-normal">
+          <i class="fa fa-star-o" aria-hidden="true"></i> Accumulated TA hours
+          <i class="fa fa-star-o" aria-hidden="true"></i>
+        </h5>
+        <h3 class="font-weight-bold">{{ job.ta_hours }} hours</h3>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="col-md-8">
+    <div class="board">
+      <h3>Details</h3>
+      {% include 'ta_app/jobs/_job_details.html' with data=job %}
+
+      <div>
+        <h5>Job ID:</h5>
+        <span>{{ job.id }}</span>
+      </div>
+      <div>
+        <h5>Job Slug:</h5>
+        <span>{{ job.course.slug }}</span>
+      </div>
     </div>
   </div>
 
-  <ul class="mt-3">
-    <li>Job ID: {{ job.id }}</li>
-    <li>Job Slug: {{ job.course.slug }}</li>
-  </ul>
+</div>
 
-  <h4 class="text-info mt-5 mb-3">
+<div>
+  <h4 class="mt-5 mb-3">
     Applications
-    <small class="text-muted">Total: {{ job.application_set.all|length }}</small>
+    <small class="text-muted">(Total: {{ job.application_set.all|length }})</small>
   </h4>
 
-  <div class="d-inline-block">
-    <table class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center">
-      <thead>
+  <table
+    class="table table-bordered table-hover table-striped table-responsive-md text-center"
+    data-toggle="table"
+    data-sortable="true"
+    data-classes=""
+    data-pagination="true"
+    data-search="true"
+    data-page-size="50"
+    data-page-list="[50, 100, 200, all]"
+    data-show-export="true"
+    data-click-to-select="true"
+    data-show-columns="true"
+  >
+    <thead>
+      <tr>
+        <th data-sortable="true">Application<br /> ID</th>
+        <th data-sortable="true">Applicant</th>
+        <th data-sortable="true">CWL</th>
+        <th data-sortable="true">Application</th>
+        <th data-sortable="true">Status</th>
+        <th data-sortable="true">Instructor<br /> Preference</th>
+        <th data-sortable="true">Classification</th>
+        <th>Note</th>
+        <th data-sortable="true">Created at</th>
+        <th data-sortable="true">Updated at</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for app in job.application_set.all %}
         <tr>
-          <th>Application ID</th>
-          <th>Applicant</th>
-          <th>CWL</th>
-          <th>Application</th>
-          <th>Status</th>
-          <th>Instructor Preference</th>
-          <th>Classification</th>
-          <th>Note</th>
-          <th>Created at</th>
-          <th>Updated at</th>
+          <td>{{ app.id }}</td>
+          <td>{{ app.applicant.first_name }} {{ app.applicant.last_name }}</td>
+          <td>{{ app.applicant.username }}</td>
+          <td>{% include 'ta_app/applications/_modal_app_details.html' with data=app %}</td>
+          <td>{% include 'ta_app/applications/_modal_app_status.html' with data=app %}</td>
+          <td>{{ app.get_instructor_preference_display }}</td>
+          <td>{{ app.classification.year }} {{ app.classification.name }}</td>
+          <td>{{ app.note }}</td>
+          <td>{{ app.created_at }}</td>
+          <td>{{ app.updated_at }}</td>
         </tr>
-      </thead>
-      <tbody>
-        {% for app in job.application_set.all %}
-          <tr>
-            <td>{{ app.id }}</td>
-            <td>{{ app.applicant.first_name }} {{ app.applicant.last_name }}</td>
-            <td>{{ app.applicant.username }}</td>
-            <td>{% include 'ta_app/applications/_modal_app_details.html' with data=app %}</td>
-            <td>{% include 'ta_app/applications/_modal_app_status.html' with data=app %}</td>
-            <td>{{ app.get_instructor_preference_display }}</td>
-            <td>{{ app.classification.year }} {{ app.classification.name }}</td>
-            <td>{{ app.note }}</td>
-            <td>{{ app.created_at }}</td>
-            <td>{{ app.updated_at }}</td>
-          </tr>
-        {% empty %}
-          <tr>
-            <td colspan="7">No applications found.</td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
+      {% endfor %}
+    </tbody>
+  </table>
 
 </div>
 

@@ -1,0 +1,24 @@
+<nav class="menu mb-4">
+  
+  <div class="dropdown">
+    <button class="btn btn-sm btn-light dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      Profile
+    </button>
+    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+      <a class="dropdown-item" href="{% url 'students:show_profile' %}">Profile</a>
+      <a class="dropdown-item" href="{% url 'students:edit_profile' %}">Edit Profile</a>
+      <a class="dropdown-item" href="{% url 'students:show_confidentiality' %}">Confidentiality</a>
+    </div>
+  </div>
+
+  <div class="dropdown">
+    <button class="btn btn-sm btn-light dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      Explore Jobs
+    </button>
+    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+      <a class="dropdown-item" href="{% url 'students:explore_jobs' %}">Explore Jobs</a>
+      <a class="dropdown-item" href="{% url 'students:status_jobs' %}">Status</a>
+    </div>
+  </div>
+
+</nav>

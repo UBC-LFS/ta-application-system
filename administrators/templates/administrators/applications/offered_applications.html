@@ -1,13 +1,13 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
-{% include "ta_app/sidebars/_administrator_sidebar.html" %}
+{% include 'administrators/_menu.html' %}
 
-<div id="content" class="container-fluid">
+<div>
   {% include 'ta_app/_return_messages.html' with data=messages %}
 
   {% include 'ta_app/pages/_header.html' with title='Offered Applications' text=offered_applications|length %}
 
-  <div class="d-inline-block">
+  <div>
 
     {% if offered_applications|length > 0 %}
       <form action="{% url 'administrators:offered_applications_send_email' %}" method="post">
@@ -63,7 +63,7 @@
                   </a>
                 </td>
                 <td>
-                  <a href="{% url 'administrators:show_user' username=app.applicant.username path='offered' %}">{{ app.applicant.first_name }} {{ app.applicant.last_name }}</a>
+                  <a href="{% url 'administrators:show_user' username=app.applicant.username path='offered' %}">{{ app.applicant.get_full_name }}</a>
                 </td>
                 <td>{% include 'ta_app/applications/_modal_app_status.html' with data=app %}</td>
                 <td>{{ app.get_instructor_preference_display }}</td>

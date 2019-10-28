@@ -1,73 +1,79 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
-{% include "ta_app/sidebars/_instructor_sidebar.html" %}
 
-<div id="content" class="container-fluid">
+{% include 'instructors/_menu.html' %}
+<div class="row">
+  <div class="col-md-4">
+    {% include 'ta_app/pages/_header.html' with title='Edit Job' %}
 
-  {% include 'ta_app/pages/_header.html' with title='Edit Job' %}
+    <div class="bg-prompt">
+      <div class="prompt p-4 mb-4">
+        <h4>{{ job.session.year }} {{ job.session.term.name }} ({{ job.session.term.code }})</h4>
+        <h4>{{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</h4>
+        <p>{{ job.course.name }}</p>
 
-  <div><a class="btn btn-outline-primary" href="{% url 'instructors:my_jobs' %}">Go back to My Jobs</a></div>
-
-  <section class="d-inline-block mt-3">
-    <small class="text-muted">
-      Created at {{ job.created_at }} <span class="dot mx-1 align-middle"></span>
-      Updated at {{ job.updated_at }}
-    </small>
-
-    <div class="mt-4">
-      <h5>{{ job.session.year }} {{ job.session.term.name }} ({{ job.session.term.code }})</h5>
-      <h4>
-        {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }} <br />
-        <small class="text-muted">- {{ job.course.name }}</small>
-      </h4>
+        <a class="btn btn-sm btn-outline-primary" href="{% url 'instructors:show_jobs' %}">Jobs</a>
+      </div>
     </div>
 
-    <div>
-      <span class="font-weight-bold">Intstructors:</span>
-      {% for instructor in job.instructors.all %}
-        {{ instructor.username }},
-      {% empty %}
-        No instructors
-      {% endfor %}
+    <div class="mt-5">
+      <h5 class="text-success">Recent Job Details</h5>
+      <ol>
+        {% for job in jobs %}
+          <li>
+            <span class="text-secondary">{{ job.session.year }} {{ job.session.term.code }} - {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</span>
+            {% include 'ta_app/jobs/_modal_job_details.html' with data=job %}
+          </li>
+        {% empty %}
+          <li>No recent job details found</li>
+        {% endfor %}
+      </ol>
     </div>
 
-    <form action="" method="post">
-      {% csrf_token %}
-
-      {% for field in form.visible_fields %}
-        <div class="field-wrapper my-5">
-          {{ field.label_tag }}
-          {% if field.help_text %}
-            <div class="help">{{ field.help_text|safe }}</div>
-          {% endif %}
-          {{ field }}
-        </div>
-      {% endfor %}
-
-      {% for field in form.hidden_fields %}
-        {{ field }}
-      {% endfor %}
-
-      <input class="btn btn-warning" type="submit" value="Update Job" />
-    </form>
-  </section>
-
-  <div class="mt-5">
-    <h5 class="text-info">Recent Job Details</h5>
-    <ol>
-      {% for job in jobs %}
-        <li>
-          <span class="text-secondary">{{ job.session.year }} {{ job.session.term.code }} - {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</span>
-          {% include 'ta_app/jobs/_modal_job_details.html' with data=job %}
-        </li>
-      {% empty %}
-        <li>No recent job details found</li>
-      {% endfor %}
-    </ol>
   </div>
 
-  <div class="my-4"><a class="btn btn-outline-primary" href="{% url 'instructors:my_jobs' %}">Go back to My Jobs</a></div>
+  <div class="col-md-8">
 
+    <div class="board">
+      <small class="text-muted">
+        Created at {{ job.created_at }} <span class="dot mx-1 align-middle"></span>
+        Updated at {{ job.updated_at }}
+      </small>
+
+      <div>
+        <h5>Intstructors:</h5>
+        <ul>
+          {% for instructor in job.instructors.all %}
+            <li>{{ instructor.username }}</li>
+          {% empty %}
+            <li>No instructors</li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <form action="" method="post">
+        {% csrf_token %}
+
+        {% for field in form.visible_fields %}
+          <div class="field-wrapper my-5">
+            {{ field.label_tag }}
+            {% if field.help_text %}
+              <div class="help">{{ field.help_text|safe }}</div>
+            {% endif %}
+            {{ field }}
+          </div>
+        {% endfor %}
+
+        {% for field in form.hidden_fields %}
+          {{ field }}
+        {% endfor %}
+
+        <a class="btn btn-outline-primary" href="{% url 'instructors:show_jobs' %}">Cancel</a>
+        <input class="btn btn-primary" type="submit" value="Update" />
+      </form>
+    </div>
+
+  </div>
 </div>
 
 

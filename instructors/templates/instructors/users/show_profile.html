@@ -4,12 +4,12 @@
 {% include 'instructors/_menu.html' %}
 <div class="row">
   <div class="col-md-4">
-    {% include 'ta_app/pages/_header.html' with title='Job Details' %}
+    {% include 'ta_app/pages/_header.html' with title='Profile' %}
 
     <div class="bg-prompt">
       <div class="prompt p-4 mb-4">
         <h4>{{ loggedin_user.get_full_name }}</h4>
-        <p>{{ loggedin_user.username }}</p>
+        <p>You have <span class="font-weight-bold">{{ loggedin_user.job_set.all|length }}</span> jobs now.</p>
 
         <a class="btn btn-sm btn-outline-primary" href="{% url 'instructors:show_jobs' %}">Jobs</a>
       </div>
@@ -18,8 +18,8 @@
 
   <div class="col-md-8">
     <div class="board">
-      <h3>Details</h3>
-      {% include 'ta_app/jobs/_job_details.html' with data=job %}
+      <h3>Basic Information</h3>
+      {% include 'ta_app/users/_basic_info.html' with data=loggedin_user %}
     </div>
   </div>
 </div>

@@ -1,63 +1,47 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
-{% include "ta_app/sidebars/_student_sidebar.html" %}
 
-<div id="content" class="container-fluid">
-  {% include 'ta_app/_return_messages.html' with data=messages %}
+{% include 'students/_menu.html' %}
+{% include 'ta_app/_return_messages.html' with data=messages %}
+<div class="row">
+  <div class="col-md-4">
+    {% include 'ta_app/pages/_header.html' with title='Confidentiality' %}
 
-  {% include 'ta_app/pages/_header.html' with title='Confidentiality' %}
+    <div class="bg-prompt">
+      <div class="prompt p-4 mb-4">
+        <h4>{{ user.get_full_name }}</h4>
+        <p>{{ user.username }}</p>
 
-  {% if user.confidentiality and user.confidentiality.created_at != None %}
-
-    <section>
-      <div class="mb-4">
-        <h5>Are you an International Student?:</h5>
-        <span class="text-secondary">{{ loggedin_user.confidentiality.is_international }}</span>
+        <a class="btn btn-sm btn-outline-primary" href="{% url 'students:show_profile' %}">Profile</a>
       </div>
-      <div class="mb-4">
-        <h5>Employee Number:</h5>
-        <span class="text-secondary">{{ user.confidentiality.employee_number }}</span>
-      </div>
+    </div>
+  </div>
 
-      <div class="mb-4">
-        <h5>Social Insurance Number (SIN):</h5>
+  <div class="col-md-8">
 
-        {% if user.sin_data %}
-          <img src="{{ user.sin_data.url }}" width="150" height="120" alt="SIN-image" /><br />
-          <a href="{{ user.sin_data.url }}" download="{{ user.sin_data.filename }}">{{ user.sin_data.filename }}</a>
+    {% if user.confidentiality and user.confidentiality.created_at != None %}
 
-          {% comment %}
-            <form action="{% url 'students:delete_sin' %}" method="post" onsubmit="return confirm('Are you sure to delete this SIN file?')">
-              {% csrf_token %}
-              <input type="hidden" name="user" value="{{ loggedin_user.username }}" />
-              <input class="btn btn-sm btn-danger" type="submit" value="Delete" />
-            </form>
-          {% endcomment %}
-
-        {% else %}
-          None
-        {% endif %}
-      </div>
-
-    </section>
-
-    {% if user.confidentiality.is_international %}
-
-      <section class="mb-5">
-        <div class="mb-4">
-          <h5>SIN Expiry Date:</h5>
-          <span class="text-secondary">{{ loggedin_user.confidentiality.sin_expiry_date }}</span>
+      <div class="board">
+        <h3>Details</h3>
+        <div>
+          <h5>Are you an International Student?:</h5>
+          <span>{{ loggedin_user.confidentiality.is_international }}</span>
         </div>
 
-        <div class="mb-4">
-          <h5>Study Permit:</h5>
+        <div>
+          <h5>Employee Number:</h5>
+          <span>{{ user.confidentiality.employee_number }}</span>
+        </div>
 
-          {% if user.study_permit_data %}
-            <img src="{{ user.study_permit_data.url }}" width="150" height="120" alt="Study-Permit-image" /><br />
-            <a href="{{ user.study_permit_data.url }}" download="{{ user.study_permit_data.filename }}">{{ user.study_permit_data.filename }}</a>
+        <div>
+          <h5>Social Insurance Number (SIN):</h5>
+
+          {% if user.sin_data %}
+            <img src="{{ user.sin_data.url }}" width="150" height="120" alt="SIN-image" /><br />
+            <a href="{{ user.sin_data.url }}" download="{{ user.sin_data.filename }}">{{ user.sin_data.filename }}</a>
 
             {% comment %}
-              <form action="{% url 'students:delete_study_permit' %}" method="post" onsubmit="return confirm('Are you sure to delete this Study Permit file?')">
+              <form action="{% url 'students:delete_sin' %}" method="post" onsubmit="return confirm('Are you sure to delete this SIN file?')">
                 {% csrf_token %}
                 <input type="hidden" name="user" value="{{ loggedin_user.username }}" />
                 <input class="btn btn-sm btn-danger" type="submit" value="Delete" />
@@ -65,46 +49,73 @@
             {% endcomment %}
 
           {% else %}
-            None
+            <span>None</span>
           {% endif %}
         </div>
-        <div>
-          <h5>Study Permit Expiry Date:</h5>
-          <span class="text-secondary">{{ user.confidentiality.study_permit_expiry_date }}</span>
-        </div>
 
+        {% if user.confidentiality.is_international %}
+
+          <div>
+            <h5>SIN Expiry Date:</h5>
+            <span>{{ loggedin_user.confidentiality.sin_expiry_date }}</span>
+          </div>
+
+          <div>
+            <h5>Study Permit:</h5>
+
+            {% if user.study_permit_data %}
+              <img src="{{ user.study_permit_data.url }}" width="150" height="120" alt="Study-Permit-image" /><br />
+              <a href="{{ user.study_permit_data.url }}" download="{{ user.study_permit_data.filename }}">{{ user.study_permit_data.filename }}</a>
+
+              {% comment %}
+                <form action="{% url 'students:delete_study_permit' %}" method="post" onsubmit="return confirm('Are you sure to delete this Study Permit file?')">
+                  {% csrf_token %}
+                  <input type="hidden" name="user" value="{{ loggedin_user.username }}" />
+                  <input class="btn btn-sm btn-danger" type="submit" value="Delete" />
+                </form>
+              {% endcomment %}
+
+            {% else %}
+              <span>None</span>
+            {% endif %}
+          </div>
+
+          <div>
+            <h5>Study Permit Expiry Date:</h5>
+            <span>{{ user.confidentiality.study_permit_expiry_date }}</span>
+          </div>
+        {% endif %}
+      </div>
+
+      <a class="btn btn-primary" href="{% url 'students:edit_confidentiality' %}">Edit Confidentiality</a>
+
+    {% else %}
+
+      <section class="text-secondary">
+        <div>
+          <p>If you are an international student, please click down below.</p>
+          <form action="{% url 'students:check_confidentiality' %}" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="user" value="{{ user.id }}" />
+            <input type="hidden" name="is_international" value="True" />
+            <input class="btn btn-lg btn-primary" type="submit" value="I am an International student" />
+          </form>
+        </div>
+        <div class="my-5">OR</div>
+        <div>
+          <p>If you are a Canadian citizen or Permanent Resident, please click down below.</p>
+          <form action="{% url 'students:check_confidentiality' %}" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="user" value="{{ user.id }}" />
+            <input type="hidden" name="is_international" value="False" />
+            <input class="btn btn-lg btn-primary" type="submit" value="I am a Canadian citizen/Permanent Resident" />
+          </form>
+        </div>
       </section>
 
     {% endif %}
 
-    <a class="btn btn-warning" href="{% url 'students:edit_confidentiality' %}">Edit Confidentiality</a>
-
-  {% else %}
-
-    <section class="text-secondary">
-      <div>
-        <p>If you are an international student, please click down below.</p>
-        <form action="{% url 'students:check_confidentiality' %}" method="post">
-          {% csrf_token %}
-          <input type="hidden" name="user" value="{{ user.id }}" />
-          <input type="hidden" name="is_international" value="True" />
-          <input class="btn btn-lg btn-primary" type="submit" value="I am an International student" />
-        </form>
-      </div>
-      <div class="my-5">OR</div>
-      <div>
-        <p>If you are a Canadian citizen or Permanent Resident, please click down below.</p>
-        <form action="{% url 'students:check_confidentiality' %}" method="post">
-          {% csrf_token %}
-          <input type="hidden" name="user" value="{{ user.id }}" />
-          <input type="hidden" name="is_international" value="False" />
-          <input class="btn btn-lg btn-primary" type="submit" value="I am a Canadian citizen/Permanent Resident" />
-        </form>
-      </div>
-    </section>
-
-
-  {% endif %}
+  </div>
 </div>
 
 {% endblock %}

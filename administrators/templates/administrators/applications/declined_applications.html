@@ -1,11 +1,11 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
-{% include "ta_app/sidebars/_administrator_sidebar.html" %}
+{% include 'administrators/_menu.html' %}
 
-<div id="content" class="container-fluid">
+<div>
   {% include 'ta_app/pages/_header.html' with title='Declined Applications' text=declined_applications|length %}
 
-  <div class="d-inline-block">
+  <div>
 
     <table
       class="table table-bordered table-hover table-striped table-responsive-md text-center"
@@ -15,7 +15,7 @@
       data-pagination="true"
       data-search="true"
       data-page-size="50"
-      data-page-list="[50, 100, 200, All]"
+      data-page-list="[50, 100, 200, all]"
       data-show-export="true"
       data-click-to-select="true"
       data-show-columns="true"
@@ -50,7 +50,7 @@
               </a>
             </td>
             <td>
-              <a href="{% url 'administrators:show_user' username=app.applicant.username path='declined' %}">{{ app.applicant.first_name }} {{ app.applicant.last_name }}</a>
+              <a href="{% url 'administrators:show_user' username=app.applicant.username path='declined' %}">{{ app.applicant.get_full_name }}</a>
             </td>
             <td>{% include 'ta_app/applications/_modal_app_status.html' with data=app %}</td>
             <td>{{ app.get_instructor_preference_display }}</td>

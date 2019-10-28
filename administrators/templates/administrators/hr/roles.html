@@ -1,8 +1,8 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
-{% include "ta_app/sidebars/_administrator_sidebar.html" %}
+{% include 'administrators/_menu.html' %}
 
-<div id="content" class="container-fluid">
+<div>
   {% include 'ta_app/_return_messages.html' with data=messages %}
 
   {% include 'ta_app/pages/_header.html' with title='Roles' text=roles|length %}
@@ -14,7 +14,7 @@
     <input class="btn btn-primary mt-3" value="Create" type="submit" />
   </form>
 
-  <div class="d-inline-block">
+  <div>
     <table class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center" data-toggle="table" data-sortable="true" data-classes="" data-pagination="true" data-search="true">
       <thead>
         <tr>

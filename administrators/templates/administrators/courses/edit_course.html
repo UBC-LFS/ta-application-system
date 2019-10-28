@@ -1,14 +1,26 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
-{% include "ta_app/sidebars/_administrator_sidebar.html" %}
 
-<div id="content" class="container-fluid">
-  {% include 'ta_app/pages/_header.html' with title='Edit Course' %}
+{% include 'administrators/_menu.html' %}
 
-  <div class="mb-5"><a class="btn btn-outline-primary" href="{% url 'administrators:all_courses' %}">Back to All Courses</a></div>
+<div class="row">
+  <div class="col-md-4">
+    {% include 'ta_app/pages/_header.html' with title='Edit Course' %}
+    <div class="bg-prompt">
+      <div class="prompt p-4 mb-4">
+        <h4>{{ course.code.name }} {{ course.number.name }} {{ course.section.name }} ({{ course.term.code }})</h4>
+        <p>{{ course.name }}</p>
 
-  <div class="row">
-    <div class="col-lg-8 col-md-10 col-sm-12">
+        <a class="btn btn-sm btn-outline-primary" href="{% url 'administrators:all_courses' %}">All Courses</a>
+      </div>
+    </div>
+
+  </div>
+  <div class="col-md-8">
+
+    <div class="board">
+      <h3>Form</h3>
+      
       <form action="" method="post">
         {% csrf_token %}
 
@@ -26,12 +38,12 @@
           {{ field }}
         {% endfor %}
 
-        <input class="btn btn-warning" value="Update Course" type="submit" />
+        <a class="btn btn-outline-success" href="{% url 'administrators:courses' %}">Cancel</a>
+        <input class="btn btn-success" value="Update" type="submit" />
       </form>
     </div>
-  </div>
 
-  <div class="mt-5"><a class="btn btn-outline-primary" href="{% url 'administrators:all_courses' %}">Back to All Courses</a></div>
+  </div>
 
 </div>
 

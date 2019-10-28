@@ -1,42 +1,53 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
-{% include "ta_app/sidebars/_student_sidebar.html" %}
 
-<div id="content" class="container-fluid">
-  {% include 'ta_app/_return_messages.html' with data=messages %}
+{% include 'students/_menu.html' %}
+{% include 'ta_app/_return_messages.html' with data=messages %}
+<div class="row">
+  <div class="col-md-4">
+    {% include 'ta_app/pages/_header.html' with title='Edit Confidentiality' %}
 
-  {% include 'ta_app/pages/_header.html' with title='Edit Confidentiality' %}
+    <div class="bg-prompt">
+      <div class="prompt p-4 mb-4">
+        <h4>{{ loggedin_user.get_full_name }}</h4>
+        <p>{{ loggedin_user.username }}</p>
 
-  <div><a class="btn btn-outline-primary" href="{% url 'students:show_confidentiality' %}">Go back to Confidentiality</a></div>
+        <a class="btn btn-sm btn-outline-primary" href="{% url 'students:show_confidentiality' %}">Confidentiality</a>
+      </div>
+    </div>
+  </div>
 
-  <div class="d-inline-block">
-    <form action="" method="post" enctype="multipart/form-data">
-      {% csrf_token %}
-      
-      {% for field in form.visible_fields  %}
-        <div class="field-wrapper my-4">
-          {{ field.label_tag }}
-          {% if field.help_text %}
-            <div class="help">{{ field.help_text|safe }}</div>
-          {% endif %}
+  <div class="col-md-8">
+
+    <div class="borard">
+      <h3>Form</h3>
+
+      <form action="" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        {% for field in form.visible_fields  %}
+          <div class="field-wrapper my-4">
+            {{ field.label_tag }}
+            {% if field.help_text %}
+              <div class="help">{{ field.help_text|safe }}</div>
+            {% endif %}
+            {{ field }}
+          </div>
+        {% endfor %}
+
+        {% for field in form.hidden_fields %}
           {{ field }}
-        </div>
-      {% endfor %}
+        {% endfor %}
 
-      {% for field in form.hidden_fields %}
-        {{ field }}
-      {% endfor %}
+        <a class="btn btn-outline-primary" href="{% url 'students:show_confidentiality' %}">Cancel</a>
+        <input class="btn btn-primary" type="submit" value="Update" />
+      </form>
+    </div>
 
-      <input class="btn btn-warning" type="submit" value="Update" />
-    </form>
-
-    <hr />
-
-    
     <div class="card border-danger my-4">
       <div class="card-body">
         <h5 class="card-title text-secondary">Delete Your SIN</h5>
-        
+
         {% if loggedin_user.confidentiality.sin %}
           <small class="text-muted">File: {{ sin_file }}</small>
           <form action="{% url 'students:delete_sin' %}" method="post" onsubmit="return confirm('Are you sure to delete this SIN file?')">
@@ -50,11 +61,11 @@
 
       </div>
     </div>
-      
+
     <div class="card border-danger my-4">
       <div class="card-body">
         <h5 class="card-title text-secondary">Delete Your Study Permit</h5>
-        
+
         {% if loggedin_user.confidentiality.study_permit %}
           <small class="text-muted">File: {{ study_permit_file }}</small>
           <form action="{% url 'students:delete_study_permit' %}" method="post" onsubmit="return confirm('Are you sure to delete this Study Permit file?')">

@@ -1,76 +1,114 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
-{% include "ta_app/sidebars/_administrator_sidebar.html" %}
 
-<div id="content" class="container-fluid">
-  {% include 'ta_app/pages/_header.html' with title='Session Details' %}
+{% include 'administrators/_menu.html' %}
 
-  <div class="mb-5">
-    {% include 'administrators/sessions/_go_back.html' with data=path %}
-    <a class="btn btn-warning" href="{% url 'administrators:edit_session' session_slug=session.slug path='current' %}">Edit Session</a>
+<div class="row">
+  <div class="col-md-4">
+    {% include 'ta_app/pages/_header.html' with title='Session Details' %}
+
+    <div class="bg-prompt">
+      <div class="prompt p-4 mb-4">
+        <h4>{{ session.year }} {{ session.term.name }} ({{ session.term.code }})</h4>
+        
+        <a class="btn btn-sm btn-warning" href="{% url 'administrators:edit_session' session_slug=session.slug path=path %}">Edit Session</a>
+        {% include 'administrators/sessions/_go_back.html' with data=path %}
+      </div>
+    </div>
   </div>
 
-  <small class="text-secondary">
-    Created at {{ session.created_at }} <span class="dot mx-1 align-middle"></span>
-    Updated at {{ session.updated_at }}
-  </small>
+  <div class="col-md-8">
+    <div class="board">
+      <h3>Details</h3>
 
-  <h5 class="my-4">
-    {{ session.year }} {{ session.term.name }} ({{ session.term.code }})
-  </h5>
+      <div>
+        <h5>Title:</h5>
+        <span class="text-secondary">{{ session.title }}</span>
+      </div>
 
-  <div class="mb-4">
-    <h5>Title:</h5>
-    <span class="text-secondary">{{ session.title }}</span>
+      <div>
+        <h5>Description:</h5>
+        <span class="text-secondary">{{ session.description|safe }}</span>
+      </div>
+
+      <div>
+        <h5>Note:</h5>
+        <span class="text-secondary">{{ session.note|safe }}</span>
+      </div>
+    </div>
+
+    <br />
+
+    <table class="table">
+      <tr>
+        <td>Created at:</td>
+        <td>{{ session.created_at }}</td>
+      </tr>
+      <tr>
+        <td>Updated at:</td>
+        <td>{{ session.updated_at }}</td>
+      </tr>
+      <tr>
+        <td>Is visible:</td>
+        <td>
+          {% if session.is_visible %}
+            <span class="badge badge-success">{{ session.is_visible }} <i class="fa fa-check-circle" aria-hidden="true"></i></span>
+          {% else %}
+            <span class="badge badge-danger">{{ session.is_visible }} <i class="fa fa-stop-circle" aria-hidden="true"></i></span>
+          {% endif %}
+        </td>
+      </tr>
+      <tr>
+        <td>Is archived:</td>
+        <td>
+          {% if session.is_archived %}
+            <span class="badge badge-success">{{ session.is_archived }} <i class="fa fa-check-circle" aria-hidden="true"></i></span>
+          {% else %}
+            <span class="badge badge-danger">{{ session.is_archived }} <i class="fa fa-stop-circle" aria-hidden="true"></i></span>
+          {% endif %}
+        </td>
+      </tr>
+      <tr>
+        <td>Slug:</td>
+        <td>{{ session.slug }}</td>
+      </tr>
+      <tr>
+        <td>Session ID:</td>
+        <td>{{ session.id }}</td>
+      </tr>
+    </table>
   </div>
+</div>
 
-  <div class="mb-4">
-    <h5>Description:</h5>
-    <span class="text-secondary">{{ session.description|safe }}</span>
-  </div>
-
-  <div class="mb-4">
-    <h5>Note:</h5>
-    <span class="text-secondary">{{ session.note|safe }}</span>
-  </div>
-
-  <ul>
-    <li>
-      Is visible:
-      {% if session.is_visible %}
-        <span class="badge badge-success">{{ session.is_visible }} <i class="fa fa-check-circle" aria-hidden="true"></i></span>
-      {% else %}
-        <span class="badge badge-danger">{{ session.is_visible }} <i class="fa fa-stop-circle" aria-hidden="true"></i></span>
-      {% endif %}
-    </li>
-    <li>
-      Is archived:
-      {% if session.is_archived %}
-        <span class="badge badge-success">{{ session.is_archived }} <i class="fa fa-check-circle" aria-hidden="true"></i></span>
-      {% else %}
-        <span class="badge badge-danger">{{ session.is_archived }} <i class="fa fa-stop-circle" aria-hidden="true"></i></span>
-      {% endif %}
-    </li>
-    <li>Session ID: {{ session.id }}</li>
-    <li>Slug: {{ session.slug }}</li>
-  </ul>
-
+<div>
   <h4 class="mt-5 mb-3">
     Jobs
     <small class="text-muted">(Total: {{ session.job_set.all|length }})</small>
   </h4>
 
-  <table class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center">
+  <table
+    class="table table-bordered table-hover table-striped table-responsive-md text-center"
+    data-toggle="table"
+    data-sortable="true"
+    data-classes=""
+    data-pagination="true"
+    data-search="true"
+    data-page-size="50"
+    data-page-list="[50, 100, 200, all]"
+    data-show-export="true"
+    data-click-to-select="true"
+    data-show-columns="true"
+  >
     <thead>
       <tr>
-        <th>Job ID</th>
-        <th>Year</th>
-        <th>Term</th>
-        <th>Job</th>
-        <th>Instructors</th>
-        <th>Is active</th>
-        <th>Created at</th>
-        <th>Updated at</th>
+        <th data-sortable="true">Job ID</th>
+        <th data-sortable="true">Year</th>
+        <th data-sortable="true">Term</th>
+        <th data-sortable="true">Job</th>
+        <th data-sortable="true">Instructors</th>
+        <th data-sortable="true">Is active</th>
+        <th data-sortable="true">Created at</th>
+        <th data-sortable="true">Updated at</th>
       </tr>
     </thead>
     <tbody>
@@ -101,6 +139,7 @@
       {% endfor %}
     </tbody>
   </table>
+
 </div>
 
 {% endblock %}

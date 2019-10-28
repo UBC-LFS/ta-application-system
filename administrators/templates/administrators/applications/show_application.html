@@ -1,25 +1,64 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
-{% include "ta_app/sidebars/_administrator_sidebar.html" %}
 
-<div id="content" class="container-fluid">
-  {% include 'ta_app/pages/_header.html' with title='Application Details' %}
+{% include 'administrators/_menu.html' %}
 
-  <div class="mb-4">{% include 'administrators/applications/_go_back.html' with data=path %}</div>
 
-  {% include 'ta_app/applications/_app_details.html' with data=app%}
+<div class="row">
+  <div class="col-md-4">
+    {% include 'ta_app/pages/_header.html' with title='Application Details' %}
+    <div class="bg-prompt">
+      <div class="prompt p-4 mb-4">
+        <h4>{{ app.job.session.year }} {{ app.job.session.term.name }} ({{ app.job.session.term.code }})</h4>
+        <h4>{{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</h4>
+        <p>{{ app.job.course.name }}</p>
 
-  <div>Application ID: {{ app.id }}</div>
+        {% include 'administrators/applications/_go_back.html' with data=path %}
+      </div>
+    </div>
+  </div>
 
-  <div>
-    Status:
-    <ul>
-      {% for st in app.applicationstatus_set.all %}
-        <li>{{ st.get_assigned_display }} - {{ st.assigned_hours }} - {{ st.created_at }}</li>
-      {% empty %}
-        No status found
-      {% endfor %}
-    </ul>
+  <div class="col-md-8">
+    <div class="board">
+      <h3>Details</h3>
+      {% include 'ta_app/applications/_app_details.html' with data=app%}
+
+      <div>
+        <h5>Application ID:</h5>
+        <span>{{ app.id }}</span>
+      </div>
+      <div>
+        <h5>Status:</h5>
+        <table class="custom-table">
+          <thead>
+            <tr>
+              <th>Status</th>
+              <th>Assigned TA Hours</th>
+              <th>Created at</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for st in app.applicationstatus_set.all %}
+              <tr>
+                <td>{{ st.get_assigned_display }}</td>
+                <td>{{ st.assigned_hours }}</td>
+                <td>{{ st.created_at }}</td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="3">No status found</td>
+              </tr>
+            {% endfor %}
+
+          </tbody>
+        </table>
+        <ul>
+
+        </ul>
+      </div>
+
+    </div>
+
   </div>
 </div>
 

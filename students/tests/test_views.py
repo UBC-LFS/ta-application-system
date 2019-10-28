@@ -62,7 +62,7 @@ class JobTest(TestCase):
         response = self.client.get( reverse('students:apply_job', args=[session_slug, 'lfs-252-001-land-food-and-community-quantitative-data-analysis-w1']) )
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get( reverse('students:applied_jobs') )
+        """response = self.client.get( reverse('students:applied_jobs') )
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get( reverse('students:offered_jobs') )
@@ -72,7 +72,7 @@ class JobTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get( reverse('students:declined_jobs') )
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)"""
 
         response = self.client.get( reverse('students:accept_decline_job', args=[session_slug, 'lfs-150-001-scholarly-writing-and-argumentation-in-land-and-food-systems-w1']) )
         self.assertEqual(response.status_code, 200)
@@ -350,47 +350,7 @@ class JobTest(TestCase):
         self.assertTrue(response.context['has_applied_job'])
         self.assertFalse(response.context['form'].is_bound)
 
-    def test_applied_jobs(self):
-        print('\n- Test: Display jobs applied by a student')
-        self.login('test.user10', '12')
 
-        response = self.client.get( reverse('students:applied_jobs') )
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context['loggedin_user'].username, 'test.user10')
-        self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
-        self.assertEqual( len(response.context['apps']), 9 )
-
-    def test_offered_jobs(self):
-        print('\n- Test: Display jobs offered from admins')
-        self.login('test.user10', '12')
-
-        response = self.client.get( reverse('students:offered_jobs') )
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context['loggedin_user'].username, 'test.user10')
-        self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
-        self.assertEqual( len(response.context['apps']), 5 )
-        self.assertEqual( len(response.context['total_assigned_hours']), 2 )
-
-    def test_accepted_jobs(self):
-        print('\n- Test: Display jobs accepted by a student')
-        self.login('test.user10', '12')
-
-        response = self.client.get( reverse('students:accepted_jobs') )
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context['loggedin_user'].username, 'test.user10')
-        self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
-        self.assertEqual( len(response.context['apps']), 3 )
-        self.assertEqual( len(response.context['total_assigned_hours']), 2 )
-
-    def test_declined_jobs(self):
-        print('\n- Test: Display jobs declined by a student')
-        self.login('test.user10', '12')
-
-        response = self.client.get( reverse('students:declined_jobs') )
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context['loggedin_user'].username, 'test.user10')
-        self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
-        self.assertEqual( len(response.context['apps']), 2 )
 
     def test_accept_decline_job(self):
         print('\n- Test: Display a job to select accept or decline a job offer')
@@ -436,14 +396,14 @@ class JobTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, response.url)
 
-        response = self.client.get( reverse('students:accepted_jobs') )
+        response = self.client.get( reverse('students:status_jobs') )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, 'test.user20')
         self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
 
         apps = response.context['apps']
-        total_assigned_hours = response.context['total_assigned_hours']
-        self.assertEqual( len(apps), 1 )
+        total_assigned_hours = response.context['total_accepted_assigned_hours']
+        self.assertEqual( len(apps), 2 )
         self.assertEqual(apps[0].job.session.slug, session_slug)
         self.assertEqual(apps[0].job.course.slug, job_slug)
         self.assertEqual(apps[0].accepted.get_assigned_display(), 'Accepted')
@@ -476,14 +436,57 @@ class JobTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, response.url)
 
-        response = self.client.get( reverse('students:declined_jobs') )
+        response = self.client.get( reverse('students:status_jobs') )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, 'test.user20')
         self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
 
         apps = response.context['apps']
-        self.assertEqual( len(apps), 1 )
+        self.assertEqual( len(apps), 2 )
         self.assertEqual(apps[0].job.session.slug, session_slug)
         self.assertEqual(apps[0].job.course.slug, job_slug)
         self.assertEqual(apps[0].declined.get_assigned_display(), 'Declined')
         self.assertEqual(apps[0].declined.assigned_hours, 0.0)
+
+
+    """def test_applied_jobs(self):
+        print('\n- Test: Display jobs applied by a student')
+        self.login('test.user10', '12')
+
+        response = self.client.get( reverse('students:applied_jobs') )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['loggedin_user'].username, 'test.user10')
+        self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
+        self.assertEqual( len(response.context['apps']), 9 )
+
+    def test_offered_jobs(self):
+        print('\n- Test: Display jobs offered from admins')
+        self.login('test.user10', '12')
+
+        response = self.client.get( reverse('students:offered_jobs') )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['loggedin_user'].username, 'test.user10')
+        self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
+        self.assertEqual( len(response.context['apps']), 5 )
+        self.assertEqual( len(response.context['total_assigned_hours']), 2 )
+
+    def test_accepted_jobs(self):
+        print('\n- Test: Display jobs accepted by a student')
+        self.login('test.user10', '12')
+
+        response = self.client.get( reverse('students:accepted_jobs') )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['loggedin_user'].username, 'test.user10')
+        self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
+        self.assertEqual( len(response.context['apps']), 3 )
+        self.assertEqual( len(response.context['total_assigned_hours']), 2 )
+
+    def test_declined_jobs(self):
+        print('\n- Test: Display jobs declined by a student')
+        self.login('test.user10', '12')
+
+        response = self.client.get( reverse('students:declined_jobs') )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['loggedin_user'].username, 'test.user10')
+        self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
+        self.assertEqual( len(response.context['apps']), 2 )"""

@@ -1,11 +1,11 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
-{% include "ta_app/sidebars/_administrator_sidebar.html" %}
 
-<div id="content" class="container-fluid">
+{% include 'administrators/_menu.html' %}
+<div>
   {% include 'ta_app/pages/_header.html' with title='Jobs by Student' text=students|length %}
 
-  <div class="d-inline-block">
+  <div>
 
     <table
       class="table table-bordered table-hover table-striped table-responsive-md text-center"

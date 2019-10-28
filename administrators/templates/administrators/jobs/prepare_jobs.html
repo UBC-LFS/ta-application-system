@@ -1,14 +1,13 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
-{% include "ta_app/sidebars/_administrator_sidebar.html" %}
 
-<div id="content" class="container-fluid">
+{% include 'administrators/_menu.html' %}
+<div>
   {% include 'ta_app/_return_messages.html' with data=messages %}
 
   {% include 'ta_app/pages/_header.html' with title='Prepare Jobs' text=jobs|length %}
 
-  <div class="d-inline-block">
-
+  <div>
     <table
       class="table table-bordered table-hover table-striped table-responsive-md text-center"
       data-toggle="table"
@@ -29,7 +28,7 @@
           <th data-sortable="true">Term</th>
           <th data-sortable="true">Job</th>
           <th data-sortable="true">Instructors</th>
-          <th data-sortable="true">Assigned TA Hours</th>
+          <th data-sortable="true">Assigned<br /> TA Hours</th>
           <th data-sortable="true">Active</th>
           <th data-sortable="true">Created at</th>
           <th data-sortable="true">Updated at</th>

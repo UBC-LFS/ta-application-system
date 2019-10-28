@@ -165,7 +165,7 @@ def create_profile(user, content):
 
         preferred_name = data['preferred_name']
         roles = data['roles']
-        profile = Profile.objects.create(user_id=user.id, ubc_number=ubc_number, preferred_name=preferred_name)
+        profile = Profile.objects.create(user_id=user.id, ubc_number=ubc_number, preferred_name=preferred_name, is_trimmed=False)
         profile.roles.add( *roles )
 
         return profile if profile else False, 'An error occurred while creating a profile. Please contact administrators.'
@@ -357,7 +357,7 @@ def file_exists(user, folder, file):
             if filename == file:
                 exists = True
     return exists
-"""
+
 
 def trim_profile(user):
     user.profile.preferred_name = None
@@ -394,7 +394,15 @@ def trim_profile(user):
         'is_trimmed', 'created_at', 'updated_at'
     ])
     return user.profile if user.profile else None
+"""
 
+
+def trim_profile(user):
+    ''' Remove user's profile except ubc_number '''
+    ubc_number = user.profile.ubc_number
+    user.profile.delete()
+    profile = Profile.objects.create(user_id=user.id, ubc_number=ubc_number, is_trimmed=True)
+    return profile if profile else False
 
 def trim_profile_resume_confidentiality(user_id):
     ''' Trim user's profile, resume and confidentiality '''

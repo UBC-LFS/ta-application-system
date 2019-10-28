@@ -1,13 +1,13 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
-{% include "ta_app/sidebars/_administrator_sidebar.html" %}
+{% include 'administrators/_menu.html' %}
 
-<div id="content" class="container-fluid">
+<div>
   {% include 'ta_app/pages/_header.html' with title='Dashboard' %}
 
   <h5 class="text-secondary">Application Status: Get a glance</h5>
 
-  <div class="d-inline-block">
+  <div>
     <table
       class="table table-bordered table-hover table-striped table-responsive-md text-center"
       data-toggle="table"
@@ -68,7 +68,7 @@
             <td>{{ st.application.job.session.year }}</td>
             <td>{{ st.application.job.session.term.code }}</td>
             <td>
-              <a href="{% url 'administrators:show_job' session_slug=st.application.job.session.slug job_slug=st.application.job.course.slug path='applications_dashboard' %}">
+              <a href="{% url 'administrators:show_job' session_slug=st.application.job.session.slug job_slug=st.application.job.course.slug path='dashboard' %}">
                 {{ st.application.job.course.code.name }} {{ st.application.job.course.number.name }} {{ st.application.job.course.section.name }}
               </a>
             </td>

@@ -1,13 +1,13 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
-{% include "ta_app/sidebars/_administrator_sidebar.html" %}
+{% include 'administrators/_menu.html' %}
 
-<div id="content" class="container-fluid">
+<div>
   {% include 'ta_app/_return_messages.html' with data=messages %}
 
   {% include 'ta_app/pages/_header.html' with title='Accpeted Applications' text=accepted_applications|length %}
 
-  <div class="d-inline-block">
+  <div>
 
     <table
       class="table table-bordered table-hover table-striped table-responsive-md text-center"
@@ -17,7 +17,7 @@
       data-pagination="true"
       data-search="true"
       data-page-size="50"
-      data-page-list="[50, 100, 200, All]"
+      data-page-list="[50, 100, 200, all]"
       data-show-export="true"
       data-click-to-select="true"
       data-show-columns="true"
@@ -53,7 +53,7 @@
               </a>
             </td>
             <td>
-              <a href="{% url 'administrators:show_user' username=app.applicant.username path='accepted' %}">{{ app.applicant.first_name }} {{ app.applicant.last_name }}</a>
+              <a href="{% url 'administrators:show_user' username=app.applicant.username path='accepted' %}">{{ app.applicant.get_full_name }}</a>
             </td>
             <td>{% include 'ta_app/applications/_modal_app_status.html' with data=app %}</td>
             <td>{{ app.classification.year }} {{ app.classification.name }}</td>
@@ -78,7 +78,7 @@
 
                         <h4>To {{ app.applicant.get_full_name }} ({{ app.applicant.username }})</h4>
                         <h6 class="text-secondary mb-3">for {{ app.job.session.year }} {{ app.job.session.term.code }} - {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</h6>
-                        
+
                         <form action="{% url 'administrators:decline_reassign' %}" method="post">
                           {% csrf_token %}
 

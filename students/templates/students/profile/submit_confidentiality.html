@@ -1,40 +1,59 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
-{% include "ta_app/sidebars/_student_sidebar.html" %}
 
-<div id="content" class="container-fluid">
-  {% include 'ta_app/_return_messages.html' with data=messages %}
+{% include 'students/_menu.html' %}
+{% include 'ta_app/_return_messages.html' with data=messages %}
+<div class="row">
+  <div class="col-md-4">
+    {% include 'ta_app/pages/_header.html' with title='Submit Confidentiality' %}
 
-  {% include 'ta_app/pages/_header.html' with title='Submit Confidentiality' %}
+    <div class="bg-prompt">
+      <div class="prompt p-4 mb-4">
+        <h4>{{ loggedin_user.get_full_name }}</h4>
+        <p>{{ loggedin_user.username }}</p>
 
-  <div><a class="btn btn-outline-primary" href="{% url 'students:show_confidentiality' %}">Go back to Confidentiality</a></div>
-
-  {% if form %}
-
-    <form action="" method="post" enctype="multipart/form-data">
-      {% csrf_token %}
-
-      {% for field in form.visible_fields  %}
-        <div class="field-wrapper my-4">
-          {{ field.label_tag }}
-          {% if field.help_text %}
-            <div class="help">{{ field.help_text|safe }}</div>
-          {% endif %}
-          {{ field }}
-        </div>
-      {% endfor %}
-
-      {% for field in form.hidden_fields %}
-        {{ field }}
-      {% endfor %}
-
-      <input class="btn btn-primary" type="submit" value="Submit" />
-    </form>
-  {% else %}
-    <div class="alert alert-danger" role="alert">
-      An error occurred. Please select your confidentiality.
+        <a class="btn btn-sm btn-outline-primary" href="{% url 'students:show_confidentiality' %}">Confidentiality</a>
+      </div>
     </div>
-  {% endif %}
+  </div>
+
+  <div class="col-md-8">
+
+    <div class="board">
+
+      <h3>Form</h3>
+
+      {% if form %}
+
+        <form action="" method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+
+          {% for field in form.visible_fields  %}
+            <div class="field-wrapper my-4">
+              {{ field.label_tag }}
+              {% if field.help_text %}
+                <div class="help">{{ field.help_text|safe }}</div>
+              {% endif %}
+              {{ field }}
+            </div>
+          {% endfor %}
+
+          {% for field in form.hidden_fields %}
+            {{ field }}
+          {% endfor %}
+
+          <a class="btn btn-outline-primary" href="{% url 'students:show_confidentiality' %}">Cancel</a>
+          <input class="btn btn-primary" type="submit" value="Submit" />
+        </form>
+      {% else %}
+        <div class="alert alert-danger" role="alert">
+          An error occurred. Please select your confidentiality.
+        </div>
+      {% endif %}
+
+    </div>
+
+  </div>
 </div>
 
 {% endblock %}

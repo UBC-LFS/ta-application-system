@@ -39,33 +39,33 @@ class JobTest(TestCase):
         response = self.client.get( reverse('instructors:index') )
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get( reverse('instructors:profile') )
+        response = self.client.get( reverse('instructors:show_profile') )
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get( reverse('instructors:my_jobs') )
+        response = self.client.get( reverse('instructors:show_jobs') )
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get( reverse('instructors:edit_job', args=[session_slug, job_slug]) )
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get( reverse('instructors:my_applications', args=[session_slug, job_slug]) )
+        response = self.client.get( reverse('instructors:show_applications', args=[session_slug, job_slug]) )
         self.assertEqual(response.status_code, 200)
 
     def test_profile(self):
         print('\n- Display user profile')
         self.login('test.user4', '12')
 
-        response = self.client.get( reverse('instructors:profile') )
+        response = self.client.get( reverse('instructors:show_profile') )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, 'test.user4')
         self.assertEqual(response.context['loggedin_user'].roles, ['Instructor'])
         self.assertEqual(response.context['user'].username, 'test.user4')
 
-    def test_my_jobs(self):
+    def test_show_jobs(self):
         print('\n- Display jobs by instructors')
         self.login('test.user4', '12')
 
-        response = self.client.get( reverse('instructors:my_jobs') )
+        response = self.client.get( reverse('instructors:show_jobs') )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, 'test.user4')
         self.assertEqual(response.context['loggedin_user'].roles, ['Instructor'])
@@ -107,14 +107,14 @@ class JobTest(TestCase):
         self.assertEqual(response.context['job'].qualification, data['qualification'])
         self.assertEqual(response.context['job'].note, data['note'])
 
-    def test_my_applications(self):
+    def test_show_applications(self):
         print('\n- Display applications applied by students')
         self.login('test.user4', '12')
 
         session_slug = '2019-w1'
         job_slug = 'lfs-100-001-introduction-to-land-food-and-community-w1'
 
-        response = self.client.get( reverse('instructors:my_applications', args=[session_slug, job_slug]) )
+        response = self.client.get( reverse('instructors:show_applications', args=[session_slug, job_slug]) )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, 'test.user4')
         self.assertEqual(response.context['loggedin_user'].roles, ['Instructor'])
@@ -127,12 +127,12 @@ class JobTest(TestCase):
             'application': '1',
             'instructor_preference': '4'
         }
-        response = self.client.post( reverse('instructors:my_applications', args=[session_slug, job_slug]), data=urlencode(data), content_type=ContentType )
+        response = self.client.post( reverse('instructors:show_applications', args=[session_slug, job_slug]), data=urlencode(data), content_type=ContentType )
         messages = self.messages(response)
         self.assertTrue('Success' in messages[0])
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, response.url)
 
-        response = self.client.get( reverse('instructors:my_applications', args=[session_slug, job_slug]) )
+        response = self.client.get( reverse('instructors:show_applications', args=[session_slug, job_slug]) )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['job'].application_set.first().instructor_preference, '4')

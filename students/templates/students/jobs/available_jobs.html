@@ -1,15 +1,36 @@
 {% extends "ta_app/base.html" %}
 {% block content %}
-{% include "ta_app/sidebars/_student_sidebar.html" %}
 
-<div id="content" class="container-fluid">
-  {% include 'ta_app/_return_messages.html' with data=messages %}
+{% include 'students/_menu.html' %}
+{% include 'ta_app/_return_messages.html' with data=messages %}
+<div class="row">
+  <div class="col-md-4">
+    {% include 'ta_app/pages/_header.html' with title='Available Jobs' text=jobs|length %}
 
-  {% include 'ta_app/pages/_header.html' with title='Available Jobs' text=jobs|length %}
+    <div class="bg-prompt">
+      <div class="prompt p-4 mb-4">
+        <h4>{{ loggedin_user.get_full_name }}</h4>
+				<p>{{ loggedin_user.username }}</p>
 
-  <div><a class="btn btn-outline-primary" href="{% url 'students:explore_jobs' %}">Go back to Explore Jobs</a></div>
+        <a class="btn btn-sm btn-outline-primary" href="{% url 'students:explore_jobs' %}">Explore Jobs</a>
+      </div>
+    </div>
 
-  <div class="d-inline-block">
+    <div>
+			<h5 class="text-success">Recent Applied Jobs</h5>
+			<ul class="text-secondary">
+				{% for job in applied_jobs %}
+					<li>{{ job.session.year }} {{ job.session.term.code }} - {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</li>
+				{% empty %}
+					<li>No applied jobs found</li>
+				{% endfor %}
+			</ul>
+		</div>
+
+  </div>
+
+  <div class="col-md-8">
+
     <table class="table table-bordered table-hover table-striped table-responsive-md text-center" data-toggle="table" data-sortable="true" data-classes="" data-pagination="true" data-search="true">
       <thead>
         <tr>
@@ -32,7 +53,7 @@
             </td>
             <td>
               {% for instructor in job.instructors.all %}
-                {{ instructor.get_full_name }},
+                <div>{{ instructor.get_full_name }}</div>
               {% empty %}
                 No instructors found.
               {% endfor %}
@@ -49,8 +70,8 @@
         {% endfor %}
       </tbody>
     </table>
-  </div>
 
+  </div>
 </div>
 
 {% endblock %}

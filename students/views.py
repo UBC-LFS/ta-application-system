@@ -245,7 +245,6 @@ def submit_confidentiality(request):
 
     return render(request, 'students/profile/submit_confidentiality.html', {
         'loggedin_user': loggedin_user,
-        'user': user,
         'form': form
     })
 
@@ -274,11 +273,18 @@ def edit_confidentiality(request):
             user_id = request.POST.get('user')
             user = userApi.get_user(user_id)
 
+            updated_confidentiality = form.save(commit=False)
+            updated_confidentiality.updated_at = datetime.now()
 
+            if data['is_international'] == None:
+                messages.error(request, 'An error occurred. Please select your nationality.')
+                return redirect('students:edit_confidentiality')
+
+            # Check SIN and Study Permit
             sin_study_permit_errors = []
-            if not request.FILES.get('sin') and bool(user.confidentiality.sin):
+            if request.FILES.get('sin') and bool(user.confidentiality.sin):
                 sin_study_permit_errors.append('SIN')
-            if not request.FILES.get('study_permit') and bool(user.confidentiality.study_permit):
+            if request.FILES.get('study_permit') and bool(user.confidentiality.study_permit):
                 sin_study_permit_errors.append('Study Permit')
 
             if len(sin_study_permit_errors) > 0:
@@ -286,74 +292,46 @@ def edit_confidentiality(request):
                 messages.error(request, 'An error occurred. Please delete your previous {0} information first, and then try again.'.format(msg))
                 return redirect('students:edit_confidentiality')
 
+            update_fields = []
 
-            print('is_international ', request.POST.get('is_international'), bool(request.POST.get('is_international')))
-            # if an internation student
-            if request.POST.get('is_international') == 'true':
-                print('is_international')
-                pass
+            if data['is_international'] is not None:
+                updated_confidentiality.is_international = data['is_international']
+                update_fields.append('is_international')
 
-            # if a canadian citizen/PR
-            else:
-                sin_expiry_date = userApi.create_expiry_date(request.POST.get('sin_expiry_date_year'), request.POST.get('sin_expiry_date_month'), request.POST.get('sin_expiry_date_day'))
-                study_permit_expiry_date = userApi.create_expiry_date(request.POST.get('study_permit_expiry_date_year'), request.POST.get('study_permit_expiry_date_month'), request.POST.get('study_permit_expiry_date_day'))
+            if data['employee_number'] is not None:
+                updated_confidentiality.employee_number = data['employee_number']
+                update_fields.append('employee_number')
 
-                print('sin_expiry_date ', sin_expiry_date)
-                print('study_permit_expiry_date ', study_permit_expiry_date)
-                print("here")
-                if sin_expiry_date != False or study_permit_expiry_date != False or request.FILES.get('study_permit'):
-                    messages.error(request, 'An error occurred. If you are not an International Student, you won\'t need to update SIN Expiry Date, Study Permit or Study Permit Expiry Date.')
+            if request.FILES.get('sin') is not None:
+                updated_confidentiality.sin = request.FILES.get('sin')
+                update_fields.append('sin')
+
+            if data['sin_expiry_date'] is not None:
+                updated_confidentiality.sin_expiry_date = data['sin_expiry_date']
+                update_fields.append('sin_expiry_date')
+
+            if request.FILES.get('study_permit') is not None:
+                updated_confidentiality.study_permit = request.FILES.get('study_permit')
+                update_fields.append('study_permit')
+
+            if data['study_permit_expiry_date'] is not None:
+                updated_confidentiality.study_permit_expiry_date = data['study_permit_expiry_date']
+                update_fields.append('study_permit_expiry_date')
+
+            print('update_fields 111', update_fields)
+
+            if not data['is_international']:
+                updated_confidentiality.sin_expiry_date = None
+                if 'sin_expiry_date' not in update_fields: update_fields.append('sin_expiry_date')
+                updated_confidentiality.study_permit_expiry_date = None
+                if 'study_permit_expiry_date' not in update_fields: update_fields.append('study_permit_expiry_date')
+
+                if request.FILES.get('study_permit') or data['study_permit']:
+                    messages.error(request, 'An error occurred. If you are a Canadian Citizen or Permanent Resident, you won\'t need to update your Study Permit. If you have your Study Permit, please delete it, and then try it again.')
                     return redirect('students:edit_confidentiality')
 
-            updated_confidentiality = userApi.updated_confidentiality(user, request.POST, request.FILES, form.cleaned_data)
-
-
-
-            """is_international = request.POST.get('is_international')
-            employee_number = request.POST.get('employee_number')
-
-            sin_file = request.FILES.get('sin')
-            sin_expiry_date = data['sin_expiry_date']
-
-            study_permit_file = request.FILES.get('study_permit')
-            study_permit_expiry_date = data['study_permit_expiry_date']
-
-            print('user', user)
-            print('is_international', is_international)
-            print('employee_number', employee_number)
-            print('sin_file', sin_file)
-            print('sin_expiry_date', sin_expiry_date)
-            print('study_permit_file', study_permit_file)
-            print('study_permit_expiry_date', study_permit_expiry_date)"""
-
-
-
-            #updated_confidentiality = form.save(commit=False)
-            #updated_confidentiality.updated_at = datetime.now()
-
-            #if is_international:
-            #    study_permit_file = request.FILES.get('study_permit')
-            #else:
-            #    userApi.delete_user_study_permit(loggedin_user)
-
-            """
-            if new_sin:
-                if bool(old_sin):
-                    deleted_sin_file = userApi.delete_user_sin(loggedin_user)
-                    if not deleted_sin_file:
-                        messages.warning(request, 'Warning! Previous SIN file was not deleted')
-                loggedin_user.confidentiality.sin = new_sin
-
-            if new_study_permit:
-                if bool(old_study_permit):
-                    deleted_study_permit_file = userApi.delete_user_study_permit(loggedin_user)
-                    if not deleted_study_permit_file:
-                        messages.warning(request, 'Warning! Previous study permit file was not deleted')
-                loggedin_user.confidentiality.study_permit = new_study_permit
-            """
-
-            #updated_confidentiality.save()
-            #print(updated_confidentiality)
+            print('update_fields', update_fields)
+            updated_confidentiality.save(update_fields=update_fields)
 
             if updated_confidentiality:
                 messages.success(request, 'Success! {0} - confidentiality updated'.format(loggedin_user.username))
@@ -365,10 +343,10 @@ def edit_confidentiality(request):
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
     else:
-        if bool(loggedin_user.confidentiality.sin):
+        if userApi.has_user_confidentiality_created(loggedin_user) and bool(loggedin_user.confidentiality.sin):
             sin_file = os.path.basename(loggedin_user.confidentiality.sin.name)
 
-        if bool(loggedin_user.confidentiality.study_permit):
+        if userApi.has_user_confidentiality_created(loggedin_user) and bool(loggedin_user.confidentiality.study_permit):
             study_permit_file = os.path.basename(loggedin_user.confidentiality.study_permit.name)
 
 
@@ -468,7 +446,8 @@ def available_jobs(request, session_slug):
     return render(request, 'students/jobs/available_jobs.html', {
         'loggedin_user': loggedin_user,
         'session': adminApi.get_session_by_slug(session_slug),
-        'jobs': adminApi.get_available_jobs_to_apply(loggedin_user, session_slug)
+        'jobs': adminApi.get_available_jobs_to_apply(loggedin_user, session_slug),
+        'applied_jobs': adminApi.get_jobs_applied_by_student(loggedin_user).order_by('-created_at')[:10]
     })
 
 @login_required(login_url=settings.LOGIN_URL)

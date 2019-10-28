@@ -14,71 +14,80 @@
 </head>
 <body>
 
-	{% if loggedin_user.is_authenticated %}
-		<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-			<span class="navbar-brand" href="#">TA Applications</span>
-			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-  				<span class="navbar-toggler-icon"></span>
-			</button>
+	<header class="bg-primary">
+		<div class="container">
 
-			<div class="collapse navbar-collapse" id="navbarSupportedContent">
-				<ul class="navbar-nav mr-auto">
-					{% if 'Admin' in loggedin_user.roles or 'Superadmin' in loggedin_user.roles %}
-						<li class="nav-item">
-							<a id="admin" class="nav-link" href="{% url 'administrators:index' %}">Administrator's Portal</a>
-						</li>
-					{% endif %}
-					{% if 'HR' in loggedin_user.roles %}
-						<li class="nav-item">
-							<a id="hr" class="nav-link" href="{% url 'human_resources:index' %}">Human Resource's Portal</a>
-						</li>
-					{% endif %}
-					{% if 'Instructor' in loggedin_user.roles %}
-						<li class="nav-item">
-							<a id="instructor" class="nav-link" href="{% url 'instructors:index' %}">Instructor's Portal</a>
-						</li>
-					{% endif %}
-					{% if 'Student' in loggedin_user.roles %}
-						<li class="nav-item">
-							<a id="student" class="nav-link" href="{% url 'students:index' %}">Student's Portal</a>
-						</li>
-					{% endif %}
-    		</ul>
-				<span class="text-white">{{ loggedin_user.username }} {{ loggedin_user.roles }}</span>
-				<a class="text-white ml-4" href="#">Logout</a>
-  		</div>
-		</nav>
+			{% if loggedin_user.is_authenticated %}
+				<nav class="navbar navbar-expand-lg navbar-dark">
+					<span class="navbar-brand" href="#">TA Applications</span>
+					<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+							<span class="navbar-toggler-icon"></span>
+					</button>
 
-		{% if 'Admin' in loggedin_user.roles or 'Superadmin' in loggedin_user.roles %}
-			{% include "ta_app/_mobilenavadmin.html" %}
-		{% elif 'Instructor' in loggedin_user.roles %}
-			{% include "ta_app/_mobilenavinstructor.html"%}
-		{% endif %}
+					<div class="collapse navbar-collapse" id="navbarSupportedContent">
+						<ul class="navbar-nav mr-auto">
+							{% if 'Admin' in loggedin_user.roles or 'Superadmin' in loggedin_user.roles %}
+								<li class="nav-item">
+									<a id="admin" class="nav-link" href="{% url 'administrators:index' %}">Administrator</a>
+								</li>
+							{% endif %}
+							{% if 'HR' in loggedin_user.roles %}
+								<li class="nav-item">
+									<a id="hr" class="nav-link" href="{% url 'human_resources:index' %}">Human Resource</a>
+								</li>
+							{% endif %}
+							{% if 'Instructor' in loggedin_user.roles %}
+								<li class="nav-item">
+									<a id="instructor" class="nav-link" href="{% url 'instructors:index' %}">Instructor</a>
+								</li>
+							{% endif %}
+							{% if 'Student' in loggedin_user.roles %}
+								<li class="nav-item">
+									<a id="student" class="nav-link" href="{% url 'students:index' %}">Student</a>
+								</li>
+							{% endif %}
+						</ul>
+						<div class="dropdown">
+	  					<button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+	    					Hi, {{ loggedin_user.username }}
+	  					</button>
+	  					<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+						  	{% for role in loggedin_user.roles %}
+									<div class="dropdown-item">{{ role }}</div>
+								{% endfor %}
+	  					</div>
+						</div>
 
-		<div id="content-padding" class="padding-top-66">
-			<main>
-				<div class="wrapper">
-					{% block content %}{% endblock %}
-				</div>
-			</main>
+						<a class="text-white ml-4" href="#">Logout</a>
+					</div>
+				</nav>
+			{% endif %}
 
-			<footer></footer>
 		</div>
+	</header>
 
-	{% endif %}
+	<main class="mb-5">
+		<div class="container">
+			{% block content %}{% endblock %}
+		</div>
+	</main>
+
+	<footer class="bg-dark-blue">
+		<div class="container">
+			footer
+		</div>
+	</footer>
 
 	<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
 	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.concat.min.js"></script>
 	<script src="https://unpkg.com/bootstrap-table@1.15.4/dist/bootstrap-table.min.js"></script>
-	{% load static %}
-	<script type="text/javascript" src="{% static 'ta_app/js/index.js' %}"></script>
+	<script src="https://unpkg.com/bootstrap-table@1.15.4/dist/extensions/export/bootstrap-table-export.min.js"></script>
 	<script src="https://unpkg.com/tableexport.jquery.plugin/tableExport.min.js"></script>
 	<script src="https://unpkg.com/tableexport.jquery.plugin/libs/jsPDF/jspdf.min.js"></script>
 	<script src="https://unpkg.com/tableexport.jquery.plugin/libs/jsPDF-AutoTable/jspdf.plugin.autotable.js"></script>
-	<script src="https://unpkg.com/bootstrap-table@1.15.4/dist/bootstrap-table.min.js"></script>
-	<script src="https://unpkg.com/bootstrap-table@1.15.4/dist/extensions/export/bootstrap-table-export.min.js"></script>
 
+	{% load static %}
+	<script type="text/javascript" src="{% static 'ta_app/js/index.js' %}"></script>
 </body>
 </html>

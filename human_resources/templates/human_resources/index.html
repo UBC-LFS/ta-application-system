@@ -1,10 +1,14 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
-{% include "ta_app/sidebars/_human_resource_sidebar.html" %}
 
-<div id="content" class="container-fluid">
-  <h1>Human Resource's Portal</h1>
+{% include "human_resources/_menu.html" %}
+<div>
+  <h3>Human Resource's Portal</h3>
 
+  <div class="bd-callout bd-callout-warning">
+    <h5>Checkpoint!</h5>
+    <p>Text area</p>
+  </div>
 </div>
 
 {% endblock %}

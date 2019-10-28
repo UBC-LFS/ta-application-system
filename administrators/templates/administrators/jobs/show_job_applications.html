@@ -1,11 +1,18 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
-{% include "ta_app/sidebars/_administrator_sidebar.html" %}
 
-<div id="content" class="container-fluid">
+{% include 'administrators/_menu.html' %}
+<div>
   {% include 'ta_app/pages/_header.html' with title='Job Applications' text=job.application_set.all|length %}
 
-  <div class="mb-4"><a class="btn btn-outline-primary" href="{% url 'administrators:progress_jobs' %}">Go back to Jobs in Progress</a></div>
+  <div class="bg-prompt">
+    <div class="prompt p-4 text-center mb-4 rounded-1">
+      <h4>Text</h4>
+      <a class="btn btn-sm btn-outline-primary" href="{% url 'administrators:progress_jobs' %}">Go back to Jobs in Progress</a>
+    </div>
+  </div>
+
+  <div class="mb-4"></div>
 
   <h5 class="mt-4">{{ job.session.year }} {{ job.session.term.name }} ({{ job.session.term.code }})</h5>
   <h4>
@@ -13,17 +20,29 @@
     <small class="text-muted">- {{ job.course.name }}</small>
   </h4>
 
-  <table class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center" data-toggle="table" data-sortable="true" data-classes="" data-pagination="true" data-search="true">
+  <table
+    class="table table-bordered table-hover table-striped table-responsive-md text-center"
+    data-toggle="table"
+    data-sortable="true"
+    data-classes=""
+    data-pagination="true"
+    data-search="true"
+    data-page-size="50"
+    data-page-list="[50, 100, 200, all]"
+    data-show-export="true"
+    data-click-to-select="true"
+    data-show-columns="true"
+  >
     <thead>
       <tr>
-        <th>Application ID</th>
-        <th>Applicant</th>
-        <th>Status</th>
-        <th>Instructor Preference</th>
-        <th>Classification</th>
-        <th>Note</th>
-        <th>Created at</th>
-        <th>Updated at</th>
+        <th data-sortable="true">Application<br /> ID</th>
+        <th data-sortable="true">Applicant</th>
+        <th data-sortable="true">Status</th>
+        <th data-sortable="true">Instructor<br /> Preference</th>
+        <th data-sortable="true">Classification</th>
+        <th data-sortable="true">Note</th>
+        <th data-sortable="true">Created at</th>
+        <th data-sortable="true">Updated at</th>
       </tr>
     </thead>
     <tbody>

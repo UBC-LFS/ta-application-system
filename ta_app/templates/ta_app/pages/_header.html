@@ -1,11 +1,11 @@
 {% load static %}
 
-<div class="mb-3">
-  <img class="ubc-logo d-inline-block" src="{% static 'ta_app/images/UBClogo.jpeg' %}" alt="ubc logo" />
-  <div class="d-inline-block ml-3">
-    <h3 class="text-dark-blue">
+<div class="mb-4">
+  <img class="logo-page d-inline-block" src="{% static 'ta_app/images/UBClogo.jpeg' %}" alt="logo" />
+  <div class="ml-3 d-inline-block">
+    <h5 class="text-dark-gray">
       {{ title }}
       {% if text %} <small class="text-muted">(Total: {{ text }})</small> {% endif %}
-    </h3>
+    </h5>
   </div>
 </div>

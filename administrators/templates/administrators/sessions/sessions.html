@@ -1,8 +1,8 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
-{% include "ta_app/sidebars/_administrator_sidebar.html" %}
+{% include 'administrators/_menu.html' %}
 
-<div id="content" class="container-fluid">
+<div>
   {% include 'ta_app/_return_messages.html' with data=messages %}
 
   {% include 'ta_app/pages/_header.html' with title='Sessions' %}
@@ -29,7 +29,7 @@
         <h5 class="card-header bg-info text-white"><i class="fa fa-info-circle"></i> Featured</h5>
         <div class="card-body">
           <h5 class="card-title">
-            <a href="{% url 'administrators:create_session' %}">Current Sessions</a>
+            <a href="{% url 'administrators:current_sessions' %}">Current Sessions</a>
           </h5>
           <div class="row">
             <div class="col-6">
@@ -53,7 +53,7 @@
         <h5 class="card-header bg-info text-white"><i class="fa fa-info-circle"></i> Featured</h5>
         <div class="card-body">
           <h5 class="card-title">
-            <a href="{% url 'administrators:create_session' %}">Archived Sessions</a>
+            <a href="{% url 'administrators:archived_sessions' %}">Archived Sessions</a>
           </h5>
           <div class="row">
             <div class="col-6">

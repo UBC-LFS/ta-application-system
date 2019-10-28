@@ -1,13 +1,21 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
-{% include "ta_app/sidebars/_administrator_sidebar.html" %}
 
-<div id="content" class="container-fluid">
+{% include 'administrators/_menu.html' %}
+<div>
   {% include 'ta_app/_return_messages.html' with data=messages %}
 
   {% include 'ta_app/pages/_header.html' with title='All Courses' text=courses|length %}
 
-  <div class="d-inline-block">
+  <div class="bg-prompt">
+    <div class="prompt p-4 text-center mb-4 rounded-1">
+      <h4>New</h4>
+      <p class="col-8 mx-auto">If you would like to create a new course, please click the botton below.</p>
+      <a class="btn btn-sm btn-outline-primary" href="{% url 'administrators:create_course' %}">Create Course</a>
+    </div>
+  </div>
+
+  <div>
     <table
       class="table table-bordered table-hover table-striped table-responsive-md text-center"
       data-toggle="table"

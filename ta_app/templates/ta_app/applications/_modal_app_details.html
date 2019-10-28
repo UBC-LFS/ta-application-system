@@ -6,11 +6,15 @@
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="app-details-modal-label-{{ data.id }}">Application Details of {{ data.applicant.get_full_name }}</h5>
+        <h5 class="modal-title" id="app-details-modal-label-{{ data.id }}">Application Details</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
       </div>
       <div class="modal-body text-left">
-        {% include 'ta_app/applications/_app_details.html' with data=data %}
+        <div class="board">
+          <h3>Details</h3>
+          <p class="text-secondary">User: {{ data.applicant.get_full_name }} ({{ data.applicant.username }})</p>
+          {% include 'ta_app/applications/_app_details.html' with data=data %}
+        </div>
       </div>
     </div>
   </div>

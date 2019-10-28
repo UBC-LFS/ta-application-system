@@ -1,34 +1,34 @@
 {% if data == 'instructor' %}
-  <a class="btn btn-outline-primary" href="{% url 'administrators:instructor_jobs' %}">Go back to Jobs by Instructor</a>
+  <a class="btn btn-sm btn-outline-primary" href="{% url 'administrators:instructor_jobs' %}">Jobs by Instructor</a>
 
 {% elif data == 'student' %}
-  <a class="btn btn-outline-primary" href="{% url 'administrators:student_jobs' %}">Go back to Jobs by Student</a>
+  <a class="btn btn-sm btn-outline-primary" href="{% url 'administrators:student_jobs' %}">Jobs by Student</a>
 
 {% elif data == 'dashboard' %}
-  <a class="btn btn-outline-primary" href="{% url 'administrators:applications_dashboard' %}">Go back to Dashboard</a>
+  <a class="btn btn-sm btn-outline-primary" href="{% url 'administrators:applications_dashboard' %}">Dashboard</a>
 
 {% elif data == 'all' %}
-  <a class="btn btn-outline-primary" href="{% url 'administrators:all_applications' %}">Go back to All Applications</a>
+  <a class="btn btn-sm btn-outline-primary" href="{% url 'administrators:all_applications' %}">All Applications</a>
 
 {% elif data == 'selected' %}
-  <a class="btn btn-outline-primary" href="{% url 'administrators:selected_applications' %}">Go back to Selected Applications</a>
+  <a class="btn btn-sm btn-outline-primary" href="{% url 'administrators:selected_applications' %}">Selected Applications</a>
 
 {% elif data == 'offered' %}
-  <a class="btn btn-outline-primary" href="{% url 'administrators:offered_applications' %}">Go back to Offered Applications</a>
+  <a class="btn btn-sm btn-outline-primary" href="{% url 'administrators:offered_applications' %}">Offered Applications</a>
 
 {% elif data == 'accepted' %}
-  <a class="btn btn-outline-primary" href="{% url 'administrators:accepted_applications' %}">Go back to Accepted Applications</a>
+  <a class="btn btn-sm btn-outline-primary" href="{% url 'administrators:accepted_applications' %}">Accepted Applications</a>
 
 {% elif data == 'declined' %}
-  <a class="btn btn-outline-primary" href="{% url 'administrators:declined_applications' %}">Go back to Declined Applications</a>
+  <a class="btn btn-sm btn-outline-primary" href="{% url 'administrators:declined_applications' %}">Declined Applications</a>
 
 {% elif data == 'users' %}
-  <a class="btn btn-outline-primary" href="{% url 'administrators:users' %}">Go back to All Users</a>
+  <a class="btn btn-sm btn-outline-primary" href="{% url 'administrators:users' %}">All Users</a>
 
 {% elif data == 'trim' %}
-  <a class="btn btn-outline-primary" href="{% url 'administrators:trim_users' %}">Go back to Trim Users</a>
+  <a class="btn btn-sm btn-outline-primary" href="{% url 'administrators:trim_users' %}">Trim Users</a>
 
 {% else %}
-  <a class="btn btn-outline-primary" href="{% url 'administrators:jobs' %}">Go back to Jobs</a>
+  <a class="btn btn-sm btn-outline-primary" href="{% url 'administrators:hr' %}">Users</a>
 
 {% endif %}

@@ -1,36 +1,34 @@
-.ubc-logo {
-  width: 70px;
-  height: auto;
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
 }
 
-.text-dark-blue {
-  color: 	#002145;
+body {
+  display: flex;
+  flex-direction: column;
 }
 
-.bg-dark-blue {
-  background-color: #002145;
+/* header */
+header {
+  width: 100%;
 }
 
-.bg-light-gray {
-  background-color: #E6E6E6;
+/* footer */
+footer {
+  flex-shrink: 0;
+  height: 100px;
+  color: #fff;
 }
 
-.job-details .left-content .ta-hours {
-  border: 1px solid #aaa;
-  border-radius: 4px;
+
+/* main content */
+main {
+  flex: 1 0 auto;
 }
 
-.search-field input {
-  margin: 5px 0;
-  padding: 5px;
-  font-size: 0.85rem;
-}
-
-.dot {
-  height: 5px;
-  width: 5px;
-  background-color: #6c757d;
-  border-radius: 50%;
+nav.menu > div {
   display: inline-block;
 }
 
@@ -52,6 +50,195 @@
   margin-bottom: 5px;
 }
 
+
+
+
+
+/* utils */
+
+.logo-page {
+  width: 50px;
+  height: auto;
+}
+
+.custom-table {
+  border-collapse: collapse;
+}
+
+.custom-table,
+.custom-table th,
+.custom-table td {
+  border: 1px solid #343a40;
+}
+
+.custom-table th,
+.custom-table td {
+  padding: 0.6rem;
+}
+
+.bg-prompt {
+    background-image: linear-gradient(180deg,hsla(0,0%,100%,0) 50%,#fff),linear-gradient(70deg,#eaf5ff 32%,#f6fff8);
+}
+
+.prompt {
+    background-repeat: no-repeat;
+    background-clip: padding-box;
+    box-shadow: 0 3px 6px rgba(0,0,0,.05);
+}
+
+.prompt h4 {
+  font-weight: 600;
+}
+
+.prompt > p {
+  color: #6c757d;
+}
+
+.board {
+  background-color: #f3f7f7;
+  padding: 1.5rem;
+}
+
+.board h3 {
+  color: #007bff;
+  font-weight: 600;
+}
+
+.board > h4,
+.board > div,
+.board > form > div {
+  margin-top: 1.5rem;
+}
+
+.board > h4,
+.board > div > h5,
+.board > form > div > h5,
+.board > div > h6 {
+  font-weight: 600;
+}
+
+.board > div > span,
+.board > form > div > span,
+.board > div > ul {
+  color: #6c757d;
+}
+
+.gray-box {
+  border: 1px solid #E6E6E6;
+  background-color: #fff;
+}
+
+.gray-box .gray-box-header > img,
+.gray-box .gray-box-header > h6 {
+  display: inline-block;
+}
+
+.bd-callout {
+    padding: 1.25rem;
+    margin-top: 1.25rem;
+    margin-bottom: 1.25rem;
+    border: 1px solid #eee;
+    border-left-width: .25rem;
+    border-radius: .25rem;
+}
+
+.bd-callout-warning {
+    border-left-color: #f0ad4e;
+}
+
+.bd-callout-danger {
+    border-left-color: #d9534f;
+}
+
+.bd-callout h4 {
+    margin-top: 0;
+    margin-bottom: .25rem;
+}
+
+.bd-callout-warning h4 {
+    color: #f0ad4e;
+}
+
+.bd-callout-danger h4 {
+    color: #d9534f;
+}
+
+.bd-callout p:last-child {
+    margin-bottom: 0;
+}
+
+.nav-tabs .nav-link.active {
+    color: #495057;
+    font-weight: 600;
+    background-color: #fff;
+    border-top-width: 3px;
+    border-color: #f0ad4e #dee2e6 #fff;
+}
+
+.dot {
+  height: 5px;
+  width: 5px;
+  background-color: #6c757d;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+hr.dotted {
+	border-top: 1px dashed #aaa;
+}
+
+.divider {
+    margin: 30px 0;
+    height: 1px;
+    background: #b7c9cc;
+    opacity: .5;
+}
+
+
+
+/* colors */
+
+.text-dark-blue {
+  color: 	#002145;
+}
+
+.text-dark-gray {
+  color: #343a40;
+}
+
+.bg-dark-blue {
+  background-color: #002145;
+}
+
+.bg-light-gray {
+  background-color: #E6E6E6;
+}
+
+
+
+/*--------------*/
+
+
+
+
+
+
+
+.job-details .left-content .ta-hours {
+  border: 1px solid #aaa;
+  border-radius: 4px;
+}
+
+.search-field input {
+  margin: 5px 0;
+  padding: 5px;
+  font-size: 0.85rem;
+}
+
+
+
+
+
 .line-height-2 {
   line-height: 2.0;
 }
@@ -60,17 +247,13 @@
   height: 100%;
 }
 
-hr.dotted {
-	border-top: 1px dashed #aaa;
-}
+
 
 .bg-grey {
   background-color: #ccc;
 }
 
-footer {
-  height: 100px;
-}
+
 
 .page-title {
   margin-top: 70px;
@@ -155,12 +338,6 @@ footer {
   float: right;
 }
 
-.navbar {
-  position: fixed;
-  width: 100%;
-  z-index: 100;
-  top: 0;
-}
 
 .filename {
   overflow: clip;
@@ -176,22 +353,7 @@ footer {
   margin-top: 50px;
 }
 
-.bd-callout {
-    padding: 1.25rem;
-    margin-top: 1.25rem;
-    margin-bottom: 1.25rem;
-    border: 1px solid #eee;
-    border-left-width: .25rem;
-    border-radius: .25rem;
-}
 
-.bd-callout-warning {
-    border-left-color: #f0ad4e;
-}
-
-.bd-callout p:last-child {
-    margin-bottom: 0;
-}
 
 .wrapper {
   display: flex;
@@ -296,5 +458,5 @@ footer {
 
 /* Extra large devices (large desktops, 1200px and up) */
 @media (min-width: 1200px) {
-
+  max-width-1340: 1340px;
 }
