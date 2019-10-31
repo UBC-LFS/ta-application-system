@@ -2,7 +2,7 @@
 {% block content %}
 
 {% include 'administrators/_menu.html' %}
-
+{% include 'ta_app/_return_messages.html' with data=messages %}
 <div class="row">
   <div class="col-md-4">
     {% include 'ta_app/pages/_header.html' with title='Edit Session' %}
@@ -12,7 +12,7 @@
         <h4>{{ session.year }} {{ session.term.name }} ({{ session.term.code }})</h4>
         <p>{{ session.title }}</p>
 
-        <a class="btn btn-sm btn-outline-primary" href="{% url 'administrators:show_session' session_slug=session.slug path=path %}">Session Details</a>
+        {% include 'administrators/sessions/_go_back.html' with data=path %}
       </div>
     </div>
 
@@ -27,11 +27,21 @@
     <div class="board">
       <h3>Form</h3>
 
+      <div>
+        <h5>Year:</h5>
+        <span>{{ session.year }}</span>
+      </div>
+
+      <div>
+        <h5>Term:</h5>
+        <span>{{ session.term.code }}</span>
+      </div>
+
       <form action="" method="post">
         {% csrf_token %}
 
         {% for field in form.visible_fields  %}
-          <div class="field-wrapper my-4">
+          <div class="field-wrapper">
             {{ field.label_tag }}
             {% if field.help_text %}
               <div class="help">{{ field.help_text|safe }}</div>
@@ -44,9 +54,7 @@
           {{ field }}
         {% endfor %}
 
-        <input type="hidden" name="path" value="{{ path }}" />
-        
-        <a class="btn btn-outline-primary" href="{% url 'administrators:show_session' session_slug=session.slug path=path %}">Cancel</a>
+        {% include 'administrators/sessions/_go_back.html' with data=path %}
         <input class="btn btn-primary" type="submit" value="Update" />
       </form>
     </div>

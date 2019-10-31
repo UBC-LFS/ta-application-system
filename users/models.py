@@ -154,7 +154,7 @@ class Profile(models.Model):
     ]
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
-    ubc_number = models.CharField(max_length=256, unique=True)
+    student_number = models.CharField(max_length=8, unique=True, null=True, blank=True)
     preferred_name = models.CharField(max_length=256, null=True, blank=True)
     roles = models.ManyToManyField(Role)
 

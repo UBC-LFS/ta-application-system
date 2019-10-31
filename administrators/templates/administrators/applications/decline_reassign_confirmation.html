@@ -48,14 +48,14 @@
             <tr>
               <td>Current:</td>
               <td>{{ app.job.assigned_ta_hours }}</td>
-              <td>{{ app.job.ta_hours }}</td>
+              <td>{{ app.job.accumulated_ta_hours }}</td>
             </tr>
             <tr>
               <td>New:</td>
               <td>{{ app.job.assigned_ta_hours }}</td>
               <td>
                 {{ new_ta_hours }}
-                ({{ app.job.ta_hours }} - {{ old_assigned_hours }} + {{ new_assigned_hours }})
+                ({{ app.job.accumulated_ta_hours }} - {{ old_assigned_hours }} + {{ new_assigned_hours }})
               </td>
             </tr>
           </tbody>

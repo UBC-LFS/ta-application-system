@@ -52,7 +52,13 @@
               {% endfor %}
             </td>
             <td>{{ job.assigned_ta_hours }}</td>
-            <td>{{ job.is_active }}</td>
+            <td>
+              {% if job.is_active %}
+                <span class="badge badge-success">{{ job.is_active }} <i class="fa fa-check-circle" aria-hidden="true"></i></span>
+              {% else %}
+                <span class="badge badge-danger">{{ job.is_active }} <i class="fa fa-stop-circle" aria-hidden="true"></i></span>
+              {% endif %}
+            </td>
             <td>{{ job.created_at }}</td>
             <td>{{ job.updated_at }}</td>
             <td>

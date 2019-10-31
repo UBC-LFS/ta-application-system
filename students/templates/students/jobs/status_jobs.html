@@ -74,8 +74,8 @@
           <td>{{ app.applied.created_at }}</td>
           <td>
             {% if app.offered %}
-              
-              <span class="badge badge-warning">{{ app.offered.get_assigned_display.upper }}</span>
+
+              {% include 'ta_app/applications/_app_status.html' with data=app.offered.get_assigned_display %}
               <small>{{ app.offered.created_at }}</small>
               <div>
                 <span class="font-weight-bold">{{ app.offered.assigned_hours }}</span> hours
@@ -83,8 +83,8 @@
               <a href="{% url 'students:accept_decline_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}">Accept / Decline</a>
 
             {% elif app.accepted %}
-              {{ app.accepted.id }}
-              <span class="badge badge-success">{{ app.accepted.get_assigned_display.upper }}</span>
+
+              {% include 'ta_app/applications/_app_status.html' with data=app.accepted.get_assigned_display %}
               <small>{{ app.accepted.created_at }}</small>
               <div>
                 <span class="font-weight-bold">{{ app.accepted.assigned_hours }}</span> hours
@@ -95,17 +95,19 @@
               {% endif %}
 
             {% elif app.declined %}
-              {{ app.declined.id }}
-              <span class="badge badge-danger">{{ app.declined.get_assigned_display.upper }}</span>
+
+              {% include 'ta_app/applications/_app_status.html' with data=app.declined.get_assigned_display %}
               <small>{{ app.declined.created_at }}</small>
 
             {% elif app.cancelled %}
-              {{ app.cancelled.id }}
-              <span class="badge badge-secondary">{{ app.cancelled.get_assigned_display.upper }}</span>
+
+              {% include 'ta_app/applications/_app_status.html' with data=app.cancelled.get_assigned_display %}
               <small>{{ app.cancelled.created_at }}</small>
 
             {% else %}
-              <span class="badge badge-light">PENDING</span>
+
+              {% include 'ta_app/applications/_app_status.html' with data='None' %}
+
             {% endif %}
 
             {% comment %}

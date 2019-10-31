@@ -13,7 +13,6 @@ from administrators.forms import *
 from administrators import api as adminApi
 from users import api as userApi
 
-
 from datetime import datetime
 
 
@@ -121,22 +120,56 @@ def show_applications(request, session_slug, job_slug):
     if 'Instructor' not in loggedin_user.roles: raise PermissionDenied
 
     if request.method == 'POST':
-        form = InstructorApplicationForm(request.POST)
-        if form.is_valid():
-            application_id = request.POST.get('application')
-            instructor_preference = request.POST.get('instructor_preference')
-            updated_application = adminApi.update_application_instructor_preference(application_id, instructor_preference)
-            if updated_application:
-                messages.success(request, 'Success! {0} is selected.'.format(updated_application.applicant.username))
-                return HttpResponseRedirect( reverse('instructors:show_applications', args=[session_slug, job_slug]) )
+        if request.POST.get('instructor_preference') == Application.NONE:
+            messages.error(request, 'An error occurred. Please select your preference, then try it again.')
+            return HttpResponseRedirect( reverse('instructors:show_applications', args=[session_slug, job_slug]) )
+
+        if float(request.POST.get('assigned_hours')) == 0.0 and request.POST.get('instructor_preference') != Application.NO_PREFERENCE:
+            messages.error(request, 'An error occurred. Please assign TA hours, then try it again.')
+            return HttpResponseRedirect( reverse('instructors:show_applications', args=[session_slug, job_slug]) )
+
+        instructor_app_form = InstructorApplicationForm(request.POST)
+
+        if instructor_app_form.is_valid():
+            app_status_form = ApplicationStatusForm(request.POST)
+
+            if app_status_form.is_valid():
+                app_id = request.POST.get('application')
+                instructor_preference = request.POST.get('instructor_preference')
+
+                updated_app = adminApi.update_application_instructor_preference(app_id, instructor_preference)
+                if updated_app:
+                    updated_status = app_status_form.save()
+                    if updated_status:
+                        messages.success(request, 'Success! {0} is selected.'.format(updated_app.applicant.username))
+                        return HttpResponseRedirect( reverse('instructors:show_applications', args=[session_slug, job_slug]) )
+                    else:
+                        messages.error(request, 'An error occurred while updating an application status.')
+                else:
+                    messages.error(request, 'An error occurred while updating an instructor_preference.')
+
             else:
-                messages.error(request, 'An error occurred while updating an instructor_preference.')
+                errors = instructor_app_form.app_status_form.get_json_data()
+                messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+
         else:
-            errors = form.errors.get_json_data()
+            errors = instructor_app_form.errors.get_json_data()
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+
+        return HttpResponseRedirect( reverse('instructors:show_applications', args=[session_slug, job_slug]) )
+
+    apps = adminApi.get_applications_with_status_by_session_slug_job_slug(session_slug, job_slug)
 
     return render(request, 'instructors/jobs/show_applications.html', {
         'loggedin_user': loggedin_user,
         'job': adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug),
-        'instructor_preference_choices': Application.INSTRUCTOR_PREFERENCE_CHOICES
+        'apps': adminApi.get_applications_with_status_by_session_slug_job_slug(session_slug, job_slug),
+        'instructor_preference_choices': Application.INSTRUCTOR_PREFERENCE_CHOICES,
+        'app_code': {
+            'none': Application.NONE
+        },
+        'app_status_code': {
+            'none': ApplicationStatus.NONE,
+            'selected': ApplicationStatus.SELECTED
+        }
     })

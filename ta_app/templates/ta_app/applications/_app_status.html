@@ -1,0 +1,19 @@
+{% if data == 'Selected' %}
+  <h6><span class="badge badge-warning">{{ data.upper }}</span></h6>
+
+{% elif data == 'Offered' %}
+  <h6><span class="badge badge-primary">{{ data.upper }}</span></h6>
+
+{% elif data == 'Accepted' %}
+  <h6><span class="badge badge-success">{{ data.upper }}</span></h6>
+
+{% elif data == 'Declined' %}
+  <h6><span class="badge badge-danger">{{ data.upper }}</span></h6>
+
+{% elif data == 'Cancelled' %}
+  <h6><span class="badge badge-secondary">{{ data.upper }}</span></h6>
+
+{% else %}
+  <h6><span class="badge badge-light">APPLIED</span></h6>
+
+{% endif %}

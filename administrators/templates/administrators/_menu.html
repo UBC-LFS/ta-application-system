@@ -1,24 +1,14 @@
-<nav class="menu mb-4">
-  <div class="dropdown">
-    <button class="btn btn-sm btn-light dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-      Courses
-    </button>
-    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-      <a class="dropdown-item" href="{% url 'administrators:courses' %}">Courses</a>
-      <a class="dropdown-item" href="{% url 'administrators:create_course' %}">Create Course</a>
-      <a class="dropdown-item" href="{% url 'administrators:all_courses' %}">All Courses</a>
-    </div>
-  </div>
+<nav class="container menu">
 
   <div class="dropdown">
     <button class="btn btn-sm btn-light dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
       Sessions
     </button>
     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-      <a class="dropdown-item" href="{% url 'administrators:sessions' %}">Sessions</a>
-      <a class="dropdown-item" href="{% url 'administrators:create_session' %}">Create Session</a>
+      {% comment %}<a class="dropdown-item" href="{% url 'administrators:sessions' %}">Sessions</a>{% endcomment %}
       <a class="dropdown-item" href="{% url 'administrators:current_sessions' %}">Current Sessions</a>
       <a class="dropdown-item" href="{% url 'administrators:archived_sessions' %}">Archived Sessions</a>
+      <a class="dropdown-item" href="{% url 'administrators:create_session' %}">Create Session</a>
     </div>
   </div>
 
@@ -27,7 +17,7 @@
       Jobs
     </button>
     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-      <a class="dropdown-item" href="{% url 'administrators:jobs' %}">Jobs</a>
+      {% comment %}<a class="dropdown-item" href="{% url 'administrators:jobs' %}">Jobs</a>{% endcomment %}
       <a class="dropdown-item" href="{% url 'administrators:prepare_jobs' %}">Prepare Jobs</a>
       <a class="dropdown-item" href="{% url 'administrators:progress_jobs' %}">Jobs in Progress</a>
       <a class="dropdown-item" href="{% url 'administrators:instructor_jobs' %}">Jobs by Instructor</a>
@@ -40,7 +30,7 @@
       Applications
     </button>
     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-      <a class="dropdown-item" href="{% url 'administrators:applications' %}">Applications</a>
+      {% comment %}<a class="dropdown-item" href="{% url 'administrators:applications' %}">Applications</a>{% endcomment %}
       <a class="dropdown-item" href="{% url 'administrators:applications_dashboard' %}">Dashboard</a>
       <a class="dropdown-item" href="{% url 'administrators:all_applications' %}">All Applications</a>
       <a class="dropdown-item" href="{% url 'administrators:selected_applications' %}">Selected Applications</a>
@@ -56,21 +46,31 @@
       Users
     </button>
     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-      <a class="dropdown-item" href="{% url 'administrators:hr' %}">Users</a>
+      {% comment %}<a class="dropdown-item" href="{% url 'administrators:hr' %}">Users</a>{% endcomment %}
+      <a class="dropdown-item" href="{% url 'administrators:all_users' %}">All Users</a>
       <a class="dropdown-item" href="{% url 'administrators:create_user' %}">Create User</a>
-      <a class="dropdown-item" href="{% url 'administrators:users' %}">All Users</a>
       <a class="dropdown-item" href="{% url 'administrators:trim_users' %}">Trim Users</a>
       <a class="dropdown-item" href="{% url 'administrators:roles' %}">Roles</a>
     </div>
   </div>
 
+  <div class="dropdown">
+    <button class="btn btn-sm btn-light dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      Courses
+    </button>
+    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+      {% comment %}<a class="dropdown-item" href="{% url 'administrators:courses' %}">Courses</a>{% endcomment %}
+      <a class="dropdown-item" href="{% url 'administrators:all_courses' %}">All Courses</a>
+      <a class="dropdown-item" href="{% url 'administrators:create_course' %}">Create Course</a>
+    </div>
+  </div>
 
   <div class="dropdown">
     <button class="btn btn-sm btn-light dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
       Preparation
     </button>
     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-      <a class="dropdown-item" href="{% url 'administrators:preparation' %}">Preparation</a>
+      {% comment %}<a class="dropdown-item" href="{% url 'administrators:preparation' %}">Preparation</a>{% endcomment %}
       <a class="dropdown-item" href="{% url 'administrators:terms' %}">Terms</a>
       <a class="dropdown-item" href="{% url 'administrators:course_codes' %}">Course Codes</a>
       <a class="dropdown-item" href="{% url 'administrators:course_numbers' %}">Course Numbers</a>

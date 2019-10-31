@@ -6,7 +6,7 @@ from django.utils.text import slugify
 
 class Term(models.Model):
     """ Create a Term model """
-    code = models.CharField(max_length=2, unique=True)
+    code = models.CharField(max_length=20, unique=True)
     name = models.CharField(max_length=256)
 
     class Meta:
@@ -106,7 +106,7 @@ class Job(models.Model):
     instructors = models.ManyToManyField(User)
 
     assigned_ta_hours = models.FloatField(default=0.00) # Admins can assign ta hours
-    ta_hours = models.FloatField(default=0.00)          # Add up all student's ta hours
+    accumulated_ta_hours = models.FloatField(default=0.00)          # Add up all student's ta hours
     is_active = models.BooleanField(default=True)
     created_at = models.DateField(default=dt.date.today)
     updated_at = models.DateField(default=dt.date.today)
@@ -169,7 +169,7 @@ class Application(models.Model):
     classification = models.ForeignKey(Classification, on_delete=models.DO_NOTHING, null=True, blank=True)
     note = models.TextField(null=True, blank=True)
 
-    instructor_preference = models.CharField(max_length=1, choices=INSTRUCTOR_PREFERENCE_CHOICES, default='0')
+    instructor_preference = models.CharField(max_length=1, choices=INSTRUCTOR_PREFERENCE_CHOICES, default=NONE)
     is_terminated = models.BooleanField(default=False)
 
     created_at = models.DateField(default=dt.date.today)
@@ -187,11 +187,12 @@ class Application(models.Model):
 class ApplicationStatus(models.Model):
     ''' Application Status '''
     NONE = '0'
-    OFFERED = '1'
-    ACCEPTED = '2'
-    DECLINED = '3'
-    CANCELLED = '4'
-    ASSSIGNED_CHOICES = [(NONE, 'None'), (OFFERED, 'Offered'), (ACCEPTED, 'Accepted'), (DECLINED, 'Declined'), (CANCELLED, 'Cancelled')]
+    SELECTED = '1'
+    OFFERED = '2'
+    ACCEPTED = '3'
+    DECLINED = '4'
+    CANCELLED = '5'
+    ASSSIGNED_CHOICES = [(NONE, 'None'), (SELECTED, 'Selected'), (OFFERED, 'Offered'), (ACCEPTED, 'Accepted'), (DECLINED, 'Declined'), (CANCELLED, 'Cancelled')]
 
     application = models.ForeignKey(Application, on_delete=models.CASCADE)
     assigned = models.CharField(max_length=1, choices=ASSSIGNED_CHOICES, default=NONE)

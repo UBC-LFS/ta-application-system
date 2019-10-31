@@ -36,7 +36,7 @@
         <th data-sortable="true">Last Name</th>
         <th data-sortable="true">Prefered Name</th>
         <th data-sortable="true">CWL</th>
-        <th data-sortable="true">UBC Number</th>
+        <th data-sortable="true">Student Number</th>
         <th data-sortable="true">Email</th>
         <th>Confidentiality</th>
       </tr>
@@ -51,7 +51,7 @@
         <td>{{ user.last_name }}</td>
         <td>{{ user.profile.preferred_name }}</td>
         <td>{{ user.username }}</td>
-        <td>{{ user.profile.ubc_number }}</td>
+        <td>{{ user.profile.student_number }}</td>
         <td>{{ user.email }}</td>
         <td>
           <a href="{% url 'human_resources:view_confidentiality' username=user.username %}">View</a>

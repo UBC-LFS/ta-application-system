@@ -41,7 +41,7 @@
       <div class="tab-pane fade show active" id="nav-basic-info" role="tabpanel" aria-labelledby="nav-basic-info-tab">
         <div class="board">
           <h3>Basic Information</h3>
-          {% include 'ta_app/users/_basic_info.html' with data=user %}
+          {% include 'ta_app/users/_basic_info.html' with data=user student_number_display='True' %}
           <div>
             <h5>User ID:</h5>
             <span class="text-secondary">{{ user.id }}</span>

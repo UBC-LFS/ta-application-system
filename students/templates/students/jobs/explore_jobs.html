@@ -17,14 +17,7 @@
 		</div>
 
 		<div>
-			<h5 class="text-success">Recent Applied Jobs</h5>
-			<ul class="text-secondary">
-				{% for job in applied_jobs %}
-					<li>{{ job.session.year }} {{ job.session.term.code }} - {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</li>
-				{% empty %}
-					<li>No applied jobs found</li>
-				{% endfor %}
-			</ul>
+			{% include 'students/jobs/_recent_applied_jobs.html' with data=applied_jobs %}
 		</div>
 
 	</div>
@@ -37,20 +30,20 @@
 			{% for session in visible_current_sessions %}
 				<div class="gray-box p-3 m-3">
 					<div class="gray-box-header">
-						<img src="{% static 'ta_app/images/UBClogo.jpeg' %}" width="25" alt="logo" />
+						<img src="{% static 'ta_app/images/ubc-logo.jpeg' %}" width="25" alt="logo" />
 						<h6>{{ session.year }} {{ session.term.name }} ({{ session.term.code }})</h6>
 					</div>
 
 					<hr class="mt-3 mb-2" />
 
 					<div>
-						<h5><a href="{% url 'students:available_jobs' session.slug %}">{{ session.title }} (Jobs: {{ session.job_set.count }})</a></h5>
+						<h5><a href="{% url 'students:available_jobs' session.slug %}">{{ session.title }} (Jobs: {{ session.active_jobs.count }})</a></h5>
 						{% if session.description %}
-							<div class="text-secondary">{{ session.description }}</div>
+							<div class="text-secondary">{{ session.description|safe }}</div>
 						{% endif %}
 
 						{% if session.note %}
-							<small class="text-muted">Note: {{ session.note }}</small>
+							<small class="text-muted">Note: {{ session.note|safe }}</small>
 						{% endif %}
 					</div>
 				</div>

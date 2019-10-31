@@ -1,4 +1,8 @@
-<nav class="nav menu mb-4">
-  <a class="nav-link btn btn-sm btn-light" href="{% url 'instructors:show_profile' %}">Profile</a>
-  <a class="nav-link btn btn-sm btn-light" href="{% url 'instructors:show_jobs' %}">Jobs</a>
+<nav class="container menu">
+  <div class="dropdown">
+    <a class="btn btn-sm btn-light dropdown-item" href="{% url 'instructors:show_profile' %}">Profile</a>
+  </div>
+  <div class="dropdown">
+    <a class="btn btn-sm btn-light dropdown-item" href="{% url 'instructors:show_jobs' %}">Jobs</a>
+  </div>
 </nav>

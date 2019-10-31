@@ -9,17 +9,12 @@ from django.db.models import Q
 import shutil
 from PIL import Image
 
-
 from users.models import *
 from users.forms import UserCreateProfileForm
 from datetime import datetime, date, timedelta
 
 # to be removed
 from django.utils.crypto import get_random_string
-
-
-
-
 
 # for auth
 
@@ -142,7 +137,7 @@ def create_user(data):
     )
     if user:
 
-        # data must have ubc_number and roles
+        # data must have student_number and roles
         profile, message = create_profile(user, data)
         if profile:
             return user, None
@@ -154,18 +149,22 @@ def create_user(data):
 def create_profile(user, content):
     ''' Create an user's profile '''
 
-    # content must have ubc_number and roles
+    # content must have student_number and roles
     form = UserCreateProfileForm(content)
     if form.is_valid():
         data = form.cleaned_data
 
-        # TODO: modify ubc_number coming from SAML's data
-        #ubc_number = data['ubc_number']
-        ubc_number = get_random_string(length=9)
+        # TODO: modify student_number coming from SAML's data
+        #student_number = data['student_number']
+        student_number = None
+        if data['student_number']:
+            student_number = data['student_number']
+        else:
+            student_number = get_random_string(length=9)
 
         preferred_name = data['preferred_name']
         roles = data['roles']
-        profile = Profile.objects.create(user_id=user.id, ubc_number=ubc_number, preferred_name=preferred_name, is_trimmed=False)
+        profile = Profile.objects.create(user_id=user.id, student_number=student_number, preferred_name=preferred_name, is_trimmed=False)
         profile.roles.add( *roles )
 
         return profile if profile else False, 'An error occurred while creating a profile. Please contact administrators.'
@@ -398,10 +397,10 @@ def trim_profile(user):
 
 
 def trim_profile(user):
-    ''' Remove user's profile except ubc_number '''
-    ubc_number = user.profile.ubc_number
+    ''' Remove user's profile except student_number '''
+    student_number = user.profile.student_number
     user.profile.delete()
-    profile = Profile.objects.create(user_id=user.id, ubc_number=ubc_number, is_trimmed=True)
+    profile = Profile.objects.create(user_id=user.id, student_number=student_number, is_trimmed=True)
     return profile if profile else False
 
 def trim_profile_resume_confidentiality(user_id):

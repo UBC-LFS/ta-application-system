@@ -10,8 +10,7 @@
     <div class="bg-prompt">
       <div class="prompt p-4 mb-4">
         <h4>{{ session.year }} {{ session.term.name }} ({{ session.term.code }})</h4>
-        
-        <a class="btn btn-sm btn-warning" href="{% url 'administrators:edit_session' session_slug=session.slug path=path %}">Edit Session</a>
+
         {% include 'administrators/sessions/_go_back.html' with data=path %}
       </div>
     </div>
@@ -39,7 +38,7 @@
 
     <br />
 
-    <table class="table">
+    <table class="table font-size-1">
       <tr>
         <td>Created at:</td>
         <td>{{ session.created_at }}</td>
@@ -106,6 +105,8 @@
         <th data-sortable="true">Term</th>
         <th data-sortable="true">Job</th>
         <th data-sortable="true">Instructors</th>
+        <th data-sortable="true">Assigned<br /> TA Hours</th>
+        <th data-sortable="true">Accumulated<br /> TA Hours</th>
         <th data-sortable="true">Is active</th>
         <th data-sortable="true">Created at</th>
         <th data-sortable="true">Updated at</th>
@@ -128,7 +129,15 @@
               None
             {% endfor %}
           </td>
-          <td>{{ job.is_active }}</td>
+          <td>{{ job.assigned_ta_hours }}</td>
+          <td>{{ job.accumulated_ta_hours }}</td>
+          <td>
+            {% if job.is_active %}
+              <span class="badge badge-success">{{ job.is_active }} <i class="fa fa-check-circle" aria-hidden="true"></i></span>
+            {% else %}
+              <span class="badge badge-danger">{{ job.is_active }} <i class="fa fa-stop-circle" aria-hidden="true"></i></span>
+            {% endif %}
+          </td>
           <td>{{ job.created_at }}</td>
           <td>{{ job.updated_at }}</td>
         </tr>

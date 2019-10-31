@@ -445,7 +445,7 @@ def available_jobs(request, session_slug):
 
     return render(request, 'students/jobs/available_jobs.html', {
         'loggedin_user': loggedin_user,
-        'session': adminApi.get_session_by_slug(session_slug),
+        #'session': adminApi.get_session_by_slug(session_slug),
         'jobs': adminApi.get_available_jobs_to_apply(loggedin_user, session_slug),
         'applied_jobs': adminApi.get_jobs_applied_by_student(loggedin_user).order_by('-created_at')[:10]
     })
@@ -574,7 +574,7 @@ def accept_offer(request, session_slug, job_slug):
             status = form.save()
             if status:
                 app = adminApi.get_application(app_id)
-                updated = adminApi.update_job_ta_hours(session_slug, job_slug, assigned_hours)
+                updated = adminApi.update_job_accumulated_ta_hours(session_slug, job_slug, assigned_hours)
                 if updated:
                     messages.success(request, 'Success! You accepted the job offer - {0} {1}: {2} {3} {4} '.format(app.job.session.year, app.job.session.term.code, app.job.course.code.name, app.job.course.number.name, app.job.course.section.name))
                 else:

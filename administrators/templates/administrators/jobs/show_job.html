@@ -13,7 +13,6 @@
         <p>{{ job.session.title }}</p>
 
         {% include 'administrators/jobs/_go_back.html' with data=path %}
-        <a class="btn btn-sm btn-success" href="{% url 'administrators:edit_job' session_slug=job.session.slug job_slug=job.course.slug %}">Edit Job</a>
       </div>
     </div>
 
@@ -31,7 +30,7 @@
           <i class="fa fa-star-o" aria-hidden="true"></i> Accumulated TA hours
           <i class="fa fa-star-o" aria-hidden="true"></i>
         </h5>
-        <h3 class="font-weight-bold">{{ job.ta_hours }} hours</h3>
+        <h3 class="font-weight-bold">{{ job.accumulated_ta_hours }} hours</h3>
       </div>
     </div>
 

@@ -11,7 +11,7 @@
       <div class="prompt p-4 mb-4">
 				<h4>Current Users</h4>
 				<p>There are <span class="font-weight-bold">{{ users|length }}</span> users.</p>
-				<a class="btn btn-sm btn-outline-primary" href="{% url 'administrators:users' %}">All Users</a>
+				<a class="btn btn-sm btn-outline-primary" href="{% url 'administrators:all_users' %}">All Users</a>
       </div>
     </div>
   </div>
@@ -19,12 +19,12 @@
   <div class="col-md-8">
 		<div class="board">
 			<h3>Form</h3>
-			
+
 			<form action="" method="post">
 				{% csrf_token %}
 
 				{% for field in form.visible_fields  %}
-					<div class="field-wrapper my-4">
+					<div class="field-wrapper">
 						{{ field.label_tag }}
 						{% if field.help_text %}
 							<div class="help">{{ field.help_text|safe }}</div>
@@ -33,21 +33,25 @@
 					</div>
 				{% endfor %}
 
-				{% for field in form.hidden_fields %}
+				{% for field in user_profile_form.hidden_fields %}
 					{{ field }}
 				{% endfor %}
 
-				<div class="field-wrapper my-4">
-					<label for="id_preferred_name">Preferred Name (Optional):</label>
-					<input type="text" name="preferred_name" id="id_preferred_name" />
-				</div>
+        {% for field in user_profile_form.visible_fields  %}
+					<div class="field-wrapper">
+						{{ field.label_tag }}
+						{% if field.help_text %}
+							<div class="help">{{ field.help_text|safe }}</div>
+						{% endif %}
+						{{ field }}
+					</div>
+				{% endfor %}
 
-				<div class="field-wrapper my-4">
-					<label for="id_ubc_number">UBC Number:</label>
-					<input type="text" name="ubc_number" id="id_ubc_number" />
-				</div>
+				{% for field in user_profile_form.hidden_fields %}
+					{{ field }}
+				{% endfor %}
 
-				<div class="field-wrapper my-4">
+				<div class="field-wrapper">
 					<label for="id_roles">Roles:</label>
 					{% for role in roles %}
 						<div>

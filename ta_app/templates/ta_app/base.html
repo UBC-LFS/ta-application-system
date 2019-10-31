@@ -52,6 +52,8 @@
 	    					Hi, {{ loggedin_user.username }}
 	  					</button>
 	  					<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+								<div class="dropdown-item text-info">Status</div>
+								<hr class="dotted" />
 						  	{% for role in loggedin_user.roles %}
 									<div class="dropdown-item">{{ role }}</div>
 								{% endfor %}
@@ -67,7 +69,7 @@
 	</header>
 
 	<main class="mb-5">
-		<div class="container">
+		<div class="container max-width-container">
 			{% block content %}{% endblock %}
 		</div>
 	</main>

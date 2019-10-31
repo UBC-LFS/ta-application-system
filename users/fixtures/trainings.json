@@ -3,40 +3,32 @@
     "model": "users.training",
     "pk": 1,
     "fields": {
-      "name": "NA",
-      "slug": "na"
+      "name": "Preventing and Addressing Workplace Bullying and Harassment Training",
+      "slug": "preventing-and-addressing-workplace-bullying-and-harassment-training"
     }
   },
   {
     "model": "users.training",
     "pk": 2,
     "fields": {
-      "name": "Instructional Skills Workshops for Grad Students",
-      "slug": "instructional-skills-workshops-for-grad-students"
+      "name": "Workplace Violence Prevention Training",
+      "slug": "workplace-violence-prevention-training"
     }
   },
   {
     "model": "users.training",
     "pk": 3,
     "fields": {
-      "name": "Background to Educational Leadership",
-      "slug": "background-to-educational-leadership"
+      "name": "Privacy and Information Security Training",
+      "slug": "privacy-and-information-security-training"
     }
   },
   {
     "model": "users.training",
     "pk": 4,
     "fields": {
-      "name": "An Educational Leadership Mapping (ELM) tool for teaching and educational leadership",
-      "slug": "an-educational-leadership-mapping-elm-tool-for-teaching-and-educational-leadership"
-    }
-  },
-  {
-    "model": "users.training",
-    "pk": 5,
-    "fields": {
-      "name": "Teaching in a Blended Learning Environment (T-BLE)",
-      "slug": "teaching-in-a-blended-learning-environment-t-ble"
+      "name": "New Worker Safety Orientation ",
+      "slug": "new-worker-safety-orientation"
     }
   }
 ]

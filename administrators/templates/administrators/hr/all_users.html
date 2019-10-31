@@ -37,7 +37,7 @@
           <th data-sortable="true">Last<br /> Name</th>
           <th data-sortable="true">Prefered<br /> Name</th>
           <th data-sortable="true">CWL</th>
-          <th data-sortable="true">UBC Number</th>
+          <th data-sortable="true">Student Number</th>
           <th data-sortable="true">E-mail</th>
           <th data-sortable="true">Role</th>
           <th>Confidentiality</th>
@@ -54,7 +54,7 @@
             <td>{{ user.last_name }}</td>
             <td>{{ user.profile.preferred_name }}</td>
             <td>{{ user.username }}</td>
-            <td>{{ user.profile.ubc_number }}</td>
+            <td>{{ user.profile.student_number }}</td>
             <td>{{ user.email }}</td>
             <td>
               {% for role in user.profile.roles.all %}

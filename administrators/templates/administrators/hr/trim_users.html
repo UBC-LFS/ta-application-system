@@ -38,7 +38,7 @@
             <th data-sortable="true">User ID</th>
             <th data-sortable="true">Full Name</th>
             <th data-sortable="true">CWL</th>
-            <th data-sortable="true">UBC Number</th>
+            <th data-sortable="true">Student Number</th>
             <th data-sortable="true">Role</th>
             <th data-sortable="true">Date Joined</th>
             <th data-sortable="true">Last Login</th>
@@ -55,7 +55,7 @@
               </td>
               <td>{{ user.get_full_name }}</td>
               <td>{{ user.username }}</td>
-              <td>{{ user.profile.ubc_number }}</td>
+              <td>{{ user.profile.student_number }}</td>
               <td>{% for role in user.profile.roles.all %} {{ role.name }}, {% endfor %}</td>
               <td>{{ user.date_joined }}</td>
               <td>{{ user.last_login }}</td>

@@ -4,7 +4,7 @@
     "pk": 1,
     "fields": {
       "user_id": 1,
-      "ubc_number": "123456789",
+      "student_number": null,
       "preferred_name": null,
       "qualifications": null,
       "prior_employment": null,
@@ -28,7 +28,7 @@
     "pk": 2,
     "fields": {
       "user_id": 2,
-      "ubc_number": "223456789",
+      "student_number": null,
       "preferred_name": null,
       "qualifications": null,
       "prior_employment": null,
@@ -52,7 +52,7 @@
     "pk": 3,
     "fields": {
       "user_id": 3,
-      "ubc_number": "323456789",
+      "student_number": null,
       "preferred_name": null,
       "qualifications": null,
       "prior_employment": null,
@@ -76,7 +76,7 @@
     "pk": 4,
     "fields": {
       "user_id": 4,
-      "ubc_number": "423456789",
+      "student_number": null,
       "preferred_name": null,
       "qualifications": null,
       "prior_employment": null,
@@ -100,7 +100,7 @@
     "pk": 5,
     "fields": {
       "user_id": 5,
-      "ubc_number": "523456789",
+      "student_number": null,
       "preferred_name": null,
       "qualifications": null,
       "prior_employment": null,
@@ -124,7 +124,7 @@
     "pk": 6,
     "fields": {
       "user_id": 6,
-      "ubc_number": "623456789",
+      "student_number": null,
       "preferred_name": null,
       "qualifications": null,
       "prior_employment": null,
@@ -148,7 +148,7 @@
     "pk": 7,
     "fields": {
       "user_id": 7,
-      "ubc_number": "723456789",
+      "student_number": null,
       "preferred_name": null,
       "qualifications": null,
       "prior_employment": null,
@@ -172,7 +172,7 @@
     "pk": 8,
     "fields": {
       "user_id": 8,
-      "ubc_number": "823456789",
+      "student_number": null,
       "preferred_name": null,
       "qualifications": null,
       "prior_employment": null,
@@ -196,7 +196,7 @@
     "pk": 9,
     "fields": {
       "user_id": 9,
-      "ubc_number": "923456789",
+      "student_number": "23456789",
       "preferred_name": null,
       "qualifications": null,
       "prior_employment": null,
@@ -220,7 +220,7 @@
     "pk": 10,
     "fields": {
       "user_id": 10,
-      "ubc_number": "123456780",
+      "student_number": "12145678",
       "preferred_name": null,
       "qualifications": null,
       "prior_employment": null,
@@ -244,7 +244,7 @@
     "pk": 11,
     "fields": {
       "user_id": 11,
-      "ubc_number": "123456781",
+      "student_number": "13456781",
       "preferred_name": null,
       "qualifications": null,
       "prior_employment": null,
@@ -268,7 +268,7 @@
     "pk": 12,
     "fields": {
       "user_id": 12,
-      "ubc_number": "123456782",
+      "student_number": "23456782",
       "preferred_name": null,
       "qualifications": null,
       "prior_employment": null,
@@ -292,7 +292,7 @@
     "pk": 13,
     "fields": {
       "user_id": 13,
-      "ubc_number": "123456783",
+      "student_number": "12346783",
       "preferred_name": null,
       "qualifications": null,
       "prior_employment": null,
@@ -316,7 +316,7 @@
     "pk": 14,
     "fields": {
       "user_id": 14,
-      "ubc_number": "123456784",
+      "student_number": "12346784",
       "preferred_name": null,
       "qualifications": null,
       "prior_employment": null,
@@ -340,7 +340,7 @@
     "pk": 15,
     "fields": {
       "user_id": 15,
-      "ubc_number": "123456785",
+      "student_number": "12345685",
       "preferred_name": null,
       "qualifications": null,
       "prior_employment": null,
@@ -364,7 +364,7 @@
     "pk": 16,
     "fields": {
       "user_id": 16,
-      "ubc_number": "1234567896",
+      "student_number": "12367896",
       "preferred_name": null,
       "qualifications": null,
       "prior_employment": null,
@@ -388,7 +388,7 @@
     "pk": 17,
     "fields": {
       "user_id": 17,
-      "ubc_number": "22345678917",
+      "student_number": "45678917",
       "preferred_name": null,
       "qualifications": null,
       "prior_employment": null,
@@ -412,7 +412,7 @@
     "pk": 18,
     "fields": {
       "user_id": 18,
-      "ubc_number": "32345678918",
+      "student_number": "32345678",
       "preferred_name": null,
       "qualifications": null,
       "prior_employment": null,
@@ -436,7 +436,7 @@
     "pk": 19,
     "fields": {
       "user_id": 19,
-      "ubc_number": "42345678919",
+      "student_number": "42345678",
       "preferred_name": null,
       "qualifications": null,
       "prior_employment": null,
@@ -460,7 +460,7 @@
     "pk": 20,
     "fields": {
       "user_id": 20,
-      "ubc_number": "52345678920",
+      "student_number": "52345678",
       "preferred_name": null,
       "qualifications": null,
       "prior_employment": null,
@@ -484,7 +484,7 @@
     "pk": 21,
     "fields": {
       "user_id": 21,
-      "ubc_number": "62345678921",
+      "student_number": "62345678",
       "preferred_name": null,
       "qualifications": null,
       "prior_employment": null,
@@ -508,7 +508,7 @@
     "pk": 22,
     "fields": {
       "user_id": 22,
-      "ubc_number": "72345678922",
+      "student_number": "72345678",
       "preferred_name": null,
       "qualifications": null,
       "prior_employment": null,
@@ -532,7 +532,7 @@
     "pk": 23,
     "fields": {
       "user_id": 23,
-      "ubc_number": "82345678923",
+      "student_number": "82345678",
       "preferred_name": null,
       "qualifications": null,
       "prior_employment": null,
@@ -556,7 +556,7 @@
     "pk": 24,
     "fields": {
       "user_id": 24,
-      "ubc_number": "92345678924",
+      "student_number": "92345678",
       "preferred_name": null,
       "qualifications": null,
       "prior_employment": null,
@@ -580,7 +580,7 @@
     "pk": 25,
     "fields": {
       "user_id": 25,
-      "ubc_number": "12345678025",
+      "student_number": "12345025",
       "preferred_name": null,
       "qualifications": null,
       "prior_employment": null,
@@ -604,7 +604,7 @@
     "pk": 26,
     "fields": {
       "user_id": 26,
-      "ubc_number": "12345678126",
+      "student_number": "12345678",
       "preferred_name": null,
       "qualifications": null,
       "prior_employment": null,
@@ -628,7 +628,7 @@
     "pk": 27,
     "fields": {
       "user_id": 27,
-      "ubc_number": "12345678227",
+      "student_number": "45678227",
       "preferred_name": null,
       "qualifications": null,
       "prior_employment": null,
@@ -652,7 +652,7 @@
     "pk": 28,
     "fields": {
       "user_id": 28,
-      "ubc_number": "12345678283",
+      "student_number": "45678283",
       "preferred_name": null,
       "qualifications": null,
       "prior_employment": null,
@@ -676,7 +676,7 @@
     "pk": 29,
     "fields": {
       "user_id": 29,
-      "ubc_number": "12345678429",
+      "student_number": "45678429",
       "preferred_name": "haha",
       "qualifications": "qual",
       "prior_employment": "none",
@@ -700,7 +700,7 @@
     "pk": 30,
     "fields": {
       "user_id": 30,
-      "ubc_number": "12345678530",
+      "student_number": "45678530",
       "preferred_name": "hoho",
       "qualifications": "qualifications",
       "prior_employment": "prior_employment",

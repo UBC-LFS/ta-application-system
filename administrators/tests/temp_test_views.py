@@ -343,7 +343,7 @@ class JobTest(TestCase):
 
             self.assertEqual(get_accepted.assigned, ApplicationStatus.ACCEPTED)
             self.assertEqual(get_accepted.assigned_hours, 30.0)
-            self.assertEqual(application.job.ta_hours, 30.0)
+            self.assertEqual(application.job.accumulated_ta_hours, 30.0)
             self.assertFalse(get_declined)
 
 
@@ -404,7 +404,7 @@ class JobTest(TestCase):
             get_declined  = response.context['get_declined']
 
             self.assertFalse(get_accepted)
-            self.assertEqual(application.job.ta_hours, 0.0)
+            self.assertEqual(application.job.accumulated_ta_hours, 0.0)
 
             self.assertEqual(get_declined.assigned, ApplicationStatus.DECLINED)
             self.assertEqual(get_declined.assigned_hours, 0.0)

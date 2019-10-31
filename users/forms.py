@@ -47,16 +47,6 @@ class StatusForm(forms.ModelForm):
             'name': forms.TextInput(attrs={ 'class':'form-control' })
         }
 
-"""
-class UserInfoForm(forms.ModelForm):
-    class Meta:
-        model = User
-        fields = ['first_name', 'last_name']
-        widgets = {
-            'first_name': forms.TextInput(attrs={'required': True}),
-            'last_name': forms.TextInput(attrs={'required': True})
-        }
-"""
 
 class UserForm(forms.ModelForm):
     ''' User model form '''
@@ -66,17 +56,36 @@ class UserForm(forms.ModelForm):
         labels = { 'email': 'Email', 'username': 'CWL' }
         help_texts = { 'username': None }
         widgets = {
-            'first_name': forms.TextInput(attrs={'required': True}),
-            'last_name': forms.TextInput(attrs={'required': True}),
-            'email': forms.EmailInput(attrs={'required': True}),
-            'username': forms.TextInput(attrs={'required': True}),
+            'first_name': forms.TextInput(attrs={ 'required': True, 'class': 'form-control' }),
+            'last_name': forms.TextInput(attrs={ 'required': True, 'class': 'form-control' }),
+            'email': forms.EmailInput(attrs={ 'required': True, 'class': 'form-control' }),
+            'username': forms.TextInput(attrs={ 'required': True, 'class': 'form-control' }),
         }
+
+class UserProfileForm(forms.ModelForm):
+
+    class Meta:
+        model = Profile
+        fields = [ 'student_number', 'preferred_name']
+        labels = { 
+            'student_number': 'Student Number', 
+            'preferred_name': 'Preferred Name' 
+        }
+        help_texts = { 
+            'student_number': 'The use of a Student Number is optional',
+            'preferred_name': 'The use of a Preferred Name is optional',
+        }
+        widgets = {
+            'student_number': forms.TextInput(attrs={ 'class': 'form-control' }),
+            'preferred_name': forms.TextInput(attrs={ 'class': 'form-control' })
+        }
+    
 
 class UserCreateProfileForm(forms.ModelForm):
     ''' To check a profile while creating a user '''
     class Meta:
         model = Profile
-        fields = ['preferred_name', 'ubc_number', 'roles']
+        fields = ['preferred_name', 'student_number', 'roles']
 
 
 class ConfidentialityCheckForm(forms.ModelForm):
@@ -185,7 +194,7 @@ class ProfileRoleForm(forms.ModelForm):
         }
 
 
-#checked
+"""
 class ProfileForm(forms.ModelForm):
     roles = forms.ModelMultipleChoiceField(
         required=False,
@@ -226,10 +235,18 @@ class ProfileForm(forms.ModelForm):
                 'status', 'program', 'graduation_date', 'degrees', 'trainings',
                 'lfs_ta_training', 'lfs_ta_training_details', 'ta_experience',
                 'ta_experience_details']
+"""
+
 
 class StudentProfileForm(forms.ModelForm):
     ''' This is a model form for student profile '''
     date = datetime.now()
+
+    student_number = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={ 'class':'form-control' }),
+        label='Student Number'
+    )
 
     preferred_name = forms.CharField(
         required=False,
@@ -259,7 +276,7 @@ class StudentProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
         fields = [
-            'preferred_name', 'qualifications','prior_employment', 'special_considerations',
+            'student_number', 'preferred_name', 'qualifications','prior_employment', 'special_considerations',
             'status', 'program', 'program_others','graduation_date', 'degrees', 'degree_details', 'trainings',
             'training_details', 'lfs_ta_training', 'lfs_ta_training_details', 'ta_experience',
             'ta_experience_details'
@@ -300,7 +317,7 @@ class StudentProfileForm(forms.ModelForm):
         }
 
     field_order = [
-        'preferred_name', 'status', 'program', 'program_others','graduation_date',
+        'student_number', 'preferred_name', 'status', 'program', 'program_others','graduation_date',
         'degrees', 'degree_details', 'trainings', 'training_details',
         'lfs_ta_training', 'lfs_ta_training_details', 'ta_experience','ta_experience_details',
         'qualifications','prior_employment', 'special_considerations'

@@ -1,5 +1,9 @@
 <button class="btn btn-sm btn-info" type="button" data-toggle="modal" data-target="#app-details-modal-{{ data.id }}">
-  <i class="fa fa-file-text-o" aria-hidden="true"></i>
+  {% if display == 'id' %}
+    {{ data.id }}
+  {% else %}
+    <i class="fa fa-file-text-o" aria-hidden="true"></i>
+  {% endif %}
 </button>
 
 <div class="modal fade" id="app-details-modal-{{ data.id }}" tabindex="-1" role="dialog" aria-labelledby="app-details-modal-label-{{ data.id }}" aria-hidden="true">
@@ -12,7 +16,14 @@
       <div class="modal-body text-left">
         <div class="board">
           <h3>Details</h3>
-          <p class="text-secondary">User: {{ data.applicant.get_full_name }} ({{ data.applicant.username }})</p>
+
+          <div>
+            <h5>
+              User:
+              <span>{{ data.applicant.get_full_name }} ({{ data.applicant.username }})</span>
+            </h5>
+          </div>
+
           {% include 'ta_app/applications/_app_details.html' with data=data %}
         </div>
       </div>

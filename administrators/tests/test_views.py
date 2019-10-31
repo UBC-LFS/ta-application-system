@@ -38,6 +38,188 @@ DATA = [
 ]
 
 
+
+class SessionTest(TestCase):
+    fixtures = DATA
+
+    @classmethod
+    def setUpTestData(cls):
+        print('\nAdministrators:Session testing has started ==>')
+        cls.user = userApi.get_user_by_username('admin')
+
+    def login(self, username=None, password=None):
+        if username and password:
+            self.client.post(LOGIN_URL, data={'username': username, 'password': password})
+        else:
+            self.client.post(LOGIN_URL, data={'username': self.user.username, 'password': self.user.password})
+
+    def messages(self, res):
+        return [m.message for m in get_messages(res.wsgi_request)]
+
+    def test_view_url_exists_at_desired_location(self):
+        self.login()
+        response = self.client.get( reverse('administrators:sessions') )
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get( reverse('administrators:current_sessions') )
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get( reverse('administrators:archived_sessions') )
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get( reverse('administrators:create_session') )
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get( reverse('administrators:create_session_confirmation') )
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get( reverse('administrators:show_session', args=['2019-w1', 'current']) )
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get( reverse('administrators:edit_session', args=['2019-w1', 'current']) )
+        self.assertEqual(response.status_code, 200)
+
+    def test_create_session(self):
+        print('\n- Test: create a session')
+        self.login()
+        data = {
+            'year': '2020',
+            'term': '2',
+            'title': 'New TA Application',
+            'description': 'new description',
+            'note': 'new note'
+        }
+        total_sessions = len( adminApi.get_sessions() )
+        sessions = adminApi.get_sessions_by_year(data['year'])
+        self.assertEqual( sessions.count(), 0 )
+
+        response = self.client.post(reverse('administrators:create_session'), data=urlencode(data), content_type=ContentType)
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+        response = self.client.get(response.url)
+        self.assertEqual( len(response.context['error_messages']), 0)
+        session = self.client.session
+        self.assertEqual(session['session_form_data'], data)
+        self.assertEqual(response.context['courses'].count(), 6)
+
+        data['courses'] = [ str(course.id) for course in response.context['courses'] ]
+        data['is_visible'] = False
+        data['is_archived'] = False
+        response = self.client.post(reverse('administrators:create_session_confirmation'), data=urlencode(data, True), content_type=ContentType)
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+        sessions = adminApi.get_sessions_by_year(data['year'])
+        self.assertEqual( sessions.count(), 1 )
+        self.assertEqual( len(adminApi.get_sessions()), total_sessions + 1 )
+        self.assertEqual(sessions[0].year, data['year'])
+        self.assertEqual(sessions[0].term.code, 'W1')
+        self.assertEqual(sessions[0].term.name, 'Winter Term 1')
+        self.assertEqual(sessions[0].title, data['title'])
+        self.assertEqual(sessions[0].description, data['description'])
+        self.assertEqual(sessions[0].is_visible, data['is_visible'])
+        self.assertEqual(sessions[0].is_archived, data['is_archived'])
+        self.assertEqual(sessions[0].job_set.count(), 6)
+
+
+    def test_create_existing_session(self):
+        print('\n- Test: create an existing session for checking duplicates')
+        self.login()
+
+        data = {
+            'year': '2019',
+            'term': '2',
+            'title': 'New TA Application',
+            'description': 'new description',
+            'note': 'new note'
+        }
+        response = self.client.post(reverse('administrators:create_session'), data=urlencode(data), content_type=ContentType)
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+        response = self.client.get(response.url)
+        self.assertEqual(response.context['error_messages'], ['Session with this Year and Term already exists.'])
+
+    def test_delete_session(self):
+        print('\n- Test: delete a session')
+        self.login()
+        session_id = '6'
+        data = { 'session': session_id }
+        response = self.client.post(reverse('administrators:delete_session', args=['current']), data=urlencode(data), content_type=ContentType)
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+        self.assertFalse( adminApi.session_exists(session_id) )
+
+
+    def test_delete_not_existing_sessinon(self):
+        print('\n- Test: delete a not existing session')
+        self.login()
+
+        data = { 'session': '1000' }
+        response = self.client.post(reverse('administrators:delete_session', args=['current']), data=urlencode(data), content_type=ContentType)
+        self.assertEqual(response.status_code, 404)
+
+
+    def test_edit_session(self):
+        print('\n- Test: edit a session')
+        self.login()
+        session_id = '6'
+        session = adminApi.get_session(session_id)
+        courses = adminApi.get_courses_by_term('6')
+        data = {
+            'session': session_id,
+            'year': '2019',
+            'term': '6',
+            'title': 'Edited TA Application',
+            'description': 'Edited description',
+            'note': 'Edited note',
+            'is_visible': 'True',
+            'courses': [ str(courses[0].id), str(courses[1].id) ]
+        }
+
+        response = self.client.post(reverse('administrators:edit_session', args=[session.slug, 'current']), data=urlencode(data, True), content_type=ContentType)
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+        updated_session = adminApi.get_session(session_id)
+        self.assertEqual( updated_session.id, int(data['session']) )
+        self.assertEqual( updated_session.year, data['year'] )
+        self.assertEqual( updated_session.title, data['title'] )
+        self.assertEqual( updated_session.description, data['description'] )
+        self.assertEqual( updated_session.note, data['note'] )
+        self.assertEqual( updated_session.is_visible, eval(data['is_visible']) )
+        self.assertEqual( updated_session.job_set.count(), len(data['courses']) )
+
+    def test_edit_not_existing_session(self):
+        print('\n- Test: edit a not existing session')
+        self.login()
+
+        session_id = '1116'
+        data = {
+            'session': session_id,
+            'year': '2019',
+            'term': '6',
+            'title': 'Edited TA Application',
+            'description': 'Edited description',
+            'note': 'Edited note',
+            'is_visible': 'True',
+            'courses': []
+        }
+
+        response = self.client.post(reverse('administrators:edit_session', args=['2019-w9', 'current']), data=urlencode(data, True), content_type=ContentType)
+        self.assertEqual(response.status_code, 404)
+
+
+
+
+
 class HRTest(TestCase):
     fixtures = DATA
 
@@ -61,7 +243,7 @@ class HRTest(TestCase):
         response = self.client.get( reverse('administrators:hr') )
         self.assertEqual(response.status_code, 302)
 
-        response = self.client.get( reverse('administrators:users') )
+        response = self.client.get( reverse('administrators:all_users') )
         self.assertEqual(response.status_code, 302)
 
         response = self.client.get( reverse('administrators:create_user') )
@@ -78,7 +260,7 @@ class HRTest(TestCase):
         response = self.client.get( reverse('administrators:hr') )
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get( reverse('administrators:users') )
+        response = self.client.get( reverse('administrators:all_users') )
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get( reverse('administrators:create_user') )
@@ -93,7 +275,7 @@ class HRTest(TestCase):
     def test_get_users(self):
         print('\n- Test: get all users')
         self.login()
-        response = self.client.get(reverse('administrators:users'))
+        response = self.client.get(reverse('administrators:all_users'))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.context['users']), 30)
 
@@ -129,7 +311,7 @@ class HRTest(TestCase):
             'username': 'test.user100',
             'password': '12',
             'preferred_name': None,
-            'ubc_number': '12345678',
+            'student_number': '12345678',
             'roles': ['1']
         }
 
@@ -156,7 +338,7 @@ class HRTest(TestCase):
             'username': 'test.user5',
             'password': '12',
             'preferred_name': None,
-            'ubc_number': '12345678',
+            'student_number': '12345678',
             'roles': ['1']
         }
 
@@ -170,7 +352,7 @@ class HRTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, response.url)
 
-        # Check UBC number
+        # Check Student Number
         data = {
             'first_name': 'test555',
             'last_name': 'user555',
@@ -178,7 +360,7 @@ class HRTest(TestCase):
             'username': 'test.user555',
             'password': '12',
             'preferred_name': None,
-            'ubc_number': '123456780',
+            'student_number': '123456780',
             'roles': ['1']
         }
         self.assertFalse(userApi.username_exists(data['username']))
@@ -199,7 +381,7 @@ class HRTest(TestCase):
             'username': 'test.user55',
             'password': '12',
             'preferred_name': None,
-            'ubc_number': '12345678',
+            'student_number': '12345678',
             'roles': ['1']
         }
         self.assertFalse(userApi.username_exists(data['username']))
@@ -269,7 +451,7 @@ class HRTest(TestCase):
         user_first_role = user.profile.roles.all()[0]
         self.assertEqual(user_first_role.name, Role.STUDENT)
 
-        response = self.client.post(reverse('administrators:users'), data=urlencode({ 'user': user.id, 'roles': ['2', '3'] }, True), content_type=ContentType)
+        response = self.client.post(reverse('administrators:all_users'), data=urlencode({ 'user': user.id, 'roles': ['2', '3'] }, True), content_type=ContentType)
         messages = self.messages(response)
         self.assertTrue('Success' in messages[0])
         self.assertEqual(response.status_code, 302)
@@ -283,7 +465,7 @@ class HRTest(TestCase):
         user_first_role = user.profile.roles.all()[0]
         self.assertEqual(user_first_role.name, Role.STUDENT)
 
-        response = self.client.post(reverse('administrators:users'), data=urlencode({ 'roles': ['2', '3'] }, True), content_type=ContentType)
+        response = self.client.post(reverse('administrators:all_users'), data=urlencode({ 'roles': ['2', '3'] }, True), content_type=ContentType)
         self.assertEqual(response.status_code, 404)
 
 
@@ -499,182 +681,6 @@ class CourseTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, response.url)
 
-class SessionTest(TestCase):
-    fixtures = DATA
-
-    @classmethod
-    def setUpTestData(cls):
-        print('\nAdministrators:Session testing has started ==>')
-        cls.user = userApi.get_user_by_username('admin')
-
-    def login(self, username=None, password=None):
-        if username and password:
-            self.client.post(LOGIN_URL, data={'username': username, 'password': password})
-        else:
-            self.client.post(LOGIN_URL, data={'username': self.user.username, 'password': self.user.password})
-
-    def messages(self, res):
-        return [m.message for m in get_messages(res.wsgi_request)]
-
-    def test_view_url_exists_at_desired_location(self):
-        self.login()
-        response = self.client.get( reverse('administrators:sessions') )
-        self.assertEqual(response.status_code, 200)
-
-        response = self.client.get( reverse('administrators:current_sessions') )
-        self.assertEqual(response.status_code, 200)
-
-        response = self.client.get( reverse('administrators:archived_sessions') )
-        self.assertEqual(response.status_code, 200)
-
-        response = self.client.get( reverse('administrators:create_session') )
-        self.assertEqual(response.status_code, 200)
-
-        response = self.client.get( reverse('administrators:create_session_confirmation') )
-        self.assertEqual(response.status_code, 200)
-
-        response = self.client.get( reverse('administrators:show_session', args=['2019-w1', 'current']) )
-        self.assertEqual(response.status_code, 200)
-
-        response = self.client.get( reverse('administrators:edit_session', args=['2019-w1', 'current']) )
-        self.assertEqual(response.status_code, 200)
-
-    def test_create_session(self):
-        print('\n- Test: create a session')
-        self.login()
-        data = {
-            'year': '2020',
-            'term': '2',
-            'title': 'New TA Application',
-            'description': 'new description',
-            'note': 'new note'
-        }
-        total_sessions = len( adminApi.get_sessions() )
-        sessions = adminApi.get_sessions_by_year(data['year'])
-        self.assertEqual( sessions.count(), 0 )
-
-        response = self.client.post(reverse('administrators:create_session'), data=urlencode(data), content_type=ContentType)
-        self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, response.url)
-
-        response = self.client.get(response.url)
-        self.assertEqual( len(response.context['error_messages']), 0)
-        session = self.client.session
-        self.assertEqual(session['session_form_data'], data)
-        self.assertEqual(response.context['courses'].count(), 6)
-
-        data['courses'] = [ str(course.id) for course in response.context['courses'] ]
-        data['is_visible'] = False
-        data['is_archived'] = False
-        response = self.client.post(reverse('administrators:create_session_confirmation'), data=urlencode(data, True), content_type=ContentType)
-        messages = self.messages(response)
-        self.assertTrue('Success' in messages[0])
-        self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, response.url)
-
-        sessions = adminApi.get_sessions_by_year(data['year'])
-        self.assertEqual( sessions.count(), 1 )
-        self.assertEqual( len(adminApi.get_sessions()), total_sessions + 1 )
-        self.assertEqual(sessions[0].year, data['year'])
-        self.assertEqual(sessions[0].term.code, 'W1')
-        self.assertEqual(sessions[0].term.name, 'Winter Term 1')
-        self.assertEqual(sessions[0].title, data['title'])
-        self.assertEqual(sessions[0].description, data['description'])
-        self.assertEqual(sessions[0].is_visible, data['is_visible'])
-        self.assertEqual(sessions[0].is_archived, data['is_archived'])
-        self.assertEqual(sessions[0].job_set.count(), 6)
-
-
-    def test_create_existing_session(self):
-        print('\n- Test: create an existing session for checking duplicates')
-        self.login()
-
-        data = {
-            'year': '2019',
-            'term': '2',
-            'title': 'New TA Application',
-            'description': 'new description',
-            'note': 'new note'
-        }
-        response = self.client.post(reverse('administrators:create_session'), data=urlencode(data), content_type=ContentType)
-        self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, response.url)
-
-        response = self.client.get(response.url)
-        self.assertEqual(response.context['error_messages'], ['Session with this Year and Term already exists.'])
-
-    def test_delete_session(self):
-        print('\n- Test: delete a session')
-        self.login()
-        session_id = '6'
-        data = { 'session': session_id }
-        response = self.client.post(reverse('administrators:delete_session', args=['current']), data=urlencode(data), content_type=ContentType)
-        messages = self.messages(response)
-        self.assertTrue('Success' in messages[0])
-        self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, response.url)
-        self.assertFalse( adminApi.session_exists(session_id) )
-
-
-    def test_delete_not_existing_sessinon(self):
-        print('\n- Test: delete a not existing session')
-        self.login()
-
-        data = { 'session': '1000' }
-        response = self.client.post(reverse('administrators:delete_session', args=['current']), data=urlencode(data), content_type=ContentType)
-        self.assertEqual(response.status_code, 404)
-
-
-    def test_edit_session(self):
-        print('\n- Test: edit a session')
-        self.login()
-        session_id = '6'
-        session = adminApi.get_session(session_id)
-        courses = adminApi.get_courses_by_term('6')
-        data = {
-            'session': session_id,
-            'year': '2019',
-            'term': '6',
-            'title': 'Edited TA Application',
-            'description': 'Edited description',
-            'note': 'Edited note',
-            'is_visible': 'True',
-            'courses': [ str(courses[0].id), str(courses[1].id) ]
-        }
-
-        response = self.client.post(reverse('administrators:edit_session', args=[session.slug, 'current']), data=urlencode(data, True), content_type=ContentType)
-        messages = self.messages(response)
-        self.assertTrue('Success' in messages[0])
-        self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, response.url)
-
-        updated_session = adminApi.get_session(session_id)
-        self.assertEqual( updated_session.id, int(data['session']) )
-        self.assertEqual( updated_session.year, data['year'] )
-        self.assertEqual( updated_session.title, data['title'] )
-        self.assertEqual( updated_session.description, data['description'] )
-        self.assertEqual( updated_session.note, data['note'] )
-        self.assertEqual( updated_session.is_visible, eval(data['is_visible']) )
-        self.assertEqual( updated_session.job_set.count(), len(data['courses']) )
-
-    def test_edit_not_existing_session(self):
-        print('\n- Test: edit a not existing session')
-        self.login()
-
-        session_id = '1116'
-        data = {
-            'session': session_id,
-            'year': '2019',
-            'term': '6',
-            'title': 'Edited TA Application',
-            'description': 'Edited description',
-            'note': 'Edited note',
-            'is_visible': 'True',
-            'courses': []
-        }
-
-        response = self.client.post(reverse('administrators:edit_session', args=['2019-w9', 'current']), data=urlencode(data, True), content_type=ContentType)
-        self.assertEqual(response.status_code, 404)
 
 class JobTest(TestCase):
     fixtures = DATA
@@ -1443,7 +1449,7 @@ class PreparationTest(TestCase):
 
         response = self.client.get( reverse('administrators:trainings') )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual( len(response.context['trainings']), 5 )
+        self.assertEqual( len(response.context['trainings']), 4 )
         self.assertFalse(response.context['form'].is_bound)
 
         data = { 'name': 'new training' }
@@ -1455,14 +1461,14 @@ class PreparationTest(TestCase):
 
         response = self.client.get( reverse('administrators:trainings') )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual( len(response.context['trainings']), 6 )
+        self.assertEqual( len(response.context['trainings']), 5 )
         self.assertEqual(response.context['trainings'].last().name, data['name'])
 
     def test_edit_training(self):
         print('\n- Test: edit training details')
         self.login()
 
-        slug = 'instructional-skills-workshops-for-grad-students'
+        slug = 'workplace-violence-prevention-training'
 
         data = { 'name': 'updated training' }
         response = self.client.post( reverse('administrators:edit_training', args=[slug]), data=urlencode(data), content_type=ContentType )

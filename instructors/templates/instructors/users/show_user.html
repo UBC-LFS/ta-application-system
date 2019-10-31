@@ -1,30 +1,40 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
 
+{% load static %}
 {% include 'administrators/_menu.html' %}
 <div class="row">
   <div class="col-md-4">
     {% include 'ta_app/pages/_header.html' with title='User Details' %}
 
-    <div class="bg-prompt">
-      <div class="prompt p-4 mb-4">
-        <h4>{{ user.get_full_name }}</h4>
-        <p>{{ user.username }}</p>
+    <div class="user-profile">
+      <img class="img-profile img-circle img-fluid" src="{% static 'ta_app/images/user.png' %}" alt="user-image" />
 
-        <a class="btn btn-sm btn-outline-primary" href="{% url 'instructors:show_applications' session_slug=session_slug job_slug=job_slug %}">Applications</a>
+      <div class="bg-prompt">
+        <div class="prompt p-4 mb-4">
+          <h4>{{ user.get_full_name }}</h4>
+          <p>{{ user.username }}</p>
+
+          <a class="btn btn-sm btn-outline-primary" href="{% url 'instructors:show_applications' session_slug=session_slug job_slug=job_slug %}">Back to Applications</a>
+
+          <hr class="dotted" />
+
+          <div>
+            <h5>Resume:</h5>
+            {% if user.resume_file %}
+              <a href="{% url 'students:download_resume' username=user.username filename=user.resume_file %}" target="_blank">
+                {{ user.resume_file }}
+              </a>
+              | {{ user.resume.created_at }}
+            {% else %}
+              No resume
+            {% endif %}
+          </div>
+
+        </div>
+
       </div>
-    </div>
 
-    <div>
-      <h5 class="text-success">Resume:</h5>
-      {% if user.resume_file %}
-        <a href="{% url 'students:download_resume' username=user.username filename=user.resume_file %}" target="_blank">
-          {{ user.resume_file }}
-        </a>
-        | {{ user.resume.created_at }}
-      {% else %}
-        No resume
-      {% endif %}
     </div>
 
   </div>

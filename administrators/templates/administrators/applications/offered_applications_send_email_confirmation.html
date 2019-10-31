@@ -88,7 +88,7 @@
           <hr />
 
           {% for field in form.visible_fields  %}
-            <div class="field-wrapper my-4">
+            <div class="field-wrapper">
               {{ field.label_tag }}
               {% if field.help_text %}
                 <div class="help">{{ field.help_text|safe }}</div>

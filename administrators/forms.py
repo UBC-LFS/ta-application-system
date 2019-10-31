@@ -87,6 +87,7 @@ class SessionForm(forms.ModelForm):
     ''' Create a model form for a Session '''
     next_year = current_year() + 1
     year = forms.CharField(
+        max_length=4,
         initial=next_year,
         widget=forms.TextInput(attrs={ 'class': 'form-control' })
     )
@@ -108,11 +109,13 @@ class SessionForm(forms.ModelForm):
 
 class SessionConfirmationForm(forms.ModelForm):
     ''' Create a model form for a Session '''
+
     this_year = current_year()
-    year = forms.CharField(
+    """year = forms.CharField(
+        max_length=4,
         initial=this_year,
         widget=forms.TextInput(attrs={ 'class': 'form-control' })
-    )
+    )"""
     title = forms.CharField(
         initial='TA Application',
         widget=forms.TextInput(attrs={ 'class': 'form-control' })
@@ -127,7 +130,9 @@ class SessionConfirmationForm(forms.ModelForm):
         model = Session
         fields = ['year', 'term', 'title', 'description', 'note', 'courses', 'is_visible', 'is_archived']
         widgets = {
-            'term': forms.Select(attrs={ 'class':'form-control' }),
+            #'term': forms.Select(attrs={ 'class':'form-control' }),
+            'year': forms.HiddenInput(),
+            'term': forms.HiddenInput(),
             'description': SummernoteWidget(),
             'note': SummernoteWidget()
         }

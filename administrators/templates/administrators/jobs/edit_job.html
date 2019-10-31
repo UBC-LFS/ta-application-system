@@ -28,7 +28,7 @@
           {% csrf_token %}
 
           {% for field in form.visible_fields  %}
-            <div class="field-wrapper my-4">
+            <div class="field-wrapper">
               {{ field.label_tag }}
               {% if field.help_text %}
                 <div class="help">{{ field.help_text|safe }}</div>
@@ -41,8 +41,8 @@
             {{ field }}
           {% endfor %}
 
-          <a class="btn btn-outline-success" href="{% url 'administrators:jobs' %}">Cancel</a>
-          <input class="btn btn-success" type="submit" value="Update" />
+          <a class="btn btn-outline-primary" href="{% url 'administrators:prepare_jobs' %}">Cancel</a>
+          <input class="btn btn-primary" type="submit" value="Update" />
         </form>
 
       </div>

@@ -95,6 +95,7 @@ def get_session_by_slug(session_slug):
 
 def update_session_jobs(session, courses):
     ''' Update courses/jobs in a session '''
+
     new_course_ids = [ course.id for course in courses ]
     jobs = Job.objects.filter(session_id=session.id)
     old_course_ids = [ job.course_id for job in jobs ]
@@ -108,8 +109,12 @@ def update_session_jobs(session, courses):
     else:
         diff = list( set(old_course_ids) - set(new_course_ids) )
 
-        # if no difference, nothing updated
+        # if no difference, new courses updateed
         if len(diff) == 0:
+            new = list( set(new_course_ids) - set(intersection) )
+            if len(new) > 0:
+                courses = [ get_course(id) for id in new ]
+                return create_jobs(session, courses)
             return True
 
         deleted = delete_job_by_course_ids(session, diff)
@@ -123,8 +128,14 @@ def update_session_jobs(session, courses):
             return None
 
 def get_visible_current_sessions():
-    ''' Get visible current sessions '''
-    return Session.objects.filter( Q(is_visible=True) & Q(is_archived=False) )
+    ''' Get visible current sessions with active jobs '''
+    sessions = Session.objects.filter( Q(is_visible=True) & Q(is_archived=False) )
+
+    for session in sessions:
+        jobs = session.job_set.filter(is_active=True)
+        if jobs.exists(): session.active_jobs = jobs
+
+    return sessions
 
     """
     sessions = []
@@ -209,16 +220,16 @@ def get_available_jobs_to_apply(user, session_slug):
     for job in jobs:
         job.app = None
         app = job.application_set.filter(applicant__id=user.id)
-        if app.exists(): job.app = app.latest('created_at')
+        if app.exists(): job.app = app.first()
     return jobs
 
-def update_job_ta_hours(session_slug, job_slug, ta_hours):
+def update_job_accumulated_ta_hours(session_slug, job_slug, ta_hours):
     ''' Update ta hours in a job '''
     job = get_job_by_session_slug_job_slug(session_slug, job_slug)
-    new_hours = job.ta_hours + float(ta_hours)
-    job.ta_hours = new_hours
+    new_hours = job.accumulated_ta_hours + float(ta_hours)
+    job.accumulated_ta_hours = new_hours
     job.updated_at = datetime.now()
-    saved = job.save(update_fields=['ta_hours', 'updated_at'])
+    saved = job.save(update_fields=['accumulated_ta_hours', 'updated_at'])
     return True if job else False
 
 def get_recent_ten_job_details(course, year):
@@ -340,7 +351,7 @@ def get_applications_with_status(user):
     apps = Application.objects.filter(applicant_id=user.id).distinct()
     for app in apps:
         status = app.applicationstatus_set.all().last()
-    
+
         app.applied = None
         applied = app.applicationstatus_set.filter(assigned=ApplicationStatus.NONE)
         if applied.exists(): app.applied = applied.first()
@@ -455,6 +466,18 @@ def get_applications_with_status_by_user(user, status, option=None):
                 app.declined = app.applicationstatus_set.filter(assigned=ApplicationStatus.DECLINED).latest('created_at')
 
     return apps, total_assigned_hours
+
+def get_applications_with_status_by_session_slug_job_slug(session_slug, job_slug):
+    ''' Get applications by session_slug and job_slug '''
+    apps = Application.objects.filter( Q(job__session__slug=session_slug) & Q(job__course__slug=job_slug) )
+    print(apps)
+    for app in apps:
+        app.selected = None
+        selected = app.applicationstatus_set.filter(assigned=ApplicationStatus.SELECTED)
+        if selected.exists(): app.selected = selected.first()
+
+    return apps
+
 
 def get_selected_applications():
     ''' Get applications selected by instructors '''

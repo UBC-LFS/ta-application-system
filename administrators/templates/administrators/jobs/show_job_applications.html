@@ -2,24 +2,26 @@
 {% block content %}
 
 {% include 'administrators/_menu.html' %}
-<div>
-  {% include 'ta_app/pages/_header.html' with title='Job Applications' text=job.application_set.all|length %}
+<div class="row">
+  <div class="col-md-4">
+    {% include 'ta_app/pages/_header.html' with title='Job Applications' text=job.application_set.all|length %}
 
-  <div class="bg-prompt">
-    <div class="prompt p-4 text-center mb-4 rounded-1">
-      <h4>Text</h4>
-      <a class="btn btn-sm btn-outline-primary" href="{% url 'administrators:progress_jobs' %}">Go back to Jobs in Progress</a>
+    <div class="bg-prompt">
+      <div class="prompt p-4 mb-4">
+        <h4>{{ job.session.year }} {{ job.session.term.name }} ({{ job.session.term.code }})</h4>
+        <h4>{{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</h4>
+        <p>{{ job.course.name }}</p>
+
+        <a class="btn btn-sm btn-outline-primary" href="{% url 'administrators:progress_jobs' %}">Jobs in Progress</a>
+      </div>
     </div>
   </div>
 
-  <div class="mb-4"></div>
+  <div class="col-md-8"></div>
+</div>
 
-  <h5 class="mt-4">{{ job.session.year }} {{ job.session.term.name }} ({{ job.session.term.code }})</h5>
-  <h4>
-    {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }} <br />
-    <small class="text-muted">- {{ job.course.name }}</small>
-  </h4>
 
+<div>
   <table
     class="table table-bordered table-hover table-striped table-responsive-md text-center"
     data-toggle="table"
@@ -37,6 +39,7 @@
       <tr>
         <th data-sortable="true">Application<br /> ID</th>
         <th data-sortable="true">Applicant</th>
+        <th data-sortable="true">CWL</th>
         <th data-sortable="true">Status</th>
         <th data-sortable="true">Instructor<br /> Preference</th>
         <th data-sortable="true">Classification</th>
@@ -48,17 +51,25 @@
     <tbody>
       {% for app in job.application_set.all %}
         <tr>
-          <td>{{ app.id }}</td>
-          <td>{{ app.applicant.first_name }} {{ app.applicant.last_name }}</td>
-          <td>{% include 'ta_app/applications/_modal_app_status.html' with data=app %}</td>
+          <td>
+            {% include 'ta_app/applications/_modal_app_details.html' with data=app display='id' %}
+          </td>
+          <td>{{ app.applicant.get_full_name }}</td>
+          <td>{{ app.applicant.username }}</td>
+          <td>
+            {% include 'ta_app/applications/_modal_app_status.html' with data=app display='assigned' %}<br />
+            <small class="text-muted">{{ app.applicationstatus_set.last.created_at }}</small>
+          </td>
           <td>{{ app.get_instructor_preference_display }}</td>
           <td>{{ app.classification.year }} {{ app.classification.name }}</td>
-          <td>{{ app.note }}</td>
+          <td>
+            {% if app.note %}
+              {% include 'ta_app/applications/_modal_note.html' with data=app %}
+            {% endif %}
+          </td>
           <td>{{ app.created_at }}</td>
           <td>{{ app.updated_at }}</td>
         </tr>
-      {% empty %}
-        No applications found
       {% endfor %}
     </tbody>
   </table>

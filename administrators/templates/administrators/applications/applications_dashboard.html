@@ -39,24 +39,34 @@
           <tr>
             <td>{{ st.id }}</td>
             <td>
+
               {% if st.parent_id %}
 
                 {% if st.assigned == app_status.cancelled %}
-                  <span class="badge badge-secondary">CANCELLED</span>
+                  {% include 'ta_app/applications/_app_status.html' with data=st.get_assigned_display %}
+
                 {% else %}
                   <span class="badge badge-success">Declined & Re-assigned</span>
+
                 {% endif %}
 
               {% else %}
 
-                {% if st.assigned == app_status.applied %}
-                  <span class="badge badge-lihgt">APPLIED</span>
+                {% if st.assigned == app_status.selected %}
+                  {% include 'ta_app/applications/_app_status.html' with data=st.get_assigned_display %}
+
                 {% elif st.assigned == app_status.offered %}
-                  <span class="badge badge-warning">OFFERED</span>
+                  {% include 'ta_app/applications/_app_status.html' with data=st.get_assigned_display %}
+
                 {% elif st.assigned == app_status.accepted %}
-                  <span class="badge badge-success">ACCPETED</span>
+                  {% include 'ta_app/applications/_app_status.html' with data=st.get_assigned_display %}
+
                 {% elif st.assigned == app_status.declined %}
-                  <span class="badge badge-danger">DECLINED</span>
+                  {% include 'ta_app/applications/_app_status.html' with data=st.get_assigned_display %}
+
+                {% else %}
+                  {% include 'ta_app/applications/_app_status.html' with data='None' %}
+
                 {% endif %}
 
               {% endif %}
