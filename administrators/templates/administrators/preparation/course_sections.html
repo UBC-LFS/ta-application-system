@@ -2,7 +2,7 @@
 {% block content %}
 
 {% include 'administrators/_menu.html' %}
-{% include 'ta_app/_return_messages.html' with data=messages %}
+{% include 'ta_app/pages/_return_messages.html' with data=messages %}
 <div class="row">
   <div class="col-md-5">
     {% include 'ta_app/pages/_header.html' with title='Course Sections' text=course_sections|length %}

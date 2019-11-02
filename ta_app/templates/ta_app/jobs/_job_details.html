@@ -9,42 +9,58 @@
     {% for instructor in data.instructors.all %}
       <li>{{ instructor.get_full_name }}</li>
     {% empty %}
-      <li>No instructors found.</li>
+      <li>No instructors</li>
     {% endfor %}
   </ul>
 </div>
 
 <div>
-  <h5>Title:</h5>
-  <span>{{ data.title }}</span>
+  <h5>
+    Title:
+    <span>{{ data.title }}</span>
+  </h5>
 </div>
 
 <div>
-  <h5>Description:</h5>
-  <span>{{ data.description|safe }}</span>
+  <h5>
+    Description:
+    <span>{{ data.description|safe }}</span>
+  </h5>
 </div>
 
 <div>
-  <h5>Qualification:</h5>
-  <span>{{ data.qualification|safe }}</span>
+  <h5>
+    Qualification:
+    <span>{{ data.qualification|safe }}</span>
+  </h5>
 </div>
 
 <div>
-  <h5>Note:</h5>
-  <span>{{ data.note|safe }}</span>
+  <h5>
+    Note:
+    <span>{{ data.note|safe }}</span>
+  </h5>
 </div>
 
 <div>
-  <h5>Is active:</h5>
-  <span>{{ data.is_active }}</span>
+  <h5>
+    Is active:
+    <span class="text-white">
+      {% include 'ta_app/jobs/_job_is_active.html' with data=data %}
+    </span>
+  </h5>
 </div>
 
 <div>
-  <h5>Created at:</h5>
-  <span>{{ data.created_at }}</span>
+  <h5>
+    Created at:
+    <span>{{ data.created_at }}</span>
+  </h5>
 </div>
 
 <div>
-  <h5>Updated at:</h5>
-  <span>{{ data.updated_at }}</span>
+  <h5>
+    Updated at:
+    <span>{{ data.updated_at }}</span>
+  </h5>
 </div>

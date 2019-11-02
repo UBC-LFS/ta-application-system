@@ -3,7 +3,7 @@
 
 {% load static %}
 {% include 'students/_menu.html' %}
-{% include 'ta_app/_return_messages.html' with data=messages %}
+{% include 'ta_app/pages/_return_messages.html' with data=messages %}
 <div class="row">
   <div class="col-md-4">
     {% include 'ta_app/pages/_header.html' with title='Confidentiality' %}
@@ -26,7 +26,7 @@
 
     {% if user.confidentiality and user.confidentiality.created_at != None %}
 
-      <div class="board">
+      <div class="board col-11 mx-auto">
         <h3>Details</h3>
         <div>
           <h5>Are you an International Student?:</h5>

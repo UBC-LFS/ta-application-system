@@ -1,10 +1,8 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
+
 {% include 'administrators/_menu.html' %}
-
 <div>
-  {% include 'ta_app/_return_messages.html' with data=messages %}
-
   {% include 'ta_app/pages/_header.html' with title='Archived Sessions' text=archived_sessions|length %}
 
   <div class="bg-prompt">
@@ -47,24 +45,24 @@
         {% for session in archived_sessions %}
           <tr>
             <td>
-              <a href="{% url 'administrators:show_session' session_slug=session.slug path='archived' %}">{{ session.id }}</a>
+              <a class="btn btn-xs btn-info" href="{% url 'administrators:show_session' session_slug=session.slug path='archived' %}">{{ session.id }}</a>
             </td>
             <td>{{ session.year }}</td>
             <td>{{ session.term.code }}</td>
             <td>{{ session.job_set.count }}</td>
             <td>{{ session.num_instructors }}</td>
-            <td>{{ session.is_visible }}</td>
-            <td>{{ session.is_archived }}</td>
+            <td>{% include 'ta_app/sessions/_session_is_visible.html' with data=session %}</td>
+            <td>{% include 'ta_app/sessions/_session_is_archived.html' with data=session %}</td>
             <td>{{ session.created_at }}</td>
             <td>{{ session.updated_at }}</td>
             <td>
               <div class="btn-toolbar">
-                <a class="btn btn-sm btn-link mr-2" href="{% url 'administrators:edit_session' session_slug=session.slug path='archived' %}">Edit</a>
+                <a class="btn btn-xs btn-link mr-2" href="{% url 'administrators:edit_session' session_slug=session.slug path='archived' %}">Edit</a>
 
                 <form action="{% url 'administrators:delete_session' path='archived' %}" method="post" onsubmit="return confirm('Are you sure to delete {{ session.year }} {{ session.term }} - {{ session.title }}?');">
                   {% csrf_token %}
                   <input type="hidden" name="session" value="{{ session.id }}" />
-                  <input type="submit" value="Delete" class="btn btn-sm btn-danger" />
+                  <input type="submit" value="Delete" class="btn btn-xs btn-danger" />
                 </form>
               </div>
             </td>

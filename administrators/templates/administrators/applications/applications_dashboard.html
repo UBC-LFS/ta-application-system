@@ -83,7 +83,7 @@
               </a>
             </td>
             <td>
-              <a href="{% url 'administrators:show_application' app_slug=st.application.slug path='dashboard' %}">{{ st.application.id }}</a>
+              <a class="btn btn-xs btn-info" href="{% url 'administrators:show_application' app_slug=st.application.slug path='dashboard' %}">{{ st.application.id }}</a>
             </td>
             <td>{{ st.created_at }}</td>
           </tr>

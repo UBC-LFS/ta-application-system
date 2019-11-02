@@ -89,24 +89,46 @@ def create_study_permit_path(instance, filename):
 
 
 
+def create_union_correspondence_path(instance, filename):
+    return os.path.join('users', str(instance.user.username), 'union_correspondence', filename)
+
+
+def create_compression_agreement_path(instance, filename):
+    return os.path.join('users', str(instance.user.username), 'compression_agreement', filename)
+
+
 class Confidentiality(models.Model):
-    VISA_CHOICES = [
-        ('0', 'None'),
-        ('1', 'Type 1'),
-        ('2', 'Type 2'),
-        ('3', 'Type 3')
-    ]
+    ''' '''
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
     is_international = models.BooleanField(null=True, blank=True)
-    employee_number = models.CharField(max_length=256, unique=True, null=True, blank=True)
+    employee_number = models.CharField(max_length=7, unique=True, null=True, blank=True)
+
     sin = models.ImageField(upload_to=create_sin_path, null=True, blank=True)
     sin_expiry_date = models.DateField(null=True, blank=True)
     study_permit = models.ImageField(upload_to=create_study_permit_path, null=True, blank=True)
     study_permit_expiry_date = models.DateField(null=True, blank=True)
 
-    created_at = models.DateField(null=True, blank=True)
-    updated_at = models.DateField(null=True, blank=True)
+    pin = models.CharField(max_length=4, unique=True, null=True, blank=True)
+    tasm = models.BooleanField(default=False)
+    eform = models.CharField(max_length=6, unique=True, null=True, blank=True)
+
+    union_correspondence = models.FileField(
+        upload_to=create_union_correspondence_path,
+        validators=[FileExtensionValidator(allowed_extensions=['pdf'])],
+        null=True,
+        blank=True
+    )
+
+    compression_agreement = models.FileField(
+        upload_to=create_compression_agreement_path,
+        validators=[FileExtensionValidator(allowed_extensions=['pdf'])],
+        null=True,
+        blank=True
+    )
+
+    created_at = models.DateField(default=dt.date.today)
+    updated_at = models.DateField(default=dt.date.today)
 
     def save(self, *args, **kwargs):
         print('save =======')
@@ -141,7 +163,7 @@ class Resume(models.Model):
         blank=True
     )
 
-    created_at = models.DateField(null=True, blank=True)
+    created_at = models.DateField(default=dt.date.today)
 
 
 class Profile(models.Model):

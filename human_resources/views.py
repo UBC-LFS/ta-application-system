@@ -58,5 +58,5 @@ def view_confidentiality(request, username):
     user = userApi.get_user_by_username(username)
     return render(request, 'human_resources/view_confidentiality.html', {
         'loggedin_user': loggedin_user,
-        'user': userApi.get_user_with_data(user.id)
+        'user': userApi.get_user_with_confidentiality(user.id)
     })

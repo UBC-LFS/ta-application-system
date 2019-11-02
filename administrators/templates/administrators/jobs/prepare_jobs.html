@@ -3,7 +3,7 @@
 
 {% include 'administrators/_menu.html' %}
 <div>
-  {% include 'ta_app/_return_messages.html' with data=messages %}
+  {% include 'ta_app/pages/_return_messages.html' with data=messages %}
 
   {% include 'ta_app/pages/_header.html' with title='Prepare Jobs' text=jobs|length %}
 
@@ -39,7 +39,7 @@
         {% for job in jobs %}
           <tr>
             <td>
-              <a href="{% url 'administrators:show_job' session_slug=job.session.slug job_slug=job.course.slug path='prepare' %}">{{ job.id }}</a>
+              <a class="btn btn-xs btn-info" href="{% url 'administrators:show_job' session_slug=job.session.slug job_slug=job.course.slug path='prepare' %}">{{ job.id }}</a>
             </td>
             <td>{{ job.session.year }}</td>
             <td>{{ job.session.term.code }}</td>

@@ -26,7 +26,7 @@ DATA = [
     'administrators/fixtures/jobs.json',
     'administrators/fixtures/sessions.json',
     'administrators/fixtures/terms.json',
-    'users/fixtures/confidentialities.json',
+    #'users/fixtures/confidentialities.json',
     'users/fixtures/degrees.json',
     'users/fixtures/profile_roles.json',
     'users/fixtures/profiles.json',

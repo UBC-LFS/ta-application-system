@@ -1,0 +1,65 @@
+{% extends 'ta_app/base.html' %}
+{% block content %}
+
+{% include 'administrators/_menu.html' %}
+<div>
+  {% include 'ta_app/pages/_header.html' with title='Admin Documents' text=users|length %}
+</div>
+
+<div>
+  <table
+    class="table table-bordered table-hover table-striped table-responsive-md text-center"
+    data-toggle="table"
+    data-sortable="true"
+    data-classes=""
+    data-pagination="true"
+    data-search="true"
+    data-page-size="50"
+    data-page-list="[50, 100, 200, all]"
+    data-show-export="true"
+    data-click-to-select="true"
+    data-show-columns="true"
+  >
+    <thead>
+      <tr>
+        <th data-sortable="true">ID</th>
+        <th data-sortable="true">First Name</th>
+        <th data-sortable="true">Last Name</th>
+        <th data-sortable="true">CWL</th>
+        <th data-sortable="true">International<br /> Student</th>
+        <th data-sortable="true">Employee<br /> Number</th>
+        <th>PIN</th>
+        <th>TASM</th>
+        <th>eForm</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for user in users %}
+        <tr>
+          <td>{{ user.id }}</td>
+          <td>{{ user.first_name }}</td>
+          <td>{{ user.last_name }}</td>
+          <td>{{ user.username }}</td>
+          <td>{{ user.confidentiality.international_student }}</td>
+          <td>
+            {% if user.is_new_member %}
+              <span class="badge badge-danger">NEW</span>
+            {% else %}
+              {{ user.confidentiality.employee_number }}
+            {% endif %}
+          </td>
+          <td>{{ user.confidentiality.pin }}</td>
+          <td>{{ user.confidentiality.tasm }}</td>
+          <td>{{ user.confidentiality.eform }}</td>
+          <td>
+            <a href="{% url 'administrators:view_confidentiality' username=user.username %}">View Details</a>
+            <a class="btn btn-sm btn-link" href="{% url 'administrators:edit_admin_docs' username=user.username %}">Edit</a>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}

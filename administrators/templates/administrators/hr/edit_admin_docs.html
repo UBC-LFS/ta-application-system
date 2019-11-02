@@ -1,0 +1,81 @@
+{% extends 'ta_app/base.html' %}
+{% block content %}
+
+{% include 'administrators/_menu.html' %}
+<div class="row">
+  <div class="col-md-4">
+    {% include 'ta_app/pages/_left_aside.html' with view_name='users' app_name=app_name title='Edit Admin Docs' data=user %}
+
+    <div class="left-aside-btn-groups">
+      <a class="btn btn-outline-primary" href="{% url 'administrators:admin_docs' %}">Back to Admin Docs</a>
+    </div>
+  </div>
+
+  <div class="col-md-8">
+
+    <div class="board col-11 mx-auto">
+      <h3>Form</h3>
+
+      <form action="" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        {% for field in form.visible_fields  %}
+          <div class="field-wrapper">
+            {{ field.label_tag }}
+            {% if field.help_text %}
+              <div class="help">{{ field.help_text|safe }}</div>
+            {% endif %}
+            {{ field }}
+          </div>
+        {% endfor %}
+
+        {% for field in form.hidden_fields %}
+          {{ field }}
+        {% endfor %}
+
+        <a class="btn btn-outline-primary" href="{% url 'administrators:admin_docs' %}">Cancel</a>
+        <input class="btn btn-primary" type="submit" value="Update" />
+      </form>
+    </div>
+
+    <div class="card border-danger my-4">
+      <div class="card-body">
+        <h6 class="card-title">Delete Union and Other Correspondence</h6>
+        {% if user.union_correspondence_file %}
+          <p class="card-text text-secondary">
+            If you would like to delete the Union and Other Correspondence file, please click the Delete button below.<br />
+            File: {{ user.union_correspondence_file }}
+          </p>
+          <form action="{% url 'administrators:delete_union_correspondence' username=user.username %}" method="post" onsubmit="return confirm('Are you sure to delete this Union and Other Correspondence file?')">
+            {% csrf_token %}
+            <input type="hidden" name="user" value="{{ user.username }}" />
+            <input class="btn btn-sm btn-danger" type="submit" value="Delete" />
+          </form>
+        {% else %}
+          <span class="text-secondary">None</span>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="card border-danger">
+      <div class="card-body">
+        <h6 class="card-title">Delete Compression Agreement</h6>
+        {% if user.compression_agreement_file %}
+          <p class="card-text text-secondary">If you would like to delete the Compression Agreement file, please click the Delete button below.<br />
+            File: {{ user.compression_agreement_file }}
+          </p>
+          <form action="{% url 'administrators:delete_compression_agreement' username=user.username %}" method="post" onsubmit="return confirm('Are you sure to delete this Compression Agreement file?')">
+            {% csrf_token %}
+            <input type="hidden" name="user" value="{{ user.username }}" />
+            <input class="btn btn-sm btn-danger" type="submit" value="Delete" />
+          </form>
+        {% else %}
+          <span class="text-secondary">None</span>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}

@@ -2,7 +2,6 @@
 {% block content %}
 
 {% include 'administrators/_menu.html' %}
-
 <div class="row">
   <div class="col-md-4">
     {% include 'ta_app/pages/_header.html' with title='Create Session' %}
@@ -13,20 +12,20 @@
         <p>
           There are <span class="font-weight-bold">{{ current_sessions|length }}</span> current sessions.
         </p>
-        <a class="btn btn-sm btn-outline-primary" href="{% url 'administrators:current_sessions' %}">Current Sessions</a>
+        <a class="btn btn-outline-primary" href="{% url 'administrators:current_sessions' %}">Back to Current Sessions</a>
         <hr />
         <h4>Archived Sessions</h4>
         <p>
           There are <span class="font-weight-bold">{{ archived_sessions|length }}</span> archived sessions.
         </p>
 
-        <a class="btn btn-sm btn-outline-primary" href="{% url 'administrators:archived_sessions' %}">Archived Sessions</a>
+        <a class="btn btn-outline-primary" href="{% url 'administrators:archived_sessions' %}">Back to Archived Sessions</a>
       </div>
     </div>
   </div>
 
   <div class="col-md-8">
-    <div class="board">
+    <div class="board col-11 mx-auto">
       <h3>Form</h3>
 
       <form action="" method="post">

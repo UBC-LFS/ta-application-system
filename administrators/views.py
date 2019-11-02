@@ -9,6 +9,7 @@ from django.views.decorators.http import require_http_methods
 from django.views.decorators.cache import cache_control
 from django.contrib.auth.hashers import make_password
 from django.db.models import Q
+from django.views.static import serve
 
 from administrators.models import Application, ApplicationStatus
 from administrators.forms import *
@@ -20,6 +21,10 @@ from users import api as userApi
 from datetime import datetime
 
 from django.contrib.auth.models import User
+
+
+APP_NAME = 'administrators'
+
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -118,6 +123,7 @@ def create_session_confirmation(request):
 
     else:
         data = request.session.get('session_form_data')
+        print('data ', data)
         if data:
             term_id = data['term']
             courses = adminApi.get_courses_by_term(term_id)
@@ -140,6 +146,10 @@ def create_session_confirmation(request):
         'loggedin_user': loggedin_user,
         'current_sessions': adminApi.get_current_sessions(),
         'archived_sessions': adminApi.get_archived_sessions(),
+        'session': {
+            'year': data['year'],
+            'term': adminApi.get_term(data['term'])
+        },
         'courses': courses,
         'form': form,
         'error_messages': error_messages
@@ -183,6 +193,7 @@ def show_session(request, session_slug, path):
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
 
     return render(request, 'administrators/sessions/show_session.html', {
+        'app_name': APP_NAME,
         'loggedin_user': loggedin_user,
         'session': adminApi.get_session_by_slug(session_slug),
         'path': path
@@ -287,6 +298,7 @@ def show_job(request, session_slug, job_slug, path):
     if 'Student' not in loggedin_user.roles: raise PermissionDenied
 
     return render(request, 'administrators/jobs/show_job.html', {
+        'app_name': APP_NAME,
         'loggedin_user': loggedin_user,
         'job': adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug),
         'path': path
@@ -562,7 +574,9 @@ def selected_applications(request):
         'admin_application_form': AdminApplicationForm(),
         'status_form': ApplicationStatusForm(initial={ 'assigned': ApplicationStatus.OFFERED }),
         'classification_choices': adminApi.get_classifications(),
-        'offer_status_code': ApplicationStatus.OFFERED
+        'app_status_code': {
+            'offered': ApplicationStatus.OFFERED
+        }
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -653,17 +667,31 @@ def offer_job(request, session_slug, job_slug):
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
 
     if request.method == 'POST':
-        applicant_id = request.POST.get('applicant')
+        print('post ', request.POST)
+        if len(request.POST.get('classification')) == 0:
+            messages.error(request, 'An error occurred. Please select classification, then try again.')
+            return redirect('administrators:selected_applications')
+
+
         assigned_hours = request.POST.get('assigned_hours')
-        form = ApplicationStatusForm(request.POST)
-        if form.is_valid():
-            status = form.save()
-            if status:
-                job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
-                applicant = userApi.get_user(applicant_id)
-                messages.success(request, 'Success! You offered this user ({0} {1}) {2} hours for this job ({3} {4} - {5} {6} {7})'.format(applicant.first_name, applicant.last_name, assigned_hours, job.session.year, job.session.term.code, job.course.code.name, job.course.number.name, job.course.section.name))
+        admin_app_form = AdminApplicationForm(request.POST)
+        if admin_app_form.is_valid():
+            updated_app = adminApi.update_application_classification_note(request.POST.get('application'), admin_app_form.cleaned_data)
+            if updated_app:
+                app_status_form = ApplicationStatusForm(request.POST)
+                if app_status_form.is_valid():
+                    status = app_status_form.save()
+                    if status:
+                        job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
+                        applicant = userApi.get_user(request.POST.get('applicant'))
+                        messages.success(request, 'Success! You offered this user ({0} {1}) {2} hours for this job ({3} {4} - {5} {6} {7})'.format(applicant.first_name, applicant.last_name, assigned_hours, job.session.year, job.session.term.code, job.course.code.name, job.course.number.name, job.course.section.name))
+                    else:
+                        messages.error(request, 'An error occurred. Failed to offer a job.')
+                else:
+                    errors = form.errors.get_json_data()
+                    messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
             else:
-                messages.error(request, 'An error occurred. Failed to offer a job.')
+                messages.error(request, 'An error occurred. Failed to update classification and note.')
         else:
             errors = form.errors.get_json_data()
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
@@ -943,29 +971,81 @@ def create_user(request):
                 user.set_password( make_password(settings.USER_PASSWORD) )
                 user.save()
                 if user:
-                    profile, message = userApi.create_profile(user, request.POST)
+                    profile = userApi.create_profile(user, user_profile_form.cleaned_data)
                     if profile:
                         messages.success(request, 'Success! {0} {1} ({2}) created'.format(user.first_name, user.last_name, user.username))
                         return redirect('administrators:all_users')
                     else:
-                        messages.error(request, message)
+                        messages.error(request, 'An error occurred while creating a user profile. Please contact administrators.')
                 else:
                     messages.error(request, 'An error occurred while creating a user. Please contact administrators.')
             else:
-                errors = user_form.errors.get_json_data()
-                messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ) )    
+                errors = user_profile_form.errors.get_json_data()
+                messages.error(request, 'An error occurred while creating a user because a form is invalid. {0}'.format( userApi.get_error_messages(errors) ) )
         else:
             errors = user_form.errors.get_json_data()
-            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ) )
+            messages.error(request, 'An error occurred while creating a user because a form is invalid. {0}'.format( userApi.get_error_messages(errors) ) )
 
         return redirect('administrators:create_user')
 
     return render(request, 'administrators/hr/create_user.html', {
         'loggedin_user': loggedin_user,
         'users': userApi.get_users(),
+        'user_form': UserForm(),
+        'user_profile_form': UserProfileForm(),
+        #'roles': userApi.get_roles(),
+    })
+
+
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET', 'POST'])
+def edit_user(request, username):
+    ''' Edit a user '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user): raise PermissionDenied
+
+    user = userApi.get_user_by_username(username)
+    if request.method == 'POST':
+        user_id = request.POST.get('user')
+        profile_roles = user.profile.roles.all()
+
+        user_form = UserForm(request.POST, instance=user)
+        if user_form.is_valid():
+            updated_user = user_form.save()
+
+            user_profile_edit_form = UserProfileEditForm(request.POST, instance=user.profile)
+            if user_profile_edit_form.is_valid():
+                updated_profile = user_profile_edit_form.save(commit=False)
+                updated_profile.updated_at = datetime.now()
+                updated_profile.save()
+
+                if updated_profile:
+                    updated = userApi.update_user_profile_roles(updated_profile, profile_roles, user_profile_edit_form.cleaned_data)
+                    if updated:
+                        messages.success(request, 'Success! Roles of {0} updated'.format(user.username))
+                        return redirect('administrators:all_users')
+                    else:
+                        messages.error(request, 'An error occurred while updating profile roles.')
+                else:
+                    messages.error(request, 'An error occurred while updating a profile. Please contact administrators.')
+            else:
+                errors = user_profile_edit_form.errors.get_json_data()
+                messages.error(request, 'An error occurred while updating a user because a form is invalid. {0}'.format( userApi.get_error_messages(errors) ) )
+        else:
+            errors = user_form.errors.get_json_data()
+            messages.error(request, 'An error occurred while updating a user because a form is invalid. {0}'.format( userApi.get_error_messages(errors) ) )
+
+        return HttpResponseRedirect( reverse('administrators:edit_user', args=[username]) )
+
+    return render(request, 'administrators/hr/edit_user.html', {
+        'app_name': APP_NAME,
+        'loggedin_user': loggedin_user,
+        'user': user,
         'roles': userApi.get_roles(),
-        'form': UserForm(),
-        'user_profile_form': UserProfileForm()
+        'user_form': UserForm(data=None, instance=user),
+        'user_profile_form': UserProfileEditForm(data=None, instance=user.profile)
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -974,6 +1054,7 @@ def create_user(request):
 def show_user(request, username, path):
     ''' Display an user's details '''
     loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user): raise PermissionDenied
 
     return render(request, 'administrators/hr/show_user.html', {
         'loggedin_user': loggedin_user,
@@ -983,41 +1064,15 @@ def show_user(request, username, path):
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET', 'POST'])
+@require_http_methods(['GET'])
 def all_users(request):
     ''' Display all users'''
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
 
-    if request.method == 'POST':
-        user_id = request.POST.get('user')
-        user = userApi.get_user(user_id)
-        profile_roles = user.profile.roles.all()
-
-        form = ProfileRoleForm(request.POST, instance=user.profile)
-        if form.is_valid():
-            data = form.cleaned_data
-            updated_profile = form.save(commit=False)
-            updated_profile.updated_at = datetime.now()
-            updated_profile.save()
-            if updated_profile:
-                updated = userApi.update_user_profile_roles(updated_profile, profile_roles, data)
-                if updated:
-                    messages.success(request, 'Success! Roles of {0} updated'.format(user.username))
-                else:
-                    messages.error(request, 'An error occurred while updating roles. Please contact administrators.')
-            else:
-                messages.error(request, 'An error occurred while updating a profile. Please contact administrators.')
-        else:
-            errors = form.errors.get_json_data()
-            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ) )
-
-        return redirect('administrators:all_users')
-
     return render(request, 'administrators/hr/all_users.html', {
         'loggedin_user': loggedin_user,
-        'users': userApi.get_users(),
-        'roles': userApi.get_roles()
+        'users': userApi.get_users()
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -1028,11 +1083,139 @@ def view_confidentiality(request, username):
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user) and 'HR' not in loggedin_user.roles: raise PermissionDenied
 
-    user = userApi.get_user_by_username(username)
     return render(request, 'administrators/hr/view_confidentiality.html', {
         'loggedin_user': loggedin_user,
-        'user': userApi.get_user_with_data(user.id)
+        'user': userApi.get_user_with_confidentiality(username, 'administrator')
     })
+
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def admin_docs(request):
+    ''' Display all users with admin documents '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user): raise PermissionDenied
+
+    return render(request, 'administrators/hr/admin_docs.html', {
+        'loggedin_user': loggedin_user,
+        'users': userApi.get_users_with_confidentiality()
+    })
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET', 'POST'])
+def edit_admin_docs(request, username):
+    ''' Edit admin documents '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user): raise PermissionDenied
+
+    user = userApi.get_user_with_confidentiality(username, 'administrator')
+    confidentiality = userApi.has_user_confidentiality_created(user)
+    if request.method == 'POST':
+        if confidentiality:
+            if bool(user.confidentiality.union_correspondence):
+                messages.error(request, 'An error occurred. Please delete the previous Union and Other crrespondence file, then try again.')
+                return HttpResponseRedirect( reverse('administrators:edit_admin_docs', args=[username]) )
+            if bool(user.confidentiality.compression_agreement):
+                messages.error(request, 'An error occurred. Please delete the previous Compression Agreement file, then try again.')
+                return HttpResponseRedirect( reverse('administrators:edit_admin_docs', args=[username]) )
+
+        form = AdminDocumentsForm(request.POST, request.FILES, instance=confidentiality)
+        if form.is_valid():
+            data = form.cleaned_data
+
+            updated_confidentiality = form.save(commit=False)
+            updated_confidentiality.updated_at = datetime.now()
+
+            updated_confidentiality.union_correspondence = request.FILES.get('union_correspondence')
+            updated_confidentiality.compression_agreement = request.FILES.get('compression_agreement')
+
+            updated_confidentiality.save()
+            if updated_confidentiality:
+                messages.success(request, 'Success! {0} - confidentiality submitted'.format(user.username))
+                return redirect('administrators:admin_docs')
+            else:
+                messages.error(request, 'An error occurred while updating user\'s confidentiality.')
+        else:
+            errors = form.errors.get_json_data()
+            messages.error(request, 'An error occurred while updating user\'s confidentiality because a form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+
+        return HttpResponseRedirect( reverse('administrators:edit_admin_docs', args=[username]) )
+
+    return render(request, 'administrators/hr/edit_admin_docs.html', {
+        'loggedin_user': loggedin_user,
+        'user': user,
+        'form': userApi.AdminDocumentsForm(data=None, instance=confidentiality, initial={
+            'user': user
+        })
+    })
+
+
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def download_union_correspondence(request, username, filename):
+    ''' Download user's union_correspondence '''
+    if not userApi.is_valid_user(request.user): raise PermissionDenied
+
+    path = 'users/{0}/union_correspondence/{1}/'.format(username, filename)
+    return serve(request, path, document_root=settings.MEDIA_ROOT)
+
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['POST'])
+def delete_union_correspondence(request, username):
+    ''' Delete user's union_correspondence '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user): raise PermissionDenied
+
+    if request.method == 'POST':
+        username = request.POST.get('user')
+        deleted = userApi.delete_union_correspondence(username)
+        if deleted:
+            messages.success(request, 'Success! {0} - Union and Other Correspondence deleted'.format(username))
+        else:
+            messages.error(request, 'An error occurred. Failed to delete Union and Other Correspondence.')
+    else:
+        messages.error(request, 'An error occurred. Request is not POST.')
+
+    return HttpResponseRedirect( reverse('administrators:edit_admin_docs', args=[username]) )
+
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def download_compression_agreement(request, username, filename):
+    ''' Download user's compression_agreement '''
+    if not userApi.is_valid_user(request.user): raise PermissionDenied
+
+    path = 'users/{0}/compression_agreement/{1}/'.format(username, filename)
+    return serve(request, path, document_root=settings.MEDIA_ROOT)
+
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['POST'])
+def delete_compression_agreement(request, username):
+    ''' Delete user's compression_agreement '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user): raise PermissionDenied
+
+    if request.method == 'POST':
+        username = request.POST.get('user')
+        deleted = userApi.delete_compression_agreement(username)
+        if deleted:
+            messages.success(request, 'Success! {0} - Compression Agreement deleted'.format(username))
+        else:
+            messages.error(request, 'An error occurred. Failed to delete Compression Agreement.')
+    else:
+        messages.error(request, 'An error occurred. Request is not POST.')
+
+    return HttpResponseRedirect( reverse('administrators:edit_admin_docs', args=[username]) )
+
+
+
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)

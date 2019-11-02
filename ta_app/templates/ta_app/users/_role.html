@@ -1,0 +1,16 @@
+{% if data == 'Superadmin' %}
+  <h6><span class="badge badge-orange">{{ data.upper }}</span></h6>
+
+{% elif data == 'Admin' %}
+  <h6><span class="badge badge-primary">{{ data.upper }}</span></h6>
+
+{% elif data == 'HR' %}
+  <h6><span class="badge badge-warning">{{ data.upper }}</span></h6>
+
+{% elif data == 'Instructor' %}
+  <h6><span class="badge badge-success">{{ data.upper }}</span></h6>
+
+{% else %}
+  <h6><span class="badge badge-light">{{ data.upper }}</span></h6>
+
+{% endif %}

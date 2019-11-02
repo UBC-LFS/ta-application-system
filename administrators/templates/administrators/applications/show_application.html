@@ -2,24 +2,17 @@
 {% block content %}
 
 {% include 'administrators/_menu.html' %}
-
-
 <div class="row">
   <div class="col-md-4">
-    {% include 'ta_app/pages/_header.html' with title='Application Details' %}
-    <div class="bg-prompt">
-      <div class="prompt p-4 mb-4">
-        <h4>{{ app.job.session.year }} {{ app.job.session.term.name }} ({{ app.job.session.term.code }})</h4>
-        <h4>{{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</h4>
-        <p>{{ app.job.course.name }}</p>
+    {% include 'ta_app/pages/_left_aside.html' with view_name='applications' app_name=app_name title='Application Details' data=app %}
 
-        {% include 'administrators/applications/_go_back.html' with data=path %}
-      </div>
+    <div class="left-aside-btn-groups">
+      {% include 'administrators/applications/_go_back.html' with data=path %}
     </div>
   </div>
 
   <div class="col-md-8">
-    <div class="board">
+    <div class="board col-11 mx-auto">
       <h3>Details</h3>
       {% include 'ta_app/applications/_app_details.html' with data=app%}
 

@@ -1,83 +1,86 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
+
 {% include 'administrators/_menu.html' %}
+<div class="row">
+  <div class="col-md-4">
+    {% include 'ta_app/pages/_header.html' with title='Create Session' %}
 
-<div>
-  {% include 'ta_app/_return_messages.html' with data=messages %}
+    <div class="bg-prompt">
+      <div class="prompt p-4 mb-4">
+        <h4>Current Sessions</h4>
+        <p>
+          There are <span class="font-weight-bold">{{ current_sessions|length }}</span> current sessions.
+        </p>
+        <h4>Archived Sessions</h4>
+        <p>
+          There are <span class="font-weight-bold">{{ archived_sessions|length }}</span> archived sessions.
+        </p>
 
-  <div class="row">
-    <div class="col-md-4">
-      {% include 'ta_app/pages/_header.html' with title='Create Session' %}
-
-      <div class="bg-prompt">
-        <div class="prompt p-4 mb-4">
-          <h4>Current Sessions</h4>
-          <p>
-            There are <span class="font-weight-bold">{{ current_sessions|length }}</span> current sessions.
-          </p>
-          <a class="btn btn-sm btn-outline-primary" href="{% url 'administrators:current_sessions' %}">Current Sessions</a>
-          <hr />
-          <h4>Archived Sessions</h4>
-          <p>
-            There are <span class="font-weight-bold">{{ archived_sessions|length }}</span> archived sessions.
-          </p>
-
-          <a class="btn btn-sm btn-outline-primary" href="{% url 'administrators:archived_sessions' %}">Archived Sessions</a>
-        </div>
+        <a class="btn btn-outline-primary" href="{% url 'administrators:create_session' %}">Back to Create Session</a>
       </div>
-
-      <div class="bd-callout bd-callout-warning">
-        <h4><i class="fa fa-info-circle" aria-hidden="true"></i> Note</h4>
-        <p>When <code>Is archived</code> is <span class="font-weight-bold">True</span>, <code>Is visible</code> is always <span class="font-weight-bold">False</span>.</p>
-      </div>
-
     </div>
 
-    <div class="col-md-8">
-
-      {% if error_messages %}
-
-        <div class="alert alert-danger" role="alert">
-          A Session form is not available for following reasons.
-          <ol>
-            {% for error in error_messages %}
-              <li>{{ error }}</li>
-            {% endfor %}
-          </ol>
-          Please try it agagin.
-        </div>
-
-      {% else %}
-
-        <div class="board">
-          <h3>Confirmation Form</h3>
-
-          <form action="" method="post">
-            {% csrf_token %}
-
-            {% for field in form.visible_fields  %}
-              <div class="field-wrapper">
-                {{ field.label_tag }}
-                {% if field.help_text %}
-                  <div class="help">{{ field.help_text|safe }}</div>
-                {% endif %}
-                {{ field }}
-              </div>
-            {% endfor %}
-
-            {% for field in form.hidden_fields %}
-              {{ field }}
-            {% endfor %}
-
-            <a class="btn btn-outline-primary" href="{% url 'administrators:sessions' %}">Cancel</a>
-            <input class="btn btn-primary" type="submit" value="Confirm to create" />
-          </form>
-        </div>
-
-      {% endif %}
+    <div class="bd-callout bd-callout-warning">
+      <h4><i class="fa fa-info-circle" aria-hidden="true"></i> Note</h4>
+      <p>When <code>Is archived</code> is <span class="font-weight-bold">True</span>, <code>Is visible</code> is always <span class="font-weight-bold">False</span>.</p>
     </div>
+
   </div>
 
+  <div class="col-md-8">
+
+    {% if error_messages %}
+
+      <div class="alert alert-danger" role="alert">
+        A Session form is not available for following reasons.
+        <ol>
+          {% for error in error_messages %}
+            <li>{{ error }}</li>
+          {% endfor %}
+        </ol>
+        Please try it agagin.
+      </div>
+
+    {% else %}
+
+      <div class="board col-11 mx-auto">
+        <h3>Confirmation Form</h3>
+
+        <div>
+          <h5>Year:</h5>
+          <span>{{ session.year }}</span>
+        </div>
+
+        <div>
+          <h5>Term:</h5>
+          <span>{{ session.term.code }}</span>
+        </div>
+
+        <form action="" method="post">
+          {% csrf_token %}
+
+          {% for field in form.visible_fields  %}
+            <div class="field-wrapper">
+              {{ field.label_tag }}
+              {% if field.help_text %}
+                <div class="help">{{ field.help_text|safe }}</div>
+              {% endif %}
+              {{ field }}
+            </div>
+          {% endfor %}
+
+          {% for field in form.hidden_fields %}
+            {{ field }}
+          {% endfor %}
+
+          <a class="btn btn-outline-primary" href="{% url 'administrators:create_session' %}">Cancel</a>
+          <input class="btn btn-primary" type="submit" value="Confirm to create" />
+        </form>
+      </div>
+
+    {% endif %}
+  </div>
 </div>
 
 {% endblock %}

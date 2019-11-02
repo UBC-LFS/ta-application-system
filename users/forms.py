@@ -63,10 +63,14 @@ class UserForm(forms.ModelForm):
         }
 
 class UserProfileForm(forms.ModelForm):
-
+    roles = forms.ModelMultipleChoiceField(
+        required=True,
+        queryset=Role.objects.all(),
+        widget=forms.CheckboxSelectMultiple()
+    )
     class Meta:
         model = Profile
-        fields = [ 'student_number', 'preferred_name']
+        fields = ['student_number', 'preferred_name', 'roles']
         labels = { 
             'student_number': 'Student Number', 
             'preferred_name': 'Preferred Name' 
@@ -79,107 +83,41 @@ class UserProfileForm(forms.ModelForm):
             'student_number': forms.TextInput(attrs={ 'class': 'form-control' }),
             'preferred_name': forms.TextInput(attrs={ 'class': 'form-control' })
         }
-    
 
+
+class UserProfileEditForm(forms.ModelForm):
+    roles = forms.ModelMultipleChoiceField(
+        required=True,
+        queryset=Role.objects.all(),
+        widget=forms.CheckboxSelectMultiple()
+    )
+    class Meta:
+        model = Profile
+        fields = ['user', 'student_number', 'preferred_name', 'roles']
+        labels = { 
+            'student_number': 'Student Number', 
+            'preferred_name': 'Preferred Name' 
+        }
+        help_texts = { 
+            'student_number': 'The use of a Student Number is optional',
+            'preferred_name': 'The use of a Preferred Name is optional',
+        }
+        widgets = {
+            'user': forms.HiddenInput(),
+            'student_number': forms.TextInput(attrs={ 'class': 'form-control' }),
+            'preferred_name': forms.TextInput(attrs={ 'class': 'form-control' })
+        }
+
+
+"""
 class UserCreateProfileForm(forms.ModelForm):
     ''' To check a profile while creating a user '''
     class Meta:
         model = Profile
         fields = ['preferred_name', 'student_number', 'roles']
-
-
-class ConfidentialityCheckForm(forms.ModelForm):
-    class Meta:
-        model = Confidentiality
-        fields = ['user', 'is_international']
-        widgets = {
-            'user': forms.HiddenInput()
-        }
-
-class ConfidentialityNonInternationalForm(forms.ModelForm):
-    class Meta:
-        model = Confidentiality
-        fields = ['user', 'employee_number', 'sin']
-        widgets = {
-            'user': forms.HiddenInput(),
-            'sin': forms.FileInput()
-        }
-        labels = {
-            'sin': 'Social Insurance Number (SIN)'
-        }
-        help_texts = {
-            'sin': 'Valid file formats: JPG, JPEG, PNG'
-        }
-
-
-class ConfidentialityInternationalForm(forms.ModelForm):
-    sin_expiry_date = forms.DateField(
-        required=False,
-        widget=forms.SelectDateWidget(years=range(DATE.year, DATE.year + 20)),
-        label='SIN Expiry Date'
-    )
-    study_permit_expiry_date = forms.DateField(
-        required=False,
-        widget=forms.SelectDateWidget(years=range(DATE.year, DATE.year + 20)),
-        label='Study Permit Expiry Date'
-    )
-    class Meta:
-        model = Confidentiality
-        fields = ['user', 'employee_number', 'sin', 'sin_expiry_date', 'study_permit', 'study_permit_expiry_date']
-        widgets = {
-            'user': forms.HiddenInput(),
-            'sin': forms.FileInput(),
-            'study_permit': forms.FileInput()
-        }
-        labels = {
-            'employee_number': 'Employee Number',
-            'sin': 'Social Insurance Number (SIN)',
-            'study_permit': 'Study Permit'
-        }
-        help_texts = {
-            'sin': 'Valid file formats: JPG, JPEG, PNG',
-            'study_permit': 'Valid file formats: JPG, JPEG, PNG'
-        }
-
-
-class ConfidentialityForm(forms.ModelForm):
-    sin_expiry_date = forms.DateField(
-        required=False,
-        widget=forms.SelectDateWidget(years=range(DATE.year, DATE.year + 20)),
-        label='SIN Expiry Date'
-    )
-    study_permit_expiry_date = forms.DateField(
-        required=False,
-        widget=forms.SelectDateWidget(years=range(DATE.year, DATE.year + 20)),
-        label='Study Permit Expiry Date'
-    )
-    class Meta:
-        model = Confidentiality
-        fields = ['user', 'is_international','employee_number', 'sin', 'sin_expiry_date', 'study_permit', 'study_permit_expiry_date']
-        widgets = {
-            'user': forms.HiddenInput(),
-            'sin': forms.FileInput(),
-            'study_permit': forms.FileInput()
-        }
-        labels = {
-            'is_international': 'Are you an International Student?',
-            'employee_number': 'Employee Number',
-            'sin': 'Social Insurance Number (SIN)',
-            'study_permit': 'Study Permit'
-        }
-        help_texts = {
-            'sin': 'Valid file formats: JPG, JPEG, PNG',
-            'study_permit': 'Valid file formats: JPG, JPEG, PNG'
-        }
-
-class ResumeForm(forms.ModelForm):
-    class Meta:
-        model = Resume
-        fields = ['user', 'file']
-        widgets = {
-            'user': forms.HiddenInput()
-        }
-
+"""
+    
+"""
 class ProfileRoleForm(forms.ModelForm):
     roles = forms.ModelMultipleChoiceField(
         required=False,
@@ -192,50 +130,9 @@ class ProfileRoleForm(forms.ModelForm):
         widgets = {
             'user': forms.HiddenInput()
         }
-
-
 """
-class ProfileForm(forms.ModelForm):
-    roles = forms.ModelMultipleChoiceField(
-        required=False,
-        queryset=Role.objects.all(),
-        widget=forms.CheckboxSelectMultiple()
-    )
-    graduation_date = forms.DateField(
-        required=False,
-        widget=forms.SelectDateWidget(years=range(DATE.year, DATE.year + 20))
-    )
-    degrees = forms.ModelMultipleChoiceField(
-        required=False,
-        queryset=Degree.objects.all(),
-        widget=forms.CheckboxSelectMultiple()
-    )
-    trainings = forms.ModelMultipleChoiceField(
-        required=False,
-        queryset=Training.objects.all(),
-        widget=forms.CheckboxSelectMultiple()
-    )
 
-    class Meta:
-        model = Profile
-        fields = ['user', 'roles', 'qualifications','prior_employment', 'special_considerations',
-                    'status', 'program', 'graduation_date', 'degrees', 'trainings',
-                    'lfs_ta_training', 'lfs_ta_training_details', 'ta_experience',
-                    'ta_experience_details', 'preferred_name']
-        widgets = {
-            'user': forms.HiddenInput(),
-            'qualifications': forms.Textarea(attrs={'rows':2}),
-            'prior_employment': forms.Textarea(attrs={'rows':2}),
-            'special_considerations': forms.Textarea(attrs={'rows':2}),
-            'lfs_ta_training_details': forms.Textarea(attrs={'rows':2}),
-            'ta_experience_details': forms.Textarea(attrs={'rows':2})
-        }
 
-    field_order = ['preferred_name', 'roles', 'qualifications','prior_employment', 'special_considerations',
-                'status', 'program', 'graduation_date', 'degrees', 'trainings',
-                'lfs_ta_training', 'lfs_ta_training_details', 'ta_experience',
-                'ta_experience_details']
-"""
 
 
 class StudentProfileForm(forms.ModelForm):
@@ -339,3 +236,174 @@ class InstructorProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
         fields = ['status', 'program']
+
+
+
+
+class ConfidentialityCheckForm(forms.ModelForm):
+    class Meta:
+        model = Confidentiality
+        fields = ['user', 'is_international']
+        widgets = {
+            'user': forms.HiddenInput()
+        }
+
+class ConfidentialityNonInternationalForm(forms.ModelForm):
+    class Meta:
+        model = Confidentiality
+        fields = ['user', 'employee_number', 'sin']
+        widgets = {
+            'user': forms.HiddenInput(),
+            'sin': forms.FileInput()
+        }
+        labels = {
+            'sin': 'Social Insurance Number (SIN)'
+        }
+        help_texts = {
+            'sin': 'Valid file formats: JPG, JPEG, PNG'
+        }
+
+
+class ConfidentialityInternationalForm(forms.ModelForm):
+    sin_expiry_date = forms.DateField(
+        required=False,
+        widget=forms.SelectDateWidget(years=range(DATE.year, DATE.year + 20)),
+        label='SIN Expiry Date'
+    )
+    study_permit_expiry_date = forms.DateField(
+        required=False,
+        widget=forms.SelectDateWidget(years=range(DATE.year, DATE.year + 20)),
+        label='Study Permit Expiry Date'
+    )
+    class Meta:
+        model = Confidentiality
+        fields = ['user', 'employee_number', 'sin', 'sin_expiry_date', 'study_permit', 'study_permit_expiry_date']
+        widgets = {
+            'user': forms.HiddenInput(),
+            'sin': forms.FileInput(),
+            'study_permit': forms.FileInput()
+        }
+        labels = {
+            'employee_number': 'Employee Number',
+            'sin': 'Social Insurance Number (SIN)',
+            'study_permit': 'Study Permit'
+        }
+        help_texts = {
+            'sin': 'Valid file formats: JPG, JPEG, PNG',
+            'study_permit': 'Valid file formats: JPG, JPEG, PNG'
+        }
+
+
+class ConfidentialityForm(forms.ModelForm):
+    sin_expiry_date = forms.DateField(
+        required=False,
+        widget=forms.SelectDateWidget(years=range(DATE.year, DATE.year + 20)),
+        label='SIN Expiry Date'
+    )
+    study_permit_expiry_date = forms.DateField(
+        required=False,
+        widget=forms.SelectDateWidget(years=range(DATE.year, DATE.year + 20)),
+        label='Study Permit Expiry Date'
+    )
+    class Meta:
+        model = Confidentiality
+        fields = ['user', 'is_international', 'employee_number', 'sin', 'sin_expiry_date', 'study_permit', 'study_permit_expiry_date']
+        widgets = {
+            'user': forms.HiddenInput(),
+            'sin': forms.FileInput(),
+            'study_permit': forms.FileInput()
+        }
+        labels = {
+            'is_international': 'Are you an International Student?',
+            'employee_number': 'Employee Number',
+            'sin': 'Social Insurance Number (SIN)',
+            'study_permit': 'Study Permit'
+        }
+        help_texts = {
+            'sin': 'Valid file formats: JPG, JPEG, PNG',
+            'study_permit': 'Valid file formats: JPG, JPEG, PNG'
+        }
+
+
+class AdminDocumentsForm(forms.ModelForm):
+    ''' '''
+    class Meta:
+        model = Confidentiality
+        fields = ['user', 'is_international', 'employee_number', 'pin', 'tasm', 'eform', 'union_correspondence', 'compression_agreement']
+        labels = {
+            'is_international': 'International Student',
+            'employee_number': 'Employee Number',
+            'pin': 'PIN',
+            'tasm': 'TASM',
+            'eform': 'eForm',
+            'union_correspondence': 'Union and Other Correspondence',
+            'compression_agreement': 'Compression Agreement'
+        }
+        widgets = {
+            'user': forms.HiddenInput(),
+            'employee_number': forms.TextInput(attrs={ 'class':'form-control' }),
+            'pin': forms.TextInput(attrs={ 'class':'form-control' }),
+            'eform': forms.TextInput(attrs={ 'class':'form-control' }),
+            'union_correspondence': forms.FileInput(),
+            'compression_agreement': forms.FileInput()
+        }
+        help_texts = {
+            'union_correspondence': 'Valid file format: PDF only',
+            'compression_agreement': 'Valid file format: PDF only'
+        }
+
+
+class ResumeForm(forms.ModelForm):
+    ''' '''
+    class Meta:
+        model = Resume
+        fields = ['user', 'file']
+        widgets = {
+            'user': forms.HiddenInput()
+        }
+
+
+
+"""
+class ProfileForm(forms.ModelForm):
+    roles = forms.ModelMultipleChoiceField(
+        required=False,
+        queryset=Role.objects.all(),
+        widget=forms.CheckboxSelectMultiple()
+    )
+    graduation_date = forms.DateField(
+        required=False,
+        widget=forms.SelectDateWidget(years=range(DATE.year, DATE.year + 20))
+    )
+    degrees = forms.ModelMultipleChoiceField(
+        required=False,
+        queryset=Degree.objects.all(),
+        widget=forms.CheckboxSelectMultiple()
+    )
+    trainings = forms.ModelMultipleChoiceField(
+        required=False,
+        queryset=Training.objects.all(),
+        widget=forms.CheckboxSelectMultiple()
+    )
+
+    class Meta:
+        model = Profile
+        fields = ['user', 'roles', 'qualifications','prior_employment', 'special_considerations',
+                    'status', 'program', 'graduation_date', 'degrees', 'trainings',
+                    'lfs_ta_training', 'lfs_ta_training_details', 'ta_experience',
+                    'ta_experience_details', 'preferred_name']
+        widgets = {
+            'user': forms.HiddenInput(),
+            'qualifications': forms.Textarea(attrs={'rows':2}),
+            'prior_employment': forms.Textarea(attrs={'rows':2}),
+            'special_considerations': forms.Textarea(attrs={'rows':2}),
+            'lfs_ta_training_details': forms.Textarea(attrs={'rows':2}),
+            'ta_experience_details': forms.Textarea(attrs={'rows':2})
+        }
+
+    field_order = ['preferred_name', 'roles', 'qualifications','prior_employment', 'special_considerations',
+                'status', 'program', 'graduation_date', 'degrees', 'trainings',
+                'lfs_ta_training', 'lfs_ta_training_details', 'ta_experience',
+                'ta_experience_details']
+"""
+

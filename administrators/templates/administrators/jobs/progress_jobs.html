@@ -40,7 +40,7 @@
         {% for job in jobs %}
           <tr>
             <td>
-              <a href="{% url 'administrators:show_job' session_slug=job.session.slug job_slug=job.course.slug path='progress' %}">{{ job.id }}</a>
+              <a class="btn btn-xs btn-info" href="{% url 'administrators:show_job' session_slug=job.session.slug job_slug=job.course.slug path='progress' %}">{{ job.id }}</a>
             </td>
             <td>{{ job.session.year }}</td>
             <td>{{ job.session.term.code }}</td>

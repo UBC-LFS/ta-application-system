@@ -3,7 +3,7 @@
 
 {% load static %}
 {% include 'students/_menu.html' %}
-{% include 'ta_app/_return_messages.html' with data=messages %}
+{% include 'ta_app/pages/_return_messages.html' with data=messages %}
 <div class="row">
 	<div class="col-md-4">
 		{% include 'ta_app/pages/_header.html' with title='Explore Jobs' %}
@@ -24,7 +24,7 @@
 
 	<div class="col-md-8">
 
-		<div class="board">
+		<div class="board col-11 mx-auto">
 			<h3>Current Jobs Available</h3>
 
 			{% for session in visible_current_sessions %}

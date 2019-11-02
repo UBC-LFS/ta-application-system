@@ -28,7 +28,7 @@
       </nav>
       <div class="tab-content" id="nav-tabContent">
         <div class="tab-pane fade show active" id="nav-basic-info" role="tabpanel" aria-labelledby="nav-basic-info-tab">
-          <div class="board">
+          <div class="board col-11 mx-auto">
             <h3>Basic Information</h3>
             {% include 'ta_app/users/_basic_info.html' with data=user %}
 
@@ -62,7 +62,7 @@
 
         </div>
         <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
-          <div class="board">
+          <div class="board col-11 mx-auto">
             <h4 class="text-info my-4">Profile</h4>
 
             {% include 'ta_app/users/_profile.html' with data=user %}

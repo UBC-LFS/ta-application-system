@@ -481,17 +481,21 @@ def get_applications_with_status_by_session_slug_job_slug(session_slug, job_slug
 
 def get_selected_applications():
     ''' Get applications selected by instructors '''
-    apps = Application.objects.filter( ~Q(instructor_preference=Application.NONE) & ~Q(instructor_preference=Application.NO_PREFERENCE) ).order_by('job')
+    #apps = Application.objects.filter( ~Q(instructor_preference=Application.NONE) & ~Q(instructor_preference=Application.NO_PREFERENCE) ).order_by('job')
+    apps = Application.objects.filter(applicationstatus__assigned=ApplicationStatus.SELECTED).order_by('job')
     for app in apps:
-        if app.instructor_preference != Application.NONE and app.instructor_preference != Application.NO_PREFERENCE:
-            app.resume_file = None
-            if userApi.has_user_resume_created(app.applicant) and app.applicant.resume.file != None:
-                app.resume_file = os.path.basename(app.applicant.resume.file.name)
+        app.resume_file = None
+        if userApi.has_user_resume_created(app.applicant) and bool(app.applicant.resume.file):
+            app.resume_file = os.path.basename(app.applicant.resume.file.name)
 
+        app.selected = None
+        selected = app.applicationstatus_set.filter(assigned=ApplicationStatus.SELECTED)
+        if selected.exists(): app.selected = selected.first()
 
-            app.offered = None
-            offered = app.applicationstatus_set.filter(assigned=ApplicationStatus.OFFERED)
-            if offered.exists(): app.offered = offered.latest('created_at')
+        app.offered = None
+        offered = app.applicationstatus_set.filter(assigned=ApplicationStatus.OFFERED)
+        if offered.exists(): app.offered = offered.first()
+        
     return apps
 
 def get_applications_by_status(status):

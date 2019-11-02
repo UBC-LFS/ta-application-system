@@ -1,26 +1,25 @@
 {% if data == 'dashboard' %}
-  <a class="btn btn-sm btn-outline-primary" href="{% url 'administrators:applications_dashboard' %}">Dashboard</a>
+  <a class="btn btn-outline-primary" href="{% url 'administrators:applications_dashboard' %}">Back to Dashboard</a>
 
 {% elif data == 'all' %}
-  <a class="btn btn-sm btn-outline-primary" href="{% url 'administrators:all_applications' %}">All Applications</a>
+  <a class="btn btn-outline-primary" href="{% url 'administrators:all_applications' %}">Back to All Applications</a>
 
 {% elif data == 'selected' %}
-  <a class="btn btn-sm btn-outline-primary" href="{% url 'administrators:selected_applications' %}">Selected Applications</a>
+  <a class="btn btn-outline-primary" href="{% url 'administrators:selected_applications' %}">Back to Selected Applications</a>
 
 {% elif data == 'offered' %}
-  <a class="btn btn-sm btn-outline-primary" href="{% url 'administrators:offered_applications' %}">Offered Applications</a>
+  <a class="btn btn-outline-primary" href="{% url 'administrators:offered_applications' %}">Back to Offered Applications</a>
 
 {% elif data == 'accepted' %}
-  <a class="btn btn-sm btn-outline-primary" href="{% url 'administrators:accepted_applications' %}">Accepted Applications</a>
+  <a class="btn btn-outline-primary" href="{% url 'administrators:accepted_applications' %}">Back to Accepted Applications</a>
 
 {% elif data == 'declined' %}
-  <a class="btn btn-sm btn-outline-primary" href="{% url 'administrators:declined_applications' %}">Declined Applications</a>
+  <a class="btn btn-outline-primary" href="{% url 'administrators:declined_applications' %}">Back to Declined Applications</a>
 
 {% elif data == 'emails' %}
-  <a class="btn btn-sm btn-outline-primary" href="{% url 'administrators:email_history' %}">Email History</a>
-
+  <a class="btn btn-outline-primary" href="{% url 'administrators:email_history' %}">Back to Email History</a>
 
 {% else %}
-  <a class="btn btn-outline-primary" href="{% url 'administrators:applications' %}">Applications</a>
+  <a class="btn btn-outline-primary" href="{% url 'administrators:applications' %}">Back to Applications</a>
 
 {% endif %}

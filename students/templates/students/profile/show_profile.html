@@ -3,7 +3,7 @@
 
 {% load static %}
 {% include 'students/_menu.html' %}
-{% include 'ta_app/_return_messages.html' with data=messages %}
+{% include 'ta_app/pages/_return_messages.html' with data=messages %}
 <div class="row">
   <div class="col-md-4">
     {% include 'ta_app/pages/_header.html' with title='View Profile' %}
@@ -33,14 +33,14 @@
 
     <div class="tab-content" id="nav-tabContent">
       <div class="tab-pane fade show active" id="nav-basic-info" role="tabpanel" aria-labelledby="nav-basic-info-tab">
-        <div class="board">
+        <div class="board col-11 mx-auto">
           <h3>Basic Information</h3>
           {% include 'ta_app/users/_basic_info.html' with data=user student_number_display='True' %}
         </div>
       </div>
 
       <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
-        <div class="board">
+        <div class="board col-11 mx-auto">
           <h3>Profile</h3>
           {% include 'ta_app/users/_profile.html' with data=user %}
         </div>
@@ -48,7 +48,7 @@
 
       <div class="tab-pane fade" id="nav-resume" role="tabpanel" aria-labelledby="nav-resume">
 
-        <div class="board">
+        <div class="board col-11 mx-auto">
           <h3>Resume</h3>
 
           {% if user.resume_file %}
@@ -61,7 +61,7 @@
             </div>
 
             <div>
-              <form class="" action="{% url 'students:delete_resume' %}" method="post" onsubmit="return confirm('Are you sure to delete this resume?')">
+              <form action="{% url 'students:delete_resume' %}" method="post" onsubmit="return confirm('Are you sure to delete this resume?')">
                 {% csrf_token %}
                 <input type="hidden" name="user" value="{{ user.username }}">
                 <input class="btn btn-sm btn-danger" type="submit" value="Delete" />
@@ -78,7 +78,7 @@
 
           {% endif %}
 
-          <div class=" card border-secondary mt-3">
+          <div class="card border-secondary mt-3">
             <div class="card-body">
               <div class="card-text">
                 <h5 class="card-title">Upload your resume</h5>

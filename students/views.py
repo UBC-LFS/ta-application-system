@@ -114,7 +114,7 @@ def upload_resume(request):
                     messages.warning(request, 'Warning! Resume is not deleted')
 
             resume.file = request.FILES.get('file')
-            resume.created_at = datetime.now()
+            #resume.created_at = datetime.now()
             resume.save()
             if resume:
                 messages.success(request, 'Success! {0} - Resume uploaded'.format(user.username))
@@ -167,7 +167,7 @@ def show_confidentiality(request):
 
     return render(request, 'students/profile/show_confidentiality.html', {
         'loggedin_user': loggedin_user,
-        'user': userApi.get_user_with_data(loggedin_user.id)
+        'user': userApi.get_user_with_confidentiality(loggedin_user.id)
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -220,8 +220,8 @@ def submit_confidentiality(request):
             study_permit_file = request.FILES.get('study_permit')
 
             updated_confidentiality = form.save(commit=False)
-            updated_confidentiality.created_at = datetime.now()
-            updated_confidentiality.updated_at = datetime.now()
+            #updated_confidentiality.created_at = datetime.now()
+            #updated_confidentiality.updated_at = datetime.now()
 
             updated_confidentiality.sin = sin_file
             updated_confidentiality.study_permit = study_permit_file

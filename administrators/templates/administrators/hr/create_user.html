@@ -2,7 +2,6 @@
 {% block content %}
 
 {% include 'administrators/_menu.html' %}
-{% include 'ta_app/_return_messages.html' with data=messages %}
 <div class="row">
   <div class="col-md-4">
 		{% include 'ta_app/pages/_header.html' with title='Create User' %}
@@ -11,19 +10,19 @@
       <div class="prompt p-4 mb-4">
 				<h4>Current Users</h4>
 				<p>There are <span class="font-weight-bold">{{ users|length }}</span> users.</p>
-				<a class="btn btn-sm btn-outline-primary" href="{% url 'administrators:all_users' %}">All Users</a>
+				<a class="btn btn-outline-primary" href="{% url 'administrators:all_users' %}">Back to All Users</a>
       </div>
     </div>
   </div>
 
   <div class="col-md-8">
-		<div class="board">
+		<div class="board col-11 mx-auto">
 			<h3>Form</h3>
 
 			<form action="" method="post">
 				{% csrf_token %}
 
-				{% for field in form.visible_fields  %}
+				{% for field in user_form.visible_fields  %}
 					<div class="field-wrapper">
 						{{ field.label_tag }}
 						{% if field.help_text %}
@@ -33,7 +32,7 @@
 					</div>
 				{% endfor %}
 
-				{% for field in user_profile_form.hidden_fields %}
+				{% for field in user_form.hidden_fields %}
 					{{ field }}
 				{% endfor %}
 
@@ -51,6 +50,7 @@
 					{{ field }}
 				{% endfor %}
 
+        {% comment %}
 				<div class="field-wrapper">
 					<label for="id_roles">Roles:</label>
 					{% for role in roles %}
@@ -59,7 +59,9 @@
 						</div>
 					{% endfor %}
 				</div>
+        {% endcomment %}
 
+        <a class="btn btn-outline-primary" href="{% url 'administrators:all_users' %}">Cancel</a>
 				<input class="btn btn-primary" type="submit" value="Create" />
 			</form>
 

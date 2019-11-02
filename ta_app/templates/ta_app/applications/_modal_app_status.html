@@ -1,4 +1,4 @@
-<button type="button" class="btn btn-sm btn-info" data-toggle="modal" data-target="#application-status-modal-{{ data.id }}">
+<button type="button" class="btn btn-xs btn-info" data-toggle="modal" data-target="#application-status-modal-{{ data.id }}">
   {% if display == 'assigned' %}
     {{ data.applicationstatus_set.last.get_assigned_display }}
   {% else %}

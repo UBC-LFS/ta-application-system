@@ -38,7 +38,7 @@
         {% for app in applications %}
           <tr>
             <td>
-              <a href="{% url 'administrators:show_application' app_slug=app.slug path='all' %}">{{ app.id }}</a>
+              <a class="btn btn-xs btn-info" href="{% url 'administrators:show_application' app_slug=app.slug path='all' %}">{{ app.id }}</a>
             </td>
             <td>{{ app.job.session.year }}</td>
             <td>{{ app.job.session.term.code }}</td>
@@ -51,9 +51,21 @@
               <a href="{% url 'administrators:show_user' username=app.applicant.username path='all' %}">{{ app.applicant.first_name }} {{ app.applicant.last_name }}</a>
             </td>
             <td>{% include 'ta_app/applications/_modal_app_status.html' with data=app %}</td>
-            <td>{{ app.get_instructor_preference_display }}</td>
-            <td>{{ app.classification.name }}</td>
-            <td>{{ app.note }}</td>
+            <td>{% include 'ta_app/applications/_app_instructor_preference.html' with data=app.get_instructor_preference_display %}</td>
+            <td>
+              {% if app.classification %}
+                {{ app.classification.name }}
+              {% else %}
+                None
+              {% endif %}
+            </td>
+            <td>
+              {% if app.note %}
+                {% include 'ta_app/applications/_modal_note.html' with data=app %}
+              {% else %}
+                None
+              {% endif %}
+            </td>
             <td>{{ app.created_at }}</td>
             <td>{{ app.updated_at }}</td>
           </tr>

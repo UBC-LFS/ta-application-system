@@ -80,7 +80,7 @@ main {
   font-size: 0.8rem;
 }
 
-.user-profile {
+.left-content {
   border: 1px solid #e6e6e6;
   border-radius: 4px;
   text-align: center;
@@ -88,11 +88,24 @@ main {
   background-color: #e6e6e6;
 }
 
-.img-profile {
-  width: 30%;
+.img-profile,
+.img-document {
   height: auto;
   border-radius: 50%;
   margin-bottom: 20px;
+}
+
+.img-profile {
+  width: 30%
+}
+
+.img-document {
+  width: 40%;
+}
+
+.left-aside-btn-groups {
+  text-align: center;
+  margin-top: 1.5rem;
 }
 
 
@@ -246,6 +259,22 @@ hr.dotted {
 .font-size-1 {
   font-size: 1rem !important;
 }
+
+
+.badge-orange {
+  color: #fff;
+  background-color: #fd7e14;
+}
+
+.badge-indigo {
+  color: #fff;
+  background-color: #6610f2;
+}
+
+.btn-xs {
+  padding: .1em .3em;
+}
+
 
 /* colors */
 

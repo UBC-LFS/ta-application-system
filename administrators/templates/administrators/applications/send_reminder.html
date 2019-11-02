@@ -4,23 +4,16 @@
 {% include 'administrators/_menu.html' %}
 <div class="row">
   <div class="col-md-4">
-    {% include 'ta_app/pages/_header.html' with title='Send Reminder' %}
+    {% include 'ta_app/pages/_left_aside.html' with view_name='emails' app_name=app_name title='Send Reminder' data=email %}
 
-    <div class="bg-prompt">
-      <div class="prompt p-4 mb-4">
-        <h4>Sender</h4>
-        <p>{{ email.sender}}</p>
-        <h4>Receiver</h4>
-        <p>{{ email.receiver }}</p>
-
-        <a class="btn btn-sm btn-outline-primary" href="{% url 'administrators:email_history' %}">Email History</a>
-      </div>
+    <div class="left-aside-btn-groups">
+      <a class="btn btn-outline-primary" href="{% url 'administrators:email_history' %}">Back to Email History</a>
     </div>
   </div>
 
   <div class="col-md-8">
 
-    <div class="board">
+    <div class="board col-11 mx-auto">
       <h3>Send Reminder</h3>
 
       <form action="" method="post">

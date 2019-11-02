@@ -10,7 +10,7 @@ import shutil
 from PIL import Image
 
 from users.models import *
-from users.forms import UserCreateProfileForm
+from users.forms import *
 from datetime import datetime, date, timedelta
 
 # to be removed
@@ -69,33 +69,12 @@ def get_user_by_username_with_resume(username):
         user.resume_file = None
     return user
 
-def get_user_with_data(user_id):
-    ''' Get a user by id '''
-
-    user = get_user(user_id)
-
-    if has_user_resume_created(user) and bool(user.resume.file):
-        user.resume_file = os.path.basename(user.resume.file.name)
-    else:
-        user.resume_file = None
-
-    if has_user_confidentiality_created(user) and bool(user.confidentiality.sin):
-        user.sin_data = decrypt_image(user.username, user.confidentiality.sin, 'sin')
-    else:
-        user.sin_data = None
-
-    if has_user_confidentiality_created(user) and bool(user.confidentiality.study_permit):
-        user.study_permit_data = decrypt_image(user.username, user.confidentiality.study_permit, 'study_permit')
-    else:
-        user.study_permit_data = None
-
-    return user
-
-
+"""
 def get_users_with_data():
-    ''' Get all users '''
-    users = []
-    for user in User.objects.all():
+    ''' Get all users with resume, sin, and study permit '''
+    users = User.objects.all()
+
+    for user in users:
         if has_user_resume_created(user) and bool(user.resume.file):
             user.resume_file = os.path.basename(user.resume.file.name)
         else:
@@ -111,9 +90,57 @@ def get_users_with_data():
         else:
             user.study_permit_data = None
 
-        users.append(user)
     return users
+"""
 
+def get_user_with_confidentiality(username, role=None):
+    ''' Get a user with resume, sin and study permit by id '''
+
+    user = get_user_by_username(username)
+
+    if role == None and has_user_resume_created(user):
+        if bool(user.resume.file):
+            user.resume_file = os.path.basename(user.resume.file.name)
+        else:
+            user.resume_file = None
+
+    if has_user_confidentiality_created(user):
+
+        if bool(user.confidentiality.sin):
+            user.sin_data = decrypt_image(user.username, user.confidentiality.sin, 'sin')
+        else:
+            user.sin_data = None
+
+        if bool(user.confidentiality.study_permit):
+            user.study_permit_data = decrypt_image(user.username, user.confidentiality.study_permit, 'study_permit')
+        else:
+            user.study_permit_data = None
+
+        if role == 'administrator':
+            if bool(user.confidentiality.union_correspondence):
+                user.union_correspondence_file = os.path.basename(user.confidentiality.union_correspondence.name)
+            else:
+                user.union_correspondence_file = None
+
+            if bool(user.confidentiality.compression_agreement):
+                user.compression_agreement_file = os.path.basename(user.confidentiality.compression_agreement.name)
+            else:
+                user.compression_agreement_file = None
+
+    return user
+
+
+def get_users_with_confidentiality():
+    ''' Get all users with admin docs '''
+    users = get_users()
+
+    for user in users:
+        if has_user_confidentiality_created(user):
+            user.is_new_member = False
+        else:
+            user.is_new_member = True
+
+    return users
 
 
 def get_users(option=None):
@@ -135,42 +162,35 @@ def create_user(data):
         username = data['username'],
         password = make_password(settings.USER_PASSWORD)
     )
+
     if user:
+        user_profile_form = UserProfileForm({
+            'student_number': data['student_number'],
+            'preferred_name': None,
+            'roles': [ ROLES['Student'] ] 
+        })
 
-        # data must have student_number and roles
-        profile, message = create_profile(user, data)
-        if profile:
-            return user, None
-        else:
-            return False, message
+        if user_profile_form.is_valid():
+            profile = create_profile(user, user_profile_form.cleaned_data)
+            if profile: return user
 
-    return False, 'An error occurred while creating a user. Please contact administrators.'
+    return False
 
-def create_profile(user, content):
+def create_profile(user, data):
     ''' Create an user's profile '''
 
-    # content must have student_number and roles
-    form = UserCreateProfileForm(content)
-    if form.is_valid():
-        data = form.cleaned_data
+    # TODO: modify student_number coming from SAML's data
+    #student_number = data['student_number']
+    student_number = None
+    if data['student_number']:
+        student_number = data['student_number']
+    else:
+        student_number = get_random_string(length=8)
 
-        # TODO: modify student_number coming from SAML's data
-        #student_number = data['student_number']
-        student_number = None
-        if data['student_number']:
-            student_number = data['student_number']
-        else:
-            student_number = get_random_string(length=9)
+    profile = Profile.objects.create(user_id=user.id, student_number=student_number, preferred_name=data['preferred_name'], is_trimmed=False)
+    profile.roles.add( *data['roles'] )
 
-        preferred_name = data['preferred_name']
-        roles = data['roles']
-        profile = Profile.objects.create(user_id=user.id, student_number=student_number, preferred_name=preferred_name, is_trimmed=False)
-        profile.roles.add( *roles )
-
-        return profile if profile else False, 'An error occurred while creating a profile. Please contact administrators.'
-
-    errors = form.errors.get_json_data()
-    return False, 'An error occurred. {0}'.format(get_error_messages(errors))
+    return profile if profile else False
 
 
 def delete_user(user_id):
@@ -456,6 +476,38 @@ def delete_user_study_permit(user):
                 user.confidentiality.study_permit.delete(save=False)
                 deleted = Confidentiality.objects.filter(user_id=user.id).update(study_permit=None, study_permit_expiry_date=None)
                 return True if deleted and not bool(user.confidentiality.study_permit) else False
+            except OSError:
+                return False
+    return False
+
+def delete_union_correspondence(username):
+    ''' Delete union_correspondence '''
+    user = get_user_by_username(username)
+
+    if has_user_confidentiality_created(user) and bool(user.confidentiality.union_correspondence):
+        user.confidentiality.union_correspondence.close()
+        if user.confidentiality.union_correspondence.closed:
+            
+            try:
+                user.confidentiality.union_correspondence.delete(save=False)
+                deleted = Confidentiality.objects.filter(user_id=user.id).update(union_correspondence=None)
+                return True if deleted and not bool(user.confidentiality.union_correspondence) else False
+            except OSError:
+                return False
+    return False
+
+def delete_compression_agreement(username):
+    ''' Delete compression_agreement '''
+    user = get_user_by_username(username)
+
+    if has_user_confidentiality_created(user) and bool(user.confidentiality.compression_agreement):
+        user.confidentiality.compression_agreement.close()
+        if user.confidentiality.compression_agreement.closed:
+            
+            try:
+                user.confidentiality.compression_agreement.delete(save=False)
+                deleted = Confidentiality.objects.filter(user_id=user.id).update(compression_agreement=None)
+                return True if deleted and not bool(user.confidentiality.compression_agreement) else False
             except OSError:
                 return False
     return False
