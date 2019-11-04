@@ -4,15 +4,14 @@
 {% include 'students/_menu.html' %}
 <div class="row">
   <div class="col-md-4">
-    {% include 'ta_app/pages/_header.html' with title='Apply Job' %}
+    {% include 'ta_app/pages/_left_aside.html' with view_name='users' title='Apply Job' data=loggedin_user %}
 
-    <div class="bg-prompt">
-      <div class="prompt p-4 mb-4">
-        <h4>{{ loggedin_user.get_full_name }}</h4>
-				<p>{{ loggedin_user.username }}</p>
+    <div class="left-aside-btn-groups">
+      <a class="btn btn-outline-primary" href="{% url 'students:available_jobs' session_slug=job.session.slug %}">Back to Available Jobs</a>
+    </div>
 
-        <a class="btn btn-sm btn-outline-primary" href="{% url 'students:available_jobs' session_slug=job.session.slug %}">Available Jobs</a>
-      </div>
+    <div class="col-11 mx-auto mt-5">
+      {% include 'students/jobs/_recent_applied_jobs.html' with data=applied_jobs %}
     </div>
   </div>
 
@@ -43,7 +42,7 @@
                 {% if field.help_text %}
                   <div class="help">{{ field.help_text|safe }}</div>
                 {% endif %}
-                {{ field }} <span class="font-weight-bold">Yes</span>
+                {{ field }} <span class="font-weight-bold text-dark">Yes</span>
 
               {% elif field.id_for_label == 'id_availability' %}
 
@@ -63,7 +62,7 @@
                 {% if field.help_text %}
                   <div class="help">{{ field.help_text|safe }}</div>
                 {% endif %}
-                {{ field }} <span class="font-weight-bold">I understand</span>
+                {{ field }} <span class="font-weight-bold text-dark">I understand</span>
 
               {% else %}
 

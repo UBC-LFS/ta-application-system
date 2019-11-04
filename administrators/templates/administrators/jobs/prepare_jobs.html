@@ -44,13 +44,7 @@
             <td>{{ job.session.year }}</td>
             <td>{{ job.session.term.code }}</td>
             <td>{{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</td>
-            <td>
-              {% for instructor in job.instructors.all %}
-                {{ instructor.first_name }} {{ instructor.last_name }},
-              {% empty %}
-                None
-              {% endfor %}
-            </td>
+            <td>{% include 'ta_app/jobs/_job_instructor.html' with data=job %}</td>
             <td>{{ job.assigned_ta_hours }}</td>
             <td>
               {% if job.is_active %}

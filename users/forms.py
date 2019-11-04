@@ -71,11 +71,11 @@ class UserProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
         fields = ['student_number', 'preferred_name', 'roles']
-        labels = { 
-            'student_number': 'Student Number', 
-            'preferred_name': 'Preferred Name' 
+        labels = {
+            'student_number': 'Student Number',
+            'preferred_name': 'Preferred Name'
         }
-        help_texts = { 
+        help_texts = {
             'student_number': 'The use of a Student Number is optional',
             'preferred_name': 'The use of a Preferred Name is optional',
         }
@@ -94,11 +94,11 @@ class UserProfileEditForm(forms.ModelForm):
     class Meta:
         model = Profile
         fields = ['user', 'student_number', 'preferred_name', 'roles']
-        labels = { 
-            'student_number': 'Student Number', 
-            'preferred_name': 'Preferred Name' 
+        labels = {
+            'student_number': 'Student Number',
+            'preferred_name': 'Preferred Name'
         }
-        help_texts = { 
+        help_texts = {
             'student_number': 'The use of a Student Number is optional',
             'preferred_name': 'The use of a Preferred Name is optional',
         }
@@ -116,7 +116,7 @@ class UserCreateProfileForm(forms.ModelForm):
         model = Profile
         fields = ['preferred_name', 'student_number', 'roles']
 """
-    
+
 """
 class ProfileRoleForm(forms.ModelForm):
     roles = forms.ModelMultipleChoiceField(
@@ -179,13 +179,18 @@ class StudentProfileForm(forms.ModelForm):
             'ta_experience_details'
         ]
         widgets = {
+            #'status': forms.Select(attrs={ 'class': 'form-control' }),
+            #'program': forms.Select(attrs={ 'class': 'form-control' }),
             'program_others': forms.Textarea(attrs={ 'rows':2, 'class':'form-control' }),
+            #'graduation_date': forms.SelectDateWidget(attrs={ 'class': 'form-control' }),
             'degree_details': forms.Textarea(attrs={ 'rows':2, 'class':'form-control' }),
             'training_details': forms.Textarea(attrs={ 'rows':2, 'class':'form-control' }),
+            #'lfs_ta_training': forms.Select(attrs={ 'class': 'form-control' }),
             'lfs_ta_training_details': forms.Textarea(attrs={ 'rows':2, 'class':'form-control' }),
             'qualifications': forms.Textarea(attrs={ 'rows':2, 'class':'form-control' }),
             'prior_employment': forms.Textarea(attrs={ 'rows':2, 'class':'form-control' }),
             'special_considerations': forms.Textarea(attrs={ 'rows':2, 'class':'form-control' }),
+            #'ta_experience': forms.Select(attrs={ 'class': 'form-control' }),
             'ta_experience_details': forms.Textarea(attrs={ 'rows':2, 'class':'form-control' })
         }
         labels = {
@@ -310,6 +315,8 @@ class ConfidentialityForm(forms.ModelForm):
         fields = ['user', 'is_international', 'employee_number', 'sin', 'sin_expiry_date', 'study_permit', 'study_permit_expiry_date']
         widgets = {
             'user': forms.HiddenInput(),
+            #'is_international': forms.Select( attrs={ 'class': 'form-control' } ),
+            'employee_number': forms.TextInput( attrs={ 'class': 'form-control' } ),
             'sin': forms.FileInput(),
             'study_permit': forms.FileInput()
         }
@@ -406,4 +413,3 @@ class ProfileForm(forms.ModelForm):
                 'lfs_ta_training', 'lfs_ta_training_details', 'ta_experience',
                 'ta_experience_details']
 """
-

@@ -1,0 +1,5 @@
+{% for instructor in job.instructors.all %}
+  <div>{{ instructor.get_full_name }}</div>
+{% empty %}
+  No instructors
+{% endfor %}

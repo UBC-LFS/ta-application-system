@@ -1,0 +1,100 @@
+{% extends 'ta_app/base.html' %}
+{% block content %}
+
+{% include 'administrators/_menu.html' %}
+
+{% include 'ta_app/pages/_header.html' with title='Admin Emails' %}
+
+<div class="row">
+  <div class="col-8 mx-auto">
+    <h3>
+      Emails
+      <small class="text-muted">(Total: {{ admin_emails|length }})</small>
+    </h3>
+
+    <table class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Title</th>
+          <th>Message</th>
+          <th>Type</th>
+          <th>Created at</th>
+          <th>Updated at</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for email in admin_emails %}
+          <tr>
+            <td>{{ email.id }}</td>
+            <td class="text-left">{{ email.title }}</td>
+            <td>
+              <button class="btn btn-xs btn-info" type="button" data-toggle="modal" data-target="#admin_email-modal-{{ email.id }}">
+                <i class="fa fa-file-text-o" aria-hidden="true"></i>
+              </button>
+              <div class="modal fade" id="admin_email-modal-{{ email.id }}" tabindex="-1" role="dialog" aria-labelledby="admin_email-modal-label-{{ email.id }}" aria-hidden="true">
+                <div class="modal-dialog modal-lg" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="admin_email-modal-label-{{ email.id }}">Message</h5>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    </div>
+                    <div class="modal-body text-left">
+                      <h6 class="text-secondary">Type: {{ email.type }}</h6>
+                      <h5 class="font-weight-bold">{{ email.title }}</h5>
+                      <hr />
+                      <p>{{ email.message|safe }}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td>{{ email.type }}</td>
+            <td>{{ email.created_at }}</td>
+            <td>{{ email.updated_at }}</td>
+            <td>
+              <div class="btn-toolbar">
+                <a class="btn btn-xs btn-link" href="{% url 'administrators:edit_admin_email' slug=email.slug %}">Edit</a>
+
+                <form action="{% url 'administrators:delete_admin_email' %}" method="post" onsubmit="return confirm('Are you sure to delete this admin email - {{ email.type }}?')">
+                  {% csrf_token %}
+                  <input type="hidden" name="admin_email" value="{{ email.id }}" />
+                  <input class="btn btn-xs btn-danger" type="submit" value="Delete" />
+                </form>
+              </div>
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="7">No admin emails found.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <h3 class="text-info mt-5">Create Admin Email</h3>
+
+    <form action="{% url 'administrators:admin_emails' %}" method="post">
+      {% csrf_token %}
+
+      {% for field in form.visible_fields  %}
+        <div class="field-wrapper">
+          {{ field.label_tag }}
+          {% if field.help_text %}
+            <div class="help">{{ field.help_text|safe }}</div>
+          {% endif %}
+          {{ field }}
+        </div>
+      {% endfor %}
+
+      {% for field in form.hidden_fields %}
+        {{ field }}
+      {% endfor %}
+
+      <input class="btn btn-primary mt-3" type="submit" value="Create" />
+    </form>
+  </div>
+</div>
+
+{% endblock %}

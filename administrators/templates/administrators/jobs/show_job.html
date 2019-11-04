@@ -38,17 +38,13 @@
       {% include 'ta_app/jobs/_job_details.html' with data=job %}
 
       <div>
-        <h5>
-          Job ID:
-          <span>{{ job.id }}</span>
-        </h5>
+        <h6>Job ID:</h6>
+        <span>{{ job.id }}</span>
       </div>
 
       <div>
-        <h5>
-          Job Slug:
-          <span>{{ job.course.slug }}</span>
-        </h5>
+        <h6>Job Slug:</h6>
+        <span>{{ job.course.slug }}</span>
       </div>
     </div>
   </div>
@@ -96,9 +92,9 @@
           <td>{{ app.applicant.username }}</td>
           <td>{% include 'ta_app/applications/_modal_app_details.html' with data=app %}</td>
           <td>{% include 'ta_app/applications/_modal_app_status.html' with data=app %}</td>
-          <td>{{ app.get_instructor_preference_display }}</td>
-          <td>{{ app.classification.year }} {{ app.classification.name }}</td>
-          <td>{{ app.note }}</td>
+          <td>{% include 'ta_app/applications/_app_instructor_preference.html' with data=app.get_instructor_preference_display %}</td>
+          <td>{% include 'ta_app/applications/_app_classification.html' with data=app %}</td>
+          <td>{% include 'ta_app/applications/_modal_note.html' with data=app %}</td>
           <td>{{ app.created_at }}</td>
           <td>{{ app.updated_at }}</td>
         </tr>

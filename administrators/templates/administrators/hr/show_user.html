@@ -26,7 +26,7 @@
 
   <div class="col-md-8">
 
-    <nav>
+    <nav class="mb-4">
       <div class="nav nav-tabs" id="nav-tab" role="tablist">
         <a class="nav-item nav-link active" id="nav-basic-info-tab" data-toggle="tab" href="#nav-basic-info" role="tab" aria-controls="nav-basic-info" aria-selected="true">Basic Information</a>
         <a class="nav-item nav-link" id="nav-profile-tab" data-toggle="tab" href="#nav-profile" role="tab" aria-controls="nav-profile" aria-selected="false">Profile</a>
@@ -41,19 +41,19 @@
           {% include 'ta_app/users/_basic_info.html' with data=user student_number_display='True' %}
 
           <div>
-            <h5>
-              User ID:
-              <span>{{ user.id }}</span>
-            </h5>
+            <h6>User ID:</h6>
+            <span>{{ user.id }}</span>
           </div>
-          
+
           <div>
-            <h5>Role:</h5>
-            {% for role in user.profile.roles.all %}
-              <span class="mr-2">{{ role.name }}</span>
-            {% empty %}
-              <span>None</span>
-            {% endfor %}
+            <h6>Role:</h6>
+            <ul>
+              {% for role in user.profile.roles.all %}
+                <li>{{ role.name }}</li>
+              {% empty %}
+                <li>None</li>
+              {% endfor %}
+            </ul>
           </div>
         </div>
       </div>

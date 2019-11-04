@@ -127,8 +127,8 @@ class Confidentiality(models.Model):
         blank=True
     )
 
-    created_at = models.DateField(default=dt.date.today)
-    updated_at = models.DateField(default=dt.date.today)
+    created_at = models.DateField(null=True, blank=True)
+    updated_at = models.DateField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
         print('save =======')

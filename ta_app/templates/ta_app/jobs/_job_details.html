@@ -1,10 +1,12 @@
-<h4>
-  {{ data.course.code.name }} {{ data.course.number.name }} {{ data.course.section.name }} <br />
-  <small class="text-muted">{{ data.course.name }}</small>
-</h4>
+<div>
+  <h5>
+    {{ data.course.code.name }} {{ data.course.number.name }} {{ data.course.section.name }} <br />
+    <small class="text-muted">{{ data.course.name }}</small>
+  </h5>  
+</div>
 
 <div>
-  <h5>Instructors:</h5>
+  <h6>Instructors:</h6>
   <ul>
     {% for instructor in data.instructors.all %}
       <li>{{ instructor.get_full_name }}</li>
@@ -15,52 +17,36 @@
 </div>
 
 <div>
-  <h5>
-    Title:
-    <span>{{ data.title }}</span>
-  </h5>
+  <h6>Title:</h6>
+  <span>{{ data.title }}</span>
 </div>
 
 <div>
-  <h5>
-    Description:
-    <span>{{ data.description|safe }}</span>
-  </h5>
+  <h6>Description:</h6>
+  <span>{{ data.description|safe }}</span>
 </div>
 
 <div>
-  <h5>
-    Qualification:
-    <span>{{ data.qualification|safe }}</span>
-  </h5>
+  <h6>Qualification:</h6>
+  <span>{{ data.qualification|safe }}</span>
 </div>
 
 <div>
-  <h5>
-    Note:
-    <span>{{ data.note|safe }}</span>
-  </h5>
+  <h6>Note:</h6>
+  <span>{{ data.note|safe }}</span>
 </div>
 
 <div>
-  <h5>
-    Is active:
-    <span class="text-white">
-      {% include 'ta_app/jobs/_job_is_active.html' with data=data %}
-    </span>
-  </h5>
+  <h6>Is active:</h6>
+  {% include 'ta_app/jobs/_job_is_active.html' with data=data %}
 </div>
 
 <div>
-  <h5>
-    Created at:
-    <span>{{ data.created_at }}</span>
-  </h5>
+  <h6>Created at:</h6>
+  <span>{{ data.created_at }}</span>
 </div>
 
 <div>
-  <h5>
-    Updated at:
-    <span>{{ data.updated_at }}</span>
-  </h5>
+  <h6>Updated at:</h6>
+  <span>{{ data.updated_at }}</span>
 </div>

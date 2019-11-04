@@ -90,17 +90,14 @@ main {
 
 .img-profile,
 .img-document {
+  width: 40%;
   height: auto;
   border-radius: 50%;
   margin-bottom: 20px;
 }
 
 .img-profile {
-  width: 30%
-}
-
-.img-document {
-  width: 40%;
+  border: 10px solid #fff;
 }
 
 .left-aside-btn-groups {
@@ -145,13 +142,14 @@ main {
   font-weight: 600;
 }
 
-.prompt > p {
+.prompt > p,
+.prompt > div > p {
   color: #6c757d;
 }
 
 .board {
   background-color: #f3f7f7;
-  padding: 1.5rem;
+  padding: 2rem;
 }
 
 .board h3 {
@@ -165,24 +163,21 @@ main {
   margin-top: 1.5rem;
 }
 
-.board > h4,
 .board > div > h5,
-.board > form > div > h5,
 .board > div > h6 {
   font-weight: 600;
 }
 
-.board > div > h5 > span {
-  display: block;
-  color: #6c757d;
+.board > h4,
+.board > form > div > h5 {
   font-weight: 400;
-  margin-top: 5px;
 }
 
 .board > div > span,
 .board > form > div > span,
 .board > div > ul {
   color: #6c757d;
+  font-size: 1rem;
 }
 
 .gray-box {
@@ -215,6 +210,11 @@ main {
 .bd-callout h4 {
     margin-top: 0;
     margin-bottom: .25rem;
+}
+
+.bd-callout p,
+.bd-callout ul {
+  color: #343a40 !important;
 }
 
 .bd-callout-warning h4 {
@@ -260,6 +260,10 @@ hr.dotted {
   font-size: 1rem !important;
 }
 
+.badge {
+  font-size: 80% !important;
+  color: #fff;
+}
 
 .badge-orange {
   color: #fff;

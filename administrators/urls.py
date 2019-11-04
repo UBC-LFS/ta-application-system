@@ -112,5 +112,9 @@ urlpatterns = [
     path('preparation/classifications/<str:slug>/edit/', views.edit_classification, name='edit_classification'),
     path('preparation/classifications/', views.classifications, name='classifications'),
 
+    path('preparation/admin-emails/delete/', views.delete_admin_email, name='delete_admin_email'),
+    path('preparation/admin-emails/<str:slug>/edit/', views.edit_admin_email, name='edit_admin_email'),
+    path('preparation/admin-emails/', views.admin_emails, name='admin_emails'),
+
     path('preparation/', views.preparation, name='preparation')
 ]

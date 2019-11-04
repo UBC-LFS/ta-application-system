@@ -4,22 +4,22 @@
 {% include 'administrators/_menu.html' %}
 <div class="row">
   <div class="col-md-4">
-    {% include 'ta_app/pages/_header.html' with title='Instructor Jobs' text=user.job_set.all|length %}
+    {% include 'ta_app/pages/_left_aside.html' with view_name='users' app_name=app_name title='Instructor Jobs' data=user %}
 
-    <div class="bg-prompt">
-      <div class="prompt p-4 mb-4">
-        <h4>{{ user.get_full_name }}</h4>
-        <p>{{ user.username }}</p>
-
-        <a class="btn btn-sm btn-outline-primary" href="{% url 'administrators:instructor_jobs' %}">Jobs by Instructor</a>
-      </div>
+    <div class="left-aside-btn-groups">
+      <a class="btn btn-outline-primary" href="{% url 'administrators:instructor_jobs' %}">Jobs by Instructor</a>
     </div>
   </div>
 
   <div class="col-md-8"></div>
 </div>
 
-<div>
+<div class="mt-5">
+  <h4>
+    Jobs
+    <small class="text-muted">(Total: {{ user.job_set.all|length }})</small>
+  </h4>
+
   <table
     class="table table-bordered table-hover table-striped table-responsive-md text-center"
     data-toggle="table"
@@ -52,14 +52,14 @@
           <td>{{ job.session.year }}</td>
           <td>{{ job.session.term.code }}</td>
           <td>{{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</td>
-          <td class="text-left">
+          <td>
             {% for app in job.application_set.all %}
-              {% include 'ta_app/users/_modal_user_details.html' with data=app.applicant %}
+              {% include 'ta_app/users/_modal_user_details.html' with data=app.applicant %}<br />
             {% empty %}
               No applicants
             {% endfor %}
           </td>
-          <td>{{ job.is_active }}</td>
+          <td>{% include 'ta_app/jobs/_job_is_active.html' with data=job %}</td>
           <td>{{ job.created_at }}</td>
           <td>{{ job.updated_at }}</td>
         </tr>

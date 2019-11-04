@@ -161,13 +161,14 @@ def delete_resume(request):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
 def show_confidentiality(request):
+    print("show_confidentiality")
     ''' Display user's confidentiality '''
     loggedin_user = userApi.loggedin_user(request.user)
     if 'Student' not in loggedin_user.roles: raise PermissionDenied
 
     return render(request, 'students/profile/show_confidentiality.html', {
         'loggedin_user': loggedin_user,
-        'user': userApi.get_user_with_confidentiality(loggedin_user.id)
+        'user': userApi.get_user_with_confidentiality(loggedin_user.username)
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -220,8 +221,8 @@ def submit_confidentiality(request):
             study_permit_file = request.FILES.get('study_permit')
 
             updated_confidentiality = form.save(commit=False)
-            #updated_confidentiality.created_at = datetime.now()
-            #updated_confidentiality.updated_at = datetime.now()
+            updated_confidentiality.created_at = datetime.now()
+            updated_confidentiality.updated_at = datetime.now()
 
             updated_confidentiality.sin = sin_file
             updated_confidentiality.study_permit = study_permit_file
@@ -482,7 +483,8 @@ def apply_job(request, session_slug, job_slug):
         'loggedin_user': loggedin_user,
         'job': job,
         'has_applied_job': adminApi.has_applied_job(session_slug, job_slug, loggedin_user),
-        'form': ApplicationForm(initial={ 'applicant': loggedin_user.id, 'job': job.id })
+        'form': ApplicationForm(initial={ 'applicant': loggedin_user.id, 'job': job.id }),
+        'applied_jobs': adminApi.get_jobs_applied_by_student(loggedin_user).order_by('-created_at')[:10]
     })
 
 @login_required(login_url=settings.LOGIN_URL)

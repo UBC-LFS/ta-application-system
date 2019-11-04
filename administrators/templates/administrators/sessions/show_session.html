@@ -17,25 +17,18 @@
       <h3>Details</h3>
 
       <div>
-        <h5>
-          Title:
-          <span>{{ session.title }}</span>
-        </h5>
+        <h6>Title:</h6>
+        <span>{{ session.title }}</span>
       </div>
 
       <div>
-        <h5>
-          Description:
-          <span>{{ session.description|safe }}</span>
-        </h5>
-
+        <h6>Description:</h6>
+        <span>{{ session.description|safe }}</span>
       </div>
 
       <div>
-        <h5>
-          Note:
-          <span>{{ session.note|safe }}</span>
-        </h5>
+        <h6>Note:</h6>
+        <span>{{ session.note|safe }}</span>
       </div>
 
       <br />
@@ -115,21 +108,11 @@
             {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}
             {% include 'ta_app/jobs/_modal_job_details.html' with data=job %}
           </td>
-          <td>
-            {% for instructor in job.instructors.all %}
-              {{ instructor.get_full_name }},
-            {% empty %}
-              None
-            {% endfor %}
-          </td>
+          <td>{% include 'ta_app/jobs/_job_instructor.html' with data=job %}</td>
           <td>{{ job.assigned_ta_hours }}</td>
           <td>{{ job.accumulated_ta_hours }}</td>
           <td>
-            {% if job.is_active %}
-              <span class="badge badge-success">{{ job.is_active }} <i class="fa fa-check-circle" aria-hidden="true"></i></span>
-            {% else %}
-              <span class="badge badge-danger">{{ job.is_active }} <i class="fa fa-stop-circle" aria-hidden="true"></i></span>
-            {% endif %}
+            {% include 'ta_app/jobs/_job_is_active.html' with data=job %}
           </td>
           <td>{{ job.created_at }}</td>
           <td>{{ job.updated_at }}</td>

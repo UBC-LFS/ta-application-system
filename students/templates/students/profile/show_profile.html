@@ -1,29 +1,19 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
 
-{% load static %}
 {% include 'students/_menu.html' %}
-{% include 'ta_app/pages/_return_messages.html' with data=messages %}
 <div class="row">
   <div class="col-md-4">
-    {% include 'ta_app/pages/_header.html' with title='View Profile' %}
+    {% include 'ta_app/pages/_left_aside.html' with view_name='users' app_name=app_name title='View Profile' data=user %}
 
-    <div class="user-profile">
-      <img class="img-profile img-circle img-fluid" src="{% static 'ta_app/images/user.png' %}" alt="user-image" />
-
-      <div class="bg-prompt">
-        <div class="prompt p-4 mb-4">
-          <h4>{{ user.get_full_name }}</h4>
-
-          <a class="btn btn-sm btn-outline-primary" href="{% url 'students:edit_profile' %}">Edit Profile</a>
-        </div>
-      </div>
+    <div class="left-aside-btn-groups">
+      <a class="btn btn-outline-primary" href="{% url 'students:edit_profile' %}">Edit Profile</a>
     </div>
   </div>
 
   <div class="col-md-8">
 
-    <nav>
+    <nav class="mb-4">
       <div class="nav nav-tabs" id="nav-tab" role="tablist">
         <a class="nav-item nav-link active" id="nav-basic-info-tab" data-toggle="tab" href="#nav-basic-info" role="tab" aria-controls="nav-basic-info" aria-selected="true">Basic Information</a>
         <a class="nav-item nav-link" id="nav-profile-tab" data-toggle="tab" href="#nav-profile" role="tab" aria-controls="nav-profile" aria-selected="false">Profile</a>

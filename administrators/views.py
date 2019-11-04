@@ -587,9 +587,12 @@ def offered_applications(request):
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
 
+    admin_emails = adminApi.get_admin_emails()
+    print(admin_emails)
     return render(request, 'administrators/applications/offered_applications.html', {
         'loggedin_user': loggedin_user,
-        'offered_applications': adminApi.get_applications_by_status(ApplicationStatus.OFFERED)
+        'offered_applications': adminApi.get_applications_by_status(ApplicationStatus.OFFERED),
+        'admin_emails': admin_emails
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -708,9 +711,12 @@ def offered_applications_send_email(request):
 
     if request.method == 'POST':
         applications = request.POST.getlist('application')
-        email_type = request.POST.get('email_type')
-        request.session['offered_applications_form_data'] = { 'applications': applications, 'email_type': email_type }
-        return redirect('administrators:offered_applications_send_email_confirmation')
+        if len(applications) > 0:
+            email_type = request.POST.get('email_type')
+            request.session['offered_applications_form_data'] = { 'applications': applications, 'email_type': email_type }
+            return redirect('administrators:offered_applications_send_email_confirmation')
+        else:
+            messages.error(request, 'An error occurred. Please select applications, then try again.')
 
     return redirect('administrators:offered_applications')
 
@@ -743,13 +749,15 @@ def offered_applications_send_email_confirmation(request):
                 count = 0
                 for app in applications:
                     name = app.applicant.first_name + ' ' + app.applicant.last_name
-                    job = app.job.session.year + ' ' + app.job.session.term.code + ' ' + app.job.course.code.name + ' ' + app.job.course.number.name + ' ' + app.job.course.section.name
+                    session_term = app.job.session.year + ' ' + app.job.session.term.code
+                    job = app.job.course.code.name + ' ' + app.job.course.number.name + ' ' + app.job.course.section.name
                     assigned_hours = 0.0
                     for st in app.applicationstatus_set.all():
                         if st.assigned == ApplicationStatus.OFFERED:
                             assigned_hours = st.assigned_hours
 
-                    message = data['message'].format(name, job, assigned_hours, app.classification.name, settings.TA_APP_URL)
+                    #message = data['message'].format(name, session_term, job, assigned_hours, app.classification.name, settings.TA_APP_URL)
+                    message = data['message'].format(name, session_term, job, assigned_hours, app.classification.name)
 
                     # TODO: replace a receiver
                     receiver = '{0} <brandon.oh@ubc.ca>'.format(name)
@@ -773,21 +781,16 @@ def offered_applications_send_email_confirmation(request):
 
         else:
             email_type = form_data['email_type']
-            title = None
-            message = None
-            if email_type == 'type1':
-                title = settings.EMAIL_TITLE_TYPE_1
-                message = settings.MY_EMAIL_MESSAGE_TYPE_1
-            else:
-                title = settings.EMAIL_TITLE_TYPE_2
-                message = settings.MY_EMAIL_MESSAGE_TYPE_2
+            admin_email = adminApi.get_admin_email_by_slug(email_type)
+            title = admin_email.title
+            message = admin_email.message
 
             form = EmailForm(initial={
                 'sender': settings.EMAIL_FROM,
                 'receiver': receiver_list,
                 'title': title,
                 'message': message,
-                'type': email_type
+                'type': admin_email.type
             })
 
     return render(request, 'administrators/applications/offered_applications_send_email_confirmation.html', {
@@ -796,7 +799,7 @@ def offered_applications_send_email_confirmation(request):
         'sender': settings.EMAIL_FROM,
         'receiver': receiver_list,
         'form': form,
-        'type': email_type
+        'type': admin_email.type
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -2148,6 +2151,86 @@ def delete_role(request):
         else:
             messages.error(request, 'An error occurred.')
     return redirect("administrators:roles")
+
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET', 'POST'])
+def admin_emails(request):
+    ''' Display all roles and create a role '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user): raise PermissionDenied
+
+    admin_emails = adminApi.get_admin_emails()
+    if request.method == 'POST':
+        form = AdminEmailForm(request.POST)
+        if form.is_valid():
+            admin_email = form.save()
+            if admin_email:
+                messages.success(request, 'Success! {0} created'.format(admin_email.type))
+                return redirect('administrators:admin_emails')
+            else:
+                messages.error(request, 'An error occurred.')
+        else:
+            errors = form.errors.get_json_data()
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+
+    return render(request, 'administrators/preparation/admin_emails.html', {
+        'loggedin_user': loggedin_user,
+        'admin_emails': admin_emails,
+        'form': AdminEmailForm()
+    })
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET', 'POST'])
+def edit_admin_email(request, slug):
+    ''' Edit a admin_email '''
+    print("edit_admin_email ", slug)
+    loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user): raise PermissionDenied
+
+    admin_email = adminApi.get_admin_email_by_slug(slug)
+
+    if request.method == 'POST':
+        form = AdminEmailForm(request.POST, instance=admin_email)
+        if form.is_valid():
+            updated_admin_email = form.save()
+            if updated_admin_email:
+                messages.success(request, 'Success! {0} updated'.format(updated_admin_email.type))
+                return redirect("administrators:admin_emails")
+            else:
+                messages.error(request, 'An error occurred.')
+        else:
+            errors = form.errors.get_json_data()
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+
+        return HttpResponseRedirect( reverse('administrators:edit_admin_email', args=[slug]) )
+
+    return render(request, 'administrators/preparation/edit_admin_email.html', {
+        'loggedin_user': loggedin_user,
+        'admin_emails': admin_emails,
+        'form': AdminEmailForm(data=None, instance=admin_email)
+    })
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['POST'])
+def delete_admin_email(request):
+    ''' Delete a admin_email '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user): raise PermissionDenied
+
+    if request.method == 'POST':
+        admin_email_id = request.POST.get('admin_email')
+        deleted_admin_email = adminApi.delete_admin_email(admin_email_id)
+        if deleted_admin_email:
+            messages.success(request, 'Success! {0} deleted'.format(deleted_admin_email.type))
+        else:
+            messages.error(request, 'An error occurred.')
+    return redirect("administrators:admin_emails")
+
+
 
 
 

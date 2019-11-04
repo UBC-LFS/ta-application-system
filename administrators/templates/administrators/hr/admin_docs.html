@@ -31,6 +31,8 @@
         <th>PIN</th>
         <th>TASM</th>
         <th>eForm</th>
+        <th>Created at</th>
+        <th>Updated at</th>
         <th>Actions</th>
       </tr>
     </thead>
@@ -43,15 +45,17 @@
           <td>{{ user.username }}</td>
           <td>{{ user.confidentiality.international_student }}</td>
           <td>
-            {% if user.is_new_member %}
-              <span class="badge badge-danger">NEW</span>
-            {% else %}
+            {% if user.confidentiality.employee_number %}
               {{ user.confidentiality.employee_number }}
+            {% else %}
+              <span class="badge badge-danger">NEW</span>
             {% endif %}
           </td>
           <td>{{ user.confidentiality.pin }}</td>
           <td>{{ user.confidentiality.tasm }}</td>
           <td>{{ user.confidentiality.eform }}</td>
+          <td>{{ user.confidentiality.created_at }}</td>
+          <td>{{ user.confidentiality.updated_at }}</td>
           <td>
             <a href="{% url 'administrators:view_confidentiality' username=user.username %}">View Details</a>
             <a class="btn btn-sm btn-link" href="{% url 'administrators:edit_admin_docs' username=user.username %}">Edit</a>

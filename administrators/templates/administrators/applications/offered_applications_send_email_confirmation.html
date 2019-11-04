@@ -10,11 +10,11 @@
     <div class="bg-prompt">
       <div class="prompt p-4 mb-4">
         <h4>
-          {% if type == 'type1' %} Type 1 {% else %} Type 2 {% endif %} Email
+          {{ type }} Email
         </h4>
         <p>There are <span class="font-weight-bold">{{ applications|length }}</span> receiver(s) selected.</p>
 
-        <a class="btn btn-sm btn-outline-primary" href="{% url 'administrators:offered_applications' %}">Offered Applications</a>
+        <a class="btn btn-outline-primary" href="{% url 'administrators:offered_applications' %}">Back to Offered Applications</a>
       </div>
     </div>
 
@@ -23,10 +23,11 @@
       <p>
         <ul>
           <li>Name: {0}</li>
-          <li>Job: {1}</li>
-          <li>Assigned Hours: {2}</li>
-          <li>Classification: {3}</li>
-          <li>URL: {4}</li>
+          <li>Session-Term: {1}</li>
+          <li>Job: {2}</li>
+          <li>Assigned Hours: {3}</li>
+          <li>Classification: {4}</li>
+          <li>URL: {5}</li>
         </ul>
       </p>
     </div>
@@ -101,11 +102,8 @@
             {{ field }}
           {% endfor %}
 
-          {% if type == 'type1' %}
-            <input class="btn btn-primary" type="submit" value="Confirm to send an email by Type 1" />
-          {% else  %}
-            <input class="btn btn-primary" type="submit" value="Confirm to send an email by Type 2" />
-          {% endif %}
+
+          <input class="btn btn-primary" type="submit" value="Confirm to send an email by {{ type }}" />
         </form>
       </div>
 

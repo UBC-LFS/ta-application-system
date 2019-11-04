@@ -1,5 +1,4 @@
-<nav class="container menu mb-4">
-
+<nav class="container menu">
   <div class="dropdown">
     <button class="btn btn-sm btn-light dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
       Profile
@@ -20,5 +19,6 @@
       <a class="dropdown-item" href="{% url 'students:status_jobs' %}">Status</a>
     </div>
   </div>
-
 </nav>
+
+{% include 'ta_app/pages/_return_messages.html' with data=messages %}

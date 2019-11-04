@@ -292,11 +292,22 @@ class ReminderForm(forms.ModelForm):
     )
     class Meta:
         model = Email
-        fields = ['application', 'sender', 'receiver','title', 'message', 'type']
+        fields = ['application', 'sender', 'receiver', 'title', 'message', 'type']
         widgets = {
             'application': forms.HiddenInput(),
             'message': SummernoteWidget(),
             'sender': forms.HiddenInput(),
             'receiver': forms.HiddenInput(),
             'type': forms.HiddenInput()
+        }
+
+
+class AdminEmailForm(forms.ModelForm):
+    class Meta:
+        model = AdminEmail
+        fields = ['title', 'message', 'type']
+        widgets = {
+            'title': forms.TextInput(attrs={ 'class':'form-control' }),
+            'message': SummernoteWidget(),
+            'type': forms.TextInput(attrs={ 'class':'form-control' }),
         }

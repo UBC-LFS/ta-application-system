@@ -3,8 +3,6 @@
 
 {% include 'administrators/_menu.html' %}
 <div>
-  {% include 'ta_app/pages/_return_messages.html' with data=messages %}
-
   {% include 'ta_app/pages/_header.html' with title='All Courses' text=courses|length %}
 
   <div class="bg-prompt">
@@ -51,12 +49,12 @@
             <td class="text-left">{{ course.name }}</td>
             <td>
               <div class="btn-toolbar">
-                <a class="btn btn-sm btn-link mr-2" href="{% url 'administrators:edit_course' course.slug %}">Edit</a>
+                <a class="btn btn-xs btn-link mr-2" href="{% url 'administrators:edit_course' course.slug %}">Edit</a>
 
                 <form action="{% url 'administrators:delete_course' %}" method="post" onsubmit="return confirm('Are you sure to delete {{ course.code }} {{ course.number }} {{ course.section }} - {{ course.name }}?');">
                   {% csrf_token %}
                   <input type="hidden" name="course" value="{{ course.id }}" />
-                  <input class="btn btn-sm btn-danger" type="submit" value="Delete" />
+                  <input class="btn btn-xs btn-danger" type="submit" value="Delete" />
                 </form>
               </div>
             </td>

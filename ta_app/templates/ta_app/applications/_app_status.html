@@ -1,5 +1,5 @@
 {% if data == 'Selected' %}
-  <span class="badge badge-warning">{{ data.upper }}</span>
+  <span class="badge badge-orange">{{ data.upper }}</span>
 
 {% elif data == 'Offered' %}
   <span class="badge badge-primary">{{ data.upper }}</span>
@@ -14,6 +14,6 @@
   <span class="badge badge-secondary">{{ data.upper }}</span>
 
 {% else %}
-  <span class="badge badge-light">APPLIED</span>
+  <span class="badge badge-light text-dark">APPLIED</span>
 
 {% endif %}

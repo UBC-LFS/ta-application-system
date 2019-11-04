@@ -21,7 +21,7 @@ class CourseCode(models.Model):
     name = models.CharField(max_length=5, unique=True)
 
     class Meta:
-        ordering = ['pk']
+        ordering = ['name']
 
     def __str__(self):
         return self.name
@@ -30,7 +30,7 @@ class CourseNumber(models.Model):
     """ Create a CourseNumber model """
     name = models.CharField(max_length=5, unique=True)
     class Meta:
-        ordering = ['pk']
+        ordering = ['name']
 
     def __str__(self):
         return self.name
@@ -40,7 +40,7 @@ class CourseSection(models.Model):
     name = models.CharField(max_length=5, unique=True)
 
     class Meta:
-        ordering = ['pk']
+        ordering = ['name']
 
     def __str__(self):
         return self.name
@@ -204,6 +204,7 @@ class ApplicationStatus(models.Model):
         ordering = ['pk']
 
 class Email(models.Model):
+    ''' Send an email to applicants '''
     application = models.ForeignKey(Application, on_delete=models.CASCADE)
     sender = models.CharField(max_length=256)
     receiver = models.CharField(max_length=256)
@@ -214,3 +215,20 @@ class Email(models.Model):
 
     class Meta:
         ordering = ['-pk']
+
+
+class AdminEmail(models.Model):
+    ''' Admins can save an email message and title '''
+    title = models.CharField(max_length=256)
+    message = models.TextField()
+    type = models.CharField(max_length=256, unique=True)
+    created_at = models.DateField(default=dt.date.today)
+    updated_at = models.DateField(default=dt.date.today)
+    slug = models.SlugField(max_length=256, unique=True)
+
+    class Meta:
+        ordering = ['pk']
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.type)
+        super(AdminEmail, self).save(*args, **kwargs)

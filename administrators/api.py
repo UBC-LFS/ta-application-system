@@ -495,7 +495,7 @@ def get_selected_applications():
         app.offered = None
         offered = app.applicationstatus_set.filter(assigned=ApplicationStatus.OFFERED)
         if offered.exists(): app.offered = offered.first()
-        
+
     return apps
 
 def get_applications_by_status(status):
@@ -690,7 +690,7 @@ def get_classification(classification_id):
     return get_object_or_404(Classification, id=classification_id)
 
 def get_classification_by_slug(slug):
-    ''' Get a classification by code '''
+    ''' Get a classification by slug '''
     return get_object_or_404(Classification, slug=slug)
 
 def delete_classification(classification_id):
@@ -699,9 +699,23 @@ def delete_classification(classification_id):
     classification.delete()
     return classification if classification else False
 
+def get_admin_emails():
+    ''' Get admin emails '''
+    return AdminEmail.objects.all()
 
+def get_admin_email(admin_email_id):
+    ''' Get a admin email by id '''
+    return get_object_or_404(AdminEmail, id=admin_email_id)
 
+def get_admin_email_by_slug(slug):
+    ''' Get a admin_email by slug '''
+    return get_object_or_404(AdminEmail, slug=slug)
 
+def delete_admin_email(admin_email_id):
+    ''' Delete a admin_email '''
+    admin_email = get_admin_email(admin_email_id)
+    admin_email.delete()
+    return admin_email if admin_email else False
 
 #-------------------------------------
 """

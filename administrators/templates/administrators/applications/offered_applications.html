@@ -1,10 +1,8 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
+
 {% include 'administrators/_menu.html' %}
-
 <div>
-  {% include 'ta_app/pages/_return_messages.html' with data=messages %}
-
   {% include 'ta_app/pages/_header.html' with title='Offered Applications' text=offered_applications|length %}
 
   <div>
@@ -68,7 +66,7 @@
                 <td>{% include 'ta_app/applications/_modal_app_status.html' with data=app %}</td>
                 <td>{{ app.get_instructor_preference_display }}</td>
                 <td>{{ app.classification.year }} {{ app.classification.name }}</td>
-                <td>{{ app.note }}</td>
+                <td>{% include 'ta_app/applications/_modal_note.html' with data=app %}</td>
                 <td>{{ app.created_at }}</td>
                 <td>{{ app.updated_at }}</td>
                 <td>{{ app.offered.created_at }}</td>
@@ -79,8 +77,14 @@
 
         <div class="mt-4 mb-4">
           <h5>Select Email Type:</h5>
-          <label class="radio-inline"><input type="radio" name="email_type" value="type1" checked />Type 1</label>
-          <label class="radio-inline"><input type="radio" name="email_type" value="type2" />Type 2</label>
+          {% for email in admin_emails %}
+            <div>
+              {{ email.type }}
+              <input type="radio" name="email_type" value="{{ email.slug }}"
+                {% if forloop.counter == 1 %} checked {% endif %}
+              />
+            </div>
+          {% endfor %}
         </div>
 
         <input class="btn btn-lg btn-primary" type="submit" value="Send Email" />

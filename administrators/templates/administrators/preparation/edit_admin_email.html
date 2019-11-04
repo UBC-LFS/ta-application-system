@@ -1,0 +1,36 @@
+{% extends 'ta_app/base.html' %}
+{% block content %}
+
+{% include 'administrators/_menu.html' %}
+
+{% include 'ta_app/pages/_header.html' with title='Admin Emails' %}
+
+<div class="row">
+  <div class="col-8 mx-auto">
+
+    <h3 class="text-info mt-5">Edit Admin Email</h3>
+
+    <form action="" method="post">
+      {% csrf_token %}
+
+      {% for field in form.visible_fields  %}
+        <div class="field-wrapper">
+          {{ field.label_tag }}
+          {% if field.help_text %}
+            <div class="help">{{ field.help_text|safe }}</div>
+          {% endif %}
+          {{ field }}
+        </div>
+      {% endfor %}
+
+      {% for field in form.hidden_fields %}
+        {{ field }}
+      {% endfor %}
+
+      <a class="btn btn-outline-primary" href="{% url 'administrators:admin_emails' %}">Cancel</a>
+      <input class="btn btn-primary" type="submit" value="Update" />
+    </form>
+  </div>
+</div>
+
+{% endblock %}

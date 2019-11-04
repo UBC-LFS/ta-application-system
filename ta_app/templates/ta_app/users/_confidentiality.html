@@ -1,23 +1,27 @@
 <div>
-  <h5>International Student:</h5>
-  {% if data.confidentiality.is_international %}
-    {{ data.confidentiality.is_international }}
-  {% else %}
-    <span>None</span>
-  {% endif %}
+  <h6>Are you an International Student?</h6>
+  <span>
+    {% if data.confidentiality.is_international %}
+      {{ data.confidentiality.is_international }}
+    {% else %}
+      None
+    {% endif %}
+  </span>
 </div>
 
 <div>
-  <h5>Employee Number:</h5>
-  {% if data.confidentiality.employee_number %}
-    {{ data.confidentiality.employee_number }}
-  {% else %}
-    <span>None</span>
-  {% endif %}
+  <h6>Employee Number:</h6>
+  <span>
+    {% if data.confidentiality.employee_number %}
+      {{ data.confidentiality.employee_number }}
+    {% else %}
+      None
+    {% endif %}
+  </span>
 </div>
 
 <div>
-  <h5>Social Insurance Number (SIN):</h5>
+  <h6>Social Insurance Number (SIN):</h6>
   {% if data.sin_data %}
     <img class="img-fluid" src="{{ data.sin_data.url }}" width="400" height="300" alt="SIN-image" />
     {% comment %}
@@ -29,7 +33,7 @@
 </div>
 
 <div>
-  <h5>SIN Expiry Date:</h5>
+  <h6>SIN Expiry Date:</h6>
   <span>
     {% if data.confidentiality.sin_expiry_date %}
       {{ data.confidentiality.sin_expiry_date }}
@@ -40,7 +44,7 @@
 </div>
 
 <div>
-  <h5>Study Permit:</h5>
+  <h6>Study Permit:</h6>
   {% if data.study_permit_data %}
     <img class="img-fluid" src="{{ data.study_permit_data.url }}" width="400" height="300" alt="Study-Permit-image" />
     {% comment %}
@@ -52,7 +56,7 @@
 </div>
 
 <div>
-  <h5>Study Permit Expiry Date:</h5>
+  <h6>Study Permit Expiry Date:</h6>
   <span>
     {% if data.confidentiality.study_permit_expiry_date %}
       {{ data.confidentiality.study_permit_expiry_date }}
@@ -65,7 +69,7 @@
 {% if role == 'administrator' %}
 
   <div>
-    <h5>PIN:</h5>
+    <h6>PIN:</h6>
     <span>
       {% if data.confidentiality.pin %}
         {{ data.confidentiality.pin }}
@@ -76,7 +80,7 @@
   </div>
 
   <div>
-    <h5>TASM:</h5>
+    <h6>TASM:</h6>
     <span>
       {% if data.confidentiality.tasm %}
         {{ data.confidentiality.tasm }}
@@ -87,7 +91,7 @@
   </div>
 
   <div>
-    <h5>eForm:</h5>
+    <h6>eForm:</h6>
     <span>
       {% if data.confidentiality.eform %}
         {{ data.confidentiality.eform }}
@@ -98,7 +102,7 @@
   </div>
 
   <div>
-    <h5>Union and Other Correspondence:</h5>
+    <h6>Union and Other Correspondence:</h6>
     {% if data.union_correspondence_file %}
       <a href="{% url 'administrators:download_union_correspondence' username=data.username filename=data.union_correspondence_file %}" target="_blank">{{ data.union_correspondence_file }}</a>
     {% else %}
@@ -107,7 +111,7 @@
   </div>
 
   <div>
-    <h5>Compression Agreement:</h5>
+    <h6>Compression Agreement:</h6>
 
     {% if data.compression_agreement_file %}
       <a href="{% url 'administrators:download_compression_agreement' username=data.username filename=data.compression_agreement_file %}" target="_blank">{{ data.compression_agreement_file }}</a>
@@ -119,7 +123,7 @@
 {% endif %}
 
 <div>
-  <h5>Created at:</h5>
+  <h6>Created at:</h6>
   <span>
     {% if data.confidentiality.created_at %}
       {{ data.confidentiality.created_at }}
@@ -130,7 +134,7 @@
 </div>
 
 <div>
-  <h5>Updated at:</h5>
+  <h6>Updated at:</h6>
   <span>
     {% if data.confidentiality.updated_at %}
       {{ data.confidentiality.updated_at }}

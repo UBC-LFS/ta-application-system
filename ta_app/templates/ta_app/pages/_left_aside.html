@@ -38,7 +38,15 @@
 
           <h4>{{ data.job.session.year }} {{ data.job.session.term.name }} ({{ data.job.session.term.code }})</h4>
           <h4>{{ data.job.course.code.name }} {{ data.job.course.number.name }} {{ data.job.course.section.name }}</h4>
-          <p>{{ data.job.course.name }}</p>
+          <p>{{ data.job.course.name }}</p>        
+
+        {% elif view_name == 'job_applications' %}
+
+          <div class="text-left">
+            <h4>{{ data.session.year }} {{ data.session.term.name }} ({{ data.session.term.code }})</h4>
+            <h4>{{ data.course.code.name }} {{ data.course.number.name }} {{ data.course.section.name }}</h4>
+            <p>{{ data.course.name }}</p>
+          </div>
 
         {% elif view_name == 'emails' %}
 
