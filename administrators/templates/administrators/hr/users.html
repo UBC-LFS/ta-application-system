@@ -96,7 +96,12 @@
               <form action="{% url 'administrators:delete_user' %}" method="post" onsubmit="return confirm('Are you sure to delete {{ user.first_name }} {{ user.last_name }} ({{ user.username }})?');">
                 {% csrf_token %}
                 <input type="hidden" name="user" value="{{ user.id }}" />
-                <input class="btn btn-sm btn-danger" type="submit" value="Delete" />
+                <input class="btn btn-sm btn-danger mr-2" type="submit" value="Delete" />
+              </form>
+              <form action="/su/{{ user.id }}/" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="user" value="{{ user.id }}" />
+                <input class="btn btn-sm btn-success" type="submit" value="Login" />
               </form>
             </div>
           </td>

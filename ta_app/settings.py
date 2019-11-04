@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 import os
 from django.contrib.messages import constants as messages
 
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -45,6 +46,7 @@ USER_PASSWORD = 'password'
 # Application definition
 
 INSTALLED_APPS = [
+    'django_su',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -59,6 +61,16 @@ INSTALLED_APPS = [
     'students',
     'django_summernote'
 ]
+
+AUTHENTICATION_BACKENDS = [
+    'django_su.backends.SuBackend',
+]
+
+AJAX_LOOKUP_CHANNELS = {'django_su':  dict(model='auth.user', search_field='username')}
+
+SU_LOGIN_REDIRECT_URL = "/students/"
+
+SU_LOGOUT_REDIRECT_URL = "/administrators/hr/users/all/"
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -86,6 +98,10 @@ TEMPLATES = [
             ],
         },
     },
+]
+
+TEMPLATE_CONTEXT_PROCESSORS = [
+    'django_su.context_processors.is_su',
 ]
 
 WSGI_APPLICATION = 'ta_app.wsgi.application'

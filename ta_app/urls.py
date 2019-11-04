@@ -15,8 +15,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.conf.urls import url
+from django.conf.urls import include as confinclude
 from . import views
-
+from django.conf import settings
 
 urlpatterns = [
     path('accounts/', include('accounts.urls')),
@@ -24,7 +26,15 @@ urlpatterns = [
     path('human_resources/', include('human_resources.urls')),
     path('instructors/', include('instructors.urls')),
     path('students/', include('students.urls')),
-    path('summernote/', include('django_summernote.urls'))
-    #path('admin/', admin.site.urls),
+    path('summernote/', include('django_summernote.urls')),
+    url(r'^su/', confinclude('django_su.urls')),
+    url(r'^admin/', admin.site.urls),
     #path('accounts/admin/', include('django.contrib.auth.urls'))
 ]
+
+if 'ajax_select' in settings.INSTALLED_APPS:
+    from ajax_select import urls as ajax_select_urls
+
+    urlpatterns += [
+        url(r'^admin/lookups/', include(ajax_select_urls)),
+    ]
