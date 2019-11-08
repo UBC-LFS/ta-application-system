@@ -6,12 +6,6 @@ app_name = 'administrators'
 urlpatterns = [
     path('', views.index, name='index'),
 
-    path('courses/all/', views.all_courses, name='all_courses'),
-    path('courses/create/', views.create_course, name='create_course'),
-    path('courses/delete/', views.delete_course, name='delete_course'),
-    path('courses/<str:course_slug>/edit/', views.edit_course, name='edit_course'),
-    path('courses/', views.courses, name='courses'),
-
     path('sessions/create/confirmation/', views.create_session_confirmation, name='create_session_confirmation'),
     path('sessions/create/', views.create_session, name='create_session'),
     path('sessions/delete/p/<str:path>/', views.delete_session, name='delete_session'),
@@ -19,13 +13,13 @@ urlpatterns = [
     path('sessions/<str:session_slug>/p/<str:path>/details/', views.show_session, name='show_session'),
     path('sessions/current/', views.current_sessions, name='current_sessions'),
     path('sessions/archived/', views.archived_sessions, name='archived_sessions'),
-    path('sessions/', views.sessions, name='sessions'),
+    #path('sessions/', views.sessions, name='sessions'),
 
     path('jobs/prepare/', views.prepare_jobs, name='prepare_jobs'),
     path('jobs/progress/', views.progress_jobs, name='progress_jobs'),
     path('jobs/student/', views.student_jobs, name='student_jobs'),
     path('jobs/instructor/', views.instructor_jobs, name='instructor_jobs'),
-    path('jobs/', views.jobs, name='jobs'),
+    #path('jobs/', views.jobs, name='jobs'),
     path('instructor/<str:username>/jobs/', views.instructor_jobs_details, name='instructor_jobs_details'),
     path('student/<str:username>/jobs/', views.student_jobs_details, name='student_jobs_details'),
     path('sessions/<str:session_slug>/jobs/<str:job_slug>/edit/', views.edit_job, name='edit_job'),
@@ -36,7 +30,7 @@ urlpatterns = [
     path('applications/offered/send_email/', views.offered_applications_send_email, name='offered_applications_send_email'),
 
     path('sessions/<str:session_slug>/jobs/<str:job_slug>/offer/', views.offer_job, name='offer_job'),
-    path('sessions/<str:session_slug>/jobs/<str:job_slug>/application/edit/', views.edit_job_application, name='edit_job_application'),
+    #path('sessions/<str:session_slug>/jobs/<str:job_slug>/application/edit/', views.edit_job_application, name='edit_job_application'),
     path('applications/offered/email_history/', views.email_history, name='email_history'),
     path('emails/<str:email_id>/reminder/', views.send_reminder, name='send_reminder'),
     path('applications/decline_reassign/confirmation/', views.decline_reassign_confirmation, name='decline_reassign_confirmation'),
@@ -51,7 +45,7 @@ urlpatterns = [
     path('applications/declined/', views.declined_applications, name='declined_applications'),
     #path('applications/<str:username>/jobs/accepted/', views.show_user_accepted_job_summary, name='show_user_accepted_job_summary'),
     path('applications/<str:app_slug>/p/<str:path>/details/', views.show_application, name='show_application'),
-    path('applications/', views.applications, name='applications'),
+    #path('applications/', views.applications, name='applications'),
 
 
     path('hr/users/<str:username>/confidentiality/', views.view_confidentiality, name='view_confidentiality'),
@@ -74,7 +68,13 @@ urlpatterns = [
     path('hr/roles/<str:slug>/edit/', views.edit_role, name='edit_role'),
     path('hr/roles/delete/', views.delete_role, name='delete_role'),
     path('hr/roles/', views.roles, name='roles'),
-    path('hr/', views.hr, name='hr'),
+    #path('hr/', views.hr, name='hr'),
+
+    path('courses/all/', views.all_courses, name='all_courses'),
+    path('courses/create/', views.create_course, name='create_course'),
+    path('courses/delete/', views.delete_course, name='delete_course'),
+    path('courses/<str:course_slug>/edit/', views.edit_course, name='edit_course'),
+    #path('courses/', views.courses, name='courses'),
 
     path('preparation/terms/delete/', views.delete_term, name='delete_term'),
     path('preparation/terms/<str:code>/edit/', views.edit_term, name='edit_term'),
@@ -116,5 +116,5 @@ urlpatterns = [
     path('preparation/admin-emails/<str:slug>/edit/', views.edit_admin_email, name='edit_admin_email'),
     path('preparation/admin-emails/', views.admin_emails, name='admin_emails'),
 
-    path('preparation/', views.preparation, name='preparation')
+    #path('preparation/', views.preparation, name='preparation')
 ]

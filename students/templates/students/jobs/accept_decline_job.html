@@ -4,45 +4,56 @@
 {% include 'students/_menu.html' %}
 <div class="row">
   <div class="col-md-4">
-    {% include 'ta_app/pages/_header.html' with title='Accept / Decline' %}
+    {% include 'ta_app/pages/_left_aside.html' with view_name='applications' title='Accept / Decline' data=app %}
 
-    <div class="bg-prompt">
-      <div class="prompt p-4 mb-4">
-        <h4>{{ loggedin_user.get_full_name }}</h4>
-				<p>{{ loggedin_user.username }}</p>
-
-        <a class="btn btn-sm btn-outline-primary" href="{% url 'students:status_jobs' %}">Status</a>
-      </div>
+    <div class="left-aside-btn-groups">
+      <a class="btn btn-outline-primary" href="{% url 'students:status_jobs' %}">Back to Status of Jobs</a>
     </div>
   </div>
 
   <div class="col-md-8">
 
     <div class="board col-11 mx-auto">
-      <h3>{{ app.job.session.year }} {{ app.job.session.term.name }} ({{ app.job.session.term.code }})</h3>
-      <h4>
-        {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }} <br />
-        <small class="text-muted">{{ app.job.course.name }}</small>
-      </h4>
-      Details: {% include 'ta_app/jobs/_modal_job_details.html' with data=job %}
 
       {% if app.offered %}
 
+        <h3>Job Offer</h3>
+
         {% if not app.accepted and not app.declined %}
 
-          <div class="card border-secondary ">
-            <div class="card-header bg-secondary text-white">Message</div>
-            <div class="card-body">
-              <h5 class="text-info">
-                <i class="fa fa-hand-peace-o" aria-hidden="true"></i> Congratulations! You get a Job Offer.
-              </h5>
-              <p>You are assigned <span class="font-weight-bold text-danger">{{ app.offered.assigned_hours }} hours</span> for this job.</p>
+          <div class="bg-prompt">
+            <div class="prompt p-4 text-center mb-4">
+              <h4>
+                <i class="fa fa-hand-peace-o" aria-hidden="true"></i> Congratulations!
+              </h4>
+              
+              <p class="col-8 mx-auto">
+                You are assigned <span class="font-weight-bold text-danger">{{ app.offered.assigned_hours }} hours</span> for this job.
+              </p>
+              
+              <p class="col-8 mx-auto">
+                Please click the <span class="font-weight-bold text-primary">Accept</span> button below if you would like to accept this job offer. Thanks!
+              </p>
+              
+              <div>
+                <form action="{% url 'students:accept_offer' session_slug=app.job.session.slug job_slug=app.job.course.slug %}" method="post">
+                  {% csrf_token %}
+                  <input type="hidden" name="application" value="{{ app.id }}" />
+                  <input type="hidden" name="assigned_hours" value="{{ app.offered.assigned_hours }}" />
+                  <input class="btn btn-sm btn-outline-primary" type="submit" value="Accept" />
+                </form>
+              </div>
             </div>
+          </div>
+
+          <div>
+            <h6>Job Details:</h6>
+            {% include 'ta_app/jobs/_modal_job_details.html' with data=app.job %}
           </div>
 
           <div class="bd-callout bd-callout-warning">
             <h4>Checkpoint!</h4>
-            <p>Please select one of two buttons below.</p>
+            <p>Text</p>
           </div>
 
           <div>

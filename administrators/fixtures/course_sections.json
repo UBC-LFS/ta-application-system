@@ -31,7 +31,70 @@
     "model": "administrators.coursesection",
     "pk": 5,
     "fields": {
-      "name": "005"
+      "name": "006"
+    }
+  },
+  {
+    "model": "administrators.coursesection",
+    "pk": 6,
+    "fields": {
+      "name": "101"
+    }
+  },
+  {
+    "model": "administrators.coursesection",
+    "pk": 7,
+    "fields": {
+      "name": "102"
+    }
+  },
+  {
+    "model": "administrators.coursesection",
+    "pk": 8,
+    "fields": {
+      "name": "103"
+    }
+  },
+  {
+    "model": "administrators.coursesection",
+    "pk": 9,
+    "fields": {
+      "name": "198"
+    }
+  },
+  {
+    "model": "administrators.coursesection",
+    "pk": 10,
+    "fields": {
+      "name": "199"
+    }
+  },
+  {
+    "model": "administrators.coursesection",
+    "pk": 11,
+    "fields": {
+      "name": "298"
+    }
+  },
+  {
+    "model": "administrators.coursesection",
+    "pk": 12,
+    "fields": {
+      "name": "99A"
+    }
+  },
+  {
+    "model": "administrators.coursesection",
+    "pk": 13,
+    "fields": {
+      "name": "99C"
+    }
+  },
+  {
+    "model": "administrators.coursesection",
+    "pk": 14,
+    "fields": {
+      "name": "99E"
     }
   }
 ]

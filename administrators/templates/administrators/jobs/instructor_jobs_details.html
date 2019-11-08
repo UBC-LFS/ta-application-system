@@ -4,22 +4,31 @@
 {% include 'administrators/_menu.html' %}
 <div class="row">
   <div class="col-md-4">
-    {% include 'ta_app/pages/_left_aside.html' with view_name='users' app_name=app_name title='Instructor Jobs' data=user %}
+    {% include 'ta_app/pages/_left_aside.html' with view_name='users'   title='Instructor Jobs' data=user %}
 
     <div class="left-aside-btn-groups">
-      <a class="btn btn-outline-primary" href="{% url 'administrators:instructor_jobs' %}">Jobs by Instructor</a>
+      <a class="btn btn-outline-primary" href="{% url 'administrators:instructor_jobs' %}">Back to Jobs by Instructor</a>
     </div>
   </div>
 
-  <div class="col-md-8"></div>
+  <div class="col-md-8">
+    <div class="board col-11 mx-auto">
+      <h3>Details</h3>
+
+      <div>
+        <h6>Number of Jobs:</h6>
+        <span>{{ user.job_set.all|length }}</span>
+      </div>
+
+      <div>
+        <h6>Total Applicants:</h6>
+        <span>{{ user.total_applicants }}</span>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div class="mt-5">
-  <h4>
-    Jobs
-    <small class="text-muted">(Total: {{ user.job_set.all|length }})</small>
-  </h4>
-
   <table
     class="table table-bordered table-hover table-striped table-responsive-md text-center"
     data-toggle="table"
@@ -30,7 +39,6 @@
     data-page-size="50"
     data-page-list="[50, 100, 200, all]"
     data-show-export="true"
-    data-click-to-select="true"
     data-show-columns="true"
   >
     <thead>

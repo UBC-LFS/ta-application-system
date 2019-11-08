@@ -4,7 +4,7 @@
 {% include 'students/_menu.html' %}
 <div class="row">
   <div class="col-md-4">
-    {% include 'ta_app/pages/_left_aside.html' with view_name='users' app_name=app_name title='View Profile' data=user %}
+    {% include 'ta_app/pages/_left_aside.html' with view_name='users'   title='View Profile' data=user %}
 
     <div class="left-aside-btn-groups">
       <a class="btn btn-outline-primary" href="{% url 'students:edit_profile' %}">Edit Profile</a>

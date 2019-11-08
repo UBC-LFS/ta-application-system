@@ -69,6 +69,18 @@ def get_user_by_username_with_resume(username):
         user.resume_file = None
     return user
 
+
+def get_user_by_username_with_statistics(username):
+    ''' '''
+    user = get_user_by_username(username)
+
+    count = 0
+    for job in user.job_set.all():
+        count +=  job.application_set.count()
+
+    user.total_applicants = count
+    return user
+
 """
 def get_users_with_data():
     ''' Get all users with resume, sin, and study permit '''
@@ -283,11 +295,11 @@ def delete_users():
 
 def get_instructors():
     ''' Get instructors '''
-    return User.objects.filter(profile__roles__name='Instructor').order_by('id')
+    return User.objects.filter(profile__roles__name='Instructor').order_by('last_name')
 
 def get_students():
     ''' Get students '''
-    return User.objects.filter(profile__roles__name='Student').order_by('id')
+    return User.objects.filter(profile__roles__name='Student').order_by('last_name')
 
 
 def update_user_profile_roles(profile, old_roles, data):

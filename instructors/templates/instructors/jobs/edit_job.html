@@ -29,14 +29,21 @@
   <div class="col-md-8">
 
     <div class="board col-11 mx-auto">
-      <small class="text-muted">
-        Created at {{ job.created_at }} <span class="dot mx-1 align-middle"></span>
-        Updated at {{ job.updated_at }}
-      </small>
+      <h3>Form</h3>
+      
+      <div>
+        <h6>Created at:</h6>
+        <span>{{ job.created_at }}</span>
+      </div>
 
       <div>
-        <h5>Intstructors:</h5>
-        {% include 'ta_app/jobs/_job_instructor.html' with data=job %}
+        <h6>Updated at:</h6>
+        <span>{{ job.updated_at }}</span>
+      </div>
+
+      <div>
+        <h6>Intstructors:</h6>
+        <span>{% include 'ta_app/jobs/_job_instructor.html' with data=job %}</span>
       </div>
 
       <form action="" method="post">

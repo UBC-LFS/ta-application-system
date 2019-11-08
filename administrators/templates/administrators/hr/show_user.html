@@ -4,7 +4,7 @@
 {% include 'administrators/_menu.html' %}
 <div class="row">
   <div class="col-md-4">
-    {% include 'ta_app/pages/_left_aside.html' with view_name='users' app_name=app_name title='User Details' data=user %}
+    {% include 'ta_app/pages/_left_aside.html' with view_name='users'   title='User Details' data=user %}
 
     <div class="left-aside-btn-groups mb-5">
       {% include 'administrators/hr/_go_back.html' with data=path %}
@@ -28,8 +28,12 @@
 
     <nav class="mb-4">
       <div class="nav nav-tabs" id="nav-tab" role="tablist">
-        <a class="nav-item nav-link active" id="nav-basic-info-tab" data-toggle="tab" href="#nav-basic-info" role="tab" aria-controls="nav-basic-info" aria-selected="true">Basic Information</a>
-        <a class="nav-item nav-link" id="nav-profile-tab" data-toggle="tab" href="#nav-profile" role="tab" aria-controls="nav-profile" aria-selected="false">Profile</a>
+        <a class="nav-item nav-link active" id="nav-basic-info-tab" data-toggle="tab" href="#nav-basic-info" role="tab" aria-controls="nav-basic-info" aria-selected="true">
+          <i class="fa fa-user-circle-o" aria-hidden="true"></i> Basic Information
+        </a>
+        <a class="nav-item nav-link" id="nav-profile-tab" data-toggle="tab" href="#nav-profile" role="tab" aria-controls="nav-profile" aria-selected="false">
+          <i class="fa fa-address-card-o" aria-hidden="true"></i> Profile
+        </a>
       </div>
     </nav>
 

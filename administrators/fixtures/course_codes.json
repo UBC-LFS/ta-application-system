@@ -3,35 +3,42 @@
     "model": "administrators.coursecode",
     "pk": 1,
     "fields": {
-      "name": "AANB"
+      "name": "APBI"
     }
   },
   {
     "model": "administrators.coursecode",
     "pk": 2,
     "fields": {
-      "name": "BIOC"
+      "name": "FNH"
     }
   },
   {
     "model": "administrators.coursecode",
     "pk": 3,
     "fields": {
-      "name": "DES"
+      "name": "FOOD"
     }
   },
   {
     "model": "administrators.coursecode",
     "pk": 4,
     "fields": {
-      "name": "LFS"
+      "name": "FRE"
     }
   },
   {
     "model": "administrators.coursecode",
     "pk": 5,
     "fields": {
-      "name": "LIBE"
+      "name": "GRS"
+    }
+  },
+  {
+    "model": "administrators.coursecode",
+    "pk": 6,
+    "fields": {
+      "name": "LFS"
     }
   }
 ]

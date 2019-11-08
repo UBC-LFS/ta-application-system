@@ -5,7 +5,7 @@
 
 <div class="row">
   <div class="col-md-4">
-    {% include 'ta_app/pages/_left_aside.html' with view_name='jobs' app_name=app_name title='Job Details' data=job %}
+    {% include 'ta_app/pages/_left_aside.html' with view_name='jobs' title='Job Details' data=job %}
 
     <div class="left-aside-btn-groups mb-5">
       {% include 'administrators/jobs/_go_back.html' with data=path %}
@@ -67,7 +67,7 @@
     data-page-size="50"
     data-page-list="[50, 100, 200, all]"
     data-show-export="true"
-    data-click-to-select="true"
+    
     data-show-columns="true"
   >
     <thead>

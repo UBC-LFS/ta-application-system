@@ -17,14 +17,14 @@
     "model": "administrators.coursenumber",
     "pk": 3,
     "fields": {
-      "name": "110"
+      "name": "150"
     }
   },
   {
     "model": "administrators.coursenumber",
     "pk": 4,
     "fields": {
-      "name": "150"
+      "name": "200"
     }
   },
   {
@@ -45,28 +45,460 @@
     "model": "administrators.coursenumber",
     "pk": 7,
     "fields": {
-      "name": "302A"
+      "name": "260"
     }
   },
   {
     "model": "administrators.coursenumber",
     "pk": 8,
     "fields": {
-      "name": "302B"
+      "name": "265"
     }
   },
   {
     "model": "administrators.coursenumber",
     "pk": 9,
     "fields": {
-      "name": "350"
+      "name": "290"
     }
   },
   {
     "model": "administrators.coursenumber",
     "pk": 10,
     "fields": {
-      "name": "400"
+      "name": "300"
+    }
+  },
+  {
+    "model": "administrators.coursenumber",
+    "pk": 11,
+    "fields": {
+      "name": "301"
+    }
+  },
+  {
+    "model": "administrators.coursenumber",
+    "pk": 12,
+    "fields": {
+      "name": "302"
+    }
+  },
+  {
+    "model": "administrators.coursenumber",
+    "pk": 13,
+    "fields": {
+      "name": "303"
+    }
+  },
+  {
+    "model": "administrators.coursenumber",
+    "pk": 14,
+    "fields": {
+      "name": "306"
+    }
+  },
+  {
+    "model": "administrators.coursenumber",
+    "pk": 15,
+    "fields": {
+      "name": "309"
+    }
+  },
+  {
+    "model": "administrators.coursenumber",
+    "pk": 16,
+    "fields": {
+      "name": "311"
+    }
+  },
+  {
+    "model": "administrators.coursenumber",
+    "pk": 17,
+    "fields": {
+      "name": "312"
+    }
+  },
+  {
+    "model": "administrators.coursenumber",
+    "pk": 18,
+    "fields": {
+      "name": "313"
+    }
+  },
+  {
+    "model": "administrators.coursenumber",
+    "pk": 19,
+    "fields": {
+      "name": "314"
+    }
+  },
+  {
+    "model": "administrators.coursenumber",
+    "pk": 20,
+    "fields": {
+      "name": "315"
+    }
+  },
+  {
+    "model": "administrators.coursenumber",
+    "pk": 21,
+    "fields": {
+      "name": "316"
+    }
+  },
+  {
+    "model": "administrators.coursenumber",
+    "pk": 22,
+    "fields": {
+      "name": "317"
+    }
+  },
+  {
+    "model": "administrators.coursenumber",
+    "pk": 23,
+    "fields": {
+      "name": "318"
+    }
+  },
+
+
+  {
+    "model": "administrators.coursenumber",
+    "pk": 24,
+    "fields": {
+      "name": "322"
+    }
+  },
+
+
+
+  {
+    "model": "administrators.coursenumber",
+    "pk": 25,
+    "fields": {
+      "name": "325"
+    }
+  },
+  {
+    "model": "administrators.coursenumber",
+    "pk": 26,
+    "fields": {
+      "name": "326"
+    }
+  },
+  {
+    "model": "administrators.coursenumber",
+    "pk": 27,
+    "fields": {
+      "name": "327"
+    }
+  },
+  {
+    "model": "administrators.coursenumber",
+    "pk": 28,
+    "fields": {
+      "name": "328"
+    }
+  },
+  {
+    "model": "administrators.coursenumber",
+    "pk": 29,
+    "fields": {
+      "name": "330"
+    }
+  },
+  {
+    "model": "administrators.coursenumber",
+    "pk": 30,
+    "fields": {
+      "name": "335"
+    }
+  },
+  {
+    "model": "administrators.coursenumber",
+    "pk": 31,
+    "fields": {
+      "name": "340"
+    }
+  },
+  {
+    "model": "administrators.coursenumber",
+    "pk": 32,
+    "fields": {
+      "name": "342"
+    }
+  },
+  {
+    "model": "administrators.coursenumber",
+    "pk": 33,
+    "fields": {
+      "name": "350"
+    }
+  },
+  {
+    "model": "administrators.coursenumber",
+    "pk": 34,
+    "fields": {
+      "name": "351"
+    }
+  },
+  {
+    "model": "administrators.coursenumber",
+    "pk": 35,
+    "fields": {
+      "name": "355"
+    }
+  },
+  {
+    "model": "administrators.coursenumber",
+    "pk": 36,
+    "fields": {
+      "name": "360"
+    }
+  },
+  {
+    "model": "administrators.coursenumber",
+    "pk": 37,
+    "fields": {
+      "name": "361"
+    }
+  },
+  {
+    "model": "administrators.coursenumber",
+    "pk": 38,
+    "fields": {
+      "name": "370"
+    }
+  },
+  {
+    "model": "administrators.coursenumber",
+    "pk": 39,
+    "fields": {
+      "name": "371"
+    }
+  },
+  {
+    "model": "administrators.coursenumber",
+    "pk": 40,
+    "fields": {
+      "name": "374"
+    }
+  },
+  {
+    "model": "administrators.coursenumber",
+    "pk": 41,
+    "fields": {
+      "name": "385"
+    }
+  },
+  {
+    "model": "administrators.coursenumber",
+    "pk": 42,
+    "fields": {
+      "name": "398"
+    }
+  },
+  {
+    "model": "administrators.coursenumber",
+    "pk": 43,
+    "fields": {
+      "name": "401"
+    }
+  },
+  {
+    "model": "administrators.coursenumber",
+    "pk": 44,
+    "fields": {
+      "name": "402"
+    }
+  },
+  {
+    "model": "administrators.coursenumber",
+    "pk": 45,
+    "fields": {
+      "name": "403"
+    }
+  },
+  {
+    "model": "administrators.coursenumber",
+    "pk": 46,
+    "fields": {
+      "name": "405"
+    }
+  },
+  {
+    "model": "administrators.coursenumber",
+    "pk": 47,
+    "fields": {
+      "name": "410"
+    }
+  },
+  {
+    "model": "administrators.coursenumber",
+    "pk": 48,
+    "fields": {
+      "name": "413"
+    }
+  },
+  {
+    "model": "administrators.coursenumber",
+    "pk": 49,
+    "fields": {
+      "name": "414"
+    }
+  },
+  {
+    "model": "administrators.coursenumber",
+    "pk": 50,
+    "fields": {
+      "name": "415"
+    }
+  },
+  {
+    "model": "administrators.coursenumber",
+    "pk": 51,
+    "fields": {
+      "name": "416"
+    }
+  },
+  {
+    "model": "administrators.coursenumber",
+    "pk": 52,
+    "fields": {
+      "name": "420"
+    }
+  },
+  {
+    "model": "administrators.coursenumber",
+    "pk": 53,
+    "fields": {
+      "name": "425"
+    }
+  },
+  {
+    "model": "administrators.coursenumber",
+    "pk": 54,
+    "fields": {
+      "name": "428"
+    }
+  },
+  {
+    "model": "administrators.coursenumber",
+    "pk": 55,
+    "fields": {
+      "name": "440"
+    }
+  },
+  {
+    "model": "administrators.coursenumber",
+    "pk": 56,
+    "fields": {
+      "name": "450"
+    }
+  },
+  {
+    "model": "administrators.coursenumber",
+    "pk": 57,
+    "fields": {
+      "name": "451"
+    }
+  },
+  {
+    "model": "administrators.coursenumber",
+    "pk": 58,
+    "fields": {
+      "name": "455"
+    }
+  },
+  {
+    "model": "administrators.coursenumber",
+    "pk": 59,
+    "fields": {
+      "name": "460"
+    }
+  },
+  {
+    "model": "administrators.coursenumber",
+    "pk": 60,
+    "fields": {
+      "name": "470"
+    }
+  },
+  {
+    "model": "administrators.coursenumber",
+    "pk": 61,
+    "fields": {
+      "name": "472"
+    }
+  },
+  {
+    "model": "administrators.coursenumber",
+    "pk": 62,
+    "fields": {
+      "name": "473"
+    }
+  },
+  {
+    "model": "administrators.coursenumber",
+    "pk": 63,
+    "fields": {
+      "name": "474"
+    }
+  },
+  {
+    "model": "administrators.coursenumber",
+    "pk": 64,
+    "fields": {
+      "name": "475"
+    }
+  },
+  {
+    "model": "administrators.coursenumber",
+    "pk": 65,
+    "fields": {
+      "name": "477"
+    }
+  },
+  {
+    "model": "administrators.coursenumber",
+    "pk": 66,
+    "fields": {
+      "name": "490"
+    }
+  },
+  {
+    "model": "administrators.coursenumber",
+    "pk": 67,
+    "fields": {
+      "name": "496B"
+    }
+  },
+  {
+    "model": "administrators.coursenumber",
+    "pk": 68,
+    "fields": {
+      "name": "520"
+    }
+  },
+  {
+    "model": "administrators.coursenumber",
+    "pk": 69,
+    "fields": {
+      "name": "523"
+    }
+  },
+  {
+    "model": "administrators.coursenumber",
+    "pk": 70,
+    "fields": {
+      "name": "528"
+    }
+  },
+  {
+    "model": "administrators.coursenumber",
+    "pk": 71,
+    "fields": {
+      "name": "529"
     }
   }
 ]

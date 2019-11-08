@@ -119,6 +119,8 @@ def show_applications(request, session_slug, job_slug):
     loggedin_user = userApi.loggedin_user(request.user)
     if 'Instructor' not in loggedin_user.roles: raise PermissionDenied
 
+    job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
+
     if request.method == 'POST':
         if request.POST.get('instructor_preference') == Application.NONE:
             messages.error(request, 'An error occurred. Please select your preference, then try it again.')
@@ -127,6 +129,11 @@ def show_applications(request, session_slug, job_slug):
         if float(request.POST.get('assigned_hours')) == 0.0 and request.POST.get('instructor_preference') != Application.NO_PREFERENCE:
             messages.error(request, 'An error occurred. Please assign TA hours, then try it again.')
             return HttpResponseRedirect( reverse('instructors:show_applications', args=[session_slug, job_slug]) )
+
+        if float(request.POST.get('assigned_hours')) > float(job.assigned_ta_hours):
+            messages.error( request, 'An error occurred. You cannot assign {0} hours because its maximum hours is {1}. then try it again.'.format(request.POST.get('assigned_hours'), job.assigned_ta_hours) )
+            return HttpResponseRedirect( reverse('instructors:show_applications', args=[session_slug, job_slug]) )
+
 
         instructor_app_form = InstructorApplicationForm(request.POST)
 
@@ -162,7 +169,7 @@ def show_applications(request, session_slug, job_slug):
 
     return render(request, 'instructors/jobs/show_applications.html', {
         'loggedin_user': loggedin_user,
-        'job': adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug),
+        'job': job,
         'apps': adminApi.get_applications_with_status_by_session_slug_job_slug(session_slug, job_slug),
         'instructor_preference_choices': Application.INSTRUCTOR_PREFERENCE_CHOICES,
         'app_code': {

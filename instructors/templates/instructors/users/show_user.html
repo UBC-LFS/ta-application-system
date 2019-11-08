@@ -1,52 +1,41 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
 
-{% load static %}
 {% include 'administrators/_menu.html' %}
 <div class="row">
   <div class="col-md-4">
-    {% include 'ta_app/pages/_header.html' with title='User Details' %}
+    {% include 'ta_app/pages/_left_aside.html' with view_name='users' title='User Details' data=user %}
 
-    <div class="user-profile">
-      <img class="img-profile img-circle img-fluid" src="{% static 'ta_app/images/user.png' %}" alt="user-image" />
-
-      <div class="bg-prompt">
-        <div class="prompt p-4 mb-4">
-          <h4>{{ user.get_full_name }}</h4>
-          <p>{{ user.username }}</p>
-
-          <a class="btn btn-sm btn-outline-primary" href="{% url 'instructors:show_applications' session_slug=session_slug job_slug=job_slug %}">Back to Applications</a>
-
-          <hr class="dotted" />
-
-          <div>
-            <h5>Resume:</h5>
-            {% if user.resume_file %}
-              <a href="{% url 'students:download_resume' username=user.username filename=user.resume_file %}" target="_blank">
-                {{ user.resume_file }}
-              </a>
-              | {{ user.resume.created_at }}
-            {% else %}
-              No resume
-            {% endif %}
-          </div>
-
-        </div>
-
-      </div>
-
+    <div class="left-aside-btn-groups mb-5">
+      <a class="btn btn-outline-primary" href="{% url 'instructors:show_applications' session_slug=session_slug job_slug=job_slug %}">Back to Applications</a>
     </div>
 
+    <div class="col-11 mx-auto">
+      <h5>Resume:</h5>
+      {% if user.resume_file %}
+        <a href="{% url 'students:download_resume' username=user.username filename=user.resume_file %}" target="_blank">
+          {{ user.resume_file }}
+        </a>
+        | {{ user.resume.created_at }}
+      {% else %}
+        No resume
+      {% endif %}
+    </div>
   </div>
 
   <div class="col-md-8">
 
     <nav>
       <div class="nav nav-tabs" id="nav-tab" role="tablist">
-        <a class="nav-item nav-link active" id="nav-basic-info-tab" data-toggle="tab" href="#nav-basic-info" role="tab" aria-controls="nav-basic-info" aria-selected="true">Basic Information</a>
-        <a class="nav-item nav-link" id="nav-profile-tab" data-toggle="tab" href="#nav-profile" role="tab" aria-controls="nav-profile" aria-selected="false">Profile</a>
+        <a class="nav-item nav-link active" id="nav-basic-info-tab" data-toggle="tab" href="#nav-basic-info" role="tab" aria-controls="nav-basic-info" aria-selected="true">
+          <i class="fa fa-user-circle-o" aria-hidden="true"></i> Basic Information
+        </a>
+        <a class="nav-item nav-link" id="nav-profile-tab" data-toggle="tab" href="#nav-profile" role="tab" aria-controls="nav-profile" aria-selected="false">
+          <i class="fa fa-address-card-o" aria-hidden="true"></i> Profile
+        </a>
       </div>
     </nav>
+
     <div class="tab-content" id="nav-tabContent">
       <div class="tab-pane fade show active" id="nav-basic-info" role="tabpanel" aria-labelledby="nav-basic-info-tab">
         <div class="board col-11 mx-auto">
@@ -57,8 +46,7 @@
 
       <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
         <div class="board col-11 mx-auto">
-          <h3 class="text-info my-4">Profile</h3>
-
+          <h3>Profile</h3>
           {% include 'ta_app/users/_profile.html' with data=user %}
         </div>
       </div>

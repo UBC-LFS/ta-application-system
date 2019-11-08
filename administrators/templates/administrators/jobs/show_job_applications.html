@@ -4,22 +4,52 @@
 {% include 'administrators/_menu.html' %}
 <div class="row">
   <div class="col-md-4">
-    {% include 'ta_app/pages/_header.html' with title='Job Applications' text=job.application_set.all|length %}
+    {% include 'ta_app/pages/_left_aside.html' with view_name='job_applications' title='Job Applications' data=job %}
 
-    <div class="bg-prompt">
-      <div class="prompt p-4 mb-4">
-        <h4>{{ job.session.year }} {{ job.session.term.name }} ({{ job.session.term.code }})</h4>
-        <h4>{{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</h4>
-        <p>{{ job.course.name }}</p>
-
-        <a class="btn btn-sm btn-outline-primary" href="{% url 'administrators:progress_jobs' %}">Jobs in Progress</a>
-      </div>
+    <div class="left-aside-btn-groups">
+      <a class="btn btn-outline-primary" href="{% url 'administrators:progress_jobs' %}">Back to Jobs in Progress</a>
     </div>
   </div>
 
-  <div class="col-md-8"></div>
-</div>
+  <div class="col-md-8">
+    <div class="board col-11 mx-auto">
+      <h3>Details</h3>
 
+      <div>
+        <h6>Instructors:</h6>
+        {% include 'ta_app/jobs/_job_instructor_list.html' with data=job %}
+      </div>
+
+      <div>
+        <h6>Number of Applications:</h6>
+        <span>{{ job.application_set.all|length }}</span>
+      </div>
+
+      <div>
+        <h5 class="text-info text-center">Statistics</h5>
+
+        <table class="table text-center font-size-1">
+          <thead>
+            <tr>
+              <th>Number of<br /> Selected Apps</th>
+              <th>Number of<br /> Offered Apps</th>
+              <th>Number of<br /> Accepted Apps</th>
+              <th>Number of<br /> Declined Apps</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>{{ job.num_selected_apps }}</td>
+              <td>{{ job.num_offered_apps }}</td>
+              <td>{{ job.num_accepted_apps }}</td>
+              <td>{{ job.num_declined_apps }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
 
 <div>
   <table
@@ -32,7 +62,6 @@
     data-page-size="50"
     data-page-list="[50, 100, 200, all]"
     data-show-export="true"
-    data-click-to-select="true"
     data-show-columns="true"
   >
     <thead>
@@ -51,9 +80,7 @@
     <tbody>
       {% for app in job.application_set.all %}
         <tr>
-          <td>
-            {% include 'ta_app/applications/_modal_app_details.html' with data=app display='id' %}
-          </td>
+          <td>{% include 'ta_app/applications/_modal_app_details.html' with data=app display='id' %}</td>
           <td>{{ app.applicant.get_full_name }}</td>
           <td>{{ app.applicant.username }}</td>
           <td>
@@ -61,12 +88,8 @@
             <small class="text-muted">{{ app.applicationstatus_set.last.created_at }}</small>
           </td>
           <td>{{ app.get_instructor_preference_display }}</td>
-          <td>{{ app.classification.year }} {{ app.classification.name }}</td>
-          <td>
-            {% if app.note %}
-              {% include 'ta_app/applications/_modal_note.html' with data=app %}
-            {% endif %}
-          </td>
+          <td>{% include 'ta_app/applications/_app_classification.html' with data=app %}</td>
+          <td>{% include 'ta_app/applications/_modal_note.html' with data=app %}</td>
           <td>{{ app.created_at }}</td>
           <td>{{ app.updated_at }}</td>
         </tr>

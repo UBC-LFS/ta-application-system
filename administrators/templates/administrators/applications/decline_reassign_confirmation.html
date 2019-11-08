@@ -4,80 +4,96 @@
 {% include 'administrators/_menu.html' %}
 <div class="row">
   <div class="col-md-4">
-    {% include 'ta_app/pages/_header.html' with title='Decline/Re-assign' %}
-    <div class="bg-prompt">
-      <div class="prompt p-4 mb-4">
+    {% include 'ta_app/pages/_left_aside.html' with view_name='applications' title='Decline / Re-assign' data=app %}
 
-        {% if app %}
-          <h4>
-            {{ app.job.session.year }} {{ app.job.session.term.code }} -
-            {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}
-          </h4>
-          <p>Application ID: {{ app.id }}</p>
-          <p>{{ app.applicant.get_full_name }} ({{ app.applicant.username }})</p>
-        {% endif %}
-
-        <a class="btn btn-sm btn-outline-primary" href="{% url 'administrators:accepted_applications' %}">Accepted Applications</a>
-      </div>
+    <div class="left-aside-btn-groups">
+      <a class="btn btn-outline-primary" href="{% url 'administrators:accepted_applications' %}">Back to Accepted Applications</a>
     </div>
   </div>
 
   <div class="col-md-8">
+    <div class="board col-11 mx-auto">
 
-    {% if app %}
-
-      <div class="board col-11 mx-auto">
+      {% if app %}
         <h3>Decline and Re-assign</h3>
 
-        <div class="alert alert-success mt-4 " role="alert">
-          <i class="fa fa-info-circle" aria-hidden="true"></i>
-          Assigned hours will change
-          from <span class="font-weight-bold text-danger">{{ old_assigned_hours }}</span> hours
-          to <span class="font-weight-bold text-danger">{{ new_assigned_hours }}</span> hours.
+        <div>
+          <h6>User:</h6>
+          <span>{{ app.applicant.get_full_name }} (CWL: {{ app.applicant.username }})</span>
         </div>
 
-        <table class="custom-table">
-          <thead>
-            <tr>
-              <th></th>
-              <th>Assigned TA hours</th>
-              <th>Accumulated TA hours</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Current:</td>
-              <td>{{ app.job.assigned_ta_hours }}</td>
-              <td>{{ app.job.accumulated_ta_hours }}</td>
-            </tr>
-            <tr>
-              <td>New:</td>
-              <td>{{ app.job.assigned_ta_hours }}</td>
-              <td>
-                {{ new_ta_hours }}
-                ({{ app.job.accumulated_ta_hours }} - {{ old_assigned_hours }} + {{ new_assigned_hours }})
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <div class="bg-prompt">
+          <div class="prompt p-4 text-center mb-4">
+            <h4>
+              <i class="fa fa-bell-o" aria-hidden="true"></i> Attention
+            </h4>
+            <p class="col-8 mx-auto">
+              Assigned hours will change from <span class="font-weight-bold text-danger">{{ old_assigned_hours }}</span> hours to <span class="font-weight-bold text-danger">{{ new_assigned_hours }}</span> hours.
+            </p>
+          </div>
+        </div>
 
-        <h4 class="mb-4">New Assigned hours: {{ new_assigned_hours }} hours</h4>
-        <form action="" method="post">
-          {% csrf_token %}
+        <div class="text-center">
+          <h4 class="text-info">Summary</h4>
+          <table class="table font-size-1">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Assigned TA hours</th>
+                <th>Accumulated TA hours</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <span class="font-weight-bold">Current</span>
+                </td>
+                <td>{{ app.job.assigned_ta_hours }}</td>
+                <td>{{ app.job.accumulated_ta_hours }}</td>
+              </tr>
+              <tr>
+                <td>
+                  <span class="font-weight-bold">New</span>
+                </td>
+                <td>{{ app.job.assigned_ta_hours }}</td>
+                <td>
+                  {{ new_ta_hours }}
+                  ({{ app.job.accumulated_ta_hours }} - {{ old_assigned_hours }} + {{ new_assigned_hours }})
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
-          <input type="hidden" name="application" value="{{ app.id }}" />
-          <input type="hidden" name="old_assigned_hours" value="{{ old_assigned_hours }}" />
-          <input type="hidden" name="new_assigned_hours" value="{{ new_assigned_hours }}" />
-          <input class="btn btn-primary" type="submit" value="Confirm to decline and re-assign" />
-        </form>
-      </div>
+        <div class="border border-secondary p-4 mt-5">
+          <div class="text-secondary">
+            Please double-check new assigned hours, and then click the button below.
+          </div>
+
+          <p>
+            <span class="text-success">
+              <i class="fa fa-check" aria-hidden="true"></i>
+            </span>
+            New assigned hours: <span class="font-weight-bold">{{ new_assigned_hours }}</span> hours
+          </p>
+
+          <form action="" method="post">
+            {% csrf_token %}
+
+            <input type="hidden" name="application" value="{{ app.id }}" />
+            <input type="hidden" name="old_assigned_hours" value="{{ old_assigned_hours }}" />
+            <input type="hidden" name="new_assigned_hours" value="{{ new_assigned_hours }}" />
+            <input class="btn btn-primary" type="submit" value="Confirm to decline and re-assign" />
+          </form>
+        </div>
+
 
       {% else %}
         <div class="alert alert-danger" role="alert">
           Please select any one of Accepted Applications to decline and re-assign a job offer with assigned hours, and try again.
         </div>
       {% endif %}
-
+    </div>
 
   </div>
 </div>

@@ -14,14 +14,15 @@
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
       </div>
       <div class="modal-body text-left">
-        <div class="board col-11 mx-auto">
+        <div class="board">
           <h3>Details</h3>
 
           <div>
-            <h5>
-              User:
-              <span>{{ data.applicant.get_full_name }} ({{ data.applicant.username }})</span>
-            </h5>
+            <h6>User:</h6>
+            <span>
+              {{ data.applicant.get_full_name }}
+              (CWL: {{ data.applicant.username }})
+            </span>
           </div>
 
           {% include 'ta_app/applications/_app_details.html' with data=data %}

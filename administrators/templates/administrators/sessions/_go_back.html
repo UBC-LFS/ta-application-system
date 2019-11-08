@@ -1,7 +1,11 @@
 {% if data == 'current' %}
-  <a class="btn btn-outline-primary" href="{% url 'administrators:current_sessions' %}">Back to Current Sessions</a>
+  <a class="btn btn-outline-primary" href="{% url 'administrators:current_sessions' %}">
+    {% if label == 'cancel' %} Cancel {% else %} Back to Current Sessions {% endif %}
+  </a>
 {% elif data == 'archived' %}
-  <a class="btn btn-outline-primary" href="{% url 'administrators:archived_sessions' %}">Back to Archived Sessions</a>
+  <a class="btn btn-outline-primary" href="{% url 'administrators:archived_sessions' %}">
+    {% if label == 'cancel' %} Cancel {% else %} Back to Archived Sessions {% endif %}
+  </a>
 {% else %}
-  <a class="btn btn-outline-primary" href="{% url 'administrators:sessions' %}">Sessions</a>
+  <a class="btn btn-outline-primary" href="{% url 'administrators:index' %}">Back to Home</a>
 {% endif %}

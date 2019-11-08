@@ -36,7 +36,7 @@
     "pk": 3,
     "fields": {
       "year": "2018",
-      "term_id": 6,
+      "term_id": 7,
       "title": "TA Application",
       "description": "Session description",
       "note": "Session note",
@@ -84,7 +84,7 @@
     "pk": 6,
     "fields": {
       "year": "2019",
-      "term_id": 6,
+      "term_id": 7,
       "title": "TA Application",
       "description": "Session description",
       "note": "Session note",

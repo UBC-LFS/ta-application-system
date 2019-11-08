@@ -1,6 +1,6 @@
 <ul>
   {% for instructor in job.instructors.all %}
-    <li>{{ instructor.username }}</li>
+    <li>{{ instructor.get_full_name }}</li>
   {% empty %}
     <li>No instructors</li>
   {% endfor %}

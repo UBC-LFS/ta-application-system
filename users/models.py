@@ -112,6 +112,7 @@ class Confidentiality(models.Model):
     pin = models.CharField(max_length=4, unique=True, null=True, blank=True)
     tasm = models.BooleanField(default=False)
     eform = models.CharField(max_length=6, unique=True, null=True, blank=True)
+    speed_chart = models.CharField(max_length=256, unique=True, null=True, blank=True)
 
     union_correspondence = models.FileField(
         upload_to=create_union_correspondence_path,
@@ -126,6 +127,8 @@ class Confidentiality(models.Model):
         null=True,
         blank=True
     )
+
+    processing_note = models.TextField(null=True, blank=True)
 
     created_at = models.DateField(null=True, blank=True)
     updated_at = models.DateField(null=True, blank=True)

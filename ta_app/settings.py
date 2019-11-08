@@ -36,7 +36,6 @@ EMAIL_HOST_PASSWORD = ''
 EMAIL_HOST = os.environ['TA_APP_EMAIL_HOST']
 EMAIL_FROM = os.environ['TA_APP_EMAIL_FROM']
 
-TA_APP_URL = os.environ['TA_APP_URL']
 ENCRYPT_SALT = os.environ['TA_APP_ENCRYPT_SALT']
 ENCRYPT_PASSWORD = os.environ['TA_APP_ENCRYPT_PASSWORD']
 USER_PASSWORD = 'password'
@@ -177,33 +176,3 @@ SUMMERNOTE_CONFIG = {
         ]
     }
 }
-
-# Email titles and messages
-
-EMAIL_TITLE_TYPE_1 = 'Congratulations! You get a job offer [type 1]'
-
-MY_EMAIL_MESSAGE_TYPE_1 = '''\
-<p>Dear {0},</p>
-<p>text 1</p>
-<p>job: {1}</p>
-<p>assigned_hours: {2} hours</p>
-<p>classification: {3}</p>
-<p>url: {4}</p>
-<p>Thank you for your consideration.</p>
-<p>Best regards,</p>
-<p>TA App System</p>
-'''
-
-EMAIL_TITLE_TYPE_2 = 'Congratulations! You get a job offer [type 2]'
-
-MY_EMAIL_MESSAGE_TYPE_2 = '''\
-<p>Dear {0},</p>
-<p>text 2</p>
-<p>job: {1}</p>
-<p>assigned_hours: {2} hours</p>
-<p>classification: {3}</p>
-<p>url: {4}</p>
-<p>Thank you for your consideration.</p>
-<p>Best regards,</p>
-<p>TA App System</p>
-'''

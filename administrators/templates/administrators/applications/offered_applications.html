@@ -20,7 +20,6 @@
           data-page-size="50"
           data-page-list="[50, 100, 200, all]"
           data-show-export="true"
-          data-click-to-select="true"
           data-show-columns="true"
         >
           <thead>
@@ -51,7 +50,7 @@
                   {% endif %}
                 </td>
                 <td>
-                  <a href="{% url 'administrators:show_application' app_slug=app.slug path='offered' %}">{{ app.id }}</a>
+                  <a class="btn btn-xs btn-info" href="{% url 'administrators:show_application' app_slug=app.slug path='offered' %}">{{ app.id }}</a>
                 </td>
                 <td>{{ app.job.session.year }}</td>
                 <td>{{ app.job.session.term.code }}</td>
@@ -64,7 +63,7 @@
                   <a href="{% url 'administrators:show_user' username=app.applicant.username path='offered' %}">{{ app.applicant.get_full_name }}</a>
                 </td>
                 <td>{% include 'ta_app/applications/_modal_app_status.html' with data=app %}</td>
-                <td>{{ app.get_instructor_preference_display }}</td>
+                <td>{% include 'ta_app/applications/_app_instructor_preference.html' with data=app.get_instructor_preference_display %}</td>
                 <td>{{ app.classification.year }} {{ app.classification.name }}</td>
                 <td>{% include 'ta_app/applications/_modal_note.html' with data=app %}</td>
                 <td>{{ app.created_at }}</td>
@@ -75,19 +74,19 @@
           </tbody>
         </table>
 
-        <div class="mt-4 mb-4">
-          <h5>Select Email Type:</h5>
+        <div class="mt-5 mb-4">
+          <h5 class="text-info">Select Email Type:</h5>
           {% for email in admin_emails %}
             <div>
               {{ email.type }}
-              <input type="radio" name="email_type" value="{{ email.slug }}"
+              <input type="radio" name="type" value="{{ email.slug }}"
                 {% if forloop.counter == 1 %} checked {% endif %}
               />
             </div>
           {% endfor %}
         </div>
 
-        <input class="btn btn-lg btn-primary" type="submit" value="Send Email" />
+        <input class="btn btn-primary" type="submit" value="Send Email" />
       </form>
 
     {% else %}

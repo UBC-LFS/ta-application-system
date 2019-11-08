@@ -1,12 +1,16 @@
 <button type="button" class="btn btn-xs btn-info" data-toggle="modal" data-target="#application-status-modal-{{ data.id }}">
   {% if display == 'assigned' %}
+
     {% if data.applicationstatus_set.last.get_assigned_display == 'None' %}
       APPLIED
     {% else %}
       {{ data.applicationstatus_set.last.get_assigned_display.upper }}
     {% endif %}
+
   {% else %}
+
     <i class="fa fa-file-text-o" aria-hidden="true"></i>
+
   {% endif %}
 </button>
 
@@ -36,7 +40,7 @@
                 <td>
                   {% include 'ta_app/applications/_app_status.html' with data=st.get_assigned_display %}
                 </td>
-                <td>{{ st.assigned_hours }} hours</td>
+                <td>{{ st.assigned_hours }}</td>
                 <td>{% if st.parent_id %} {{ st.parent_id }} {% endif %}</td>
                 <td>{{ st.created_at }}</td>
                 <td>{{ st.application_id }}</td>

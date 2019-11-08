@@ -147,6 +147,7 @@ class SessionConfirmationForm(forms.ModelForm):
             term = kwargs['initial']['term']
             self.fields['courses'].queryset = Course.objects.filter(term__id=term.id)
 
+
 class MyModelMultipleChoiceField(ModelMultipleChoiceField):
     ''' Help to display user's full name for queryset in ModelMultipleChoiceField '''
     def label_from_instance(self, obj):

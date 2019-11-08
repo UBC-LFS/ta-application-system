@@ -21,7 +21,16 @@
         Apply Now!
         <small class="text-muted">(Total: {{ jobs|length }})</small>
       </h3>
-      <table class="table table-bordered table-hover table-striped table-responsive-md text-center font-size-1" data-toggle="table" data-sortable="true" data-classes="" data-pagination="true" data-search="true">
+      <table
+        class="table table-bordered table-hover table-striped table-responsive-md text-center font-size-1"
+        data-toggle="table"
+        data-sortable="true"
+        data-classes=""
+        data-pagination="true"
+        data-search="true"
+        data-page-size="50"
+        data-page-list="[50, 100, 200, all]"
+      >
         <thead>
           <tr>
             <th data-sortable="true">Year</th>

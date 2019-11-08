@@ -161,7 +161,6 @@ def delete_resume(request):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
 def show_confidentiality(request):
-    print("show_confidentiality")
     ''' Display user's confidentiality '''
     loggedin_user = userApi.loggedin_user(request.user)
     if 'Student' not in loggedin_user.roles: raise PermissionDenied

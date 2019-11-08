@@ -3,8 +3,6 @@
 
 {% include 'administrators/_menu.html' %}
 <div>
-  {% include 'ta_app/pages/_return_messages.html' with data=messages %}
-
   {% include 'ta_app/pages/_header.html' with title='Prepare Jobs' text=jobs|length %}
 
   <div>
@@ -18,7 +16,6 @@
       data-page-size="50"
       data-page-list="[50, 100, 200, all]"
       data-show-export="true"
-      data-click-to-select="true"
       data-show-columns="true"
     >
       <thead>

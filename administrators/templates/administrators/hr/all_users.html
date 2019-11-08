@@ -6,7 +6,7 @@
   {% include 'ta_app/pages/_header.html' with title='All Users' text=users|length %}
 
   <div class="bg-prompt">
-    <div class="prompt p-4 text-center mb-4 rounded-1">
+    <div class="prompt p-4 text-center mb-4">
       <h4>New</h4>
       <p class="col-8 mx-auto">If you would like to create a new user, please click the botton below.</p>
       <a class="btn btn-outline-primary" href="{% url 'administrators:create_user' %}">Create User</a>
@@ -26,7 +26,7 @@
     data-page-size="50"
     data-page-list="[50, 100, 200, all]"
     data-show-export="true"
-    data-click-to-select="true"
+    
     data-show-columns="true"
   >
     <thead>

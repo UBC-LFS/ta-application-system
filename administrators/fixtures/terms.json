@@ -43,13 +43,21 @@
     "model": "administrators.term",
     "pk": 6,
     "fields": {
+      "code": "W1+2",
+      "name": "Winter Term 1 + 2"
+    }
+  },
+  {
+    "model": "administrators.term",
+    "pk": 7,
+    "fields": {
       "code": "S",
       "name": "Summer Term"
     }
   },
   {
     "model": "administrators.term",
-    "pk": 7,
+    "pk": 8,
     "fields": {
       "code": "S1",
       "name": "Summer Term 1"
@@ -57,7 +65,7 @@
   },
   {
     "model": "administrators.term",
-    "pk": 8,
+    "pk": 9,
     "fields": {
       "code": "S2",
       "name": "Summer Term 2"
@@ -65,10 +73,18 @@
   },
   {
     "model": "administrators.term",
-    "pk": 9,
+    "pk": 10,
     "fields": {
       "code": "SA",
       "name": "Summer Term A"
+    }
+  },
+  {
+    "model": "administrators.term",
+    "pk": 11,
+    "fields": {
+      "code": "S1+2",
+      "name": "Summer Term 1 + 2"
     }
   }
 ]

@@ -2,87 +2,82 @@
 {% block content %}
 
 {% include 'administrators/_menu.html' %}
-{% include 'ta_app/pages/_return_messages.html' with data=messages %}
 <div class="row">
   <div class="col-md-4">
     {% include 'ta_app/pages/_header.html' with title='Send Email' %}
+    <div class="col-11 mx-auto">
 
-    <div class="bg-prompt">
-      <div class="prompt p-4 mb-4">
-        <h4>
-          {{ type }} Email
-        </h4>
-        <p>There are <span class="font-weight-bold">{{ applications|length }}</span> receiver(s) selected.</p>
+      <div class="bg-prompt">
+        <div class="prompt p-4 mb-4">
+          <h4>
+            {{ admin_email.type }} Email
+          </h4>
+          <p>There are <span class="font-weight-bold">{{ applications|length }}</span> receiver(s) selected.</p>
 
-        <a class="btn btn-outline-primary" href="{% url 'administrators:offered_applications' %}">Back to Offered Applications</a>
+          <a class="btn btn-outline-primary" href="{% url 'administrators:offered_applications' %}">Back to Offered Applications</a>
+        </div>
       </div>
-    </div>
 
-    <div class="bd-callout bd-callout-warning">
-      <h4>Note</h4>
-      <p>
-        <ul>
-          <li>Name: {0}</li>
-          <li>Session-Term: {1}</li>
-          <li>Job: {2}</li>
-          <li>Assigned Hours: {3}</li>
-          <li>Classification: {4}</li>
-          <li>URL: {5}</li>
-        </ul>
-      </p>
-    </div>
+      {% include 'ta_app/pages/_email_note.html' %}
 
+    </div>
   </div>
 
   <div class="col-md-8">
+    <div class="board col-11 mx-auto">
+      {% if applications|length == 0 %}
 
-    {% if applications|length == 0 %}
+        <div class="alert alert-danger" role="alert">
+          Please select any one of Offered Applications to send an email, and try again.
+        </div>
 
-      <div class="alert alert-danger" role="alert">
-        Please select any one of Offered Applications to send an email, and try again.
-      </div>
+      {% else %}
 
-    {% else %}
-
-      <div class="mt-4 mb-5">
-        <h4 class="text-info">Receivers</h4>
-        <table class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center">
+        <h3>Receivers</h3>
+        <table class="table text-center">
           <thead>
             <tr>
               <th>#</th>
+              <th>Application<br /> ID</th>
               <th>Year</th>
               <th>Term</th>
               <th>Job</th>
-              <th>Sender</th>
+              <th>Classification</th>
+              <th>Assigned Hours</th>
+              <th>Receivers</th>
             </tr>
           </thead>
           <tbody>
             {% for app in applications %}
               <tr>
                 <td>{{ forloop.counter }}</td>
+                <td>{{ app.id }}</td>
                 <td>{{ app.job.session.year }}</td>
                 <td>{{ app.job.session.term.code }}</td>
                 <td>{{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</td>
-                <td>{{ app.applicant.get_full_name }} ({{ app.applicant.email }})</td>
+                <td>{{ app.classification.name }}</td>
+                <td>{{ app.offered.assigned_hours }}</td>
+                <td>
+                  {{ app.applicant.get_full_name }}<br />
+                  <small class="text-muted">{{ app.applicant.email }}</small>
+                </td>
               </tr>
             {% endfor %}
           </tbody>
         </table>
-      </div>
 
-      <div class="board col-11 mx-auto">
         <h3>Form</h3>
 
         <form action="" method="post">
           {% csrf_token %}
 
           <div>
-            <h5>Sender:</h5>
+            <h6>Sender:</h6>
             <span>{{ sender }}</span>
           </div>
 
           <div>
-            <h5>Receiver:</h5>
+            <h6>Receiver:</h6>
             <span>{{ receiver }}</span>
           </div>
 
@@ -102,13 +97,11 @@
             {{ field }}
           {% endfor %}
 
-
-          <input class="btn btn-primary" type="submit" value="Confirm to send an email by {{ type }}" />
+          <input class="btn btn-primary" type="submit" value="Confirm to send an email by {{ admin_email.type }}" />
         </form>
-      </div>
 
-
-    {% endif %}
+      {% endif %}
+    </div>
 
   </div>
 </div>

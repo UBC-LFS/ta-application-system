@@ -61,7 +61,6 @@
 
             {% if app.instructor_preference != app_code.none and app.selected %}
 
-
               <div>
                 {% include 'ta_app/applications/_app_instructor_preference.html' with data=app.get_instructor_preference_display %}
               </div>
@@ -110,7 +109,7 @@
 
                         <div class="field-wrapper">
                           <label for="id_assigned_hours">Assign TA Hours:</label>
-                          <input class="form-control" type="number" name="assigned_hours" id="id_assigned_hours" value="0.0" />
+                          <input class="form-control" type="number" name="assigned_hours" id="id_assigned_hours" value="0.0" step="any" />
                         </div>
 
                         <input type="hidden" name="assigned" value="{{ app_status_code.selected }}" />
