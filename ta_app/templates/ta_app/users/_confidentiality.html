@@ -102,6 +102,17 @@
   </div>
 
   <div>
+    <h6>Speed Chart:</h6>
+    <span>
+      {% if data.confidentiality.speed_chart %}
+        {{ data.confidentiality.speed_chart }}
+      {% else %}
+        None
+      {% endif %}
+    </span>
+  </div>
+
+  <div>
     <h6>Union and Other Correspondence:</h6>
     {% if data.union_correspondence_file %}
       <a href="{% url 'administrators:download_union_correspondence' username=data.username filename=data.union_correspondence_file %}" target="_blank">{{ data.union_correspondence_file }}</a>
@@ -118,6 +129,17 @@
     {% else %}
       None
     {% endif %}
+  </div>
+
+  <div>
+    <h6>Processing Note:</h6>
+    <span>
+      {% if data.confidentiality.processing_note %}
+        {{ data.confidentiality.processing_note }}
+      {% else %}
+        None
+      {% endif %}
+    </span>
   </div>
 
 {% endif %}

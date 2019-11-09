@@ -37,7 +37,7 @@
             <td>{{ term.name }}</td>
             <td>
               <div class="btn-toolbar">
-                <button class="btn btn-sm btn-warning mr-2" type="button" data-toggle="modal" data-target="#term-edit-modal-{{ term.id }}">Edit</button>
+                <button class="btn btn-xs btn-primary mr-2" type="button" data-toggle="modal" data-target="#term-edit-modal-{{ term.id }}">Edit</button>
 
                 <div class="modal fade" id="term-edit-modal-{{ term.id }}" tabindex="-1" role="dialog" aria-labelledby="term-edit-modal-label-{{ term.id }}" aria-hidden="true">
                   <div class="modal-dialog modal-lg" role="document">
@@ -61,7 +61,7 @@
                             </tr>
                           </table>
 
-                          <input class="btn btn-warning" type="submit" value="Update Term" />
+                          <input class="btn btn-primary" type="submit" value="Update Term" />
                         </form>
                       </div>
                     </div>
@@ -71,7 +71,7 @@
                 <form action="{% url 'administrators:delete_term' %}" method="post" onsubmit="return confirm('Are you sure to delete {{ term.code }} - {{ term.name }}?');">
                   {% csrf_token %}
                   <input type="hidden" name="term" value="{{ term.id }}" />
-                  <input class="btn btn-sm btn-danger" type="submit" value="Delete" />
+                  <input class="btn btn-xs btn-danger" type="submit" value="Delete" />
                 </form>
               </div>
             </td>

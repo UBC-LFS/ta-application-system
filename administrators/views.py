@@ -22,9 +22,12 @@ from datetime import datetime
 
 from django.contrib.auth.models import User
 
+APP_MEMU = ['dashboard', 'all', 'selected', 'offered', 'accepted', 'declined']
+
 SESSION_PATH = ['current', 'archived']
-JOB_PATH = ['prepare', 'progress', 'dashboard', 'all', 'selected', 'offered', 'accepted', 'declined']
-APP_PATH = ['dashboard', 'all', 'selected', 'offered', 'accepted', 'declined', 'emails' ]
+JOB_PATH = ['prepare', 'progress'] + APP_MEMU
+APP_PATH = APP_MEMU + ['emails' ]
+USER_PATH = ['instructor', 'student', 'users', 'destroy'] + APP_MEMU
 APP_STATUS = {
     'applied': ApplicationStatus.NONE,
     'selected': ApplicationStatus.SELECTED,
@@ -33,6 +36,8 @@ APP_STATUS = {
     'declined': ApplicationStatus.DECLINED,
     'cancelled': ApplicationStatus.CANCELLED
 }
+
+
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -47,20 +52,6 @@ def index(request):
     })
 
 # ------------- Sessions -------------
-
-"""
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
-def sessions(request):
-    ''' Display all information of sessions and create a session '''
-    loggedin_user = userApi.loggedin_user(request.user)
-    if not userApi.is_admin(loggedin_user): raise PermissionDenied
-
-    return render(request, 'administrators/sessions/sessions.html', {
-        'loggedin_user': loggedin_user
-    })
-"""
 
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -283,19 +274,6 @@ def delete_session(request, path):
 
 # ------------- Jobs -------------
 
-"""
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
-def jobs(request):
-    ''' Display all jobs '''
-    loggedin_user = userApi.loggedin_user(request.user)
-    if not userApi.is_admin(loggedin_user): raise PermissionDenied
-
-    return render(request, 'administrators/jobs/jobs.html', {
-        'loggedin_user': loggedin_user
-    })
-"""
 
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -464,19 +442,6 @@ def edit_job(request, session_slug, job_slug):
 
 
 # Applications
-"""
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
-def applications(request):
-    ''' Display all applicatinos including offered, accepted, declined '''
-    loggedin_user = userApi.loggedin_user(request.user)
-    if not userApi.is_admin(loggedin_user): raise PermissionDenied
-
-    return render(request, 'administrators/applications/applications.html', {
-        'loggedin_user': loggedin_user
-    })
-"""
 
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -916,61 +881,35 @@ def terminate(request, app_slug):
 
 # HR
 
+
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
-def hr(request):
-    ''' Index page for HR '''
+def all_users(request):
+    ''' Display all users'''
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
 
-    return render(request, 'administrators/hr/hr.html', {
-        'loggedin_user': api.loggedin_user(request.user)
+    return render(request, 'administrators/hr/all_users.html', {
+        'loggedin_user': loggedin_user,
+        'users': userApi.get_users()
     })
+
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET', 'POST'])
-def create_user(request):
-    ''' Create a user '''
+@require_http_methods(['GET'])
+def show_user(request, username, path):
+    ''' Display an user's details '''
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
+    if path not in USER_PATH: raise Http404
 
-    if request.method == 'POST':
-        user_form = UserForm(request.POST)
-        if user_form.is_valid():
-            user_profile_form = UserProfileForm(request.POST)
-
-            if user_profile_form.is_valid():
-                user = user_form.save(commit=False)
-                user.set_password( make_password(settings.USER_PASSWORD) )
-                user.save()
-                if user:
-                    profile = userApi.create_profile(user, user_profile_form.cleaned_data)
-                    if profile:
-                        messages.success(request, 'Success! {0} {1} ({2}) created'.format(user.first_name, user.last_name, user.username))
-                        return redirect('administrators:all_users')
-                    else:
-                        messages.error(request, 'An error occurred while creating a user profile. Please contact administrators.')
-                else:
-                    messages.error(request, 'An error occurred while creating a user. Please contact administrators.')
-            else:
-                errors = user_profile_form.errors.get_json_data()
-                messages.error(request, 'An error occurred while creating a user because a form is invalid. {0}'.format( userApi.get_error_messages(errors) ) )
-        else:
-            errors = user_form.errors.get_json_data()
-            messages.error(request, 'An error occurred while creating a user because a form is invalid. {0}'.format( userApi.get_error_messages(errors) ) )
-
-        return redirect('administrators:create_user')
-
-    return render(request, 'administrators/hr/create_user.html', {
+    return render(request, 'administrators/hr/show_user.html', {
         'loggedin_user': loggedin_user,
-        'users': userApi.get_users(),
-        'user_form': UserForm(),
-        'user_profile_form': UserProfileForm(),
-        #'roles': userApi.get_roles(),
+        'user': userApi.get_user_by_username_with_resume(username),
+        'path': path
     })
-
 
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -1022,32 +961,85 @@ def edit_user(request, username):
         'user_profile_form': UserProfileEditForm(data=None, instance=user.profile)
     })
 
+
+
+
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
-def show_user(request, username, path):
-    ''' Display an user's details '''
+@require_http_methods(['POST'])
+def delete_user(request):
+    ''' Delete a user '''
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
 
-    return render(request, 'administrators/hr/show_user.html', {
+    if request.method == 'POST':
+        user_id = request.POST.get('user')
+        deleted_user = userApi.delete_user(user_id)
+        if deleted_user:
+            messages.success(request, 'Success! {0} {1} ({2}) deleted'.format(deleted_user.first_name, deleted_user.last_name, deleted_user.username))
+        else:
+            messages.error(request, 'An error occurred while deleting a user.')
+
+    return redirect('administrators:all_users')
+
+
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET', 'POST'])
+def create_user(request):
+    ''' Create a user '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user): raise PermissionDenied
+
+    if request.method == 'POST':
+        user_form = UserForm(request.POST)
+        if user_form.is_valid():
+            user_profile_form = UserProfileForm(request.POST)
+
+            if user_profile_form.is_valid():
+                user = user_form.save(commit=False)
+                user.set_password( make_password(settings.USER_PASSWORD) )
+                user.save()
+                if user:
+                    profile = userApi.create_profile(user, user_profile_form.cleaned_data)
+                    if profile:
+                        messages.success(request, 'Success! {0} {1} ({2}) created'.format(user.first_name, user.last_name, user.username))
+                        return redirect('administrators:all_users')
+                    else:
+                        messages.error(request, 'An error occurred while creating a user profile. Please contact administrators.')
+                else:
+                    messages.error(request, 'An error occurred while creating a user. Please contact administrators.')
+            else:
+                errors = user_profile_form.errors.get_json_data()
+                messages.error(request, 'An error occurred while creating a user because a form is invalid. {0}'.format( userApi.get_error_messages(errors) ) )
+        else:
+            errors = user_form.errors.get_json_data()
+            messages.error(request, 'An error occurred while creating a user because a form is invalid. {0}'.format( userApi.get_error_messages(errors) ) )
+
+        return redirect('administrators:create_user')
+
+    return render(request, 'administrators/hr/create_user.html', {
         'loggedin_user': loggedin_user,
-        'user': userApi.get_user_by_username_with_resume(username),
-        'path': path
+        'users': userApi.get_users(),
+        'user_form': UserForm(),
+        'user_profile_form': UserProfileForm(),
+        #'roles': userApi.get_roles(),
     })
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
-def all_users(request):
-    ''' Display all users'''
+def admin_docs(request):
+    ''' Display all users with admin documents '''
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
 
-    return render(request, 'administrators/hr/all_users.html', {
+    return render(request, 'administrators/hr/admin_docs.html', {
         'loggedin_user': loggedin_user,
-        'users': userApi.get_users()
+        'users': userApi.get_users_with_confidentiality()
     })
+
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -1062,19 +1054,6 @@ def view_confidentiality(request, username):
         'user': userApi.get_user_with_confidentiality(username, 'administrator')
     })
 
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
-def admin_docs(request):
-    ''' Display all users with admin documents '''
-    loggedin_user = userApi.loggedin_user(request.user)
-    if not userApi.is_admin(loggedin_user): raise PermissionDenied
-
-    return render(request, 'administrators/hr/admin_docs.html', {
-        'loggedin_user': loggedin_user,
-        'users': userApi.get_users_with_confidentiality()
-    })
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -1100,6 +1079,9 @@ def edit_admin_docs(request, username):
             data = form.cleaned_data
 
             updated_confidentiality = form.save(commit=False)
+            if not updated_confidentiality.created_at:
+                updated_confidentiality.created_at = datetime.now()
+
             updated_confidentiality.updated_at = datetime.now()
 
             updated_confidentiality.union_correspondence = request.FILES.get('union_correspondence')
@@ -1140,7 +1122,7 @@ def download_union_correspondence(request, username, filename):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['POST'])
-def delete_union_correspondence(request, username):
+def delete_union_correspondence(request):
     ''' Delete user's union_correspondence '''
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
@@ -1171,7 +1153,7 @@ def download_compression_agreement(request, username, filename):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['POST'])
-def delete_compression_agreement(request, username):
+def delete_compression_agreement(request):
     ''' Delete user's compression_agreement '''
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
@@ -1189,32 +1171,11 @@ def delete_compression_agreement(request, username):
     return HttpResponseRedirect( reverse('administrators:edit_admin_docs', args=[username]) )
 
 
-
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['POST'])
-def delete_user(request):
-    ''' Delete a user '''
-    loggedin_user = userApi.loggedin_user(request.user)
-    if not userApi.is_admin(loggedin_user): raise PermissionDenied
-
-    if request.method == 'POST':
-        user_id = request.POST.get('user')
-        deleted_user = userApi.delete_user(user_id)
-        if deleted_user:
-            messages.success(request, 'Success! {0} {1} ({2}) deleted'.format(deleted_user.first_name, deleted_user.last_name, deleted_user.username))
-        else:
-            messages.error(request, 'An error occurred while deleting a user.')
-
-    return redirect('administrators:all_users')
-
-
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET', 'POST'])
-def trim_users(request):
-    ''' Trim users who have no actions for 3 years '''
+def destroy_users(request):
+    ''' Destroy users who have no actions for 3 years '''
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user) and 'HR' not in loggedin_user.roles: raise PermissionDenied
 
@@ -1232,11 +1193,11 @@ def trim_users(request):
         else:
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
-        return redirect('administrators:trim_users')
+        return redirect('administrators:destroy_users')
     else:
         users, target_date = userApi.get_users('trim')
 
-    return render(request, 'administrators/hr/trim_users.html', {
+    return render(request, 'administrators/hr/destroy_users.html', {
         'loggedin_user': loggedin_user,
         'users': users,
         'target_date': target_date
@@ -1246,16 +1207,18 @@ def trim_users(request):
 
 # Courses
 
+
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
-def courses(request):
-    ''' Display information of courses '''
+@require_http_methods(['GET', 'POST'])
+def all_courses(request):
+    ''' Display all courses and edit/delete a course '''
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
 
-    return render(request, 'administrators/courses/courses.html', {
-        'loggedin_user': loggedin_user
+    return render(request, 'administrators/courses/all_courses.html', {
+        'loggedin_user': loggedin_user,
+        'courses': adminApi.get_courses()
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -1287,18 +1250,6 @@ def create_course(request):
         'form': CourseForm()
     })
 
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET', 'POST'])
-def all_courses(request):
-    ''' Display all courses and edit/delete a course '''
-    loggedin_user = userApi.loggedin_user(request.user)
-    if not userApi.is_admin(loggedin_user): raise PermissionDenied
-
-    return render(request, 'administrators/courses/all_courses.html', {
-        'loggedin_user': loggedin_user,
-        'courses': adminApi.get_courses()
-    })
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -2448,4 +2399,76 @@ def edit_job_application(request, session_slug, job_slug):
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
     return redirect('administrators:selected_applications')
+"""
+
+
+"""
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def hr(request):
+    ''' Index page for HR '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user): raise PermissionDenied
+
+    return render(request, 'administrators/hr/hr.html', {
+        'loggedin_user': api.loggedin_user(request.user)
+    })
+"""
+
+
+
+"""
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def sessions(request):
+    ''' Display all information of sessions and create a session '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user): raise PermissionDenied
+
+    return render(request, 'administrators/sessions/sessions.html', {
+        'loggedin_user': loggedin_user
+    })
+"""
+"""
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def jobs(request):
+    ''' Display all jobs '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user): raise PermissionDenied
+
+    return render(request, 'administrators/jobs/jobs.html', {
+        'loggedin_user': loggedin_user
+    })
+"""
+
+"""
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def applications(request):
+    ''' Display all applicatinos including offered, accepted, declined '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user): raise PermissionDenied
+
+    return render(request, 'administrators/applications/applications.html', {
+        'loggedin_user': loggedin_user
+    })
+"""
+
+"""
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def courses(request):
+    ''' Display information of courses '''
+    loggedin_user = userApi.loggedin_user(request.user)
+    if not userApi.is_admin(loggedin_user): raise PermissionDenied
+
+    return render(request, 'administrators/courses/courses.html', {
+        'loggedin_user': loggedin_user
+    })
 """

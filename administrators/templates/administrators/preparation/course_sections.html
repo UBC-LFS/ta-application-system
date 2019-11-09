@@ -36,7 +36,7 @@
             <td>{{ section.name }}</td>
             <td>
               <div class="btn-toolbar">
-                <button class="btn btn-sm btn-warning mr-2" type="button" data-toggle="modal" data-target="#course-section-edit-modal-{{ section.id }}">Edit</button>
+                <button class="btn btn-xs btn-primary mr-2" type="button" data-toggle="modal" data-target="#course-section-edit-modal-{{ section.id }}">Edit</button>
 
                 <div class="modal fade" id="course-section-edit-modal-{{ section.id }}" tabindex="-1" role="dialog" aria-labelledby="course-section-edit-modal-label-{{ section.id }}" aria-hidden="true">
                   <div class="modal-dialog modal-lg" role="document">
@@ -58,7 +58,7 @@
                             </tr>
                           </table>
 
-                          <input class="btn btn-warning" type="submit" value="Update"/>
+                          <input class="btn btn-primary" type="submit" value="Update"/>
                         </form>
                       </div>
                     </div>
@@ -68,7 +68,7 @@
                 <form action="{% url 'administrators:delete_course_section' %}" method="post" onsubmit="return confirm('Are you sure to delete this course section - {{ section.name }} ?')">
                   {% csrf_token %}
                   <input type="hidden" name="course_section" value="{{ section.id }}" />
-                  <input class="btn btn-sm btn-danger" type="submit" value="Delete" />
+                  <input class="btn btn-xs btn-danger" type="submit" value="Delete" />
                 </form>
               </div>
             </td>

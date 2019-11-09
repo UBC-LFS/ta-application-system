@@ -54,7 +54,12 @@ class UserForm(forms.ModelForm):
         model = User
         fields = ['first_name', 'last_name', 'email', 'username']
         labels = { 'email': 'Email', 'username': 'CWL' }
-        help_texts = { 'username': None }
+        help_texts = { 
+            'first_name': 'Required',
+            'last_name': 'Required',
+            'email': 'Required',
+            'username': 'Required' 
+        }
         widgets = {
             'first_name': forms.TextInput(attrs={ 'required': True, 'class': 'form-control' }),
             'last_name': forms.TextInput(attrs={ 'required': True, 'class': 'form-control' }),
@@ -66,7 +71,8 @@ class UserProfileForm(forms.ModelForm):
     roles = forms.ModelMultipleChoiceField(
         required=True,
         queryset=Role.objects.all(),
-        widget=forms.CheckboxSelectMultiple()
+        widget=forms.CheckboxSelectMultiple(),
+        help_text='Required'
     )
     class Meta:
         model = Profile
@@ -336,27 +342,38 @@ class AdminDocumentsForm(forms.ModelForm):
     ''' '''
     class Meta:
         model = Confidentiality
-        fields = ['user', 'is_international', 'employee_number', 'pin', 'tasm', 'eform', 'union_correspondence', 'compression_agreement']
+        fields = ['user', 'is_international', 'employee_number', 'pin', 'tasm', 'eform', 'speed_chart','union_correspondence', 'compression_agreement', 'processing_note']
         labels = {
             'is_international': 'International Student',
             'employee_number': 'Employee Number',
             'pin': 'PIN',
             'tasm': 'TASM',
             'eform': 'eForm',
+            'speed_chart': 'Speed Chart',
             'union_correspondence': 'Union and Other Correspondence',
-            'compression_agreement': 'Compression Agreement'
+            'compression_agreement': 'Compression Agreement',
+            'processing_note': 'Processing Note'
         }
         widgets = {
             'user': forms.HiddenInput(),
             'employee_number': forms.TextInput(attrs={ 'class':'form-control' }),
             'pin': forms.TextInput(attrs={ 'class':'form-control' }),
             'eform': forms.TextInput(attrs={ 'class':'form-control' }),
+            'speed_chart': forms.TextInput(attrs={ 'class':'form-control' }),
             'union_correspondence': forms.FileInput(),
-            'compression_agreement': forms.FileInput()
+            'compression_agreement': forms.FileInput(),
+            'processing_note': forms.Textarea(attrs={ 'class':'form-control', 'rows': 2 }),
         }
         help_texts = {
-            'union_correspondence': 'Valid file format: PDF only',
-            'compression_agreement': 'Valid file format: PDF only'
+            'is_international': 'Optional',
+            'employee_number': 'Optional. Maximum 7 digits long',
+            'pin': 'Optional. Maximum 4 digits long',
+            'tasm': 'Optional',
+            'eform': 'Optional. Maximum 6 digits long',
+            'speed_chart': 'Optional',
+            'union_correspondence': 'Optional. Valid file format: PDF only',
+            'compression_agreement': 'Optional. Valid file format: PDF only',
+            'processing_note': 'Optional'
         }
 
 

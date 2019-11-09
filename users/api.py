@@ -11,6 +11,7 @@ from PIL import Image
 
 from users.models import *
 from users.forms import *
+from administrators.forms import ROLES
 from datetime import datetime, date, timedelta
 
 # to be removed
@@ -106,7 +107,7 @@ def get_users_with_data():
 """
 
 def get_user_with_confidentiality(username, role=None):
-    ''' Get a user with resume, sin and study permit by id '''
+    ''' Get a user with resume, sin and study permit by username '''
 
     user = get_user_by_username(username)
 
@@ -215,12 +216,51 @@ def delete_user(user_id):
 
 
 
+def has_user_profile_created(user):
+    ''' Check an user has a profile '''
+    try:
+        return user.profile
+    except Profile.DoesNotExist:
+        return None
 
 
+def has_user_resume_created(user):
+    ''' Check an user has a resume '''
+    try:
+        return user.resume
+    except Resume.DoesNotExist:
+        return None
+
+
+def has_user_confidentiality_created(user):
+    ''' Check an user has a confidentiality '''
+    try:
+        return user.confidentiality
+    except Confidentiality.DoesNotExist:
+        return None
+
+
+def username_exists(username):
+    ''' Check username exists '''
+    user = User.objects.filter(username=username)
+    if user.exists(): return user
+    return False
+
+
+def profile_exists_by_username(username):
+    ''' Check user's profile exists '''
+    profile = Profile.objects.filter(user__username=username)
+    if profile.exists(): return profile
+    return False
+
+
+
+# -------------------------------------
 
 
 
 # for testing
+
 
 def user_exists(user):
     """ Check user exists """
@@ -240,11 +280,6 @@ def profile_exists(user):
         return True
     return False
 
-def has_user_resume_created(user):
-    try:
-        return user.resume
-    except Resume.DoesNotExist:
-        return False
 
 def resume_exists(user):
     """ Check user's resume exists """
@@ -258,17 +293,7 @@ def confidentiality_exists(user):
         return True
     return False
 
-def username_exists(username):
-    ''' Check username exists '''
-    if User.objects.filter(username=username).exists():
-        return True
-    return False
 
-def profile_exists_by_username(username):
-    ''' Check user's profile exists '''
-    if Profile.objects.filter(user__username=username).exists():
-        return True
-    return False
 
 def resume_exists_by_username(username):
     """ Check user's resume exists """
@@ -530,17 +555,38 @@ def create_user_resume(user):
     return True if resume else None
 
 
-def create_user_confidentiality(user):
-    confidentiality = Confidentiality.objects.create(user_id=user.id)
-    return True if confidentiality else None
-
-from django.core.files.storage import Storage, FileSystemStorage
-from django.core.files import File
 
 def create_expiry_date(year, month, day):
     print('create_expiry_date ', year, month, day, bool(year))
     if not bool(year) or not bool(month) or not bool(day): return False
     return datetime( int(year), int(month), int(day) )
+
+
+# Confidentiality
+
+
+
+
+def create_user_confidentiality(user):
+    confidentiality = Confidentiality.objects.create(user_id=user.id)
+    return True if confidentiality else None
+
+def create_confidentiality(user):
+    confidentiality = Confidentiality.objects.create(user_id=user.id)
+    return True if confidentiality else None
+
+
+
+def get_confidentialities():
+    return Confidentiality.objects.all()
+
+def get_confidentiality(user):
+    try:
+        return Confidentiality.objects.get(user_id=user.id)
+    except Confidentiality.DoesNotExist:
+        return None
+
+
 
 
 def updated_confidentiality(user, post, files, data):
@@ -600,6 +646,10 @@ def updated_confidentiality(user, post, files, data):
         user.confidentiality.save(update_fields=update_fields)
 
     return True
+
+
+
+
 
 
 # ----- Roles -----
@@ -714,29 +764,6 @@ def delete_training(training_id):
     training = get_training(training_id)
     training.delete()
     return training if training else False
-
-
-# Confidentiality
-
-def has_user_confidentiality_created(user):
-    ''' Check whether an user creates confidentiality or not '''
-    try:
-        return user.confidentiality
-    except Confidentiality.DoesNotExist:
-        return None
-
-def get_confidentialities():
-    return Confidentiality.objects.all()
-
-def get_confidentiality(user):
-    try:
-        return Confidentiality.objects.get(user_id=user.id)
-    except Confidentiality.DoesNotExist:
-        return None
-
-def create_confidentiality(user):
-    confidentiality = Confidentiality.objects.create(user_id=user.id)
-    return True if confidentiality else None
 
 
 

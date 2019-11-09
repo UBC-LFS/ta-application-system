@@ -134,12 +134,12 @@ class Confidentiality(models.Model):
     updated_at = models.DateField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
-        print('save =======')
-        print('sin ', self.sin)
-        print('study_permit ', self.study_permit)
-        print('self', self)
-        print('args', args)
-        print('kwargs', kwargs)
+        #print('save =======')
+        #print('sin ', self.sin)
+        #print('study_permit ', self.study_permit)
+        #print('self', self)
+        #print('args', args)
+        #print('kwargs', kwargs)
 
         if 'update_fields' in kwargs:
             if 'sin' in kwargs['update_fields']:

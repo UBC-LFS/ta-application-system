@@ -4,9 +4,7 @@
 {% include 'administrators/_menu.html' %}
 <div>
   {% include 'ta_app/pages/_header.html' with title='Admin Documents' text=users|length %}
-</div>
 
-<div>
   <table
     class="table table-bordered table-hover table-striped table-responsive-md text-center"
     data-toggle="table"
@@ -17,20 +15,21 @@
     data-page-size="50"
     data-page-list="[50, 100, 200, all]"
     data-show-export="true"
-    
     data-show-columns="true"
   >
     <thead>
       <tr>
         <th data-sortable="true">ID</th>
-        <th data-sortable="true">First Name</th>
-        <th data-sortable="true">Last Name</th>
+        <th data-sortable="true">First<br /> Name</th>
+        <th data-sortable="true">Last<br /> Name</th>
         <th data-sortable="true">CWL</th>
         <th data-sortable="true">International<br /> Student</th>
         <th data-sortable="true">Employee<br /> Number</th>
         <th>PIN</th>
         <th>TASM</th>
         <th>eForm</th>
+        <th>Speed<br />Chart</th>
+        <th>Processing<br />Note</th>
         <th>Created at</th>
         <th>Updated at</th>
         <th>Actions</th>
@@ -54,11 +53,13 @@
           <td>{{ user.confidentiality.pin }}</td>
           <td>{{ user.confidentiality.tasm }}</td>
           <td>{{ user.confidentiality.eform }}</td>
+          <td>{{ user.confidentiality.speed_chart }}</td>
+          <td>{% include 'ta_app/users/_modal_processing_note.html' with data=user.confidentiality %}</td>
           <td>{{ user.confidentiality.created_at }}</td>
           <td>{{ user.confidentiality.updated_at }}</td>
           <td>
-            <a href="{% url 'administrators:view_confidentiality' username=user.username %}">View Details</a>
-            <a class="btn btn-sm btn-link" href="{% url 'administrators:edit_admin_docs' username=user.username %}">Edit</a>
+            <a class="btn btn-xs btn-link" href="{% url 'administrators:view_confidentiality' username=user.username %}">View Details</a><br />
+            <a class="btn btn-xs btn-link" href="{% url 'administrators:edit_admin_docs' username=user.username %}">Edit</a>
           </td>
         </tr>
       {% endfor %}

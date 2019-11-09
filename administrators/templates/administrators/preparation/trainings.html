@@ -33,10 +33,10 @@
         {% for training in trainings %}
           <tr>
             <td>{{ training.id }}</td>
-            <td>{{ training.name }}</td>
+            <td class="text-left">{{ training.name }}</td>
             <td>
               <div class="btn-toolbar">
-                <button class="btn btn-sm btn-warning mr-2" type="button" data-toggle="modal" data-target="#training-edit-modal-{{ training.id }}">Edit</button>
+                <button class="btn btn-xs btn-primary mr-2" type="button" data-toggle="modal" data-target="#training-edit-modal-{{ training.id }}">Edit</button>
 
                 <div class="modal fade" id="training-edit-modal-{{ training.id }}" tabindex="-1" role="dialog" aria-labelledby="training-edit-modal-label-{{ training.id }}" aria-hidden="true">
                   <div class="modal-dialog modal-lg" role="document">
@@ -56,7 +56,7 @@
                             </tr>
                           </table>
 
-                          <input class="btn btn-warning" type="submit" value="Update" />
+                          <input class="btn btn-primary" type="submit" value="Update" />
                         </form>
                       </div>
                     </div>
@@ -66,7 +66,7 @@
                 <form action="{% url 'administrators:delete_training' %}" method="post" onsubmit="return confirm('Are you sure to delete this training - {{ training.name }} ?')">
                   {% csrf_token %}
                   <input type="hidden" name="training" value="{{ training.id }}" />
-                  <input class="btn btn-sm btn-danger" type="submit" value="Delete" />
+                  <input class="btn btn-xs btn-danger" type="submit" value="Delete" />
                 </form>
               </div>
             </td>
