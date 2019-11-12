@@ -97,28 +97,24 @@ def upload_resume(request):
     loggedin_user = userApi.loggedin_user(request.user)
     if 'Student' not in loggedin_user.roles: raise PermissionDenied
 
-    user = userApi.get_user_by_username_with_resume(loggedin_user.username)
+    #user = userApi.get_user_by_username_with_resume(loggedin_user.username)
+    loggedin_user = userApi.add_resume(loggedin_user)
     if request.method == 'POST':
-        form = None
-        old_resume = None
-        if user.resume_filename:
-            old_resume = user.resume.uploaded
-            form = ResumeForm(request.POST, request.FILES, instance=user.resume)
-        else:
-            form = ResumeForm(request.POST, request.FILES)
+        if len(request.FILES) == 0:
+            messages.error(request, 'An error occurred. Please select your resume, then try again.')
+            return redirect('students:show_profile')
 
+        if loggedin_user.resume_filename:
+            messages.error(request, 'An error occurred. Please remove your previous resume, then try again.')
+            return redirect('students:show_profile')
+
+        form = ResumeForm(request.POST, request.FILES)
         if form.is_valid():
             resume = form.save(commit=False)
-            if user.resume_filename and old_resume != None and len(old_resume.name) > 0:
-                deleted_resume = userApi.delete_user_resume(user.username)
-                if not deleted_resume:
-                    messages.warning(request, 'Warning! Resume is not deleted')
-
-            resume.uploaded = request.FILES.get('file')
-            #resume.created_at = datetime.now()
+            resume.uploaded = request.FILES.get('uploaded')
             resume.save()
             if resume:
-                messages.success(request, 'Success! {0} - Resume uploaded'.format(user.username))
+                messages.success(request, 'Success! {0} - Resume uploaded'.format(loggedin_user.get_full_name()))
             else:
                 messages.error(request, 'An error occurred while saving a resume.')
         else:
@@ -211,7 +207,6 @@ def submit_confidentiality(request):
     user = userApi.get_user(request.user.id)
     form = None
     if request.method == 'POST':
-        print(request.POST, request.FILES)
         if user.confidentiality.is_international == True:
             form = ConfidentialityInternationalForm(request.POST, request.FILES, instance=user.confidentiality)
         else:
@@ -220,8 +215,6 @@ def submit_confidentiality(request):
         if form.is_valid():
             sin_file = request.FILES.get('sin')
             study_permit_file = request.FILES.get('study_permit')
-
-            print('files', sin_file, study_permit_file)
 
             updated_confidentiality = form.save(commit=False)
             updated_confidentiality.created_at = datetime.now()
@@ -239,6 +232,8 @@ def submit_confidentiality(request):
         else:
             errors = form.errors.get_json_data()
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+
+        return redirect('students:submit_confidentiality')
 
     else:
         if userApi.has_user_confidentiality_created(user):
