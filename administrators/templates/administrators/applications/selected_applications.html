@@ -64,8 +64,8 @@
               <a href="{% url 'administrators:show_user' username=app.applicant.username path='selected' %}">{{ app.applicant.get_full_name }}</a>
             </td>
             <td>
-              {% if app.resume_file %}
-                <a href="{% url 'students:download_resume' username=app.applicant.username filename=app.resume_file %}" target="_blank">{{ app.resume_file }}</a>
+              {% if app.resume_filename %}
+                <a href="{% url 'students:download_resume' username=app.applicant.username filename=app.resume_filename %}" target="_blank">{{ app.resume_filename }}</a>
               {% else %}
                 No
               {% endif %}
@@ -133,16 +133,16 @@
                             </td>
                             <td>
                               {% if app.offered %}
-                                <input type="number" name="assigned_hours" value="{{ app.offered.assigned_hours }}" step="any" />
+                                <input type="text" name="assigned_hours" value="{{ app.offered.assigned_hours }}" />
                               {% else %}
-                                <input type="number" name="assigned_hours" value="{{ app.selected.assigned_hours }}" step="any" />
+                                <input type="text" name="assigned_hours" value="{{ app.selected.assigned_hours }}" />
                               {% endif %}
                             </td>
                           </tr>
                         </table>
 
                         <input type="hidden" name="application" value="{{ app.id }}" />
-                        <input type="hidden" name="assigned" value="{{ app_status_code.offered }}" />
+                        <input type="hidden" name="assigned" value="{{ app_status.offered }}" />
                         <input type="hidden" name="applicant" value="{{ app.applicant.id }}" />
 
                         MLWS

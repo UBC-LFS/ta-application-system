@@ -22,10 +22,10 @@
 
 <div>
   <h6>Social Insurance Number (SIN):</h6>
-  {% if data.sin_data %}
-    <img class="img-fluid" src="{{ data.sin_data.url }}" width="400" height="300" alt="SIN-image" />
+  {% if data.sin_decrypt_image %}
+    <img class="img-fluid" src="{{ data.sin_decrypt_image.url }}" width="400" height="300" alt="SIN-image" />
     {% comment %}
-    <a href="{{ data.sin_data.url }}" download="{{ data.sin_data.filename }}">{{ data.sin_data.filename }}</a>
+    <a href="{{ data.sin_decrypt_image.url }}" download="{{ data.sin_decrypt_image.filename }}">{{ data.sin_decrypt_image.filename }}</a>
     {% endcomment %}
   {% else %}
     <span>None</span>
@@ -45,10 +45,10 @@
 
 <div>
   <h6>Study Permit:</h6>
-  {% if data.study_permit_data %}
-    <img class="img-fluid" src="{{ data.study_permit_data.url }}" width="400" height="300" alt="Study-Permit-image" />
+  {% if data.study_permit_decrypt_image %}
+    <img class="img-fluid" src="{{ data.study_permit_decrypt_image.url }}" width="400" height="300" alt="Study-Permit-image" />
     {% comment %}
-    <a href="{{ data.study_permit_data.url }}" download="{{ data.study_permit_data.filename }}">{{ data.study_permit_data.filename }}</a>
+    <a href="{{ data.study_permit_decrypt_image.url }}" download="{{ data.study_permit_decrypt_image.filename }}">{{ data.study_permit_decrypt_image.filename }}</a>
     {% endcomment %}
   {% else %}
     <span>None</span>
@@ -114,8 +114,8 @@
 
   <div>
     <h6>Union and Other Correspondence:</h6>
-    {% if data.union_correspondence_file %}
-      <a href="{% url 'administrators:download_union_correspondence' username=data.username filename=data.union_correspondence_file %}" target="_blank">{{ data.union_correspondence_file }}</a>
+    {% if data.union_correspondence_filename %}
+      <a href="{% url 'administrators:download_union_correspondence' username=data.username filename=data.union_correspondence_filename %}" target="_blank">{{ data.union_correspondence_filename }}</a>
     {% else %}
       None
     {% endif %}
@@ -124,8 +124,8 @@
   <div>
     <h6>Compression Agreement:</h6>
 
-    {% if data.compression_agreement_file %}
-      <a href="{% url 'administrators:download_compression_agreement' username=data.username filename=data.compression_agreement_file %}" target="_blank">{{ data.compression_agreement_file }}</a>
+    {% if data.compression_agreement_filename %}
+      <a href="{% url 'administrators:download_compression_agreement' username=data.username filename=data.compression_agreement_filename %}" target="_blank">{{ data.compression_agreement_filename }}</a>
     {% else %}
       None
     {% endif %}

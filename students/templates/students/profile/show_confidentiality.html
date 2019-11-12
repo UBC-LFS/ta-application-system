@@ -4,7 +4,7 @@
 {% include 'students/_menu.html' %}
 <div class="row">
   <div class="col-md-4">
-    {% include 'ta_app/pages/_left_aside.html' with view_name='users'   title='Confidentiality' data=user %}
+    {% include 'ta_app/pages/_left_aside.html' with view_name='users'   title='Confidentiality' data=loggedin_user %}
 
     <div class="left-aside-btn-groups">
       <a class="btn btn-outline-primary" href="{% url 'students:show_profile' %}">View Profile</a>
@@ -13,10 +13,10 @@
 
   <div class="col-md-8">
     <div class="board col-11 mx-auto">
-      {% if user.confidentiality and user.confidentiality.created_at != None %}
+      {% if loggedin_user.confidentiality and loggedin_user.confidentiality.created_at != None %}
 
         <h3>Details</h3>
-        {% include 'ta_app/users/_confidentiality.html' with data=user %}
+        {% include 'ta_app/users/_confidentiality.html' with data=loggedin_user %}
         <a class="btn btn-primary mt-4" href="{% url 'students:edit_confidentiality' %}">Edit Confidentiality</a>
 
       {% else %}
@@ -26,7 +26,7 @@
             <p>If you are an international student, please click down below.</p>
             <form action="{% url 'students:check_confidentiality' %}" method="post">
               {% csrf_token %}
-              <input type="hidden" name="user" value="{{ user.id }}" />
+              <input type="hidden" name="user" value="{{ loggedin_user.id }}" />
               <input type="hidden" name="is_international" value="True" />
               <input class="btn btn-lg btn-primary" type="submit" value="I am an International student" />
             </form>
@@ -36,7 +36,7 @@
             <p>If you are a Canadian citizen or Permanent Resident, please click down below.</p>
             <form action="{% url 'students:check_confidentiality' %}" method="post">
               {% csrf_token %}
-              <input type="hidden" name="user" value="{{ user.id }}" />
+              <input type="hidden" name="user" value="{{ loggedin_user.id }}" />
               <input type="hidden" name="is_international" value="False" />
               <input class="btn btn-lg btn-primary" type="submit" value="I am a Canadian citizen/Permanent Resident" />
             </form>

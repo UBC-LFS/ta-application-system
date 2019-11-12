@@ -4,7 +4,7 @@
 {% include 'students/_menu.html' %}
 <div class="row">
   <div class="col-md-4">
-    {% include 'ta_app/pages/_left_aside.html' with view_name='jobs' title='Cancel Job' data=job %}
+    {% include 'ta_app/pages/_left_aside.html' with view_name='job_applications' title='Cancel Job' data=app.job %}
 
     <div class="left-aside-btn-groups">
       <a class="btn btn-outline-primary" href="{% url 'students:status_jobs' %}">Back to Status of Jobs</a>
@@ -12,14 +12,12 @@
   </div>
 
   <div class="col-md-8">
-    <div class="col-11 mx-auto">
+    <div class="board col-11 mx-auto">
 
-      <h3>{{ app.job.session.year }} {{ app.job.session.term.name }} ({{ app.job.session.term.code }})</h3>
-      <h4>
-        {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }} <br />
-        <small class="text-muted"> {{ app.job.course.name }}</small>
-      </h4>
-      Details: {% include 'ta_app/jobs/_modal_job_details.html' with data=job %}
+      <div>
+        <h6>Job Details:</h6>
+        {% include 'ta_app/jobs/_modal_job_details.html' with data=job %}
+      </div>
 
       {% if app.cancelled %}
 
@@ -29,12 +27,12 @@
 
       {% else %}
 
-        <div class="bd-callout bd-callout-danger">
+        <div class="bd-callout bd-callout-danger my-5">
           <h4>Confirmation</h4>
           <p>Text area</p>
         </div>
 
-        <h4 class="text-info">Are you sure to cancel this accepted job?</h4>
+        <h4>Are you sure to cancel this accepted job?</h4>
         <p class="text-secondary">Please click the Cancel button below if you would like to cancel your job.</p>
 
         <form action="" method="post" onsubmit="return confirm('Are you sure to cancel this accepted job: {{ app.job.session.year}} {{ app.job.session.term.code }} - {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}?')">

@@ -59,7 +59,7 @@
           <td>{{ app.created_at }}</td>
           <td>
 
-            {% if app.instructor_preference != app_code.none and app.selected %}
+            {% if app.instructor_preference != app_status.none and app.selected %}
 
               <div>
                 {% include 'ta_app/applications/_app_instructor_preference.html' with data=app.get_instructor_preference_display %}
@@ -109,10 +109,10 @@
 
                         <div class="field-wrapper">
                           <label for="id_assigned_hours">Assign TA Hours:</label>
-                          <input class="form-control" type="number" name="assigned_hours" id="id_assigned_hours" value="0.0" step="any" />
+                          <input class="form-control" type="text" name="assigned_hours" id="id_assigned_hours" value="0.0" />
                         </div>
 
-                        <input type="hidden" name="assigned" value="{{ app_status_code.selected }}" />
+                        <input type="hidden" name="assigned" value="{{ app_status.selected }}" />
                         <input type="hidden" name="application" value="{{ app.id }}" />
 
                         <input class="btn btn-sm btn-primary" type="submit" value="Submit" />

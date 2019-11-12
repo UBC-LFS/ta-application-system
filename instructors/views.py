@@ -8,6 +8,7 @@ from django.core.exceptions import PermissionDenied
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.cache import cache_control
 
+from administrators.views import APP_STATUS
 from administrators.models import *
 from administrators.forms import *
 from administrators import api as adminApi
@@ -90,6 +91,7 @@ def edit_job(request, session_slug, job_slug):
             errors = form.errors.get_json_data()
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
+        return HttpResponseRedirect( reverse('instructors:edit_job', args=[session_slug, job_slug]) )
 
     return render(request, 'instructors/jobs/edit_job.html', {
         'loggedin_user': loggedin_user,
@@ -123,11 +125,15 @@ def show_applications(request, session_slug, job_slug):
 
     if request.method == 'POST':
         if request.POST.get('instructor_preference') == Application.NONE:
-            messages.error(request, 'An error occurred. Please select your preference, then try it again.')
+            messages.error(request, 'An error occurred. Please select your preference, then try again.')
+            return HttpResponseRedirect( reverse('instructors:show_applications', args=[session_slug, job_slug]) )
+
+        if request.POST.get('instructor_preference') == Application.NO_PREFERENCE and float(request.POST.get('assigned_hours')) > 0.0:
+            messages.error(request, 'An error occurred. Please leave 0.0 for Assign TA Hours if you would to select No Preference, then try again.')
             return HttpResponseRedirect( reverse('instructors:show_applications', args=[session_slug, job_slug]) )
 
         if float(request.POST.get('assigned_hours')) == 0.0 and request.POST.get('instructor_preference') != Application.NO_PREFERENCE:
-            messages.error(request, 'An error occurred. Please assign TA hours, then try it again.')
+            messages.error(request, 'An error occurred. Please assign TA hours, then try again.')
             return HttpResponseRedirect( reverse('instructors:show_applications', args=[session_slug, job_slug]) )
 
         if float(request.POST.get('assigned_hours')) > float(job.assigned_ta_hours):
@@ -156,7 +162,7 @@ def show_applications(request, session_slug, job_slug):
                     messages.error(request, 'An error occurred while updating an instructor_preference.')
 
             else:
-                errors = instructor_app_form.app_status_form.get_json_data()
+                errors = app_status_form.errors.get_json_data()
                 messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
         else:
@@ -172,11 +178,5 @@ def show_applications(request, session_slug, job_slug):
         'job': job,
         'apps': adminApi.get_applications_with_status_by_session_slug_job_slug(session_slug, job_slug),
         'instructor_preference_choices': Application.INSTRUCTOR_PREFERENCE_CHOICES,
-        'app_code': {
-            'none': Application.NONE
-        },
-        'app_status_code': {
-            'none': ApplicationStatus.NONE,
-            'selected': ApplicationStatus.SELECTED
-        }
+        'app_status': APP_STATUS
     })

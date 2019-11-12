@@ -38,7 +38,7 @@
 
           <h4>{{ data.job.session.year }} {{ data.job.session.term.name }} ({{ data.job.session.term.code }})</h4>
           <h4>{{ data.job.course.code.name }} {{ data.job.course.number.name }} {{ data.job.course.section.name }}</h4>
-          <p>{{ data.job.course.name }}</p>        
+          <p>{{ data.job.course.name }}</p>
 
         {% elif view_name == 'job_applications' %}
 
@@ -62,18 +62,5 @@
     </div>
 
   </div>
-
-
-  {% if app_name == 'administrators' %}
-
-  {% elif app_name == 'human_resources' %}
-
-  {% elif app_name == 'instructors' %}
-
-  {% elif app_name == 'students' %}
-
-  {% else %}
-
-  {% endif %}
 
 </aside>

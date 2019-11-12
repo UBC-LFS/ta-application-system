@@ -22,13 +22,14 @@ from datetime import datetime
 
 from django.contrib.auth.models import User
 
-APP_MEMU = ['dashboard', 'all', 'selected', 'offered', 'accepted', 'declined']
 
+APP_MEMU = ['dashboard', 'all', 'selected', 'offered', 'accepted', 'declined']
 SESSION_PATH = ['current', 'archived']
 JOB_PATH = ['prepare', 'progress'] + APP_MEMU
 APP_PATH = APP_MEMU + ['emails' ]
 USER_PATH = ['instructor', 'student', 'users', 'destroy'] + APP_MEMU
 APP_STATUS = {
+    'none': ApplicationStatus.NONE,
     'applied': ApplicationStatus.NONE,
     'selected': ApplicationStatus.SELECTED,
     'offered': ApplicationStatus.OFFERED,
@@ -36,7 +37,6 @@ APP_STATUS = {
     'declined': ApplicationStatus.DECLINED,
     'cancelled': ApplicationStatus.CANCELLED
 }
-
 
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -544,7 +544,7 @@ def selected_applications(request):
         'admin_application_form': AdminApplicationForm(),
         'status_form': ApplicationStatusForm(initial={ 'assigned': ApplicationStatus.OFFERED }),
         'classification_choices': adminApi.get_classifications(),
-        'app_status_code': APP_STATUS
+        'app_status': APP_STATUS
     })
 
 @login_required(login_url=settings.LOGIN_URL)

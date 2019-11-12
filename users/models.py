@@ -159,13 +159,12 @@ def create_resume_path(instance, filename):
 
 class Resume(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
-    file = models.FileField(
+    uploaded = models.FileField(
         upload_to=create_resume_path,
         validators=[FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png', 'pdf', 'doc', 'docx'])],
         null=True,
         blank=True
     )
-
     created_at = models.DateField(default=dt.date.today)
 
 

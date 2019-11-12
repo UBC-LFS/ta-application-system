@@ -40,10 +40,10 @@
       <div class="card border-danger my-4">
         <div class="card-body">
           <h6 class="card-title">Delete Union and Other Correspondence</h6>
-          {% if user.union_correspondence_file %}
+          {% if user.union_correspondence_filename %}
             <p class="card-text text-secondary">
               If you would like to delete the Union and Other Correspondence file, please click the Delete button below.<br />
-              File: {{ user.union_correspondence_file }}
+              File: {{ user.union_correspondence_filename }}
             </p>
             <form action="{% url 'administrators:delete_union_correspondence' %}" method="post" onsubmit="return confirm('Are you sure to delete this Union and Other Correspondence file?')">
               {% csrf_token %}
@@ -59,9 +59,9 @@
       <div class="card border-danger">
         <div class="card-body">
           <h6 class="card-title">Delete Compression Agreement</h6>
-          {% if user.compression_agreement_file %}
+          {% if user.compression_agreement_filename %}
             <p class="card-text text-secondary">If you would like to delete the Compression Agreement file, please click the Delete button below.<br />
-              File: {{ user.compression_agreement_file }}
+              File: {{ user.compression_agreement_filename }}
             </p>
             <form action="{% url 'administrators:delete_compression_agreement' %}" method="post" onsubmit="return confirm('Are you sure to delete this Compression Agreement file?')">
               {% csrf_token %}

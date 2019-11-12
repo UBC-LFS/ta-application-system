@@ -14,7 +14,7 @@ from users import api as userApi
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
 def index(request):
-    ''' '''
+    ''' index page '''
     loggedin_user = userApi.loggedin_user(request.user)
     if 'HR' not in loggedin_user.roles: raise PermissionDenied
 
@@ -25,12 +25,12 @@ def index(request):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
-def users_confidentiality(request):
-    ''' '''
+def all_users(request):
+    ''' Display all users '''
     loggedin_user = userApi.loggedin_user(request.user)
     if 'HR' not in loggedin_user.roles: raise PermissionDenied
 
-    return render(request, 'human_resources/users_confidentiality.html', {
+    return render(request, 'human_resources/all_users.html', {
         'loggedin_user': loggedin_user,
         'users': userApi.get_users()
     })
@@ -41,10 +41,10 @@ def users_confidentiality(request):
 def show_user(request, username):
     ''' Display an user's details '''
     loggedin_user = userApi.loggedin_user(request.user)
-
     return render(request, 'human_resources/show_user.html', {
         'loggedin_user': loggedin_user,
-        'user': userApi.get_user_by_username_with_resume(username),
+        'user': userApi.get_user(username, 'username')
+        #'user': userApi.get_user_by_username_with_resume(username),
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -55,8 +55,10 @@ def view_confidentiality(request, username):
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user) and 'HR' not in loggedin_user.roles: raise PermissionDenied
 
-    user = userApi.get_user_by_username(username)
+    user = userApi.get_user(username, 'username')
+    user = userApi.add_confidentiality(user)
     return render(request, 'human_resources/view_confidentiality.html', {
         'loggedin_user': loggedin_user,
-        'user': userApi.get_user_with_confidentiality(user.id)
+        'user': user
+        #'user': userApi.get_user_with_confidentiality(username)
     })

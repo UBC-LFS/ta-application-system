@@ -40,10 +40,11 @@ def show_profile(request):
     loggedin_user = userApi.loggedin_user(request.user)
     if 'Student' not in loggedin_user.roles: raise PermissionDenied
 
+    loggedin_user = userApi.add_resume(loggedin_user)
     return render(request, 'students/profile/show_profile.html', {
         'loggedin_user': loggedin_user,
-        'user': userApi.get_user_by_username_with_resume(loggedin_user.username),
         'form': ResumeForm(initial={ 'user': loggedin_user })
+        #'user': userApi.get_user_by_username_with_resume(loggedin_user.username)
     })
 
 
@@ -100,20 +101,20 @@ def upload_resume(request):
     if request.method == 'POST':
         form = None
         old_resume = None
-        if user.resume_file:
-            old_resume = user.resume.file
+        if user.resume_filename:
+            old_resume = user.resume.uploaded
             form = ResumeForm(request.POST, request.FILES, instance=user.resume)
         else:
             form = ResumeForm(request.POST, request.FILES)
 
         if form.is_valid():
             resume = form.save(commit=False)
-            if user.resume_file and old_resume != None and len(old_resume.name) > 0:
-                deleted_resume = userApi.delete_user_resume(user)
+            if user.resume_filename and old_resume != None and len(old_resume.name) > 0:
+                deleted_resume = userApi.delete_user_resume(user.username)
                 if not deleted_resume:
                     messages.warning(request, 'Warning! Resume is not deleted')
 
-            resume.file = request.FILES.get('file')
+            resume.uploaded = request.FILES.get('file')
             #resume.created_at = datetime.now()
             resume.save()
             if resume:
@@ -165,9 +166,10 @@ def show_confidentiality(request):
     loggedin_user = userApi.loggedin_user(request.user)
     if 'Student' not in loggedin_user.roles: raise PermissionDenied
 
+    loggedin_user = userApi.add_confidentiality(loggedin_user)
     return render(request, 'students/profile/show_confidentiality.html', {
         'loggedin_user': loggedin_user,
-        'user': userApi.get_user_with_confidentiality(loggedin_user.username)
+        #'user': userApi.get_user_with_confidentiality(loggedin_user.username)
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -203,13 +205,13 @@ def check_confidentiality(request):
 @require_http_methods(['GET', 'POST'])
 def submit_confidentiality(request):
     ''' Submit user's confidentiality '''
-
     loggedin_user = userApi.loggedin_user(request.user)
     if 'Student' not in loggedin_user.roles: raise PermissionDenied
 
     user = userApi.get_user(request.user.id)
     form = None
     if request.method == 'POST':
+        print(request.POST, request.FILES)
         if user.confidentiality.is_international == True:
             form = ConfidentialityInternationalForm(request.POST, request.FILES, instance=user.confidentiality)
         else:
@@ -218,6 +220,8 @@ def submit_confidentiality(request):
         if form.is_valid():
             sin_file = request.FILES.get('sin')
             study_permit_file = request.FILES.get('study_permit')
+
+            print('files', sin_file, study_permit_file)
 
             updated_confidentiality = form.save(commit=False)
             updated_confidentiality.created_at = datetime.now()
@@ -761,9 +765,9 @@ def show_student(request, username):
     offered_jobs, offered_summary = adminApi.get_offered_jobs_by_student(user, student_jobs)
     accepted_jobs, accepted_summary = adminApi.get_accepted_jobs_by_student(user, student_jobs)
 
-    resume_file = None
-    if user.resume.file != None:
-        resume_file = os.path.basename(user.resume.file.name)
+    resume_filename = None
+    if user.resume.uploaded != None:
+        resume_filename = os.path.basename(user.resume.uploaded.name)
 
     study_permit_file = None
     if user.confidentiality.study_permit != None:
@@ -777,7 +781,7 @@ def show_student(request, username):
     return render(request, 'users/students/show_student.html', {
         'loggedin_user': loggedin_user,
         'user': user,
-        'resume_file': resume_file,
+        'resume_filename': resume_filename,
         'study_permit_file': study_permit_file,
         'work_permit_file': work_permit_file,
         'student_jobs': adminApi.get_jobs_applied_by_student(user),

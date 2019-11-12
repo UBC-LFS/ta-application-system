@@ -12,9 +12,9 @@
 
     <div class="col-11 mx-auto">
       <h5>Resume:</h5>
-      {% if user.resume_file %}
-        <a href="{% url 'students:download_resume' username=user.username filename=user.resume_file %}" target="_blank">
-          {{ user.resume_file }}
+      {% if user.resume_filename %}
+        <a href="{% url 'students:download_resume' username=user.username filename=user.resume_filename %}" target="_blank">
+          {{ user.resume_filename }}
         </a>
         | {{ user.resume.created_at }}
       {% else %}
@@ -32,7 +32,7 @@
           <i class="fa fa-user-circle-o" aria-hidden="true"></i> Basic Information
         </a>
         <a class="nav-item nav-link" id="nav-profile-tab" data-toggle="tab" href="#nav-profile" role="tab" aria-controls="nav-profile" aria-selected="false">
-          <i class="fa fa-address-card-o" aria-hidden="true"></i> Profile
+          <i class="fa fa-id-card-o" aria-hidden="true"></i> Profile
         </a>
       </div>
     </nav>

@@ -513,9 +513,9 @@ def get_selected_applications():
     #apps = Application.objects.filter( ~Q(instructor_preference=Application.NONE) & ~Q(instructor_preference=Application.NO_PREFERENCE) ).order_by('job')
     apps = Application.objects.filter(applicationstatus__assigned=ApplicationStatus.SELECTED).order_by('-id')
     for app in apps:
-        app.resume_file = None
-        if userApi.has_user_resume_created(app.applicant) and bool(app.applicant.resume.file):
-            app.resume_file = os.path.basename(app.applicant.resume.file.name)
+        app.resume_filename = None
+        if userApi.has_user_resume_created(app.applicant) and bool(app.applicant.resume.uploaded):
+            app.resume_filename = os.path.basename(app.applicant.resume.uploaded.name)
 
         app.selected = None
         selected = app.applicationstatus_set.filter(assigned=ApplicationStatus.SELECTED)
@@ -535,9 +535,9 @@ def get_applications_by_status(status):
         found_status = app.applicationstatus_set.filter(assigned=status)
 
         if status == ApplicationStatus.SELECTED:
-            app.resume_file = None
-            if userApi.has_user_resume_created(app.applicant) and bool(app.applicant.resume.file):
-                app.resume_file = os.path.basename(app.applicant.resume.file.name)
+            app.resume_filename = None
+            if userApi.has_user_resume_created(app.applicant) and bool(app.applicant.resume.uploaded):
+                app.resume_filename = os.path.basename(app.applicant.resume.uploaded.name)
 
             app.selected = None
             selected = app.applicationstatus_set.filter(assigned=ApplicationStatus.SELECTED)

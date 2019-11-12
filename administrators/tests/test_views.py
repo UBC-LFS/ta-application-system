@@ -47,7 +47,6 @@ JOB = 'apbi-200-001-introduction-to-soil-science-w1'
 APP = '2019-w1-apbi-200-001-introduction-to-soil-science-w1-application-by-user100test'
 COURSE = 'apbi-200-001-introduction-to-soil-science-w'
 
-"""
 
 class SessionTest(TestCase):
     fixtures = DATA
@@ -332,9 +331,7 @@ class SessionTest(TestCase):
         self.assertTrue('An error occurred' in messages[0])
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, response.url)
-"""
 
-"""
 
 class JobTest(TestCase):
     fixtures = DATA
@@ -534,7 +531,7 @@ class JobTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, USERS[0])
         self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
-        self.assertEqual(response.context['user'], USERS[1])
+        self.assertEqual(response.context['user'].username, USERS[1])
 
     def test_student_jobs_details(self):
         print('\n- Test: display jobs that a student has')
@@ -553,10 +550,6 @@ class JobTest(TestCase):
         #self.assertEqual( response.context['accepted_total_assigned_hours']['2019-W1'], 60.0 )
         #self.assertEqual( response.context['accepted_total_assigned_hours']['2019-S'], 80.0 )
 
-"""
-
-
-"""
 
 class ApplicationTest(TestCase):
     fixtures = DATA
@@ -662,7 +655,7 @@ class ApplicationTest(TestCase):
         self.assertFalse(response.context['admin_application_form'].is_bound)
         self.assertFalse(response.context['status_form'].is_bound)
         self.assertEqual( len(response.context['classification_choices']), 6)
-        self.assertEqual(response.context['app_status_code']['offered'], ApplicationStatus.OFFERED)
+        self.assertEqual(response.context['app_status']['offered'], ApplicationStatus.OFFERED)
 
     def test_offer_job(self):
         print('\n- Test: Admin can offer a job to each job')
@@ -955,12 +948,6 @@ class ApplicationTest(TestCase):
 
         self.assertTrue(application.is_terminated)
 
-
-"""
-
-
-
-"""
 
 class HRTest(TestCase):
     fixtures = DATA
@@ -1389,7 +1376,7 @@ class HRTest(TestCase):
         user = userApi.get_user_by_username(USERS[2])
         data = {
             'user': user.id,
-            'union_correspondence': SimpleUploadedFile('compression_agreement.pdf', b'file_content', content_type='application/pdf')
+            'compression_agreement': SimpleUploadedFile('compression_agreement.pdf', b'file_content', content_type='application/pdf')
         }
         response = self.client.post( reverse('administrators:edit_admin_docs', args=[ USERS[2] ] ), data=data, format='multipart')
         messages = self.messages(response)
@@ -1406,9 +1393,7 @@ class HRTest(TestCase):
         self.assertEqual(response.url, '/administrators/hr/users/{0}/admin-docs/edit/'.format(USERS[2]))
         self.assertRedirects(response, response.url)
 
-"""
 
-"""
 class CourseTest(TestCase):
     fixtures = DATA
 
@@ -1596,8 +1581,6 @@ class CourseTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, response.url)
 
-
-"""
 
 class PreparationTest(TestCase):
     fixtures = DATA

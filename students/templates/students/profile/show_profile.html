@@ -4,7 +4,7 @@
 {% include 'students/_menu.html' %}
 <div class="row">
   <div class="col-md-4">
-    {% include 'ta_app/pages/_left_aside.html' with view_name='users'   title='View Profile' data=user %}
+    {% include 'ta_app/pages/_left_aside.html' with view_name='users' title='View Profile' data=loggedin_user %}
 
     <div class="left-aside-btn-groups">
       <a class="btn btn-outline-primary" href="{% url 'students:edit_profile' %}">Edit Profile</a>
@@ -15,9 +15,15 @@
 
     <nav class="mb-4">
       <div class="nav nav-tabs" id="nav-tab" role="tablist">
-        <a class="nav-item nav-link active" id="nav-basic-info-tab" data-toggle="tab" href="#nav-basic-info" role="tab" aria-controls="nav-basic-info" aria-selected="true">Basic Information</a>
-        <a class="nav-item nav-link" id="nav-profile-tab" data-toggle="tab" href="#nav-profile" role="tab" aria-controls="nav-profile" aria-selected="false">Profile</a>
-        <a class="nav-item nav-link" id="nav-resume-tab" data-toggle="tab" href="#nav-resume" role="tab" aria-controls="nav-resume" aria-selected="false">Resume</a>
+        <a class="nav-item nav-link active" id="nav-basic-info-tab" data-toggle="tab" href="#nav-basic-info" role="tab" aria-controls="nav-basic-info" aria-selected="true">
+          <i class="fa fa-user-circle-o" aria-hidden="true"></i> Basic Information
+        </a>
+        <a class="nav-item nav-link" id="nav-profile-tab" data-toggle="tab" href="#nav-profile" role="tab" aria-controls="nav-profile" aria-selected="false">
+          <i class="fa fa-id-card-o" aria-hidden="true"></i> Profile
+        </a>
+        <a class="nav-item nav-link" id="nav-resume-tab" data-toggle="tab" href="#nav-resume" role="tab" aria-controls="nav-resume" aria-selected="false">
+          <i class="fa fa-file-text-o" aria-hidden="true"></i> Resume
+        </a>
       </div>
     </nav>
 
@@ -25,14 +31,14 @@
       <div class="tab-pane fade show active" id="nav-basic-info" role="tabpanel" aria-labelledby="nav-basic-info-tab">
         <div class="board col-11 mx-auto">
           <h3>Basic Information</h3>
-          {% include 'ta_app/users/_basic_info.html' with data=user student_number_display='True' %}
+          {% include 'ta_app/users/_basic_info.html' with data=loggedin_user student_number_display='True' %}
         </div>
       </div>
 
       <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
         <div class="board col-11 mx-auto">
           <h3>Profile</h3>
-          {% include 'ta_app/users/_profile.html' with data=user %}
+          {% include 'ta_app/users/_profile.html' with data=loggedin_user %}
         </div>
       </div>
 
@@ -41,19 +47,19 @@
         <div class="board col-11 mx-auto">
           <h3>Resume</h3>
 
-          {% if user.resume_file %}
+          {% if user.resume_filename %}
             <div>
-              <a class="btn btn-link" href="{% url 'students:download_resume' username=user.username filename=user.resume_file %}" target="_blank">
-                <i class="fa fa-cloud-download" aria-hidden="true"></i> {{ user.resume_file }}
+              <a class="btn btn-link" href="{% url 'students:download_resume' username=loggedin_user.username filename=loggedin_user.resume_filename %}" target="_blank">
+                <i class="fa fa-cloud-download" aria-hidden="true"></i> {{ loggedin_user.resume_filename }}
               </a>
               <br />
-              <small class="text-muted">Uploaded at {{ user.resume.created_at }}</small>
+              <small class="text-muted">Uploaded at {{ loggedin_user.resume.created_at }}</small>
             </div>
 
             <div>
               <form action="{% url 'students:delete_resume' %}" method="post" onsubmit="return confirm('Are you sure to delete this resume?')">
                 {% csrf_token %}
-                <input type="hidden" name="user" value="{{ user.username }}">
+                <input type="hidden" name="user" value="{{ loggedin_user.username }}">
                 <input class="btn btn-sm btn-danger" type="submit" value="Delete" />
               </form>
             </div>

@@ -54,11 +54,11 @@ class UserForm(forms.ModelForm):
         model = User
         fields = ['first_name', 'last_name', 'email', 'username']
         labels = { 'email': 'Email', 'username': 'CWL' }
-        help_texts = { 
+        help_texts = {
             'first_name': 'Required',
             'last_name': 'Required',
             'email': 'Required',
-            'username': 'Required' 
+            'username': 'Required'
         }
         widgets = {
             'first_name': forms.TextInput(attrs={ 'required': True, 'class': 'form-control' }),
@@ -381,7 +381,7 @@ class ResumeForm(forms.ModelForm):
     ''' '''
     class Meta:
         model = Resume
-        fields = ['user', 'file']
+        fields = ['user', 'uploaded']
         widgets = {
             'user': forms.HiddenInput()
         }
