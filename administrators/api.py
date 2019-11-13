@@ -189,7 +189,25 @@ def get_job_by_session_slug_job_slug(session_slug, job_slug):
     ''' Get a job by session_slug and job_slug '''
     return get_object_or_404(Job, Q(session__slug=session_slug) & Q(course__slug=job_slug) )
 
-def get_jobs_with_applications_statistics():
+def add_applications_statistics(jobs):
+    ''' add statistics of applications in a job '''
+    for job in Job.objects.all():
+        offered_app = 0
+        accepted_app = 0
+        declined_app = 0
+        for app in job.application_set.all():
+            if get_offered(app): offered_app += 1
+            if get_accepted(app): accepted_app += 1
+            if get_declined(app): declined_app += 1
+
+        job.offered_applications = offered_app
+        job.accepted_applications = accepted_app
+        job.declined_applications = declined_app
+
+    return jobs
+
+
+"""def get_jobs_with_applications_statistics():
     ''' get jobs with statistics of applications '''
     jobs = []
     for job in Job.objects.all():
@@ -206,7 +224,7 @@ def get_jobs_with_applications_statistics():
         job.declined_applications = declined_app
         jobs.append(job)
 
-    return jobs
+    return jobs"""
 
 def get_job_with_applications_statistics(session_slug, job_slug):
     ''' get a job with statistics of applications '''

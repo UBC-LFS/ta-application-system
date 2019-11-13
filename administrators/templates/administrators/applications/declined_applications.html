@@ -3,66 +3,64 @@
 
 {% include 'administrators/_menu.html' %}
 <div>
-  {% include 'ta_app/pages/_header.html' with title='Declined Applications' text=declined_applications|length %}
+  {% include 'ta_app/pages/_header.html' with title='Declined Applications' %}
 
-  <div>
-    <table
-      class="table table-bordered table-hover table-striped table-responsive-md text-center"
-      data-toggle="table"
-      data-sortable="true"
-      data-classes=""
-      data-pagination="true"
-      data-search="true"
-      data-page-size="50"
-      data-page-list="[50, 100, 200, all]"
-      data-show-export="true"
-      data-show-columns="true"
-    >
-      <thead>
+  {% include 'ta_app/pages/_search_fields.html' with path='declined_applications' %}
+  <div>{{ apps|length }} row {% if apps|length > 1 %} s  {% endif %} in this page</div>
+
+  <table
+    class="table table-bordered table-hover table-striped table-responsive-md text-center"
+    data-toggle="table"
+    data-sortable="true"
+    data-classes=""
+    data-show-export="true"
+    data-show-columns="true"
+  >
+    <thead>
+      <tr>
+        <th data-sortable="true">ID</th>
+        <th data-sortable="true">Year</th>
+        <th data-sortable="true">Term</th>
+        <th data-sortable="true">Job</th>
+        <th data-sortable="true">Applicant</th>
+        <th data-sortable="true">Status</th>
+        <th data-sortable="true">Instructor Preference</th>
+        <th data-sortable="true">Classification</th>
+        <th data-sortable="true">Note</th>
+        <th data-sortable="true">Created at</th>
+        <th data-sortable="true">Updated at</th>
+        <th data-sortable="true">Declined at</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for app in apps %}
         <tr>
-          <th data-sortable="true">ID</th>
-          <th data-sortable="true">Year</th>
-          <th data-sortable="true">Term</th>
-          <th data-sortable="true">Job</th>
-          <th data-sortable="true">Applicant</th>
-          <th data-sortable="true">Status</th>
-          <th data-sortable="true">Instructor Preference</th>
-          <th data-sortable="true">Classification</th>
-          <th data-sortable="true">Note</th>
-          <th data-sortable="true">Created at</th>
-          <th data-sortable="true">Updated at</th>
-          <th data-sortable="true">Declined at</th>
+          <td>
+            <a class="btn btn-xs btn-info" href="{% url 'administrators:show_application' app_slug=app.slug path='declined' %}">{{ app.id }}</a>
+          </td>
+          <td>{{ app.job.session.year }}</td>
+          <td>{{ app.job.session.term.code }}</td>
+          <td>
+            <a href="{% url 'administrators:show_job' session_slug=app.job.session.slug job_slug=app.job.course.slug path='declined' %}">
+              {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}
+            </a>
+          </td>
+          <td>
+            <a href="{% url 'administrators:show_user' username=app.applicant.username path='declined' %}">{{ app.applicant.get_full_name }}</a>
+          </td>
+          <td>{% include 'ta_app/applications/_modal_app_status.html' with data=app %}</td>
+          <td>{% include 'ta_app/applications/_app_instructor_preference.html' with data=app.get_instructor_preference_display %}</td>
+          <td>{% include 'ta_app/applications/_app_classification.html' with data=app %}</td>
+          <td>{% include 'ta_app/applications/_modal_note.html' with data=app %}</td>
+          <td>{{ app.created_at }}</td>
+          <td>{{ app.updated_at }}</td>
+          <td>{{ app.declined.created_at }}</td>
         </tr>
-      </thead>
-      <tbody>
-        {% for app in declined_applications %}
-          <tr>
-            <td>
-              <a class="btn btn-xs btn-info" href="{% url 'administrators:show_application' app_slug=app.slug path='declined' %}">{{ app.id }}</a>
-            </td>
-            <td>{{ app.job.session.year }}</td>
-            <td>{{ app.job.session.term.code }}</td>
-            <td>
-              <a href="{% url 'administrators:show_job' session_slug=app.job.session.slug job_slug=app.job.course.slug path='declined' %}">
-                {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}
-              </a>
-            </td>
-            <td>
-              <a href="{% url 'administrators:show_user' username=app.applicant.username path='declined' %}">{{ app.applicant.get_full_name }}</a>
-            </td>
-            <td>{% include 'ta_app/applications/_modal_app_status.html' with data=app %}</td>
-            <td>{% include 'ta_app/applications/_app_instructor_preference.html' with data=app.get_instructor_preference_display %}</td>
-            <td>{% include 'ta_app/applications/_app_classification.html' with data=app %}</td>
-            <td>{% include 'ta_app/applications/_modal_note.html' with data=app %}</td>
-            <td>{{ app.created_at }}</td>
-            <td>{{ app.updated_at }}</td>
-            <td>{{ app.declined.created_at }}</td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+      {% endfor %}
+    </tbody>
+  </table>
 
-  </div>
+  {% include 'ta_app/pages/_table_paginator.html' with data=apps %}
 
 </div>
 

@@ -109,6 +109,12 @@ main {
   color: #6c757d;
 }
 
+.table-paginator {
+  margin-top: 30px;
+}
+
+
+
 /* utils */
 
 .logo-page {

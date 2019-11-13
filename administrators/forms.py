@@ -160,6 +160,7 @@ class AdminJobForm(forms.ModelForm):
         widget=forms.TextInput(attrs={ 'class': 'form-control' })
     )
     assigned_ta_hours = forms.FloatField(
+        label='Assigned TA Hours',
         widget=forms.TextInput(attrs={ 'class': 'form-control' })
     )
     instructors = MyModelMultipleChoiceField(

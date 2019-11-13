@@ -10,8 +10,9 @@ from django.views.decorators.cache import cache_control
 from django.contrib.auth.hashers import make_password
 from django.db.models import Q
 from django.views.static import serve
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
-from administrators.models import Application, ApplicationStatus, Course
+from administrators.models import Job, Application, ApplicationStatus, Course
 from administrators.forms import *
 from administrators import api as adminApi
 
@@ -295,13 +296,71 @@ def show_job(request, session_slug, job_slug, path):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
 def prepare_jobs(request):
-    ''' Prepare jobs '''
+    ''' Display preparing jobs '''
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
 
+    year_q = request.GET.get('year')
+    term_q = request.GET.get('term')
+    code_q = request.GET.get('code')
+    number_q = request.GET.get('number')
+    section_q = request.GET.get('section')
+    cwl_q = request.GET.get('cwl')
+
+    filters = None
+    if bool(year_q):
+        if filters:
+            filters = filters & Q(session__year__iexact=year_q)
+        else:
+            filters = Q(session__year__iexact=year_q)
+    if bool(term_q):
+        if filters:
+            filters = filters & Q(session__term__code__iexact=term_q)
+        else:
+            filters = Q(session__term__code__iexact=term_q)
+    if bool(code_q):
+        if filters:
+            filters = filters & Q(course__code__name__iexact=code_q)
+        else:
+            filters = Q(course__code__name__iexact=code_q)
+    if bool(number_q):
+        if filters:
+            filters = filters & Q(course__number__name__iexact=number_q)
+        else:
+            filters = Q(course__number__name__iexact=number_q)
+    if bool(section_q):
+        if filters:
+            filters = filters & Q(course__section__name__iexact=section_q)
+        else:
+            filters = Q(course__section__name__iexact=section_q)
+    if bool(cwl_q):
+        if filters:
+            filters = filters & Q(applicant__username__iexact=cwl_q)
+        else:
+            filters = Q(applicant__username__iexact=cwl_q)
+
+
+    job_list = None
+    #if bool(year_q) or bool(term_q) or bool(code_q) or bool(number_q) or bool(section_q) or bool(cwl_q):
+    #    job_list = Job.objects.filter(filters)
+    if filters == None:
+        job_list = adminApi.get_jobs()
+    else:
+        job_list = Job.objects.filter(filters)
+
+    page = request.GET.get('page', 1)
+    paginator = Paginator(job_list, settings.PAGE_SIZE)
+
+    try:
+        jobs = paginator.page(page)
+    except PageNotAnInteger:
+        jobs = paginator.page(1)
+    except EmptyPage:
+        jobs = paginator.page(paginator.num_pages)
+
     return render(request, 'administrators/jobs/prepare_jobs.html', {
         'loggedin_user': loggedin_user,
-        'jobs': adminApi.get_jobs()
+        'jobs': jobs
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -312,9 +371,68 @@ def progress_jobs(request):
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
 
+    year_q = request.GET.get('year')
+    term_q = request.GET.get('term')
+    code_q = request.GET.get('code')
+    number_q = request.GET.get('number')
+    section_q = request.GET.get('section')
+    cwl_q = request.GET.get('cwl')
+
+    filters = None
+    if bool(year_q):
+        if filters:
+            filters = filters & Q(session__year__iexact=year_q)
+        else:
+            filters = Q(session__year__iexact=year_q)
+    if bool(term_q):
+        if filters:
+            filters = filters & Q(session__term__code__iexact=term_q)
+        else:
+            filters = Q(session__term__code__iexact=term_q)
+    if bool(code_q):
+        if filters:
+            filters = filters & Q(course__code__name__iexact=code_q)
+        else:
+            filters = Q(course__code__name__iexact=code_q)
+    if bool(number_q):
+        if filters:
+            filters = filters & Q(course__number__name__iexact=number_q)
+        else:
+            filters = Q(course__number__name__iexact=number_q)
+    if bool(section_q):
+        if filters:
+            filters = filters & Q(course__section__name__iexact=section_q)
+        else:
+            filters = Q(course__section__name__iexact=section_q)
+    if bool(cwl_q):
+        if filters:
+            filters = filters & Q(applicant__username__iexact=cwl_q)
+        else:
+            filters = Q(applicant__username__iexact=cwl_q)
+
+
+    job_list = None
+    #if bool(year_q) or bool(term_q) or bool(code_q) or bool(number_q) or bool(section_q) or bool(cwl_q):
+    #    job_list = Job.objects.filter(filters)
+    if filters == None:
+        job_list = adminApi.get_jobs()
+    else:
+        job_list = Job.objects.filter(filters)
+
+    #job_list = adminApi.add_applications_statistics(job_list)
+    page = request.GET.get('page', 1)
+    paginator = Paginator(job_list, settings.PAGE_SIZE)
+
+    try:
+        jobs = paginator.page(page)
+    except PageNotAnInteger:
+        jobs = paginator.page(1)
+    except EmptyPage:
+        jobs = paginator.page(paginator.num_pages)
+
     return render(request, 'administrators/jobs/progress_jobs.html', {
         'loggedin_user': loggedin_user,
-        'jobs': adminApi.get_jobs_with_applications_statistics()
+        'jobs': jobs
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -467,11 +585,66 @@ def applications_dashboard(request):
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
 
+    year_q = request.GET.get('year')
+    term_q = request.GET.get('term')
+    code_q = request.GET.get('code')
+    number_q = request.GET.get('number')
+    section_q = request.GET.get('section')
+    cwl_q = request.GET.get('cwl')
+
+    filters = None
+    if bool(year_q):
+        if filters:
+            filters = filters & Q(application__job__session__year__iexact=year_q)
+        else:
+            filters = Q(application__job__session__year__iexact=year_q)
+    if bool(term_q):
+        if filters:
+            filters = filters & Q(application__job__session__term__code__iexact=term_q)
+        else:
+            filters = Q(application__job__session__term__code__iexact=term_q)
+    if bool(code_q):
+        if filters:
+            filters = filters & Q(application__job__course__code__name__iexact=code_q)
+        else:
+            filters = Q(application__job__course__code__name__iexact=code_q)
+    if bool(number_q):
+        if filters:
+            filters = filters & Q(application__job__course__number__name__iexact=number_q)
+        else:
+            filters = Q(application__job__course__number__name__iexact=number_q)
+    if bool(section_q):
+        if filters:
+            filters = filters & Q(application__job__course__section__name__iexact=section_q)
+        else:
+            filters = Q(application__job__course__section__name__iexact=section_q)
+    if bool(cwl_q):
+        if filters:
+            filters = filters & Q(application__applicant__username__iexact=cwl_q)
+        else:
+            filters = Q(application__applicant__username__iexact=cwl_q)
+
+    status_list = None
+    if filters == None:
+        status_list = adminApi.get_application_statuses()
+    else:
+        status_list = ApplicationStatus.objects.filter(filters).order_by('-id')
+
+    page = request.GET.get('page', 1)
+    paginator = Paginator(status_list, settings.PAGE_SIZE)
+
+    try:
+        statuses = paginator.page(page)
+    except PageNotAnInteger:
+        statuses = paginator.page(1)
+    except EmptyPage:
+        statuses = paginator.page(paginator.num_pages)
+
     return render(request, 'administrators/applications/applications_dashboard.html', {
         'loggedin_user': loggedin_user,
-        'statuses': adminApi.get_application_statuses(),
+        'statuses': statuses,
         'app_status': APP_STATUS,
-        'applications': adminApi.get_applications()
+        #'applications': adminApi.get_applications()
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -482,9 +655,64 @@ def all_applications(request):
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
 
+    year_q = request.GET.get('year')
+    term_q = request.GET.get('term')
+    code_q = request.GET.get('code')
+    number_q = request.GET.get('number')
+    section_q = request.GET.get('section')
+    cwl_q = request.GET.get('cwl')
+
+    filters = None
+    if bool(year_q):
+        if filters:
+            filters = filters & Q(job__session__year__iexact=year_q)
+        else:
+            filters = Q(job__session__year__iexact=year_q)
+    if bool(term_q):
+        if filters:
+            filters = filters & Q(job__session__term__code__iexact=term_q)
+        else:
+            filters = Q(job__session__term__code__iexact=term_q)
+    if bool(code_q):
+        if filters:
+            filters = filters & Q(job__course__code__name__iexact=code_q)
+        else:
+            filters = Q(job__course__code__name__iexact=code_q)
+    if bool(number_q):
+        if filters:
+            filters = filters & Q(job__course__number__name__iexact=number_q)
+        else:
+            filters = Q(job__course__number__name__iexact=number_q)
+    if bool(section_q):
+        if filters:
+            filters = filters & Q(job__course__section__name__iexact=section_q)
+        else:
+            filters = Q(job__course__section__name__iexact=section_q)
+    if bool(cwl_q):
+        if filters:
+            filters = filters & Q(applicant__username__iexact=cwl_q)
+        else:
+            filters = Q(applicant__username__iexact=cwl_q)
+
+    app_list = None
+    if filters == None:
+        app_list = adminApi.get_applications()
+    else:
+        app_list = ApplicationStatus.objects.filter(filters).order_by('-id')
+
+    page = request.GET.get('page', 1)
+    paginator = Paginator(app_list, settings.PAGE_SIZE)
+
+    try:
+        apps = paginator.page(page)
+    except PageNotAnInteger:
+        apps = paginator.page(1)
+    except EmptyPage:
+        apps = paginator.page(paginator.num_pages)
+
     return render(request, 'administrators/applications/all_applications.html', {
         'loggedin_user': loggedin_user,
-        'applications': adminApi.get_applications()
+        'apps': apps
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -534,13 +762,25 @@ def selected_applications(request):
         else:
             filters = Q(applicant__username__iexact=cwl_q)
 
-    apps = adminApi.get_applications_by_status(ApplicationStatus.SELECTED)
-    if bool(year_q) or bool(term_q) or bool(code_q) or bool(number_q) or bool(section_q) or bool(cwl_q):
-        apps = Application.objects.filter(filters)
+    app_list = None
+    if filters == None:
+        app_list = adminApi.get_applications_by_status(ApplicationStatus.SELECTED)
+    else:
+        app_list = Application.objects.filter( filters & Q(applicationstatus__assigned=ApplicationStatus.SELECTED) ).order_by('-id').distinct()
+
+    page = request.GET.get('page', 1)
+    paginator = Paginator(app_list, settings.PAGE_SIZE)
+
+    try:
+        apps = paginator.page(page)
+    except PageNotAnInteger:
+        apps = paginator.page(1)
+    except EmptyPage:
+        apps = paginator.page(paginator.num_pages)
 
     return render(request, 'administrators/applications/selected_applications.html', {
         'loggedin_user': loggedin_user,
-        'selected_applications': apps,
+        'apps': apps,
         'admin_application_form': AdminApplicationForm(),
         'status_form': ApplicationStatusForm(initial={ 'assigned': ApplicationStatus.OFFERED }),
         'classification_choices': adminApi.get_classifications(),
@@ -600,9 +840,64 @@ def offered_applications(request):
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
 
+    year_q = request.GET.get('year')
+    term_q = request.GET.get('term')
+    code_q = request.GET.get('code')
+    number_q = request.GET.get('number')
+    section_q = request.GET.get('section')
+    cwl_q = request.GET.get('cwl')
+
+    filters = None
+    if bool(year_q):
+        if filters:
+            filters = filters & Q(job__session__year__iexact=year_q)
+        else:
+            filters = Q(job__session__year__iexact=year_q)
+    if bool(term_q):
+        if filters:
+            filters = filters & Q(job__session__term__code__iexact=term_q)
+        else:
+            filters = Q(job__session__term__code__iexact=term_q)
+    if bool(code_q):
+        if filters:
+            filters = filters & Q(job__course__code__name__iexact=code_q)
+        else:
+            filters = Q(job__course__code__name__iexact=code_q)
+    if bool(number_q):
+        if filters:
+            filters = filters & Q(job__course__number__name__iexact=number_q)
+        else:
+            filters = Q(job__course__number__name__iexact=number_q)
+    if bool(section_q):
+        if filters:
+            filters = filters & Q(job__course__section__name__iexact=section_q)
+        else:
+            filters = Q(job__course__section__name__iexact=section_q)
+    if bool(cwl_q):
+        if filters:
+            filters = filters & Q(applicant__username__iexact=cwl_q)
+        else:
+            filters = Q(applicant__username__iexact=cwl_q)
+
+    app_list = None
+    if filters == None:
+        app_list = adminApi.get_applications_by_status(ApplicationStatus.OFFERED)
+    else:
+        app_list = Application.objects.filter( filters & Q(applicationstatus__assigned=ApplicationStatus.OFFERED) ).order_by('-id').distinct()
+
+    page = request.GET.get('page', 1)
+    paginator = Paginator(app_list, settings.PAGE_SIZE)
+
+    try:
+        apps = paginator.page(page)
+    except PageNotAnInteger:
+        apps = paginator.page(1)
+    except EmptyPage:
+        apps = paginator.page(paginator.num_pages)
+
     return render(request, 'administrators/applications/offered_applications.html', {
         'loggedin_user': loggedin_user,
-        'offered_applications': adminApi.get_applications_by_status(ApplicationStatus.OFFERED),
+        'apps': apps,
         'admin_emails': adminApi.get_admin_emails()
     })
 
@@ -716,9 +1011,64 @@ def accepted_applications(request):
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
 
+    year_q = request.GET.get('year')
+    term_q = request.GET.get('term')
+    code_q = request.GET.get('code')
+    number_q = request.GET.get('number')
+    section_q = request.GET.get('section')
+    cwl_q = request.GET.get('cwl')
+
+    filters = None
+    if bool(year_q):
+        if filters:
+            filters = filters & Q(job__session__year__iexact=year_q)
+        else:
+            filters = Q(job__session__year__iexact=year_q)
+    if bool(term_q):
+        if filters:
+            filters = filters & Q(job__session__term__code__iexact=term_q)
+        else:
+            filters = Q(job__session__term__code__iexact=term_q)
+    if bool(code_q):
+        if filters:
+            filters = filters & Q(job__course__code__name__iexact=code_q)
+        else:
+            filters = Q(job__course__code__name__iexact=code_q)
+    if bool(number_q):
+        if filters:
+            filters = filters & Q(job__course__number__name__iexact=number_q)
+        else:
+            filters = Q(job__course__number__name__iexact=number_q)
+    if bool(section_q):
+        if filters:
+            filters = filters & Q(job__course__section__name__iexact=section_q)
+        else:
+            filters = Q(job__course__section__name__iexact=section_q)
+    if bool(cwl_q):
+        if filters:
+            filters = filters & Q(applicant__username__iexact=cwl_q)
+        else:
+            filters = Q(applicant__username__iexact=cwl_q)
+
+    app_list = None
+    if filters == None:
+        app_list = adminApi.get_applications_by_status(ApplicationStatus.ACCEPTED)
+    else:
+        app_list = Application.objects.filter( filters & Q(applicationstatus__assigned=ApplicationStatus.ACCEPTED) ).order_by('-id').distinct()
+
+    page = request.GET.get('page', 1)
+    paginator = Paginator(app_list, settings.PAGE_SIZE)
+
+    try:
+        apps = paginator.page(page)
+    except PageNotAnInteger:
+        apps = paginator.page(1)
+    except EmptyPage:
+        apps = paginator.page(paginator.num_pages)
+
     return render(request, 'administrators/applications/accepted_applications.html', {
         'loggedin_user': loggedin_user,
-        'accepted_applications': adminApi.get_applications_by_status(ApplicationStatus.ACCEPTED)
+        'apps': apps
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -729,9 +1079,64 @@ def declined_applications(request):
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
 
+    year_q = request.GET.get('year')
+    term_q = request.GET.get('term')
+    code_q = request.GET.get('code')
+    number_q = request.GET.get('number')
+    section_q = request.GET.get('section')
+    cwl_q = request.GET.get('cwl')
+
+    filters = None
+    if bool(year_q):
+        if filters:
+            filters = filters & Q(job__session__year__iexact=year_q)
+        else:
+            filters = Q(job__session__year__iexact=year_q)
+    if bool(term_q):
+        if filters:
+            filters = filters & Q(job__session__term__code__iexact=term_q)
+        else:
+            filters = Q(job__session__term__code__iexact=term_q)
+    if bool(code_q):
+        if filters:
+            filters = filters & Q(job__course__code__name__iexact=code_q)
+        else:
+            filters = Q(job__course__code__name__iexact=code_q)
+    if bool(number_q):
+        if filters:
+            filters = filters & Q(job__course__number__name__iexact=number_q)
+        else:
+            filters = Q(job__course__number__name__iexact=number_q)
+    if bool(section_q):
+        if filters:
+            filters = filters & Q(job__course__section__name__iexact=section_q)
+        else:
+            filters = Q(job__course__section__name__iexact=section_q)
+    if bool(cwl_q):
+        if filters:
+            filters = filters & Q(applicant__username__iexact=cwl_q)
+        else:
+            filters = Q(applicant__username__iexact=cwl_q)
+
+    app_list = None
+    if filters == None:
+        app_list = adminApi.get_applications_by_status(ApplicationStatus.DECLINED)
+    else:
+        app_list = Application.objects.filter( filters & Q(applicationstatus__assigned=ApplicationStatus.DECLINED) ).order_by('-id').distinct()
+
+    page = request.GET.get('page', 1)
+    paginator = Paginator(app_list, settings.PAGE_SIZE)
+
+    try:
+        apps = paginator.page(page)
+    except PageNotAnInteger:
+        apps = paginator.page(1)
+    except EmptyPage:
+        apps = paginator.page(paginator.num_pages)
+
     return render(request, 'administrators/applications/declined_applications.html', {
         'loggedin_user': loggedin_user,
-        'declined_applications': adminApi.get_applications_by_status(ApplicationStatus.DECLINED)
+        'apps': apps
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -1216,9 +1621,60 @@ def all_courses(request):
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
 
+    term_q = request.GET.get('term')
+    code_q = request.GET.get('code')
+    number_q = request.GET.get('number')
+    section_q = request.GET.get('section')
+    name_q = request.GET.get('name')
+
+    filters = None
+    if bool(term_q):
+        if filters:
+            filters = filters & Q(term__code__iexact=term_q)
+        else:
+            filters = Q(term__code__iexact=term_q)
+    if bool(code_q):
+        if filters:
+            filters = filters & Q(code__name__iexact=code_q)
+        else:
+            filters = Q(code__name__iexact=code_q)
+    if bool(number_q):
+        if filters:
+            filters = filters & Q(number__name__iexact=number_q)
+        else:
+            filters = Q(number__name__iexact=number_q)
+    if bool(section_q):
+        if filters:
+            filters = filters & Q(section__name__iexact=section_q)
+        else:
+            filters = Q(section__name__iexact=section_q)
+    if bool(name_q):
+        if filters:
+            filters = filters & Q(name__iexact=name_q)
+        else:
+            filters = Q(name__iexact=name_q)
+
+    course_list = None
+    if filters == None:
+        course_list = adminApi.get_courses()
+    else:
+        print(filters)
+        course_list = Course.objects.filter(filters)
+        print()
+
+    page = request.GET.get('page', 1)
+    paginator = Paginator(course_list, settings.PAGE_SIZE)
+
+    try:
+        courses = paginator.page(page)
+    except PageNotAnInteger:
+        courses = paginator.page(1)
+    except EmptyPage:
+        courses = paginator.page(paginator.num_pages)
+
     return render(request, 'administrators/courses/all_courses.html', {
         'loggedin_user': loggedin_user,
-        'courses': adminApi.get_courses()
+        'courses': courses
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -1244,6 +1700,7 @@ def create_course(request):
 
         return redirect('administrators:create_course')
 
+    print( Course.objects.filter( Q(name__iexact="soil") ) )
     return render(request, 'administrators/courses/create_course.html', {
         'loggedin_user': loggedin_user,
         'courses': adminApi.get_courses(),

@@ -1,0 +1,38 @@
+<div class="search-field bg-light-gray p-4">
+  <form method="GET">
+    <input type="text" name="year" value="{{ request.GET.year }}" placeholder="Year" /> and
+    <input type="text" name="term" value="{{ request.GET.term }}" placeholder="Term" /> <br />
+    <input type="text" name="code" value="{{ request.GET.code }}" placeholder="Job Code" /> and
+    <input type="text" name="number" value="{{ request.GET.number }}" placeholder="Job Number" /> and
+    <input type="text" name="section" value="{{ request.GET.section }}" placeholder="Job Section" /> <br />
+    <input type="text" name="cwl" value="{{ request.GET.cwl }}" placeholder="CWL" /> <br />
+
+    <button class="btn btn-sm btn-secondary" type="submit">Search</button>
+
+    {% if path == 'prepare_jobs' %}
+      <a class="btn btn-sm btn-light" href="{% url 'administrators:prepare_jobs' %}">Clear</a>
+
+    {% elif path == 'progress_jobs' %}
+      <a class="btn btn-sm btn-light" href="{% url 'administrators:progress_jobs' %}">Clear</a>
+
+    {% elif path == 'applications_dashboard' %}
+      <a class="btn btn-sm btn-light" href="{% url 'administrators:applications_dashboard' %}">Clear</a>
+
+    {% elif path == 'all_applications' %}
+      <a class="btn btn-sm btn-light" href="{% url 'administrators:all_applications' %}">Clear</a>
+
+    {% elif path == 'selected_applications' %}
+      <a class="btn btn-sm btn-light" href="{% url 'administrators:selected_applications' %}">Clear</a>
+
+    {% elif path == 'offered_applications' %}
+      <a class="btn btn-sm btn-light" href="{% url 'administrators:offered_applications' %}">Clear</a>
+
+    {% elif path == 'accepted_applications' %}
+      <a class="btn btn-sm btn-light" href="{% url 'administrators:accepted_applications' %}">Clear</a>
+
+    {% elif path == 'declined_applications' %}
+      <a class="btn btn-sm btn-light" href="{% url 'administrators:declined_applications' %}">Clear</a>
+
+    {% endif %}
+  </form>
+</div>
