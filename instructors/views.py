@@ -47,10 +47,13 @@ def show_profile(request):
 def show_user(request, session_slug, job_slug, username):
     ''' Display an user's details '''
     loggedin_user = userApi.loggedin_user(request.user)
+    if 'Instructor' not in loggedin_user.roles: raise PermissionDenied
 
+    user = userApi.get_user(username, 'username')
+    user.is_student = userApi.user_has_role(user ,'Student')
     return render(request, 'instructors/users/show_user.html', {
         'loggedin_user': loggedin_user,
-        'user': userApi.get_user_by_username_with_resume(username),
+        'user': userApi.add_resume(user),
         'session_slug': session_slug,
         'job_slug': job_slug
     })

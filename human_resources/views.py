@@ -41,10 +41,13 @@ def all_users(request):
 def show_user(request, username):
     ''' Display an user's details '''
     loggedin_user = userApi.loggedin_user(request.user)
+    if 'HR' not in loggedin_user.roles: raise PermissionDenied
+
+    user = userApi.get_user(username, 'username')
+    user.is_student = userApi.user_has_role(user ,'Student')
     return render(request, 'human_resources/show_user.html', {
         'loggedin_user': loggedin_user,
-        'user': userApi.get_user(username, 'username')
-        #'user': userApi.get_user_by_username_with_resume(username),
+        'user': userApi.add_resume(user)
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -53,12 +56,11 @@ def show_user(request, username):
 def view_confidentiality(request, username):
     ''' display an user's confidentiality '''
     loggedin_user = userApi.loggedin_user(request.user)
-    if not userApi.is_admin(loggedin_user) and 'HR' not in loggedin_user.roles: raise PermissionDenied
+    if 'HR' not in loggedin_user.roles: raise PermissionDenied
 
     user = userApi.get_user(username, 'username')
-    user = userApi.add_confidentiality(user)
     return render(request, 'human_resources/view_confidentiality.html', {
         'loggedin_user': loggedin_user,
-        'user': user
+        'user': userApi.add_confidentiality(user)
         #'user': userApi.get_user_with_confidentiality(username)
     })

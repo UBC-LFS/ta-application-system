@@ -5,8 +5,7 @@
 <div>
   {% include 'ta_app/pages/_header.html' with title='Selected Applications' %}
 
-  {% include 'ta_app/pages/_search_fields.html' with path='selected_applications' %}
-  <div>{{ apps|length }} row {% if apps|length > 1 %} s  {% endif %} in this page</div>
+  {% include 'ta_app/applications/_search_fields.html' with data=apps path='selected_applications' %}
 
   <table
     class="table table-bordered table-hover table-striped table-responsive-md text-center"
@@ -47,6 +46,14 @@
           </td>
           <td>
             <a href="{% url 'administrators:show_user' username=app.applicant.username path='selected' %}">{{ app.applicant.get_full_name }}</a>
+            <br />
+            {% if 'MFRE' in app.applicant.profile.program.name %}
+              <span class="badge badge-warning">MFRE</span>
+            {% elif 'MLWS' in app.applicant.profile.program.name %}
+              <span class="badge badge-warning">MLWS</span>
+            {% elif 'MFS' in app.applicant.profile.program.name %}
+              <span class="badge badge-warning">MFS</span>
+            {% endif %}
           </td>
           <td>
             {% if app.resume_filename %}
@@ -78,9 +85,16 @@
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                   </div>
                   <div class="modal-body text-left">
-
                     <h4>
-                      To {{ app.applicant.get_full_name }} <small class="text-muted">({{ app.applicant.username }})</small>
+                      To {{ app.applicant.get_full_name }}
+                      <small class="text-muted">({{ app.applicant.username }})</small>
+                      {% if 'MFRE' in app.applicant.profile.program.name %}
+                        <span class="badge badge-warning">MFRE</span>
+                      {% elif 'MLWS' in app.applicant.profile.program.name %}
+                        <span class="badge badge-warning">MLWS</span>
+                      {% elif 'MFS' in app.applicant.profile.program.name %}
+                        <span class="badge badge-warning">MFS</span>
+                      {% endif %}
                     </h4>
                     <h6 class="text-secondary mb-3">for {{ app.job.session.year }} {{ app.job.session.term.code }} - {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</h6>
 
@@ -129,10 +143,6 @@
                       <input type="hidden" name="application" value="{{ app.id }}" />
                       <input type="hidden" name="assigned" value="{{ app_status.offered }}" />
                       <input type="hidden" name="applicant" value="{{ app.applicant.id }}" />
-
-                      MLWS
-                      MFRE
-                      MFS
 
                       <input class="btn btn-primary" type="submit" value="Offer" />
                     </form>

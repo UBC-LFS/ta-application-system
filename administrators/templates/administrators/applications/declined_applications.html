@@ -5,8 +5,7 @@
 <div>
   {% include 'ta_app/pages/_header.html' with title='Declined Applications' %}
 
-  {% include 'ta_app/pages/_search_fields.html' with path='declined_applications' %}
-  <div>{{ apps|length }} row {% if apps|length > 1 %} s  {% endif %} in this page</div>
+  {% include 'ta_app/applications/_search_fields.html' with data=apps path='declined_applications' %}
 
   <table
     class="table table-bordered table-hover table-striped table-responsive-md text-center"

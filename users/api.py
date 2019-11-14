@@ -59,7 +59,6 @@ def get_user(input, by=None):
     return get_object_or_404(User, id=input)
 
 
-
 # Resume
 
 def add_resume(user):
@@ -79,6 +78,11 @@ def delete_user_resume(input):
         user.resume.uploaded.delete()
         deleted = user.resume.delete()
         return True if deleted and not bool(user.resume.uploaded) else False
+    return False
+
+
+def user_has_role(user, role):
+    if user.profile.roles.filter(name=role).exists(): return True
     return False
 
 
@@ -201,14 +205,6 @@ def get_user_by_username(username):
     ''' Get a user by username '''
     return get_object_or_404(User, username=username)
 
-def get_user_by_username_with_resume(username):
-    ''' '''
-    user = get_user(username, 'username')
-    if has_user_resume_created(user) and bool(user.resume.uploaded):
-        user.resume_filename = os.path.basename(user.resume.uploaded.name)
-    else:
-        user.resume_filename = None
-    return user
 # ---- to be removed
 
 
@@ -425,14 +421,9 @@ def delete_users():
 
 # Profile
 
-def get_instructors():
-    ''' Get instructors '''
-    return User.objects.filter(profile__roles__name='Instructor').order_by('last_name')
-
-def get_students():
-    ''' Get students '''
-    return User.objects.filter(profile__roles__name='Student').order_by('last_name')
-
+def get_users_by_role(role):
+    ''' Get users by role '''
+    return User.objects.filter(profile__roles__name=role).order_by('last_name')
 
 def update_user_profile_roles(profile, old_roles, data):
     profile.roles.remove( *old_roles )

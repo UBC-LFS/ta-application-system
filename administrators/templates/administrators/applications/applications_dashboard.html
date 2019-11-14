@@ -12,8 +12,7 @@
     </div>
   </div>
 
-  {% include 'ta_app/pages/_search_fields.html' with path='applications_dashboard' %}
-  <div>{{ statuses|length }} row {% if statuses|length > 1 %} s  {% endif %} in this page</div>
+  {% include 'ta_app/applications/_search_fields.html' with data=statuses path='applications_dashboard' %}
 
   <table
     class="table table-bordered table-hover table-striped table-responsive-md text-center"

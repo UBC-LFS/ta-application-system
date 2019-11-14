@@ -5,8 +5,7 @@
 <div>
   {% include 'ta_app/pages/_header.html' with title='Offered Applications' %}
 
-  {% include 'ta_app/pages/_search_fields.html' with path='offered_applications' %}
-  <div>{{ apps|length }} row {% if apps|length > 1 %} s  {% endif %} in this page</div>
+  {% include 'ta_app/applications/_search_fields.html' with data=apps path='offered_applications' %}
 
   <form action="{% url 'administrators:offered_applications_send_email' %}" method="post">
     {% csrf_token %}

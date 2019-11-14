@@ -32,15 +32,21 @@ $(document).ready(function () {
     }
   }
 
-  $('#students-nav-tab a[data-toggle="tab"]').on('click', function(e) {
+  $('#nav-tab a[data-toggle="tab"]').on('click', function(e) {
     e.preventDefault();
+    console.log(e.target)
     window.localStorage.setItem('activeTab', $(e.target).attr('href'));
   });
+
   var activeTab = window.localStorage.getItem('activeTab');
+  console.log(activeTab);
   if (activeTab) {
-    $('#students-nav-tab a[href="' + activeTab + '"]').tab('show');
-    //window.localStorage.removeItem("activeTab");
+    $('#nav-tab a[href="' + activeTab + '"]').tab('show');
   }
 
+  $('#btn-logout').on('click', function(e) {
+    e.preventDefault();
+    window.localStorage.removeItem("activeTab");
+  });
 
 });

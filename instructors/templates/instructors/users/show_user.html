@@ -9,47 +9,59 @@
     <div class="left-aside-btn-groups mb-5">
       <a class="btn btn-outline-primary" href="{% url 'instructors:show_applications' session_slug=session_slug job_slug=job_slug %}">Back to Applications</a>
     </div>
-
-    <div class="col-11 mx-auto">
-      <h5>Resume:</h5>
-      {% if user.resume_filename %}
-        <a href="{% url 'students:download_resume' username=user.username filename=user.resume_filename %}" target="_blank">
-          {{ user.resume_filename }}
-        </a>
-        | {{ user.resume.created_at }}
-      {% else %}
-        No resume
-      {% endif %}
-    </div>
   </div>
 
   <div class="col-md-8">
 
     <nav class="mb-4">
       <div class="nav nav-tabs" id="nav-tab" role="tablist">
-        <a class="nav-item nav-link active" id="nav-basic-info-tab" data-toggle="tab" href="#nav-basic-info" role="tab" aria-controls="nav-basic-info" aria-selected="true">
+        <a class="nav-item nav-link active" id="nav-basic-info-tab" data-toggle="tab" href="#nav-basic-info-instructor" role="tab" aria-controls="nav-basic-info" aria-selected="true">
           <i class="fa fa-user-circle-o" aria-hidden="true"></i> Basic Information
         </a>
-        <a class="nav-item nav-link" id="nav-profile-tab" data-toggle="tab" href="#nav-profile" role="tab" aria-controls="nav-profile" aria-selected="false">
+        <a class="nav-item nav-link" id="nav-profile-tab" data-toggle="tab" href="#nav-profile-instructor" role="tab" aria-controls="nav-profile" aria-selected="false">
           <i class="fa fa-id-card-o" aria-hidden="true"></i> Profile
         </a>
+
+        {% if user.is_student %}
+          <a class="nav-item nav-link" id="nav-resume-tab" data-toggle="tab" href="#nav-resume-instructor" role="tab" aria-controls="nav-resume" aria-selected="false">
+            <i class="fa fa-file-text-o" aria-hidden="true"></i> Resume
+          </a>
+        {% endif %}
+
       </div>
     </nav>
 
     <div class="tab-content" id="nav-tabContent">
-      <div class="tab-pane fade show active" id="nav-basic-info" role="tabpanel" aria-labelledby="nav-basic-info-tab">
+      <div class="tab-pane fade show active" id="nav-basic-info-instructor" role="tabpanel" aria-labelledby="nav-basic-info-tab">
         <div class="board col-11 mx-auto">
           <h3>Basic Information</h3>
           {% include 'ta_app/users/_basic_info.html' with data=user %}
         </div>
       </div>
 
-      <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
+      <div class="tab-pane fade" id="nav-profile-instructor" role="tabpanel" aria-labelledby="nav-profile-tab">
         <div class="board col-11 mx-auto">
           <h3>Profile</h3>
           {% include 'ta_app/users/_profile.html' with data=user %}
         </div>
       </div>
+
+      {% if user.is_student %}
+        <div class="tab-pane fade" id="nav-resume-instructor" role="tabpanel" aria-labelledby="nav-resume">
+          <div class="board col-11 mx-auto">
+            <h3>Resume</h3>
+            {% if user.resume_filename %}
+              <a href="{% url 'students:download_resume' username=user.username filename=user.resume_filename %}" target="_blank">
+                {{ user.resume_filename }}
+              </a>
+              | {{ user.resume.created_at }}
+            {% else %}
+              None
+            {% endif %}
+          </div>
+        </div>
+      {% endif %}
+
     </div>
 
   </div>

@@ -9,13 +9,7 @@
 
     <button class="btn btn-sm btn-secondary" type="submit">Search</button>
 
-    {% if path == 'prepare_jobs' %}
-      <a class="btn btn-sm btn-light" href="{% url 'administrators:prepare_jobs' %}">Clear</a>
-
-    {% elif path == 'progress_jobs' %}
-      <a class="btn btn-sm btn-light" href="{% url 'administrators:progress_jobs' %}">Clear</a>
-
-    {% elif path == 'applications_dashboard' %}
+    {% if path == 'applications_dashboard' %}
       <a class="btn btn-sm btn-light" href="{% url 'administrators:applications_dashboard' %}">Clear</a>
 
     {% elif path == 'all_applications' %}
@@ -36,3 +30,4 @@
     {% endif %}
   </form>
 </div>
+<div>{{ data|length }} row{% if data|length > 1 %}s {% endif %} in this page</div>

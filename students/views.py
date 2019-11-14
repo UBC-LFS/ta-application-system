@@ -44,7 +44,6 @@ def show_profile(request):
     return render(request, 'students/profile/show_profile.html', {
         'loggedin_user': loggedin_user,
         'form': ResumeForm(initial={ 'user': loggedin_user })
-        #'user': userApi.get_user_by_username_with_resume(loggedin_user.username)
     })
 
 
@@ -97,7 +96,6 @@ def upload_resume(request):
     loggedin_user = userApi.loggedin_user(request.user)
     if 'Student' not in loggedin_user.roles: raise PermissionDenied
 
-    #user = userApi.get_user_by_username_with_resume(loggedin_user.username)
     loggedin_user = userApi.add_resume(loggedin_user)
     if request.method == 'POST':
         if len(request.FILES) == 0:

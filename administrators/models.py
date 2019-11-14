@@ -105,8 +105,8 @@ class Job(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     instructors = models.ManyToManyField(User)
 
-    assigned_ta_hours = models.FloatField(default=0.00) # Admins can assign ta hours
-    accumulated_ta_hours = models.FloatField(default=0.00)          # Add up all student's ta hours
+    assigned_ta_hours = models.FloatField(default=0.00)     # Admins can assign ta hours
+    accumulated_ta_hours = models.FloatField(default=0.00)  # Add up all student's ta hours
     is_active = models.BooleanField(default=True)
     created_at = models.DateField(default=dt.date.today)
     updated_at = models.DateField(default=dt.date.today)

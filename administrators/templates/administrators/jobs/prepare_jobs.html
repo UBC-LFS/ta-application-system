@@ -5,8 +5,7 @@
 <div>
   {% include 'ta_app/pages/_header.html' with title='Prepare Jobs' %}
 
-  {% include 'ta_app/pages/_search_fields.html' with path='prepare_jobs' %}
-  <div>{{ jobs|length }} row {% if jobs|length > 1 %} s  {% endif %} in this page</div>
+  {% include 'ta_app/jobs/_search_fields.html' with data=jobs path='prepare_jobs' %}
 
   <table
     class="table table-bordered table-hover table-striped table-responsive-md text-center"
