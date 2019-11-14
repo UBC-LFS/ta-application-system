@@ -13,13 +13,12 @@
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.min.css">
 </head>
 <body>
-
 	<header class="bg-primary">
 		<div class="container">
+			<nav class="navbar navbar-expand-lg navbar-dark">
+				<span class="navbar-brand" href="#">TA Applications</span>
 
-			{% if loggedin_user.is_authenticated %}
-				<nav class="navbar navbar-expand-lg navbar-dark">
-					<span class="navbar-brand" href="#">TA Applications</span>
+				{% if loggedin_user.is_authenticated %}
 					<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
 							<span class="navbar-toggler-icon"></span>
 					</button>
@@ -58,11 +57,10 @@
 	  					</div>
 						</div>
 
-						<a id="btn-logout" class="text-white ml-4" href="#">Logout</a>
+						<a id="btn-logout" class="text-white ml-4" href="{% url 'saml' %}?slo">Logout</a>
 					</div>
-				</nav>
-			{% endif %}
-
+				{% endif %}
+			</nav>
 		</div>
 	</header>
 

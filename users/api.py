@@ -59,6 +59,13 @@ def get_user(input, by=None):
     return get_object_or_404(User, id=input)
 
 
+def user_exists(username):
+    ''' Check user exists '''
+    user = User.objects.filter(username=username)
+    if user.exists(): return user
+    return None
+
+
 # Resume
 
 def add_resume(user):
@@ -281,7 +288,7 @@ def create_user(data):
 
     if user:
         user_profile_form = UserProfileForm({
-            'student_number': data['student_number'],
+            'student_number': None,
             'preferred_name': None,
             'roles': [ ROLES['Student'] ]
         })
@@ -343,11 +350,7 @@ def has_user_confidentiality_created(user):
         return None
 
 
-def username_exists(username):
-    ''' Check username exists '''
-    user = User.objects.filter(username=username)
-    if user.exists(): return user
-    return False
+
 
 
 def profile_exists_by_username(username):
@@ -365,17 +368,6 @@ def profile_exists_by_username(username):
 # for testing
 
 
-def user_exists(user):
-    """ Check user exists """
-    if User.objects.filter(id=user.id).exists():
-        return True
-    return False
-
-def user_exists_by_username(username):
-    ''' Check username exists '''
-    if User.objects.filter(username=username).exists():
-        return True
-    return False
 
 def profile_exists(user):
     """ Check user's profile exists """

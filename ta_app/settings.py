@@ -148,7 +148,7 @@ MEDIA_ROOT = '/srv/www/ta_app_system/media'
 MEDIA_URL = '/media/'
 
 LOGIN_URL = '/accounts/login/'
-
+SAML_LOGOUT_URL = 'https://authentication.stg.id.ubc.ca/idp/profile/Logout'
 
 MESSAGE_TAGS = {
     messages.DEBUG: 'alert-info',
@@ -180,3 +180,5 @@ SUMMERNOTE_CONFIG = {
 MAX_UPLOAD_SIZE = '2097152'
 
 PAGE_SIZE = 50
+
+SAML_FOLDER = os.path.join(BASE_DIR, 'saml')

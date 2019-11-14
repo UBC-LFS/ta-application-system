@@ -1207,7 +1207,7 @@ class HRTest(TestCase):
 
         data['username'] = 'new.username'
 
-        self.assertFalse(userApi.username_exists(data['username']))
+        self.assertFalse(userApi.user_exists(data['username']))
         self.assertFalse(userApi.profile_exists_by_username(data['username']))
 
         response = self.client.post(reverse('administrators:create_user'), data=urlencode(data, True), content_type=ContentType)
@@ -1233,7 +1233,7 @@ class HRTest(TestCase):
         }
 
         # Check username
-        self.assertTrue(userApi.username_exists(data['username']))
+        self.assertTrue(userApi.user_exists(data['username']))
         self.assertTrue(userApi.profile_exists_by_username(data['username']))
 
         response = self.client.post(reverse('administrators:create_user'), data=urlencode(data, True), content_type=ContentType)
@@ -1252,7 +1252,7 @@ class HRTest(TestCase):
             'student_number': '35975560',
             'roles': ['5']
         }
-        self.assertFalse(userApi.username_exists(data['username']))
+        self.assertFalse(userApi.user_exists(data['username']))
         self.assertFalse(userApi.profile_exists_by_username(data['username']))
         response = self.client.post(reverse('administrators:create_user'), data=urlencode(data, True), content_type=ContentType)
         messages = self.messages(response)
@@ -1273,11 +1273,11 @@ class HRTest(TestCase):
             'student_number': '12345678',
             'roles': ['5']
         }
-        self.assertFalse(userApi.username_exists(data['username']))
+        self.assertFalse(userApi.user_exists(data['username']))
         self.assertFalse(userApi.profile_exists_by_username(data['username']))
 
         user = userApi.create_user(data)
-        self.assertTrue(userApi.username_exists(user.username))
+        self.assertTrue(userApi.user_exists(user.username))
         self.assertTrue(userApi.profile_exists_by_username(user.username))
 
 

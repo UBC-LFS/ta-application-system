@@ -82,7 +82,7 @@ class UserTest(TestCase):
             'password': '12'
         }
 
-        self.assertFalse(api.username_exists(data['username'])) # Check username
+        self.assertFalse(api.user_exists(data['username'])) # Check username
         self.assertFalse(api.profile_exists_by_username(data['username'])) # Check user's profile
         self.assertFalse(api.resume_exists_by_username(data['username'])) # Check user's resume
         self.assertFalse(api.confidentiality_exists_by_username(data['username'])) # Check user's confidentiality
@@ -110,7 +110,7 @@ class UserTest(TestCase):
             'username': 'test.user5',
             'password': '12'
         }
-        exists = api.username_exists(data['username'])
+        exists = api.user_exists(data['username'])
         self.assertTrue(exists) # username exists
 
         data = {
@@ -121,7 +121,7 @@ class UserTest(TestCase):
             'password': '12'
         }
 
-        self.assertFalse(api.username_exists(data['username'])) # Check username
+        self.assertFalse(api.user_exists(data['username'])) # Check username
         self.assertFalse(api.profile_exists_by_username(data['username'])) # Check user's profile
         self.assertFalse(api.resume_exists_by_username(data['username'])) # Check user's resume
         self.assertFalse(api.confidentiality_exists_by_username(data['username'])) # Check user's confidentiality

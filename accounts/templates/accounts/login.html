@@ -1,1 +1,10 @@
+{% extends 'ta_app/base.html' %}
+{% block content %}
+{% load static %}
+
 <h2>Welcome to TA Application System</h2>
+
+<a href="{% url 'saml' %}?sso">
+  <img src="{% static 'ta_app/images/cwl_login_button.gif' %}" alt="cwl login button"/>
+</a>
+{% endblock %}
