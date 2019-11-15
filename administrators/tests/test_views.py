@@ -54,7 +54,7 @@ class SessionTest(TestCase):
     @classmethod
     def setUpTestData(cls):
         print('\nAdministrators:Session testing has started ==>')
-        cls.user = userApi.get_user_by_username( USERS[0] )
+        cls.user = userApi.get_user(USERS[0], 'username')
 
     def login(self, username=None, password=None):
         if username and password:
@@ -339,7 +339,7 @@ class JobTest(TestCase):
     @classmethod
     def setUpTestData(cls):
         print('\nJob testing has started ==>')
-        cls.user = userApi.get_user_by_username(USERS[0])
+        cls.user = userApi.get_user(USERS[0], 'username')
 
     def login(self, username=None, password=None):
         if username and password:
@@ -557,7 +557,7 @@ class ApplicationTest(TestCase):
     @classmethod
     def setUpTestData(cls):
         print('\nJob testing has started ==>')
-        cls.user = userApi.get_user_by_username(USERS[0])
+        cls.user = userApi.get_user(USERS[0], 'username')
 
     def login(self, username=None, password=None):
         if username and password:
@@ -955,7 +955,7 @@ class HRTest(TestCase):
     @classmethod
     def setUpTestData(cls):
         print('\nAdministrators:hr testing has started ==>')
-        cls.user = userApi.get_user_by_username(USERS[0])
+        cls.user = userApi.get_user(USERS[0], 'username')
 
     def login(self, username=None, password=None):
         if username and password:
@@ -1039,7 +1039,7 @@ class HRTest(TestCase):
         print('\n- Test: edit a user with role change')
         self.login()
 
-        user = userApi.get_user_by_username(USERS[2])
+        user = userApi.get_user(USERS[2], 'username')
         user_first_role = user.profile.roles.all()[0]
         self.assertEqual(user_first_role.name, Role.STUDENT)
 
@@ -1069,7 +1069,7 @@ class HRTest(TestCase):
         print('\n- Test: edit a user')
         self.login()
 
-        user = userApi.get_user_by_username(USERS[2])
+        user = userApi.get_user(USERS[2], 'username')
         user_first_role = user.profile.roles.all()[0]
         self.assertEqual(user_first_role.name, Role.STUDENT)
 
@@ -1122,7 +1122,7 @@ class HRTest(TestCase):
         print('\n- Test: delete a user')
         self.login()
 
-        user = userApi.get_user_by_username(USERS[2])
+        user = userApi.get_user(USERS[2], 'username')
         data = { 'user': user.id }
         response = self.client.post(reverse('administrators:delete_user'), data=urlencode(data), content_type=ContentType)
 
@@ -1216,7 +1216,7 @@ class HRTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, response.url)
 
-        user = userApi.get_user_by_username(data['username'])
+        user = userApi.get_user(data['username'], 'username')
         self.assertEqual(user.username, data['username'])
         self.assertTrue(userApi.profile_exists_by_username(user.username))
 
@@ -1303,7 +1303,7 @@ class HRTest(TestCase):
         print('\n- Test: edit user\'s confidentiality')
         self.login()
 
-        user = userApi.get_user_by_username(USERS[2])
+        user = userApi.get_user(USERS[2], 'username')
         confidentiality = userApi.has_user_confidentiality_created(user)
         self.assertIsNone(confidentiality)
 
@@ -1347,7 +1347,7 @@ class HRTest(TestCase):
         print('\n- Test: delete union and other correspondence file')
         self.login()
 
-        user = userApi.get_user_by_username(USERS[2])
+        user = userApi.get_user(USERS[2], 'username')
         data = {
             'user': user.id,
             'union_correspondence': SimpleUploadedFile('compression_agreement.pdf', b'file_content', content_type='application/pdf')
@@ -1373,7 +1373,7 @@ class HRTest(TestCase):
         print('\n- Test: delete compression agreement file')
         self.login()
 
-        user = userApi.get_user_by_username(USERS[2])
+        user = userApi.get_user(USERS[2], 'username')
         data = {
             'user': user.id,
             'compression_agreement': SimpleUploadedFile('compression_agreement.pdf', b'file_content', content_type='application/pdf')
@@ -1400,7 +1400,7 @@ class CourseTest(TestCase):
     @classmethod
     def setUpTestData(cls):
         print('\nAdministators:Course testing has started ==>')
-        cls.user = userApi.get_user_by_username(USERS[0])
+        cls.user = userApi.get_user(USERS[0], 'username')
 
     def login(self, username=None, password=None):
         if username and password:
@@ -1588,7 +1588,7 @@ class PreparationTest(TestCase):
     @classmethod
     def setUpTestData(cls):
         print('\nAdministators:Preparation testing has started ==>')
-        cls.user = userApi.get_user_by_username(USERS[0])
+        cls.user = userApi.get_user(USERS[0], 'username')
 
     def login(self, username=None, password=None):
         if username and password:

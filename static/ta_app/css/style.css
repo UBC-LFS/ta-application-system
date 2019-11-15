@@ -10,16 +10,25 @@ body {
   flex-direction: column;
 }
 
+
+
 /* header */
 header {
   width: 100%;
 }
+
+
 
 /* footer */
 footer {
   flex-shrink: 0;
   height: 100px;
   color: #fff;
+  text-align: center;
+}
+
+.footer-content {
+  line-height: 100px;
 }
 
 

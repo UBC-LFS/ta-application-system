@@ -565,7 +565,7 @@ def student_jobs_details(request, username):
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
 
-    user = userApi.get_user_by_username(username)
+    user = userApi.get_user(username, 'username')
     offered_apps, offered_total_assigned_hours = adminApi.get_applications_with_status_by_user(user, ApplicationStatus.OFFERED)
     accepted_apps, accepted_total_assigned_hours = adminApi.get_applications_with_status_by_user(user, ApplicationStatus.ACCEPTED)
 
@@ -1443,7 +1443,7 @@ def edit_user(request, username):
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
 
-    user = userApi.get_user_by_username(username)
+    user = userApi.get_user(username, 'username')
     if request.method == 'POST':
         user_id = request.POST.get('user')
         profile_roles = user.profile.roles.all()

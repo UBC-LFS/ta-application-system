@@ -15,7 +15,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from . import views, saml_views
+from django.conf.urls import handler403, handler403
+from ta_app import views, saml_views
 
 urlpatterns = [
     path('accounts/', include('accounts.urls')),
@@ -30,3 +31,7 @@ urlpatterns = [
     #path('admin/', admin.site.urls),
     #path('accounts/admin/', include('django.contrib.auth.urls'))
 ]
+
+
+handler403 = views.permission_denied
+handler404 = views.page_not_found

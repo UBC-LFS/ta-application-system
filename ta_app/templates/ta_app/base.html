@@ -16,7 +16,7 @@
 	<header class="bg-primary">
 		<div class="container">
 			<nav class="navbar navbar-expand-lg navbar-dark">
-				<span class="navbar-brand" href="#">TA Applications</span>
+				<span class="navbar-brand">TA Applications</span>
 
 				{% if loggedin_user.is_authenticated %}
 					<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -27,25 +27,37 @@
 						<ul class="navbar-nav mr-auto">
 							{% if 'Admin' in loggedin_user.roles or 'Superadmin' in loggedin_user.roles %}
 								<li class="nav-item">
-									<a id="admin" class="nav-link" href="{% url 'administrators:index' %}">Administrator</a>
+									<a id="admin" class="nav-link" href="{% url 'administrators:index' %}">
+										<i class="fa fa-home" aria-hidden="true"></i> Administrator
+									</a>
 								</li>
 							{% endif %}
+
 							{% if 'HR' in loggedin_user.roles %}
 								<li class="nav-item">
-									<a id="hr" class="nav-link" href="{% url 'human_resources:index' %}">Human Resource</a>
+									<a id="hr" class="nav-link" href="{% url 'human_resources:index' %}">
+										<i class="fa fa-home" aria-hidden="true"></i> Human Resource
+									</a>
 								</li>
 							{% endif %}
+
 							{% if 'Instructor' in loggedin_user.roles %}
 								<li class="nav-item">
-									<a id="instructor" class="nav-link" href="{% url 'instructors:index' %}">Instructor</a>
+									<a id="instructor" class="nav-link" href="{% url 'instructors:index' %}">
+										<i class="fa fa-home" aria-hidden="true"></i> Instructor
+									</a>
 								</li>
 							{% endif %}
+
 							{% if 'Student' in loggedin_user.roles %}
 								<li class="nav-item">
-									<a id="student" class="nav-link" href="{% url 'students:index' %}">Student</a>
+									<a id="student" class="nav-link" href="{% url 'students:index' %}">
+										<i class="fa fa-home" aria-hidden="true"></i> Student
+									</a>
 								</li>
 							{% endif %}
 						</ul>
+
 						<div class="dropdown">
 	  					<button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 	    					Hi, {{ loggedin_user.username }}
@@ -57,7 +69,9 @@
 	  					</div>
 						</div>
 
-						<a id="btn-logout" class="text-white ml-4" href="{% url 'saml' %}?slo">Logout</a>
+						<a id="btn-logout" class="text-white ml-4" href="{% url 'saml' %}?slo">
+							Logout <i class="fa fa-sign-out" aria-hidden="true"></i>
+						</a>
 					</div>
 				{% endif %}
 			</nav>
@@ -72,7 +86,12 @@
 
 	<footer class="bg-dark-blue">
 		<div class="container">
-			The University of British Columbia
+			<div class="footer-content">
+				University of British Columbia
+				<span class="dot bg-white mx-1"></span>
+				Faculty of Land and Food Systems
+			</div>
+
 		</div>
 	</footer>
 

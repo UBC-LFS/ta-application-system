@@ -58,7 +58,6 @@ def get_user(input, by=None):
     if by == 'username': return get_object_or_404(User, username=input)
     return get_object_or_404(User, id=input)
 
-
 def user_exists(username):
     ''' Check user exists '''
     user = User.objects.filter(username=username)
@@ -168,7 +167,7 @@ def add_confidentiality_all(user):
 def get_user_with_confidentiality(username, role=None):
     ''' Get a user with resume, sin and study permit by username '''
 
-    user = get_user_by_username(username)
+    user = get_user(username, 'username')
 
     if role == None and has_user_resume_created(user):
         if bool(user.resume.uploaded):
@@ -204,22 +203,9 @@ def get_user_with_confidentiality(username, role=None):
 
 
 
-
-
-
-# ---- to be removed
-def get_user_by_username(username):
-    ''' Get a user by username '''
-    return get_object_or_404(User, username=username)
-
-# ---- to be removed
-
-
-
-
 def get_user_by_username_with_statistics(username):
     ''' '''
-    user = get_user_by_username(username)
+    user = get_user(username, 'username')
 
     count = 0
     for job in user.job_set.all():
@@ -554,8 +540,8 @@ def trim_profile_resume_confidentiality(user_id):
     ''' Trim user's profile, resume and confidentiality '''
     user = get_user(user_id)
 
-    sin = delete_user_sin(user)
-    study_permit = delete_user_study_permit(user)
+    sin = delete_user_sin(user.username)
+    study_permit = delete_user_study_permit(user.username)
     user.confidentiality.delete()
 
     resume = delete_user_resume(user)
@@ -566,9 +552,9 @@ def trim_profile_resume_confidentiality(user_id):
 
 
 
-def delete_user_sin(user):
+def delete_user_sin(username):
     ''' Delete user's SIN '''
-    if not isinstance(user, User): user = get_user_by_username(user)
+    user = get_user(username, 'username')
 
     if has_user_confidentiality_created(user) and bool(user.confidentiality.sin):
         user.confidentiality.sin.close()
@@ -585,7 +571,7 @@ def delete_user_sin(user):
 
 def delete_user_study_permit(user):
     ''' Delete user's study permit '''
-    if not isinstance(user, User): user = get_user_by_username(user)
+    if not isinstance(user, User): user = get_user(username, 'username')
 
     if has_user_confidentiality_created(user) and bool(user.confidentiality.study_permit):
         user.confidentiality.study_permit.close()
@@ -601,7 +587,7 @@ def delete_user_study_permit(user):
 
 def delete_union_correspondence(username):
     ''' Delete union_correspondence '''
-    user = get_user_by_username(username)
+    user = get_user(username, 'username')
 
     if has_user_confidentiality_created(user) and bool(user.confidentiality.union_correspondence):
         user.confidentiality.union_correspondence.close()
@@ -617,7 +603,7 @@ def delete_union_correspondence(username):
 
 def delete_compression_agreement(username):
     ''' Delete compression_agreement '''
-    user = get_user_by_username(username)
+    user = get_user(username, 'username')
 
     if has_user_confidentiality_created(user) and bool(user.confidentiality.compression_agreement):
         user.confidentiality.compression_agreement.close()

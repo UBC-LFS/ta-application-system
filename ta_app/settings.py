@@ -20,15 +20,19 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ['TA_APP_SECRET_KEY']
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
 
-ALLOWED_HOSTS = []
+### Deployment checklist -->
+# > python manage.py check --deploy
 
-# Send email
+#CSRF_COOKIE_SECURE = True
+#SESSION_COOKIE_SECURE = True
+#SECURE_BROWSER_XSS_FILTER = True
+#SECURE_CONTENT_TYPE_NOSNIFF = True
+# SECURE_SSL_REDIRECT = True
+#X_FRAME_OPTIONS = 'DENY'
+
+## Environment variables
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
 EMAIL_HOST_USER = ''
@@ -39,6 +43,19 @@ TA_APP_URL = os.environ['TA_APP_URL']
 ENCRYPT_SALT = os.environ['TA_APP_ENCRYPT_SALT']
 ENCRYPT_PASSWORD = os.environ['TA_APP_ENCRYPT_PASSWORD']
 USER_PASSWORD = 'password'
+
+## Change MEDIA_ROOT
+MEDIA_ROOT = '/srv/www/ta_app_system/media'
+
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = os.environ['TA_APP_SECRET_KEY']
+
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = True
+
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+
+### <--
 
 
 # Application definition
@@ -67,6 +84,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware'
 ]
 
 ROOT_URLCONF = 'ta_app.urls'
@@ -143,6 +161,10 @@ USE_TZ = True
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+
+# Simplified static file serving.
+# https://warehouse.python.org/project/whitenoise/
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 MEDIA_ROOT = '/srv/www/ta_app_system/media'
 MEDIA_URL = '/media/'
