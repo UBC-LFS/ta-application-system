@@ -1140,7 +1140,7 @@ class HRTest(TestCase):
         response = self.client.get(reverse('administrators:show_user', args=[USERS[2], 'users']))
         self.assertEqual(response.status_code, 404)
 
-        self.assertFalse(userApi.user_exists(user))
+        self.assertIsNone(userApi.user_exists(user.username))
         self.assertFalse(userApi.resume_exists(user))
         self.assertFalse(userApi.confidentiality_exists(user))
 
@@ -1213,7 +1213,7 @@ class HRTest(TestCase):
 
         data['username'] = 'new.username'
 
-        self.assertFalse(userApi.user_exists(data['username']))
+        self.assertIsNone(userApi.user_exists(data['username']))
         self.assertFalse(userApi.profile_exists_by_username(data['username']))
 
         response = self.client.post(reverse('administrators:create_user'), data=urlencode(data, True), content_type=ContentType)
@@ -1239,7 +1239,7 @@ class HRTest(TestCase):
         }
 
         # Check username
-        self.assertTrue(userApi.user_exists(data['username']))
+        self.assertIsNotNone(userApi.user_exists(data['username']))
         self.assertTrue(userApi.profile_exists_by_username(data['username']))
 
         response = self.client.post(reverse('administrators:create_user'), data=urlencode(data, True), content_type=ContentType)
@@ -1258,7 +1258,7 @@ class HRTest(TestCase):
             'student_number': '35975560',
             'roles': ['5']
         }
-        self.assertFalse(userApi.user_exists(data['username']))
+        self.assertIsNone(userApi.user_exists(data['username']))
         self.assertFalse(userApi.profile_exists_by_username(data['username']))
         response = self.client.post(reverse('administrators:create_user'), data=urlencode(data, True), content_type=ContentType)
         messages = self.messages(response)
@@ -1279,11 +1279,11 @@ class HRTest(TestCase):
             'student_number': '12345678',
             'roles': ['5']
         }
-        self.assertFalse(userApi.user_exists(data['username']))
+        self.assertIsNone(userApi.user_exists(data['username']))
         self.assertFalse(userApi.profile_exists_by_username(data['username']))
 
         user = userApi.create_user(data)
-        self.assertTrue(userApi.user_exists(user.username))
+        self.assertIsNotNone(userApi.user_exists(user.username))
         self.assertTrue(userApi.profile_exists_by_username(user.username))
 
 
@@ -1294,7 +1294,8 @@ class HRTest(TestCase):
         response = self.client.get(reverse('administrators:admin_docs'))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, USERS[0])
-        self.assertEqual( len(response.context['users']), 164 )
+        self.assertEqual( len(response.context['users']), settings.PAGE_SIZE )
+        self.assertEqual( len(userApi.get_users()), 164 )
 
     def test_view_confidentiality(self):
         print('\n- Test: display user\'s confidentiality')

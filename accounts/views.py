@@ -16,17 +16,24 @@ def local_login(request):
     if request.method == 'POST':
         form = LocalLoginForm(request.POST)
         if form.is_valid():
-            user = User.objects.get(username=request.POST['username'])
+            user = userApi.user_exists(request.POST['username'])
             if user is not None and request.POST['password'] is not None:
                 AuthLogin(request, user)
-                loggedin_user = userApi.loggedin_user(user)
-                if 'Admin' in loggedin_user.roles or 'Superadmin' in loggedin_user.roles:
+                roles = userApi.get_user_roles(user)
+                request.session['loggedin_user'] = {
+                    'id': user.id,
+                    'username': user.username,
+                    'roles': roles
+                }
+                if 'Admin' in roles or 'Superadmin' in roles:
                     return redirect('administrators:index')
-                elif 'HR' in loggedin_user.roles:
+                elif 'HR' in roles:
                     return redirect('human_resources:index')
-                elif 'Instructor' in loggedin_user.roles:
+                elif 'Instructor' in roles:
                     return redirect('instructors:index')
-                elif 'Student' in loggedin_user.roles:
+                elif 'Student' in roles:
+                    return redirect('students:index')
+                else:
                     return redirect('students:index')
 
     return render(request, 'accounts/local_login.html', { 'form': LocalLoginForm() })

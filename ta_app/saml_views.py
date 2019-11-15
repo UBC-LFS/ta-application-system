@@ -46,7 +46,6 @@ def authenticate(saml_authentication=None):
                 user_data['first_name'] = ' '.join(full_name_list[:-1])
                 user_data['last_name'] = full_name_list[-1]
 
-
         user = userApi.user_exists(user_data['username'])
         if user == None:
             user = create_user(user_data)
@@ -69,11 +68,9 @@ def saml(request, action=None):
 
     # Redirect to idp
     if 'sso' in req['get_data']:
-        print('sso')
         return HttpResponseRedirect(auth.login())
 
     if 'slo' in req['get_data']:
-        print('slo')
         name_id = None
         session_index = None
         name_id_format = None
@@ -111,7 +108,23 @@ def saml(request, action=None):
 
                 if 'RelayState' in req['post_data'] and OneLogin_Saml2_Utils.get_self_url(req) != req['post_data']['RelayState']:
                     #return HttpResponseRedirect(auth.redirect_to(req['post_data']['RelayState']))
-                    return redirect('students:index')
+                    roles = userApi.get_user_roles(user)
+                    request.session['loggedin_user'] = {
+                        'id': user.id,
+                        'username': user.username,
+                        'roles': roles
+                    }
+                    if 'Admin' in roles or 'Superadmin' in roles:
+                        return redirect('administrators:index')
+                    elif 'HR' in roles:
+                        return redirect('human_resources:index')
+                    elif 'Instructor' in roles:
+                        return redirect('instructors:index')
+                    elif 'Student' in roles:
+                        return redirect('students:index')
+                    else:
+                        return redirect('students:index')
+
                 else:
                     for attr_name in request.session['samlUserdata'].keys():
                         print('%s ==> %s' % (attr_name, '|| '.join(request.session['samlUserdata'][attr_name])))

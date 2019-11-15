@@ -22,11 +22,11 @@ from datetime import datetime
 @require_http_methods(['GET'])
 def index(request):
     ''' Index page of an instructor's portal '''
-    loggedin_user = userApi.loggedin_user(request.user)
-    if 'Instructor' not in loggedin_user.roles: raise PermissionDenied
+    request.user.roles = request.session['loggedin_user']['roles']
+    if 'Instructor' not in request.user.roles: raise PermissionDenied
 
     return render(request, 'instructors/index.html', {
-        'loggedin_user': loggedin_user
+        'loggedin_user': request.user
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -34,11 +34,11 @@ def index(request):
 @require_http_methods(['GET'])
 def show_profile(request):
     ''' Display user's profile '''
-    loggedin_user = userApi.loggedin_user(request.user)
-    if 'Instructor' not in loggedin_user.roles: raise PermissionDenied
+    request.user.roles = request.session['loggedin_user']['roles']
+    if 'Instructor' not in request.user.roles: raise PermissionDenied
 
     return render(request, 'instructors/users/show_profile.html', {
-        'loggedin_user': loggedin_user
+        'loggedin_user': request.user
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -46,13 +46,13 @@ def show_profile(request):
 @require_http_methods(['GET'])
 def show_user(request, session_slug, job_slug, username):
     ''' Display an user's details '''
-    loggedin_user = userApi.loggedin_user(request.user)
-    if 'Instructor' not in loggedin_user.roles: raise PermissionDenied
+    request.user.roles = request.session['loggedin_user']['roles']
+    if 'Instructor' not in request.user.roles: raise PermissionDenied
 
     user = userApi.get_user(username, 'username')
     user.is_student = userApi.user_has_role(user ,'Student')
     return render(request, 'instructors/users/show_user.html', {
-        'loggedin_user': loggedin_user,
+        'loggedin_user': request.user,
         'user': userApi.add_resume(user),
         'session_slug': session_slug,
         'job_slug': job_slug
@@ -63,11 +63,11 @@ def show_user(request, session_slug, job_slug, username):
 @require_http_methods(['GET'])
 def show_jobs(request):
     ''' Display jobs by instructors '''
-    loggedin_user = userApi.loggedin_user(request.user)
-    if 'Instructor' not in loggedin_user.roles: raise PermissionDenied
+    request.user.roles = request.session['loggedin_user']['roles']
+    if 'Instructor' not in request.user.roles: raise PermissionDenied
 
     return render(request, 'instructors/jobs/show_jobs.html', {
-        'loggedin_user': loggedin_user
+        'loggedin_user': request.user
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -75,8 +75,8 @@ def show_jobs(request):
 @require_http_methods(['GET', 'POST'])
 def edit_job(request, session_slug, job_slug):
     ''' Update job details of instructors '''
-    loggedin_user = userApi.loggedin_user(request.user)
-    if 'Instructor' not in loggedin_user.roles: raise PermissionDenied
+    request.user.roles = request.session['loggedin_user']['roles']
+    if 'Instructor' not in request.user.roles: raise PermissionDenied
 
     job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
     if request.method == 'POST':
@@ -97,7 +97,7 @@ def edit_job(request, session_slug, job_slug):
         return HttpResponseRedirect( reverse('instructors:edit_job', args=[session_slug, job_slug]) )
 
     return render(request, 'instructors/jobs/edit_job.html', {
-        'loggedin_user': loggedin_user,
+        'loggedin_user': request.user,
         'job': job,
         'form': InstructorJobForm(data=None, instance=job),
         'jobs': adminApi.get_recent_ten_job_details(job.course, job.session.year)
@@ -108,11 +108,11 @@ def edit_job(request, session_slug, job_slug):
 @require_http_methods(['GET', 'POST'])
 def show_job(request, session_slug, job_slug):
     ''' Display job details '''
-    loggedin_user = userApi.loggedin_user(request.user)
-    if 'Instructor' not in loggedin_user.roles: raise PermissionDenied
+    request.user.roles = request.session['loggedin_user']['roles']
+    if 'Instructor' not in request.user.roles: raise PermissionDenied
 
     return render(request, 'instructors/jobs/show_job.html', {
-        'loggedin_user': loggedin_user,
+        'loggedin_user': request.user,
         'job': adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
     })
 
@@ -121,8 +121,8 @@ def show_job(request, session_slug, job_slug):
 @require_http_methods(['GET', 'POST'])
 def show_applications(request, session_slug, job_slug):
     ''' Display applications applied by students '''
-    loggedin_user = userApi.loggedin_user(request.user)
-    if 'Instructor' not in loggedin_user.roles: raise PermissionDenied
+    request.user.roles = request.session['loggedin_user']['roles']
+    if 'Instructor' not in request.user.roles: raise PermissionDenied
 
     job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
 
@@ -177,7 +177,7 @@ def show_applications(request, session_slug, job_slug):
     apps = adminApi.get_applications_with_status_by_session_slug_job_slug(session_slug, job_slug)
 
     return render(request, 'instructors/jobs/show_applications.html', {
-        'loggedin_user': loggedin_user,
+        'loggedin_user': request.user,
         'job': job,
         'apps': adminApi.get_applications_with_status_by_session_slug_job_slug(session_slug, job_slug),
         'instructor_preference_choices': Application.INSTRUCTOR_PREFERENCE_CHOICES,

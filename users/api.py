@@ -31,22 +31,38 @@ def is_admin(user):
         return True
     return False
 
+def get_user_roles(user):
+    ''' Add roles into an user '''
+    roles = []
+    for role in user.profile.roles.all():
+        if role.name == Role.SUPERADMIN:
+            roles.append(Role.SUPERADMIN)
+        elif role.name == Role.ADMIN:
+            roles.append(Role.ADMIN)
+        elif role.name == Role.HR:
+            roles.append(Role.HR)
+        elif role.name == Role.INSTRUCTOR:
+            roles.append(Role.INSTRUCTOR)
+        elif role.name == Role.STUDENT:
+            roles.append(Role.STUDENT)
+    return roles
+
 def loggedin_user(user):
     ''' Get a logged in user '''
     if not is_valid_user(user): PermissionDenied
 
     roles = []
     for role in user.profile.roles.all():
-        if role.name == Role.STUDENT:
-            roles.append(Role.STUDENT)
-        elif role.name == Role.INSTRUCTOR:
-            roles.append(Role.INSTRUCTOR)
-        elif role.name == Role.HR:
-            roles.append(Role.HR)
+        if role.name == Role.SUPERADMIN:
+            roles.append(Role.SUPERADMIN)
         elif role.name == Role.ADMIN:
             roles.append(Role.ADMIN)
-        elif role.name == Role.SUPERADMIN:
-            roles.append(Role.SUPERADMIN)
+        elif role.name == Role.HR:
+            roles.append(Role.HR)
+        elif role.name == Role.INSTRUCTOR:
+            roles.append(Role.INSTRUCTOR)
+        elif role.name == Role.STUDENT:
+            roles.append(Role.STUDENT)
     user.roles = roles
 
     return user
@@ -60,8 +76,7 @@ def get_user(input, by=None):
 
 def user_exists(username):
     ''' Check user exists '''
-    user = User.objects.filter(username=username)
-    if user.exists(): return user
+    if User.objects.filter(username=username).exists(): return User.objects.get(username=username)
     return None
 
 
@@ -237,19 +252,6 @@ def get_users_with_data():
 
     return users
 """
-
-
-def get_users_with_confidentiality():
-    ''' Get all users with admin docs '''
-    users = get_users()
-
-    for user in users:
-        if has_user_confidentiality_created(user):
-            user.is_new_member = False
-        else:
-            user.is_new_member = True
-
-    return users
 
 
 def get_users(option=None):
