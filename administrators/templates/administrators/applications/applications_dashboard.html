@@ -12,89 +12,87 @@
     </div>
   </div>
 
-  <div>
-    <table
-      class="table table-bordered table-hover table-striped table-responsive-md text-center"
-      data-toggle="table"
-      data-sortable="true"
-      data-classes=""
-      data-pagination="true"
-      data-search="true"
-      data-page-size="50"
-      data-page-list="[50, 100, 200, all]"
-      data-show-export="true"
-      data-show-columns="true"
-    >
-      <thead>
+  {% include 'ta_app/applications/_search_fields.html' with data=statuses path='applications_dashboard' %}
+
+  <table
+    class="table table-bordered table-hover table-striped table-responsive-md text-center"
+    data-toggle="table"
+    data-sortable="true"
+    data-classes=""
+    data-show-export="true"
+    data-show-columns="true"
+  >
+    <thead>
+      <tr>
+        <th data-sortable="true">Status<br /> ID</th>
+        <th data-sortable="true">Status</th>
+        <th data-sortable="true">Applicant</th>
+        <th data-sortable="true">CWL</th>
+        <th data-sortable="true">Year</th>
+        <th data-sortable="true">Term</th>
+        <th data-sortable="true">Job</th>
+        <th data-sortable="true">Application<br /> ID</th>
+        <th data-sortable="true">Created at</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for st in statuses %}
         <tr>
-          <th data-sortable="true">Status<br /> ID</th>
-          <th data-sortable="true">Status</th>
-          <th data-sortable="true">Applicant</th>
-          <th data-sortable="true">CWL</th>
-          <th data-sortable="true">Year</th>
-          <th data-sortable="true">Term</th>
-          <th data-sortable="true">Job</th>
-          <th data-sortable="true">Application<br /> ID</th>
-          <th data-sortable="true">Created at</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for st in statuses %}
-          <tr>
-            <td>{{ st.id }}</td>
-            <td>
+          <td>{{ st.id }}</td>
+          <td>
 
-              {% if st.parent_id %}
+            {% if st.parent_id %}
 
-                {% if st.assigned == app_status.cancelled %}
-                  {% include 'ta_app/applications/_app_status.html' with data=st.get_assigned_display %}
-
-                {% else %}
-                  <span class="badge badge-success">Declined & Re-assigned</span>
-
-                {% endif %}
+              {% if st.assigned == app_status.cancelled %}
+                {% include 'ta_app/applications/_app_status.html' with data=st.get_assigned_display %}
 
               {% else %}
-
-                {% if st.assigned == app_status.selected %}
-                  {% include 'ta_app/applications/_app_status.html' with data=st.get_assigned_display %}
-
-                {% elif st.assigned == app_status.offered %}
-                  {% include 'ta_app/applications/_app_status.html' with data=st.get_assigned_display %}
-
-                {% elif st.assigned == app_status.accepted %}
-                  {% include 'ta_app/applications/_app_status.html' with data=st.get_assigned_display %}
-
-                {% elif st.assigned == app_status.declined %}
-                  {% include 'ta_app/applications/_app_status.html' with data=st.get_assigned_display %}
-
-                {% else %}
-                  {% include 'ta_app/applications/_app_status.html' with data='None' %}
-
-                {% endif %}
+                <span class="badge badge-success">Declined & Re-assigned</span>
 
               {% endif %}
-            </td>
-            <td>{{ st.application.applicant.first_name }} {{ st.application.applicant.last_name }}</td>
-            <td>
-              <a href="{% url 'administrators:show_user' username=st.application.applicant.username path='dashboard' %}">{{ st.application.applicant.username }}</a>
-            </td>
-            <td>{{ st.application.job.session.year }}</td>
-            <td>{{ st.application.job.session.term.code }}</td>
-            <td>
-              <a href="{% url 'administrators:show_job' session_slug=st.application.job.session.slug job_slug=st.application.job.course.slug path='dashboard' %}">
-                {{ st.application.job.course.code.name }} {{ st.application.job.course.number.name }} {{ st.application.job.course.section.name }}
-              </a>
-            </td>
-            <td>
-              <a class="btn btn-xs btn-info" href="{% url 'administrators:show_application' app_slug=st.application.slug path='dashboard' %}">{{ st.application.id }}</a>
-            </td>
-            <td>{{ st.created_at }}</td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
+
+            {% else %}
+
+              {% if st.assigned == app_status.selected %}
+                {% include 'ta_app/applications/_app_status.html' with data=st.get_assigned_display %}
+
+              {% elif st.assigned == app_status.offered %}
+                {% include 'ta_app/applications/_app_status.html' with data=st.get_assigned_display %}
+
+              {% elif st.assigned == app_status.accepted %}
+                {% include 'ta_app/applications/_app_status.html' with data=st.get_assigned_display %}
+
+              {% elif st.assigned == app_status.declined %}
+                {% include 'ta_app/applications/_app_status.html' with data=st.get_assigned_display %}
+
+              {% else %}
+                {% include 'ta_app/applications/_app_status.html' with data='None' %}
+
+              {% endif %}
+
+            {% endif %}
+          </td>
+          <td>{{ st.application.applicant.first_name }} {{ st.application.applicant.last_name }}</td>
+          <td>
+            <a href="{% url 'administrators:show_user' username=st.application.applicant.username path='dashboard' %}">{{ st.application.applicant.username }}</a>
+          </td>
+          <td>{{ st.application.job.session.year }}</td>
+          <td>{{ st.application.job.session.term.code }}</td>
+          <td>
+            <a href="{% url 'administrators:show_job' session_slug=st.application.job.session.slug job_slug=st.application.job.course.slug path='dashboard' %}">
+              {{ st.application.job.course.code.name }} {{ st.application.job.course.number.name }} {{ st.application.job.course.section.name }}
+            </a>
+          </td>
+          <td>
+            <a class="btn btn-xs btn-info" href="{% url 'administrators:show_application' app_slug=st.application.slug path='dashboard' %}">{{ st.application.id }}</a>
+          </td>
+          <td>{{ st.created_at }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% include 'ta_app/pages/_table_paginator.html' with data=statuses %}
 
   {% comment %}
   <h3>Dashboard of Applications</h3>

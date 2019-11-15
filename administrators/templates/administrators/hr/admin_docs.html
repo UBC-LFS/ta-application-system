@@ -3,17 +3,15 @@
 
 {% include 'administrators/_menu.html' %}
 <div>
-  {% include 'ta_app/pages/_header.html' with title='Admin Documents' text=users|length %}
+  {% include 'ta_app/pages/_header.html' with title='Admin Documents' %}
+
+  {% include 'ta_app/users/_search_fields.html' with data=users path='admin_docs' %}
 
   <table
     class="table table-bordered table-hover table-striped table-responsive-md text-center"
     data-toggle="table"
     data-sortable="true"
     data-classes=""
-    data-pagination="true"
-    data-search="true"
-    data-page-size="50"
-    data-page-list="[50, 100, 200, all]"
     data-show-export="true"
     data-show-columns="true"
   >
@@ -58,13 +56,18 @@
           <td>{{ user.confidentiality.created_at }}</td>
           <td>{{ user.confidentiality.updated_at }}</td>
           <td>
-            <a class="btn btn-xs btn-link" href="{% url 'administrators:view_confidentiality' username=user.username %}">View Details</a><br />
-            <a class="btn btn-xs btn-link" href="{% url 'administrators:edit_admin_docs' username=user.username %}">Edit</a>
+            <div class="btn-toolbar">
+              <a class="btn btn-xs btn-link" href="{% url 'administrators:view_confidentiality' username=user.username %}">View</a><br />
+              <a class="btn btn-xs btn-link" href="{% url 'administrators:edit_admin_docs' username=user.username %}">Edit</a>
+            </div>
           </td>
         </tr>
       {% endfor %}
     </tbody>
   </table>
+
+  {% include 'ta_app/pages/_table_paginator.html' with data=users %}
+
 </div>
 
 {% endblock %}

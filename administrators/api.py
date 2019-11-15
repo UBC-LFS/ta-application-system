@@ -53,45 +53,36 @@ def delete_course(course_id):
 # Sessions
 
 
+def get_sessions():
+    ''' Get all sessions '''
+    return Session.objects.all()
+
+def get_sessions_by_archived(is_archived):
+    ''' Get sessions by is_archived '''
+    return Session.objects.filter(is_archived=is_archived)
+
+def add_num_instructors(sessions):
+    for session in sessions:
+        count = 0
+        for job in session.job_set.all():
+            if job.instructors.count() > 0: count += 1
+        session.num_instructors = count
+    return sessions
+
+
 def get_session(session_id):
     ''' Get a session '''
     return get_object_or_404(Session, id=session_id)
+
+def get_session_by_slug(session_slug):
+    ''' Get a session by slug '''
+    return get_object_or_404(Session, slug=session_slug)
 
 def delete_session(session_id):
     ''' Delete a session '''
     session = get_session(session_id)
     session.delete()
     return session
-
-def get_current_sessions():
-    ''' Get current sessions '''
-    sessions = []
-    for session in Session.objects.all():
-        if not session.is_archived:
-            count = 0
-            for job in session.job_set.all():
-                if job.instructors.count() > 0:
-                    count += 1
-            session.num_instructors = count
-            sessions.append(session)
-    return sessions
-
-def get_archived_sessions():
-    ''' Get archived sessions '''
-    sessions = []
-    for session in Session.objects.all():
-        if session.is_archived:
-            count = 0
-            for job in session.job_set.all():
-                if job.instructors.count() > 0:
-                    count += 1
-            session.num_instructors = count
-            sessions.append(session)
-    return sessions
-
-def get_session_by_slug(session_slug):
-    ''' Get a session by slug '''
-    return get_object_or_404(Session, slug=session_slug)
 
 def update_session_jobs(session, courses):
     ''' Update courses/jobs in a session '''
@@ -153,9 +144,7 @@ def get_visible_current_sessions():
 
 
 
-def get_sessions():
-    """ Get all sessions """
-    return Session.objects.all()
+
 
 def session_exists(session_id):
     """ Check a session exists """
@@ -189,7 +178,25 @@ def get_job_by_session_slug_job_slug(session_slug, job_slug):
     ''' Get a job by session_slug and job_slug '''
     return get_object_or_404(Job, Q(session__slug=session_slug) & Q(course__slug=job_slug) )
 
-def get_jobs_with_applications_statistics():
+def add_applications_statistics(jobs):
+    ''' add statistics of applications in a job '''
+    for job in Job.objects.all():
+        offered_app = 0
+        accepted_app = 0
+        declined_app = 0
+        for app in job.application_set.all():
+            if get_offered(app): offered_app += 1
+            if get_accepted(app): accepted_app += 1
+            if get_declined(app): declined_app += 1
+
+        job.offered_applications = offered_app
+        job.accepted_applications = accepted_app
+        job.declined_applications = declined_app
+
+    return jobs
+
+
+"""def get_jobs_with_applications_statistics():
     ''' get jobs with statistics of applications '''
     jobs = []
     for job in Job.objects.all():
@@ -206,7 +213,7 @@ def get_jobs_with_applications_statistics():
         job.declined_applications = declined_app
         jobs.append(job)
 
-    return jobs
+    return jobs"""
 
 def get_job_with_applications_statistics(session_slug, job_slug):
     ''' get a job with statistics of applications '''

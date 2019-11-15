@@ -3,74 +3,65 @@
 
 {% include 'administrators/_menu.html' %}
 <div>
-  {% include 'ta_app/pages/_header.html' with title='Jobs in Progress' text=jobs|length %}
+  {% include 'ta_app/pages/_header.html' with title='Jobs in Progress' %}
 
-  <div>
-    <table
-      class="table table-bordered table-hover table-striped table-responsive-md text-center"
-      data-toggle="table"
-      data-sortable="true"
-      data-classes=""
-      data-pagination="true"
-      data-search="true"
-      data-page-size="50"
-      data-page-list="[50, 100, 200, all]"
-      data-show-export="true"
-      data-show-columns="true"
-    >
-      <thead>
+  {% include 'ta_app/jobs/_search_fields.html' with data=jobs path='progress_jobs' %}
+
+  <table
+    class="table table-bordered table-hover table-striped table-responsive-md text-center"
+    data-toggle="table"
+    data-sortable="true"
+    data-classes=""
+    data-show-export="true"
+    data-show-columns="true"
+  >
+    <thead>
+      <tr>
+        <th data-sortable="true">ID</th>
+        <th data-sortable="true">Year</th>
+        <th data-sortable="true">Term</th>
+        <th data-sortable="true">Job</th>
+        <th data-sortable="true">Num of<br />Applications</th>
+        <th data-sortable="true">Assigned <br />TA Hours</th>
+        <th data-sortable="true">Accumulated <br />TA Hours</th>
+        <th data-sortable="true">Active</th>
+        <th data-sortable="true">Created at</th>
+        <th data-sortable="true">Updated at</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for job in jobs %}
         <tr>
-          <th data-sortable="true">ID</th>
-          <th data-sortable="true">Year</th>
-          <th data-sortable="true">Term</th>
-          <th data-sortable="true">Job</th>
-          <th data-sortable="true">Applications</th>
-          <th data-sortable="true"># of <br />Offered</th>
-          <th data-sortable="true"># of <br />Accepted</th>
-          <th data-sortable="true"># of <br />Declined</th>
-          <th data-sortable="true">Assigned <br />TA Hours</th>
-          <th data-sortable="true">Accumulated <br />TA Hours</th>
-          <th data-sortable="true">Active</th>
-          <th data-sortable="true">Created at</th>
-          <th data-sortable="true">Updated at</th>
+          <td>
+            <a class="btn btn-xs btn-info" href="{% url 'administrators:show_job' session_slug=job.session.slug job_slug=job.course.slug path='progress' %}">{{ job.id }}</a>
+          </td>
+          <td>{{ job.session.year }}</td>
+          <td>{{ job.session.term.code }}</td>
+          <td>{{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</td>
+          <td>
+            {% if job.application_set.count > 0 %}
+              <a class="btn btn-xs btn-info" href="{% url 'administrators:show_job_applications' session_slug=job.session.slug job_slug=job.course.slug %}">{{ job.application_set.count }}</a>
+            {% else %}
+              {{ job.application_set.count }}
+            {% endif %}
+          </td>
+          <td>{{ job.assigned_ta_hours }}</td>
+          <td>{{ job.accumulated_ta_hours }}</td>
+          <td>
+            {% if job.is_active %}
+              <span class="badge badge-success">{{ job.is_active }} <i class="fa fa-check-circle" aria-hidden="true"></i></span>
+            {% else %}
+              <span class="badge badge-danger">{{ job.is_active }} <i class="fa fa-stop-circle" aria-hidden="true"></i></span>
+            {% endif %}
+          </td>
+          <td>{{ job.created_at }}</td>
+          <td>{{ job.updated_at }}</td>
         </tr>
-      </thead>
-      <tbody>
-        {% for job in jobs %}
-          <tr>
-            <td>
-              <a class="btn btn-xs btn-info" href="{% url 'administrators:show_job' session_slug=job.session.slug job_slug=job.course.slug path='progress' %}">{{ job.id }}</a>
-            </td>
-            <td>{{ job.session.year }}</td>
-            <td>{{ job.session.term.code }}</td>
-            <td>{{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</td>
-            <td>
-              {% if job.application_set.count > 0 %}
-                <a class="btn btn-xs btn-info" href="{% url 'administrators:show_job_applications' session_slug=job.session.slug job_slug=job.course.slug %}">{{ job.application_set.count }}</a>
-              {% else %}
-                {{ job.application_set.count }}
-              {% endif %}
-            </td>
-            <td>{{ job.offered_applications }}</td>
-            <td>{{ job.accepted_applications }}</td>
-            <td>{{ job.declined_applications }}</td>
-            <td>{{ job.assigned_ta_hours }}</td>
-            <td>{{ job.accumulated_ta_hours }}</td>
-            <td>
-              {% if job.is_active %}
-                <span class="badge badge-success">{{ job.is_active }} <i class="fa fa-check-circle" aria-hidden="true"></i></span>
-              {% else %}
-                <span class="badge badge-danger">{{ job.is_active }} <i class="fa fa-stop-circle" aria-hidden="true"></i></span>
-              {% endif %}
-            </td>
-            <td>{{ job.created_at }}</td>
-            <td>{{ job.updated_at }}</td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+      {% endfor %}
+    </tbody>
+  </table>
 
-  </div>
+  {% include 'ta_app/pages/_table_paginator.html' with data=jobs %}
 
 </div>
 

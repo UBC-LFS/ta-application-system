@@ -24,7 +24,7 @@ class StudentTest(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        cls.user = userApi.get_user_by_username( USERS[2] )
+        cls.user = userApi.get_user(USERS[2], 'username')
 
     def login(self, username=None, password=None):
         if username and password:

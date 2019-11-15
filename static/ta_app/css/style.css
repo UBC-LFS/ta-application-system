@@ -10,16 +10,25 @@ body {
   flex-direction: column;
 }
 
+
+
 /* header */
 header {
   width: 100%;
 }
+
+
 
 /* footer */
 footer {
   flex-shrink: 0;
   height: 100px;
   color: #fff;
+  text-align: center;
+}
+
+.footer-content {
+  line-height: 100px;
 }
 
 
@@ -107,6 +116,21 @@ main {
 
 .nav-item {
   color: #6c757d;
+}
+
+.table-paginator {
+  margin-top: 30px;
+}
+
+.search-field input {
+  margin: 5px 0;
+  padding: 5px;
+  font-size: 0.85rem;
+}
+
+
+.line-height-2 {
+  line-height: 2.0;
 }
 
 /* utils */
@@ -279,6 +303,10 @@ hr.dotted {
   background-color: #6610f2;
 }
 
+.badge-warning {
+  color: #212529 !important;
+}
+
 .btn-xs {
   padding: .1em .3em;
 }
@@ -302,169 +330,6 @@ hr.dotted {
   background-color: #e6e6e6;
 }
 
-
-
-/*--------------*/
-
-
-
-
-
-
-
-.job-details .left-content .ta-hours {
-  border: 1px solid #aaa;
-  border-radius: 4px;
-}
-
-.search-field input {
-  margin: 5px 0;
-  padding: 5px;
-  font-size: 0.85rem;
-}
-
-
-
-
-
-.line-height-2 {
-  line-height: 2.0;
-}
-
-.featured {
-  height: 100%;
-}
-
-
-
-.bg-grey {
-  background-color: #ccc;
-}
-
-
-
-.page-title {
-  margin-top: 70px;
-}
-
-.margin-left-10 {
-  margin-left: 10px;
-}
-
-.margin-right-10 {
-  margin-right: 10px;
-}
-
-.margin-right-30 {
-  margin-right: 30px;
-}
-
-.margin-left-right-10 {
-  margin: 0 10px;
-}
-
-.margin-left-10 {
-  margin-left: 10px;
-}
-
-.margin-top-10 {
-  margin-top: 10px;
-}
-
-.margin-top-30 {
-  margin-top: 30px;
-}
-
-.margin-top-50 {
-  margin-top: 50px;
-}
-
-.margin-bottom-0 {
-  margin-bottom: 0;
-}
-
-.margin-bottom-30 {
-  margin-bottom: 30px;
-}
-
-.margin-bottom-50 {
-  margin-bottom: 50px;
-}
-
-.margin-top-bottom-30 {
-  margin: 30px 0
-}
-
-
-.padding-20 {
-  padding: 20px;
-}
-
-.padding-top-0 {
-  padding-top: 0;
-}
-
-.padding-top-66 {
-  padding-top: 66px;
-}
-
-.padding-bottom-0 {
-  padding-bottom: 0;
-}
-
-.width-100 {
-  width: 100%;
-}
-
-.new-user-form {
-  border-style: solid;
-  border-width: 2px;
-  border-radius: 15px;
-}
-
-.float-right {
-  float: right;
-}
-
-
-.filename {
-  overflow: clip;
-}
-
-.messageboard {
-  height: 600px;
-  border-width: 3px;
-}
-/******/
-
-.sub-title {
-  margin-top: 50px;
-}
-
-
-
-.wrapper {
-  display: flex;
-  width: 100%;
-}
-
-#sidebar {
-  width: 300px;
-  height: calc(100vh - 56px);
-  position: fixed;
-  top: 56px;
-  left:0;
-  z-index: 999;
-  padding: 15px;
-}
-
-#content {
-  position: absolute;
-  top: 56;
-  right: 0;
-  width: calc(100% - 300px);
-}
-
 #impersonate-card {
   position: fixed;
   bottom: 20px;
@@ -473,79 +338,16 @@ hr.dotted {
   text-align: center;
 }
 
-/* .sidebar {
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  padding: 10px 17px;
-}
-
-.sidebar hr {
-  border-top: 1px solid rgba(0,0,0,.2);
-}
-
-.sidebar,
-.sidebar a {
-  color: #555;
-} */
-
 /* Extra small devices (portrait phones, less than 576px) */
 @media (max-width: 575.98px) {
-  .navbar {
-    position: static;
-  }
-
-  #sidebar {
-    display: none;
-  }
-
-  #content-padding {
-    padding-top:10px;
-  }
-
-  #content {
-    position: static;
-    width: 100%;
-  }
 }
 
 /* Small devices (landscape phones, 576px and up) */
 @media (min-width: 576px) and (max-width: 767.98px) {
-  .navbar {
-    position: static;
-  }
-
-  #sidebar {
-    display: none;
-  }
-
-  #content-padding {
-    padding-top:10px;
-  }
-
-  #content {
-    position: static;
-    width: 100%;
-  }
 }
 
 /* Medium devices (tablets, 768px and up) */
 @media (min-width: 768px) and (max-width: 991.98px) {
-  .navbar {
-    position: static;
-  }
-
-  #sidebar {
-    display: none;
-  }
-
-  #content-padding {
-    padding-top:10px;
-  }
-
-  #content {
-    position: static;
-    width: 100%;
-  }
 }
 
 /* Large devices (desktops, 992px and up) */

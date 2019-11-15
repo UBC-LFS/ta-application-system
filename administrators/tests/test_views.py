@@ -54,7 +54,7 @@ class SessionTest(TestCase):
     @classmethod
     def setUpTestData(cls):
         print('\nAdministrators:Session testing has started ==>')
-        cls.user = userApi.get_user_by_username( USERS[0] )
+        cls.user = userApi.get_user(USERS[0], 'username')
 
     def login(self, username=None, password=None):
         if username and password:
@@ -339,7 +339,7 @@ class JobTest(TestCase):
     @classmethod
     def setUpTestData(cls):
         print('\nJob testing has started ==>')
-        cls.user = userApi.get_user_by_username(USERS[0])
+        cls.user = userApi.get_user(USERS[0], 'username')
 
     def login(self, username=None, password=None):
         if username and password:
@@ -396,7 +396,8 @@ class JobTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, self.user.username)
         self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
-        self.assertEqual( len(response.context['jobs']), 450 )
+        self.assertEqual( len(response.context['jobs']), settings.PAGE_SIZE )
+        self.assertEqual( len(adminApi.get_jobs()), 450 )
 
     def test_edit_job(self):
         print('\n- Test: edit a job')
@@ -487,7 +488,8 @@ class JobTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, self.user.username)
         self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
-        self.assertEqual( len(response.context['jobs']), 450 )
+        self.assertEqual( len(response.context['jobs']), settings.PAGE_SIZE )
+        self.assertEqual( len(adminApi.get_jobs()), 450 )
 
     def test_instructor_jobs(self):
         print('\n- Test: display all instructor jobs')
@@ -497,7 +499,9 @@ class JobTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, self.user.username)
         self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
-        self.assertEqual( len(response.context['instructors']), 57 )
+        self.assertEqual( len(response.context['users']), 57 )
+        self.assertEqual( len(userApi.get_users_by_role('Instructor')), 57 )
+
 
     def test_student_jobs(self):
         print('\n- Test: display all student jobs')
@@ -507,7 +511,8 @@ class JobTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, self.user.username)
         self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
-        self.assertEqual( len(response.context['students']), 100 )
+        self.assertEqual( len(response.context['users']), settings.PAGE_SIZE )
+        self.assertEqual( len(userApi.get_users_by_role('Student')), 100 )
 
     def test_show_job_applications(self):
         print('\n- Test: display a job applications')
@@ -557,7 +562,7 @@ class ApplicationTest(TestCase):
     @classmethod
     def setUpTestData(cls):
         print('\nJob testing has started ==>')
-        cls.user = userApi.get_user_by_username(USERS[0])
+        cls.user = userApi.get_user(USERS[0], 'username')
 
     def login(self, username=None, password=None):
         if username and password:
@@ -641,7 +646,7 @@ class ApplicationTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, USERS[0])
         self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
-        self.assertEqual( len(response.context['applications']), 26)
+        self.assertEqual( len(response.context['apps']), 26)
 
     def test_selected_applications(self):
         print('\n- Test: Display applications selected by instructors')
@@ -651,7 +656,7 @@ class ApplicationTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, USERS[0])
         self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
-        self.assertEqual( len(response.context['selected_applications']), 20)
+        self.assertEqual( len(response.context['apps']), 20)
         self.assertFalse(response.context['admin_application_form'].is_bound)
         self.assertFalse(response.context['status_form'].is_bound)
         self.assertEqual( len(response.context['classification_choices']), 6)
@@ -717,7 +722,7 @@ class ApplicationTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, USERS[0])
         self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
-        self.assertEqual( len(response.context['offered_applications']), 10)
+        self.assertEqual( len(response.context['apps']), 10)
         self.assertEqual( len(response.context['admin_emails']), 3)
 
     def test_offered_applications_send_email(self):
@@ -824,7 +829,7 @@ class ApplicationTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, USERS[0])
         self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
-        self.assertEqual( len(response.context['accepted_applications']), 6)
+        self.assertEqual( len(response.context['apps']), 6)
 
     def test_declined_applications(self):
         print('\n- Test: Display applications declined by students')
@@ -834,7 +839,7 @@ class ApplicationTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, USERS[0])
         self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
-        self.assertEqual( len(response.context['declined_applications']), 4)
+        self.assertEqual( len(response.context['apps']), 4)
 
 
     def test_decline_reassign(self):
@@ -845,7 +850,7 @@ class ApplicationTest(TestCase):
 
         response = self.client.get( reverse('administrators:accepted_applications') )
         self.assertEqual(response.status_code, 200)
-        accepted_applications = response.context['accepted_applications']
+        accepted_applications = response.context['apps']
 
         application = None
         for app in accepted_applications:
@@ -899,7 +904,7 @@ class ApplicationTest(TestCase):
 
         response = self.client.get(reverse('administrators:accepted_applications'))
         self.assertEqual(response.status_code, 200)
-        accepted_applications = response.context['accepted_applications']
+        accepted_applications = response.context['apps']
 
         updated_app = None
         for app in accepted_applications:
@@ -938,7 +943,7 @@ class ApplicationTest(TestCase):
 
         response = self.client.get(reverse('administrators:accepted_applications'))
         self.assertEqual(response.status_code, 200)
-        apps = response.context['accepted_applications']
+        apps = response.context['apps']
 
         application = None
         for app in apps:
@@ -955,7 +960,7 @@ class HRTest(TestCase):
     @classmethod
     def setUpTestData(cls):
         print('\nAdministrators:hr testing has started ==>')
-        cls.user = userApi.get_user_by_username(USERS[0])
+        cls.user = userApi.get_user(USERS[0], 'username')
 
     def login(self, username=None, password=None):
         if username and password:
@@ -1015,7 +1020,8 @@ class HRTest(TestCase):
         self.login()
         response = self.client.get(reverse('administrators:all_users'))
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.context['users']), 164)
+        self.assertEqual( len(response.context['users']), settings.PAGE_SIZE )
+        self.assertEqual( len(userApi.get_users()), 164 )
 
     def test_show_user(self):
         print('\n- Test: show a user')
@@ -1039,7 +1045,7 @@ class HRTest(TestCase):
         print('\n- Test: edit a user with role change')
         self.login()
 
-        user = userApi.get_user_by_username(USERS[2])
+        user = userApi.get_user(USERS[2], 'username')
         user_first_role = user.profile.roles.all()[0]
         self.assertEqual(user_first_role.name, Role.STUDENT)
 
@@ -1069,7 +1075,7 @@ class HRTest(TestCase):
         print('\n- Test: edit a user')
         self.login()
 
-        user = userApi.get_user_by_username(USERS[2])
+        user = userApi.get_user(USERS[2], 'username')
         user_first_role = user.profile.roles.all()[0]
         self.assertEqual(user_first_role.name, Role.STUDENT)
 
@@ -1122,7 +1128,7 @@ class HRTest(TestCase):
         print('\n- Test: delete a user')
         self.login()
 
-        user = userApi.get_user_by_username(USERS[2])
+        user = userApi.get_user(USERS[2], 'username')
         data = { 'user': user.id }
         response = self.client.post(reverse('administrators:delete_user'), data=urlencode(data), content_type=ContentType)
 
@@ -1134,7 +1140,7 @@ class HRTest(TestCase):
         response = self.client.get(reverse('administrators:show_user', args=[USERS[2], 'users']))
         self.assertEqual(response.status_code, 404)
 
-        self.assertFalse(userApi.user_exists(user))
+        self.assertIsNone(userApi.user_exists(user.username))
         self.assertFalse(userApi.resume_exists(user))
         self.assertFalse(userApi.confidentiality_exists(user))
 
@@ -1207,7 +1213,7 @@ class HRTest(TestCase):
 
         data['username'] = 'new.username'
 
-        self.assertFalse(userApi.username_exists(data['username']))
+        self.assertIsNone(userApi.user_exists(data['username']))
         self.assertFalse(userApi.profile_exists_by_username(data['username']))
 
         response = self.client.post(reverse('administrators:create_user'), data=urlencode(data, True), content_type=ContentType)
@@ -1216,7 +1222,7 @@ class HRTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, response.url)
 
-        user = userApi.get_user_by_username(data['username'])
+        user = userApi.get_user(data['username'], 'username')
         self.assertEqual(user.username, data['username'])
         self.assertTrue(userApi.profile_exists_by_username(user.username))
 
@@ -1233,7 +1239,7 @@ class HRTest(TestCase):
         }
 
         # Check username
-        self.assertTrue(userApi.username_exists(data['username']))
+        self.assertIsNotNone(userApi.user_exists(data['username']))
         self.assertTrue(userApi.profile_exists_by_username(data['username']))
 
         response = self.client.post(reverse('administrators:create_user'), data=urlencode(data, True), content_type=ContentType)
@@ -1252,7 +1258,7 @@ class HRTest(TestCase):
             'student_number': '35975560',
             'roles': ['5']
         }
-        self.assertFalse(userApi.username_exists(data['username']))
+        self.assertIsNone(userApi.user_exists(data['username']))
         self.assertFalse(userApi.profile_exists_by_username(data['username']))
         response = self.client.post(reverse('administrators:create_user'), data=urlencode(data, True), content_type=ContentType)
         messages = self.messages(response)
@@ -1273,11 +1279,11 @@ class HRTest(TestCase):
             'student_number': '12345678',
             'roles': ['5']
         }
-        self.assertFalse(userApi.username_exists(data['username']))
+        self.assertIsNone(userApi.user_exists(data['username']))
         self.assertFalse(userApi.profile_exists_by_username(data['username']))
 
         user = userApi.create_user(data)
-        self.assertTrue(userApi.username_exists(user.username))
+        self.assertIsNotNone(userApi.user_exists(user.username))
         self.assertTrue(userApi.profile_exists_by_username(user.username))
 
 
@@ -1288,7 +1294,8 @@ class HRTest(TestCase):
         response = self.client.get(reverse('administrators:admin_docs'))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, USERS[0])
-        self.assertEqual( len(response.context['users']), 164 )
+        self.assertEqual( len(response.context['users']), settings.PAGE_SIZE )
+        self.assertEqual( len(userApi.get_users()), 164 )
 
     def test_view_confidentiality(self):
         print('\n- Test: display user\'s confidentiality')
@@ -1303,7 +1310,7 @@ class HRTest(TestCase):
         print('\n- Test: edit user\'s confidentiality')
         self.login()
 
-        user = userApi.get_user_by_username(USERS[2])
+        user = userApi.get_user(USERS[2], 'username')
         confidentiality = userApi.has_user_confidentiality_created(user)
         self.assertIsNone(confidentiality)
 
@@ -1347,7 +1354,7 @@ class HRTest(TestCase):
         print('\n- Test: delete union and other correspondence file')
         self.login()
 
-        user = userApi.get_user_by_username(USERS[2])
+        user = userApi.get_user(USERS[2], 'username')
         data = {
             'user': user.id,
             'union_correspondence': SimpleUploadedFile('compression_agreement.pdf', b'file_content', content_type='application/pdf')
@@ -1373,7 +1380,7 @@ class HRTest(TestCase):
         print('\n- Test: delete compression agreement file')
         self.login()
 
-        user = userApi.get_user_by_username(USERS[2])
+        user = userApi.get_user(USERS[2], 'username')
         data = {
             'user': user.id,
             'compression_agreement': SimpleUploadedFile('compression_agreement.pdf', b'file_content', content_type='application/pdf')
@@ -1400,7 +1407,7 @@ class CourseTest(TestCase):
     @classmethod
     def setUpTestData(cls):
         print('\nAdministators:Course testing has started ==>')
-        cls.user = userApi.get_user_by_username(USERS[0])
+        cls.user = userApi.get_user(USERS[0], 'username')
 
     def login(self, username=None, password=None):
         if username and password:
@@ -1436,7 +1443,8 @@ class CourseTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, USERS[0])
         self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
-        self.assertEqual( len(response.context['courses']), 709 )
+        self.assertEqual( len(response.context['courses']), settings.PAGE_SIZE )
+        self.assertEqual( len(adminApi.get_courses()), 709 )
 
     def test_create_course(self):
         print('\n- Test: Create a course')
@@ -1462,7 +1470,8 @@ class CourseTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, USERS[0])
         self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
-        self.assertEqual( len(response.context['courses']), total_courses + 1 )
+        self.assertEqual( len(response.context['courses']), settings.PAGE_SIZE )
+        self.assertEqual( len(adminApi.get_courses()), total_courses + 1 )
 
         # create the same data for checking duplicated data
         response = self.client.post( reverse('administrators:create_course'), data=urlencode(data), content_type=ContentType )
@@ -1526,7 +1535,8 @@ class CourseTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, USERS[0])
         self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
-        self.assertEqual( len(response.context['courses']), total_courses - 1 )
+        self.assertEqual( len(response.context['courses']), settings.PAGE_SIZE )
+        self.assertEqual( len(adminApi.get_courses()), total_courses - 1 )
 
     def test_delete_not_existing_course(self):
         print('\n- Test: delete a not existing course')
@@ -1588,7 +1598,7 @@ class PreparationTest(TestCase):
     @classmethod
     def setUpTestData(cls):
         print('\nAdministators:Preparation testing has started ==>')
-        cls.user = userApi.get_user_by_username(USERS[0])
+        cls.user = userApi.get_user(USERS[0], 'username')
 
     def login(self, username=None, password=None):
         if username and password:

@@ -3,7 +3,7 @@
 
 {% include 'administrators/_menu.html' %}
 <div>
-  {% include 'ta_app/pages/_header.html' with title='All Courses' text=courses|length %}
+  {% include 'ta_app/pages/_header.html' with title='All Courses' %}
 
   <div class="bg-prompt">
     <div class="prompt p-4 text-center mb-4">
@@ -13,55 +13,103 @@
     </div>
   </div>
 
-  <div>
-    <table
-      class="table table-bordered table-hover table-striped table-responsive-md text-center"
-      data-toggle="table"
-      data-sortable="true"
-      data-classes=""
-      data-pagination="true"
-      data-search="true"
-      data-page-size="50"
-      data-page-list="[50, 100, 200, all]"
-      data-show-export="true"
-      data-show-columns="true"
-    >
-      <thead>
-        <tr>
-          <th data-sortable="true">ID</th>
-          <th data-sortable="true">Code</th>
-          <th data-sortable="true">Number</th>
-          <th data-sortable="true">Section</th>
-          <th data-sortable="true">Term</th>
-          <th data-sortable="true">Name</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for course in courses %}
-          <tr>
-            <td>{{ course.id }}</td>
-            <td>{{ course.code }}</td>
-            <td>{{ course.number }}</td>
-            <td>{{ course.section }}</td>
-            <td>{{ course.term.name }} ({{ course.term.code }})</td>
-            <td class="text-left">{{ course.name }}</td>
-            <td>
-              <div class="btn-toolbar">
-                <a class="btn btn-xs btn-link mr-2" href="{% url 'administrators:edit_course' course.slug %}">Edit</a>
+  <div class="search-field bg-light-gray p-4">
+    <form method="GET">
+      <input type="text" name="term" value="{{ request.GET.term }}" placeholder="Term" /> <br />
+      <input type="text" name="code" value="{{ request.GET.code }}" placeholder="Job Code" /> and
+      <input type="text" name="number" value="{{ request.GET.number }}" placeholder="Job Number" /> and
+      <input type="text" name="section" value="{{ request.GET.section }}" placeholder="Job Section" /> <br />
+      <input type="text" name="name" value="{{ request.GET.name }}" placeholder="Name" /> <br />
 
-                <form action="{% url 'administrators:delete_course' %}" method="post" onsubmit="return confirm('Are you sure to delete {{ course.code }} {{ course.number }} {{ course.section }} - {{ course.name }}?');">
-                  {% csrf_token %}
-                  <input type="hidden" name="course" value="{{ course.id }}" />
-                  <input class="btn btn-xs btn-danger" type="submit" value="Delete" />
-                </form>
-              </div>
-            </td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+      <button class="btn btn-sm btn-secondary" type="submit">Search</button>
+      <a class="btn btn-sm btn-light" href="{% url 'administrators:all_courses' %}">Clear</a>
+    </form>
   </div>
+  <div>{{ courses|length }} row{% if jobs|length > 1 %}s  {% endif %} in this page</div>
+
+  <table
+    class="table table-bordered table-hover table-striped table-responsive-md text-center"
+    data-toggle="table"
+    data-sortable="true"
+    data-classes=""
+    data-show-export="true"
+    data-show-columns="true"
+  >
+    <thead>
+      <tr>
+        <th data-sortable="true">ID</th>
+        <th data-sortable="true">Code</th>
+        <th data-sortable="true">Number</th>
+        <th data-sortable="true">Section</th>
+        <th data-sortable="true">Term</th>
+        <th data-sortable="true">Name</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for course in courses %}
+        <tr>
+          <td>{{ course.id }}</td>
+          <td>{{ course.code }}</td>
+          <td>{{ course.number }}</td>
+          <td>{{ course.section }}</td>
+          <td>{{ course.term.name }} ({{ course.term.code }})</td>
+          <td class="text-left">{{ course.name }}</td>
+          <td>
+            <div class="btn-toolbar">
+              <a class="btn btn-xs btn-link mr-2" href="{% url 'administrators:edit_course' course.slug %}">Edit</a>
+
+              <form action="{% url 'administrators:delete_course' %}" method="post" onsubmit="return confirm('Are you sure to delete {{ course.code }} {{ course.number }} {{ course.section }} - {{ course.name }}?');">
+                {% csrf_token %}
+                <input type="hidden" name="course" value="{{ course.id }}" />
+                <input class="btn btn-xs btn-danger" type="submit" value="Delete" />
+              </form>
+            </div>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% if courses.has_other_pages %}
+    <nav class="table-paginator" aria-label="Page navigation Search results pages">
+      <ul class="pagination justify-content-center">
+
+    		{% if courses.has_previous %}
+          <li class="page-item">
+    				<a class="page-link" href="?page={{ courses.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">&laquo;</a>
+    			</li>
+        {% else %}
+          <li class="page-item disabled">
+    				<span class="page-link">&laquo;</span>
+    			</li>
+        {% endif %}
+
+    		{% for i in courses.paginator.page_range %}
+          {% if courses.number == i %}
+            <li class="page-item active">
+    					<span class="page-link" >{{ i }} <span class="sr-only">(current)</span></span>
+    				</li>
+          {% else %}
+            <li class="page-item">
+    					<a class="page-link" href="?page={{ i }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">{{ i }}</a>
+    				</li>
+          {% endif %}
+        {% endfor %}
+
+        {% if courses.has_next %}
+          <li class="page-item">
+    				<a class="page-link" href="?page={{ courses.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">&raquo;</a>
+    			</li>
+        {% else %}
+          <li class="page-item disabled">
+    				<span class="page-link">&raquo;</span>
+    			</li>
+        {% endif %}
+
+      </ul>
+    </nav>
+  {% endif %}
 
 </div>
 

@@ -3,55 +3,53 @@
 
 {% include 'administrators/_menu.html' %}
 <div>
-  {% include 'ta_app/pages/_header.html' with title='Jobs by Student' text=students|length %}
+  {% include 'ta_app/pages/_header.html' with title='Jobs by Student' text=users|length %}
 
-  <div>
+  {% include 'ta_app/users/_search_fields.html' with data=users path='student_jobs' %}
 
-    <table
-      class="table table-bordered table-hover table-striped table-responsive-md text-center"
-      data-toggle="table"
-      data-sortable="true"
-      data-classes=""
-      data-pagination="true"
-      data-search="true"
-      data-page-size="50"
-      data-page-list="[50, 100, 200, all]"
-      data-show-export="true"
-      data-show-columns="true"
-    >
-      <thead>
+  <table
+    class="table table-bordered table-hover table-striped table-responsive-md text-center"
+    data-toggle="table"
+    data-sortable="true"
+    data-classes=""
+    data-show-export="true"
+    data-show-columns="true"
+  >
+    <thead>
+      <tr>
+        <th data-sortable="true">User ID</th>
+        <th data-sortable="true">First Name</th>
+        <th data-sortable="true">Last Name</th>
+        <th data-sortable="true">Preferred Name</th>
+        <th data-sortable="true">CWL</th>
+        <th data-sortable="true">E-mail</th>
+        <th data-sortable="true">Jobs</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for student in users %}
         <tr>
-          <th data-sortable="true">User ID</th>
-          <th data-sortable="true">First Name</th>
-          <th data-sortable="true">Last Name</th>
-          <th data-sortable="true">CWL</th>
-          <th data-sortable="true">E-mail</th>
-          <th data-sortable="true">Jobs</th>
+          <td>
+            <a class="btn btn-xs btn-info" href="{% url 'administrators:show_user' username=student.username path='student' %}">{{ student.id }}</a>
+          </td>
+          <td>{{ student.first_name }}</td>
+          <td>{{ student.last_name }}</td>
+          <td>{{ student.profile.preferred_name }}</td>
+          <td>{{ student.username }}</td>
+          <td>{{ student.email }}</td>
+          <td>
+            {% if student.application_set.count > 0 %}
+              <a class="btn btn-xs btn-info" href="{% url 'administrators:student_jobs_details' student.username %}">{{ student.application_set.count }}</a>
+            {% else %}
+              {{ student.application_set.count }}
+            {% endif %}
+          </td>
         </tr>
-      </thead>
-      <tbody>
-        {% for student in students %}
-          <tr>
-            <td>
-              <a class="btn btn-xs btn-info" href="{% url 'administrators:show_user' username=student.username path='student' %}">{{ student.id }}</a>
-            </td>
-            <td>{{ student.first_name }}</td>
-            <td>{{ student.last_name }}</td>
-            <td>{{ student.username }}</td>
-            <td>{{ student.email }}</td>
-            <td>
-              {% if student.application_set.count > 0 %}
-                <a class="btn btn-xs btn-info" href="{% url 'administrators:student_jobs_details' student.username %}">{{ student.application_set.count }}</a>
-              {% else %}
-                {{ student.application_set.count }}
-              {% endif %}
-            </td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+      {% endfor %}
+    </tbody>
+  </table>
 
-  </div>
+  {% include 'ta_app/pages/_table_paginator.html' with data=users %}
 
 </div>
 

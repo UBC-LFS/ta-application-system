@@ -22,7 +22,7 @@ class HumanResourceTest(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        cls.user = userApi.get_user_by_username(USER)
+        cls.user = userApi.get_user(USER, 'username')
 
     def login(self, username=None, password=None):
         if username and password:

@@ -15,11 +15,11 @@ from users import api as userApi
 @require_http_methods(['GET'])
 def index(request):
     ''' index page '''
-    loggedin_user = userApi.loggedin_user(request.user)
-    if 'HR' not in loggedin_user.roles: raise PermissionDenied
+    request.user.roles = request.session['loggedin_user']['roles']
+    if 'HR' not in request.user.roles: raise PermissionDenied
 
     return render(request, 'human_resources/index.html', {
-        'loggedin_user': loggedin_user
+        'loggedin_user': request.user
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -27,11 +27,11 @@ def index(request):
 @require_http_methods(['GET'])
 def all_users(request):
     ''' Display all users '''
-    loggedin_user = userApi.loggedin_user(request.user)
-    if 'HR' not in loggedin_user.roles: raise PermissionDenied
+    request.user.roles = request.session['loggedin_user']['roles']
+    if 'HR' not in request.user.roles: raise PermissionDenied
 
     return render(request, 'human_resources/all_users.html', {
-        'loggedin_user': loggedin_user,
+        'loggedin_user': request.user,
         'users': userApi.get_users()
     })
 
@@ -40,11 +40,14 @@ def all_users(request):
 @require_http_methods(['GET'])
 def show_user(request, username):
     ''' Display an user's details '''
-    loggedin_user = userApi.loggedin_user(request.user)
+    request.user.roles = request.session['loggedin_user']['roles']
+    if 'HR' not in request.user.roles: raise PermissionDenied
+
+    user = userApi.get_user(username, 'username')
+    user.is_student = userApi.user_has_role(user ,'Student')
     return render(request, 'human_resources/show_user.html', {
-        'loggedin_user': loggedin_user,
-        'user': userApi.get_user(username, 'username')
-        #'user': userApi.get_user_by_username_with_resume(username),
+        'loggedin_user': request.user,
+        'user': userApi.add_resume(user)
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -52,13 +55,12 @@ def show_user(request, username):
 @require_http_methods(['GET'])
 def view_confidentiality(request, username):
     ''' display an user's confidentiality '''
-    loggedin_user = userApi.loggedin_user(request.user)
-    if not userApi.is_admin(loggedin_user) and 'HR' not in loggedin_user.roles: raise PermissionDenied
+    request.user.roles = request.session['loggedin_user']['roles']
+    if 'HR' not in request.user.roles: raise PermissionDenied
 
     user = userApi.get_user(username, 'username')
-    user = userApi.add_confidentiality(user)
     return render(request, 'human_resources/view_confidentiality.html', {
-        'loggedin_user': loggedin_user,
-        'user': user
+        'loggedin_user': request.user,
+        'user': userApi.add_confidentiality(user)
         #'user': userApi.get_user_with_confidentiality(username)
     })

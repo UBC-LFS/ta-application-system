@@ -31,22 +31,38 @@ def is_admin(user):
         return True
     return False
 
+def get_user_roles(user):
+    ''' Add roles into an user '''
+    roles = []
+    for role in user.profile.roles.all():
+        if role.name == Role.SUPERADMIN:
+            roles.append(Role.SUPERADMIN)
+        elif role.name == Role.ADMIN:
+            roles.append(Role.ADMIN)
+        elif role.name == Role.HR:
+            roles.append(Role.HR)
+        elif role.name == Role.INSTRUCTOR:
+            roles.append(Role.INSTRUCTOR)
+        elif role.name == Role.STUDENT:
+            roles.append(Role.STUDENT)
+    return roles
+
 def loggedin_user(user):
     ''' Get a logged in user '''
     if not is_valid_user(user): PermissionDenied
 
     roles = []
     for role in user.profile.roles.all():
-        if role.name == Role.STUDENT:
-            roles.append(Role.STUDENT)
-        elif role.name == Role.INSTRUCTOR:
-            roles.append(Role.INSTRUCTOR)
-        elif role.name == Role.HR:
-            roles.append(Role.HR)
+        if role.name == Role.SUPERADMIN:
+            roles.append(Role.SUPERADMIN)
         elif role.name == Role.ADMIN:
             roles.append(Role.ADMIN)
-        elif role.name == Role.SUPERADMIN:
-            roles.append(Role.SUPERADMIN)
+        elif role.name == Role.HR:
+            roles.append(Role.HR)
+        elif role.name == Role.INSTRUCTOR:
+            roles.append(Role.INSTRUCTOR)
+        elif role.name == Role.STUDENT:
+            roles.append(Role.STUDENT)
     user.roles = roles
 
     return user
@@ -58,6 +74,10 @@ def get_user(input, by=None):
     if by == 'username': return get_object_or_404(User, username=input)
     return get_object_or_404(User, id=input)
 
+def user_exists(username):
+    ''' Check user exists '''
+    if User.objects.filter(username=username).exists(): return User.objects.get(username=username)
+    return None
 
 
 # Resume
@@ -79,6 +99,11 @@ def delete_user_resume(input):
         user.resume.uploaded.delete()
         deleted = user.resume.delete()
         return True if deleted and not bool(user.resume.uploaded) else False
+    return False
+
+
+def user_has_role(user, role):
+    if user.profile.roles.filter(name=role).exists(): return True
     return False
 
 
@@ -157,7 +182,7 @@ def add_confidentiality_all(user):
 def get_user_with_confidentiality(username, role=None):
     ''' Get a user with resume, sin and study permit by username '''
 
-    user = get_user_by_username(username)
+    user = get_user(username, 'username')
 
     if role == None and has_user_resume_created(user):
         if bool(user.resume.uploaded):
@@ -193,30 +218,9 @@ def get_user_with_confidentiality(username, role=None):
 
 
 
-
-
-
-# ---- to be removed
-def get_user_by_username(username):
-    ''' Get a user by username '''
-    return get_object_or_404(User, username=username)
-
-def get_user_by_username_with_resume(username):
-    ''' '''
-    user = get_user(username, 'username')
-    if has_user_resume_created(user) and bool(user.resume.uploaded):
-        user.resume_filename = os.path.basename(user.resume.uploaded.name)
-    else:
-        user.resume_filename = None
-    return user
-# ---- to be removed
-
-
-
-
 def get_user_by_username_with_statistics(username):
     ''' '''
-    user = get_user_by_username(username)
+    user = get_user(username, 'username')
 
     count = 0
     for job in user.job_set.all():
@@ -250,19 +254,6 @@ def get_users_with_data():
 """
 
 
-def get_users_with_confidentiality():
-    ''' Get all users with admin docs '''
-    users = get_users()
-
-    for user in users:
-        if has_user_confidentiality_created(user):
-            user.is_new_member = False
-        else:
-            user.is_new_member = True
-
-    return users
-
-
 def get_users(option=None):
     ''' Get all users '''
     if option == 'trim':
@@ -285,7 +276,7 @@ def create_user(data):
 
     if user:
         user_profile_form = UserProfileForm({
-            'student_number': data['student_number'],
+            'student_number': None,
             'preferred_name': None,
             'roles': [ ROLES['Student'] ]
         })
@@ -347,11 +338,7 @@ def has_user_confidentiality_created(user):
         return None
 
 
-def username_exists(username):
-    ''' Check username exists '''
-    user = User.objects.filter(username=username)
-    if user.exists(): return user
-    return False
+
 
 
 def profile_exists_by_username(username):
@@ -369,17 +356,6 @@ def profile_exists_by_username(username):
 # for testing
 
 
-def user_exists(user):
-    """ Check user exists """
-    if User.objects.filter(id=user.id).exists():
-        return True
-    return False
-
-def user_exists_by_username(username):
-    ''' Check username exists '''
-    if User.objects.filter(username=username).exists():
-        return True
-    return False
 
 def profile_exists(user):
     """ Check user's profile exists """
@@ -425,14 +401,9 @@ def delete_users():
 
 # Profile
 
-def get_instructors():
-    ''' Get instructors '''
-    return User.objects.filter(profile__roles__name='Instructor').order_by('last_name')
-
-def get_students():
-    ''' Get students '''
-    return User.objects.filter(profile__roles__name='Student').order_by('last_name')
-
+def get_users_by_role(role):
+    ''' Get users by role '''
+    return User.objects.filter(profile__roles__name=role).order_by('last_name')
 
 def update_user_profile_roles(profile, old_roles, data):
     profile.roles.remove( *old_roles )
@@ -571,8 +542,8 @@ def trim_profile_resume_confidentiality(user_id):
     ''' Trim user's profile, resume and confidentiality '''
     user = get_user(user_id)
 
-    sin = delete_user_sin(user)
-    study_permit = delete_user_study_permit(user)
+    sin = delete_user_sin(user.username)
+    study_permit = delete_user_study_permit(user.username)
     user.confidentiality.delete()
 
     resume = delete_user_resume(user)
@@ -583,9 +554,9 @@ def trim_profile_resume_confidentiality(user_id):
 
 
 
-def delete_user_sin(user):
+def delete_user_sin(username):
     ''' Delete user's SIN '''
-    if not isinstance(user, User): user = get_user_by_username(user)
+    user = get_user(username, 'username')
 
     if has_user_confidentiality_created(user) and bool(user.confidentiality.sin):
         user.confidentiality.sin.close()
@@ -602,7 +573,7 @@ def delete_user_sin(user):
 
 def delete_user_study_permit(user):
     ''' Delete user's study permit '''
-    if not isinstance(user, User): user = get_user_by_username(user)
+    if not isinstance(user, User): user = get_user(username, 'username')
 
     if has_user_confidentiality_created(user) and bool(user.confidentiality.study_permit):
         user.confidentiality.study_permit.close()
@@ -618,7 +589,7 @@ def delete_user_study_permit(user):
 
 def delete_union_correspondence(username):
     ''' Delete union_correspondence '''
-    user = get_user_by_username(username)
+    user = get_user(username, 'username')
 
     if has_user_confidentiality_created(user) and bool(user.confidentiality.union_correspondence):
         user.confidentiality.union_correspondence.close()
@@ -634,7 +605,7 @@ def delete_union_correspondence(username):
 
 def delete_compression_agreement(username):
     ''' Delete compression_agreement '''
-    user = get_user_by_username(username)
+    user = get_user(username, 'username')
 
     if has_user_confidentiality_created(user) and bool(user.confidentiality.compression_agreement):
         user.confidentiality.compression_agreement.close()
