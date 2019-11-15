@@ -465,6 +465,14 @@ hr.dotted {
   width: calc(100% - 300px);
 }
 
+#impersonate-card {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 500px;
+  text-align: center;
+}
+
 /* .sidebar {
   border: 1px solid #ccc;
   border-radius: 4px;

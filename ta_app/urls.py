@@ -16,15 +16,19 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from . import views
+from django.conf.urls import include as confinclude
+from django.conf.urls import url
 
 
 urlpatterns = [
+    url(r'^admin/', admin.site.urls),
+    url(r'^impersonate/', confinclude('impersonate.urls')),
     path('accounts/', include('accounts.urls')),
     path('administrators/', include('administrators.urls')),
     path('human_resources/', include('human_resources.urls')),
     path('instructors/', include('instructors.urls')),
     path('students/', include('students.urls')),
-    path('summernote/', include('django_summernote.urls'))
+    path('summernote/', include('django_summernote.urls')),
     #path('admin/', admin.site.urls),
     #path('accounts/admin/', include('django.contrib.auth.urls'))
 ]

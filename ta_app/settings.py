@@ -56,7 +56,8 @@ INSTALLED_APPS = [
     'human_resources',
     'instructors',
     'students',
-    'django_summernote'
+    'django_summernote',
+    'impersonate'
 ]
 
 MIDDLEWARE = [
@@ -67,7 +68,13 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'impersonate.middleware.ImpersonateMiddleware'
 ]
+
+IMPERSONATE = {
+    'REDIRECT_FIELD_NAME': 'next',
+    'PAGINATE_COUNT': 10,
+}
 
 ROOT_URLCONF = 'ta_app.urls'
 

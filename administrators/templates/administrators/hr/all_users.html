@@ -66,8 +66,19 @@
               <form action="{% url 'administrators:delete_user' %}" method="post" onsubmit="return confirm('Are you sure to delete {{ user.first_name }} {{ user.last_name }} ({{ user.username }})?');">
                 {% csrf_token %}
                 <input type="hidden" name="user" value="{{ user.id }}" />
-                <input class="btn btn-xs btn-danger" type="submit" value="Delete" />
+                <input class="btn btn-xs btn-danger mr-2" type="submit" value="Delete" />
               </form>
+
+              {% for role in user.profile.roles.all %}
+                {% if role.name == "Student" %}
+                  <a class="btn btn-xs btn-success mr-2" href="/impersonate/{{ user.id }}/?next=/students/">Login</a>
+                {% endif %}
+                {% if role.name == "Instructor" %}
+                  <a class="btn btn-xs btn-success mr-2" href="/impersonate/{{ user.id }}/?next=/instructors/">Login</a>
+                  {% endif %}
+              {% empty %}
+                None
+              {% endfor %}
             </div>
           </td>
         </tr>
