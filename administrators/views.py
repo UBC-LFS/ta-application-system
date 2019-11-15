@@ -467,8 +467,7 @@ def instructor_jobs(request):
     ''' Display jobs by instructor '''
     loggedin_user = userApi.loggedin_user(request.user)
     if not userApi.is_admin(loggedin_user): raise PermissionDenied
-
-    instructors = userApi.get_instructors()
+    
     return render(request, 'administrators/jobs/instructor_jobs.html', {
         'loggedin_user': loggedin_user,
         'users': userApi.get_users_by_role('Instructor')
