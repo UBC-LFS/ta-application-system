@@ -15,20 +15,21 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from django.conf.urls import include as confinclude
-from django.conf.urls import url
+#from django.conf.urls import include as confinclude
+#from django.conf.urls import url
 from django.conf.urls import handler403, handler403
 from ta_app import views, saml_views
 
 urlpatterns = [
-    url(r'^admin/', admin.site.urls),
-    url(r'^impersonate/', confinclude('impersonate.urls')),
+    #url(r'^admin/', admin.site.urls),
+    #url(r'^impersonate/', confinclude('impersonate.urls')),
     path('accounts/', include('accounts.urls')),
     path('administrators/', include('administrators.urls')),
     path('human_resources/', include('human_resources.urls')),
     path('instructors/', include('instructors.urls')),
     path('students/', include('students.urls')),
     path('summernote/', include('django_summernote.urls')),
+    path('impersonate/', include('impersonate.urls')),
     path('saml/', saml_views.saml, name='saml'),
     path('attrs/', saml_views.attrs, name='attrs'),
     path('metadata/', saml_views.metadata, name='metadata'),

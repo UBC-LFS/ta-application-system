@@ -2,6 +2,7 @@
 
 This project is a web-based TA hiring process system.
 
+
 ## Login locally
 
 1. Create a superuser
@@ -95,9 +96,16 @@ $ python manage.py makemigrations
 $ python manage.py migrate
 ```
 
-10. Add valid certificate information
+10. Load valid information
 ```
-$ python manage.py loaddata certs
+$ python manage.py loaddata users/fixtures/*.json
+$ python manage.py loaddata sessions.json
+$ python manage.py loaddata terms.json
+$ python manage.py loaddata course_codes.json
+$ python manage.py loaddata course_numbers.json
+$ python manage.py loaddata course_sections.json
+$ python manage.py loaddata courses.json
+$ python manage.py loaddata classifications.json
 ```
 
 11. Update *settings.json* and *advanced_settings.json* files in the **saml** folder

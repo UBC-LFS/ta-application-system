@@ -91,7 +91,7 @@ MIDDLEWARE = [
 
 IMPERSONATE = {
     'REDIRECT_FIELD_NAME': 'next',
-    'PAGINATE_COUNT': 10,
+    #'PAGINATE_COUNT': 10,
 }
 
 ROOT_URLCONF = 'ta_app.urls'

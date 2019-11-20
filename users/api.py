@@ -14,8 +14,6 @@ from users.forms import *
 from administrators.forms import ROLES
 from datetime import datetime, date, timedelta
 
-# to be removed
-from django.utils.crypto import get_random_string
 
 # for auth
 
@@ -76,7 +74,8 @@ def get_user(input, by=None):
 
 def user_exists(username):
     ''' Check user exists '''
-    if User.objects.filter(username=username).exists(): return User.objects.get(username=username)
+    if User.objects.filter(username=username).exists(): 
+        return User.objects.get(username=username)
     return None
 
 
@@ -266,12 +265,24 @@ def get_users(option=None):
 
 def create_user(data):
     ''' Create a user when receiving data from SAML '''
+    first_name = None
+    last_name = None
+    email = None
+    username = None
+    student_name = None
+    employee_number = None
+    if 'first_name' in data.keys(): first_name = data['first_name']
+    if 'last_name' in data.keys(): last_name = data['last_name']
+    if 'email' in data.keys(): email = data['email']
+    if 'username' in data.keys(): username = data['username']
+    if 'student_name' in data.keys(): student_name = data['student_name']
+
     user = User.objects.create(
-        first_name = data['first_name'],
-        last_name = data['last_name'],
-        email = data['email'],
-        username = data['username'],
-        password = make_password(settings.USER_PASSWORD)
+        first_name=first_name, 
+        last_name=last_name, 
+        email=email, 
+        username=username, 
+        password=make_password(settings.USER_PASSWORD)
     )
 
     if user:
@@ -285,18 +296,20 @@ def create_user(data):
             profile = create_profile(user, user_profile_form.cleaned_data)
             if profile: return user
 
+        if employee_number:
+            user.confidentiality.objects.create(
+                employee_number=employee_number, 
+                created_at=datetime.now(), 
+                updated_at=datetime.now()
+            )
+
     return False
 
 def create_profile(user, data):
     ''' Create an user's profile '''
-
-    # TODO: modify student_number coming from SAML's data
-    #student_number = data['student_number']
     student_number = None
     if data['student_number']:
         student_number = data['student_number']
-    else:
-        student_number = get_random_string(length=8)
 
     profile = Profile.objects.create(user_id=user.id, student_number=student_number, preferred_name=data['preferred_name'], is_trimmed=False)
     profile.roles.add( *data['roles'] )
@@ -661,15 +674,10 @@ def get_confidentiality(user):
 
 def updated_confidentiality(user, post, files, data):
     ''' Update user's confidentiality '''
-    print('updated_confidentiality-----------')
     update_fields = []
     sin_expiry_date = create_expiry_date(post['sin_expiry_date_year'], post['sin_expiry_date_month'], post['sin_expiry_date_day'])
     study_permit_expiry_date = create_expiry_date(post['study_permit_expiry_date_year'], post['study_permit_expiry_date_month'], post['study_permit_expiry_date_day'])
 
-    print(data['is_international'])
-    print(data['employee_number'])
-    print(data['sin_expiry_date'])
-    print(data['study_permit_expiry_date'])
 
     if data['is_international'] and data['is_international'] != user.confidentiality.is_international:
         user.confidentiality.is_international = data['is_international']
@@ -679,14 +687,10 @@ def updated_confidentiality(user, post, files, data):
         user.confidentiality.employee_number = data['employee_number']
         update_fields.append('employee_number')
 
-    print('user.confidentiality.sin_expiry_date ', user.confidentiality.sin_expiry_date)
-    print(data['sin_expiry_date'] != user.confidentiality.sin_expiry_date)
     if data['sin_expiry_date'] and data['sin_expiry_date'] != user.confidentiality.sin_expiry_date:
         user.confidentiality.sin_expiry_date = data['sin_expiry_date']
         update_fields.append('sin_expiry_date')
 
-    print('user.confidentiality.study_permit_expiry_date ', user.confidentiality.study_permit_expiry_date)
-    print(data['study_permit_expiry_date'] != user.confidentiality.study_permit_expiry_date)
     if data['study_permit_expiry_date'] and data['study_permit_expiry_date'] != user.confidentiality.study_permit_expiry_date:
         user.confidentiality.study_permit_expiry_date = data['study_permit_expiry_date']
         update_fields.append('study_permit_expiry_date')
@@ -699,9 +703,6 @@ def updated_confidentiality(user, post, files, data):
         user.confidentiality.study_permit = data['study_permit']
         update_fields.append('study_permit')
 
-
-    print('update_fields 1 ', update_fields)
-
     if len(update_fields) > 0:
         if not data['is_international']:
             user.confidentiality.sin_expiry_date = None
@@ -712,7 +713,6 @@ def updated_confidentiality(user, post, files, data):
             if 'study_permit_expiry_date' not in update_fields:
                 update_fields.append('study_permit_expiry_date')
 
-        print('update_fields 2 ', update_fields)
         user.confidentiality.save(update_fields=update_fields)
 
     return True

@@ -1,14 +1,14 @@
 {% if data == 'Superadmin' %}
-  <span class="badge badge-orange">{{ data.upper }}</span>
+  <span class="badge badge-orange">{{ data.upper }}</span><br />
 
 {% elif data == 'Admin' %}
-  <span class="badge badge-primary">{{ data.upper }}</span>
+  <span class="badge badge-primary">{{ data.upper }}</span><br />
 
 {% elif data == 'HR' %}
-  <span class="badge badge-warning">{{ data.upper }}</span>
+  <span class="badge badge-warning">{{ data.upper }}</span><br />
 
 {% elif data == 'Instructor' %}
-  <span class="badge badge-success">{{ data.upper }}</span>
+  <span class="badge badge-success">{{ data.upper }}</span><br />
 
 {% else %}
   <span class="badge badge-light text-dark">{{ data.upper }}</span>

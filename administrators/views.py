@@ -1449,12 +1449,23 @@ def edit_user(request, username):
 
             user_profile_edit_form = UserProfileEditForm(request.POST, instance=user.profile)
             if user_profile_edit_form.is_valid():
+                data = user_profile_edit_form.cleaned_data
                 updated_profile = user_profile_edit_form.save(commit=False)
                 updated_profile.updated_at = datetime.now()
                 updated_profile.save()
 
+                # Important: only superuser can run user switching
+                roles = [ role.name for role in list(data.get('roles')) ]
+                is_superuser = False
+                if Role.ADMIN in roles or Role.SUPERADMIN in roles:
+                    is_superuser = True
+                
+                if is_superuser != updated_user.is_superuser:
+                    updated_user.is_superuser = is_superuser
+                    updated_user.save(update_fields=['is_superuser'])
+
                 if updated_profile:
-                    updated = userApi.update_user_profile_roles(updated_profile, profile_roles, user_profile_edit_form.cleaned_data)
+                    updated = userApi.update_user_profile_roles(updated_profile, profile_roles, data)
                     if updated:
                         messages.success(request, 'Success! Roles of {0} updated'.format(user.username))
                         return redirect('administrators:all_users')
