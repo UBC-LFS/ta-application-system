@@ -96,19 +96,12 @@ $ python manage.py makemigrations
 $ python manage.py migrate
 ```
 
-10. Load valid information
+10. Load data
 ```
-$ python manage.py loaddata users/fixtures/*.json
-$ python manage.py loaddata sessions.json
-$ python manage.py loaddata terms.json
-$ python manage.py loaddata course_codes.json
-$ python manage.py loaddata course_numbers.json
-$ python manage.py loaddata course_sections.json
-$ python manage.py loaddata courses.json
-$ python manage.py loaddata classifications.json
+$ python manage.py loaddata ta_app/fixtures/*.json
 ```
 
-11. Update *settings.json* and *advanced_settings.json* files in the **saml** folder
+11. Update *settings.json* and *advanced_settings.json* files in the **saml_prod** folder
 
 12. See a deployment checklist and change your settings
 ```

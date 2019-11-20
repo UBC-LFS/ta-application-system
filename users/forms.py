@@ -347,7 +347,7 @@ class AdminDocumentsForm(forms.ModelForm):
             'pin': 'Optional. Maximum 4 digits long',
             'tasm': 'Optional',
             'eform': 'Optional. Maximum 6 digits long',
-            'speed_chart': 'Optional',
+            'speed_chart': 'Optional. Maximum 4 digits long',
             'union_correspondence': 'Optional. Valid file format: PDF only',
             'compression_agreement': 'Optional. Valid file format: PDF only',
             'processing_note': 'Optional'
