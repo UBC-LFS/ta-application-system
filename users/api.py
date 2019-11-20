@@ -23,10 +23,13 @@ def is_valid_user(user):
         return False
     return True
 
-def is_admin(user):
+def is_admin(user, option=None):
     ''' Check if an user is an Admin or Superadmin '''
-    if 'Admin' in user.roles or 'Superadmin' in user.roles:
-        return True
+    if option == 'dict':
+        if 'Admin' in user['roles'] or 'Superadmin' in user['roles']: return True
+    else:
+        if 'Admin' in user.roles or 'Superadmin' in user.roles: return True
+
     return False
 
 def get_user_roles(user):
@@ -74,7 +77,7 @@ def get_user(input, by=None):
 
 def user_exists(username):
     ''' Check user exists '''
-    if User.objects.filter(username=username).exists(): 
+    if User.objects.filter(username=username).exists():
         return User.objects.get(username=username)
     return None
 
@@ -278,10 +281,10 @@ def create_user(data):
     if 'student_name' in data.keys(): student_name = data['student_name']
 
     user = User.objects.create(
-        first_name=first_name, 
-        last_name=last_name, 
-        email=email, 
-        username=username, 
+        first_name=first_name,
+        last_name=last_name,
+        email=email,
+        username=username,
         password=make_password(settings.USER_PASSWORD)
     )
 
@@ -298,8 +301,8 @@ def create_user(data):
 
         if employee_number:
             user.confidentiality.objects.create(
-                employee_number=employee_number, 
-                created_at=datetime.now(), 
+                employee_number=employee_number,
+                created_at=datetime.now(),
                 updated_at=datetime.now()
             )
 

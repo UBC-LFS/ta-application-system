@@ -24,7 +24,11 @@ from datetime import datetime
 @require_http_methods(['GET'])
 def index(request):
     ''' Index page of student's portal '''
-    request.user.roles = request.session['loggedin_user']['roles']
+    if request.user.is_impersonate:
+        if not userApi.is_admin(request.session['loggedin_user'], 'dict'): raise PermissionDenied
+        request.user.roles = userApi.get_user_roles(request.user)
+    else:
+        request.user.roles = request.session['loggedin_user']['roles']
     if 'Student' not in request.user.roles: raise PermissionDenied
 
     return render(request, 'students/index.html', {
@@ -37,7 +41,11 @@ def index(request):
 @require_http_methods(['GET'])
 def show_profile(request):
     ''' Display user profile '''
-    request.user.roles = request.session['loggedin_user']['roles']
+    if request.user.is_impersonate:
+        if not userApi.is_admin(request.session['loggedin_user'], 'dict'): raise PermissionDenied
+        request.user.roles = userApi.get_user_roles(request.user)
+    else:
+        request.user.roles = request.session['loggedin_user']['roles']
     if 'Student' not in request.user.roles: raise PermissionDenied
 
     request.user = userApi.add_resume(request.user)
@@ -52,7 +60,11 @@ def show_profile(request):
 @require_http_methods(['GET', 'POST'])
 def edit_profile(request):
     ''' Edit user's profile '''
-    request.user.roles = request.session['loggedin_user']['roles']
+    if request.user.is_impersonate:
+        if not userApi.is_admin(request.session['loggedin_user'], 'dict'): raise PermissionDenied
+        request.user.roles = userApi.get_user_roles(request.user)
+    else:
+        request.user.roles = request.session['loggedin_user']['roles']
     if 'Student' not in request.user.roles: raise PermissionDenied
 
     loggedin_user = request.user
@@ -94,17 +106,20 @@ def edit_profile(request):
 @require_http_methods(['POST'])
 def upload_resume(request):
     ''' Upload user's resume '''
-    request.user.roles = request.session['loggedin_user']['roles']
+    if request.user.is_impersonate:
+        if not userApi.is_admin(request.session['loggedin_user'], 'dict'): raise PermissionDenied
+        request.user.roles = userApi.get_user_roles(request.user)
+    else:
+        request.user.roles = request.session['loggedin_user']['roles']
     if 'Student' not in request.user.roles: raise PermissionDenied
 
     request.user = userApi.add_resume(request.user)
-    loggedin_user = request.user
     if request.method == 'POST':
         if len(request.FILES) == 0:
             messages.error(request, 'An error occurred. Please select your resume, then try again.')
             return redirect('students:show_profile')
 
-        if loggedin_user.resume_filename:
+        if request.user.resume_filename:
             messages.error(request, 'An error occurred. Please remove your previous resume, then try again.')
             return redirect('students:show_profile')
 
@@ -114,7 +129,7 @@ def upload_resume(request):
             resume.uploaded = request.FILES.get('uploaded')
             resume.save()
             if resume:
-                messages.success(request, 'Success! {0} - Resume uploaded'.format(loggedin_user.get_full_name()))
+                messages.success(request, 'Success! {0} - Resume uploaded'.format(request.user.get_full_name()))
             else:
                 messages.error(request, 'An error occurred while saving a resume.')
         else:
@@ -138,7 +153,11 @@ def download_resume(request, username, filename):
 @require_http_methods(['POST'])
 def delete_resume(request):
     ''' Delete user's resume '''
-    request.user.roles = request.session['loggedin_user']['roles']
+    if request.user.is_impersonate:
+        if not userApi.is_admin(request.session['loggedin_user'], 'dict'): raise PermissionDenied
+        request.user.roles = userApi.get_user_roles(request.user)
+    else:
+        request.user.roles = request.session['loggedin_user']['roles']
     if 'Student' not in request.user.roles: raise PermissionDenied
 
     if request.method == 'POST':
@@ -159,7 +178,11 @@ def delete_resume(request):
 @require_http_methods(['GET'])
 def show_confidentiality(request):
     ''' Display user's confidentiality '''
-    request.user.roles = request.session['loggedin_user']['roles']
+    if request.user.is_impersonate:
+        if not userApi.is_admin(request.session['loggedin_user'], 'dict'): raise PermissionDenied
+        request.user.roles = userApi.get_user_roles(request.user)
+    else:
+        request.user.roles = request.session['loggedin_user']['roles']
     if 'Student' not in request.user.roles: raise PermissionDenied
 
     request.user = userApi.add_confidentiality(request.user)
@@ -173,7 +196,11 @@ def show_confidentiality(request):
 @require_http_methods(['POST'])
 def check_confidentiality(request):
     ''' Check whether an international student or not '''
-    request.user.roles = request.session['loggedin_user']['roles']
+    if request.user.is_impersonate:
+        if not userApi.is_admin(request.session['loggedin_user'], 'dict'): raise PermissionDenied
+        request.user.roles = userApi.get_user_roles(request.user)
+    else:
+        request.user.roles = request.session['loggedin_user']['roles']
     if 'Student' not in request.user.roles: raise PermissionDenied
 
     if request.method == 'POST':
@@ -201,7 +228,11 @@ def check_confidentiality(request):
 @require_http_methods(['GET', 'POST'])
 def submit_confidentiality(request):
     ''' Submit user's confidentiality '''
-    request.user.roles = request.session['loggedin_user']['roles']
+    if request.user.is_impersonate:
+        if not userApi.is_admin(request.session['loggedin_user'], 'dict'): raise PermissionDenied
+        request.user.roles = userApi.get_user_roles(request.user)
+    else:
+        request.user.roles = request.session['loggedin_user']['roles']
     if 'Student' not in request.user.roles: raise PermissionDenied
 
     user = userApi.get_user(request.user.id)
@@ -252,7 +283,11 @@ def submit_confidentiality(request):
 @require_http_methods(['GET', 'POST'])
 def edit_confidentiality(request):
     ''' Edit user's confidentiality '''
-    request.user.roles = request.session['loggedin_user']['roles']
+    if request.user.is_impersonate:
+        if not userApi.is_admin(request.session['loggedin_user'], 'dict'): raise PermissionDenied
+        request.user.roles = userApi.get_user_roles(request.user)
+    else:
+        request.user.roles = request.session['loggedin_user']['roles']
     if 'Student' not in request.user.roles: raise PermissionDenied
 
     loggedin_user = request.user
@@ -262,14 +297,7 @@ def edit_confidentiality(request):
     if request.method == 'POST':
         form = ConfidentialityForm(request.POST, request.FILES, instance=request.user.confidentiality)
         if form.is_valid():
-
-            #print('post ', request.POST)
-            #print(request.FILES.get('sin'), request.FILES.get('study_permit'))
-
             data = form.cleaned_data
-            #print('data ', data)
-            #print(data.get('sin'), data.get('study_permit'))
-
             user_id = request.POST.get('user')
             user = userApi.get_user(user_id)
 
@@ -318,8 +346,6 @@ def edit_confidentiality(request):
                 updated_confidentiality.study_permit_expiry_date = data['study_permit_expiry_date']
                 update_fields.append('study_permit_expiry_date')
 
-            #print('update_fields 111', update_fields)
-
             if not data['is_international']:
                 updated_confidentiality.sin_expiry_date = None
                 if 'sin_expiry_date' not in update_fields: update_fields.append('sin_expiry_date')
@@ -330,7 +356,6 @@ def edit_confidentiality(request):
                     messages.error(request, 'An error occurred. If you are a Canadian Citizen or Permanent Resident, you won\'t need to update your Study Permit. If you have your Study Permit, please delete it, and then try it again.')
                     return redirect('students:edit_confidentiality')
 
-            #print('update_fields', update_fields)
             updated_confidentiality.save(update_fields=update_fields)
 
             if updated_confidentiality:
@@ -373,7 +398,11 @@ def download_sin(request, username, filename):
 @require_http_methods(['POST'])
 def delete_sin(request):
     ''' Delete a SIN '''
-    request.user.roles = request.session['loggedin_user']['roles']
+    if request.user.is_impersonate:
+        if not userApi.is_admin(request.session['loggedin_user'], 'dict'): raise PermissionDenied
+        request.user.roles = userApi.get_user_roles(request.user)
+    else:
+        request.user.roles = request.session['loggedin_user']['roles']
     if 'Student' not in request.user.roles: raise PermissionDenied
 
     if request.method == 'POST':
@@ -385,7 +414,6 @@ def delete_sin(request):
             messages.error(request, 'An error occurred while deleting a SIN. Please try again.')
 
     return redirect('students:edit_confidentiality')
-
 
 
 #@login_required(login_url=settings.LOGIN_URL)
@@ -403,7 +431,11 @@ def download_study_permit(request, username, filename):
 @require_http_methods(['POST'])
 def delete_study_permit(request):
     ''' '''
-    request.user.roles = request.session['loggedin_user']['roles']
+    if request.user.is_impersonate:
+        if not userApi.is_admin(request.session['loggedin_user'], 'dict'): raise PermissionDenied
+        request.user.roles = userApi.get_user_roles(request.user)
+    else:
+        request.user.roles = request.session['loggedin_user']['roles']
     if 'Student' not in request.user.roles: raise PermissionDenied
 
     if request.method == 'POST':
@@ -426,7 +458,11 @@ def delete_study_permit(request):
 @require_http_methods(['GET'])
 def explore_jobs(request):
     ''' Display all lists of session terms '''
-    request.user.roles = request.session['loggedin_user']['roles']
+    if request.user.is_impersonate:
+        if not userApi.is_admin(request.session['loggedin_user'], 'dict'): raise PermissionDenied
+        request.user.roles = userApi.get_user_roles(request.user)
+    else:
+        request.user.roles = request.session['loggedin_user']['roles']
     if 'Student' not in request.user.roles: raise PermissionDenied
 
     return render(request, 'students/jobs/explore_jobs.html', {
@@ -440,7 +476,11 @@ def explore_jobs(request):
 @require_http_methods(['GET'])
 def available_jobs(request, session_slug):
     ''' Display jobs available to apply '''
-    request.user.roles = request.session['loggedin_user']['roles']
+    if request.user.is_impersonate:
+        if not userApi.is_admin(request.session['loggedin_user'], 'dict'): raise PermissionDenied
+        request.user.roles = userApi.get_user_roles(request.user)
+    else:
+        request.user.roles = request.session['loggedin_user']['roles']
     if 'Student' not in request.user.roles: raise PermissionDenied
 
     return render(request, 'students/jobs/available_jobs.html', {
@@ -455,7 +495,11 @@ def available_jobs(request, session_slug):
 @require_http_methods(['GET', 'POST'])
 def apply_job(request, session_slug, job_slug):
     ''' Students can apply for each job '''
-    request.user.roles = request.session['loggedin_user']['roles']
+    if request.user.is_impersonate:
+        if not userApi.is_admin(request.session['loggedin_user'], 'dict'): raise PermissionDenied
+        request.user.roles = userApi.get_user_roles(request.user)
+    else:
+        request.user.roles = request.session['loggedin_user']['roles']
     if 'Student' not in request.user.roles: raise PermissionDenied
 
     job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
@@ -491,7 +535,11 @@ def apply_job(request, session_slug, job_slug):
 @require_http_methods(['GET'])
 def status_jobs(request):
     ''' Display status of jobs and total accepted assigned hours '''
-    request.user.roles = request.session['loggedin_user']['roles']
+    if request.user.is_impersonate:
+        if not userApi.is_admin(request.session['loggedin_user'], 'dict'): raise PermissionDenied
+        request.user.roles = userApi.get_user_roles(request.user)
+    else:
+        request.user.roles = request.session['loggedin_user']['roles']
     if 'Student' not in request.user.roles: raise PermissionDenied
 
     apps, total_accepted_assigned_hours = adminApi.get_applications_with_status(request.user)
@@ -506,7 +554,11 @@ def status_jobs(request):
 @require_http_methods(['GET', 'POST'])
 def cancel_job(request, session_slug, job_slug):
     ''' Cancel an accepted job '''
-    request.user.roles = request.session['loggedin_user']['roles']
+    if request.user.is_impersonate:
+        if not userApi.is_admin(request.session['loggedin_user'], 'dict'): raise PermissionDenied
+        request.user.roles = userApi.get_user_roles(request.user)
+    else:
+        request.user.roles = request.session['loggedin_user']['roles']
     if 'Student' not in request.user.roles: raise PermissionDenied
 
     job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
@@ -539,7 +591,11 @@ def cancel_job(request, session_slug, job_slug):
 @require_http_methods(['GET'])
 def accept_decline_job(request, session_slug, job_slug):
     ''' Display a job to select accept or decline a job offer '''
-    request.user.roles = request.session['loggedin_user']['roles']
+    if request.user.is_impersonate:
+        if not userApi.is_admin(request.session['loggedin_user'], 'dict'): raise PermissionDenied
+        request.user.roles = userApi.get_user_roles(request.user)
+    else:
+        request.user.roles = request.session['loggedin_user']['roles']
     if 'Student' not in request.user.roles: raise PermissionDenied
 
     apps, total_assigned_hours = adminApi.get_applications_with_status_by_user(request.user, ApplicationStatus.OFFERED)
@@ -563,7 +619,11 @@ def accept_decline_job(request, session_slug, job_slug):
 @require_http_methods(['POST'])
 def accept_offer(request, session_slug, job_slug):
     ''' Students accept a job offer '''
-    request.user.roles = request.session['loggedin_user']['roles']
+    if request.user.is_impersonate:
+        if not userApi.is_admin(request.session['loggedin_user'], 'dict'): raise PermissionDenied
+        request.user.roles = userApi.get_user_roles(request.user)
+    else:
+        request.user.roles = request.session['loggedin_user']['roles']
     if 'Student' not in request.user.roles: raise PermissionDenied
 
     if request.method == 'POST':
@@ -593,7 +653,11 @@ def accept_offer(request, session_slug, job_slug):
 @require_http_methods(['POST'])
 def decline_offer(request, session_slug, job_slug):
     ''' Students decline job offers '''
-    request.user.roles = request.session['loggedin_user']['roles']
+    if request.user.is_impersonate:
+        if not userApi.is_admin(request.session['loggedin_user'], 'dict'): raise PermissionDenied
+        request.user.roles = userApi.get_user_roles(request.user)
+    else:
+        request.user.roles = request.session['loggedin_user']['roles']
     if 'Student' not in request.user.roles: raise PermissionDenied
 
     if request.method == 'POST':
@@ -618,7 +682,11 @@ def decline_offer(request, session_slug, job_slug):
 @require_http_methods(['GET', 'POST'])
 def show_job(request, session_slug, job_slug):
     ''' Display job details '''
-    request.user.roles = request.session['loggedin_user']['roles']
+    if request.user.is_impersonate:
+        if not userApi.is_admin(request.session['loggedin_user'], 'dict'): raise PermissionDenied
+        request.user.roles = userApi.get_user_roles(request.user)
+    else:
+        request.user.roles = request.session['loggedin_user']['roles']
     if 'Student' not in request.user.roles: raise PermissionDenied
 
     return render(request, 'students/jobs/show_job.html', {
@@ -631,7 +699,11 @@ def show_job(request, session_slug, job_slug):
 @require_http_methods(['GET', 'POST'])
 def show_application(request, app_slug):
     ''' Display job details '''
-    request.user.roles = request.session['loggedin_user']['roles']
+    if request.user.is_impersonate:
+        if not userApi.is_admin(request.session['loggedin_user'], 'dict'): raise PermissionDenied
+        request.user.roles = userApi.get_user_roles(request.user)
+    else:
+        request.user.roles = request.session['loggedin_user']['roles']
     if 'Student' not in request.user.roles: raise PermissionDenied
 
     return render(request, 'students/jobs/show_application.html', {

@@ -1,8 +1,14 @@
-<h5>Recent Applied Jobs</h5>
-<ul class="text-secondary">
-  {% for job in data %}
-    <li>{{ job.session.year }} {{ job.session.term.code }} - {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</li>
-  {% empty %}
-    <li>No applied jobs found</li>
-  {% endfor %}
-</ul>
+<div class="card border-primary">
+  <h5 class="card-header bg-primary text-white text-center">
+    <i class="fa fa-bell" aria-hidden="true"></i> Recent Applied Jobs
+  </h5>
+  <div class="card-body">
+    <ul class="line-height-2">
+      {% for job in data %}
+        <li>{{ job.session.year }} {{ job.session.term.code }} - {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</li>
+      {% empty %}
+        <li>No applied jobs found</li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>

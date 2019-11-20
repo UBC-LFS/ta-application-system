@@ -8,3 +8,4 @@ __pycache__
 vagrant
 *.log
 staticfiles
+saml_prod

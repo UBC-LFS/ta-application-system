@@ -30,7 +30,7 @@
 					<div>
 						<h5><a href="{% url 'students:available_jobs' session.slug %}">{{ session.title }} (Jobs: {{ session.active_jobs.count }})</a></h5>
 						{% if session.description %}
-							<div class="text-secondary">{{ session.description|safe }}</div>
+							<div>{{ session.description|safe }}</div>
 						{% endif %}
 
 						{% if session.note %}

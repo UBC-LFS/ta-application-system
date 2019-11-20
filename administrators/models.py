@@ -3,6 +3,8 @@ import datetime as dt
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.text import slugify
+from django.core.validators import MaxValueValidator, MinValueValidator
+
 
 class Term(models.Model):
     """ Create a Term model """
@@ -105,8 +107,15 @@ class Job(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     instructors = models.ManyToManyField(User)
 
-    assigned_ta_hours = models.FloatField(default=0.00)     # Admins can assign ta hours
-    accumulated_ta_hours = models.FloatField(default=0.00)  # Add up all student's ta hours
+    # Admins can assign TA hours
+    assigned_ta_hours = models.FloatField(
+        default=0.0,
+        validators=[MinValueValidator(0), MaxValueValidator(4000)]
+    )
+
+    # Add up all student's TA hours
+    accumulated_ta_hours = models.FloatField(default=0.0)
+
     is_active = models.BooleanField(default=True)
     created_at = models.DateField(default=dt.date.today)
     updated_at = models.DateField(default=dt.date.today)

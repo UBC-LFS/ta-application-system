@@ -11,17 +11,25 @@
     </div>
 
     <div class="col-11 mx-auto">
-      <h5>Recent Job Details</h5>
-      <ol>
-        {% for job in jobs %}
-          <li>
-            <span class="text-secondary">{{ job.session.year }} {{ job.session.term.code }} - {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</span>
-            {% include 'ta_app/jobs/_modal_job_details.html' with data=job %}
-          </li>
-        {% empty %}
-          <li>No recent job details found</li>
-        {% endfor %}
-      </ol>
+
+      <div class="card border-primary">
+        <h5 class="card-header bg-primary text-white text-center">
+          <i class="fa fa-bell" aria-hidden="true"></i> Recent Job Details
+        </h5>
+        <div class="card-body">
+          <ol class="line-height-2">
+            {% for job in jobs %}
+              <li>
+                <span>{{ job.session.year }} {{ job.session.term.code }} - {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</span>
+                {% include 'ta_app/jobs/_modal_job_details.html' with data=job %}
+              </li>
+            {% empty %}
+              <li>No recent job details found</li>
+            {% endfor %}
+          </ol>
+        </div>
+      </div>
+
     </div>
 
   </div>
@@ -30,7 +38,7 @@
 
     <div class="board col-11 mx-auto">
       <h3>Form</h3>
-      
+
       <div>
         <h6>Created at:</h6>
         <span>{{ job.created_at }}</span>

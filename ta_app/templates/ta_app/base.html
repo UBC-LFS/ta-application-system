@@ -20,7 +20,7 @@
 
 				{% if loggedin_user.is_authenticated %}
 					<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-							<span class="navbar-toggler-icon"></span>
+						<span class="navbar-toggler-icon"></span>
 					</button>
 
 					<div class="collapse navbar-collapse" id="navbarSupportedContent">
@@ -81,10 +81,15 @@
 	<main class="mb-5">
 		<div class="container max-width-container">
 			{% if user.is_impersonate %}
-				<div id="impersonate-card" class="card">
+				<div id="impersonate-card" class="card bg-light-gray">
 					<div class="card-body">
-						<h5 class="card-title">You are impersonating as {{ user.first_name }} {{ user.last_name }}</h5>
-						<a class="btn btn-primary" href="/impersonate/stop/?next=/administrators/hr/users/all/">Go back to Admin page</a>
+						<div>
+							You are now masquerading as
+							<span class="font-weight-bold text-primary">{{ user.get_full_name }}</span>
+						</div>
+						<a class="btn btn-sm btn-outline-info mt-2" href="/impersonate/stop/?next=/administrators/hr/users/all/">
+							Switch back <i class="fa fa-sign-out" aria-hidden="true"></i>
+						</a>
 					</div>
 				</div>
 			{% endif %}

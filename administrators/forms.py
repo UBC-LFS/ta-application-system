@@ -161,7 +161,8 @@ class AdminJobForm(forms.ModelForm):
     )
     assigned_ta_hours = forms.FloatField(
         label='Assigned TA Hours',
-        widget=forms.TextInput(attrs={ 'class': 'form-control' })
+        widget=forms.TextInput(attrs={ 'class': 'form-control' }),
+        help_text='Valid range is 0 to 4000'
     )
     instructors = MyModelMultipleChoiceField(
         queryset=User.objects.filter(profile__roles=ROLES['Instructor']).order_by('pk'),

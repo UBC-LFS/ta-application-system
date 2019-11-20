@@ -20,8 +20,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
-
-
 ### Deployment checklist -->
 # > python manage.py check --deploy
 
@@ -42,7 +40,7 @@ EMAIL_FROM = os.environ['TA_APP_EMAIL_FROM']
 TA_APP_URL = os.environ['TA_APP_URL']
 ENCRYPT_SALT = os.environ['TA_APP_ENCRYPT_SALT']
 ENCRYPT_PASSWORD = os.environ['TA_APP_ENCRYPT_PASSWORD']
-USER_PASSWORD = 'password'
+USER_PASSWORD = os.environ['TA_APP_USER_PASSWORD']
 
 ## Change MEDIA_ROOT
 MEDIA_ROOT = '/srv/www/ta_app_system/media'
@@ -54,6 +52,9 @@ SECRET_KEY = os.environ['TA_APP_SECRET_KEY']
 DEBUG = True
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+
+SAML_FOLDER = os.path.join(BASE_DIR, 'saml')
+SAML_FOLDER_PROD = os.path.join(BASE_DIR, 'saml_prod')
 
 ### <--
 
@@ -173,7 +174,6 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 # https://warehouse.python.org/project/whitenoise/
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-MEDIA_ROOT = '/srv/www/ta_app_system/media'
 MEDIA_URL = '/media/'
 
 LOGIN_URL = '/accounts/login/'
@@ -209,5 +209,3 @@ SUMMERNOTE_CONFIG = {
 MAX_UPLOAD_SIZE = '2097152'
 
 PAGE_SIZE = 50
-
-SAML_FOLDER = os.path.join(BASE_DIR, 'saml')
