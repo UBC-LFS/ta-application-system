@@ -28,13 +28,11 @@ def get_courses():
     ''' Get all courses '''
     return Course.objects.all()
 
-def get_course(course_id):
+def get_course(data, option=None):
     ''' Get a course '''
-    return get_object_or_404(Course, id=course_id)
-
-def get_course_by_slug(course_slug):
-    ''' Get a course by slug '''
-    return get_object_or_404(Course, slug=course_slug)
+    if option == 'slug': return get_object_or_404(Course, slug=data)
+    return get_object_or_404(Course, id=data)
+    
 
 def get_courses_by_term(term_id):
     ''' Get courses by term '''
@@ -128,21 +126,6 @@ def get_visible_current_sessions():
 
     return sessions
 
-    """
-    sessions = []
-    for session in Session.objects.all():
-        if session.is_visible and not session.is_archived:
-            count = 0
-            for job in session.job_set.all():
-                if job.instructors.count() > 0:
-                    count += 1
-            session.num_instructors = count
-            sessions.append(session)
-    return sessions"""
-
-
-
-
 
 
 
@@ -177,6 +160,28 @@ def create_jobs(session, courses):
 def get_job_by_session_slug_job_slug(session_slug, job_slug):
     ''' Get a job by session_slug and job_slug '''
     return get_object_or_404(Job, Q(session__slug=session_slug) & Q(course__slug=job_slug) )
+
+def add_favourite_job(user, job):
+    ''' Add user's favourite job '''
+    job.my_fav = None
+    my_fav = job.favourite_set.filter(applicant__id=user.id)
+    if my_fav.exists(): job.my_fav = my_fav.first()
+
+    return job
+
+def delete_favourite_job(user, job):
+    ''' Delete user's favourite job '''
+    my_fav = job.favourite_set.filter(applicant__id=user.id)
+    if my_fav.exists():
+        my_fav.delete()
+        return True
+    return False
+                
+def get_favourites(user):
+    ''' Get user's favourite jobs '''
+    return Favourite.objects.filter( Q(applicant_id=user.id) & Q(job__is_active=True) )
+
+
 
 def add_applications_statistics(jobs):
     ''' add statistics of applications in a job '''
@@ -245,9 +250,15 @@ def get_available_jobs_to_apply(user, session_slug):
     ''' Get available jobs to apply '''
     jobs = Job.objects.filter( Q(session__slug=session_slug) & Q(is_active=True) )
     for job in jobs:
-        job.app = None
-        app = job.application_set.filter(applicant__id=user.id)
-        if app.exists(): job.app = app.first()
+        job.my_app = None
+        job.my_fav = None
+
+        my_app = job.application_set.filter(applicant__id=user.id)
+        if my_app.exists(): job.my_app = my_app.first()
+
+        my_fav = job.favourite_set.filter(applicant__id=user.id)
+        if my_fav.exists(): job.my_fav = my_fav.first()
+
     return jobs
 
 def update_job_accumulated_ta_hours(session_slug, job_slug, ta_hours):
@@ -307,18 +318,14 @@ def delete_job_by_course_ids(session, course_ids):
 
 # Applications
 
-def get_application(app_id):
+def get_application(data, option=None):
     ''' Get an application '''
-    return get_object_or_404(Application, id=app_id)
+    if option == 'slug': return get_object_or_404(Application, slug=data)
+    return get_object_or_404(Application, id=data)
 
 def get_applications_with_multiple_ids(ids):
     ''' Get applications with multiple ids '''
     return Application.objects.filter(id__in=ids)
-
-
-def get_application_by_slug(app_slug):
-    ''' Get an application by slug '''
-    return get_object_or_404(Application, slug=app_slug)
 
 def get_applications(option=None):
     ''' Get all applications '''
@@ -328,6 +335,35 @@ def get_applications(option=None):
 def get_application_statuses():
     ''' Get all statuses of an application '''
     return ApplicationStatus.objects.all().order_by('-id')
+
+def get_applied_applications(user):
+    ''' Get applications with all statuses and total accepted assgiend hours '''
+    total_accepted_assigned_hours = {}
+    apps = Application.objects.filter(applicant_id=user.id).order_by('-created_at').distinct()
+    for app in apps:
+        status = app.applicationstatus_set.all().last()
+
+        if status.assigned == ApplicationStatus.ACCEPTED:
+            app.accepted = None
+
+            accepted = app.applicationstatus_set.filter(assigned=ApplicationStatus.ACCEPTED)
+            if accepted.exists(): app.accepted = accepted.last()
+
+            total_accepted_assigned_hours = get_total_accepted_assigned_hours(app, total_accepted_assigned_hours)
+
+    return apps, total_accepted_assigned_hours
+
+
+def get_total_accepted_assigned_hours(app, total_accepted_assigned_hours):
+    ''' get toal accepted assigned hours '''
+    year_term = '{0}-{1}'.format(app.job.session.year, app.job.session.term.code)
+    if year_term in total_accepted_assigned_hours.keys():
+        total_accepted_assigned_hours[year_term] += app.accepted.assigned_hours
+    else:
+        total_accepted_assigned_hours[year_term] = app.accepted.assigned_hours
+    return total_accepted_assigned_hours
+
+
 
 def get_selected(app):
     ''' Get an application selected '''

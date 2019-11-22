@@ -60,7 +60,7 @@ class StudentTest(TestCase):
         response = self.client.get( reverse('students:available_jobs', args=[SESSION]) )
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get(reverse('students:status_jobs'))
+        response = self.client.get(reverse('students:history_jobs'))
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get(reverse('students:cancel_job', args=[SESSION, 'apbi-260-001-agroecology-i-introduction-to-principles-and-techniques-w1']))
@@ -310,11 +310,11 @@ class StudentTest(TestCase):
         self.assertFalse(response.context['form'].is_bound)
 
 
-    def test_status_jobs(self):
-        print('\n- Test: Display status of jobs applied by a student')
+    def test_history_jobs(self):
+        print('\n- Test: Display History of Jobs applied by a student')
         self.login()
 
-        response = self.client.get( reverse('students:status_jobs') )
+        response = self.client.get( reverse('students:history_jobs') )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, USERS[2])
         self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
@@ -399,7 +399,7 @@ class StudentTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, response.url)
 
-        response = self.client.get( reverse('students:status_jobs') )
+        response = self.client.get( reverse('students:history_jobs') )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, STUDENT)
         self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
@@ -437,7 +437,7 @@ class StudentTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, response.url)
 
-        response = self.client.get( reverse('students:status_jobs') )
+        response = self.client.get( reverse('students:history_jobs') )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, STUDENT)
         self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
@@ -475,7 +475,7 @@ class StudentTest(TestCase):
         self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
         self.assertEqual(response.context['app'].slug, APP)
 
-        app = adminApi.get_application_by_slug(response.context['app'].slug)
+        app = adminApi.get_application(response.context['app'].slug, 'slug')
         self.assertEqual(response.context['app'].id, app.id)
         self.assertEqual(response.context['app'].applicant.username, app.applicant.username)
 

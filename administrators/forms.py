@@ -275,6 +275,12 @@ class JobForm(forms.ModelForm):
         fields = ['title', 'description', 'qualification', 'note', 'instructors', 'is_active']
 
 
+class FavouriteForm(forms.ModelForm):
+    class Meta:
+        model = Favourite
+        fields = ['applicant', 'job', 'is_selected']
+
+
 class EmailForm(forms.ModelForm):
     title = forms.CharField(
         widget=forms.TextInput(attrs={ 'class':'form-control' })

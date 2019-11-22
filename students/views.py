@@ -10,6 +10,7 @@ from django.views.decorators.http import require_http_methods
 from django.views.decorators.cache import cache_control
 from django.views.static import serve
 from django.db.models import Q
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from users.forms import *
 from users import api as userApi
@@ -31,8 +32,12 @@ def index(request):
         request.user.roles = request.session['loggedin_user']['roles']
     if 'Student' not in request.user.roles: raise PermissionDenied
 
+    apps, total_accepted_assigned_hours = adminApi.get_applied_applications(request.user)
     return render(request, 'students/index.html', {
-        'loggedin_user': request.user
+        'loggedin_user': request.user,
+        'apps': apps,
+        'total_accepted_assigned_hours': total_accepted_assigned_hours,
+        'recent_apps': apps.filter( Q(created_at__year__gte=datetime.now().year) )
     })
 
 
@@ -468,8 +473,41 @@ def explore_jobs(request):
     return render(request, 'students/jobs/explore_jobs.html', {
         'loggedin_user': request.user,
         'visible_current_sessions': adminApi.get_visible_current_sessions(),
-        'applied_jobs': adminApi.get_jobs_applied_by_student(request.user).order_by('-created_at')[:10]
+        'favourites': adminApi.get_favourites(request.user)
     })
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def favourite_jobs(request):
+    ''' Display all lists of session terms '''
+    if request.user.is_impersonate:
+        if not userApi.is_admin(request.session['loggedin_user'], 'dict'): raise PermissionDenied
+        request.user.roles = userApi.get_user_roles(request.user)
+    else:
+        request.user.roles = request.session['loggedin_user']['roles']
+    if 'Student' not in request.user.roles: raise PermissionDenied
+
+    if request.method == 'POST':
+        form = FavouriteForm(request.POST)
+        if form.is_valid():
+            job = form.cleaned_data['job']
+            deleted = adminApi.delete_favourite_job(request.user, job)
+            if deleted:
+                messages.success(request, 'Success! {0} {1} - {2} {3} {4} removed'.format(job.session.year, job.session.term.code, job.course.code.name, job.course.number.name, job.course.section.name))
+            else:
+                messages.error(request, 'An error occurred while removing your favourite job. Please try again.')
+        else:
+            errors = form.errors.get_json_data()
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+
+        return redirect('students:favourite_jobs')
+
+    return render(request, 'students/jobs/favourite_jobs.html', {
+        'loggedin_user': request.user,
+        'favourites': adminApi.get_favourites(request.user)
+    })
+
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -483,11 +521,54 @@ def available_jobs(request, session_slug):
         request.user.roles = request.session['loggedin_user']['roles']
     if 'Student' not in request.user.roles: raise PermissionDenied
 
+
+    year_q = request.GET.get('year')
+    term_q = request.GET.get('term')
+    code_q = request.GET.get('code')
+    number_q = request.GET.get('number')
+    section_q = request.GET.get('section')
+    instructor_q = request.GET.get('instructor')
+
+    filters = None
+    if bool(code_q):
+        if filters:
+            filters = filters & Q(course__code__name__iexact=code_q)
+        else:
+            filters = Q(course__code__name__iexact=code_q)
+    if bool(number_q):
+        if filters:
+            filters = filters & Q(course__number__name__iexact=number_q)
+        else:
+            filters = Q(course__number__name__iexact=number_q)
+    if bool(section_q):
+        if filters:
+            filters = filters & Q(course__section__name__iexact=section_q)
+        else:
+            filters = Q(course__section__name__iexact=section_q)
+    if bool(instructor_q):
+        if filters:
+            filters = filters & Q(instructors__first_name__icontains=instructor_q)
+        else:
+            filters = Q(instructors__first_name__icontains=instructor_q)
+
+    job_list = adminApi.get_available_jobs_to_apply(request.user, session_slug)
+    if filters != None:
+        job_list = job_list.filter(filters)
+
+    page = request.GET.get('page', 1)
+    paginator = Paginator(job_list, settings.PAGE_SIZE)
+
+    try:
+        jobs = paginator.page(page)
+    except PageNotAnInteger:
+        jobs = paginator.page(1)
+    except EmptyPage:
+        jobs = paginator.page(paginator.num_pages)
+
     return render(request, 'students/jobs/available_jobs.html', {
         'loggedin_user': request.user,
-        #'session': adminApi.get_session_by_slug(session_slug),
-        'jobs': adminApi.get_available_jobs_to_apply(request.user, session_slug),
-        'applied_jobs': adminApi.get_jobs_applied_by_student(request.user).order_by('-created_at')[:10]
+        'session_slug': session_slug,
+        'jobs': jobs
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -524,7 +605,7 @@ def apply_job(request, session_slug, job_slug):
 
     return render(request, 'students/jobs/apply_job.html', {
         'loggedin_user': request.user,
-        'job': job,
+        'job': adminApi.add_favourite_job(request.user, job),
         'has_applied_job': adminApi.has_applied_job(session_slug, job_slug, request.user),
         'form': ApplicationForm(initial={ 'applicant': request.user.id, 'job': job.id }),
         'applied_jobs': adminApi.get_jobs_applied_by_student(request.user).order_by('-created_at')[:10]
@@ -532,9 +613,46 @@ def apply_job(request, session_slug, job_slug):
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['POST'])
+def select_favourite_job(request, session_slug, job_slug):
+    ''' '''
+    if request.user.is_impersonate:
+        if not userApi.is_admin(request.session['loggedin_user'], 'dict'): raise PermissionDenied
+        request.user.roles = userApi.get_user_roles(request.user)
+    else:
+        request.user.roles = request.session['loggedin_user']['roles']
+    if 'Student' not in request.user.roles: raise PermissionDenied
+
+    if request.method == 'POST':
+        form = FavouriteForm(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            job = data['job']
+
+            is_ok = False
+            if data['is_selected']:
+                fav = form.save()
+                if fav: is_ok = True
+            else:
+                deleted = adminApi.delete_favourite_job(request.user, job)
+                if deleted: is_ok = True
+
+            if is_ok:
+                messages.success(request, 'Success! {0} {1} - {2} {3} {4} added'.format(job.session.year, job.session.term.code, job.course.code.name, job.course.number.name, job.course.section.name))
+            else:
+                messages.error(request, 'An error occurred while adding your favourite job. Please try again.')
+        else:
+            errors = form.errors.get_json_data()
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+
+        return HttpResponseRedirect( reverse('students:apply_job', args=[session_slug, job_slug]) )
+
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
-def status_jobs(request):
-    ''' Display status of jobs and total accepted assigned hours '''
+def history_jobs(request):
+    ''' Display History of Jobs and total accepted assigned hours '''
     if request.user.is_impersonate:
         if not userApi.is_admin(request.session['loggedin_user'], 'dict'): raise PermissionDenied
         request.user.roles = userApi.get_user_roles(request.user)
@@ -543,7 +661,7 @@ def status_jobs(request):
     if 'Student' not in request.user.roles: raise PermissionDenied
 
     apps, total_accepted_assigned_hours = adminApi.get_applications_with_status(request.user)
-    return render(request, 'students/jobs/status_jobs.html', {
+    return render(request, 'students/jobs/history_jobs.html', {
         'loggedin_user': request.user,
         'apps': apps,
         'total_accepted_assigned_hours': total_accepted_assigned_hours
@@ -572,7 +690,7 @@ def cancel_job(request, session_slug, job_slug):
             cancelled_status = form.save()
             if cancelled_status:
                 messages.success(request, 'Success! Application of {0} {1} - {2} {3} {4} cancelled.'.format(job.session.year, job.session.term.code, job.course.code.name, job.course.number.name, job.course.section.name))
-                return redirect('students:status_jobs')
+                return redirect('students:history_jobs')
             else:
                 messages.error(request, 'An error occurred while saving application status.')
         else:
@@ -646,7 +764,7 @@ def accept_offer(request, session_slug, job_slug):
             errors = form.errors.get_json_data()
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
-    return redirect('students:status_jobs')
+    return redirect('students:history_jobs')
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -675,7 +793,7 @@ def decline_offer(request, session_slug, job_slug):
             errors = form.errors.get_json_data()
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
-    return redirect('students:status_jobs')
+    return redirect('students:history_jobs')
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -708,5 +826,5 @@ def show_application(request, app_slug):
 
     return render(request, 'students/jobs/show_application.html', {
         'loggedin_user': request.user,
-        'app': adminApi.get_application_by_slug(app_slug)
+        'app': adminApi.get_application(app_slug, 'slug')
     })

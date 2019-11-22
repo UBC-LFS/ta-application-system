@@ -4,14 +4,45 @@
 {% include 'students/_menu.html' %}
 <div class="row">
   <div class="col-md-4">
-    {% include 'ta_app/pages/_left_aside.html' with view_name='users' title='Apply Job' data=loggedin_user %}
+    {% include 'ta_app/pages/_left_aside.html' with view_name='job_applications' title='Apply Job' data=job %}
+
+    <div class="col-11 mx-auto text-center mt-4">
+      <table class="table">
+        <tr class="text-secondary">
+          <td>Job Details</td>
+          <td>Favourite</td>
+        </tr>
+        <tr>
+          <td>{% include 'ta_app/jobs/_modal_job_details.html' with data=job %}</td>
+          <td>
+            <form action="{% url 'students:select_favourite_job' session_slug=job.session.slug job_slug=job.course.slug %}" method="post">
+              {% csrf_token %}
+
+              <input type="hidden" name="applicant" value="{{ loggedin_user.id }}" />
+              <input type="hidden" name="job" value="{{ job.id }}" />
+
+              {% if job.my_fav %}
+                <input type="hidden" name="is_selected" value="false" />
+              {% else %}
+                <input type="hidden" name="is_selected" value="true" />
+              {% endif %}
+
+              <button type="submit" class="btn btn-xs btn-favourite">
+                {% if job.my_fav %}
+                  <i class="fa fa-star fa-2x text-warning" aria-hidden="true"></i>
+                {% else %}
+                  <i class="fa fa-star fa-2x text-secondary" aria-hidden="true"></i>
+                {% endif %}
+              </button>
+            </form>
+          </td>
+        </tr>
+      </table>
+
+    </div>
 
     <div class="left-aside-btn-groups">
       <a class="btn btn-outline-primary" href="{% url 'students:available_jobs' session_slug=job.session.slug %}">Back to Available Jobs</a>
-    </div>
-
-    <div class="col-11 mx-auto mt-5">
-      {% include 'students/jobs/_recent_applied_jobs.html' with data=applied_jobs %}
     </div>
   </div>
 
@@ -21,13 +52,12 @@
       {% if has_applied_job %}
 
         <div class="alert alert-info" role="alert">
-          You have already applied for this job. Please check your jobs in <a href="{% url 'students:status_jobs' %}">Applied Jobs</a>
+          You have already applied for this job. Please check your jobs in <a href="{% url 'students:history_jobs' %}">Applied Jobs</a>
         </div>
 
       {% else %}
 
         <h3>Application Form</h3>
-        <p>Job Details: {% include 'ta_app/jobs/_modal_job_details.html' with data=job %}</p>
 
         {% include 'ta_app/pages/_job_preferences.html' %}
 

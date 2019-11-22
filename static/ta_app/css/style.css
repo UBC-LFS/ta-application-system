@@ -128,10 +128,20 @@ main {
   font-size: 0.85rem;
 }
 
-
 .line-height-2 {
   line-height: 2.0;
 }
+
+.btn-favourite {
+  background: none;
+  border: none;
+}
+
+.btn-favourite:hover {
+  opacity: 0.8;
+}
+
+
 
 /* utils */
 
@@ -176,7 +186,7 @@ main {
 
 .board {
   background-color: #f3f7f7;
-  padding: 2rem;
+  //padding: 2rem;
 }
 
 .board h3 {
@@ -322,12 +332,20 @@ hr.dotted {
   color: #343a40;
 }
 
+.text-chocolate {
+  color: #D2691E;
+}
+
 .bg-dark-blue {
   background-color: #002145;
 }
 
 .bg-light-gray {
   background-color: #e6e6e6;
+}
+
+.bg-chocolate {
+  background-color: #D2691E;
 }
 
 #impersonate-card {

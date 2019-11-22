@@ -22,8 +22,10 @@ urlpatterns = [
     path('confidentiality/', views.show_confidentiality, name='show_confidentiality'),
 
     path('jobs/explore/', views.explore_jobs, name='explore_jobs'),
-    path('jobs/status/', views.status_jobs, name='status_jobs'),
+    path('jobs/history/', views.history_jobs, name='history_jobs'),
+    path('jobs/favourite/', views.favourite_jobs, name='favourite_jobs'),
     path('sessions/<str:session_slug>/jobs/<str:job_slug>/apply/', views.apply_job, name='apply_job'),
+    path('sessions/<str:session_slug>/jobs/<str:job_slug>/select-favourite-job/', views.select_favourite_job, name='select_favourite_job'),
     path('sessions/<str:session_slug>/jobs/<str:job_slug>/offered/', views.accept_decline_job, name='accept_decline_job'),
     path('sessions/<str:session_slug>/jobs/<str:job_slug>/accept_offer/', views.accept_offer, name='accept_offer'),
     path('sessions/<str:session_slug>/jobs/<str:job_slug>/decline_offer/', views.decline_offer, name='decline_offer'),
@@ -31,21 +33,5 @@ urlpatterns = [
     path('sessions/<str:session_slug>/jobs/available/', views.available_jobs, name='available_jobs'),
     path('sessions/<str:session_slug>/jobs/<str:job_slug>/details/', views.show_job, name='show_job'),
 
-    path('applications/<str:app_slug>/', views.show_application, name='show_application'),
-
-    #path('jobs/accepted/', views.accepted_jobs, name='accepted_jobs'),
-    #path('jobs/declined/', views.declined_jobs, name='declined_jobs'),
-    #path('jobs/applied/', views.applied_jobs, name='applied_jobs'),
-    #path('jobs/offered/', views.offered_jobs, name='offered_jobs'),
-
-    #path('students/<str:username>/edit/', views.edit_student, name='edit_student'),
-    #path('students/<str:username>/applied/sessions/<str:session_slug>/jobs/<str:job_slug>/', views.show_student_job, name='show_student_job'),
-
-    #path('students/<str:username>/upload_resume', views.upload_resume, name='upload_resume'),
-    #path('students/<str:username>/resume/<str:filename>/download/', views.download_resume, name='download_resume'),
-    #path('delete_resume/', views.delete_resume, name='delete_resume'),
-
-
-
-
+    path('applications/<str:app_slug>/', views.show_application, name='show_application')
 ]

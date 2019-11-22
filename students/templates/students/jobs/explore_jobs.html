@@ -7,16 +7,17 @@
 	<div class="col-md-4">
 		{% include 'ta_app/pages/_left_aside.html' with view_name='users' title='Explore Jobs' data=loggedin_user  %}
 
-		<div class="col-11 mx-auto mt-5">
-			{% include 'students/jobs/_recent_applied_jobs.html' with data=applied_jobs %}
+		<div class="left-aside-btn-groups">
+			<a class="btn btn-warning" href="{% url 'students:favourite_jobs' %}">
+				<i class="fa fa-star" aria-hidden="true"></i> Favourite Jobs ({{ favourites|length }})
+			</a>
 		</div>
-
 	</div>
 
 	<div class="col-md-8">
 
 		<div class="board col-11 mx-auto">
-			<h3>Current Jobs Available</h3>
+			<h3>Current Openings Available</h3>
 
 			{% for session in visible_current_sessions %}
 				<div class="gray-box p-3 m-3">

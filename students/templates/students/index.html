@@ -3,17 +3,82 @@
 {% block content %}
 
 {% include 'students/_menu.html' %}
-<div>
-  <h3>Welcome to Student's Portal</h3>
+<div class="row">
+  <div class="col-md-4">
+    {% include 'ta_app/pages/_left_aside.html' with view_name='users' title='Home' data=loggedin_user  %}
 
-  <div class="bg-light-gray  p-3">
-    <div class="text-primary">Header</div>
-    <div>fafafs</div>
+    <div class="col-11 mx-auto mt-5">
+      <div class="card border-primary">
+        <h6 class="card-header bg-primary text-white text-center">
+          <i class="fa fa-bell" aria-hidden="true"></i> Recent Applied Jobs
+        </h6>
+        <div class="card-body">
+          <ul class="line-height-2">
+            {% for app in recent_apps %}
+              <li>
+                {{ app.job.session.year }} {{ app.job.session.term.code }} - {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}
+                <small class="text-muted">({{ app.created_at }})</small>
+              </li>
+            {% empty %}
+              <li>No applied jobs found</li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+
   </div>
 
-  <div class="bd-callout bd-callout-warning">
-    <h5>Checkpoint!</h5>
-    <p>Text area</p>
+  <div class="col-md-8">
+
+    <div class="bg-prompt">
+      <div class="prompt p-4 text-center">
+        <h4>Welcome</h4>
+
+        <div class="col-8 mx-auto my-4">
+          <div>
+            <i class="fa fa-check text-success" aria-hidden="true"></i>
+            You have <span class="font-weight-bold text-chocolate">{{ apps|length }}</span> jobs applied in total.
+            <a href="btn btn-xs btn-link">View History</a>
+          </div>
+          <div>
+            <i class="fa fa-check text-success" aria-hidden="true"></i>
+            You are interested in <span class="font-weight-bold text-chocolate">0</span> jobs.
+            <a href="btn btn-xs btn-link">View Favourites</a>
+          </div>
+        </div>
+
+        <p class="col-8 mx-auto">
+          If you would like to explore current openings, please click the button bellow.<br />
+          <a class="btn btn-sm btn-outline-primary" href="{% url 'students:explore_jobs' %}">Explore Jobs</a>
+        </p>
+      </div>
+    </div>
+
+    <div class="col-8 mx-auto text-center mt-4">
+      <h5 class="text-info">Total Accepted Hours</h5>
+      <table class="table font-size-1">
+        <thead>
+          <tr>
+            <th>Year-Term</th>
+            <th>Total Hours</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for year_term, assigned_hours in total_accepted_assigned_hours.items %}
+            <tr>
+              <td>{{ year_term }}</td>
+              <td>{{ assigned_hours }}</td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="2">No matching records found</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
   </div>
 </div>
 

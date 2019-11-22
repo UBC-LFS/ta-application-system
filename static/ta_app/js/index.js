@@ -1,5 +1,5 @@
 $(document).ready(function () {
-
+  console.log(window.location.href);
   if (window.location.href.indexOf("administrators") > -1) {
     document.getElementById('admin').classList.add("active");
   } else {
@@ -34,12 +34,10 @@ $(document).ready(function () {
 
   $('#nav-tab a[data-toggle="tab"]').on('click', function(e) {
     e.preventDefault();
-    console.log(e.target)
     window.localStorage.setItem('activeTab', $(e.target).attr('href'));
   });
 
   var activeTab = window.localStorage.getItem('activeTab');
-  console.log(activeTab);
   if (activeTab) {
     $('#nav-tab a[href="' + activeTab + '"]').tab('show');
   }

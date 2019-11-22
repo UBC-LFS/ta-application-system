@@ -628,7 +628,7 @@ class ApplicationTest(TestCase):
         self.assertEqual(response.context['app'].slug, APP)
         self.assertEqual(response.context['path'], path)
 
-        app = adminApi.get_application_by_slug(response.context['app'].slug)
+        app = adminApi.get_application(response.context['app'].slug, 'slug')
         self.assertEqual(response.context['app'].id, app.id)
         self.assertEqual(response.context['app'].applicant.username, app.applicant.username)
 

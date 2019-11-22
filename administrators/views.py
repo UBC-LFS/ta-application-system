@@ -636,7 +636,7 @@ def show_application(request, app_slug, path):
 
     return render(request, 'administrators/applications/show_application.html', {
         'loggedin_user': request.user,
-        'app': adminApi.get_application_by_slug(app_slug),
+        'app': adminApi.get_application(app_slug, 'slug'),
         'path': path
     })
 
@@ -1459,7 +1459,7 @@ def edit_user(request, username):
                 is_superuser = False
                 if Role.ADMIN in roles or Role.SUPERADMIN in roles:
                     is_superuser = True
-                
+
                 if is_superuser != updated_user.is_superuser:
                     updated_user.is_superuser = is_superuser
                     updated_user.save(update_fields=['is_superuser'])
@@ -1875,7 +1875,7 @@ def edit_course(request, course_slug):
     request.user.roles = request.session['loggedin_user']['roles']
     if not userApi.is_admin(request.user): raise PermissionDenied
 
-    course = adminApi.get_course_by_slug(course_slug)
+    course = adminApi.get_course_by_slug(course_slug, 'slug')
     if request.method == 'POST':
         form = CourseForm(request.POST, instance=course)
         if form.is_valid():

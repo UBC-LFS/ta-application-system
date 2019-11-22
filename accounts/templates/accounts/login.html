@@ -2,9 +2,53 @@
 {% block content %}
 {% load static %}
 
-<h2>Welcome to TA Application System</h2>
+<div class="container mt-5">
 
-<a href="{% url 'saml' %}?sso">
-  <img src="{% static 'ta_app/images/cwl_login_button.gif' %}" alt="cwl login button"/>
-</a>
+  <div class="row">
+    <div class="col-md-6">
+
+      <div>
+        <h4 class="text-primary text-center">Welcome</h4>
+        <p class="text-secondary">Welcome to the Faculty of Land and Food Systems TA Application form.</p>
+
+        <div class="card p-3 bg-light-gray">
+          <p>
+            <i class="fa fa-check text-success" aria-hidden="true"></i>
+            Did you know you must be registered in at least one course during the term you will be TA'ing?</p>
+          <p>
+            <i class="fa fa-check text-success" aria-hidden="true"></i>
+            Be sure you are aware of all requirements for being a TA in the Faculty of Land and Food Systems (particularly the term/duration of TA appointments).</p>
+          <p>
+            <i class="fa fa-check text-success" aria-hidden="true"></i>
+            Refer to 'Information for TA's' and other sections in the LFS TA Portal: <a href="http://blogs.ubc.ca/lfsta/">http://blogs.ubc.ca/lfsta/</a>
+          </p>
+        </div>
+
+      </div>
+
+      <div class="text-secondary mt-5">
+        <div class="font-weight-bold">LFS - TA Application System</div>
+        <div>Faculty of Land and Food Systems</div>
+        <div>Tel: 604-822-0434</div>
+      </div>
+
+    </div>
+
+    <div class="col-md-6">
+
+      <div class="bg-prompt">
+        <div class="prompt text-center">
+          <h4 class="text-primary">User login</h4>
+          <p>To log in, click the CWL button below.<br /> You will be redirected to a secure CWL login.</p>
+          <a href="{% url 'saml' %}?sso">
+            <img src="{% static 'ta_app/images/cwl_login_button.gif' %}" alt="cwl login button"/>
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
 {% endblock %}

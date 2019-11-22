@@ -212,6 +212,15 @@ class ApplicationStatus(models.Model):
     class Meta:
         ordering = ['pk']
 
+
+class Favourite(models.Model):
+    ''' Favourite Job '''
+    applicant = models.ForeignKey(User, on_delete=models.CASCADE)
+    job = models.ForeignKey(Job, on_delete=models.CASCADE)
+    is_selected = models.BooleanField(default=False)
+    created_at = models.DateField(default=dt.date.today)
+
+
 class Email(models.Model):
     ''' Send an email to applicants '''
     application = models.ForeignKey(Application, on_delete=models.CASCADE)

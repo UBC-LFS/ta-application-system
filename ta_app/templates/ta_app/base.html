@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<title>TA Application System</title>
+	<title>TA Application System | UBC LFS</title>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
@@ -16,7 +16,7 @@
 	<header class="bg-primary">
 		<div class="container">
 			<nav class="navbar navbar-expand-lg navbar-dark">
-				<span class="navbar-brand">TA Applications</span>
+				<span class="navbar-brand">TA Application System</span>
 
 				{% if loggedin_user.is_authenticated %}
 					<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -57,18 +57,7 @@
 								</li>
 							{% endif %}
 						</ul>
-
-						<div class="dropdown">
-	  					<button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-	    					Hi, {{ loggedin_user.username }}
-	  					</button>
-	  					<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-						  	{% for role in loggedin_user.roles %}
-									<div class="dropdown-item">{{ role }}</div>
-								{% endfor %}
-	  					</div>
-						</div>
-
+  					<span class="text-white">Hi, {{ loggedin_user.username }}</span>
 						<a id="btn-logout" class="text-white ml-4" href="{% url 'saml' %}?slo">
 							Logout <i class="fa fa-sign-out" aria-hidden="true"></i>
 						</a>

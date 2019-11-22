@@ -7,7 +7,7 @@
     {% include 'ta_app/pages/_left_aside.html' with view_name='job_applications' title='Cancel Job' data=app.job %}
 
     <div class="left-aside-btn-groups">
-      <a class="btn btn-outline-primary" href="{% url 'students:status_jobs' %}">Back to Status of Jobs</a>
+      <a class="btn btn-outline-primary" href="{% url 'students:history_jobs' %}">Back to History of Jobs</a>
     </div>
   </div>
 
@@ -40,7 +40,7 @@
           <input type="hidden" name="assigned_hours" value="{{ app.status.assigned_hours }}" />
           <input type="hidden" name="application" value="{{ app.id }}" />
 
-          <a class="btn btn-outline-primary" href="{% url 'students:status_jobs' %}">Cancel</a>
+          <a class="btn btn-outline-primary" href="{% url 'students:history_jobs' %}">Cancel</a>
           <input class="btn btn-danger" type="submit" value="Confirm to cancel this accepted job" />
         </form>
 

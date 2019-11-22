@@ -9,27 +9,29 @@
     <div class="left-aside-btn-groups">
       <a class="btn btn-outline-primary" href="{% url 'students:explore_jobs' %}">Back to Explore Jobs</a>
     </div>
-
-    <div class="col-11 mx-auto mt-5">
-			{% include 'students/jobs/_recent_applied_jobs.html' with data=applied_jobs %}
-		</div>
   </div>
 
   <div class="col-md-8">
-    <div class="board col-11 mx-auto">
-      <h3>
-        Apply Now!
-        <small class="text-muted">(Total: {{ jobs|length }})</small>
-      </h3>
+    <div class="col-11 mx-auto">
+      <h3 class="text-primary mb-5">Apply Now!</h3>
+
+      <div class="search-field bg-light-gray p-4">
+        <form method="GET">
+          <input type="text" name="code" value="{{ request.GET.code }}" placeholder="Job Code" /> and
+          <input type="text" name="number" value="{{ request.GET.number }}" placeholder="Job Number" /> and
+          <input type="text" name="section" value="{{ request.GET.section }}" placeholder="Job Section" /> <br />
+          <input type="text" name="instructor" value="{{ request.GET.instructor }}" placeholder="Instructor First Name" /> <br />
+          <button class="btn btn-sm btn-secondary" type="submit">Search</button>
+          <a class="btn btn-sm btn-light" href="{% url 'students:available_jobs' session_slug=session_slug %}">Clear</a>
+        </form>
+      </div>
+      <div class="mb-4">{{ jobs|length }} row{% if jobs|length > 1 %}s {% endif %} in this page</div>
+
       <table
         class="table table-bordered table-hover table-striped table-responsive-md text-center font-size-1"
         data-toggle="table"
         data-sortable="true"
         data-classes=""
-        data-pagination="true"
-        data-search="true"
-        data-page-size="50"
-        data-page-list="[50, 100, 200, all]"
       >
         <thead>
           <tr>
@@ -48,14 +50,18 @@
               <td class="text-left">
                 {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}
                 {% include 'ta_app/jobs/_modal_job_details.html' with data=job %}
+
+                {% if job.my_fav %}
+                  <i class="fa fa-star text-warning" aria-hidden="true"></i>
+                {% endif %}
               </td>
               <td>{% include 'ta_app/jobs/_job_instructor.html' with data=job %}</td>
               <td>
 
-                {% if job.app %}
+                {% if job.my_app %}
                   {% include 'ta_app/applications/_app_status.html' with data='None' %}
                   <br />
-                  <small class="text-muted">{{ job.app.created_at }}</small>
+                  <small class="text-muted">{{ job.my_app.created_at }}</small>
                 {% else %}
                   <a href="{% url 'students:apply_job' session_slug=job.session.slug job_slug=job.course.slug %}">Apply</a>
                 {% endif %}
@@ -65,6 +71,9 @@
           {% endfor %}
         </tbody>
       </table>
+
+      {% include 'ta_app/pages/_table_paginator.html' with data=jobs %}
+
     </div>
   </div>
 </div>
