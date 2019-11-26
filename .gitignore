@@ -9,3 +9,4 @@ vagrant
 *.log
 staticfiles
 saml_prod
+ta_app/settings.py
