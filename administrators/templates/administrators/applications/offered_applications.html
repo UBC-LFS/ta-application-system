@@ -5,7 +5,7 @@
 <div>
   {% include 'ta_app/pages/_header.html' with title='Offered Applications' %}
 
-  {% include 'ta_app/applications/_search_fields.html' with data=apps path='offered_applications' %}
+  {% include 'administrators/applications/_search_fields.html' with data=apps total=total_apps path='offered_applications' %}
 
   <form action="{% url 'administrators:offered_applications_send_email' %}" method="post">
     {% csrf_token %}

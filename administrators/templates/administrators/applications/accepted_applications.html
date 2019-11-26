@@ -5,7 +5,7 @@
 <div>
   {% include 'ta_app/pages/_header.html' with title='Accepted Applications' %}
 
-  {% include 'ta_app/applications/_search_fields.html' with data=apps path='accepted_applications' %}
+  {% include 'administrators/applications/_search_fields.html' with data=apps total=total_apps path='accepted_applications' %}
 
   <table
     class="table table-bordered table-hover table-striped table-responsive-md text-center"
@@ -57,7 +57,7 @@
           <td>{{ app.accepted.created_at }}</td>
           <td>
             <div class="btn-toolbar">
-              <button class="btn btn-xs btn-primary mr-2" type="button" data-toggle="modal" data-target="#job-application-modal-{{ app.id }}">Decline &<br /> Re-assign</button><br />
+              <button class="btn btn-xs btn-success mr-2" type="button" data-toggle="modal" data-target="#job-application-modal-{{ app.id }}">Decline &<br /> Re-assign</button><br />
 
               <div class="modal fade" id="job-application-modal-{{ app.id }}" tabindex="-1" role="dialog" aria-labelledby="job-application-modal-label-{{ app.id }}" aria-hidden="true">
                 <div class="modal-dialog modal-lg" role="document">
@@ -87,7 +87,7 @@
 
                         <input type="hidden" name="old_assigned_hours" value="{{ app.accepted.assigned_hours }}" />
                         <input type="hidden" name="application" value="{{ app.id }}" />
-                        <input class="btn btn-primary" type="submit" value="Decline & Re-assign" />
+                        <input class="btn btn-success" type="submit" value="Decline & Re-assign" />
                       </form>
                     </div>
                   </div>

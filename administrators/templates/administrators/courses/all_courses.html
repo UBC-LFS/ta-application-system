@@ -13,19 +13,7 @@
     </div>
   </div>
 
-  <div class="search-field bg-light-gray p-4">
-    <form method="GET">
-      <input type="text" name="term" value="{{ request.GET.term }}" placeholder="Term" /> <br />
-      <input type="text" name="code" value="{{ request.GET.code }}" placeholder="Job Code" /> and
-      <input type="text" name="number" value="{{ request.GET.number }}" placeholder="Job Number" /> and
-      <input type="text" name="section" value="{{ request.GET.section }}" placeholder="Job Section" /> <br />
-      <input type="text" name="name" value="{{ request.GET.name }}" placeholder="Name" /> <br />
-
-      <button class="btn btn-sm btn-secondary" type="submit">Search</button>
-      <a class="btn btn-sm btn-light" href="{% url 'administrators:all_courses' %}">Clear</a>
-    </form>
-  </div>
-  <div>{{ courses|length }} row{% if jobs|length > 1 %}s  {% endif %} in this page</div>
+  {% include 'administrators/courses/_search_fields.html' with data=courses total=total_courses %}
 
   <table
     class="table table-bordered table-hover table-striped table-responsive-md text-center"
@@ -38,10 +26,10 @@
     <thead>
       <tr>
         <th data-sortable="true">ID</th>
+        <th data-sortable="true">Term</th>
         <th data-sortable="true">Code</th>
         <th data-sortable="true">Number</th>
         <th data-sortable="true">Section</th>
-        <th data-sortable="true">Term</th>
         <th data-sortable="true">Name</th>
         <th>Actions</th>
       </tr>
@@ -50,10 +38,10 @@
       {% for course in courses %}
         <tr>
           <td>{{ course.id }}</td>
+          <td>{{ course.term.name }} ({{ course.term.code }})</td>
           <td>{{ course.code }}</td>
           <td>{{ course.number }}</td>
           <td>{{ course.section }}</td>
-          <td>{{ course.term.name }} ({{ course.term.code }})</td>
           <td class="text-left">{{ course.name }}</td>
           <td>
             <div class="btn-toolbar">
@@ -71,45 +59,7 @@
     </tbody>
   </table>
 
-  {% if courses.has_other_pages %}
-    <nav class="table-paginator" aria-label="Page navigation Search results pages">
-      <ul class="pagination justify-content-center">
-
-    		{% if courses.has_previous %}
-          <li class="page-item">
-    				<a class="page-link" href="?page={{ courses.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">&laquo;</a>
-    			</li>
-        {% else %}
-          <li class="page-item disabled">
-    				<span class="page-link">&laquo;</span>
-    			</li>
-        {% endif %}
-
-    		{% for i in courses.paginator.page_range %}
-          {% if courses.number == i %}
-            <li class="page-item active">
-    					<span class="page-link" >{{ i }} <span class="sr-only">(current)</span></span>
-    				</li>
-          {% else %}
-            <li class="page-item">
-    					<a class="page-link" href="?page={{ i }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">{{ i }}</a>
-    				</li>
-          {% endif %}
-        {% endfor %}
-
-        {% if courses.has_next %}
-          <li class="page-item">
-    				<a class="page-link" href="?page={{ courses.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">&raquo;</a>
-    			</li>
-        {% else %}
-          <li class="page-item disabled">
-    				<span class="page-link">&raquo;</span>
-    			</li>
-        {% endif %}
-
-      </ul>
-    </nav>
-  {% endif %}
+  {% include 'ta_app/pages/_table_paginator.html' with data=courses %}
 
 </div>
 

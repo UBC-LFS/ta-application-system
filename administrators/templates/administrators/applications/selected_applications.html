@@ -5,7 +5,7 @@
 <div>
   {% include 'ta_app/pages/_header.html' with title='Selected Applications' %}
 
-  {% include 'ta_app/applications/_search_fields.html' with data=apps path='selected_applications' %}
+  {% include 'administrators/applications/_search_fields.html' with data=apps total=total_apps path='selected_applications' %}
 
   <table
     class="table table-bordered table-hover table-striped table-responsive-md text-center"

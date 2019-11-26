@@ -28,7 +28,9 @@
 							{% if 'Admin' in loggedin_user.roles or 'Superadmin' in loggedin_user.roles %}
 								<li class="nav-item">
 									<a id="admin" class="nav-link" href="{% url 'administrators:index' %}">
-										<i class="fa fa-home" aria-hidden="true"></i> Administrator
+										<i class="fa fa-home" aria-hidden="true"></i>
+										{% if loggedin_user.roles|length > 1 %} Administrator {% endif %}
+										Home
 									</a>
 								</li>
 							{% endif %}
@@ -36,7 +38,9 @@
 							{% if 'HR' in loggedin_user.roles %}
 								<li class="nav-item">
 									<a id="hr" class="nav-link" href="{% url 'human_resources:index' %}">
-										<i class="fa fa-home" aria-hidden="true"></i> Human Resource
+										<i class="fa fa-home" aria-hidden="true"></i>
+										{% if loggedin_user.roles|length > 1 %} Human Resource {% endif %}
+										Home
 									</a>
 								</li>
 							{% endif %}
@@ -44,7 +48,9 @@
 							{% if 'Instructor' in loggedin_user.roles %}
 								<li class="nav-item">
 									<a id="instructor" class="nav-link" href="{% url 'instructors:index' %}">
-										<i class="fa fa-home" aria-hidden="true"></i> Instructor
+										<i class="fa fa-home" aria-hidden="true"></i>
+										{% if loggedin_user.roles|length > 1 %} Instructor {% endif %}
+										Home
 									</a>
 								</li>
 							{% endif %}
@@ -52,7 +58,9 @@
 							{% if 'Student' in loggedin_user.roles %}
 								<li class="nav-item">
 									<a id="student" class="nav-link" href="{% url 'students:index' %}">
-										<i class="fa fa-home" aria-hidden="true"></i> Student
+										<i class="fa fa-home" aria-hidden="true"></i>
+										{% if loggedin_user.roles|length > 1 %} Student {% endif %}
+										Home
 									</a>
 								</li>
 							{% endif %}

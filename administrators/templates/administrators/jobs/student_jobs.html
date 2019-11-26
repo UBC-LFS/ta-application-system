@@ -3,9 +3,9 @@
 
 {% include 'administrators/_menu.html' %}
 <div>
-  {% include 'ta_app/pages/_header.html' with title='Jobs by Student' text=users|length %}
+  {% include 'ta_app/pages/_header.html' with title='Jobs by Student' %}
 
-  {% include 'ta_app/users/_search_fields.html' with data=users path='student_jobs' %}
+  {% include 'ta_app/users/_search_fields.html' with data=users total=total_users path='student_jobs' %}
 
   <table
     class="table table-bordered table-hover table-striped table-responsive-md text-center"

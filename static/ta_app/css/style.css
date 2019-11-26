@@ -17,7 +17,13 @@ header {
   width: 100%;
 }
 
+.nav-item .nav-link:hover {
+  text-decoration: underline;
+}
 
+.nav-item .nav-link.active {
+  font-weight: 600;
+}
 
 /* footer */
 footer {
@@ -135,12 +141,17 @@ main {
 .btn-favourite {
   background: none;
   border: none;
+  outline: none;
 }
 
 .btn-favourite:hover {
   opacity: 0.8;
 }
 
+.btn-favourite:active,
+.btn-favourite:focus {
+  outline: none !important;
+}
 
 
 /* utils */
@@ -186,7 +197,7 @@ main {
 
 .board {
   background-color: #f3f7f7;
-  //padding: 2rem;
+  padding: 2rem;
 }
 
 .board h3 {

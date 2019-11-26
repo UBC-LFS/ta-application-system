@@ -3,30 +3,28 @@
 
 {% include 'instructors/_menu.html' %}
 <div>
-  {% include 'ta_app/pages/_header.html' with title='Jobs' text=loggedin_user.job_set.all|length %}
+  {% include 'ta_app/pages/_header.html' with title='Jobs' %}
 
   <div class="bg-prompt">
     <div class="prompt p-4 text-center mb-4">
-      <h4>Jobs: Get a glance</h4>
-      <p class="col-8 mx-auto">This table shows you a list of jobs that you have. Please update job details, and check applications.</p>
+      <h4>Get a glance</h4>
+      <p class="col-8 mx-auto">This table shows you a list of courses that you are teaching. Please update job details, and check applications.</p>
     </div>
   </div>
 
+  {% include 'ta_app/jobs/_search_fields.html' with data=jobs path='instructor_jobs' %}
+
   <table
-    class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center"
+    class="table table-bordered table-hover table-striped table-responsive-md text-center mt-4"
     data-toggle="table"
     data-sortable="true"
     data-classes=""
-    data-pagination="true"
-    data-search="true"
-    data-page-size="50"
-    data-page-list="[50, 100, 200, all]"
   >
     <thead>
       <tr>
         <th data-sortable="true">Year</th>
         <th data-sortable="true">Term</th>
-        <th data-sortable="true">Job</th>
+        <th data-sortable="true">Course</th>
         <th data-sortable="true">Applications</th>
         <th data-sortable="true">Active</th>
         <th data-sortable="true">Created at</th>
@@ -35,7 +33,7 @@
       </tr>
     </thead>
     <tbody>
-      {% for job in loggedin_user.job_set.all %}
+      {% for job in jobs %}
       <tr>
         <td>{{ job.session.year }}</td>
         <td>{{ job.session.term.code }}</td>
@@ -51,7 +49,7 @@
             {{ job.application_set.count }}
           {% endif %}
         </td>
-        <td>{{ job.is_active }}</td>
+        <td>{% include 'ta_app/jobs/_job_is_active.html' with data=job %}</td>
         <td>{{ job.created_at }}</td>
         <td>{{ job.updated_at }}</td>
         <td>
@@ -61,6 +59,8 @@
       {% endfor %}
     </tbody>
   </table>
+
+  {% include 'ta_app/pages/_table_paginator.html' with data=jobs %}
 
 </div>
 

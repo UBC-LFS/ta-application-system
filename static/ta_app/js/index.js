@@ -1,5 +1,4 @@
 $(document).ready(function () {
-  console.log(window.location.href);
   if (window.location.href.indexOf("administrators") > -1) {
     document.getElementById('admin').classList.add("active");
   } else {

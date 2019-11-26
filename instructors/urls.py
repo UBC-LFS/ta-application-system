@@ -5,7 +5,6 @@ app_name = 'instructors'
 
 urlpatterns = [
     path('', views.index, name='index'),
-    path('profile/', views.show_profile, name='show_profile'),
     path('jobs/', views.show_jobs, name='show_jobs'),
     path('sessions/<str:session_slug>/jobs/<str:job_slug>/edit/', views.edit_job, name='edit_job'),
     path('sessions/<str:session_slug>/jobs/<str:job_slug>/applications/', views.show_applications, name='show_applications'),

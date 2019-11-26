@@ -417,6 +417,8 @@ def delete_users():
 
 # Profile
 
+
+
 def get_users_by_role(role):
     ''' Get users by role '''
     return User.objects.filter(profile__roles__name=role).order_by('last_name')

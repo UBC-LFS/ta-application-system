@@ -37,7 +37,8 @@ def index(request):
         'loggedin_user': request.user,
         'apps': apps,
         'total_accepted_assigned_hours': total_accepted_assigned_hours,
-        'recent_apps': apps.filter( Q(created_at__year__gte=datetime.now().year) )
+        'recent_apps': apps.filter( Q(created_at__year__gte=datetime.now().year) ),
+        'favourites': adminApi.get_favourites(request.user)
     })
 
 
@@ -478,7 +479,7 @@ def explore_jobs(request):
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
+@require_http_methods(['GET', 'POST'])
 def favourite_jobs(request):
     ''' Display all lists of session terms '''
     if request.user.is_impersonate:
@@ -494,9 +495,9 @@ def favourite_jobs(request):
             job = form.cleaned_data['job']
             deleted = adminApi.delete_favourite_job(request.user, job)
             if deleted:
-                messages.success(request, 'Success! {0} {1} - {2} {3} {4} removed'.format(job.session.year, job.session.term.code, job.course.code.name, job.course.number.name, job.course.section.name))
+                messages.success(request, 'Success! {0} {1} - {2} {3} {4} deleted'.format(job.session.year, job.session.term.code, job.course.code.name, job.course.number.name, job.course.section.name))
             else:
-                messages.error(request, 'An error occurred while removing your favourite job. Please try again.')
+                messages.error(request, 'An error occurred while deleting your favourite job. Please try again.')
         else:
             errors = form.errors.get_json_data()
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
@@ -521,39 +522,28 @@ def available_jobs(request, session_slug):
         request.user.roles = request.session['loggedin_user']['roles']
     if 'Student' not in request.user.roles: raise PermissionDenied
 
-
     year_q = request.GET.get('year')
     term_q = request.GET.get('term')
     code_q = request.GET.get('code')
     number_q = request.GET.get('number')
     section_q = request.GET.get('section')
-    instructor_q = request.GET.get('instructor')
+    instructor_first_name_q = request.GET.get('instructor_first_name')
+    instructor_last_name_q = request.GET.get('instructor_last_name')
+    exclude_applied_jobs_q = request.GET.get('exclude_applied_jobs')
 
-    filters = None
+    job_list = adminApi.get_jobs_session(session_slug)
     if bool(code_q):
-        if filters:
-            filters = filters & Q(course__code__name__iexact=code_q)
-        else:
-            filters = Q(course__code__name__iexact=code_q)
+        job_list = job_list.filter(course__code__name__iexact=code_q)
     if bool(number_q):
-        if filters:
-            filters = filters & Q(course__number__name__iexact=number_q)
-        else:
-            filters = Q(course__number__name__iexact=number_q)
+        job_list = job_list.filter(course__number__name__iexact=number_q)
     if bool(section_q):
-        if filters:
-            filters = filters & Q(course__section__name__iexact=section_q)
-        else:
-            filters = Q(course__section__name__iexact=section_q)
-    if bool(instructor_q):
-        if filters:
-            filters = filters & Q(instructors__first_name__icontains=instructor_q)
-        else:
-            filters = Q(instructors__first_name__icontains=instructor_q)
-
-    job_list = adminApi.get_available_jobs_to_apply(request.user, session_slug)
-    if filters != None:
-        job_list = job_list.filter(filters)
+        job_list = job_list.filter(course__section__name__iexact=section_q)
+    if bool(instructor_first_name_q):
+        job_list = job_list.filter(instructors__first_name__icontains=instructor_first_name_q)
+    if bool(instructor_last_name_q):
+        job_list = job_list.filter(instructors__last_name__icontains=instructor_last_name_q)
+    if exclude_applied_jobs_q == '1':
+        job_list = job_list.exclude(application__applicant__id=request.user.id)
 
     page = request.GET.get('page', 1)
     paginator = Paginator(job_list, settings.PAGE_SIZE)
@@ -568,7 +558,7 @@ def available_jobs(request, session_slug):
     return render(request, 'students/jobs/available_jobs.html', {
         'loggedin_user': request.user,
         'session_slug': session_slug,
-        'jobs': jobs
+        'jobs': adminApi.add_applied_favourite_jobs(request.user, jobs)
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -629,18 +619,18 @@ def select_favourite_job(request, session_slug, job_slug):
             data = form.cleaned_data
             job = data['job']
 
-            is_ok = False
             if data['is_selected']:
                 fav = form.save()
-                if fav: is_ok = True
+                if fav:
+                    messages.success(request, 'Success! {0} {1} - {2} {3} {4} added'.format(job.session.year, job.session.term.code, job.course.code.name, job.course.number.name, job.course.section.name))
+                else:
+                    messages.error(request, 'An error occurred while adding your favourite job. Please try again.')
             else:
                 deleted = adminApi.delete_favourite_job(request.user, job)
-                if deleted: is_ok = True
-
-            if is_ok:
-                messages.success(request, 'Success! {0} {1} - {2} {3} {4} added'.format(job.session.year, job.session.term.code, job.course.code.name, job.course.number.name, job.course.section.name))
-            else:
-                messages.error(request, 'An error occurred while adding your favourite job. Please try again.')
+                if deleted:
+                    messages.success(request, 'Success! {0} {1} - {2} {3} {4} deleted'.format(job.session.year, job.session.term.code, job.course.code.name, job.course.number.name, job.course.section.name))
+                else:
+                    messages.error(request, 'An error occurred while deleting your favourite job. Please try again.')
         else:
             errors = form.errors.get_json_data()
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))

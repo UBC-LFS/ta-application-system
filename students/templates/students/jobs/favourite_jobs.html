@@ -7,6 +7,7 @@
 		{% include 'ta_app/pages/_left_aside.html' with view_name='users' title='Favourite Jobs' data=loggedin_user  %}
 
     <div class="left-aside-btn-groups">
+			<a class="btn btn-outline-primary mb-3" href="{% url 'students:index' %}">Back to Home</a><br />
       <a class="btn btn-outline-primary" href="{% url 'students:explore_jobs' %}">Back to Explore Jobs</a>
     </div>
 	</div>
@@ -14,7 +15,6 @@
 	<div class="col-md-8">
 
 		<div class="col-11 mx-auto">
-
 
 			<div class="bg-prompt">
 		    <div class="prompt p-4 text-center mb-4">
@@ -24,7 +24,6 @@
 					</p>
 		    </div>
 		  </div>
-
 
 			<table
 				class="table table-bordered table-hover table-striped table-responsive-md text-center font-size-1"
@@ -41,7 +40,7 @@
 						<th data-sortable="true">Year</th>
 						<th data-sortable="true">Term</th>
 						<th data-sortable="true">Job</th>
-						<th>Instructors</th>
+						<th data-sortable="true">Instructors</th>
 						<th data-sortable="true">Created at</th>
 						<th>Actions</th>
 					</tr>
@@ -62,7 +61,7 @@
 		              {% csrf_token %}
 
 		              <input type="hidden" name="applicant" value="{{ loggedin_user.id }}" />
-		              <input type="hidden" name="job" value="{{ job.id }}" />
+		              <input type="hidden" name="job" value="{{ fav.job.id }}" />
 									<input type="hidden" name="is_selected" value="false" />
 
 		              <button type="submit" class="btn btn-xs btn-danger">

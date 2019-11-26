@@ -7,6 +7,8 @@ from django.http import HttpResponseRedirect, Http404
 from django.core.exceptions import PermissionDenied
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.cache import cache_control
+from django.db.models import Q
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from administrators.views import APP_STATUS
 from administrators.models import *
@@ -30,22 +32,6 @@ def index(request):
     if 'Instructor' not in request.user.roles: raise PermissionDenied
 
     return render(request, 'instructors/index.html', {
-        'loggedin_user': request.user
-    })
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
-def show_profile(request):
-    ''' Display user's profile '''
-    if request.user.is_impersonate:
-        if not userApi.is_admin(request.session['loggedin_user'], 'dict'): raise PermissionDenied
-        request.user.roles = userApi.get_user_roles(request.user)
-    else:
-        request.user.roles = request.session['loggedin_user']['roles']
-    if 'Instructor' not in request.user.roles: raise PermissionDenied
-
-    return render(request, 'instructors/users/show_profile.html', {
         'loggedin_user': request.user
     })
 
@@ -82,8 +68,58 @@ def show_jobs(request):
         request.user.roles = request.session['loggedin_user']['roles']
     if 'Instructor' not in request.user.roles: raise PermissionDenied
 
+
+    year_q = request.GET.get('year')
+    term_q = request.GET.get('term')
+    code_q = request.GET.get('code')
+    number_q = request.GET.get('number')
+    section_q = request.GET.get('section')
+
+    filters = None
+    if bool(year_q):
+        if filters:
+            filters = filters & Q(session__year__iexact=year_q)
+        else:
+            filters = Q(session__year__iexact=year_q)
+    if bool(term_q):
+        if filters:
+            filters = filters & Q(session__term__code__iexact=term_q)
+        else:
+            filters = Q(session__term__code__iexact=term_q)
+    if bool(code_q):
+        if filters:
+            filters = filters & Q(course__code__name__iexact=code_q)
+        else:
+            filters = Q(course__code__name__iexact=code_q)
+    if bool(number_q):
+        if filters:
+            filters = filters & Q(course__number__name__iexact=number_q)
+        else:
+            filters = Q(course__number__name__iexact=number_q)
+    if bool(section_q):
+        if filters:
+            filters = filters & Q(course__section__name__iexact=section_q)
+        else:
+            filters = Q(course__section__name__iexact=section_q)
+
+
+    job_list = request.user.job_set.all()
+    if filters != None:
+        job_list = job_list.filter(filters)
+
+    page = request.GET.get('page', 1)
+    paginator = Paginator(job_list, settings.PAGE_SIZE)
+
+    try:
+        jobs = paginator.page(page)
+    except PageNotAnInteger:
+        jobs = paginator.page(1)
+    except EmptyPage:
+        jobs = paginator.page(paginator.num_pages)
+
     return render(request, 'instructors/jobs/show_jobs.html', {
-        'loggedin_user': request.user
+        'loggedin_user': request.user,
+        'jobs': jobs
     })
 
 @login_required(login_url=settings.LOGIN_URL)

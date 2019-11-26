@@ -1,0 +1,20 @@
+<div class="search-field bg-light-gray p-4">
+  <form method="GET">
+    <input type="text" name="year" value="{{ request.GET.year }}" placeholder="Year" /> and
+    <input type="text" name="term" value="{{ request.GET.term }}" placeholder="Term" />
+
+    <div class="mt-1">
+      <button class="btn btn-sm btn-secondary" type="submit">Search</button>
+
+      {% if path == 'current_sessions' %}
+        <a class="btn btn-sm btn-light" href="{% url 'administrators:current_sessions' %}">Clear</a>
+      {% endif %}
+
+      {% if path == 'archived_sessions' %}
+        <a class="btn btn-sm btn-light" href="{% url 'administrators:archived_sessions' %}">Clear</a>
+      {% endif %}
+    </div>
+
+  </form>
+</div>
+<div>{{ total }} result{% if total > 1 %}s {% endif %} found. {{ data|length }} row{% if data|length > 1 %}s  {% endif %} in this page.</div>

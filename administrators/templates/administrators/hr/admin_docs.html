@@ -5,7 +5,7 @@
 <div>
   {% include 'ta_app/pages/_header.html' with title='Admin Documents' %}
 
-  {% include 'ta_app/users/_search_fields.html' with data=users path='admin_docs' %}
+  {% include 'ta_app/users/_search_fields.html' with data=users total=total_users path='admin_docs' %}
 
   <table
     class="table table-bordered table-hover table-striped table-responsive-md text-center"

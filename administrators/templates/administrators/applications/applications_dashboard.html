@@ -12,7 +12,7 @@
     </div>
   </div>
 
-  {% include 'ta_app/applications/_search_fields.html' with data=statuses path='applications_dashboard' %}
+  {% include 'administrators/applications/_search_fields.html' with data=statuses total=total_statuses path='applications_dashboard' %}
 
   <table
     class="table table-bordered table-hover table-striped table-responsive-md text-center"

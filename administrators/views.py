@@ -50,7 +50,14 @@ def index(request):
     if not userApi.is_admin(request.user): raise PermissionDenied
 
     return render(request, 'administrators/index.html', {
-        'loggedin_user': request.user
+        'loggedin_user': request.user,
+        'current_sessions': adminApi.get_sessions_by_archived(False),
+        'archived_sessions': adminApi.get_sessions_by_archived(True),
+        'apps': adminApi.get_applications(),
+        'instructors': userApi.get_users_by_role(Role.INSTRUCTOR),
+        'students': userApi.get_users_by_role(Role.STUDENT),
+        'users': userApi.get_users()
+
     })
 
 # ------------- Sessions -------------
@@ -164,10 +171,33 @@ def current_sessions(request):
     request.user.roles = request.session['loggedin_user']['roles']
     if not userApi.is_admin(request.user): raise PermissionDenied
 
-    sessions = adminApi.get_sessions_by_archived(False)
+    year_q = request.GET.get('year')
+    term_q = request.GET.get('term')
+
+    session_list = adminApi.get_sessions()
+    if bool(year_q):
+        session_list = session_list.filter(year__iexact=year_q)
+    if bool(term_q):
+        session_list = session_list.filter(term__code__iexact=term_q)
+
+    session_list = session_list.filter(is_archived=False)
+    session_list = adminApi.add_num_instructors(session_list)
+    total_sessions = len(session_list)
+
+    page = request.GET.get('page', 1)
+    paginator = Paginator(session_list, settings.PAGE_SIZE)
+
+    try:
+        sessions = paginator.page(page)
+    except PageNotAnInteger:
+        sessions = paginator.page(1)
+    except EmptyPage:
+        sessions = paginator.page(paginator.num_pages)
+
     return render(request, 'administrators/sessions/current_sessions.html', {
         'loggedin_user': request.user,
-        'sessions': adminApi.add_num_instructors(sessions),
+        'sessions': sessions,
+        'total_sessions': total_sessions,
         'form': SessionForm()
     })
 
@@ -182,27 +212,19 @@ def archived_sessions(request):
     year_q = request.GET.get('year')
     term_q = request.GET.get('term')
 
-    filters = None
+    session_list = adminApi.get_sessions()
     if bool(year_q):
-        if filters:
-            filters = filters & Q(year__iexact=year_q)
-        else:
-            filters = Q(year__iexact=year_q)
+        session_list = session_list.filter(year__iexact=year_q)
     if bool(term_q):
-        if filters:
-            filters = filters & Q(term__code__iexact=term_q)
-        else:
-            filters = Q(term__code__iexact=term_q)
+        session_list = session_list.filter(term__code__iexact=term_q)
 
-    session_list = None
-    if filters == None:
-        session_list = adminApi.get_sessions_by_archived(True)
-    else:
-        session_list = Session.objects.filter( filters & Q(is_archived=True) )
+    session_list = session_list.filter(is_archived=True)
     session_list = adminApi.add_num_instructors(session_list)
+    total_sessions = len(session_list)
 
     page = request.GET.get('page', 1)
     paginator = Paginator(session_list, settings.PAGE_SIZE)
+
     try:
         sessions = paginator.page(page)
     except PageNotAnInteger:
@@ -213,6 +235,7 @@ def archived_sessions(request):
     return render(request, 'administrators/sessions/archived_sessions.html', {
         'loggedin_user': request.user,
         'sessions': sessions,
+        'total_sessions': total_sessions,
         'form': SessionForm()
     })
 
@@ -338,46 +361,26 @@ def prepare_jobs(request):
     code_q = request.GET.get('code')
     number_q = request.GET.get('number')
     section_q = request.GET.get('section')
-    instructor_q = request.GET.get('instructor')
+    instructor_first_name_q = request.GET.get('instructor_first_name')
+    instructor_last_name_q = request.GET.get('instructor_last_name')
 
-    filters = None
+    job_list = adminApi.get_jobs()
     if bool(year_q):
-        if filters:
-            filters = filters & Q(session__year__iexact=year_q)
-        else:
-            filters = Q(session__year__iexact=year_q)
+        job_list = job_list.filter(session__year__iexact=year_q)
     if bool(term_q):
-        if filters:
-            filters = filters & Q(session__term__code__iexact=term_q)
-        else:
-            filters = Q(session__term__code__iexact=term_q)
+        job_list = job_list.filter(session__term__code__iexact=term_q)
     if bool(code_q):
-        if filters:
-            filters = filters & Q(course__code__name__iexact=code_q)
-        else:
-            filters = Q(course__code__name__iexact=code_q)
+        job_list = job_list.filter(course__code__name__iexact=code_q)
     if bool(number_q):
-        if filters:
-            filters = filters & Q(course__number__name__iexact=number_q)
-        else:
-            filters = Q(course__number__name__iexact=number_q)
+        job_list = job_list.filter(course__number__name__iexact=number_q)
     if bool(section_q):
-        if filters:
-            filters = filters & Q(course__section__name__iexact=section_q)
-        else:
-            filters = Q(course__section__name__iexact=section_q)
-    if bool(instructor_q):
-        if filters:
-            filters = filters & Q(instructors__username__icontains=instructor_q)
-        else:
-            filters = Q(instructors__username__icontains=instructor_q)
+        job_list = job_list.filter(course__section__name__iexact=section_q)
+    if bool(instructor_first_name_q):
+        job_list = job_list.filter(instructors__first_name__icontains=instructor_first_name_q)
+    if bool(instructor_last_name_q):
+        job_list = job_list.filter(instructors__last_name__icontains=instructor_last_name_q)
 
-
-    job_list = None
-    if filters == None:
-        job_list = adminApi.get_jobs()
-    else:
-        job_list = Job.objects.filter(filters)
+    total_jobs = len(job_list)
 
     page = request.GET.get('page', 1)
     paginator = Paginator(job_list, settings.PAGE_SIZE)
@@ -391,7 +394,8 @@ def prepare_jobs(request):
 
     return render(request, 'administrators/jobs/prepare_jobs.html', {
         'loggedin_user': request.user,
-        'jobs': jobs
+        'jobs': jobs,
+        'total_jobs': total_jobs
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -408,43 +412,21 @@ def progress_jobs(request):
     number_q = request.GET.get('number')
     section_q = request.GET.get('section')
 
-    filters = None
+    job_list = adminApi.get_jobs()
     if bool(year_q):
-        if filters:
-            filters = filters & Q(session__year__iexact=year_q)
-        else:
-            filters = Q(session__year__iexact=year_q)
+        job_list = job_list.filter(session__year__iexact=year_q)
     if bool(term_q):
-        if filters:
-            filters = filters & Q(session__term__code__iexact=term_q)
-        else:
-            filters = Q(session__term__code__iexact=term_q)
+        job_list = job_list.filter(session__term__code__iexact=term_q)
     if bool(code_q):
-        if filters:
-            filters = filters & Q(course__code__name__iexact=code_q)
-        else:
-            filters = Q(course__code__name__iexact=code_q)
+        job_list = job_list.filter(course__code__name__iexact=code_q)
     if bool(number_q):
-        if filters:
-            filters = filters & Q(course__number__name__iexact=number_q)
-        else:
-            filters = Q(course__number__name__iexact=number_q)
+        job_list = job_list.filter(course__number__name__iexact=number_q)
     if bool(section_q):
-        if filters:
-            filters = filters & Q(course__section__name__iexact=section_q)
-        else:
-            filters = Q(course__section__name__iexact=section_q)
-
-
-    job_list = None
-    #if bool(year_q) or bool(term_q) or bool(code_q) or bool(number_q) or bool(section_q) or bool(cwl_q):
-    #    job_list = Job.objects.filter(filters)
-    if filters == None:
-        job_list = adminApi.get_jobs()
-    else:
-        job_list = Job.objects.filter(filters)
+        job_list = job_list.filter(course__section__name__iexact=section_q)
 
     #job_list = adminApi.add_applications_statistics(job_list)
+    total_jobs = len(job_list)
+
     page = request.GET.get('page', 1)
     paginator = Paginator(job_list, settings.PAGE_SIZE)
 
@@ -457,7 +439,8 @@ def progress_jobs(request):
 
     return render(request, 'administrators/jobs/progress_jobs.html', {
         'loggedin_user': request.user,
-        'jobs': jobs
+        'jobs': jobs,
+        'total_jobs': total_jobs
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -468,9 +451,39 @@ def instructor_jobs(request):
     request.user.roles = request.session['loggedin_user']['roles']
     if not userApi.is_admin(request.user): raise PermissionDenied
 
+    first_name_q = request.GET.get('first_name')
+    last_name_q = request.GET.get('last_name')
+    preferred_name_q = request.GET.get('preferred_name')
+    cwl_q = request.GET.get('cwl')
+
+    user_list = userApi.get_users()
+    if bool(first_name_q):
+        user_list = user_list.filter(first_name__icontains=first_name_q)
+    if bool(last_name_q):
+        user_list = user_list.filter(last_name__icontains=last_name_q)
+    if bool(preferred_name_q):
+        user_list = user_list.filter(profile__preferred_name__icontains=preferred_name_q)
+    if bool(cwl_q):
+        user_list = user_list.filter(username__icontains=cwl_q)
+
+    user_list = user_list.filter(profile__roles__name=Role.INSTRUCTOR)
+
+    total_users = len(user_list)
+
+    page = request.GET.get('page', 1)
+    paginator = Paginator(user_list, settings.PAGE_SIZE)
+
+    try:
+        users = paginator.page(page)
+    except PageNotAnInteger:
+        users = paginator.page(1)
+    except EmptyPage:
+        users = paginator.page(paginator.num_pages)
+
     return render(request, 'administrators/jobs/instructor_jobs.html', {
         'loggedin_user': request.user,
-        'users': userApi.get_users_by_role('Instructor')
+        'users': users,
+        'total_users': total_users
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -486,33 +499,19 @@ def student_jobs(request):
     preferred_name_q = request.GET.get('preferred_name')
     cwl_q = request.GET.get('cwl')
 
-    filters = None
+    user_list = userApi.get_users()
     if bool(first_name_q):
-        if filters:
-            filters = filters & Q(first_name__iexact=first_name_q)
-        else:
-            filters = Q(first_name__iexact=first_name_q)
+        user_list = user_list.filter(first_name__icontains=first_name_q)
     if bool(last_name_q):
-        if filters:
-            filters = filters & Q(last_name__iexact=last_name_q)
-        else:
-            filters = Q(last_name__iexact=last_name_q)
+        user_list = user_list.filter(last_name__icontains=last_name_q)
     if bool(preferred_name_q):
-        if filters:
-            filters = filters & Q(profile__preferred_name__iexact=preferred_name_q)
-        else:
-            filters = Q(profile__preferred_name__iexact=preferred_name_q)
+        user_list = user_list.filter(profile__preferred_name__icontains=preferred_name_q)
     if bool(cwl_q):
-        if filters:
-            filters = filters & Q(username__iexact=cwl_q)
-        else:
-            filters = Q(username__iexact=cwl_q)
+        user_list = user_list.filter(username__icontains=cwl_q)
 
-    user_list = None
-    if filters == None:
-        user_list = userApi.get_users_by_role('Student')
-    else:
-        user_list = User.objects.filter(filters)
+    user_list = user_list.filter(profile__roles__name=Role.STUDENT)
+
+    total_users = len(user_list)
 
     page = request.GET.get('page', 1)
     paginator = Paginator(user_list, settings.PAGE_SIZE)
@@ -526,7 +525,8 @@ def student_jobs(request):
 
     return render(request, 'administrators/jobs/student_jobs.html', {
         'loggedin_user': request.user,
-        'users': users
+        'users': users,
+        'total_users': total_users
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -653,45 +653,26 @@ def applications_dashboard(request):
     code_q = request.GET.get('code')
     number_q = request.GET.get('number')
     section_q = request.GET.get('section')
-    cwl_q = request.GET.get('cwl')
+    first_name_q = request.GET.get('first_name')
+    last_name_q = request.GET.get('last_name')
 
-    filters = None
+    status_list = adminApi.get_application_statuses()
     if bool(year_q):
-        if filters:
-            filters = filters & Q(application__job__session__year__iexact=year_q)
-        else:
-            filters = Q(application__job__session__year__iexact=year_q)
+        status_list = status_list.filter(application__job__session__year__iexact=year_q)
     if bool(term_q):
-        if filters:
-            filters = filters & Q(application__job__session__term__code__iexact=term_q)
-        else:
-            filters = Q(application__job__session__term__code__iexact=term_q)
+        status_list = status_list.filter(application__job__session__term__code__iexact=term_q)
     if bool(code_q):
-        if filters:
-            filters = filters & Q(application__job__course__code__name__iexact=code_q)
-        else:
-            filters = Q(application__job__course__code__name__iexact=code_q)
+        status_list = status_list.filter(application__job__course__code__name__iexact=code_q)
     if bool(number_q):
-        if filters:
-            filters = filters & Q(application__job__course__number__name__iexact=number_q)
-        else:
-            filters = Q(application__job__course__number__name__iexact=number_q)
+        status_list = status_list.filter(application__job__course__number__name__iexact=number_q)
     if bool(section_q):
-        if filters:
-            filters = filters & Q(application__job__course__section__name__iexact=section_q)
-        else:
-            filters = Q(application__job__course__section__name__iexact=section_q)
-    if bool(cwl_q):
-        if filters:
-            filters = filters & Q(application__applicant__username__iexact=cwl_q)
-        else:
-            filters = Q(application__applicant__username__iexact=cwl_q)
+        status_list = status_list.filter(application__job__course__section__name__iexact=section_q)
+    if bool(first_name_q):
+        status_list = status_list.filter(application__applicant__first_name__icontains=first_name_q)
+    if bool(last_name_q):
+        status_list = status_list.filter(application__applicant__last_name__icontains=last_name_q)
 
-    status_list = None
-    if filters == None:
-        status_list = adminApi.get_application_statuses()
-    else:
-        status_list = ApplicationStatus.objects.filter(filters).order_by('-id')
+    total_statuses = len(status_list)
 
     page = request.GET.get('page', 1)
     paginator = Paginator(status_list, settings.PAGE_SIZE)
@@ -706,6 +687,7 @@ def applications_dashboard(request):
     return render(request, 'administrators/applications/applications_dashboard.html', {
         'loggedin_user': request.user,
         'statuses': statuses,
+        'total_statuses': total_statuses,
         'app_status': APP_STATUS,
         #'applications': adminApi.get_applications()
     })
@@ -723,45 +705,26 @@ def all_applications(request):
     code_q = request.GET.get('code')
     number_q = request.GET.get('number')
     section_q = request.GET.get('section')
-    cwl_q = request.GET.get('cwl')
+    first_name_q = request.GET.get('first_name')
+    last_name_q = request.GET.get('last_name')
 
-    filters = None
+    app_list = adminApi.get_applications()
     if bool(year_q):
-        if filters:
-            filters = filters & Q(job__session__year__iexact=year_q)
-        else:
-            filters = Q(job__session__year__iexact=year_q)
+        app_list = app_list.filter(job__session__year__iexact=year_q)
     if bool(term_q):
-        if filters:
-            filters = filters & Q(job__session__term__code__iexact=term_q)
-        else:
-            filters = Q(job__session__term__code__iexact=term_q)
+        app_list = app_list.filter(job__session__term__code__iexact=term_q)
     if bool(code_q):
-        if filters:
-            filters = filters & Q(job__course__code__name__iexact=code_q)
-        else:
-            filters = Q(job__course__code__name__iexact=code_q)
+        app_list = app_list.filter(job__course__code__name__iexact=code_q)
     if bool(number_q):
-        if filters:
-            filters = filters & Q(job__course__number__name__iexact=number_q)
-        else:
-            filters = Q(job__course__number__name__iexact=number_q)
+        app_list = app_list.filter(job__course__number__name__iexact=number_q)
     if bool(section_q):
-        if filters:
-            filters = filters & Q(job__course__section__name__iexact=section_q)
-        else:
-            filters = Q(job__course__section__name__iexact=section_q)
-    if bool(cwl_q):
-        if filters:
-            filters = filters & Q(applicant__username__iexact=cwl_q)
-        else:
-            filters = Q(applicant__username__iexact=cwl_q)
+        app_list = app_list.filter(job__course__section__name__iexact=section_q)
+    if bool(first_name_q):
+        app_list = app_list.filter(applicant__first_name__icontains=first_name_q)
+    if bool(last_name_q):
+        app_list = app_list.filter(applicant__last_name__icontains=last_name_q)
 
-    app_list = None
-    if filters == None:
-        app_list = adminApi.get_applications()
-    else:
-        app_list = ApplicationStatus.objects.filter(filters).order_by('-id')
+    total_apps = len(app_list)
 
     page = request.GET.get('page', 1)
     paginator = Paginator(app_list, settings.PAGE_SIZE)
@@ -775,7 +738,8 @@ def all_applications(request):
 
     return render(request, 'administrators/applications/all_applications.html', {
         'loggedin_user': request.user,
-        'apps': apps
+        'apps': apps,
+        'total_apps': total_apps
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -791,45 +755,29 @@ def selected_applications(request):
     code_q = request.GET.get('code')
     number_q = request.GET.get('number')
     section_q = request.GET.get('section')
-    cwl_q = request.GET.get('cwl')
+    first_name_q = request.GET.get('first_name')
+    last_name_q = request.GET.get('last_name')
 
-    filters = None
+    app_list = adminApi.get_applications()
     if bool(year_q):
-        if filters:
-            filters = filters & Q(job__session__year__iexact=year_q)
-        else:
-            filters = Q(job__session__year__iexact=year_q)
+        app_list = app_list.filter(job__session__year__iexact=year_q)
     if bool(term_q):
-        if filters:
-            filters = filters & Q(job__session__term__code__iexact=term_q)
-        else:
-            filters = Q(job__session__term__code__iexact=term_q)
+        app_list = app_list.filter(job__session__term__code__iexact=term_q)
     if bool(code_q):
-        if filters:
-            filters = filters & Q(job__course__code__name__iexact=code_q)
-        else:
-            filters = Q(job__course__code__name__iexact=code_q)
+        app_list = app_list.filter(job__course__code__name__iexact=code_q)
     if bool(number_q):
-        if filters:
-            filters = filters & Q(job__course__number__name__iexact=number_q)
-        else:
-            filters = Q(job__course__number__name__iexact=number_q)
+        app_list = app_list.filter(job__course__number__name__iexact=number_q)
     if bool(section_q):
-        if filters:
-            filters = filters & Q(job__course__section__name__iexact=section_q)
-        else:
-            filters = Q(job__course__section__name__iexact=section_q)
-    if bool(cwl_q):
-        if filters:
-            filters = filters & Q(applicant__username__iexact=cwl_q)
-        else:
-            filters = Q(applicant__username__iexact=cwl_q)
+        app_list = app_list.filter(job__course__section__name__iexact=section_q)
+    if bool(first_name_q):
+        app_list = app_list.filter(applicant__first_name__icontains=first_name_q)
+    if bool(last_name_q):
+        app_list = app_list.filter(applicant__last_name__icontains=last_name_q)
 
-    app_list = None
-    if filters == None:
-        app_list = adminApi.get_applications_by_status(ApplicationStatus.SELECTED)
-    else:
-        app_list = Application.objects.filter( filters & Q(applicationstatus__assigned=ApplicationStatus.SELECTED) ).order_by('-id').distinct()
+    app_list = app_list.filter(applicationstatus__assigned=ApplicationStatus.SELECTED).order_by('-id').distinct()
+    app_list = adminApi.add_application_info(app_list, ['resume', 'selected', 'offered'])
+
+    total_apps = len(app_list)
 
     page = request.GET.get('page', 1)
     paginator = Paginator(app_list, settings.PAGE_SIZE)
@@ -844,6 +792,7 @@ def selected_applications(request):
     return render(request, 'administrators/applications/selected_applications.html', {
         'loggedin_user': request.user,
         'apps': apps,
+        'total_apps': total_apps,
         'admin_application_form': AdminApplicationForm(),
         'status_form': ApplicationStatusForm(initial={ 'assigned': ApplicationStatus.OFFERED }),
         'classification_choices': adminApi.get_classifications(),
@@ -913,45 +862,29 @@ def offered_applications(request):
     code_q = request.GET.get('code')
     number_q = request.GET.get('number')
     section_q = request.GET.get('section')
-    cwl_q = request.GET.get('cwl')
+    first_name_q = request.GET.get('first_name')
+    last_name_q = request.GET.get('last_name')
 
-    filters = None
+    app_list = adminApi.get_applications()
     if bool(year_q):
-        if filters:
-            filters = filters & Q(job__session__year__iexact=year_q)
-        else:
-            filters = Q(job__session__year__iexact=year_q)
+        app_list = app_list.filter(job__session__year__iexact=year_q)
     if bool(term_q):
-        if filters:
-            filters = filters & Q(job__session__term__code__iexact=term_q)
-        else:
-            filters = Q(job__session__term__code__iexact=term_q)
+        app_list = app_list.filter(job__session__term__code__iexact=term_q)
     if bool(code_q):
-        if filters:
-            filters = filters & Q(job__course__code__name__iexact=code_q)
-        else:
-            filters = Q(job__course__code__name__iexact=code_q)
+        app_list = app_list.filter(job__course__code__name__iexact=code_q)
     if bool(number_q):
-        if filters:
-            filters = filters & Q(job__course__number__name__iexact=number_q)
-        else:
-            filters = Q(job__course__number__name__iexact=number_q)
+        app_list = app_list.filter(job__course__number__name__iexact=number_q)
     if bool(section_q):
-        if filters:
-            filters = filters & Q(job__course__section__name__iexact=section_q)
-        else:
-            filters = Q(job__course__section__name__iexact=section_q)
-    if bool(cwl_q):
-        if filters:
-            filters = filters & Q(applicant__username__iexact=cwl_q)
-        else:
-            filters = Q(applicant__username__iexact=cwl_q)
+        app_list = app_list.filter(job__course__section__name__iexact=section_q)
+    if bool(first_name_q):
+        app_list = app_list.filter(applicant__first_name__icontains=first_name_q)
+    if bool(last_name_q):
+        app_list = app_list.filter(applicant__last_name__icontains=last_name_q)
 
-    app_list = None
-    if filters == None:
-        app_list = adminApi.get_applications_by_status(ApplicationStatus.OFFERED)
-    else:
-        app_list = Application.objects.filter( filters & Q(applicationstatus__assigned=ApplicationStatus.OFFERED) ).order_by('-id').distinct()
+    app_list = app_list.filter(applicationstatus__assigned=ApplicationStatus.OFFERED).order_by('-id').distinct()
+    app_list = adminApi.add_application_info(app_list, ['offered'])
+
+    total_apps = len(app_list)
 
     page = request.GET.get('page', 1)
     paginator = Paginator(app_list, settings.PAGE_SIZE)
@@ -966,6 +899,7 @@ def offered_applications(request):
     return render(request, 'administrators/applications/offered_applications.html', {
         'loggedin_user': request.user,
         'apps': apps,
+        'total_apps': total_apps,
         'admin_emails': adminApi.get_admin_emails()
     })
 
@@ -1084,45 +1018,29 @@ def accepted_applications(request):
     code_q = request.GET.get('code')
     number_q = request.GET.get('number')
     section_q = request.GET.get('section')
-    cwl_q = request.GET.get('cwl')
+    first_name_q = request.GET.get('first_name')
+    last_name_q = request.GET.get('last_name')
 
-    filters = None
+    app_list = adminApi.get_applications()
     if bool(year_q):
-        if filters:
-            filters = filters & Q(job__session__year__iexact=year_q)
-        else:
-            filters = Q(job__session__year__iexact=year_q)
+        app_list = app_list.filter(job__session__year__iexact=year_q)
     if bool(term_q):
-        if filters:
-            filters = filters & Q(job__session__term__code__iexact=term_q)
-        else:
-            filters = Q(job__session__term__code__iexact=term_q)
+        app_list = app_list.filter(job__session__term__code__iexact=term_q)
     if bool(code_q):
-        if filters:
-            filters = filters & Q(job__course__code__name__iexact=code_q)
-        else:
-            filters = Q(job__course__code__name__iexact=code_q)
+        app_list = app_list.filter(job__course__code__name__iexact=code_q)
     if bool(number_q):
-        if filters:
-            filters = filters & Q(job__course__number__name__iexact=number_q)
-        else:
-            filters = Q(job__course__number__name__iexact=number_q)
+        app_list = app_list.filter(job__course__number__name__iexact=number_q)
     if bool(section_q):
-        if filters:
-            filters = filters & Q(job__course__section__name__iexact=section_q)
-        else:
-            filters = Q(job__course__section__name__iexact=section_q)
-    if bool(cwl_q):
-        if filters:
-            filters = filters & Q(applicant__username__iexact=cwl_q)
-        else:
-            filters = Q(applicant__username__iexact=cwl_q)
+        app_list = app_list.filter(job__course__section__name__iexact=section_q)
+    if bool(first_name_q):
+        app_list = app_list.filter(applicant__first_name__icontains=first_name_q)
+    if bool(last_name_q):
+        app_list = app_list.filter(applicant__last_name__icontains=last_name_q)
 
-    app_list = None
-    if filters == None:
-        app_list = adminApi.get_applications_by_status(ApplicationStatus.ACCEPTED)
-    else:
-        app_list = Application.objects.filter( filters & Q(applicationstatus__assigned=ApplicationStatus.ACCEPTED) ).order_by('-id').distinct()
+    app_list = app_list.filter(applicationstatus__assigned=ApplicationStatus.ACCEPTED).order_by('-id').distinct()
+    app_list = adminApi.add_application_info(app_list, ['accepted'])
+
+    total_apps = len(app_list)
 
     page = request.GET.get('page', 1)
     paginator = Paginator(app_list, settings.PAGE_SIZE)
@@ -1136,7 +1054,8 @@ def accepted_applications(request):
 
     return render(request, 'administrators/applications/accepted_applications.html', {
         'loggedin_user': request.user,
-        'apps': apps
+        'apps': apps,
+        'total_apps': total_apps
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -1152,45 +1071,29 @@ def declined_applications(request):
     code_q = request.GET.get('code')
     number_q = request.GET.get('number')
     section_q = request.GET.get('section')
-    cwl_q = request.GET.get('cwl')
+    first_name_q = request.GET.get('first_name')
+    last_name_q = request.GET.get('last_name')
 
-    filters = None
+    app_list = adminApi.get_applications()
     if bool(year_q):
-        if filters:
-            filters = filters & Q(job__session__year__iexact=year_q)
-        else:
-            filters = Q(job__session__year__iexact=year_q)
+        app_list = app_list.filter(job__session__year__iexact=year_q)
     if bool(term_q):
-        if filters:
-            filters = filters & Q(job__session__term__code__iexact=term_q)
-        else:
-            filters = Q(job__session__term__code__iexact=term_q)
+        app_list = app_list.filter(job__session__term__code__iexact=term_q)
     if bool(code_q):
-        if filters:
-            filters = filters & Q(job__course__code__name__iexact=code_q)
-        else:
-            filters = Q(job__course__code__name__iexact=code_q)
+        app_list = app_list.filter(job__course__code__name__iexact=code_q)
     if bool(number_q):
-        if filters:
-            filters = filters & Q(job__course__number__name__iexact=number_q)
-        else:
-            filters = Q(job__course__number__name__iexact=number_q)
+        app_list = app_list.filter(job__course__number__name__iexact=number_q)
     if bool(section_q):
-        if filters:
-            filters = filters & Q(job__course__section__name__iexact=section_q)
-        else:
-            filters = Q(job__course__section__name__iexact=section_q)
-    if bool(cwl_q):
-        if filters:
-            filters = filters & Q(applicant__username__iexact=cwl_q)
-        else:
-            filters = Q(applicant__username__iexact=cwl_q)
+        app_list = app_list.filter(job__course__section__name__iexact=section_q)
+    if bool(first_name_q):
+        app_list = app_list.filter(applicant__first_name__icontains=first_name_q)
+    if bool(last_name_q):
+        app_list = app_list.filter(applicant__last_name__icontains=last_name_q)
 
-    app_list = None
-    if filters == None:
-        app_list = adminApi.get_applications_by_status(ApplicationStatus.DECLINED)
-    else:
-        app_list = Application.objects.filter( filters & Q(applicationstatus__assigned=ApplicationStatus.DECLINED) ).order_by('-id').distinct()
+    app_list = app_list.filter(applicationstatus__assigned=ApplicationStatus.DECLINED).order_by('-id').distinct()
+    app_list = adminApi.add_application_info(app_list, ['declined'])
+
+    total_apps = len(app_list)
 
     page = request.GET.get('page', 1)
     paginator = Paginator(app_list, settings.PAGE_SIZE)
@@ -1204,7 +1107,8 @@ def declined_applications(request):
 
     return render(request, 'administrators/applications/declined_applications.html', {
         'loggedin_user': request.user,
-        'apps': apps
+        'apps': apps,
+        'total_apps': total_apps
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -1368,34 +1272,17 @@ def all_users(request):
     preferred_name_q = request.GET.get('preferred_name')
     cwl_q = request.GET.get('cwl')
 
-    filters = None
+    user_list = userApi.get_users()
     if bool(first_name_q):
-        if filters:
-            filters = filters & Q(first_name__iexact=first_name_q)
-        else:
-            filters = Q(first_name__iexact=first_name_q)
+        user_list = user_list.filter(first_name__icontains=first_name_q)
     if bool(last_name_q):
-        if filters:
-            filters = filters & Q(last_name__iexact=last_name_q)
-        else:
-            filters = Q(last_name__iexact=last_name_q)
+        user_list = user_list.filter(last_name__icontains=last_name_q)
     if bool(preferred_name_q):
-        if filters:
-            filters = filters & Q(profile__preferred_name__iexact=preferred_name_q)
-        else:
-            filters = Q(profile__preferred_name__iexact=preferred_name_q)
+        user_list = user_list.filter(profile__preferred_name__icontains=preferred_name_q)
     if bool(cwl_q):
-        if filters:
-            filters = filters & Q(username__iexact=cwl_q)
-        else:
-            filters = Q(username__iexact=cwl_q)
+        user_list = user_list.filter(username__icontains=cwl_q)
 
-    user_list = None
-    if filters == None:
-        user_list = userApi.get_users()
-    else:
-        user_list = User.objects.filter(filters)
-
+    total_users = len(user_list)
     page = request.GET.get('page', 1)
     paginator = Paginator(user_list, settings.PAGE_SIZE)
 
@@ -1408,7 +1295,8 @@ def all_users(request):
 
     return render(request, 'administrators/hr/all_users.html', {
         'loggedin_user': request.user,
-        'users': users
+        'users': users,
+        'total_users': total_users
     })
 
 
@@ -1568,29 +1456,15 @@ def admin_docs(request):
     last_name_q = request.GET.get('last_name')
     cwl_q = request.GET.get('cwl')
 
-    filters = None
+    user_list = userApi.get_users()
     if bool(first_name_q):
-        if filters:
-            filters = filters & Q(first_name__iexact=first_name_q)
-        else:
-            filters = Q(first_name__iexact=first_name_q)
+        user_list = user_list.filter(first_name__icontains=first_name_q)
     if bool(last_name_q):
-        if filters:
-            filters = filters & Q(last_name__iexact=last_name_q)
-        else:
-            filters = Q(last_name__iexact=last_name_q)
+        user_list = user_list.filter(last_name__icontains=last_name_q)
     if bool(cwl_q):
-        if filters:
-            filters = filters & Q(username__iexact=cwl_q)
-        else:
-            filters = Q(username__iexact=cwl_q)
+        user_list = user_list.filter(username__icontains=cwl_q)
 
-    user_list = None
-    if filters == None:
-        user_list = userApi.get_users()
-    else:
-        user_list = User.objects.filter(filters)
-
+    total_users = len(user_list)
     page = request.GET.get('page', 1)
     paginator = Paginator(user_list, settings.PAGE_SIZE)
 
@@ -1604,7 +1478,8 @@ def admin_docs(request):
 
     return render(request, 'administrators/hr/admin_docs.html', {
         'loggedin_user': request.user,
-        'users': users
+        'users': users,
+        'total_users': total_users
     })
 
 
@@ -1787,40 +1662,21 @@ def all_courses(request):
     code_q = request.GET.get('code')
     number_q = request.GET.get('number')
     section_q = request.GET.get('section')
-    name_q = request.GET.get('name')
+    course_name_q = request.GET.get('course_name')
 
-    filters = None
+    course_list = adminApi.get_courses()
     if bool(term_q):
-        if filters:
-            filters = filters & Q(term__code__iexact=term_q)
-        else:
-            filters = Q(term__code__iexact=term_q)
+        course_list = course_list.filter(term__code__iexact=term_q)
     if bool(code_q):
-        if filters:
-            filters = filters & Q(code__name__iexact=code_q)
-        else:
-            filters = Q(code__name__iexact=code_q)
+        course_list = course_list.filter(code__name__iexact=code_q)
     if bool(number_q):
-        if filters:
-            filters = filters & Q(number__name__iexact=number_q)
-        else:
-            filters = Q(number__name__iexact=number_q)
+        course_list = course_list.filter(number__name__iexact=number_q)
     if bool(section_q):
-        if filters:
-            filters = filters & Q(section__name__iexact=section_q)
-        else:
-            filters = Q(section__name__iexact=section_q)
-    if bool(name_q):
-        if filters:
-            filters = filters & Q(name__icontains=name_q)
-        else:
-            filters = Q(name__icontains=name_q)
+        course_list = course_list.filter(section__name__iexact=section_q)
+    if bool(course_name_q):
+        course_list = course_list.filter(name__icontains=course_name_q)
 
-    course_list = None
-    if filters == None:
-        course_list = adminApi.get_courses()
-    else:
-        course_list = Course.objects.filter(filters)
+    total_courses = len(course_list)
 
     page = request.GET.get('page', 1)
     paginator = Paginator(course_list, settings.PAGE_SIZE)
@@ -1834,7 +1690,8 @@ def all_courses(request):
 
     return render(request, 'administrators/courses/all_courses.html', {
         'loggedin_user': request.user,
-        'courses': courses
+        'courses': courses,
+        'total_courses': total_courses
     })
 
 @login_required(login_url=settings.LOGIN_URL)

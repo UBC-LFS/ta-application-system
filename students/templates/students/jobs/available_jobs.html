@@ -15,18 +15,7 @@
     <div class="col-11 mx-auto">
       <h3 class="text-primary mb-5">Apply Now!</h3>
 
-      <div class="search-field bg-light-gray p-4">
-        <form method="GET">
-          <input type="text" name="code" value="{{ request.GET.code }}" placeholder="Job Code" /> and
-          <input type="text" name="number" value="{{ request.GET.number }}" placeholder="Job Number" /> and
-          <input type="text" name="section" value="{{ request.GET.section }}" placeholder="Job Section" /> <br />
-          <input type="text" name="instructor" value="{{ request.GET.instructor }}" placeholder="Instructor First Name" /> <br />
-          <button class="btn btn-sm btn-secondary" type="submit">Search</button>
-          <a class="btn btn-sm btn-light" href="{% url 'students:available_jobs' session_slug=session_slug %}">Clear</a>
-        </form>
-      </div>
-      <div class="mb-4">{{ jobs|length }} row{% if jobs|length > 1 %}s {% endif %} in this page</div>
-
+      {% include 'students/jobs/_search_fields.html' with data=jobs session_slug=session_slug %}
       <table
         class="table table-bordered table-hover table-striped table-responsive-md text-center font-size-1"
         data-toggle="table"
@@ -72,7 +61,7 @@
         </tbody>
       </table>
 
-      {% include 'ta_app/pages/_table_paginator.html' with data=jobs %}
+      {% include 'students/jobs/_table_paginator.html' with data=jobs %}
 
     </div>
   </div>

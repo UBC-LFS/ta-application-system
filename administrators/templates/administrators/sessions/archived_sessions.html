@@ -3,9 +3,9 @@
 
 {% include 'administrators/_menu.html' %}
 <div>
-  {% include 'ta_app/pages/_header.html' with title='Archived Sessions' text=sessions|length %}
+  {% include 'ta_app/pages/_header.html' with title='Archived Sessions' %}
 
-  {% include 'ta_app/sessions/_search_fields.html' with data=sessions path='archived_sessions' %}
+  {% include 'administrators/sessions/_search_fields.html' with data=sessions total=total_sessions path='archived_sessions' %}
 
   <table
     class="table table-bordered table-hover table-striped table-responsive-md text-center"

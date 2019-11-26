@@ -7,18 +7,25 @@
     <input type="text" name="section" value="{{ request.GET.section }}" placeholder="Job Section" /> <br />
 
     {% if path == 'prepare_jobs' %}
-      <input type="text" name="instructor" value="{{ request.GET.instructor }}" placeholder="Instructor" /> <br />
+      <input type="text" name="instructor_first_name" value="{{ request.GET.instructor_first_name }}" placeholder="Instructor First Name" /> and
+      <input type="text" name="instructor_last_name" value="{{ request.GET.instructor_last_name }}" placeholder="Instructor Last Name" /> <br />
     {% endif %}
 
-    <button class="btn btn-sm btn-secondary" type="submit">Search</button>
+    <div class="mt-1">
+      <button class="btn btn-sm btn-secondary" type="submit">Search</button>
 
-    {% if path == 'prepare_jobs' %}
-      <a class="btn btn-sm btn-light" href="{% url 'administrators:prepare_jobs' %}">Clear</a>
+      {% if path == 'prepare_jobs' %}
+        <a class="btn btn-sm btn-light" href="{% url 'administrators:prepare_jobs' %}">Clear</a>
 
-    {% elif path == 'progress_jobs' %}
-      <a class="btn btn-sm btn-light" href="{% url 'administrators:progress_jobs' %}">Clear</a>
+      {% elif path == 'progress_jobs' %}
+        <a class="btn btn-sm btn-light" href="{% url 'administrators:progress_jobs' %}">Clear</a>
 
-    {% endif %}
+      {% elif path == 'instructor_jobs' %}
+        <a class="btn btn-sm btn-light" href="{% url 'instructors:show_jobs' %}">Clear</a>
+
+      {% endif %}
+    </div>
+
   </form>
 </div>
-<div>{{ data|length }} row{% if data|length > 1 %}s {% endif %} in this page</div>
+<div>{{ total }} result{% if total > 1 %}s {% endif %} found. {{ data|length }} row{% if data|length > 1 %}s {% endif %} in this page.</div>

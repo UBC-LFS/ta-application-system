@@ -5,7 +5,7 @@
 {% include 'students/_menu.html' %}
 <div class="row">
   <div class="col-md-4">
-    {% include 'ta_app/pages/_left_aside.html' with view_name='users' title='Home' data=loggedin_user  %}
+    {% include 'ta_app/pages/_left_aside.html' with view_name='users' title='Home' data=loggedin_user %}
 
     <div class="col-11 mx-auto mt-5">
       <div class="card border-primary">
@@ -39,23 +39,22 @@
           <div>
             <i class="fa fa-check text-success" aria-hidden="true"></i>
             You have <span class="font-weight-bold text-chocolate">{{ apps|length }}</span> jobs applied in total.
-            <a href="btn btn-xs btn-link">View History</a>
+            <a class="btn btn-xs btn-link" href="{% url 'students:history_jobs' %}">View History</a>
           </div>
           <div>
             <i class="fa fa-check text-success" aria-hidden="true"></i>
-            You are interested in <span class="font-weight-bold text-chocolate">0</span> jobs.
-            <a href="btn btn-xs btn-link">View Favourites</a>
+            You are interested in <span class="font-weight-bold text-chocolate">{{ favourites|length }}</span> jobs.
+            <a class="btn btn-xs btn-link" href="{% url 'students:favourite_jobs' %}">View Favourites</a>
           </div>
         </div>
 
-        <p class="col-8 mx-auto">
-          If you would like to explore current openings, please click the button bellow.<br />
-          <a class="btn btn-sm btn-outline-primary" href="{% url 'students:explore_jobs' %}">Explore Jobs</a>
-        </p>
+        <p class="col-8 mx-auto">If you would like to explore current openings, please click the button bellow.</p>
+
+        <a class="btn btn-sm btn-outline-primary" href="{% url 'students:explore_jobs' %}">Explore Jobs</a>
       </div>
     </div>
 
-    <div class="col-8 mx-auto text-center mt-4">
+    <div class="col-8 mx-auto text-center mt-5">
       <h5 class="text-info">Total Accepted Hours</h5>
       <table class="table font-size-1">
         <thead>

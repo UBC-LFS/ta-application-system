@@ -2,12 +2,20 @@
 {% block content %}
 
 {% include "human_resources/_menu.html" %}
-<div>
-  <h3>Human Resource's Portal</h3>
+<div class="row">
+  <div class="col-md-4">
+    {% include 'ta_app/pages/_left_aside.html' with view_name='users' title='Home' data=loggedin_user %}
 
-  <div class="bd-callout bd-callout-warning">
-    <h5>Checkpoint!</h5>
-    <p>Text area</p>
+    <div class="left-aside-btn-groups">
+      <a class="btn btn-outline-primary" href="{% url 'human_resources:all_users' %}">All Users</a>
+    </div>
+  </div>
+
+  <div class="col-md-8">
+    <div class="board col-11 mx-auto">
+      <h3>Basic Information</h3>
+      {% include 'ta_app/users/_basic_info.html' with data=loggedin_user student_number_display='False' %}
+    </div>
   </div>
 </div>
 
