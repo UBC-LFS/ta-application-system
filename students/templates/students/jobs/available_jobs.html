@@ -15,7 +15,7 @@
     <div class="col-11 mx-auto">
       <h3 class="text-primary mb-5">Apply Now!</h3>
 
-      {% include 'students/jobs/_search_fields.html' with data=jobs session_slug=session_slug %}
+      {% include 'students/jobs/_search_fields.html' with data=jobs total=total_jobs session_slug=session_slug %}
       <table
         class="table table-bordered table-hover table-striped table-responsive-md text-center font-size-1"
         data-toggle="table"
@@ -61,7 +61,7 @@
         </tbody>
       </table>
 
-      {% include 'students/jobs/_table_paginator.html' with data=jobs %}
+      {% include 'ta_app/pages/_table_paginator.html' with data=jobs %}
 
     </div>
   </div>
