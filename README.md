@@ -5,6 +5,8 @@ This project is a web-based TA hiring process system.
 
 ## Login locally
 
+0. Rename *ta_app/settings.py.example* to *ta_app/settings.py*
+
 1. Create a superuser
 ```
 # Reference: https://docs.djangoproject.com/en/2.2/topics/auth/default/
@@ -40,9 +42,12 @@ USER = os.environ['TA_APP_DB_USER']
 PASSWORD = os.environ['TA_APP_DB_PASSWORD']
 HOST = os.environ['TA_APP_DB_HOST']
 PORT = os.environ['TA_APP_DB_PORT']
+EMAIL_HOST = os.environ['TA_APP_EMAIL_HOST']
+EMAIL_FROM = os.environ['TA_APP_EMAIL_FROM']
 TA_APP_URL = os.environ['TA_APP_URL']
 ENCRYPT_SALT = os.environ['TA_APP_ENCRYPT_SALT']
 ENCRYPT_PASSWORD = os.environ['TA_APP_ENCRYPT_PASSWORD']
+USER_PASSWORD = os.environ['TA_APP_USER_PASSWORD']
 ```
 
 *Note: how to create ENCRYPT_SALT and ENCRYPT_PASSWORD*
@@ -92,7 +97,6 @@ $ python manage.py collectstatic --noinput
 
 9. Create database tables, and migrate
 ```
-$ python manage.py makemigrations
 $ python manage.py migrate
 ```
 
