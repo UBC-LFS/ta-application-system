@@ -26,7 +26,7 @@ def valid_path(path):
 
 def get_courses():
     ''' Get all courses '''
-    return Course.objects.all()
+    return Course.objects.all().order_by('id')
 
 def get_course(data, option=None):
     ''' Get a course '''

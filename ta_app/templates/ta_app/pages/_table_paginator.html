@@ -4,6 +4,22 @@
 
       {% if data.has_previous %}
         <li class="page-item">
+          <a class="page-link" href="?page=1
+{% if request.GET.first_name %}&first_name={{ request.GET.first_name }}{% endif %}
+{% if request.GET.last_name %}&last_name={{ request.GET.last_name }}{% endif %}
+{% if request.GET.preferred_name %}&preferred_name={{ request.GET.preferred_name }}{% endif %}
+{% if request.GET.cwl %}&cwl={{ request.GET.cwl }}{% endif %}
+{% if request.GET.year %}&year={{ request.GET.year }}{% endif %}
+{% if request.GET.term %}&term={{ request.GET.term }}{% endif %}
+{% if request.GET.code %}&code={{ request.GET.code }}{% endif %}
+{% if request.GET.number %}&number={{ request.GET.number }}{% endif %}
+{% if request.GET.section %}&section={{ request.GET.section }}{% endif %}
+{% if request.GET.instructor_first_name %}&instructor_first_name={{ request.GET.instructor_first_name }}{% endif %}
+{% if request.GET.instructor_last_name %}&instructor_last_name={{ request.GET.instructor_last_name }}{% endif %}
+{% if request.GET.course_name %}&course_name={{ request.GET.course_name }}{% endif %}"
+          ><i class="fa fa-angle-double-left" aria-hidden="true"></i></a>
+        </li>
+        <li class="page-item">
           <a class="page-link" href="?page={{ data.previous_page_number }}
 {% if request.GET.first_name %}&first_name={{ request.GET.first_name }}{% endif %}
 {% if request.GET.last_name %}&last_name={{ request.GET.last_name }}{% endif %}
@@ -17,11 +33,14 @@
 {% if request.GET.instructor_first_name %}&instructor_first_name={{ request.GET.instructor_first_name }}{% endif %}
 {% if request.GET.instructor_last_name %}&instructor_last_name={{ request.GET.instructor_last_name }}{% endif %}
 {% if request.GET.course_name %}&course_name={{ request.GET.course_name }}{% endif %}"
-          >&laquo;</a>
+          ><i class="fa fa-angle-left" aria-hidden="true"></i></a>
         </li>
       {% else %}
         <li class="page-item disabled">
-          <span class="page-link">&laquo;</span>
+          <span class="page-link"><i class="fa fa-angle-double-left" aria-hidden="true"></i></span>
+        </li>
+        <li class="page-item disabled">
+          <span class="page-link"><i class="fa fa-angle-left" aria-hidden="true"></i></span>
         </li>
       {% endif %}
 
@@ -32,7 +51,9 @@
           </li>
         {% else %}
           <li class="page-item">
-            <a class="page-link" href="?page={{ i }}
+
+            {% if i|add:"-3" <= data.number and data.number <= i|add:"3" %}
+              <a class="page-link" href="?page={{ i }}
 {% if request.GET.first_name %}&first_name={{ request.GET.first_name }}{% endif %}
 {% if request.GET.last_name %}&last_name={{ request.GET.last_name }}{% endif %}
 {% if request.GET.preferred_name %}&preferred_name={{ request.GET.preferred_name }}{% endif %}
@@ -44,8 +65,11 @@
 {% if request.GET.section %}&section={{ request.GET.section }}{% endif %}
 {% if request.GET.instructor_first_name %}&instructor_first_name={{ request.GET.instructor_first_name }}{% endif %}
 {% if request.GET.instructor_last_name %}&instructor_last_name={{ request.GET.instructor_last_name }}{% endif %}
-{% if request.GET.course_name %}&course_name={{ request.GET.course_name }}{% endif %}"
-            >{{ i }}</a>
+{% if request.GET.course_name %}&course_name={{ request.GET.course_name }}{% endif %}
+{% if request.GET.exclude_applied_jobs %}&exclude_applied_jobs={{ request.GET.exclude_applied_jobs }}{% endif %}"
+              >{{ i }}</a>
+            {% endif %}
+
           </li>
         {% endif %}
       {% endfor %}
@@ -64,12 +88,33 @@
 {% if request.GET.section %}&section={{ request.GET.section }}{% endif %}
 {% if request.GET.instructor_first_name %}&instructor_first_name={{ request.GET.instructor_first_name }}{% endif %}
 {% if request.GET.instructor_last_name %}&instructor_last_name={{ request.GET.instructor_last_name }}{% endif %}
-{% if request.GET.course_name %}&course_name={{ request.GET.course_name }}{% endif %}"
-          >&raquo;</a>
+{% if request.GET.course_name %}&course_name={{ request.GET.course_name }}{% endif %}
+{% if request.GET.exclude_applied_jobs %}&exclude_applied_jobs={{ request.GET.exclude_applied_jobs }}{% endif %}"
+          ><i class="fa fa-angle-right" aria-hidden="true"></i></a>
+        </li>
+        <li class="page-item">
+          <a class="page-link" href="?page={{ data.paginator.num_pages }}
+{% if request.GET.first_name %}&first_name={{ request.GET.first_name }}{% endif %}
+{% if request.GET.last_name %}&last_name={{ request.GET.last_name }}{% endif %}
+{% if request.GET.preferred_name %}&preferred_name={{ request.GET.preferred_name }}{% endif %}
+{% if request.GET.cwl %}&cwl={{ request.GET.cwl }}{% endif %}
+{% if request.GET.year %}&year={{ request.GET.year }}{% endif %}
+{% if request.GET.term %}&term={{ request.GET.term }}{% endif %}
+{% if request.GET.code %}&code={{ request.GET.code }}{% endif %}
+{% if request.GET.number %}&number={{ request.GET.number }}{% endif %}
+{% if request.GET.section %}&section={{ request.GET.section }}{% endif %}
+{% if request.GET.instructor_first_name %}&instructor_first_name={{ request.GET.instructor_first_name }}{% endif %}
+{% if request.GET.instructor_last_name %}&instructor_last_name={{ request.GET.instructor_last_name }}{% endif %}
+{% if request.GET.course_name %}&course_name={{ request.GET.course_name }}{% endif %}
+{% if request.GET.exclude_applied_jobs %}&exclude_applied_jobs={{ request.GET.exclude_applied_jobs }}{% endif %}"
+          ><i class="fa fa-angle-double-right" aria-hidden="true"></i></a>
         </li>
       {% else %}
         <li class="page-item disabled">
-          <span class="page-link">&raquo;</span>
+          <span class="page-link"><i class="fa fa-angle-right" aria-hidden="true"></i></span>
+        </li>
+        <li class="page-item disabled">
+          <span class="page-link"><i class="fa fa-angle-double-right" aria-hidden="true"></i></span>
         </li>
       {% endif %}
 
