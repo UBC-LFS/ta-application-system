@@ -20,7 +20,7 @@
 			<h3>Current Openings Available</h3>
 
 			{% for session in visible_current_sessions %}
-				<div class="gray-box p-3 m-3">
+				<div class="visible-current-sessions gray-box p-3 m-3">
 					<div class="gray-box-header">
 						<img src="{% static 'ta_app/images/ubc-logo.jpeg' %}" width="25" alt="logo" />
 						<h6>{{ session.year }} {{ session.term.name }} ({{ session.term.code }})</h6>
