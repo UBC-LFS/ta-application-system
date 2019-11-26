@@ -4,6 +4,7 @@ This project is a web-based TA hiring process system.
 
 
 ## Login locally
+0. Rename ta_app/settings.py.example to ta_app/settings.py
 
 1. Create a superuser
 ```
