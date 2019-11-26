@@ -545,6 +545,8 @@ def available_jobs(request, session_slug):
     if exclude_applied_jobs_q == '1':
         job_list = job_list.exclude(application__applicant__id=request.user.id)
 
+    total_jobs = len(job_list)
+
     page = request.GET.get('page', 1)
     paginator = Paginator(job_list, settings.PAGE_SIZE)
 
@@ -558,7 +560,8 @@ def available_jobs(request, session_slug):
     return render(request, 'students/jobs/available_jobs.html', {
         'loggedin_user': request.user,
         'session_slug': session_slug,
-        'jobs': adminApi.add_applied_favourite_jobs(request.user, jobs)
+        'jobs': adminApi.add_applied_favourite_jobs(request.user, jobs),
+        'total_jobs': total_jobs
     })
 
 @login_required(login_url=settings.LOGIN_URL)
