@@ -7,26 +7,8 @@ This project is a web-based TA hiring process system.
 RUN apk update && apk add build-base libressl-dev postgresql-dev libffi-dev gcc python3-dev musl-dev libxml2-dev libxslt-dev xmlsec-dev jpeg-dev
 ```
 
-## Login locally
-0. Rename *ta_app/settings.py.example* to *ta_app/settings.py*
-
-0. Rename *ta_app/settings.py.example* to *ta_app/settings.py*
-
-1. Create a superuser
-```
-# Reference: https://docs.djangoproject.com/en/2.2/topics/auth/default/
-$ python manage.py createsuperuser --username=joe --email=joe@example.com
-```
-
-2. Run this app
-```
-$ python manage.py runserver
-```
-
-3. Open a new window with an URL ``` http://localhost:8000/accounts/admin/login/ ```
-
-
 ## Summary of Deployment
+0. Rename *ta_app/settings.py.example* to *ta_app/settings.py*
 
 1. Clone this Github repository
 ```
@@ -130,5 +112,21 @@ $ python manage.py check --deploy
 ```
 $ python manage.py runserver
 ```
+
+
+## Login locally
+1. Create a superuser
+```
+# Reference: https://docs.djangoproject.com/en/2.2/topics/auth/default/
+$ python manage.py createsuperuser --username=joe --email=joe@example.com
+```
+
+2. Run this app
+```
+$ python manage.py runserver
+```
+
+3. Open a new window with an URL ``` http://localhost:8000/accounts/local_login/ ```
+
 
 Happy coding!
