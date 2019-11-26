@@ -2,9 +2,13 @@
 
 This project is a web-based TA hiring process system.
 
+### Install prerequisites for Alpine
+```
+RUN apk update && apk add build-base libressl-dev postgresql-dev libffi-dev gcc python3-dev musl-dev libxml2-dev libxslt-dev xmlsec-dev jpeg-dev
+```
 
 ## Login locally
-0. Rename ta_app/settings.py.example to ta_app/settings.py
+0. Rename *ta_app/settings.py.example* to *ta_app/settings.py*
 
 1. Create a superuser
 ```
