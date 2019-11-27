@@ -1732,7 +1732,7 @@ def edit_course(request, course_slug):
     request.user.roles = request.session['loggedin_user']['roles']
     if not userApi.is_admin(request.user): raise PermissionDenied
 
-    course = adminApi.get_course_by_slug(course_slug, 'slug')
+    course = adminApi.get_course(course_slug, 'slug')
     if request.method == 'POST':
         form = CourseForm(request.POST, instance=course)
         if form.is_valid():
