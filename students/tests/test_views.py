@@ -57,6 +57,9 @@ class StudentTest(TestCase):
         response = self.client.get( reverse('students:explore_jobs') )
         self.assertEqual(response.status_code, 200)
 
+        response = self.client.get( reverse('students:favourite_jobs') )
+        self.assertEqual(response.status_code, 200)
+
         response = self.client.get( reverse('students:available_jobs', args=[SESSION]) )
         self.assertEqual(response.status_code, 200)
 
@@ -258,7 +261,44 @@ class StudentTest(TestCase):
         self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
 
         self.assertEqual( len(response.context['visible_current_sessions']), 3 )
-        self.assertEqual( len(response.context['applied_jobs']), 7 )
+        self.assertEqual( len(response.context['favourites']), 3 )
+
+    def test_favrouite_jobs(self):
+        print('\n- Test: Display all lists of favourite jobs')
+        self.login()
+
+        response = self.client.get( reverse('students:favourite_jobs') )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['loggedin_user'].username, USERS[2])
+        self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
+
+        self.assertEqual( len(response.context['favourites']), 3 )
+
+    def test_select_favourite_job(self):
+        print('\n- Test: Select favourite job')
+        self.login()
+
+        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) )
+        self.assertEqual(response.status_code, 200)
+
+        data = {
+            'applicant': response.context['loggedin_user'].id,
+            'job': 109,
+            'is_selected': True
+        }
+        response = self.client.post( reverse('students:select_favourite_job', args=[SESSION, STUDENT_JOB]), data=urlencode(data), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/students/sessions/{0}/jobs/{1}/apply/'.format(SESSION, STUDENT_JOB))
+        self.assertRedirects(response, response.url)
+
+        response = self.client.get( reverse('students:favourite_jobs') )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['loggedin_user'].username, USERS[2])
+        self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
+
+        self.assertEqual( len(response.context['favourites']), 4 )
 
 
     def test_available_jobs(self):
@@ -269,7 +309,7 @@ class StudentTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, USERS[2])
         self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
-        self.assertEqual( len(response.context['jobs']), 104 )
+        self.assertEqual( len(response.context['jobs']), 50 )
 
 
     def test_apply_jobs(self):
@@ -356,7 +396,7 @@ class StudentTest(TestCase):
         messages = self.messages(response)
         self.assertTrue('Success' in messages[0])
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, '/students/jobs/status/')
+        self.assertEqual(response.url, '/students/jobs/history/')
         self.assertRedirects(response, response.url)
 
 

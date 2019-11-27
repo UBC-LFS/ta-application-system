@@ -40,9 +40,6 @@ class InstructorTest(TestCase):
         response = self.client.get( reverse('instructors:index') )
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get( reverse('instructors:show_profile') )
-        self.assertEqual(response.status_code, 200)
-
         response = self.client.get( reverse('instructors:show_jobs') )
         self.assertEqual(response.status_code, 200)
 
@@ -52,11 +49,11 @@ class InstructorTest(TestCase):
         response = self.client.get( reverse('instructors:show_applications', args=[SESSION, JOB]) )
         self.assertEqual(response.status_code, 200)
 
-    def test_show_profile(self):
-        print('\n- Display an instructor profile')
+    def test_index(self):
+        print('\n- Display an index page')
         self.login()
 
-        response = self.client.get( reverse('instructors:show_profile') )
+        response = self.client.get( reverse('instructors:index') )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, USER)
         self.assertEqual(response.context['loggedin_user'].roles, ['Instructor'])
