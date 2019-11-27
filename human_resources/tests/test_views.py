@@ -49,6 +49,15 @@ class HumanResourceTest(TestCase):
         response = self.client.get( reverse('human_resources:view_confidentiality', args=[STUDENT]) )
         self.assertEqual(response.status_code, 200)
 
+    def test_index(self):
+        print('\n- Display an index page')
+        self.login()
+
+        response = self.client.get( reverse('human_resources:index') )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['loggedin_user'].username, USER)
+        self.assertEqual(response.context['loggedin_user'].roles, ['HR'])
+
     def test_all_users(self):
         print('\n- Display all users')
         self.login()

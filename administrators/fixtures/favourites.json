@@ -1,0 +1,32 @@
+[
+  {
+    "model": "administrators.favourite",
+    "pk": 1,
+    "fields": {
+      "is_selected": true,
+      "applicant_id": "100",
+      "job_id": "107",
+      "created_at": "2019-09-28"
+    }
+  },
+  {
+    "model": "administrators.favourite",
+    "pk": 2,
+    "fields": {
+      "is_selected": true,
+      "applicant_id": "100",
+      "job_id": "109",
+      "created_at": "2019-09-29"
+    }
+  },
+  {
+    "model": "administrators.favourite",
+    "pk": 3,
+    "fields": {
+      "is_selected": true,
+      "applicant_id": "100",
+      "job_id": "116",
+      "created_at": "2019-09-30"
+    }
+  }
+]

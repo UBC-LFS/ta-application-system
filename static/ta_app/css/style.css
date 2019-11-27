@@ -371,6 +371,16 @@ hr.dotted {
 
 /* Extra small devices (portrait phones, less than 576px) */
 @media (max-width: 575.98px) {
+  .board {
+    padding: 0;
+  }
+  .board h3 {
+    margin-top: 50px;
+    text-align: center;
+  }
+  .visible-current-sessions {
+    margin: 0 !important;
+  }
 }
 
 /* Small devices (landscape phones, 576px and up) */

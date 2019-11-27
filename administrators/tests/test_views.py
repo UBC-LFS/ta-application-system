@@ -31,6 +31,7 @@ DATA = [
     'administrators/fixtures/applications.json',
     'administrators/fixtures/applicationstatus.json',
     'administrators/fixtures/emails.json',
+    'administrators/fixtures/favourites.json',
     'administrators/fixtures/job_instructors.json',
     'administrators/fixtures/jobs.json',
     'users/fixtures/profile_roles.json',
@@ -498,7 +499,7 @@ class JobTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, self.user.username)
         self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
-        self.assertEqual( len(response.context['users']), 57 )
+        self.assertEqual( len(response.context['users']), 50 )
         self.assertEqual( len(userApi.get_users_by_role('Instructor')), 57 )
 
 
