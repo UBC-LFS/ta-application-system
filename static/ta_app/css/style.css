@@ -153,6 +153,13 @@ main {
   outline: none !important;
 }
 
+.info-table tr td h6 {
+  margin-top: 20px;
+}
+
+.info-table td:nth-child(2) {
+  padding-left: 20px;
+}
 
 /* utils */
 
@@ -332,6 +339,10 @@ hr.dotted {
   padding: .1em .3em;
 }
 
+.card-horizontal {
+  display: flex;
+  flex: 1 1 auto;
+}
 
 /* colors */
 
