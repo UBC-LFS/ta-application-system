@@ -1,7 +1,22 @@
-<h3>Local Login</h3>
+{% extends 'ta_app/base.html' %}
+{% block content %}
+{% load static %}
 
-<form action="" method="POST">
-  {% csrf_token %}
-  <table>{{ form.as_table }}</table>
-  <button type="submit">Login</button>
-</form>
+<div class="container">
+  <div class="row">
+    <div class="col-md-6 offset-md-3">
+
+      <div class="bg-light-gray card mt-5 p-5">
+        <h3>Local Login</h3>
+
+        <form action="" method="POST">
+          {% csrf_token %}
+          <table class="my-4">{{ form.as_table }}</table>
+          <button class="btn btn-primary" type="submit">Login</button>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -57,6 +57,7 @@
                 <span class="font-weight-bold">{{ app.offered.assigned_hours }}</span> hours
               </div>
 
+              <hr />
               <a href="{% url 'students:accept_decline_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}">Accept / Decline</a>
 
             {% elif app.accepted %}
@@ -68,6 +69,7 @@
               </div>
 
               {% if app.is_terminated %}
+                <hr />
                 <a href="{% url 'students:cancel_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}">Cancel</a>
               {% endif %}
 
