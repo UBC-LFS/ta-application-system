@@ -145,8 +145,14 @@ def saml(request, action=None):
         else:
             return HttpResponseRedirect(settings.LOGIN_URL)
 
-    return render(request, 'lfs_lab_cert_tracker/login.html', {'errors': errors, 'error_reason': error_reason, 'not_auth_warn': not_auth_warn, 'success_slo': success_slo,
-                                          'attributes': attributes, 'paint_logout': paint_logout})
+    return render(request, 'accounts/login.html', {
+        'errors': errors,
+        'error_reason': error_reason,
+        'not_auth_warn': not_auth_warn,
+        'success_slo': success_slo,
+        'attributes': attributes,
+        'paint_logout': paint_logout
+    })
 
 def attrs(request):
     paint_logout = False
@@ -156,9 +162,11 @@ def attrs(request):
         paint_logout = True
         if len(request.session['samlUserdata']) > 0:
             attributes = request.session['samlUserdata'].items()
-    return render(request, 'attrs.html',
-                  {'paint_logout': paint_logout,
-                   'attributes': attributes})
+
+    return render(request, 'attrs.html', {
+        'paint_logout': paint_logout,
+        'attributes': attributes
+    })
 
 
 def metadata(request):

@@ -1,5 +1,9 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from users import api as userApi
+
+def index(request):
+    ''' App index page '''
+    return redirect('accounts:login')
 
 def permission_denied(request, exception, template_name='403.html'):
     ''' Exception handlder for permission denied '''
