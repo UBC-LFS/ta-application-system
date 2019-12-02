@@ -8,5 +8,5 @@ __pycache__
 vagrant
 *.log
 staticfiles
-saml_prod
+saml/certs
 ta_app/settings.py

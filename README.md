@@ -92,7 +92,7 @@ $ python manage.py migrate
 $ python manage.py loaddata ta_app/fixtures/*.json
 ```
 
-11. Update *settings.json* and *advanced_settings.json* files in the **saml_prod** folder
+11. Update *settings.json* and *advanced_settings.json* files in the **saml** folder
 
 12. See a deployment checklist and change your settings
 ```
