@@ -53,8 +53,7 @@ DEBUG = False
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
-#SAML_FOLDER = os.path.join(BASE_DIR, 'saml')
-SAML_FOLDER_PROD = os.path.join(BASE_DIR, 'saml_prod')
+SAML_FOLDER = os.path.join(BASE_DIR, 'saml')
 
 ### <--
 
