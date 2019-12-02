@@ -1,8 +1,9 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
-{% load static %}
 
 <div class="container">
+  {% include 'ta_app/pages/_return_messages.html' with data=messages %}
+
   <div class="row">
     <div class="col-md-6 offset-md-3">
 
