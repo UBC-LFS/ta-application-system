@@ -8,11 +8,24 @@ from users import api as userApi
 
 def login(request):
     ''' Login page '''
+    if 'loggedin_user' in request.session.keys():
+        roles = request.session['loggedin_user']['roles']
+        if 'Admin' in roles or 'Superadmin' in roles:
+            return redirect('administrators:index')
+        elif 'HR' in roles:
+            return redirect('human_resources:index')
+        elif 'Instructor' in roles:
+            return redirect('instructors:index')
+        elif 'Student' in roles:
+            return redirect('students:index')
+        else:
+            return redirect('students:index')
+
     return render(request, 'accounts/login.html')
 
 
 def local_login(request):
-    users = User.objects.all()
+    ''' Local login '''
     if request.method == 'POST':
         form = LocalLoginForm(request.POST)
         if form.is_valid():
@@ -35,5 +48,20 @@ def local_login(request):
                     return redirect('students:index')
                 else:
                     return redirect('students:index')
+    else:
+        if 'loggedin_user' in request.session.keys():
+            roles = request.session['loggedin_user']['roles']
+            if 'Admin' in roles or 'Superadmin' in roles:
+                return redirect('administrators:index')
+            elif 'HR' in roles:
+                return redirect('human_resources:index')
+            elif 'Instructor' in roles:
+                return redirect('instructors:index')
+            elif 'Student' in roles:
+                return redirect('students:index')
+            else:
+                return redirect('students:index')
 
-    return render(request, 'accounts/local_login.html', { 'form': LocalLoginForm() })
+    return render(request, 'accounts/local_login.html', {
+        'form': LocalLoginForm()
+    })
