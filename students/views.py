@@ -503,10 +503,50 @@ def favourite_jobs(request):
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
         return redirect('students:favourite_jobs')
+    else:
+        year_q = request.GET.get('year')
+        term_q = request.GET.get('term')
+        code_q = request.GET.get('code')
+        number_q = request.GET.get('number')
+        section_q = request.GET.get('section')
+        instructor_first_name_q = request.GET.get('instructor_first_name')
+        instructor_last_name_q = request.GET.get('instructor_last_name')
+        exclude_applied_jobs_q = request.GET.get('exclude_applied_jobs')
 
+        favourite_list = adminApi.get_favourites(request.user)
+        all_favourites = favourite_list
+        if bool(year_q):
+            favourite_list = favourite_list.filter(job__session__year__iexact=year_q)
+        if bool(term_q):
+            favourite_list = favourite_list.filter(job__session__term__code__iexact=term_q)
+        if bool(code_q):
+            favourite_list = favourite_list.filter(job__course__code__name__iexact=code_q)
+        if bool(number_q):
+            favourite_list = favourite_list.filter(job__course__number__name__iexact=number_q)
+        if bool(section_q):
+            favourite_list = favourite_list.filter(job__course__section__name__iexact=section_q)
+        if bool(instructor_first_name_q):
+            favourite_list = favourite_list.filter(job__instructors__first_name__icontains=instructor_first_name_q)
+        if bool(instructor_last_name_q):
+            favourite_list = favourite_list.filter(job__instructors__last_name__icontains=instructor_last_name_q)
+        if exclude_applied_jobs_q == '1':
+            favourite_list = favourite_list.exclude(job__application__applicant__id=request.user.id)
+
+        page = request.GET.get('page', 1)
+        paginator = Paginator(favourite_list, settings.PAGE_SIZE)
+
+        try:
+            favourites = paginator.page(page)
+        except PageNotAnInteger:
+            favourites = paginator.page(1)
+        except EmptyPage:
+            favourites = paginator.page(paginator.num_pages)
+    
     return render(request, 'students/jobs/favourite_jobs.html', {
         'loggedin_user': request.user,
-        'favourites': adminApi.get_favourites(request.user)
+        'all_favourites': all_favourites,
+        'favourites': adminApi.add_applied_jobs_to_favourites(request.user, favourites),
+        'total_favourites': len(favourite_list)
     })
 
 
@@ -522,8 +562,6 @@ def available_jobs(request, session_slug):
         request.user.roles = request.session['loggedin_user']['roles']
     if 'Student' not in request.user.roles: raise PermissionDenied
 
-    year_q = request.GET.get('year')
-    term_q = request.GET.get('term')
     code_q = request.GET.get('code')
     number_q = request.GET.get('number')
     section_q = request.GET.get('section')
@@ -745,7 +783,7 @@ def accept_offer(request, session_slug, job_slug):
         if form.is_valid():
             status = form.save()
             if status:
-                app = adminApi.get_application(app_id)
+                app = adminApi.get_application(app_id) # here
                 updated = adminApi.update_job_accumulated_ta_hours(session_slug, job_slug, assigned_hours)
                 if updated:
                     messages.success(request, 'Success! You accepted the job offer - {0} {1}: {2} {3} {4} '.format(app.job.session.year, app.job.session.term.code, app.job.course.code.name, app.job.course.number.name, app.job.course.section.name))
@@ -778,7 +816,7 @@ def decline_offer(request, session_slug, job_slug):
         if form.is_valid():
             status = form.save()
             if status:
-                app = adminApi.get_application(app_id)
+                app = adminApi.get_application(app_id) # here
                 messages.success(request, 'Success! You declined the job offer - {0} {1}: {2} {3} {4} '.format(app.job.session.year, app.job.session.term.code, app.job.course.code.name, app.job.course.number.name, app.job.course.section.name))
             else:
                 messages.error(request, 'An error occurred while saving an status of an application.')

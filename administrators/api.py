@@ -252,6 +252,7 @@ def get_jobs_session(session_slug):
     return Job.objects.filter( Q(session__slug=session_slug) & Q(is_active=True) )
 
 def add_applied_favourite_jobs(user, jobs):
+    ''' Add applied and favourite infomation into jobs'''
     for job in jobs:
         job.my_app = None
         job.my_fav = None
@@ -263,6 +264,14 @@ def add_applied_favourite_jobs(user, jobs):
         if my_fav.exists(): job.my_fav = my_fav.first()
 
     return jobs
+
+def add_applied_jobs_to_favourites(user, favourites):
+    ''' Add applied information into favourites '''
+    for fav in favourites:
+        fav.my_app = None
+        my_app = fav.job.application_set.filter(applicant__id=user.id)
+        if my_app.exists(): fav.my_app = my_app.first()
+    return favourites
 
 
 def update_job_accumulated_ta_hours(session_slug, job_slug, ta_hours):

@@ -317,8 +317,9 @@ hr.dotted {
 }
 
 .badge {
-  font-size: 80% !important;
-  color: #fff;
+  /* color: #fff; */
+  /* font-size: 80% !important; */
+  /* padding: .5em .45em .25em .45em; */
 }
 
 .badge-orange {

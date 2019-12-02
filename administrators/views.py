@@ -182,7 +182,6 @@ def current_sessions(request):
 
     session_list = session_list.filter(is_archived=False)
     session_list = adminApi.add_num_instructors(session_list)
-    total_sessions = len(session_list)
 
     page = request.GET.get('page', 1)
     paginator = Paginator(session_list, settings.PAGE_SIZE)
@@ -197,7 +196,7 @@ def current_sessions(request):
     return render(request, 'administrators/sessions/current_sessions.html', {
         'loggedin_user': request.user,
         'sessions': sessions,
-        'total_sessions': total_sessions,
+        'total_sessions': len(session_list),
         'form': SessionForm()
     })
 
@@ -220,7 +219,6 @@ def archived_sessions(request):
 
     session_list = session_list.filter(is_archived=True)
     session_list = adminApi.add_num_instructors(session_list)
-    total_sessions = len(session_list)
 
     page = request.GET.get('page', 1)
     paginator = Paginator(session_list, settings.PAGE_SIZE)
@@ -235,7 +233,7 @@ def archived_sessions(request):
     return render(request, 'administrators/sessions/archived_sessions.html', {
         'loggedin_user': request.user,
         'sessions': sessions,
-        'total_sessions': total_sessions,
+        'total_sessions': len(session_list),
         'form': SessionForm()
     })
 
@@ -380,8 +378,6 @@ def prepare_jobs(request):
     if bool(instructor_last_name_q):
         job_list = job_list.filter(instructors__last_name__icontains=instructor_last_name_q)
 
-    total_jobs = len(job_list)
-
     page = request.GET.get('page', 1)
     paginator = Paginator(job_list, settings.PAGE_SIZE)
 
@@ -395,7 +391,7 @@ def prepare_jobs(request):
     return render(request, 'administrators/jobs/prepare_jobs.html', {
         'loggedin_user': request.user,
         'jobs': jobs,
-        'total_jobs': total_jobs
+        'total_jobs': len(job_list)
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -425,7 +421,6 @@ def progress_jobs(request):
         job_list = job_list.filter(course__section__name__iexact=section_q)
 
     #job_list = adminApi.add_applications_statistics(job_list)
-    total_jobs = len(job_list)
 
     page = request.GET.get('page', 1)
     paginator = Paginator(job_list, settings.PAGE_SIZE)
@@ -440,7 +435,7 @@ def progress_jobs(request):
     return render(request, 'administrators/jobs/progress_jobs.html', {
         'loggedin_user': request.user,
         'jobs': jobs,
-        'total_jobs': total_jobs
+        'total_jobs': len(job_list)
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -468,8 +463,6 @@ def instructor_jobs(request):
 
     user_list = user_list.filter(profile__roles__name=Role.INSTRUCTOR)
 
-    total_users = len(user_list)
-
     page = request.GET.get('page', 1)
     paginator = Paginator(user_list, settings.PAGE_SIZE)
 
@@ -483,7 +476,7 @@ def instructor_jobs(request):
     return render(request, 'administrators/jobs/instructor_jobs.html', {
         'loggedin_user': request.user,
         'users': users,
-        'total_users': total_users
+        'total_users': len(user_list)
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -511,8 +504,6 @@ def student_jobs(request):
 
     user_list = user_list.filter(profile__roles__name=Role.STUDENT)
 
-    total_users = len(user_list)
-
     page = request.GET.get('page', 1)
     paginator = Paginator(user_list, settings.PAGE_SIZE)
 
@@ -526,7 +517,7 @@ def student_jobs(request):
     return render(request, 'administrators/jobs/student_jobs.html', {
         'loggedin_user': request.user,
         'users': users,
-        'total_users': total_users
+        'total_users': len(user_list)
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -672,8 +663,6 @@ def applications_dashboard(request):
     if bool(last_name_q):
         status_list = status_list.filter(application__applicant__last_name__icontains=last_name_q)
 
-    total_statuses = len(status_list)
-
     page = request.GET.get('page', 1)
     paginator = Paginator(status_list, settings.PAGE_SIZE)
 
@@ -687,7 +676,7 @@ def applications_dashboard(request):
     return render(request, 'administrators/applications/applications_dashboard.html', {
         'loggedin_user': request.user,
         'statuses': statuses,
-        'total_statuses': total_statuses,
+        'total_statuses': len(status_list),
         'app_status': APP_STATUS,
         #'applications': adminApi.get_applications()
     })
@@ -724,8 +713,6 @@ def all_applications(request):
     if bool(last_name_q):
         app_list = app_list.filter(applicant__last_name__icontains=last_name_q)
 
-    total_apps = len(app_list)
-
     page = request.GET.get('page', 1)
     paginator = Paginator(app_list, settings.PAGE_SIZE)
 
@@ -739,7 +726,7 @@ def all_applications(request):
     return render(request, 'administrators/applications/all_applications.html', {
         'loggedin_user': request.user,
         'apps': apps,
-        'total_apps': total_apps
+        'total_apps': len(app_list)
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -777,8 +764,6 @@ def selected_applications(request):
     app_list = app_list.filter(applicationstatus__assigned=ApplicationStatus.SELECTED).order_by('-id').distinct()
     app_list = adminApi.add_application_info(app_list, ['resume', 'selected', 'offered'])
 
-    total_apps = len(app_list)
-
     page = request.GET.get('page', 1)
     paginator = Paginator(app_list, settings.PAGE_SIZE)
 
@@ -792,7 +777,7 @@ def selected_applications(request):
     return render(request, 'administrators/applications/selected_applications.html', {
         'loggedin_user': request.user,
         'apps': apps,
-        'total_apps': total_apps,
+        'total_apps': len(app_list),
         'admin_application_form': AdminApplicationForm(),
         'status_form': ApplicationStatusForm(initial={ 'assigned': ApplicationStatus.OFFERED }),
         'classification_choices': adminApi.get_classifications(),
@@ -884,8 +869,6 @@ def offered_applications(request):
     app_list = app_list.filter(applicationstatus__assigned=ApplicationStatus.OFFERED).order_by('-id').distinct()
     app_list = adminApi.add_application_info(app_list, ['offered'])
 
-    total_apps = len(app_list)
-
     page = request.GET.get('page', 1)
     paginator = Paginator(app_list, settings.PAGE_SIZE)
 
@@ -899,7 +882,7 @@ def offered_applications(request):
     return render(request, 'administrators/applications/offered_applications.html', {
         'loggedin_user': request.user,
         'apps': apps,
-        'total_apps': total_apps,
+        'total_apps': len(app_list),
         'admin_emails': adminApi.get_admin_emails()
     })
 
@@ -1040,8 +1023,6 @@ def accepted_applications(request):
     app_list = app_list.filter(applicationstatus__assigned=ApplicationStatus.ACCEPTED).order_by('-id').distinct()
     app_list = adminApi.add_application_info(app_list, ['accepted'])
 
-    total_apps = len(app_list)
-
     page = request.GET.get('page', 1)
     paginator = Paginator(app_list, settings.PAGE_SIZE)
 
@@ -1055,7 +1036,7 @@ def accepted_applications(request):
     return render(request, 'administrators/applications/accepted_applications.html', {
         'loggedin_user': request.user,
         'apps': apps,
-        'total_apps': total_apps
+        'total_apps': len(app_list)
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -1093,8 +1074,6 @@ def declined_applications(request):
     app_list = app_list.filter(applicationstatus__assigned=ApplicationStatus.DECLINED).order_by('-id').distinct()
     app_list = adminApi.add_application_info(app_list, ['declined'])
 
-    total_apps = len(app_list)
-
     page = request.GET.get('page', 1)
     paginator = Paginator(app_list, settings.PAGE_SIZE)
 
@@ -1108,7 +1087,7 @@ def declined_applications(request):
     return render(request, 'administrators/applications/declined_applications.html', {
         'loggedin_user': request.user,
         'apps': apps,
-        'total_apps': total_apps
+        'total_apps': len(app_list)
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -1282,7 +1261,6 @@ def all_users(request):
     if bool(cwl_q):
         user_list = user_list.filter(username__icontains=cwl_q)
 
-    total_users = len(user_list)
     page = request.GET.get('page', 1)
     paginator = Paginator(user_list, settings.PAGE_SIZE)
 
@@ -1296,7 +1274,7 @@ def all_users(request):
     return render(request, 'administrators/hr/all_users.html', {
         'loggedin_user': request.user,
         'users': users,
-        'total_users': total_users
+        'total_users': len(user_list)
     })
 
 
@@ -1464,7 +1442,6 @@ def admin_docs(request):
     if bool(cwl_q):
         user_list = user_list.filter(username__icontains=cwl_q)
 
-    total_users = len(user_list)
     page = request.GET.get('page', 1)
     paginator = Paginator(user_list, settings.PAGE_SIZE)
 
@@ -1479,7 +1456,7 @@ def admin_docs(request):
     return render(request, 'administrators/hr/admin_docs.html', {
         'loggedin_user': request.user,
         'users': users,
-        'total_users': total_users
+        'total_users': len(user_list)
     })
 
 
@@ -1676,8 +1653,6 @@ def all_courses(request):
     if bool(course_name_q):
         course_list = course_list.filter(name__icontains=course_name_q)
 
-    total_courses = len(course_list)
-
     page = request.GET.get('page', 1)
     paginator = Paginator(course_list, settings.PAGE_SIZE)
 
@@ -1691,7 +1666,7 @@ def all_courses(request):
     return render(request, 'administrators/courses/all_courses.html', {
         'loggedin_user': request.user,
         'courses': courses,
-        'total_courses': total_courses
+        'total_courses': len(course_list)
     })
 
 @login_required(login_url=settings.LOGIN_URL)
