@@ -7,7 +7,7 @@ from users import api as userApi
 from onelogin.saml2.auth import OneLogin_Saml2_Auth
 from onelogin.saml2.settings import OneLogin_Saml2_Settings
 from onelogin.saml2.utils import OneLogin_Saml2_Utils
-
+from accounts import views
 
 def init_saml_auth(req):
     return OneLogin_Saml2_Auth(req, custom_base_path=settings.SAML_FOLDER)
@@ -113,16 +113,8 @@ def saml(request, action=None):
                         'username': user.username,
                         'roles': roles
                     }
-                    if 'Admin' in roles or 'Superadmin' in roles:
-                        return redirect('administrators:index')
-                    elif 'HR' in roles:
-                        return redirect('human_resources:index')
-                    elif 'Instructor' in roles:
-                        return redirect('instructors:index')
-                    elif 'Student' in roles:
-                        return redirect('students:index')
-                    else:
-                        return redirect('students:index')
+                    redirect_to = redirect_to_index_page(roles)
+                    return HttpResponseRedirect(redirect_to)
 
                 else:
                     for attr_name in request.session['samlUserdata'].keys():
