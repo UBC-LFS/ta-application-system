@@ -3,23 +3,31 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login as AuthLogin
 from django.http import HttpResponseRedirect, Http404
 from django.urls import reverse
-from .forms import LocalLoginForm
+from django.contrib import messages
+from accounts.forms import LocalLoginForm
 from users import api as userApi
+
+
+def redirect_to_index_page(roles):
+    ''' Redirect to an index page given roles '''
+    if 'Admin' in roles or 'Superadmin' in roles:
+        return '/administrators/'
+    elif 'HR' in roles:
+        return '/human_resources/'
+    elif 'Instructor' in roles:
+        return '/instructors/'
+    elif 'Student' in roles:
+        return '/students/'
+
+    return '/students/'
+
 
 def login(request):
     ''' Login page '''
     if 'loggedin_user' in request.session.keys():
         roles = request.session['loggedin_user']['roles']
-        if 'Admin' in roles or 'Superadmin' in roles:
-            return redirect('administrators:index')
-        elif 'HR' in roles:
-            return redirect('human_resources:index')
-        elif 'Instructor' in roles:
-            return redirect('instructors:index')
-        elif 'Student' in roles:
-            return redirect('students:index')
-        else:
-            return redirect('students:index')
+        redirect_to = redirect_to_index_page(roles)
+        return HttpResponseRedirect(redirect_to)
 
     return render(request, 'accounts/login.html')
 
@@ -38,35 +46,20 @@ def local_login(request):
                     'username': user.username,
                     'roles': roles
                 }
-                if 'Admin' in roles or 'Superadmin' in roles:
-                    return redirect('administrators:index')
-                elif 'HR' in roles:
-                    return redirect('human_resources:index')
-                elif 'Instructor' in roles:
-                    return redirect('instructors:index')
-                elif 'Student' in roles:
-                    return redirect('students:index')
-                else:
-                    return redirect('students:index')
+                redirect_to = redirect_to_index_page(roles)
+                return HttpResponseRedirect(redirect_to)
             else:
-                messages.error('An error occurred. Please check your username and password, then try again.')
+                messages.error(request, 'An error occurred. Please check your username and password, then try again.')
         else:
-            messages.error('An error occurred. Form is invalid. Please check your inputs.')
+            messages.error(request, 'An error occurred. Form is invalid. Please check your inputs.')
+
         return redirect('accounts:local_login')
-        
+
     else:
         if 'loggedin_user' in request.session.keys():
             roles = request.session['loggedin_user']['roles']
-            if 'Admin' in roles or 'Superadmin' in roles:
-                return redirect('administrators:index')
-            elif 'HR' in roles:
-                return redirect('human_resources:index')
-            elif 'Instructor' in roles:
-                return redirect('instructors:index')
-            elif 'Student' in roles:
-                return redirect('students:index')
-            else:
-                return redirect('students:index')
+            redirect_to = redirect_to_index_page(roles)
+            return HttpResponseRedirect(redirect_to)
 
     return render(request, 'accounts/local_login.html', {
         'form': LocalLoginForm()
