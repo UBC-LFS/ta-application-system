@@ -12,12 +12,12 @@ def login(request):
 
 
 def local_login(request):
-    users = User.objects.all()
+    ''' Local login '''
     if request.method == 'POST':
         form = LocalLoginForm(request.POST)
         if form.is_valid():
-            user = userApi.user_exists(request.POST['username'])
-            if user is not None and request.POST['password'] is not None:
+            user = authenticate(username=request.POST['username'], password=request.POST['password'])
+            if user is not None:
                 AuthLogin(request, user)
                 roles = userApi.get_user_roles(user)
                 request.session['loggedin_user'] = {
@@ -35,5 +35,12 @@ def local_login(request):
                     return redirect('students:index')
                 else:
                     return redirect('students:index')
+            else:
+                messages.error('An error occurred. Please check your username and password, then try again.')
+        else:
+            messages.error('An error occurred. Form is invalid. Please check your inputs.')
+        return redirect('accounts:local_login')
 
-    return render(request, 'accounts/local_login.html', { 'form': LocalLoginForm() })
+    return render(request, 'accounts/local_login.html', {
+        'form': LocalLoginForm()
+    })
