@@ -8,7 +8,7 @@
     <div class="col-md-6">
 
       <div>
-        <h4 class="text-primary text-center">Welcome</h4>
+        <h4 class="text-center">Welcome</h4>
         <p class="text-secondary">Welcome to the Faculty of Land and Food Systems TA Application form.</p>
 
         <div class="bd-callout bd-callout-warning bg-light-gray">
@@ -30,16 +30,27 @@
       </div>
 
       <div class="mt-5">
-        <div class="font-weight-bold">LFS - TA Application System</div>
-        <div>Faculty of Land and Food Systems</div>
-        <div>Tel: 604-822-0434</div>
+        <table class="info-table">
+          <tr>
+            <td>
+              <img src="{% static 'ta_app/images/ubc-lfs-logo.gif' %}" width=100 alt="ubc lfs logo"/>
+            </td>
+            <td>
+              <h6>LFS - TA Application System</h6>
+              <p>
+                Faculty of Land and Food Systems<br />
+                Tel: 604-822-0434
+              </p>
+            </td>
+          </tr>
+        </table>
       </div>
     </div>
 
     <div class="col-md-6">
 
       <div class="bg-prompt">
-        <div class="prompt text-center">
+        <div class="prompt text-center p-4 mb-4">
           <h4 class="text-primary">User login</h4>
           <p>To log in, click the CWL button below.<br /> You will be redirected to a secure CWL login.</p>
           <a href="{% url 'saml' %}?sso">

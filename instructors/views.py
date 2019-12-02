@@ -119,7 +119,8 @@ def show_jobs(request):
 
     return render(request, 'instructors/jobs/show_jobs.html', {
         'loggedin_user': request.user,
-        'jobs': jobs
+        'jobs': jobs,
+        'total_jobs': len(job_list)
     })
 
 @login_required(login_url=settings.LOGIN_URL)

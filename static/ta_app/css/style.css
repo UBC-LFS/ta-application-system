@@ -153,6 +153,13 @@ main {
   outline: none !important;
 }
 
+.info-table tr td h6 {
+  margin-top: 20px;
+}
+
+.info-table td:nth-child(2) {
+  padding-left: 20px;
+}
 
 /* utils */
 
@@ -310,8 +317,9 @@ hr.dotted {
 }
 
 .badge {
-  font-size: 80% !important;
-  color: #fff;
+  /* color: #fff; */
+  /* font-size: 80% !important; */
+  /* padding: .5em .45em .25em .45em; */
 }
 
 .badge-orange {
@@ -332,6 +340,10 @@ hr.dotted {
   padding: .1em .3em;
 }
 
+.card-horizontal {
+  display: flex;
+  flex: 1 1 auto;
+}
 
 /* colors */
 
