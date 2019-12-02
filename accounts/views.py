@@ -8,6 +8,19 @@ from users import api as userApi
 
 def login(request):
     ''' Login page '''
+    if 'loggedin_user' in request.session.keys():
+        roles = request.session['loggedin_user']['roles']
+        if 'Admin' in roles or 'Superadmin' in roles:
+            return redirect('administrators:index')
+        elif 'HR' in roles:
+            return redirect('human_resources:index')
+        elif 'Instructor' in roles:
+            return redirect('instructors:index')
+        elif 'Student' in roles:
+            return redirect('students:index')
+        else:
+            return redirect('students:index')
+
     return render(request, 'accounts/login.html')
 
 
@@ -40,6 +53,20 @@ def local_login(request):
         else:
             messages.error('An error occurred. Form is invalid. Please check your inputs.')
         return redirect('accounts:local_login')
+        
+    else:
+        if 'loggedin_user' in request.session.keys():
+            roles = request.session['loggedin_user']['roles']
+            if 'Admin' in roles or 'Superadmin' in roles:
+                return redirect('administrators:index')
+            elif 'HR' in roles:
+                return redirect('human_resources:index')
+            elif 'Instructor' in roles:
+                return redirect('instructors:index')
+            elif 'Student' in roles:
+                return redirect('students:index')
+            else:
+                return redirect('students:index')
 
     return render(request, 'accounts/local_login.html', {
         'form': LocalLoginForm()
