@@ -1,18 +1,35 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
-
+{% load static %}
 <div class="container">
   {% include 'ta_app/pages/_return_messages.html' with data=messages %}
 
   <div class="row">
-    <div class="col-md-6 offset-md-3">
+    <div class="col-md-6 offset-md-3 col-sm-12">
 
       <div class="bg-light-gray card mt-5 p-5">
-        <h3>Local Login</h3>
+        <div class="text-center">
+          <img class="logo-page d-inline-block" src="{% static 'ta_app/images/ubc-logo.jpeg' %}" alt="ubc logo" />
+          <h3 class="d-inline-block">Local Login</h3>
+        </div>
 
         <form action="" method="POST">
           {% csrf_token %}
-          <table class="my-4">{{ form.as_table }}</table>
+
+          {% for field in form.visible_fields  %}
+            <div class="field-wrapper">
+              {{ field.label_tag }}
+              {% if field.help_text %}
+                <div class="help">{{ field.help_text|safe }}</div>
+              {% endif %}
+              {{ field }}
+            </div>
+          {% endfor %}
+
+          {% for field in form.hidden_fields %}
+            {{ field }}
+          {% endfor %}
+
           <button class="btn btn-primary" type="submit">Login</button>
         </form>
       </div>
