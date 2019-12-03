@@ -541,7 +541,7 @@ def favourite_jobs(request):
             favourites = paginator.page(1)
         except EmptyPage:
             favourites = paginator.page(paginator.num_pages)
-    
+
     return render(request, 'students/jobs/favourite_jobs.html', {
         'loggedin_user': request.user,
         'all_favourites': all_favourites,
@@ -583,8 +583,6 @@ def available_jobs(request, session_slug):
     if exclude_applied_jobs_q == '1':
         job_list = job_list.exclude(application__applicant__id=request.user.id)
 
-    total_jobs = len(job_list)
-
     page = request.GET.get('page', 1)
     paginator = Paginator(job_list, settings.PAGE_SIZE)
 
@@ -599,7 +597,7 @@ def available_jobs(request, session_slug):
         'loggedin_user': request.user,
         'session_slug': session_slug,
         'jobs': adminApi.add_applied_favourite_jobs(request.user, jobs),
-        'total_jobs': total_jobs
+        'total_jobs': len(job_list)
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -691,10 +689,39 @@ def history_jobs(request):
         request.user.roles = request.session['loggedin_user']['roles']
     if 'Student' not in request.user.roles: raise PermissionDenied
 
-    apps, total_accepted_assigned_hours = adminApi.get_applications_with_status(request.user)
+    year_q = request.GET.get('year')
+    term_q = request.GET.get('term')
+    code_q = request.GET.get('code')
+    number_q = request.GET.get('number')
+    section_q = request.GET.get('section')
+    exclude_applied_jobs_q = request.GET.get('exclude_applied_jobs')
+
+    app_list, total_accepted_assigned_hours = adminApi.get_applications_with_status(request.user)
+    if bool(year_q):
+        app_list = app_list.filter(job__session__year__iexact=year_q)
+    if bool(term_q):
+        app_list = app_list.filter(job__session__term__code__iexact=term_q)
+    if bool(code_q):
+        app_list = app_list.filter(job__course__code__name__iexact=code_q)
+    if bool(number_q):
+        app_list = app_list.filter(job__course__number__name__iexact=number_q)
+    if bool(section_q):
+        app_list = app_list.filter(job__course__section__name__iexact=section_q)
+
+    page = request.GET.get('page', 1)
+    paginator = Paginator(app_list, settings.PAGE_SIZE)
+
+    try:
+        apps = paginator.page(page)
+    except PageNotAnInteger:
+        apps = paginator.page(1)
+    except EmptyPage:
+        apps = paginator.page(paginator.num_pages)
+
     return render(request, 'students/jobs/history_jobs.html', {
         'loggedin_user': request.user,
         'apps': apps,
+        'total_apps': len(app_list),
         'total_accepted_assigned_hours': total_accepted_assigned_hours
     })
 

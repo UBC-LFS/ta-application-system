@@ -179,7 +179,8 @@ def delete_favourite_job(user, job):
 
 def get_favourites(user):
     ''' Get user's favourite jobs '''
-    return Favourite.objects.filter( Q(applicant_id=user.id) & Q(job__is_active=True) )
+    #return Favourite.objects.filter( Q(applicant_id=user.id) & Q(job__is_active=True) )
+    return Favourite.objects.filter(applicant_id=user.id)
 
 
 
