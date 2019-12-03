@@ -1,15 +1,23 @@
 <div class="search-field bg-light-gray p-4">
   <form method="GET">
-    <input type="text" name="year" value="{{ request.GET.year }}" placeholder="Year" /> and
-    <input type="text" name="term" value="{{ request.GET.term }}" placeholder="Term" /> <br />
+
+    {% if path == 'favourite_jobs' or path == 'history_jobs' %}
+      <input type="text" name="year" value="{{ request.GET.year }}" placeholder="Year" /> and
+      <input type="text" name="term" value="{{ request.GET.term }}" placeholder="Term" /> <br />
+    {% endif %}
+
     <input type="text" name="code" value="{{ request.GET.code }}" placeholder="Job Code" /> and
     <input type="text" name="number" value="{{ request.GET.number }}" placeholder="Job Number" /> and
     <input type="text" name="section" value="{{ request.GET.section }}" placeholder="Job Section" /> <br />
-    <input type="text" name="instructor_first_name" value="{{ request.GET.instructor_first_name }}" placeholder="Instructor First Name" /> and
-    <input type="text" name="instructor_last_name" value="{{ request.GET.instructor_last_name }}" placeholder="Instructor Last Name" /> <br />
-    <input type="checkbox" name="exclude_applied_jobs" value="1"
-      {% if request.GET.exclude_applied_jobs == '1' %} checked {% endif %}
-    > Exclude applied jobs <br />
+
+    {% if path != 'history_jobs' %}
+      <input type="text" name="instructor_first_name" value="{{ request.GET.instructor_first_name }}" placeholder="Instructor First Name" /> and
+      <input type="text" name="instructor_last_name" value="{{ request.GET.instructor_last_name }}" placeholder="Instructor Last Name" /> <br />
+    
+      <input type="checkbox" name="exclude_applied_jobs" value="1"
+        {% if request.GET.exclude_applied_jobs == '1' %} checked {% endif %}
+      > Exclude applied jobs <br />
+    {% endif %}
 
     <div class="mt-1">
       <button class="btn btn-sm btn-secondary" type="submit">Search</button>
@@ -19,6 +27,9 @@
 
       {% elif path == 'favourite_jobs' %}
         <a class="btn btn-sm btn-light" href="{% url 'students:favourite_jobs' %}">Clear</a>
+
+      {% elif path == 'history_jobs' %}
+        <a class="btn btn-sm btn-light" href="{% url 'students:history_jobs' %}">Clear</a>
 
       {% endif %}
     </div>
