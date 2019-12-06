@@ -41,6 +41,7 @@ DATA = [
 
 
 USERS = [ 'user2.admin', 'barbara.stefanska', 'user100.test']
+PASSWORD = '12'
 
 SESSION = '2019-w1'
 JOB = 'apbi-200-001-introduction-to-soil-science-w1'
@@ -60,7 +61,7 @@ class SessionTest(TestCase):
         if username and password:
             self.client.post(LOGIN_URL, data={'username': username, 'password': password})
         else:
-            self.client.post(LOGIN_URL, data={'username': self.user.username, 'password': self.user.password})
+            self.client.post(LOGIN_URL, data={'username': self.user.username, 'password': PASSWORD})
 
     def messages(self, res):
         return [m.message for m in get_messages(res.wsgi_request)]
@@ -345,7 +346,7 @@ class JobTest(TestCase):
         if username and password:
             self.client.post(LOGIN_URL, data={'username': username, 'password': password})
         else:
-            self.client.post(LOGIN_URL, data={'username': self.user.username, 'password': self.user.password})
+            self.client.post(LOGIN_URL, data={'username': self.user.username, 'password': PASSWORD})
 
     def messages(self, res):
         return [m.message for m in get_messages(res.wsgi_request)]
@@ -568,7 +569,7 @@ class ApplicationTest(TestCase):
         if username and password:
             self.client.post(LOGIN_URL, data={'username': username, 'password': password})
         else:
-            self.client.post(LOGIN_URL, data={'username': self.user.username, 'password': self.user.password})
+            self.client.post(LOGIN_URL, data={'username': self.user.username, 'password': PASSWORD})
 
     def messages(self, res):
         return [m.message for m in get_messages(res.wsgi_request)]
@@ -966,7 +967,7 @@ class HRTest(TestCase):
         if username and password:
             self.client.post(LOGIN_URL, data={'username': username, 'password': password})
         else:
-            self.client.post(LOGIN_URL, data={'username': self.user.username, 'password': self.user.password})
+            self.client.post(LOGIN_URL, data={'username': self.user.username, 'password': PASSWORD})
 
     def messages(self, res):
         return [m.message for m in get_messages(res.wsgi_request)]
@@ -1417,7 +1418,7 @@ class CourseTest(TestCase):
         if username and password:
             self.client.post(LOGIN_URL, data={'username': username, 'password': password})
         else:
-            self.client.post(LOGIN_URL, data={'username': self.user.username, 'password': self.user.password})
+            self.client.post(LOGIN_URL, data={'username': self.user.username, 'password': PASSWORD})
 
     def messages(self, res):
         return [m.message for m in get_messages(res.wsgi_request)]
@@ -1608,7 +1609,7 @@ class PreparationTest(TestCase):
         if username and password:
             self.client.post(LOGIN_URL, data={'username': username, 'password': password})
         else:
-            self.client.post(LOGIN_URL, data={'username': self.user.username, 'password': self.user.password})
+            self.client.post(LOGIN_URL, data={'username': self.user.username, 'password': PASSWORD})
 
     def messages(self, res):
         return [m.message for m in get_messages(res.wsgi_request)]
