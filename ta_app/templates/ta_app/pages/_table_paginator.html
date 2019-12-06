@@ -16,7 +16,9 @@
 {% if request.GET.section %}&section={{ request.GET.section }}{% endif %}
 {% if request.GET.instructor_first_name %}&instructor_first_name={{ request.GET.instructor_first_name }}{% endif %}
 {% if request.GET.instructor_last_name %}&instructor_last_name={{ request.GET.instructor_last_name }}{% endif %}
-{% if request.GET.course_name %}&course_name={{ request.GET.course_name }}{% endif %}"
+{% if request.GET.course_name %}&course_name={{ request.GET.course_name }}{% endif %}
+{% if request.GET.exclude_applied_jobs %}&exclude_applied_jobs={{ request.GET.exclude_applied_jobs }}{% endif %}
+{% if request.GET.exclude_inactive_jobs %}&exclude_inactive_jobs={{ request.GET.exclude_inactive_jobs }}{% endif %}"
           ><i class="fa fa-angle-double-left" aria-hidden="true"></i></a>
         </li>
         <li class="page-item">
@@ -32,7 +34,9 @@
 {% if request.GET.section %}&section={{ request.GET.section }}{% endif %}
 {% if request.GET.instructor_first_name %}&instructor_first_name={{ request.GET.instructor_first_name }}{% endif %}
 {% if request.GET.instructor_last_name %}&instructor_last_name={{ request.GET.instructor_last_name }}{% endif %}
-{% if request.GET.course_name %}&course_name={{ request.GET.course_name }}{% endif %}"
+{% if request.GET.course_name %}&course_name={{ request.GET.course_name }}{% endif %}
+{% if request.GET.exclude_applied_jobs %}&exclude_applied_jobs={{ request.GET.exclude_applied_jobs }}{% endif %}
+{% if request.GET.exclude_inactive_jobs %}&exclude_inactive_jobs={{ request.GET.exclude_inactive_jobs }}{% endif %}"
           ><i class="fa fa-angle-left" aria-hidden="true"></i></a>
         </li>
       {% else %}
@@ -66,7 +70,8 @@
 {% if request.GET.instructor_first_name %}&instructor_first_name={{ request.GET.instructor_first_name }}{% endif %}
 {% if request.GET.instructor_last_name %}&instructor_last_name={{ request.GET.instructor_last_name }}{% endif %}
 {% if request.GET.course_name %}&course_name={{ request.GET.course_name }}{% endif %}
-{% if request.GET.exclude_applied_jobs %}&exclude_applied_jobs={{ request.GET.exclude_applied_jobs }}{% endif %}"
+{% if request.GET.exclude_applied_jobs %}&exclude_applied_jobs={{ request.GET.exclude_applied_jobs }}{% endif %}
+{% if request.GET.exclude_inactive_jobs %}&exclude_inactive_jobs={{ request.GET.exclude_inactive_jobs }}{% endif %}"
               >{{ i }}</a>
             {% endif %}
 
@@ -89,7 +94,8 @@
 {% if request.GET.instructor_first_name %}&instructor_first_name={{ request.GET.instructor_first_name }}{% endif %}
 {% if request.GET.instructor_last_name %}&instructor_last_name={{ request.GET.instructor_last_name }}{% endif %}
 {% if request.GET.course_name %}&course_name={{ request.GET.course_name }}{% endif %}
-{% if request.GET.exclude_applied_jobs %}&exclude_applied_jobs={{ request.GET.exclude_applied_jobs }}{% endif %}"
+{% if request.GET.exclude_applied_jobs %}&exclude_applied_jobs={{ request.GET.exclude_applied_jobs }}{% endif %}
+{% if request.GET.exclude_inactive_jobs %}&exclude_inactive_jobs={{ request.GET.exclude_inactive_jobs }}{% endif %}"
           ><i class="fa fa-angle-right" aria-hidden="true"></i></a>
         </li>
         <li class="page-item">
@@ -106,7 +112,8 @@
 {% if request.GET.instructor_first_name %}&instructor_first_name={{ request.GET.instructor_first_name }}{% endif %}
 {% if request.GET.instructor_last_name %}&instructor_last_name={{ request.GET.instructor_last_name }}{% endif %}
 {% if request.GET.course_name %}&course_name={{ request.GET.course_name }}{% endif %}
-{% if request.GET.exclude_applied_jobs %}&exclude_applied_jobs={{ request.GET.exclude_applied_jobs }}{% endif %}"
+{% if request.GET.exclude_applied_jobs %}&exclude_applied_jobs={{ request.GET.exclude_applied_jobs }}{% endif %}
+{% if request.GET.exclude_inactive_jobs %}&exclude_inactive_jobs={{ request.GET.exclude_inactive_jobs }}{% endif %}"
           ><i class="fa fa-angle-double-right" aria-hidden="true"></i></a>
         </li>
       {% else %}

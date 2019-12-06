@@ -32,12 +32,12 @@ def index(request):
         request.user.roles = request.session['loggedin_user']['roles']
     if 'Student' not in request.user.roles: raise PermissionDenied
 
-    apps, total_accepted_assigned_hours = adminApi.get_applied_applications(request.user)
+    apps = request.user.application_set.all()
     return render(request, 'students/index.html', {
         'loggedin_user': request.user,
         'apps': apps,
-        'total_accepted_assigned_hours': total_accepted_assigned_hours,
-        'recent_apps': apps.filter( Q(created_at__year__gte=datetime.now().year) ),
+        'total_assigned_hours': adminApi.get_total_assigned_hours(apps, ['accepted']),
+        'recent_apps': apps.filter( Q(created_at__year__gte=datetime.now().year) ).order_by('-created_at'),
         'favourites': adminApi.get_favourites(request.user)
     })
 
@@ -83,7 +83,6 @@ def edit_profile(request):
             updated_profile = form.save(commit=False)
             updated_profile.updated_at = datetime.now()
             form.save()
-
             if updated_profile:
                 updated = userApi.update_student_profile_degrees_trainings(updated_profile, profile_degrees, profile_trainings, data)
                 if updated:
@@ -471,9 +470,10 @@ def explore_jobs(request):
         request.user.roles = request.session['loggedin_user']['roles']
     if 'Student' not in request.user.roles: raise PermissionDenied
 
+    sessions = adminApi.get_sessions()
     return render(request, 'students/jobs/explore_jobs.html', {
         'loggedin_user': request.user,
-        'visible_current_sessions': adminApi.get_visible_current_sessions(),
+        'visible_current_sessions': sessions.filter( Q(is_visible=True) & Q(is_archived=False) ),
         'favourites': adminApi.get_favourites(request.user)
     })
 
@@ -512,6 +512,7 @@ def favourite_jobs(request):
         instructor_first_name_q = request.GET.get('instructor_first_name')
         instructor_last_name_q = request.GET.get('instructor_last_name')
         exclude_applied_jobs_q = request.GET.get('exclude_applied_jobs')
+        exclude_inactive_jobs_q = request.GET.get('exclude_inactive_jobs')
 
         favourite_list = adminApi.get_favourites(request.user)
         all_favourites = favourite_list
@@ -531,6 +532,8 @@ def favourite_jobs(request):
             favourite_list = favourite_list.filter(job__instructors__last_name__icontains=instructor_last_name_q)
         if exclude_applied_jobs_q == '1':
             favourite_list = favourite_list.exclude(job__application__applicant__id=request.user.id)
+        if exclude_inactive_jobs_q == '1':
+            favourite_list = favourite_list.exclude(job__is_active=False)
 
         page = request.GET.get('page', 1)
         paginator = Paginator(favourite_list, settings.PAGE_SIZE)
@@ -568,8 +571,9 @@ def available_jobs(request, session_slug):
     instructor_first_name_q = request.GET.get('instructor_first_name')
     instructor_last_name_q = request.GET.get('instructor_last_name')
     exclude_applied_jobs_q = request.GET.get('exclude_applied_jobs')
+    exclude_inactive_jobs_q = request.GET.get('exclude_inactive_jobs')
 
-    job_list = adminApi.get_jobs_session(session_slug)
+    job_list = adminApi.get_jobs().filter(session__slug=session_slug)
     if bool(code_q):
         job_list = job_list.filter(course__code__name__iexact=code_q)
     if bool(number_q):
@@ -582,6 +586,8 @@ def available_jobs(request, session_slug):
         job_list = job_list.filter(instructors__last_name__icontains=instructor_last_name_q)
     if exclude_applied_jobs_q == '1':
         job_list = job_list.exclude(application__applicant__id=request.user.id)
+    if exclude_inactive_jobs_q == '1':
+        job_list = job_list.exclude(is_active=False)
 
     page = request.GET.get('page', 1)
     paginator = Paginator(job_list, settings.PAGE_SIZE)
@@ -613,6 +619,8 @@ def apply_job(request, session_slug, job_slug):
     if 'Student' not in request.user.roles: raise PermissionDenied
 
     job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
+    if not job.is_active: raise PermissionDenied
+
     if request.method == 'POST':
         form = ApplicationForm(request.POST)
         if form.is_valid():
@@ -635,9 +643,8 @@ def apply_job(request, session_slug, job_slug):
     return render(request, 'students/jobs/apply_job.html', {
         'loggedin_user': request.user,
         'job': adminApi.add_favourite_job(request.user, job),
-        'has_applied_job': adminApi.has_applied_job(session_slug, job_slug, request.user),
-        'form': ApplicationForm(initial={ 'applicant': request.user.id, 'job': job.id }),
-        'applied_jobs': adminApi.get_jobs_applied_by_student(request.user).order_by('-created_at')[:10]
+        'has_applied_job': job.application_set.filter(applicant__id=request.user.id).exists(),
+        'form': ApplicationForm(initial={ 'applicant': request.user.id, 'job': job.id })
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -694,9 +701,8 @@ def history_jobs(request):
     code_q = request.GET.get('code')
     number_q = request.GET.get('number')
     section_q = request.GET.get('section')
-    exclude_applied_jobs_q = request.GET.get('exclude_applied_jobs')
 
-    app_list, total_accepted_assigned_hours = adminApi.get_applications_with_status(request.user)
+    app_list = request.user.application_set.all()
     if bool(year_q):
         app_list = app_list.filter(job__session__year__iexact=year_q)
     if bool(term_q):
@@ -720,9 +726,8 @@ def history_jobs(request):
 
     return render(request, 'students/jobs/history_jobs.html', {
         'loggedin_user': request.user,
-        'apps': apps,
-        'total_apps': len(app_list),
-        'total_accepted_assigned_hours': total_accepted_assigned_hours
+        'apps': adminApi.add_applications_with_latest_status(apps),
+        'total_apps': len(app_list)
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -737,17 +742,26 @@ def cancel_job(request, session_slug, job_slug):
         request.user.roles = request.session['loggedin_user']['roles']
     if 'Student' not in request.user.roles: raise PermissionDenied
 
-    job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
-    app = adminApi.get_application_with_status_by_user(request.user, job, ApplicationStatus.ACCEPTED)
+    apps = request.user.application_set.all()
+    app = apps.filter(job__session__slug=session_slug, job__course__slug=job_slug)
+
+    if app is None or len(app) == 0: raise Http404
+    app = adminApi.add_app_info_into_application(app.first(), ['accepted', 'cancelled'])
 
     if request.method == 'POST':
         app_id = request.POST.get('application')
         assigned_hours = request.POST.get('assigned_hours')
-        form = ApplicationStatusReassignForm({ 'application': app_id, 'assigned': ApplicationStatus.CANCELLED, 'assigned_hours': assigned_hours, 'parent_id': app.status.id })
+        form = ApplicationStatusReassignForm({
+            'application': app_id,
+            'assigned': ApplicationStatus.CANCELLED,
+            'assigned_hours': assigned_hours,
+            'parent_id': app.accepted.id
+        })
+
         if form.is_valid():
             cancelled_status = form.save()
             if cancelled_status:
-                messages.success(request, 'Success! Application of {0} {1} - {2} {3} {4} cancelled.'.format(job.session.year, job.session.term.code, job.course.code.name, job.course.number.name, job.course.section.name))
+                messages.success(request, 'Success! Application of {0} {1} - {2} {3} {4} cancelled.'.format(app.job.session.year, app.job.session.term.code, app.job.course.code.name, app.job.course.number.name, app.job.course.section.name))
                 return redirect('students:history_jobs')
             else:
                 messages.error(request, 'An error occurred while saving application status.')
@@ -774,16 +788,12 @@ def accept_decline_job(request, session_slug, job_slug):
         request.user.roles = request.session['loggedin_user']['roles']
     if 'Student' not in request.user.roles: raise PermissionDenied
 
-    apps, total_assigned_hours = adminApi.get_applications_with_status_by_user(request.user, ApplicationStatus.OFFERED)
+    apps = request.user.application_set.all()
+    apps = apps.filter( Q(job__session__slug=session_slug) & Q(job__course__slug=job_slug) )
+    if len(apps) == 0: raise Http404
 
-    # Find an application with session_slug and job_slug
-    app = None
-    for app in apps:
-        if app.job.session.slug == session_slug and app.job.course.slug == job_slug:
-            app = app
-            break
-
-    if not app: raise Http404
+    app = adminApi.add_app_info_into_application(apps.first(), ['offered', 'accepted', 'declined'])
+    if not app.job.is_active or app.offered is None: raise PermissionDenied
 
     return render(request, 'students/jobs/accept_decline_job.html', {
         'loggedin_user': request.user,
@@ -808,9 +818,9 @@ def accept_offer(request, session_slug, job_slug):
         assigned = ApplicationStatus.ACCEPTED
         form = ApplicationStatusForm({ 'application': app_id, 'assigned': assigned, 'assigned_hours': assigned_hours })
         if form.is_valid():
+            app = form.cleaned_data['application']
             status = form.save()
             if status:
-                app = adminApi.get_application(app_id) # here
                 updated = adminApi.update_job_accumulated_ta_hours(session_slug, job_slug, assigned_hours)
                 if updated:
                     messages.success(request, 'Success! You accepted the job offer - {0} {1}: {2} {3} {4} '.format(app.job.session.year, app.job.session.term.code, app.job.course.code.name, app.job.course.number.name, app.job.course.section.name))
@@ -841,9 +851,9 @@ def decline_offer(request, session_slug, job_slug):
         assigned = ApplicationStatus.DECLINED
         form = ApplicationStatusForm({ 'application': app_id, 'assigned': assigned, 'assigned_hours': 0.0 })
         if form.is_valid():
+            app = form.cleaned_data['application']
             status = form.save()
             if status:
-                app = adminApi.get_application(app_id) # here
                 messages.success(request, 'Success! You declined the job offer - {0} {1}: {2} {3} {4} '.format(app.job.session.year, app.job.session.term.code, app.job.course.code.name, app.job.course.number.name, app.job.course.section.name))
             else:
                 messages.error(request, 'An error occurred while saving an status of an application.')

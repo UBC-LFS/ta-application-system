@@ -49,10 +49,11 @@ def index(request):
     request.user.roles = request.session['loggedin_user']['roles']
     if not userApi.is_admin(request.user): raise PermissionDenied
 
+    sessions = adminApi.get_sessions()
     return render(request, 'administrators/index.html', {
         'loggedin_user': request.user,
-        'current_sessions': adminApi.get_sessions_by_archived(False),
-        'archived_sessions': adminApi.get_sessions_by_archived(True),
+        'current_sessions': sessions.filter(is_archived=False),
+        'archived_sessions': sessions.filter(is_archived=True),
         'apps': adminApi.get_applications(),
         'instructors': userApi.get_users_by_role(Role.INSTRUCTOR),
         'students': userApi.get_users_by_role(Role.STUDENT),
@@ -75,10 +76,11 @@ def create_session(request):
         request.session['session_form_data'] = request.POST
         return redirect('administrators:create_session_confirmation')
 
+    sessions = adminApi.get_sessions()
     return render(request, 'administrators/sessions/create_session.html', {
         'loggedin_user': request.user,
-        'current_sessions': adminApi.get_sessions_by_archived(False),
-        'archived_sessions': adminApi.get_sessions_by_archived(True),
+        'current_sessions': sessions.filter(is_archived=False),
+        'archived_sessions': sessions.filter(is_archived=True),
         'form': SessionForm()
     })
 
@@ -90,6 +92,7 @@ def create_session_confirmation(request):
     request.user.roles = request.session['loggedin_user']['roles']
     if not userApi.is_admin(request.user): raise PermissionDenied
 
+    sessions = adminApi.get_sessions()
     error_messages = []
     form = None
     data = None
@@ -154,8 +157,8 @@ def create_session_confirmation(request):
 
     return render(request, 'administrators/sessions/create_session_confirmation.html', {
         'loggedin_user': request.user,
-        'current_sessions': adminApi.get_sessions_by_archived(False),
-        'archived_sessions': adminApi.get_sessions_by_archived(True),
+        'current_sessions': sessions.filter(is_archived=False),
+        'archived_sessions': sessions.filter(is_archived=True),
         'session': { 'year': year, 'term': term },
         'courses': courses,
         'form': form,
@@ -248,7 +251,7 @@ def show_session(request, session_slug, path):
 
     return render(request, 'administrators/sessions/show_session.html', {
         'loggedin_user': request.user,
-        'session': adminApi.get_session_by_slug(session_slug),
+        'session': adminApi.get_session(session_slug, 'slug'),
         'path': path
     })
 
@@ -261,7 +264,7 @@ def edit_session(request, session_slug, path):
     if not userApi.is_admin(request.user): raise PermissionDenied
     if path not in SESSION_PATH: raise Http404
 
-    session = adminApi.get_session_by_slug(session_slug)
+    session = adminApi.get_session(session_slug, 'slug')
     if request.method == 'POST':
         form = SessionConfirmationForm(request.POST, instance=session)
         if form.is_valid():
@@ -420,8 +423,6 @@ def progress_jobs(request):
     if bool(section_q):
         job_list = job_list.filter(course__section__name__iexact=section_q)
 
-    #job_list = adminApi.add_applications_statistics(job_list)
-
     page = request.GET.get('page', 1)
     paginator = Paginator(job_list, settings.PAGE_SIZE)
 
@@ -528,9 +529,10 @@ def show_job_applications(request, session_slug, job_slug):
     request.user.roles = request.session['loggedin_user']['roles']
     if not userApi.is_admin(request.user): raise PermissionDenied
 
+    job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
     return render(request, 'administrators/jobs/show_job_applications.html', {
         'loggedin_user': request.user,
-        'job': adminApi.get_job_with_applications_statistics(session_slug, job_slug)
+        'job': adminApi.add_job_with_applications_statistics(job)
     })
 
 
@@ -542,9 +544,10 @@ def instructor_jobs_details(request, username):
     request.user.roles = request.session['loggedin_user']['roles']
     if not userApi.is_admin(request.user): raise PermissionDenied
 
+    user = userApi.get_user(username, 'username')
     return render(request, 'administrators/jobs/instructor_jobs_details.html', {
         'loggedin_user': request.user,
-        'user': userApi.get_user_by_username_with_statistics(username)
+        'user': adminApi.add_total_applicants(user)
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -556,15 +559,12 @@ def student_jobs_details(request, username):
     if not userApi.is_admin(request.user): raise PermissionDenied
 
     user = userApi.get_user(username, 'username')
-    offered_apps, offered_total_assigned_hours = adminApi.get_applications_with_status_by_user(user, ApplicationStatus.OFFERED)
-    accepted_apps, accepted_total_assigned_hours = adminApi.get_applications_with_status_by_user(user, ApplicationStatus.ACCEPTED)
+    apps = user.application_set.all()
     return render(request, 'administrators/jobs/student_jobs_details.html', {
         'loggedin_user': request.user,
         'user': user,
-        'offered_apps': offered_apps,
-        'offered_total_assigned_hours': offered_total_assigned_hours,
-        'accepted_apps': accepted_apps,
-        'accepted_total_assigned_hours': accepted_total_assigned_hours
+        'apps': adminApi.add_app_info_into_applications(apps, ['offered', 'accepted']),
+        'total_assigned_hours': adminApi.get_total_assigned_hours(apps, ['offered', 'accepted'])
     })
 
 
@@ -762,7 +762,7 @@ def selected_applications(request):
         app_list = app_list.filter(applicant__last_name__icontains=last_name_q)
 
     app_list = app_list.filter(applicationstatus__assigned=ApplicationStatus.SELECTED).order_by('-id').distinct()
-    app_list = adminApi.add_application_info(app_list, ['resume', 'selected', 'offered'])
+    app_list = adminApi.add_app_info_into_applications(app_list, ['resume', 'selected', 'offered'])
 
     page = request.GET.get('page', 1)
     paginator = Paginator(app_list, settings.PAGE_SIZE)
@@ -867,7 +867,7 @@ def offered_applications(request):
         app_list = app_list.filter(applicant__last_name__icontains=last_name_q)
 
     app_list = app_list.filter(applicationstatus__assigned=ApplicationStatus.OFFERED).order_by('-id').distinct()
-    app_list = adminApi.add_application_info(app_list, ['offered'])
+    app_list = adminApi.add_app_info_into_applications(app_list, ['offered'])
 
     page = request.GET.get('page', 1)
     paginator = Paginator(app_list, settings.PAGE_SIZE)
@@ -1021,7 +1021,7 @@ def accepted_applications(request):
         app_list = app_list.filter(applicant__last_name__icontains=last_name_q)
 
     app_list = app_list.filter(applicationstatus__assigned=ApplicationStatus.ACCEPTED).order_by('-id').distinct()
-    app_list = adminApi.add_application_info(app_list, ['accepted'])
+    app_list = adminApi.add_app_info_into_applications(app_list, ['accepted'])
 
     page = request.GET.get('page', 1)
     paginator = Paginator(app_list, settings.PAGE_SIZE)
@@ -1072,7 +1072,7 @@ def declined_applications(request):
         app_list = app_list.filter(applicant__last_name__icontains=last_name_q)
 
     app_list = app_list.filter(applicationstatus__assigned=ApplicationStatus.DECLINED).order_by('-id').distinct()
-    app_list = adminApi.add_application_info(app_list, ['declined'])
+    app_list = adminApi.add_app_info_into_applications(app_list, ['declined'])
 
     page = request.GET.get('page', 1)
     paginator = Paginator(app_list, settings.PAGE_SIZE)

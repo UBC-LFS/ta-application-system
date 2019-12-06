@@ -5,10 +5,11 @@
 <div>
   {% include 'ta_app/pages/_header.html' with title='Destroy Users' text=users|length %}
 
-  <div class="bd-callout bd-callout-warning">
+  <div class="bd-callout bd-callout-warning col-8 mx-auto">
     <h4>Notice</h4>
     <p>
-      Users who logged in before the date (<span class="font-weight-bold text-danger">{{ target_date }}</span>) are in the table below. If you want to remove their information of profile, resume and confidentiality, please click the button below.
+      Users who logged in before the date (<span class="font-weight-bold text-danger">{{ target_date }}</span>) are in the table below.
+      If you would like to destory permanently all of their contents such as profile, resume and confidentiality, please click the Destory button below.
     </p>
   </div>
 

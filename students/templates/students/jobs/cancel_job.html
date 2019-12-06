@@ -6,6 +6,19 @@
   <div class="col-md-4">
     {% include 'ta_app/pages/_left_aside.html' with view_name='job_applications' title='Cancel Job' data=app.job %}
 
+
+    <div class="col-11 mx-auto text-center mt-4">
+      <table class="table">
+        <tr class="text-secondary">
+          <td>Job Details</td>
+        </tr>
+        <tr>
+          <td>{% include 'ta_app/jobs/_modal_job_details.html' with data=app.job %}</td>
+        </tr>
+      </table>
+    </div>
+
+
     <div class="left-aside-btn-groups">
       <a class="btn btn-outline-primary" href="{% url 'students:history_jobs' %}">Back to History of Jobs</a>
     </div>
@@ -14,35 +27,31 @@
   <div class="col-md-8">
     <div class="board col-11 mx-auto">
 
-      <div>
-        <h6>Job Details:</h6>
-        {% include 'ta_app/jobs/_modal_job_details.html' with data=job %}
-      </div>
-
       {% if app.cancelled %}
 
-        <div>
-          <div class="alert alert-danger" role="alert">You've already cancelled this accepted job.</div>
+        <div class="bd-callout bd-callout-danger">
+          <h4>Notice</h4>
+          <p>You've already cancelled this accepted job.</p>
         </div>
 
       {% else %}
 
-        <div class="bd-callout bd-callout-danger my-5">
-          <h4>Confirmation</h4>
-          <p>Text area</p>
+        <h3>Confirmation</h3>
+        {% include 'ta_app/pages/_submit_note.html' %}
+
+        <div class="mt-5">
+          <h5>Are you sure to cancel this accepted job?</h5>
+          <p class="text-secondary">Please click the Confirm button below if you would like to cancel your job.</p>
+
+          <form action="" method="post" onsubmit="return confirm('Are you sure to cancel this accepted job: {{ app.job.session.year}} {{ app.job.session.term.code }} - {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}?')">
+            {% csrf_token %}
+            <input type="hidden" name="assigned_hours" value="{{ app.accepted.assigned_hours }}" />
+            <input type="hidden" name="application" value="{{ app.id }}" />
+
+            <a class="btn btn-outline-secondary" href="{% url 'students:history_jobs' %}">Cancel</a>
+            <input class="btn btn-danger" type="submit" value="Confirm to cancel this accepted job" />
+          </form>
         </div>
-
-        <h4>Are you sure to cancel this accepted job?</h4>
-        <p class="text-secondary">Please click the Cancel button below if you would like to cancel your job.</p>
-
-        <form action="" method="post" onsubmit="return confirm('Are you sure to cancel this accepted job: {{ app.job.session.year}} {{ app.job.session.term.code }} - {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}?')">
-          {% csrf_token %}
-          <input type="hidden" name="assigned_hours" value="{{ app.status.assigned_hours }}" />
-          <input type="hidden" name="application" value="{{ app.id }}" />
-
-          <a class="btn btn-outline-primary" href="{% url 'students:history_jobs' %}">Cancel</a>
-          <input class="btn btn-danger" type="submit" value="Confirm to cancel this accepted job" />
-        </form>
 
       {% endif %}
 

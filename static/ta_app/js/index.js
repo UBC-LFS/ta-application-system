@@ -42,7 +42,7 @@ $(document).ready(function () {
   }
 
   $('#btn-logout').on('click', function(e) {
-    e.preventDefault();
+    // e.preventDefault();
     window.localStorage.removeItem("activeTab");
   });
 

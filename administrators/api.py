@@ -50,14 +50,22 @@ def delete_course(course_id):
 
 # Sessions
 
-
 def get_sessions():
     ''' Get all sessions '''
     return Session.objects.all()
 
-def get_sessions_by_archived(is_archived):
-    ''' Get sessions by is_archived '''
-    return Session.objects.filter(is_archived=is_archived)
+def get_session(data, by=None):
+    ''' Get a session '''
+    if by == 'slug':
+        return get_object_or_404(Session, slug=data)
+    return get_object_or_404(Session, id=data)
+
+def delete_session(session_id):
+    ''' Delete a session '''
+    session = get_session(session_id)
+    session.delete()
+    return session
+
 
 def add_num_instructors(sessions):
     for session in sessions:
@@ -68,19 +76,19 @@ def add_num_instructors(sessions):
     return sessions
 
 
-def get_session(session_id):
-    ''' Get a session '''
-    return get_object_or_404(Session, id=session_id)
 
-def get_session_by_slug(session_slug):
-    ''' Get a session by slug '''
-    return get_object_or_404(Session, slug=session_slug)
 
-def delete_session(session_id):
-    ''' Delete a session '''
-    session = get_session(session_id)
-    session.delete()
-    return session
+
+
+
+# end sessions
+
+
+
+
+
+
+
 
 def update_session_jobs(session, courses):
     ''' Update courses/jobs in a session '''
@@ -116,16 +124,6 @@ def update_session_jobs(session, courses):
         else:
             return None
 
-def get_visible_current_sessions():
-    ''' Get visible current sessions with active jobs '''
-    sessions = Session.objects.filter( Q(is_visible=True) & Q(is_archived=False) )
-
-    for session in sessions:
-        jobs = session.job_set.filter(is_active=True)
-        if jobs.exists(): session.active_jobs = jobs
-
-    return sessions
-
 
 
 
@@ -151,15 +149,38 @@ def get_jobs():
     ''' Get all jobs '''
     return Job.objects.all()
 
-def create_jobs(session, courses):
-    ''' Create jobs in a session '''
-    objs = [ Job(session=session, course=course) for course in courses ]
-    jobs = Job.objects.bulk_create(objs)
-    return True if jobs else None
-
 def get_job_by_session_slug_job_slug(session_slug, job_slug):
     ''' Get a job by session_slug and job_slug '''
     return get_object_or_404(Job, Q(session__slug=session_slug) & Q(course__slug=job_slug) )
+
+
+
+def get_favourites(user):
+    ''' Get user's favourite jobs '''
+    #return Favourite.objects.filter( Q(applicant_id=user.id) & Q(job__is_active=True) )
+    return Favourite.objects.filter(applicant_id=user.id).order_by('created_at')
+
+def add_applied_jobs_to_favourites(user, favourites):
+    ''' Add applied information into favourites '''
+    for fav in favourites:
+        fav.my_app = None
+        my_app = fav.job.application_set.filter(applicant__id=user.id)
+        if my_app.exists(): fav.my_app = my_app.first()
+    return favourites
+
+def add_applied_favourite_jobs(user, jobs):
+    ''' Add applied and favourite infomation into jobs'''
+    for job in jobs:
+        job.my_app = None
+        job.my_fav = None
+
+        my_app = job.application_set.filter(applicant__id=user.id)
+        if my_app.exists(): job.my_app = my_app.first()
+
+        my_fav = job.favourite_set.filter(applicant__id=user.id)
+        if my_fav.exists(): job.my_fav = my_fav.first()
+
+    return jobs
 
 def add_favourite_job(user, job):
     ''' Add user's favourite job '''
@@ -169,6 +190,48 @@ def add_favourite_job(user, job):
 
     return job
 
+def add_job_with_applications_statistics(job):
+    ''' Add a job with statistics of applications '''
+    selected_app = 0
+    offered_app = 0
+    accepted_app = 0
+    declined_app = 0
+    for app in job.application_set.all():
+        if get_selected(app): selected_app += 1
+        if get_offered(app): offered_app += 1
+        if get_accepted(app): accepted_app += 1
+        if get_declined(app): declined_app += 1
+
+    job.num_selected_apps = selected_app
+    job.num_offered_apps = offered_app
+    job.num_accepted_apps = accepted_app
+    job.num_declined_apps = declined_app
+
+    return job
+
+def add_total_applicants(instructor):
+    ''' Add total applicants in an instructor '''
+    count = 0
+    for job in instructor.job_set.all():
+        count += job.application_set.count()
+
+    instructor.total_applicants = count
+    return instructor
+
+
+
+# end jobs
+
+
+
+def create_jobs(session, courses):
+    ''' Create jobs in a session '''
+    objs = [ Job(session=session, course=course) for course in courses ]
+    jobs = Job.objects.bulk_create(objs)
+    return True if jobs else None
+
+
+
 def delete_favourite_job(user, job):
     ''' Delete user's favourite job '''
     my_fav = job.favourite_set.filter(applicant__id=user.id)
@@ -176,11 +239,6 @@ def delete_favourite_job(user, job):
         my_fav.delete()
         return True
     return False
-
-def get_favourites(user):
-    ''' Get user's favourite jobs '''
-    #return Favourite.objects.filter( Q(applicant_id=user.id) & Q(job__is_active=True) )
-    return Favourite.objects.filter(applicant_id=user.id)
 
 
 
@@ -221,25 +279,7 @@ def add_applications_statistics(jobs):
 
     return jobs"""
 
-def get_job_with_applications_statistics(session_slug, job_slug):
-    ''' get a job with statistics of applications '''
-    job = get_job_by_session_slug_job_slug(session_slug, job_slug)
-    selected_app = 0
-    offered_app = 0
-    accepted_app = 0
-    declined_app = 0
-    for app in job.application_set.all():
-        if get_selected(app): selected_app += 1
-        if get_offered(app): offered_app += 1
-        if get_accepted(app): accepted_app += 1
-        if get_declined(app): declined_app += 1
 
-    job.num_selected_apps = selected_app
-    job.num_offered_apps = offered_app
-    job.num_accepted_apps = accepted_app
-    job.num_declined_apps = declined_app
-
-    return job
 
 def update_job_instructors(job, old_instructors, new_instructors):
     ''' Update instructors in a job '''
@@ -248,31 +288,10 @@ def update_job_instructors(job, old_instructors, new_instructors):
     return True if job else None
 
 
-def get_jobs_session(session_slug):
-    ''' Get jobs in a session '''
-    return Job.objects.filter( Q(session__slug=session_slug) & Q(is_active=True) )
 
-def add_applied_favourite_jobs(user, jobs):
-    ''' Add applied and favourite infomation into jobs'''
-    for job in jobs:
-        job.my_app = None
-        job.my_fav = None
 
-        my_app = job.application_set.filter(applicant__id=user.id)
-        if my_app.exists(): job.my_app = my_app.first()
 
-        my_fav = job.favourite_set.filter(applicant__id=user.id)
-        if my_fav.exists(): job.my_fav = my_fav.first()
 
-    return jobs
-
-def add_applied_jobs_to_favourites(user, favourites):
-    ''' Add applied information into favourites '''
-    for fav in favourites:
-        fav.my_app = None
-        my_app = fav.job.application_set.filter(applicant__id=user.id)
-        if my_app.exists(): fav.my_app = my_app.first()
-    return favourites
 
 
 def update_job_accumulated_ta_hours(session_slug, job_slug, ta_hours):
@@ -288,40 +307,10 @@ def get_recent_ten_job_details(course, year):
     ''' Get recent ten job '''
     return Job.objects.filter( Q(session__year__lte=year) & Q(course__code=course.code) & Q(course__number=course.number) ).order_by('-created_at')[:10]
 
-def get_jobs_applied_by_student(user):
-    ''' Get all jobs applied by a student '''
-    return Job.objects.filter(application__applicant__id=user.id)
-
-
-def get_jobs_applied_by_student1(user):
-    ''' Get all jobs applied by a student '''
-    jobs = []
-    for job in get_jobs():
-        if job.application_set.filter(applicant__id=user.id).exists():
-            my_application = job.application_set.get(applicant__id=user.id)
-            job.my_application = my_application
-            jobs.append(job)
-    return jobs
-
 def create_application_status(app):
     ''' Create a status of an application '''
     app_status = ApplicationStatus.objects.create(application=app, assigned=ApplicationStatus.NONE, assigned_hours=0.0)
     return app_status if app_status else None
-
-
-def has_applied_job(session_slug, job_slug, user):
-    ''' Check if a user has applied for a job or not '''
-    job = get_job_by_session_slug_job_slug(session_slug, job_slug)
-    if job.application_set.filter(applicant__id=user.id).exists():
-        return True
-    return False
-
-    """session = get_session_by_slug(session_slug)
-    for job in session.job_set.all():
-        if job.course.slug == job_slug:
-            if job.application_set.filter(applicant__id=user.id).exists():
-                return True
-    return False"""
 
 
 def delete_job_by_course_ids(session, course_ids):
@@ -331,6 +320,169 @@ def delete_job_by_course_ids(session, course_ids):
 
 
 # Applications
+
+
+
+def add_app_info_into_application(app, list):
+    ''' Add some information into an application given by list '''
+    if 'resume' in list:
+        app.resume_filename = None
+        if userApi.has_user_resume_created(app.applicant) and bool(app.applicant.resume.uploaded):
+            app.resume_filename = os.path.basename(app.applicant.resume.uploaded.name)
+
+    if 'applied' in list:
+        app.applied = None
+        applied = app.applicationstatus_set.filter(assigned=ApplicationStatus.NONE)
+        if applied.exists(): app.applied = applied.first()
+
+    if 'selected' in list:
+        app.selected = None
+        selected = app.applicationstatus_set.filter(assigned=ApplicationStatus.SELECTED)
+        if selected.exists(): app.selected = selected.first()
+
+    if 'offered' in list:
+        app.offered = None
+        offered = app.applicationstatus_set.filter(assigned=ApplicationStatus.OFFERED)
+        if offered.exists(): app.offered = offered.last()
+
+    if 'accepted' in list:
+        app.accepted = None
+        accepted = app.applicationstatus_set.filter(assigned=ApplicationStatus.ACCEPTED)
+        if accepted.exists(): app.accepted = accepted.last()
+
+    if 'declined' in list:
+        app.declined = None
+        declined = app.applicationstatus_set.filter(assigned=ApplicationStatus.DECLINED)
+        if declined.exists(): app.declined = declined.last()
+
+    if 'cancelled' in list:
+        app.cancelled = None
+        cancelled = app.applicationstatus_set.filter(assigned=ApplicationStatus.CANCELLED)
+        if cancelled.exists(): app.cancelled = cancelled.last()
+
+    return app
+
+def add_app_info_into_applications(apps, list):
+    ''' Add some information into applications given by list '''
+    for app in apps:
+        if 'resume' in list:
+            app.resume_filename = None
+            if userApi.has_user_resume_created(app.applicant) and bool(app.applicant.resume.uploaded):
+                app.resume_filename = os.path.basename(app.applicant.resume.uploaded.name)
+
+        if 'applied' in list:
+            app.applied = None
+            applied = app.applicationstatus_set.filter(assigned=ApplicationStatus.NONE)
+            if applied.exists(): app.applied = applied.first()
+
+        if 'selected' in list:
+            app.selected = None
+            selected = app.applicationstatus_set.filter(assigned=ApplicationStatus.SELECTED)
+            if selected.exists(): app.selected = selected.first()
+
+        if 'offered' in list:
+            app.offered = None
+            offered = app.applicationstatus_set.filter(assigned=ApplicationStatus.OFFERED)
+            if offered.exists(): app.offered = offered.last()
+
+        if 'accepted' in list:
+            app.accepted = None
+            accepted = app.applicationstatus_set.filter(assigned=ApplicationStatus.ACCEPTED)
+            if accepted.exists(): app.accepted = accepted.last()
+
+        if 'declined' in list:
+            app.declined = None
+            declined = app.applicationstatus_set.filter(assigned=ApplicationStatus.DECLINED)
+            if declined.exists(): app.declined = declined.last()
+
+        if 'cancelled' in list:
+            app.cancelled = None
+            cancelled = app.applicationstatus_set.filter(assigned=ApplicationStatus.CANCELLED)
+            if cancelled.exists(): app.cancelled = cancelled.last()
+
+    return apps
+
+def get_total_assigned_hours(apps, list):
+    ''' Get total assigend hours in list '''
+    total_hours = {}
+    for name in list:
+        total_hours[name] = {}
+
+    for app in apps:
+        if 'offered' in list:
+            offered = app.applicationstatus_set.filter(assigned=ApplicationStatus.OFFERED)
+            if offered.exists():
+                year_term = '{0}-{1}'.format(app.job.session.year, app.job.session.term.code)
+                if year_term in total_hours['offered'].keys():
+                    total_hours['offered'][year_term] += offered.last().assigned_hours
+                else:
+                    total_hours['offered'][year_term] = offered.last().assigned_hours
+
+        if 'accepted' in list:
+            accepted = app.applicationstatus_set.filter(assigned=ApplicationStatus.ACCEPTED)
+            if accepted.exists():
+                year_term = '{0}-{1}'.format(app.job.session.year, app.job.session.term.code)
+                if year_term in total_hours['accepted'].keys():
+                    total_hours['accepted'][year_term] += accepted.last().assigned_hours
+                else:
+                    total_hours['accepted'][year_term] = accepted.last().assigned_hours
+
+    return total_hours
+
+
+
+
+def add_applications_with_latest_status(apps):
+    ''' Add applications with latest status '''
+    for app in apps:
+        app.applied = None
+        applied = app.applicationstatus_set.filter(assigned=ApplicationStatus.NONE)
+        if applied.exists(): app.applied = applied.first()
+
+        status = app.applicationstatus_set.all().last()
+        if status.assigned == ApplicationStatus.OFFERED:
+            app.offered = None
+            offered = app.applicationstatus_set.filter(assigned=ApplicationStatus.OFFERED)
+            if offered.exists(): app.offered = offered.last()
+
+        elif status.assigned == ApplicationStatus.ACCEPTED:
+            app.accepted = None
+            accepted = app.applicationstatus_set.filter(assigned=ApplicationStatus.ACCEPTED)
+            if accepted.exists(): app.accepted = accepted.last()
+
+        elif status.assigned == ApplicationStatus.DECLINED:
+            app.declined = None
+            declined = app.applicationstatus_set.filter(assigned=ApplicationStatus.DECLINED)
+            if declined.exists(): app.declined = declined.last()
+
+        elif status.assigned == ApplicationStatus.CANCELLED:
+            app.cancelled = None
+            cancelled = app.applicationstatus_set.filter(assigned=ApplicationStatus.CANCELLED)
+            if cancelled.exists(): app.cancelled = cancelled.last()
+
+        else:
+            app.applied = None
+            applied = app.applicationstatus_set.filter(assigned=ApplicationStatus.NONE)
+            if applied.exists(): app.applied = applied.first()
+
+    return apps
+
+
+# end applications
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 def get_application(data, option=None):
     ''' Get an application '''
@@ -346,36 +498,13 @@ def get_applications(option=None):
     if option: return Application.objects.all().order_by(option)
     return Application.objects.all().order_by('-id')
 
+
 def get_application_statuses():
     ''' Get all statuses of an application '''
     return ApplicationStatus.objects.all().order_by('-id')
 
-def get_applied_applications(user):
-    ''' Get applications with all statuses and total accepted assgiend hours '''
-    total_accepted_assigned_hours = {}
-    apps = Application.objects.filter(applicant_id=user.id).order_by('-created_at').distinct()
-    for app in apps:
-        status = app.applicationstatus_set.all().last()
-
-        if status.assigned == ApplicationStatus.ACCEPTED:
-            app.accepted = None
-
-            accepted = app.applicationstatus_set.filter(assigned=ApplicationStatus.ACCEPTED)
-            if accepted.exists(): app.accepted = accepted.last()
-
-            total_accepted_assigned_hours = get_total_accepted_assigned_hours(app, total_accepted_assigned_hours)
-
-    return apps, total_accepted_assigned_hours
 
 
-def get_total_accepted_assigned_hours(app, total_accepted_assigned_hours):
-    ''' get toal accepted assigned hours '''
-    year_term = '{0}-{1}'.format(app.job.session.year, app.job.session.term.code)
-    if year_term in total_accepted_assigned_hours.keys():
-        total_accepted_assigned_hours[year_term] += app.accepted.assigned_hours
-    else:
-        total_accepted_assigned_hours[year_term] = app.accepted.assigned_hours
-    return total_accepted_assigned_hours
 
 
 
@@ -403,156 +532,6 @@ def get_declined(app):
     if declined_app.exists(): return declined_app
     return False
 
-
-# important
-def get_application_with_status_by_user(user, job, option):
-    ''' Get an application with status '''
-    filtered_app = Application.objects.filter( Q(applicant_id=user.id) & Q(job_id=job.id) )
-    if filtered_app.exists():
-        app = filtered_app.last()
-        app.status = None
-        status = app.applicationstatus_set.filter(assigned=option)
-        if status.exists(): app.status = status.last()
-
-        app.cancelled = None
-        cancelled = app.applicationstatus_set.filter(assigned=ApplicationStatus.CANCELLED)
-        if cancelled.exists(): app.cancelled = cancelled.last()
-
-        return app
-    '''if job.application_set.filter(applicant__id=user.id).exists():
-        app = job.application_set.get(applicant__id=user.id)
-        status = app.applicationstatus_set.filter(assigned=option).last()
-        app.status = status
-
-        app.cancelled = None
-        cancelled = app.applicationstatus_set.filter(assigned=ApplicationStatus.CANCELLED)
-        if cancelled.exists(): app.cancelled = cancelled.last()
-        print(app.id)
-        return app'''
-    return None
-
-# Very important
-def get_applications_with_status(user):
-    '''  Get applications with all statuses and total accepted assgiend hours '''
-    total_accepted_assigned_hours = {}
-
-    apps = Application.objects.filter(applicant_id=user.id).order_by('-created_at').distinct()
-    for app in apps:
-        status = app.applicationstatus_set.all().last()
-
-        app.applied = None
-        applied = app.applicationstatus_set.filter(assigned=ApplicationStatus.NONE)
-        if applied.exists(): app.applied = applied.first()
-
-        if status.assigned == ApplicationStatus.OFFERED:
-            app.offered = None
-
-            offered = app.applicationstatus_set.filter(assigned=ApplicationStatus.OFFERED)
-            if offered.exists(): app.offered = offered.last()
-
-        elif status.assigned == ApplicationStatus.ACCEPTED:
-            app.accepted = None
-
-            accepted = app.applicationstatus_set.filter(assigned=ApplicationStatus.ACCEPTED)
-            if accepted.exists(): app.accepted = accepted.last()
-
-            year_term = '{0}-{1}'.format(app.job.session.year, app.job.session.term.code)
-            if year_term in total_accepted_assigned_hours.keys():
-                total_accepted_assigned_hours[year_term] += app.accepted.assigned_hours
-            else:
-                total_accepted_assigned_hours[year_term] = app.accepted.assigned_hours
-
-        elif status.assigned == ApplicationStatus.DECLINED:
-            app.declined = None
-            declined = app.applicationstatus_set.filter(assigned=ApplicationStatus.DECLINED)
-            if declined.exists(): app.declined = declined.last()
-
-        elif status.assigned == ApplicationStatus.CANCELLED:
-            app.cancelled = None
-            cancelled = app.applicationstatus_set.filter(assigned=ApplicationStatus.CANCELLED)
-            if cancelled.exists(): app.cancelled = cancelled.last()
-
-        else:
-            pass
-
-    return apps, total_accepted_assigned_hours
-
-
-# Very important
-def get_applications_with_status_by_user(user, status, option=None):
-    ''' Get applications of a student with status '''
-    total_assigned_hours = {}
-
-    apps = Application.objects.filter( Q(applicant_id=user.id) & Q(applicationstatus__assigned=status) ).distinct()
-
-    for app in apps:
-        if status == ApplicationStatus.NONE:
-            app.applied = None
-            applied = app.applicationstatus_set.filter(assigned=ApplicationStatus.NONE)
-            if applied.exists(): app.applied = applied.last()
-
-            app.selected = None
-            if app.instructor_preference == Application.ACCEPTABLE or app.instructor_preference == Application.REQUESTED or app.instructor_preference == Application.CRITICAL_REQUESTED:
-                app.selected = True
-
-        elif status == ApplicationStatus.OFFERED:
-            app.offered = None
-            app.accepted = None
-            app.declined = None
-
-            offered = app.applicationstatus_set.filter(assigned=ApplicationStatus.OFFERED)
-            if offered.exists():
-                if option == 'first':
-                    app.offered = offered.first()
-                else:
-                    app.offered = offered.last()
-
-            accpeted = app.applicationstatus_set.filter(assigned=ApplicationStatus.ACCEPTED)
-            if accpeted.exists():
-                if option == 'first':
-                    app.accepted = accpeted.first()
-                else:
-                    app.accepted = accpeted.last()
-
-            declined = app.applicationstatus_set.filter(assigned=ApplicationStatus.DECLINED)
-            if declined.exists():
-                if option == 'first':
-                    app.declined = declined.first()
-                else:
-                    app.declined = declined.last()
-
-            year_term = '{0}-{1}'.format(app.job.session.year, app.job.session.term.code)
-            if year_term in total_assigned_hours.keys():
-                total_assigned_hours[year_term] += app.offered.assigned_hours
-            else:
-                total_assigned_hours[year_term] = app.offered.assigned_hours
-
-        elif status == ApplicationStatus.ACCEPTED:
-            app.accepted = None
-            app.cancelled = None
-
-            accepted = app.applicationstatus_set.filter(assigned=ApplicationStatus.ACCEPTED)
-            if accepted.exists(): app.accepted = accepted.last()
-
-            cancelled = app.applicationstatus_set.filter(assigned=ApplicationStatus.CANCELLED)
-            if cancelled.exists(): app.cancelled = cancelled.last()
-
-            year_term = '{0}-{1}'.format(app.job.session.year, app.job.session.term.code)
-            if year_term in total_assigned_hours.keys():
-                total_assigned_hours[year_term] += app.accepted.assigned_hours
-            else:
-                total_assigned_hours[year_term] = app.accepted.assigned_hours
-
-        else:
-            app.declined = None
-            if option == 'declined only':
-                status = app.applicationstatus_set.last()
-                if status.assigned == ApplicationStatus.DECLINED:
-                    app.declined = status
-            else:
-                app.declined = app.applicationstatus_set.filter(assigned=ApplicationStatus.DECLINED).last()
-
-    return apps, total_assigned_hours
 
 def get_applications_with_status_by_session_slug_job_slug(session_slug, job_slug):
     ''' Get selected applications by session_slug and job_slug '''
@@ -585,35 +564,6 @@ def get_selected_applications():
     return apps
 """
 
-def add_application_info(apps, list):
-    ''' Add some information given by list '''
-    for app in apps:
-        if 'resume' in list:
-            app.resume_filename = None
-            if userApi.has_user_resume_created(app.applicant) and bool(app.applicant.resume.uploaded):
-                app.resume_filename = os.path.basename(app.applicant.resume.uploaded.name)
-
-        if 'selected' in list:
-            app.selected = None
-            selected = app.applicationstatus_set.filter(assigned=ApplicationStatus.SELECTED)
-            if selected.exists(): app.selected = selected.first()
-
-        if 'offered' in list:
-            app.offered = None
-            offered = app.applicationstatus_set.filter(assigned=ApplicationStatus.OFFERED)
-            if offered.exists(): app.offered = offered.last()
-
-        if 'accepted' in list:
-            app.accepted = None
-            accepted = app.applicationstatus_set.filter(assigned=ApplicationStatus.ACCEPTED)
-            if accepted.exists(): app.accepted = accepted.last()
-
-        if 'declined' in list:
-            app.declined = None
-            declined = app.applicationstatus_set.filter(assigned=ApplicationStatus.DECLINED)
-            if declined.exists(): app.declined = declined.last()
-
-    return apps
 
 def get_applications_by_status(status):
     ''' Get applications by status '''
@@ -857,3 +807,10 @@ def delete_admin_email(admin_email_id):
     admin_email = get_admin_email(admin_email_id)
     admin_email.delete()
     return admin_email if admin_email else False
+
+
+# removed
+
+def get_applications_by_user(user):
+    ''' to be removed '''
+    return Application.objects.filter(applicant_id=user.id)
