@@ -48,7 +48,13 @@
 							<td>{{ fav.job.session.year }}</td>
 							<td>{{ fav.job.session.term.code }}</td>
 							<td>
-								{{ fav.job.course.code.name }} {{ fav.job.course.number.name }} {{ fav.job.course.section.name }}
+								<span
+									{% if not fav.job.is_active %}
+										class="not-active text-secondary"
+									{% endif %}
+								>
+									{{ fav.job.course.code.name }} {{ fav.job.course.number.name }} {{ fav.job.course.section.name }}
+								</span>
 								{% include 'ta_app/jobs/_modal_job_details.html' with data=fav.job %}
 							</td>
 							<td>{% include 'ta_app/jobs/_job_instructor.html' with data=fav.job %}</td>
@@ -58,11 +64,15 @@
 									{% include 'ta_app/applications/_app_status.html' with data='None' %}
 									<br />
 									<small class="text-muted">{{ fav.my_app.created_at }}</small>
+									<hr />
 								{% else %}
-									<a class="btn btn-xs btn-link" href="{% url 'students:apply_job' session_slug=fav.job.session.slug job_slug=fav.job.course.slug %}">Apply</a>
+									{% if fav.job.is_active %}
+										<a class="btn btn-xs btn-link" href="{% url 'students:apply_job' session_slug=fav.job.session.slug job_slug=fav.job.course.slug %}">Apply</a>
+										<hr />
+									{% endif %}
 								{% endif %}
 
-								<hr />
+
 
 								<form action="" method="post">
 		              {% csrf_token %}

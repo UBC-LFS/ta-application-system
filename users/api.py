@@ -70,16 +70,25 @@ def loggedin_user(user):
 
 
 # User
-def get_user(input, by=None):
+
+
+def get_user(data, by=None):
     ''' Get a user '''
-    if by == 'username': return get_object_or_404(User, username=input)
-    return get_object_or_404(User, id=input)
+    if by == 'username': 
+        return get_object_or_404(User, username=data)
+    return get_object_or_404(User, id=data)
 
 def user_exists(username):
     ''' Check user exists '''
     if User.objects.filter(username=username).exists():
         return User.objects.get(username=username)
     return None
+
+
+
+# end user
+
+
 
 
 # Resume
@@ -93,9 +102,9 @@ def add_resume(user):
     return user
 
 
-def delete_user_resume(input):
+def delete_user_resume(data):
     ''' Delete user's resume '''
-    user = get_user(input, 'username')
+    user = get_user(data, 'username')
 
     if has_user_resume_created(user) and bool(user.resume.uploaded):
         user.resume.uploaded.delete()
@@ -220,16 +229,6 @@ def get_user_with_confidentiality(username, role=None):
 
 
 
-def get_user_by_username_with_statistics(username):
-    ''' '''
-    user = get_user(username, 'username')
-
-    count = 0
-    for job in user.job_set.all():
-        count +=  job.application_set.count()
-
-    user.total_applicants = count
-    return user
 
 """
 def get_users_with_data():
@@ -268,17 +267,12 @@ def get_users(option=None):
 
 def create_user(data):
     ''' Create a user when receiving data from SAML '''
-    first_name = None
-    last_name = None
-    email = None
-    username = None
-    student_name = None
-    employee_number = None
-    if 'first_name' in data.keys(): first_name = data['first_name']
-    if 'last_name' in data.keys(): last_name = data['last_name']
-    if 'email' in data.keys(): email = data['email']
-    if 'username' in data.keys(): username = data['username']
-    if 'student_name' in data.keys(): student_name = data['student_name']
+    first_name = data['first_name']
+    last_name = data['last_name']
+    email = data['email']
+    username = data['username']
+    employee_number = data['employee_number']
+    student_number = data['student_number']
 
     user = User.objects.create(
         first_name=first_name,
@@ -290,7 +284,7 @@ def create_user(data):
 
     if user:
         user_profile_form = UserProfileForm({
-            'student_number': None,
+            'student_number': student_number,
             'preferred_name': None,
             'roles': [ ROLES['Student'] ]
         })
@@ -299,7 +293,7 @@ def create_user(data):
             profile = create_profile(user, user_profile_form.cleaned_data)
             if profile: return user
 
-        if employee_number:
+        if employee_number is not None:
             user.confidentiality.objects.create(
                 employee_number=employee_number,
                 created_at=datetime.now(),

@@ -133,10 +133,6 @@ main {
   font-size: 0.85rem;
 }
 
-.line-height-2 {
-  line-height: 2.0;
-}
-
 .btn-favourite {
   background: none;
   border: none;
@@ -160,7 +156,19 @@ main {
   padding-left: 20px;
 }
 
+.not-active {
+  text-decoration: line-through;
+}
+
 /* utils */
+
+.line-height-2 {
+  line-height: 2.0;
+}
+
+.text-underline {
+  text-decoration: underline;
+}
 
 .logo-page {
   width: 40px;

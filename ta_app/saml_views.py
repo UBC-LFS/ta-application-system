@@ -34,20 +34,32 @@ def authenticate(saml_authentication=None):
         return None
 
     if saml_authentication.is_authenticated():
-        user_data = {}
+        user_data = {
+            'first_name': None,
+            'last_name': None,
+            'username': None,
+            'email': None,
+            'employee_number': None,
+            'student_number': None
+        }
+
         for key, value in saml_authentication.get_attributes().items():
             if '100.1.1' in key:
                 user_data['username'] = value[0]
             elif '100.1.3' in key:
                 user_data['email'] = value[0]
-            elif '2.5.4.3' in key:
-                full_name_list = value[0].split(' ')
-                user_data['first_name'] = ' '.join(full_name_list[:-1])
-                user_data['last_name'] = full_name_list[-1]
+            elif '2.5.4.42' in key:
+                user_data['first_name'] = value[0]
+            elif '2.5.4.4' in key:
+                user_data['last_name'] = value[0]
+            elif '3.1.3' in key:
+                user_data['employee_number'] = value[0]
+            elif 'ubcEduStudentNumber' in key:
+                user_data['student_number'] = value[0]
 
         user = userApi.user_exists(user_data['username'])
         if user == None:
-            user = create_user(user_data)
+            user = userApi.create_user(user_data)
         return user
     return None
 
@@ -154,7 +166,7 @@ def attrs(request):
         if len(request.session['samlUserdata']) > 0:
             attributes = request.session['samlUserdata'].items()
 
-    return render(request, 'attrs.html', {
+    return render(request, 'ta_app/attrs.html', {
         'paint_logout': paint_logout,
         'attributes': attributes
     })

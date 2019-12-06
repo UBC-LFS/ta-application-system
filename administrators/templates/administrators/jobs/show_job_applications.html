@@ -84,7 +84,8 @@
           <td>{{ app.applicant.get_full_name }}</td>
           <td>{{ app.applicant.username }}</td>
           <td>
-            {% include 'ta_app/applications/_modal_app_status.html' with data=app display='assigned' %}<br />
+            {% include 'ta_app/applications/_app_status.html' with data=app.applicationstatus_set.last.get_assigned_display %}
+            {% include 'ta_app/applications/_modal_app_status.html' with data=app %}<br />
             <small class="text-muted">{{ app.applicationstatus_set.last.created_at }}</small>
           </td>
           <td>{% include 'ta_app/applications/_app_instructor_preference.html' with data=app.get_instructor_preference_display %}</td>

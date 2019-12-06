@@ -65,7 +65,7 @@
 								</li>
 							{% endif %}
 						</ul>
-  					<span class="text-white">Hi, {{ loggedin_user.username }}</span>
+  					<span class="text-white">Hi, {{ loggedin_user.get_full_name }}</span>
 						<a id="btn-logout" class="text-white ml-4" href="{% url 'saml' %}?slo">
 							Logout <i class="fa fa-sign-out" aria-hidden="true"></i>
 						</a>

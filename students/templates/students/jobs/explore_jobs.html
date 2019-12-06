@@ -29,13 +29,13 @@
 					<hr class="mt-3 mb-2" />
 
 					<div>
-						<h5><a href="{% url 'students:available_jobs' session.slug %}">{{ session.title }} (Jobs: {{ session.active_jobs.count }})</a></h5>
+						<h5><a href="{% url 'students:available_jobs' session.slug %}">{{ session.title }} (Jobs: {{ session.job_set.count }})</a></h5>
 						{% if session.description %}
 							<div>{{ session.description|safe }}</div>
 						{% endif %}
 
 						{% if session.note %}
-							<small class="text-muted">Note: {{ session.note|safe }}</small>
+							<div class="text-secondary">Note: {{ session.note|safe }}</div>
 						{% endif %}
 					</div>
 				</div>

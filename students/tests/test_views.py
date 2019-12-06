@@ -359,9 +359,6 @@ class StudentTest(TestCase):
         self.assertEqual(response.context['loggedin_user'].username, USERS[2])
         self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
         self.assertEqual( len(response.context['apps']), 7 )
-        self.assertEqual( list(response.context['total_accepted_assigned_hours'].keys()), ['2019-W1', '2019-W2'])
-        self.assertEqual(response.context['total_accepted_assigned_hours']['2019-W1'], float(85.5))
-        self.assertEqual(response.context['total_accepted_assigned_hours']['2019-W2'], float(30.0))
 
     def test_cancel_job(self):
         print('\n- Test: A student cancels a job offer')
@@ -373,8 +370,7 @@ class StudentTest(TestCase):
         self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
         self.assertEqual(response.context['app'].id, 1)
         self.assertFalse(response.context['app'].is_terminated)
-
-
+        
         self.login('user66.test', '12')
         STUDENT_JOB = 'apbi-260-001-agroecology-i-introduction-to-principles-and-techniques-w1'
         response = self.client.get( reverse('students:cancel_job', args=[SESSION, STUDENT_JOB]) )
@@ -388,10 +384,11 @@ class StudentTest(TestCase):
 
         data = {
             'application': app.id,
-            'assigned_hours': app.status.assigned_hours,
+            'assigned_hours': app.accepted.assigned_hours,
             'assigned': ApplicationStatus.CANCELLED,
-            'parent_id': app.status.id
+            'parent_id': app.accepted.id
         }
+
         response = self.client.post( reverse('students:cancel_job', args=[SESSION, STUDENT_JOB]), data=urlencode(data), content_type=ContentType )
         messages = self.messages(response)
         self.assertTrue('Success' in messages[0])
@@ -445,13 +442,11 @@ class StudentTest(TestCase):
         self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
 
         apps = response.context['apps']
-        total_assigned_hours = response.context['total_accepted_assigned_hours']
         self.assertEqual( len(apps), 3 )
         self.assertEqual(apps[1].job.session.slug, SESSION)
         self.assertEqual(apps[1].job.course.slug, STUDENT_JOB)
         self.assertEqual(apps[1].accepted.get_assigned_display(), 'Accepted')
         self.assertEqual(apps[1].accepted.assigned_hours, data['assigned_hours'])
-        self.assertEqual(total_assigned_hours[SESSION.upper()], data['assigned_hours'])
 
 
     def test_decline_offer(self):

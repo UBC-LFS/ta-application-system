@@ -39,6 +39,11 @@
             <a href="{% url 'students:show_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}">
               {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}
             </a>
+
+            {% if not app.job.is_active %}
+              <br />
+              <span class="badge badge-light">No longer available</span>
+            {% endif %}
           </td>
           <td>
             <a href="{% url 'students:show_application' app_slug=app.slug %}">View</a>
@@ -53,8 +58,10 @@
                 <span class="font-weight-bold">{{ app.offered.assigned_hours }}</span> hours
               </div>
 
+              {% if app.job.is_active %}
               <hr />
               <a href="{% url 'students:accept_decline_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}">Accept / Decline</a>
+              {% endif %}
 
             {% elif app.accepted %}
 
@@ -64,7 +71,7 @@
                 <span class="font-weight-bold">{{ app.accepted.assigned_hours }}</span> hours
               </div>
 
-              {% if app.is_terminated %}
+              {% if app.job.is_active and app.is_terminated %}
                 <hr />
                 <a href="{% url 'students:cancel_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}">Cancel</a>
               {% endif %}

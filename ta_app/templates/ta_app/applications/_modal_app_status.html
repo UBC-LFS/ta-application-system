@@ -1,17 +1,5 @@
 <button type="button" class="btn btn-xs btn-info" data-toggle="modal" data-target="#application-status-modal-{{ data.id }}">
-  {% if display == 'assigned' %}
-
-    {% if data.applicationstatus_set.last.get_assigned_display == 'None' %}
-      APPLIED
-    {% else %}
-      {{ data.applicationstatus_set.last.get_assigned_display.upper }}
-    {% endif %}
-
-  {% else %}
-
-    <i class="fa fa-file-text-o" aria-hidden="true"></i>
-
-  {% endif %}
+  <i class="fa fa-file-text-o" aria-hidden="true"></i>
 </button>
 
 <div class="modal fade" id="application-status-modal-{{ data.id }}" tabindex="-1" role="dialog" aria-labelledby="application-status-modal-label-{{ data.id }}" aria-hidden="true">
