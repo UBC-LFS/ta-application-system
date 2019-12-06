@@ -9,7 +9,7 @@ from users.models import *
 from administrators import api as adminApi
 from users import api as userApi
 
-from administrators.tests.test_views import LOGIN_URL, ContentType, DATA, SESSION
+from administrators.tests.test_views import LOGIN_URL, ContentType, DATA, SESSION, PASSWORD
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 
@@ -28,7 +28,7 @@ class HumanResourceTest(TestCase):
         if username and password:
             self.client.post(LOGIN_URL, data={'username': username, 'password': password})
         else:
-            self.client.post(LOGIN_URL, data={'username': self.user.username, 'password': self.user.password})
+            self.client.post(LOGIN_URL, data={'username': self.user.username, 'password': PASSWORD})
 
     def messages(self, res):
         return [m.message for m in get_messages(res.wsgi_request)]
