@@ -74,7 +74,7 @@ def loggedin_user(user):
 
 def get_user(data, by=None):
     ''' Get a user '''
-    if by == 'username': 
+    if by == 'username':
         return get_object_or_404(User, username=data)
     return get_object_or_404(User, id=data)
 
@@ -85,8 +85,78 @@ def user_exists(username):
     return None
 
 
+def create_user(data):
+    ''' Create a user when receiving data from SAML '''
+    first_name = data['first_name']
+    last_name = data['last_name']
+    email = data['email']
+    username = data['username']
+    employee_number = data['employee_number']
+    student_number = data['student_number']
+
+    user = User.objects.create(
+        first_name=first_name,
+        last_name=last_name,
+        email=email,
+        username=username,
+        password=make_password(settings.USER_PASSWORD)
+    )
+
+    if user:
+        user_profile_form = UserProfileForm({
+            'student_number': student_number,
+            'preferred_name': None,
+            'roles': [ ROLES['Student'] ]
+        })
+
+        if user_profile_form.is_valid():
+            profile = create_profile(user, user_profile_form.cleaned_data)
+            if profile: return user
+
+        if employee_number is not None:
+            user.confidentiality.objects.create(
+                employee_number=employee_number,
+                created_at=datetime.now(),
+                updated_at=datetime.now()
+            )
+
+    return False
+
+def create_profile(user, data):
+    ''' Create an user's profile '''
+    student_number = None
+    if data['student_number']:
+        student_number = data['student_number']
+
+    profile = Profile.objects.create(user_id=user.id, student_number=student_number, preferred_name=data['preferred_name'], is_trimmed=False)
+    profile.roles.add( *data['roles'] )
+
+    return profile if profile else False
+
+
+def get_user_roles(user):
+    if has_user_profile_created(user) and hasattr(user.profile, 'roles'):
+        return [ role.name for role in user.profile.roles.all() ]
+    return  None
+
 
 # end user
+
+
+
+
+# Profile
+
+def has_user_profile_created(user):
+    ''' Check an user has a profile '''
+    try:
+        return user.profile
+    except Profile.DoesNotExist:
+        return None
+
+
+
+# end profile
 
 
 
@@ -265,55 +335,6 @@ def get_users(option=None):
 
 
 
-def create_user(data):
-    ''' Create a user when receiving data from SAML '''
-    first_name = data['first_name']
-    last_name = data['last_name']
-    email = data['email']
-    username = data['username']
-    employee_number = data['employee_number']
-    student_number = data['student_number']
-
-    user = User.objects.create(
-        first_name=first_name,
-        last_name=last_name,
-        email=email,
-        username=username,
-        password=make_password(settings.USER_PASSWORD)
-    )
-
-    if user:
-        user_profile_form = UserProfileForm({
-            'student_number': student_number,
-            'preferred_name': None,
-            'roles': [ ROLES['Student'] ]
-        })
-
-        if user_profile_form.is_valid():
-            profile = create_profile(user, user_profile_form.cleaned_data)
-            if profile: return user
-
-        if employee_number is not None:
-            user.confidentiality.objects.create(
-                employee_number=employee_number,
-                created_at=datetime.now(),
-                updated_at=datetime.now()
-            )
-
-    return False
-
-def create_profile(user, data):
-    ''' Create an user's profile '''
-    student_number = None
-    if data['student_number']:
-        student_number = data['student_number']
-
-    profile = Profile.objects.create(user_id=user.id, student_number=student_number, preferred_name=data['preferred_name'], is_trimmed=False)
-    profile.roles.add( *data['roles'] )
-
-    return profile if profile else False
-
-
 def delete_user(user_id):
     ''' Delete a user '''
     user = get_user(user_id)
@@ -323,13 +344,6 @@ def delete_user(user_id):
 
 
 
-
-def has_user_profile_created(user):
-    ''' Check an user has a profile '''
-    try:
-        return user.profile
-    except Profile.DoesNotExist:
-        return None
 
 
 def has_user_resume_created(user):
@@ -488,11 +502,7 @@ def update_profile(user_id, data):
 
     return True
 
-def get_user_roles(user):
-    if hasattr(user.profile, 'roles'):
-        return [ role.name for role in user.profile.roles.all() ]
-    else:
-        return  None
+
 
 """
 def file_exists(user, folder, file):

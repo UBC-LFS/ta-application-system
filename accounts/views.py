@@ -37,17 +37,20 @@ def local_login(request):
     if request.method == 'POST':
         form = LocalLoginForm(request.POST)
         if form.is_valid():
-            user = userApi.user_exists(request.POST['username'])
-            if user is not None and request.POST['password'] == '12':
+            user = authenticate(username=request.POST['username'], password=request.POST['password'])
+            if user is not None:
                 AuthLogin(request, user)
                 roles = userApi.get_user_roles(user)
-                request.session['loggedin_user'] = {
-                    'id': user.id,
-                    'username': user.username,
-                    'roles': roles
-                }
-                redirect_to = redirect_to_index_page(roles)
-                return HttpResponseRedirect(redirect_to)
+                if roles == None:
+                    messages.error(request, 'An error occurred. Users must have at least one role.')
+                else:
+                    request.session['loggedin_user'] = {
+                        'id': user.id,
+                        'username': user.username,
+                        'roles': roles
+                    }
+                    redirect_to = redirect_to_index_page(roles)
+                    return HttpResponseRedirect(redirect_to)
             else:
                 messages.error(request, 'An error occurred. Please check your username and password, then try again.')
         else:
