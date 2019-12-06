@@ -41,13 +41,16 @@ def local_login(request):
             if user is not None:
                 AuthLogin(request, user)
                 roles = userApi.get_user_roles(user)
-                request.session['loggedin_user'] = {
-                    'id': user.id,
-                    'username': user.username,
-                    'roles': roles
-                }
-                redirect_to = redirect_to_index_page(roles)
-                return HttpResponseRedirect(redirect_to)
+                if roles == None:
+                    messages.error(request, 'An error occurred. Users must have at least one role.')
+                else:
+                    request.session['loggedin_user'] = {
+                        'id': user.id,
+                        'username': user.username,
+                        'roles': roles
+                    }
+                    redirect_to = redirect_to_index_page(roles)
+                    return HttpResponseRedirect(redirect_to)
             else:
                 messages.error(request, 'An error occurred. Please check your username and password, then try again.')
         else:

@@ -69,11 +69,11 @@
 
                 {% for role in user.profile.roles.all %}
                   {% if role.name == "Student" %}
-                    <a class="btn btn-xs btn-info mr-2" href="/impersonate/{{ user.id }}/?next=/students/">Login</a>
+                    <a class="btn btn-xs btn-info mr-2" href="/impersonate/{{ user.id }}/?next=/students/">Masquerade</a>
                   {% endif %}
 
                   {% if role.name == "Instructor" %}
-                    <a class="btn btn-xs btn-info mr-2" href="/impersonate/{{ user.id }}/?next=/instructors/">Login</a>
+                    <a class="btn btn-xs btn-info mr-2" href="/impersonate/{{ user.id }}/?next=/instructors/">Masquerade</a>
                   {% endif %}
                 {% endfor %}
 

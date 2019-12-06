@@ -9,7 +9,7 @@ from users.models import *
 from administrators import api as adminApi
 from users import api as userApi
 
-from administrators.tests.test_views import LOGIN_URL, ContentType, DATA, USERS, SESSION, JOB, APP, COURSE
+from administrators.tests.test_views import LOGIN_URL, ContentType, DATA, USERS, SESSION, JOB, APP, COURSE, PASSWORD
 from django.core.files.uploadedfile import SimpleUploadedFile
 from datetime import datetime
 
@@ -30,7 +30,7 @@ class StudentTest(TestCase):
         if username and password:
             self.client.post(LOGIN_URL, data={'username': username, 'password': password})
         else:
-            self.client.post(LOGIN_URL, data={'username': self.user.username, 'password': self.user.password})
+            self.client.post(LOGIN_URL, data={'username': self.user.username, 'password': PASSWORD})
 
     def messages(self, res):
         return [m.message for m in get_messages(res.wsgi_request)]
@@ -370,7 +370,7 @@ class StudentTest(TestCase):
         self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
         self.assertEqual(response.context['app'].id, 1)
         self.assertFalse(response.context['app'].is_terminated)
-        
+
         self.login('user66.test', '12')
         STUDENT_JOB = 'apbi-260-001-agroecology-i-introduction-to-principles-and-techniques-w1'
         response = self.client.get( reverse('students:cancel_job', args=[SESSION, STUDENT_JOB]) )
