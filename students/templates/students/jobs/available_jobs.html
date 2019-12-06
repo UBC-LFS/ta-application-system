@@ -9,6 +9,11 @@
     <div class="left-aside-btn-groups">
       <a class="btn btn-outline-primary" href="{% url 'students:explore_jobs' %}">Back to Explore Jobs</a>
     </div>
+
+    <div class="col-11 mx-auto mt-5">
+      {% include 'ta_app/jobs/_job_inactive_note.html' %}
+    </div>
+
   </div>
 
   <div class="col-md-8">
@@ -37,7 +42,14 @@
               <td>{{ job.session.year }}</td>
               <td>{{ job.session.term.code }}</td>
               <td class="text-left">
-                {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}
+                <span
+                  {% if not job.is_active %}
+                    class="not-active text-secondary"
+                  {% endif %}
+                >
+                  {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}
+                </span>
+
                 {% include 'ta_app/jobs/_modal_job_details.html' with data=job %}
 
                 {% if job.my_fav %}
@@ -46,15 +58,19 @@
               </td>
               <td>{% include 'ta_app/jobs/_job_instructor.html' with data=job %}</td>
               <td>
-
                 {% if job.my_app %}
+
                   {% include 'ta_app/applications/_app_status.html' with data='None' %}
                   <br />
                   <small class="text-muted">{{ job.my_app.created_at }}</small>
-                {% else %}
-                  <a href="{% url 'students:apply_job' session_slug=job.session.slug job_slug=job.course.slug %}">Apply</a>
-                {% endif %}
 
+                {% else %}
+
+                  {% if job.is_active %}
+                    <a href="{% url 'students:apply_job' session_slug=job.session.slug job_slug=job.course.slug %}">Apply</a>
+                  {% endif %}
+
+                {% endif %}
               </td>
             </tr>
           {% endfor %}

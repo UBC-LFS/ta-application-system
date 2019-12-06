@@ -1235,7 +1235,9 @@ class HRTest(TestCase):
             'last_name': 'test',
             'email': 'user101.test@example.com',
             'username': 'user100.test',
-            'roles': ['5']
+            'roles': ['5'],
+            'student_number': None,
+            'employee_number': None
         }
 
         # Check username
@@ -1256,6 +1258,7 @@ class HRTest(TestCase):
             'username': 'test.user555',
             'preferred_name': None,
             'student_number': '35975560',
+            'employee_number': '1234567',
             'roles': ['5']
         }
         self.assertIsNone(userApi.user_exists(data['username']))
@@ -1277,6 +1280,7 @@ class HRTest(TestCase):
             'password': '12',
             'preferred_name': None,
             'student_number': '12345678',
+            'employee_number': '9876521',
             'roles': ['5']
         }
         self.assertIsNone(userApi.user_exists(data['username']))

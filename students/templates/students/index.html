@@ -8,15 +8,22 @@
     {% include 'ta_app/pages/_left_aside.html' with view_name='users' title='Home' data=loggedin_user %}
 
     <div class="col-11 mx-auto mt-5">
+
       <div class="card border-primary">
         <h6 class="card-header bg-primary text-white text-center">
-          <i class="fa fa-bell" aria-hidden="true"></i> Recent Applied Jobs
+          Recent Applied Jobs ({{ recent_apps|length }})
         </h6>
         <div class="card-body">
           <ul class="line-height-2">
             {% for app in recent_apps %}
               <li>
-                {{ app.job.session.year }} {{ app.job.session.term.code }} - {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}
+                <span
+                  {% if not app.job.is_active %}
+                    class="not-active text-secondary"
+                  {% endif %}
+                >
+                  {{ app.job.session.year }} {{ app.job.session.term.code }} - {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}
+                </span>
                 <small class="text-muted">({{ app.created_at }})</small>
               </li>
             {% empty %}
@@ -25,6 +32,9 @@
           </ul>
         </div>
       </div>
+
+      {% include 'ta_app/jobs/_job_inactive_note.html' %}
+
     </div>
 
   </div>
@@ -38,7 +48,7 @@
         <div class="col-8 mx-auto my-4">
           <div>
             <i class="fa fa-check text-success" aria-hidden="true"></i>
-            You have <span class="font-weight-bold text-chocolate">{{ apps|length }}</span> jobs applied in total.
+            You have <span class="font-weight-bold text-chocolate">{{ apps|length }}</span> applied jobs in total.
             <a class="btn btn-xs btn-link" href="{% url 'students:history_jobs' %}">View History</a>
           </div>
           <div>
@@ -64,7 +74,7 @@
           </tr>
         </thead>
         <tbody>
-          {% for year_term, assigned_hours in total_accepted_assigned_hours.items %}
+          {% for year_term, assigned_hours in total_assigned_hours.accepted.items %}
             <tr>
               <td>{{ year_term }}</td>
               <td>{{ assigned_hours }}</td>

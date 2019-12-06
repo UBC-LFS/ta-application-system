@@ -50,8 +50,14 @@
 
       {% if has_applied_job %}
 
-        <div class="alert alert-info" role="alert">
-          You have already applied for this job. Please check your jobs in <a href="{% url 'students:history_jobs' %}">History of Jobs</a>
+        <div class="bd-callout bd-callout-danger bg-light-gray">
+          <h4>
+            <i class="fa fa-exclamation-circle" aria-hidden="true"></i> Notice
+          </h4>
+          <p>
+            You have already applied for this job.
+            Please go to <a href="{% url 'students:history_jobs' %}">History of Jobs</a> to see your history of applied jobs.
+          </p>
         </div>
 
       {% else %}
@@ -109,7 +115,7 @@
             {{ field }}
           {% endfor %}
 
-          <a class="btn btn-outline-primary" href="{% url 'students:available_jobs' session_slug=job.session.slug %}">Cancel</a>
+          <a class="btn btn-outline-secondary" href="{% url 'students:available_jobs' session_slug=job.session.slug %}">Cancel</a>
           <input class="btn btn-primary" type="submit" value="Submit application" />
         </form>
 
