@@ -162,6 +162,12 @@ def has_user_profile_created(user):
 
 
 # Resume
+def has_user_resume_created(user):
+    ''' Check an user has a resume '''
+    try:
+        return user.resume
+    except Resume.DoesNotExist:
+        return None
 
 def add_resume(user):
     ''' Add resume of an user '''
@@ -188,10 +194,45 @@ def user_has_role(user, role):
     return False
 
 
+# end resume
+
 # Confidentiality
+def has_user_confidentiality_created(user):
+    ''' Check an user has a confidentiality '''
+    try:
+        return user.confidentiality
+    except Confidentiality.DoesNotExist:
+        return None
+
+
+def add_confidentiality_given_list(user, array):
+    ''' Add confidentiality of an user '''
+    if has_user_confidentiality_created(user):
+        if bool(user.confidentiality.sin) and 'sin' in array:
+            user.sin_decrypt_image = decrypt_image(user.username, user.confidentiality.sin, 'sin')
+        else:
+            user.sin_decrypt_image = None
+
+        if bool(user.confidentiality.study_permit) and 'study_permit' in array:
+            user.study_permit_decrypt_image = decrypt_image(user.username, user.confidentiality.study_permit, 'study_permit')
+        else:
+            user.study_permit_decrypt_image = None
+
+        if bool(user.confidentiality.union_correspondence) and 'union_correspondence' in array:
+            user.union_correspondence_filename = os.path.basename(user.confidentiality.union_correspondence.name)
+        else:
+            user.union_correspondence_filename = None
+
+        if bool(user.confidentiality.compression_agreement) and 'compression_agreement' in array:
+            user.compression_agreement_filename = os.path.basename(user.confidentiality.compression_agreement.name)
+        else:
+            user.compression_agreement_filename = None
+
+    return user
+
 
 def add_confidentiality(user):
-    ''' Add confidentiality of an user '''
+    ''' to be removed '''
     if has_user_confidentiality_created(user):
 
         if bool(user.confidentiality.sin):
@@ -208,7 +249,7 @@ def add_confidentiality(user):
 
 
 def add_confidentiality_all(user):
-    ''' Add all confidentiality data of an user '''
+    ''' to be removed '''
     if has_user_confidentiality_created(user):
 
         if bool(user.confidentiality.sin):
@@ -234,34 +275,8 @@ def add_confidentiality_all(user):
     return user
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# -----------------------------------------
-
 def get_user_with_confidentiality(username, role=None):
-    ''' Get a user with resume, sin and study permit by username '''
+    ''' to be removed '''
 
     user = get_user(username, 'username')
 
@@ -295,6 +310,11 @@ def get_user_with_confidentiality(username, role=None):
                 user.compression_agreement_filename = None
 
     return user
+
+
+
+# end Confidentiality
+
 
 
 
@@ -346,20 +366,8 @@ def delete_user(user_id):
 
 
 
-def has_user_resume_created(user):
-    ''' Check an user has a resume '''
-    try:
-        return user.resume
-    except Resume.DoesNotExist:
-        return None
 
 
-def has_user_confidentiality_created(user):
-    ''' Check an user has a confidentiality '''
-    try:
-        return user.confidentiality
-    except Confidentiality.DoesNotExist:
-        return None
 
 
 

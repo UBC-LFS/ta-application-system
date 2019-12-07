@@ -677,8 +677,7 @@ def applications_dashboard(request):
         'loggedin_user': request.user,
         'statuses': statuses,
         'total_statuses': len(status_list),
-        'app_status': APP_STATUS,
-        #'applications': adminApi.get_applications()
+        'app_status': APP_STATUS
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -817,7 +816,7 @@ def offer_job(request, session_slug, job_slug):
                 if app_status_form.is_valid():
                     status = app_status_form.save()
                     if status:
-                        job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
+                        print( admin_app_form.cleaned_data )
                         applicant = userApi.get_user(request.POST.get('applicant'))
                         messages.success(request, 'Success! You offered this user ({0} {1}) {2} hours for this job ({3} {4} - {5} {6} {7})'.format(applicant.first_name, applicant.last_name, assigned_hours, job.session.year, job.session.term.code, job.course.code.name, job.course.number.name, job.course.section.name))
                     else:
@@ -1418,8 +1417,7 @@ def create_user(request):
         'loggedin_user': request.user,
         'users': userApi.get_users(),
         'user_form': UserForm(),
-        'user_profile_form': UserProfileForm(),
-        #'roles': userApi.get_roles(),
+        'user_profile_form': UserProfileForm()
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -1468,9 +1466,10 @@ def view_confidentiality(request, username):
     request.user.roles = request.session['loggedin_user']['roles']
     if not userApi.is_admin(request.user): raise PermissionDenied
 
+    user = userApi.get_user(username, 'username')
     return render(request, 'administrators/hr/view_confidentiality.html', {
         'loggedin_user': request.user,
-        'user': userApi.get_user_with_confidentiality(username, 'administrator')
+        'user': userApi.add_confidentiality_given_list(user, ['sin','study_permit','union_correspondence','compression_agreement'])
     })
 
 
@@ -1482,7 +1481,8 @@ def edit_admin_docs(request, username):
     request.user.roles = request.session['loggedin_user']['roles']
     if not userApi.is_admin(request.user): raise PermissionDenied
 
-    user = userApi.get_user_with_confidentiality(username, 'administrator')
+    user = userApi.get_user(username, 'username')
+    user = userApi.add_confidentiality_given_list(user, ['sin','study_permit','union_correspondence','compression_agreement'])
     confidentiality = userApi.has_user_confidentiality_created(user)
     if request.method == 'POST':
         if confidentiality:
