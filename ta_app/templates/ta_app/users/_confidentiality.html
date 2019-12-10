@@ -1,8 +1,10 @@
 <div>
   <h6>Are you an International Student?</h6>
   <span>
-    {% if data.confidentiality.is_international %}
-      {{ data.confidentiality.is_international }}
+    {% if data.confidentiality.is_international == True %}
+      Yes
+    {% elif data.confidentiality.is_international == False %}
+      No
     {% else %}
       None
     {% endif %}

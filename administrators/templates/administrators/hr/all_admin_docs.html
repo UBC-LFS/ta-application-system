@@ -5,7 +5,7 @@
 <div>
   {% include 'ta_app/pages/_header.html' with title='Admin Documents' %}
 
-  {% include 'ta_app/users/_search_fields.html' with data=users total=total_users path='admin_docs' %}
+  {% include 'ta_app/users/_search_fields.html' with data=users total=total_users path='all_admin_docs' %}
 
   <table
     class="table table-bordered table-hover table-striped table-responsive-md text-center"
@@ -40,7 +40,13 @@
           <td>{{ user.first_name }}</td>
           <td>{{ user.last_name }}</td>
           <td>{{ user.username }}</td>
-          <td>{{ user.confidentiality.international_student }}</td>
+          <td>
+            {% if user.confidentiality.is_international %}
+              {% if user.confidentiality.is_international == True %} Yes {% else %} No {% endif %}
+            {% else %}
+              None
+            {% endif %}
+          </td>
           <td>
             {% if user.confidentiality.employee_number %}
               {{ user.confidentiality.employee_number }}
@@ -57,7 +63,7 @@
           <td>{{ user.confidentiality.updated_at }}</td>
           <td>
             <div class="btn-toolbar">
-              <a class="btn btn-xs btn-link" href="{% url 'administrators:view_confidentiality' username=user.username %}">View</a><br />
+              <a class="btn btn-xs btn-link" href="{% url 'administrators:view_admin_docs' username=user.username %}">View</a><br />
               <a class="btn btn-xs btn-link" href="{% url 'administrators:edit_admin_docs' username=user.username %}">Edit</a>
             </div>
           </td>

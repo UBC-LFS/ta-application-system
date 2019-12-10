@@ -7,7 +7,7 @@
     {% include 'ta_app/pages/_left_aside.html' with view_name='users'   title='Edit Admin Docs' data=user %}
 
     <div class="left-aside-btn-groups">
-      <a class="btn btn-outline-primary" href="{% url 'administrators:admin_docs' %}">Back to Admin Docs</a>
+      <a class="btn btn-outline-primary" href="{% url 'administrators:all_admin_docs' %}">Back to Admin Docs</a>
     </div>
   </div>
 
@@ -33,7 +33,7 @@
           {{ field }}
         {% endfor %}
 
-        <a class="btn btn-outline-primary" href="{% url 'administrators:admin_docs' %}">Cancel</a>
+        <a class="btn btn-outline-secondary" href="{% url 'administrators:all_admin_docs' %}">Cancel</a>
         <input class="btn btn-primary" type="submit" value="Update" />
       </form>
 
@@ -42,7 +42,6 @@
           <h6 class="card-title">Delete Union and Other Correspondence</h6>
           {% if user.union_correspondence_filename %}
             <p class="card-text text-secondary">
-              If you would like to delete the Union and Other Correspondence file, please click the Delete button below.<br />
               File: {{ user.union_correspondence_filename }}
             </p>
             <form action="{% url 'administrators:delete_union_correspondence' %}" method="post" onsubmit="return confirm('Are you sure to delete this Union and Other Correspondence file?')">
@@ -60,7 +59,7 @@
         <div class="card-body">
           <h6 class="card-title">Delete Compression Agreement</h6>
           {% if user.compression_agreement_filename %}
-            <p class="card-text text-secondary">If you would like to delete the Compression Agreement file, please click the Delete button below.<br />
+            <p class="card-text text-secondary">
               File: {{ user.compression_agreement_filename }}
             </p>
             <form action="{% url 'administrators:delete_compression_agreement' %}" method="post" onsubmit="return confirm('Are you sure to delete this Compression Agreement file?')">
