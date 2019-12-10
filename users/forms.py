@@ -153,7 +153,7 @@ class StudentProfileForm(forms.ModelForm):
         required=False,
         widget=forms.TextInput(attrs={ 'class':'form-control' }),
         label='Preferred Name',
-        help_text='The use of a Preferred Name is optional',
+        help_text='The use of a Preferred Name is optional'
     )
 
     graduation_date = forms.DateField(
@@ -178,9 +178,8 @@ class StudentProfileForm(forms.ModelForm):
         model = Profile
         fields = [
             'student_number', 'preferred_name', 'qualifications','prior_employment', 'special_considerations',
-            'status', 'program', 'program_others','graduation_date', 'degrees', 'degree_details', 'trainings',
-            'training_details', 'lfs_ta_training', 'lfs_ta_training_details', 'ta_experience',
-            'ta_experience_details'
+            'status', 'program', 'program_others','graduation_date', 'degrees', 'has_multiple_same_type_degrees','degree_details',
+            'trainings', 'training_details', 'lfs_ta_training', 'lfs_ta_training_details', 'ta_experience', 'ta_experience_details'
         ]
         widgets = {
             #'status': forms.Select(attrs={ 'class': 'form-control' }),
@@ -200,6 +199,7 @@ class StudentProfileForm(forms.ModelForm):
         labels = {
             'program': 'Current Program',
             'program_others': 'Other Program',
+            'has_multiple_same_type_degrees': 'Has multiple same type degrees?',
             'degree_details': 'Degree Details',
             'training_details': 'Training Details',
             'lfs_ta_training': 'LFS TA Training',
@@ -214,7 +214,7 @@ class StudentProfileForm(forms.ModelForm):
 
     field_order = [
         'student_number', 'preferred_name', 'status', 'program', 'program_others','graduation_date',
-        'degrees', 'degree_details', 'trainings', 'training_details',
+        'degrees', 'has_multiple_same_type_degrees','degree_details', 'trainings', 'training_details',
         'lfs_ta_training', 'lfs_ta_training_details', 'ta_experience','ta_experience_details',
         'qualifications','prior_employment', 'special_considerations'
     ]
@@ -319,7 +319,12 @@ class AdminDocumentsForm(forms.ModelForm):
     ''' '''
     class Meta:
         model = Confidentiality
-        fields = ['user', 'is_international', 'employee_number', 'pin', 'tasm', 'eform', 'speed_chart','union_correspondence', 'compression_agreement', 'processing_note']
+        fields = [
+            'user', 'is_international', 'employee_number',
+            'pin', 'tasm', 'eform', 'speed_chart',
+            'union_correspondence', 'compression_agreement',
+            'processing_note'
+        ]
         labels = {
             'is_international': 'International Student',
             'employee_number': 'Employee Number',

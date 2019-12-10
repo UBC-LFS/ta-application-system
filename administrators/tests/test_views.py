@@ -984,7 +984,7 @@ class HRTest(TestCase):
         response = self.client.get( reverse('administrators:create_user') )
         self.assertEqual(response.status_code, 302)
 
-        response = self.client.get( reverse('administrators:view_confidentiality', args=['admin']) )
+        response = self.client.get( reverse('administrators:view_admin_docs', args=['admin']) )
         self.assertEqual(response.status_code, 302)
 
         response = self.client.get( reverse('administrators:show_user', args=[USERS[2], 'users']) )
@@ -1007,13 +1007,13 @@ class HRTest(TestCase):
         response = self.client.get( reverse('administrators:create_user') )
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get( reverse('administrators:admin_docs') )
+        response = self.client.get( reverse('administrators:all_admin_docs') )
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get( reverse('administrators:edit_admin_docs', args=[USERS[2]]) )
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get( reverse('administrators:view_confidentiality', args=[USERS[2]]) )
+        response = self.client.get( reverse('administrators:view_admin_docs', args=[USERS[2]]) )
         self.assertEqual(response.status_code, 200)
 
     def test_all_users(self):
@@ -1296,7 +1296,7 @@ class HRTest(TestCase):
         print('\n- Test: display admin documents')
         self.login()
 
-        response = self.client.get(reverse('administrators:admin_docs'))
+        response = self.client.get(reverse('administrators:all_admin_docs'))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, USERS[0])
         self.assertEqual( len(response.context['users']), settings.PAGE_SIZE )
@@ -1306,7 +1306,7 @@ class HRTest(TestCase):
         print('\n- Test: display user\'s confidentiality')
         self.login()
 
-        response = self.client.get(reverse('administrators:view_confidentiality', args=[USERS[2]]))
+        response = self.client.get(reverse('administrators:view_admin_docs', args=[USERS[2]]))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, USERS[0])
         self.assertEqual(response.context['user'].username, USERS[2])

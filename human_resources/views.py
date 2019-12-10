@@ -61,6 +61,5 @@ def view_confidentiality(request, username):
     user = userApi.get_user(username, 'username')
     return render(request, 'human_resources/view_confidentiality.html', {
         'loggedin_user': request.user,
-        'user': userApi.add_confidentiality(user)
-        #'user': userApi.get_user_with_confidentiality(username)
+        'user': userApi.add_confidentiality_given_list(user, ['sin', 'study_permit'])
     })

@@ -35,6 +35,17 @@
 </div>
 
 <div>
+  <h6>Has multiple same type degrees:</h6>
+  <span>
+    {% if data.profile.has_multiple_same_type_degrees %}
+      Yes
+    {% else %}
+      No
+    {% endif %}
+  </span>
+</div>
+
+<div>
   <h6>Degree Details:</h6>
   <span>{{ data.profile.degree_details }}</span>
 </div>

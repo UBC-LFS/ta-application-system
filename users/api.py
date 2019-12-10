@@ -162,6 +162,12 @@ def has_user_profile_created(user):
 
 
 # Resume
+def has_user_resume_created(user):
+    ''' Check an user has a resume '''
+    try:
+        return user.resume
+    except Resume.DoesNotExist:
+        return None
 
 def add_resume(user):
     ''' Add resume of an user '''
@@ -188,45 +194,37 @@ def user_has_role(user, role):
     return False
 
 
+# end resume
+
 # Confidentiality
+def has_user_confidentiality_created(user):
+    ''' Check an user has a confidentiality '''
+    try:
+        return user.confidentiality
+    except Confidentiality.DoesNotExist:
+        return None
 
-def add_confidentiality(user):
+
+def add_confidentiality_given_list(user, array):
     ''' Add confidentiality of an user '''
-    if has_user_confidentiality_created(user):
 
-        if bool(user.confidentiality.sin):
+    if has_user_confidentiality_created(user):
+        if bool(user.confidentiality.sin) and 'sin' in array:
             user.sin_decrypt_image = decrypt_image(user.username, user.confidentiality.sin, 'sin')
         else:
             user.sin_decrypt_image = None
 
-        if bool(user.confidentiality.study_permit):
+        if bool(user.confidentiality.study_permit) and 'study_permit' in array:
             user.study_permit_decrypt_image = decrypt_image(user.username, user.confidentiality.study_permit, 'study_permit')
         else:
             user.study_permit_decrypt_image = None
 
-    return user
-
-
-def add_confidentiality_all(user):
-    ''' Add all confidentiality data of an user '''
-    if has_user_confidentiality_created(user):
-
-        if bool(user.confidentiality.sin):
-            user.sin_decrypt_image = decrypt_image(user.username, user.confidentiality.sin, 'sin')
-        else:
-            user.sin_decrypt_image = None
-
-        if bool(user.confidentiality.study_permit):
-            user.study_permit_decrypt_image = decrypt_image(user.username, user.confidentiality.study_permit, 'study_permit')
-        else:
-            user.study_permit_decrypt_image = None
-
-        if bool(user.confidentiality.union_correspondence):
+        if bool(user.confidentiality.union_correspondence) and 'union_correspondence' in array:
             user.union_correspondence_filename = os.path.basename(user.confidentiality.union_correspondence.name)
         else:
             user.union_correspondence_filename = None
 
-        if bool(user.confidentiality.compression_agreement):
+        if bool(user.confidentiality.compression_agreement) and 'compression_agreement' in array:
             user.compression_agreement_filename = os.path.basename(user.confidentiality.compression_agreement.name)
         else:
             user.compression_agreement_filename = None
@@ -237,64 +235,8 @@ def add_confidentiality_all(user):
 
 
 
+# end Confidentiality
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# -----------------------------------------
-
-def get_user_with_confidentiality(username, role=None):
-    ''' Get a user with resume, sin and study permit by username '''
-
-    user = get_user(username, 'username')
-
-    if role == None and has_user_resume_created(user):
-        if bool(user.resume.uploaded):
-            user.resume_filename = os.path.basename(user.resume.uploaded.name)
-        else:
-            user.resume_filename = None
-
-    if has_user_confidentiality_created(user):
-
-        if bool(user.confidentiality.sin):
-            user.sin_decrypt_image = decrypt_image(user.username, user.confidentiality.sin, 'sin')
-        else:
-            user.sin_decrypt_image = None
-
-        if bool(user.confidentiality.study_permit):
-            user.study_permit_decrypt_image = decrypt_image(user.username, user.confidentiality.study_permit, 'study_permit')
-        else:
-            user.study_permit_decrypt_image = None
-
-        if role == 'administrator':
-            if bool(user.confidentiality.union_correspondence):
-                user.union_correspondence_filename = os.path.basename(user.confidentiality.union_correspondence.name)
-            else:
-                user.union_correspondence_filename = None
-
-            if bool(user.confidentiality.compression_agreement):
-                user.compression_agreement_filename = os.path.basename(user.confidentiality.compression_agreement.name)
-            else:
-                user.compression_agreement_filename = None
-
-    return user
 
 
 
@@ -346,20 +288,8 @@ def delete_user(user_id):
 
 
 
-def has_user_resume_created(user):
-    ''' Check an user has a resume '''
-    try:
-        return user.resume
-    except Resume.DoesNotExist:
-        return None
 
 
-def has_user_confidentiality_created(user):
-    ''' Check an user has a confidentiality '''
-    try:
-        return user.confidentiality
-    except Confidentiality.DoesNotExist:
-        return None
 
 
 
@@ -582,7 +512,7 @@ def delete_user_sin(username):
 
     if has_user_confidentiality_created(user) and bool(user.confidentiality.sin):
         user.confidentiality.sin.close()
-        print('user.confidentiality.sin.closed ', user.confidentiality.sin.closed)
+        #print('user.confidentiality.sin.closed ', user.confidentiality.sin.closed)
         if user.confidentiality.sin.closed:
             try:
                 user.confidentiality.sin.delete(save=False)
@@ -593,13 +523,13 @@ def delete_user_sin(username):
     return False
 
 
-def delete_user_study_permit(user):
+def delete_user_study_permit(username):
     ''' Delete user's study permit '''
-    if not isinstance(user, User): user = get_user(username, 'username')
+    user = get_user(username, 'username')
 
     if has_user_confidentiality_created(user) and bool(user.confidentiality.study_permit):
         user.confidentiality.study_permit.close()
-        print('user.confidentiality.study_permit.closed ', user.confidentiality.study_permit.closed)
+        #print('user.confidentiality.study_permit.closed ', user.confidentiality.study_permit.closed)
         if user.confidentiality.study_permit.closed:
             try:
                 user.confidentiality.study_permit.delete(save=False)
@@ -682,7 +612,7 @@ def get_confidentiality(user):
 
 
 def updated_confidentiality(user, post, files, data):
-    ''' Update user's confidentiality '''
+    ''' to be removed '''
     update_fields = []
     sin_expiry_date = create_expiry_date(post['sin_expiry_date_year'], post['sin_expiry_date_month'], post['sin_expiry_date_day'])
     study_permit_expiry_date = create_expiry_date(post['study_permit_expiry_date_year'], post['study_permit_expiry_date_month'], post['study_permit_expiry_date_day'])
@@ -713,14 +643,14 @@ def updated_confidentiality(user, post, files, data):
         update_fields.append('study_permit')
 
     if len(update_fields) > 0:
-        if not data['is_international']:
+        """if not data['is_international']:
             user.confidentiality.sin_expiry_date = None
             if 'sin_expiry_date' not in update_fields:
                 update_fields.append('sin_expiry_date')
 
             user.confidentiality.study_permit_expiry_date = None
             if 'study_permit_expiry_date' not in update_fields:
-                update_fields.append('study_permit_expiry_date')
+                update_fields.append('study_permit_expiry_date')"""
 
         user.confidentiality.save(update_fields=update_fields)
 
@@ -893,3 +823,85 @@ def delete_existing_file(user, folder, file):
 
     return deleted
 """
+
+
+
+def add_confidentiality(user):
+    ''' to be removed '''
+    if has_user_confidentiality_created(user):
+
+        if bool(user.confidentiality.sin):
+            user.sin_decrypt_image = decrypt_image(user.username, user.confidentiality.sin, 'sin')
+        else:
+            user.sin_decrypt_image = None
+
+        if bool(user.confidentiality.study_permit):
+            user.study_permit_decrypt_image = decrypt_image(user.username, user.confidentiality.study_permit, 'study_permit')
+        else:
+            user.study_permit_decrypt_image = None
+
+    return user
+
+
+def add_confidentiality_all(user):
+    ''' to be removed '''
+    if has_user_confidentiality_created(user):
+
+        if bool(user.confidentiality.sin):
+            user.sin_decrypt_image = decrypt_image(user.username, user.confidentiality.sin, 'sin')
+        else:
+            user.sin_decrypt_image = None
+
+        if bool(user.confidentiality.study_permit):
+            user.study_permit_decrypt_image = decrypt_image(user.username, user.confidentiality.study_permit, 'study_permit')
+        else:
+            user.study_permit_decrypt_image = None
+
+        if bool(user.confidentiality.union_correspondence):
+            user.union_correspondence_filename = os.path.basename(user.confidentiality.union_correspondence.name)
+        else:
+            user.union_correspondence_filename = None
+
+        if bool(user.confidentiality.compression_agreement):
+            user.compression_agreement_filename = os.path.basename(user.confidentiality.compression_agreement.name)
+        else:
+            user.compression_agreement_filename = None
+
+    return user
+
+
+def get_user_with_confidentiality(username, role=None):
+    ''' to be removed '''
+
+    user = get_user(username, 'username')
+
+    if role == None and has_user_resume_created(user):
+        if bool(user.resume.uploaded):
+            user.resume_filename = os.path.basename(user.resume.uploaded.name)
+        else:
+            user.resume_filename = None
+
+    if has_user_confidentiality_created(user):
+
+        if bool(user.confidentiality.sin):
+            user.sin_decrypt_image = decrypt_image(user.username, user.confidentiality.sin, 'sin')
+        else:
+            user.sin_decrypt_image = None
+
+        if bool(user.confidentiality.study_permit):
+            user.study_permit_decrypt_image = decrypt_image(user.username, user.confidentiality.study_permit, 'study_permit')
+        else:
+            user.study_permit_decrypt_image = None
+
+        if role == 'administrator':
+            if bool(user.confidentiality.union_correspondence):
+                user.union_correspondence_filename = os.path.basename(user.confidentiality.union_correspondence.name)
+            else:
+                user.union_correspondence_filename = None
+
+            if bool(user.confidentiality.compression_agreement):
+                user.compression_agreement_filename = os.path.basename(user.confidentiality.compression_agreement.name)
+            else:
+                user.compression_agreement_filename = None
+
+    return user
