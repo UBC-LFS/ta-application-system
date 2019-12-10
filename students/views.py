@@ -54,10 +54,10 @@ def show_profile(request):
         request.user.roles = request.session['loggedin_user']['roles']
     if 'Student' not in request.user.roles: raise PermissionDenied
 
-    request.user = userApi.add_resume(request.user)
+    loggedin_user = userApi.add_resume(request.user)
     return render(request, 'students/profile/show_profile.html', {
-        'loggedin_user': request.user,
-        'form': ResumeForm(initial={ 'user': request.user })
+        'loggedin_user': loggedin_user,
+        'form': ResumeForm(initial={ 'user': loggedin_user })
     })
 
 
@@ -118,13 +118,13 @@ def upload_resume(request):
         request.user.roles = request.session['loggedin_user']['roles']
     if 'Student' not in request.user.roles: raise PermissionDenied
 
-    request.user = userApi.add_resume(request.user)
+    loggedin_user = userApi.add_resume(request.user)
     if request.method == 'POST':
         if len(request.FILES) == 0:
             messages.error(request, 'An error occurred. Please select your resume, then try again.')
             return redirect('students:show_profile')
 
-        if request.user.resume_filename:
+        if loggedin_user.resume_filename:
             messages.error(request, 'An error occurred. Please remove your previous resume, then try again.')
             return redirect('students:show_profile')
 
@@ -134,7 +134,7 @@ def upload_resume(request):
             resume.uploaded = request.FILES.get('uploaded')
             resume.save()
             if resume:
-                messages.success(request, 'Success! {0} - Resume uploaded'.format(request.user.get_full_name()))
+                messages.success(request, 'Success! {0} - Resume uploaded'.format( loggedin_user.get_full_name()) )
             else:
                 messages.error(request, 'An error occurred while saving a resume.')
         else:
@@ -190,10 +190,8 @@ def show_confidentiality(request):
         request.user.roles = request.session['loggedin_user']['roles']
     if 'Student' not in request.user.roles: raise PermissionDenied
 
-    request.user = userApi.add_confidentiality(request.user) # here
     return render(request, 'students/profile/show_confidentiality.html', {
-        'loggedin_user': request.user,
-        #'user': userApi.get_user_with_confidentiality(loggedin_user.username)
+        'loggedin_user': userApi.add_confidentiality_given_list(request.user, ['sin', 'study_permit'])
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -322,7 +320,7 @@ def edit_confidentiality(request):
 
             if len(sin_study_permit_errors) > 0:
                 msg = ' and '.join(sin_study_permit_errors)
-                messages.error(request, 'An error occurred. Please delete your previous {0} information first, and then try again.'.format(msg))
+                messages.error(request, 'An error occurred. Please delete your previous {0} file(s) first, and then try again.'.format(msg))
                 return redirect('students:edit_confidentiality')
 
             update_fields = []
@@ -358,7 +356,7 @@ def edit_confidentiality(request):
                 if 'study_permit_expiry_date' not in update_fields: update_fields.append('study_permit_expiry_date')
 
                 if request.FILES.get('study_permit') or data['study_permit']:
-                    messages.error(request, 'An error occurred. If you are a Canadian Citizen or Permanent Resident, you won\'t need to update your Study Permit. If you have your Study Permit, please delete it, and then try it again.')
+                    messages.error(request, 'An error occurred. If you are a Canadian Citizen or Permanent Resident, you won\'t need your Study Permit. If you have your Study Permit, please delete it, and then try again.')
                     return redirect('students:edit_confidentiality')
 
             updated_confidentiality.save(update_fields=update_fields)
@@ -389,15 +387,6 @@ def edit_confidentiality(request):
         })
     })
 
-#@login_required(login_url=settings.LOGIN_URL)
-#@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-#@require_http_methods(['GET'])
-def download_sin(request, username, filename):
-    ''' '''
-    #if not userApi.is_valid_user(request.user): raise PermissionDenied
-    path = 'users/{0}/sin/{1}/'.format(username, filename)
-    return serve(request, path, document_root=settings.MEDIA_ROOT)
-
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['POST'])
@@ -420,15 +409,6 @@ def delete_sin(request):
 
     return redirect('students:edit_confidentiality')
 
-
-#@login_required(login_url=settings.LOGIN_URL)
-#@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-#@require_http_methods(['GET'])
-def download_study_permit(request, username, filename):
-    ''' '''
-    #if not userApi.is_valid_user(request.user): raise PermissionDenied
-    path = 'users/{0}/study_permit/{1}/'.format(username, filename)
-    return serve(request, path, document_root=settings.MEDIA_ROOT)
 
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -454,6 +434,24 @@ def delete_study_permit(request):
     return redirect('students:edit_confidentiality')
 
 
+#@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def download_sin(request, username, filename):
+    ''' Download a SIN '''
+    #if not userApi.is_valid_user(request.user): raise PermissionDenied
+    path = 'users/{0}/sin/{1}/'.format(username, filename)
+    return serve(request, path, document_root=settings.MEDIA_ROOT)
+
+
+#@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def download_study_permit(request, username, filename):
+    ''' Download a Study Permit '''
+    #if not userApi.is_valid_user(request.user): raise PermissionDenied
+    path = 'users/{0}/study_permit/{1}/'.format(username, filename)
+    return serve(request, path, document_root=settings.MEDIA_ROOT)
 
 # Jobs
 

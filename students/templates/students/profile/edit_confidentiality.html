@@ -34,44 +34,45 @@
           {{ field }}
         {% endfor %}
 
-        <a class="btn btn-outline-primary" href="{% url 'students:show_confidentiality' %}">Cancel</a>
+        <a class="btn btn-outline-secondary" href="{% url 'students:show_confidentiality' %}">Cancel</a>
         <input class="btn btn-primary" type="submit" value="Update" />
       </form>
-    </div>
 
-    <div class="card border-danger my-4">
-      <div class="card-body">
-        <h5 class="card-title text-secondary">Delete Your SIN</h5>
+      <div class="card border-danger my-4">
+        <div class="card-body">
+          <h5 class="card-title text-secondary">Delete Your SIN</h5>
 
-        {% if loggedin_user.confidentiality.sin %}
-          <small class="text-muted">File: {{ sin_file }}</small>
-          <form action="{% url 'students:delete_sin' %}" method="post" onsubmit="return confirm('Are you sure to delete this SIN file?')">
-            {% csrf_token %}
-            <input type="hidden" name="user" value="{{ loggedin_user.username }}" />
-            <input class="btn btn-danger mt-3" type="submit" value="Delete SIN" />
-          </form>
-        {% else %}
-          <small class="text-muted">No SIN information</small>
-        {% endif %}
+          {% if loggedin_user.confidentiality.sin %}
+            <small class="text-muted">File: {{ sin_file }}</small>
+            <form action="{% url 'students:delete_sin' %}" method="post" onsubmit="return confirm('Are you sure to delete this SIN file?')">
+              {% csrf_token %}
+              <input type="hidden" name="user" value="{{ loggedin_user.username }}" />
+              <input class="btn btn-danger mt-3" type="submit" value="Delete SIN" />
+            </form>
+          {% else %}
+            <small class="text-muted">No SIN information</small>
+          {% endif %}
 
+        </div>
       </div>
-    </div>
 
-    <div class="card border-danger my-4">
-      <div class="card-body">
-        <h5 class="card-title text-secondary">Delete Your Study Permit</h5>
+      <div class="card border-danger my-4">
+        <div class="card-body">
+          <h5 class="card-title text-secondary">Delete Your Study Permit</h5>
 
-        {% if loggedin_user.confidentiality.study_permit %}
-          <small class="text-muted">File: {{ study_permit_file }}</small>
-          <form action="{% url 'students:delete_study_permit' %}" method="post" onsubmit="return confirm('Are you sure to delete this Study Permit file?')">
-            {% csrf_token %}
-            <input type="hidden" name="user" value="{{ loggedin_user.username }}" />
-            <input class="btn btn-danger mt-3" type="submit" value="Delete Study Permit" />
-          </form>
-        {% else %}
-          <small class="text-muted">No Study Permit information</small>
-        {% endif %}
+          {% if loggedin_user.confidentiality.study_permit %}
+            <small class="text-muted">File: {{ study_permit_file }}</small>
+            <form action="{% url 'students:delete_study_permit' %}" method="post" onsubmit="return confirm('Are you sure to delete this Study Permit file?')">
+              {% csrf_token %}
+              <input type="hidden" name="user" value="{{ loggedin_user.username }}" />
+              <input class="btn btn-danger mt-3" type="submit" value="Delete Study Permit" />
+            </form>
+          {% else %}
+            <small class="text-muted">No Study Permit information</small>
+          {% endif %}
+        </div>
       </div>
+
     </div>
 
   </div>

@@ -170,12 +170,9 @@ class Confidentiality(models.Model):
     updated_at = models.DateField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
-        #print('save =======')
-        #print('sin ', self.sin)
-        #print('study_permit ', self.study_permit)
-        #print('self', self)
-        #print('args', args)
-        #print('kwargs', kwargs)
+        print('save =======', self, kwargs)
+        print('sin ', self.sin, bool(self.sin))
+        print('study_permit ', self.study_permit, bool(self.study_permit))
 
         if 'update_fields' in kwargs:
             if 'sin' in kwargs['update_fields']:
@@ -185,7 +182,6 @@ class Confidentiality(models.Model):
         else:
             if bool(self.sin): self.sin = encrypt_image(self.sin)
             if bool(self.study_permit): self.study_permit = encrypt_image(self.study_permit)
-
 
         super(Confidentiality, self).save(*args, **kwargs)
 
@@ -258,10 +254,15 @@ class Profile(models.Model):
     graduation_date = models.DateField(null=True, blank=True)
 
     degrees = models.ManyToManyField(Degree)
+    has_multiple_same_type_degrees = models.BooleanField(
+        default=False,
+        help_text='Please indicate your degrees in Degree Details below if you have multiple same type degrees such as two Bachelors, two Masters or two PhDs (ex. MSc - Biology and MSc - Statistics).'
+    )
+
     degree_details = models.TextField(
         null=True,
         blank=True,
-        help_text='Please indicate your most recent completed or conferred degrees (ex. BSc - Biochemistry - U of T, November 24, 2014)'
+        help_text='Please indicate your degree details: most recent completed or conferred or multiple same type degrees (ex. BSc - Biochemistry - U of T, November 24, 2014).'
     )
     trainings = models.ManyToManyField(Training)
     training_details = models.TextField(
@@ -344,7 +345,7 @@ def encrypt_image(obj):
 
     return InMemoryUploadedFile(content,'ImageField', '{0}.jpg'.format(file_name), 'image/jpeg', sys.getsizeof(content), None)
 
-def decrypt_image(username, obj, type, delete=None):
+def decrypt_image(username, obj, type):
     filename = os.path.basename(obj.file.name)
     path = settings.TA_APP_URL + '/students/confidentiality/' + username + '/' + type + '/' + filename + '/download/'
     content = requests.get(path, stream=True).raw.read()

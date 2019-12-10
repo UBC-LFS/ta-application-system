@@ -1423,7 +1423,7 @@ def create_user(request):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
-def admin_docs(request):
+def all_admin_docs(request):
     ''' Display all users with admin documents '''
     request.user.roles = request.session['loggedin_user']['roles']
     if not userApi.is_admin(request.user): raise PermissionDenied
@@ -1451,7 +1451,7 @@ def admin_docs(request):
         users = paginator.page(paginator.num_pages)
 
 
-    return render(request, 'administrators/hr/admin_docs.html', {
+    return render(request, 'administrators/hr/all_admin_docs.html', {
         'loggedin_user': request.user,
         'users': users,
         'total_users': len(user_list)
@@ -1461,13 +1461,13 @@ def admin_docs(request):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
-def view_confidentiality(request, username):
+def view_admin_docs(request, username):
     ''' display an user's confidentiality '''
     request.user.roles = request.session['loggedin_user']['roles']
     if not userApi.is_admin(request.user): raise PermissionDenied
 
     user = userApi.get_user(username, 'username')
-    return render(request, 'administrators/hr/view_confidentiality.html', {
+    return render(request, 'administrators/hr/view_admin_docs.html', {
         'loggedin_user': request.user,
         'user': userApi.add_confidentiality_given_list(user, ['sin','study_permit','union_correspondence','compression_agreement'])
     })
@@ -1485,31 +1485,79 @@ def edit_admin_docs(request, username):
     user = userApi.add_confidentiality_given_list(user, ['sin','study_permit','union_correspondence','compression_agreement'])
     confidentiality = userApi.has_user_confidentiality_created(user)
     if request.method == 'POST':
-        if confidentiality:
-            if bool(user.confidentiality.union_correspondence):
-                messages.error(request, 'An error occurred. Please delete the previous Union and Other crrespondence file, then try again.')
-                return HttpResponseRedirect( reverse('administrators:edit_admin_docs', args=[username]) )
-            if bool(user.confidentiality.compression_agreement):
-                messages.error(request, 'An error occurred. Please delete the previous Compression Agreement file, then try again.')
-                return HttpResponseRedirect( reverse('administrators:edit_admin_docs', args=[username]) )
+
+        # Check SIN and Study Permit
+        file_errors = []
+        if request.FILES.get('union_correspondence') and confidentiality and bool(user.confidentiality.union_correspondence):
+            file_errors.append('Union and Other crrespondence')
+        if request.FILES.get('compression_agreement') and confidentiality and bool(user.confidentiality.compression_agreement):
+            file_errors.append('Compression Agreement')
+
+        if len(file_errors) > 0:
+            msg = ' and '.join(file_errors)
+            messages.error(request, 'An error occurred. Please delete your previous {0} file(s) first, and then try again.'.format(msg))
+            return HttpResponseRedirect( reverse('administrators:edit_admin_docs', args=[username]) )
+
 
         form = AdminDocumentsForm(request.POST, request.FILES, instance=confidentiality)
         if form.is_valid():
             data = form.cleaned_data
 
             updated_confidentiality = form.save(commit=False)
-            if not updated_confidentiality.created_at:
+
+            if updated_confidentiality.created_at is None:
                 updated_confidentiality.created_at = datetime.now()
+                updated_confidentiality.updated_at = datetime.now()
+                updated_confidentiality.save()
+            else:
+                update_fields = ['updated_at']
 
-            updated_confidentiality.updated_at = datetime.now()
+                if not updated_confidentiality.created_at:
+                    updated_confidentiality.created_at = datetime.now()
+                    update_fields.append('created_at')
+                updated_confidentiality.updated_at = datetime.now()
 
-            updated_confidentiality.union_correspondence = request.FILES.get('union_correspondence')
-            updated_confidentiality.compression_agreement = request.FILES.get('compression_agreement')
+                if data['is_international'] is not None:
+                    updated_confidentiality.is_international = data['is_international']
+                    update_fields.append('is_international')
 
-            updated_confidentiality.save()
+                if data['employee_number'] is not None:
+                    updated_confidentiality.employee_number = data['employee_number']
+                    update_fields.append('employee_number')
+
+                if data['pin'] is not None:
+                    updated_confidentiality.pin = data['pin']
+                    update_fields.append('pin')
+
+                if data['tasm'] is not None:
+                    updated_confidentiality.tasm = data['tasm']
+                    update_fields.append('tasm')
+
+                if data['eform'] is not None:
+                    updated_confidentiality.eform = data['eform']
+                    update_fields.append('eform')
+
+                if data['speed_chart'] is not None:
+                    updated_confidentiality.speed_chart = data['speed_chart']
+                    update_fields.append('speed_chart')
+
+                if data['processing_note'] is not None:
+                    updated_confidentiality.processing_note = data['processing_note']
+                    update_fields.append('processing_note')
+
+                if request.FILES.get('union_correspondence') is not None:
+                    updated_confidentiality.union_correspondence = request.FILES.get('union_correspondence')
+                    update_fields.append('union_correspondence')
+
+                if request.FILES.get('compression_agreement') is not None:
+                    updated_confidentiality.compression_agreement = request.FILES.get('compression_agreement')
+                    update_fields.append('compression_agreement')
+
+                updated_confidentiality.save(update_fields=update_fields)
+
             if updated_confidentiality:
-                messages.success(request, 'Success! {0} - confidentiality submitted'.format(user.username))
-                return redirect('administrators:admin_docs')
+                messages.success(request, 'Success! {0} - confidentiality submitted'.format(username))
+                return HttpResponseRedirect( reverse('administrators:view_admin_docs', args=[username]) )
             else:
                 messages.error(request, 'An error occurred while updating user\'s confidentiality.')
         else:

@@ -3,7 +3,7 @@
     <input type="text" name="first_name" value="{{ request.GET.first_name }}" placeholder="First Name" /> and
     <input type="text" name="last_name" value="{{ request.GET.last_name }}" placeholder="Last Name" /> <br />
 
-    {% if path != 'admin_docs' %}
+    {% if path != 'all_admin_docs' %}
       <input type="text" name="preferred_name" value="{{ request.GET.preferred_name }}" placeholder="Preferred Name" /> and
     {% endif %}
 
@@ -21,8 +21,8 @@
       {% elif path == 'all_users' %}
         <a class="btn btn-sm btn-light" href="{% url 'administrators:all_users' %}">Clear</a>
 
-      {% elif path == 'admin_docs' %}
-        <a class="btn btn-sm btn-light" href="{% url 'administrators:admin_docs' %}">Clear</a>
+      {% elif path == 'all_admin_docs' %}
+        <a class="btn btn-sm btn-light" href="{% url 'administrators:all_admin_docs' %}">Clear</a>
 
       {% endif %}
     </div>
