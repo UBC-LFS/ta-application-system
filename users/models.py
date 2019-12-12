@@ -91,16 +91,6 @@ def create_study_permit_path(instance, filename):
     return os.path.join('users', str(instance.user.username), 'study_permit', filename)
 
 
-
-def create_union_correspondence_path(instance, filename):
-    return os.path.join('users', str(instance.user.username), 'union_correspondence', filename)
-
-
-def create_compression_agreement_path(instance, filename):
-    return os.path.join('users', str(instance.user.username), 'compression_agreement', filename)
-
-
-
 def format_bytes(size):
     power = 2**10
     n = 0
@@ -115,6 +105,13 @@ def FileSizeValidator(file):
         raise ValidationError(
             _('The maximum file size that can be uploaded is 1.5 MB. The size of this file (%(name)s) is %(size)s.'), params={'name': file.name, 'size': format_bytes(int(file.size)) }, code='file_size_limit'
         )
+
+def create_union_correspondence_path(instance, filename):
+    return os.path.join('users', str(instance.user.username), 'union_correspondence', filename)
+
+def create_compression_agreement_path(instance, filename):
+    return os.path.join('users', str(instance.user.username), 'compression_agreement', filename)
+
 
 
 class Confidentiality(models.Model):
@@ -145,34 +142,14 @@ class Confidentiality(models.Model):
     )
     study_permit_expiry_date = models.DateField(null=True, blank=True)
 
-    pin = models.CharField(max_length=4, unique=True, null=True, blank=True)
-    tasm = models.BooleanField(default=False)
-    eform = models.CharField(max_length=6, unique=True, null=True, blank=True)
-    speed_chart = models.CharField(max_length=4, unique=True, null=True, blank=True)
-
-    union_correspondence = models.FileField(
-        upload_to=create_union_correspondence_path,
-        validators=[FileExtensionValidator(allowed_extensions=['pdf']), FileSizeValidator],
-        null=True,
-        blank=True
-    )
-
-    compression_agreement = models.FileField(
-        upload_to=create_compression_agreement_path,
-        validators=[FileExtensionValidator(allowed_extensions=['pdf']), FileSizeValidator],
-        null=True,
-        blank=True
-    )
-
-    processing_note = models.TextField(null=True, blank=True)
-
     created_at = models.DateField(null=True, blank=True)
     updated_at = models.DateField(null=True, blank=True)
 
+
     def save(self, *args, **kwargs):
-        print('save =======', self, kwargs)
-        print('sin ', self.sin, bool(self.sin))
-        print('study_permit ', self.study_permit, bool(self.study_permit))
+        #print('save =======', self, kwargs)
+        #print('sin ', self.sin, bool(self.sin))
+        #print('study_permit ', self.study_permit, bool(self.study_permit))
 
         if 'update_fields' in kwargs:
             if 'sin' in kwargs['update_fields']:

@@ -32,7 +32,14 @@
         <h4>Welcome</h4>
         <p class="col-8 mx-auto">
           If you would like to take a look at the latest status of applications,
-          please go to <a href="{% url 'administrators:applications_dashboard' %}">Dashboard</a>.
+          please go to
+          {% if 'Admin' in loggedin_user.roles %}
+            <a href="{% url 'administrators:applications_dashboard' %}">Dashboard</a>.
+          {% endif %}
+
+          {% if 'HR' in loggedin_user.roles %}
+            <a href="{% url 'administrators:accepted_applications' %}">Accepted Applications</a>.
+          {% endif %}
         </p>
       </div>
     </div>
@@ -41,33 +48,44 @@
       <h5 class="text-info mb-3">Summary</h5>
       <table class="table font-size-1">
         <tbody>
-          <tr>
-            <td class="font-weight-bold">Current Sessions</td>
-            <td>{{ archived_sessions|length }}</td>
-          </tr>
-          <tr>
-            <td class="font-weight-bold">Archived Sessions</td>
-            <td>{{ archived_sessions|length }}</td>
-          </tr>
-          <tr>
-            <td class="font-weight-bold">Applications</td>
-            <td>{{ apps|length }}</td>
-          </tr>
-          <tr>
-            <td class="font-weight-bold">Instructors</td>
-            <td>{{ instructors|length }}</td>
-          </tr>
-          <tr>
-            <td class="font-weight-bold">Students</td>
-            <td>{{ students|length }}</td>
-          </tr>
-          <tr>
-            <td class="font-weight-bold">Total Users</td>
-            <td>{{ users|length }}</td>
-          </tr>
+          {% if 'Admin' in loggedin_user.roles %}
+            <tr>
+              <td class="font-weight-bold">Current Sessions</td>
+              <td>{{ archived_sessions|length }}</td>
+            </tr>
+            <tr>
+              <td class="font-weight-bold">Archived Sessions</td>
+              <td>{{ archived_sessions|length }}</td>
+            </tr>
+            <tr>
+              <td class="font-weight-bold">Applications</td>
+              <td>{{ apps|length }}</td>
+            </tr>
+          {% endif %}
+
+          {% if 'Admin' in loggedin_user.roles or 'HR' in loggedin_user.roles %}
+            <tr>
+              <td class="font-weight-bold">Accepted Applications</td>
+              <td>{{ accepted_apps|length }}</td>
+            </tr>
+          {% endif %}
+
+          {% if 'Admin' in loggedin_user.roles %}
+            <tr>
+              <td class="font-weight-bold">Instructors</td>
+              <td>{{ instructors|length }}</td>
+            </tr>
+            <tr>
+              <td class="font-weight-bold">Students</td>
+              <td>{{ students|length }}</td>
+            </tr>
+            <tr>
+              <td class="font-weight-bold">Total Users</td>
+              <td>{{ users|length }}</td>
+            </tr>
+          {% endif %}
         </tbody>
       </table>
-
     </div>
 
   </div>

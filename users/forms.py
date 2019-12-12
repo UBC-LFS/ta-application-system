@@ -315,7 +315,20 @@ class ConfidentialityForm(forms.ModelForm):
         }
 
 
-class AdminDocumentsForm(forms.ModelForm):
+class ResumeForm(forms.ModelForm):
+    ''' '''
+    class Meta:
+        model = Resume
+        fields = ['user', 'uploaded']
+        labels = {
+            'uploaded': ''
+        }
+        widgets = {
+            'user': forms.HiddenInput()
+        }
+
+"""
+class ConfidentialityForm2(forms.ModelForm):
     ''' '''
     class Meta:
         model = Confidentiality
@@ -357,21 +370,7 @@ class AdminDocumentsForm(forms.ModelForm):
             'compression_agreement': 'Optional. Valid file format: PDF only',
             'processing_note': 'Optional'
         }
-
-
-class ResumeForm(forms.ModelForm):
-    ''' '''
-    class Meta:
-        model = Resume
-        fields = ['user', 'uploaded']
-        labels = {
-            'uploaded': ''
-        }
-        widgets = {
-            'user': forms.HiddenInput()
-        }
-
-
+"""
 
 """
 class ProfileForm(forms.ModelForm):

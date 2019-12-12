@@ -1,9 +1,12 @@
-import datetime as dt
-
+from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.text import slugify
-from django.core.validators import MaxValueValidator, MinValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator, FileExtensionValidator
+from django.core.exceptions import ValidationError
+from django.utils.translation import gettext_lazy as _
+
+import datetime as dt
 
 
 class Term(models.Model):
@@ -211,6 +214,57 @@ class ApplicationStatus(models.Model):
 
     class Meta:
         ordering = ['pk']
+
+
+def format_bytes(size):
+    power = 2**10
+    n = 0
+    power_labels = {0 : '', 1: 'KB', 2: 'MB', 3: 'GB', 4: 'TB'}
+    while size > power:
+        size /= power
+        n += 1
+    return str( round(size, 2) ) + ' ' + power_labels[n]
+
+def FileSizeValidator(file):
+    if int(file.size) > int(settings.MAX_UPLOAD_SIZE):
+        raise ValidationError(
+            _('The maximum file size that can be uploaded is 1.5 MB. The size of this file (%(name)s) is %(size)s.'), params={'name': file.name, 'size': format_bytes(int(file.size)) }, code='file_size_limit'
+        )
+
+def create_union_correspondence_path(instance, filename):
+    return os.path.join('users', str(instance.user.username), 'union_correspondence', filename)
+
+def create_compression_agreement_path(instance, filename):
+    return os.path.join('users', str(instance.user.username), 'compression_agreement', filename)
+
+class AdminDocuments(models.Model):
+    ''' '''
+    application = models.OneToOneField(Application, on_delete=models.CASCADE, primary_key=True)
+
+    pin = models.CharField(max_length=4, unique=True, null=True, blank=True)
+    tasm = models.BooleanField(default=False)
+    eform = models.CharField(max_length=6, unique=True, null=True, blank=True)
+    speed_chart = models.CharField(max_length=4, unique=True, null=True, blank=True)
+
+    union_correspondence = models.FileField(
+        upload_to=create_union_correspondence_path,
+        validators=[FileExtensionValidator(allowed_extensions=['pdf']), FileSizeValidator],
+        null=True,
+        blank=True
+    )
+    compression_agreement = models.FileField(
+        upload_to=create_compression_agreement_path,
+        validators=[FileExtensionValidator(allowed_extensions=['pdf']), FileSizeValidator],
+        null=True,
+        blank=True
+    )
+
+    processing_note = models.TextField(null=True, blank=True)
+
+    created_at = models.DateField(default=dt.date.today)
+    updated_at = models.DateField(default=dt.date.today)
+
+
 
 
 class Favourite(models.Model):

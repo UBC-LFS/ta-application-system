@@ -24,7 +24,6 @@ DATA = [
     'ta_app/fixtures/degrees.json',
     'ta_app/fixtures/programs.json',
     'ta_app/fixtures/roles.json',
-    'ta_app/fixtures/sessions.json',
     'ta_app/fixtures/statuses.json',
     'ta_app/fixtures/terms.json',
     'ta_app/fixtures/trainings.json',
@@ -34,6 +33,7 @@ DATA = [
     'administrators/fixtures/favourites.json',
     'administrators/fixtures/job_instructors.json',
     'administrators/fixtures/jobs.json',
+    'administrators/fixtures/sessions.json',
     'users/fixtures/profile_roles.json',
     'users/fixtures/profiles.json',
     'users/fixtures/users.json'
@@ -1258,7 +1258,7 @@ class HRTest(TestCase):
             'email': 'test.user555@example.com',
             'username': 'test.user555',
             'preferred_name': None,
-            'student_number': '35975560',
+            'student_number': '89782243',
             'employee_number': '1234567',
             'roles': ['5']
         }
@@ -1335,7 +1335,7 @@ class HRTest(TestCase):
         messages = self.messages(response)
         self.assertTrue('Success' in messages[0])
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, '/administrators/hr/users/admin-docs/')
+        self.assertEqual(response.url, '/administrators/hr/users/{0}/admin-docs/'.format(USERS[2]))
         self.assertRedirects(response, response.url)
 
         user = userApi.get_user(data['user'])

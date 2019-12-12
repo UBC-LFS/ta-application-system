@@ -12,12 +12,39 @@
   </div>
 
   <div class="col-md-8">
-    <div class="board col-11 mx-auto">
-      <h3>Details</h3>
-      {% include 'ta_app/users/_confidentiality.html' with data=user role='administrator' %}
 
-      <a class="btn btn-primary mt-3" href="{% url 'administrators:edit_admin_docs' username=user.username %}">Edit Admin Documents</a>
+    <div>
+      <nav class="mb-4">
+        <div class="nav nav-tabs" id="nav-tab" role="tablist">
+          <a class="nav-item nav-link active" id="nav-confidentiality-tab" data-toggle="tab" href="#nav-confidentiality-hr" role="tab" aria-controls="nav-basic-info" aria-selected="true">
+            <i class="fa fa-user-circle-o" aria-hidden="true"></i> Confidentiality
+          </a>
+          <a class="nav-item nav-link" id="nav-documents-tab" data-toggle="tab" href="#nav-documents-hr" role="tab" aria-controls="nav-profile" aria-selected="false">
+            <i class="fa fa-id-card-o" aria-hidden="true"></i> Documents
+          </a>
+        </div>
+      </nav>
     </div>
+
+    <div class="tab-content" id="nav-tabContent">
+      <div class="tab-pane fade show active" id="nav-confidentiality-hr" role="tabpanel" aria-labelledby="nav-confidentiality-tab">
+        <div class="board col-11 mx-auto">
+          <h3>Confidentiality</h3>
+          {% include 'ta_app/users/_confidentiality.html' with data=app.applicant %}
+        </div>
+      </div>
+
+      <div class="tab-pane fade" id="nav-documents-hr" role="tabpanel" aria-labelledby="nav-documents-tab">
+        <div class="board col-11 mx-auto">
+          <h3>Documents</h3>
+          {% include 'ta_app/applications/_app_admin_docs.html' with data=app.applicant %}
+        </div>
+      </div>
+
+    </div>
+
+    <a class="btn btn-primary mt-3" href="{% url 'administrators:edit_admin_docs' app_slug=app.slug %}">Edit Admin Documents</a>
+
   </div>
 </div>
 

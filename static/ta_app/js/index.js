@@ -7,14 +7,6 @@ $(document).ready(function () {
     }
   }
 
-  if (window.location.href.indexOf("human_resources") > -1) {
-    document.getElementById('hr').classList.add("active");
-  } else {
-    if (document.getElementById('hr')) {
-      document.getElementById('hr').classList.remove("active");
-    }
-  }
-
   if (window.location.href.indexOf("instructors") > -1) {
     document.getElementById('instructor').classList.add("active");
   } else {

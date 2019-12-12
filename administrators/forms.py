@@ -258,6 +258,68 @@ class ApplicationForm(forms.ModelForm):
             'supervisor_approval': 'My supervisor has approved for me to TA up to a maximum of 12 hours/week.'
         }
 
+class HRDocumentsForm(forms.ModelForm):
+    class Meta:
+        model = AdminDocuments
+        fields = ['application', 'pin', 'tasm', 'eform', 'speed_chart', 'processing_note']
+        labels = {
+            'pin': 'PIN',
+            'tasm': 'TASM',
+            'eform': 'eForm',
+            'speed_chart': 'Speed Chart',
+            'processing_note': 'Processing Note'
+        }
+        widgets = {
+            'application': forms.HiddenInput(),
+            'pin': forms.TextInput(attrs={ 'class':'form-control' }),
+            'eform': forms.TextInput(attrs={ 'class':'form-control' }),
+            'speed_chart': forms.TextInput(attrs={ 'class':'form-control' }),
+            'processing_note': forms.Textarea(attrs={ 'class':'form-control', 'rows': 2 }),
+        }
+        help_texts = {
+            'pin': 'Optional. Maximum 4 digits long',
+            'tasm': 'Optional',
+            'eform': 'Optional. Maximum 6 digits long',
+            'speed_chart': 'Optional. Maximum 4 digits long',
+            'processing_note': 'Optional'
+        }
+
+class AdminDocumentsForm(forms.ModelForm):
+    class Meta:
+        model = AdminDocuments
+        fields = [
+            'application', 'pin', 'tasm', 'eform', 'speed_chart', 'processing_note',
+            'union_correspondence', 'compression_agreement'
+        ]
+        labels = {
+            'pin': 'PIN',
+            'tasm': 'TASM',
+            'eform': 'eForm',
+            'speed_chart': 'Speed Chart',
+            'processing_note': 'Processing Note',
+            'union_correspondence': 'Union and Other Correspondence',
+            'compression_agreement': 'Compression Agreement'
+        }
+        widgets = {
+            'application': forms.HiddenInput(),
+            'pin': forms.TextInput(attrs={ 'class':'form-control' }),
+            'eform': forms.TextInput(attrs={ 'class':'form-control' }),
+            'speed_chart': forms.TextInput(attrs={ 'class':'form-control' }),
+            'processing_note': forms.Textarea(attrs={ 'class':'form-control', 'rows': 2 }),
+            'union_correspondence': forms.FileInput(),
+            'compression_agreement': forms.FileInput()
+        }
+        help_texts = {
+            'pin': 'Optional. Maximum 4 digits long',
+            'tasm': 'Optional',
+            'eform': 'Optional. Maximum 6 digits long',
+            'speed_chart': 'Optional. Maximum 4 digits long',
+            'processing_note': 'Optional',
+            'union_correspondence': 'Optional. Valid file format: PDF only',
+            'compression_agreement': 'Optional. Valid file format: PDF only'
+        }
+
+
 
 class SessionJobForm(forms.ModelForm):
     class Meta:

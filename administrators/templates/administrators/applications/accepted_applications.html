@@ -14,6 +14,7 @@
     data-classes=""
     data-show-export="true"
     data-show-columns="true"
+    data-export-types="['csv']"
   >
     <thead>
       <tr>
@@ -22,13 +23,16 @@
         <th data-sortable="true">Term</th>
         <th data-sortable="true">Job</th>
         <th data-sortable="true">Applicant</th>
-        <th data-sortable="true">Status</th>
         <th data-sortable="true">Instructor<br /> Preference</th>
         <th data-sortable="true">Classification</th>
-        <th data-sortable="true">Note</th>
-        <th data-sortable="true">Created at</th>
-        <th data-sortable="true">Updated at</th>
-        <th data-sortable="true">Accpeted at</th>
+        <th data-sortable="true">Wage <br /> (CAD)</th>
+        <th data-sortable="true">Salary</th>
+        <th>PIN</th>
+        <th>TASM</th>
+        <th>eForm</th>
+        <th>Speed<br /> Chart</th>
+        <th>Processing<br /> Note</th>
+        <th data-sortable="true">Accepted at</th>
         <th>Actions</th>
       </tr>
     </thead>
@@ -46,22 +50,28 @@
             </a>
           </td>
           <td>
-            <a href="{% url 'administrators:show_user' username=app.applicant.username path='accepted' %}">{{ app.applicant.get_full_name }}</a>
+            <a href="{% url 'administrators:show_user' username=app.applicant.username path='accepted' %}">{{ app.applicant.get_full_name }}</a><br />
+            {% include 'ta_app/applications/_modal_app_status.html' with data=app display='name' %}
           </td>
-          <td>{% include 'ta_app/applications/_modal_app_status.html' with data=app %}</td>
           <td>{% include 'ta_app/applications/_app_instructor_preference.html' with data=app.get_instructor_preference_display %}</td>
           <td>
-            {% include 'ta_app/applications/_app_classification.html' with data=app %}
-            {% include 'ta_app/users/_modal_degree_details.html' with data=app %}
+            {% include 'ta_app/applications/_app_classification.html' with data=app %}<br />
+            {% include 'ta_app/applications/_modal_note.html' with data=app display='name' %}
           </td>
-          <td>{% include 'ta_app/applications/_modal_note.html' with data=app %}</td>
-          <td>{{ app.created_at }}</td>
-          <td>{{ app.updated_at }}</td>
-          <td>{{ app.accepted.created_at }}</td>
+          <td>${{ app.classification.wage|floatformat:2 }}</td>
+          <td>${{ app.salary|floatformat:2 }}</td>
+          <td>{{ app.admindocuments.pin }}</td>
+          <td>{{ app.admindocuments.tasm }}</td>
+          <td>{{ app.admindocuments.eform }}</td>
+          <td>{{ app.admindocuments.speed_chart }}</td>
+          <td>{% include 'ta_app/applications/_modal_processing_note.html' with data=app %}</td>
           <td>
-            <div class="btn-toolbar">
-              <button class="btn btn-xs btn-primary mr-2" type="button" data-toggle="modal" data-target="#job-application-modal-{{ app.id }}">Decline &<br /> Re-assign</button><br />
-
+            <span class="font-weight-bold text-chocolate">{{ app.accepted.assigned_hours }}</span> hours <br />
+            {{ app.accepted.created_at }}
+          </td>
+          <td>
+            {% if 'Admin' in loggedin_user.roles %}
+              <button class="btn btn-xs btn-primary mb-2" type="button" data-toggle="modal" data-target="#job-application-modal-{{ app.id }}">Decline &<br /> Re-assign</button><br />
               <div class="modal fade" id="job-application-modal-{{ app.id }}" tabindex="-1" role="dialog" aria-labelledby="job-application-modal-label-{{ app.id }}" aria-hidden="true">
                 <div class="modal-dialog modal-lg" role="document">
                   <div class="modal-content">
@@ -71,7 +81,7 @@
                     </div>
                     <div class="modal-body text-left">
 
-                      <h4>To {{ app.applicant.get_full_name }} ({{ app.applicant.username }})</h4>
+                      <h5>To {{ app.applicant.get_full_name }} ({{ app.applicant.username }})</h5>
                       <h6 class="text-secondary mb-3">for {{ app.job.session.year }} {{ app.job.session.term.code }} - {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</h6>
 
                       <form action="{% url 'administrators:decline_reassign' %}" method="post">
@@ -98,9 +108,7 @@
               </div>
 
               {% if app.is_terminated %}
-
-                <button class="btn btn-sm btn-danger" type="button" disabled>Terminated</button>
-
+                <button class="btn btn-xs btn-danger" type="button" disabled>Terminated</button><br />
               {% else %}
                 <form action="{% url 'administrators:terminate' app_slug=app.slug %}" method="post" onsubmit="return confirm('Are you sure to terminate this application (ID: {{ app.id }}))?');">
                   {% csrf_token %}
@@ -108,8 +116,65 @@
                   <input class="btn btn-xs btn-danger" type="submit" value="Terminate" />
                 </form>
               {% endif %}
+            {% endif %}
 
+            <button class="btn btn-xs btn-warning mt-2" type="button" data-toggle="modal" data-target="#admin-docs-modal-{{ app.id }}">Admin Docs</button>
+            <div class="modal fade" id="admin-docs-modal-{{ app.id }}" tabindex="-1" role="dialog" aria-labelledby="admin-docs-modal-label-{{ app.id }}" aria-hidden="true">
+              <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="admin-docs-label-{{ app.id }}">Admin Documents</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                  </div>
+                  <div class="modal-body text-left">
+
+                    <div class="board">
+                      <h3>{{ app.applicant.get_full_name }} ({{ app.applicant.username }})</h3>
+                      <h6 class="text-secondary mb-3">for {{ app.job.session.year }} {{ app.job.session.term.code }} - {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</h6>
+
+                      <form action="" method="post">
+                        {% csrf_token %}
+
+                        <div class="field-wrapper">
+                          <label for="id_pin">PIN:</label>
+                          <div class="help">Optional. Maximum 4 digits long</div>
+                          <input type="text" name="pin" class="form-control" maxlength="4" value="{{ app.admindocuments.pin }}" />
+                        </div>
+
+                        <div class="field-wrapper">
+                          <label for="id_tasm">TASM:</label>
+                          <div class="help">Optional</div>
+                          <input type="checkbox" name="tasm" {% if app.admindocuments.tasm %} checked {% endif %} />
+                        </div>
+
+                        <div class="field-wrapper">
+                          <label for="id_eform">eForm:</label>
+                          <div class="help">Optional. Maximum 6 digits long</div>
+                          <input type="text" name="eform" class="form-control" maxlength="6" value="{{ app.admindocuments.eform }}" />
+                        </div>
+
+                        <div class="field-wrapper">
+                          <label for="id_speed_chart">Speed Chart:</label>
+                          <div class="help">Optional. Maximum 4 digits long</div>
+                          <input type="text" name="speed_chart" class="form-control" maxlength="4" value="{{ app.admindocuments.speed_chart }}" />
+                        </div>
+
+                        <div class="field-wrapper">
+                          <label for="id_processing_note">Processing Note:</label>
+                          <div class="help">Optional</div>
+                          <textarea name="processing_note" cols="40" rows="2" class="form-control">{{ app.admindocuments.processing_note }}</textarea>
+                        </div>
+
+                        <input type="hidden" name="application" value="{{ app.id }}" />
+                        <input class="btn btn-primary" type="submit" value="Update" />
+                      </form>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
             </div>
+
           </td>
         </tr>
       {% endfor %}

@@ -47,19 +47,25 @@ APP_STATUS = {
 def index(request):
     ''' Index page of Administrator's portal '''
     request.user.roles = request.session['loggedin_user']['roles']
-    if not userApi.is_admin(request.user): raise PermissionDenied
+    if not userApi.is_admin(request.user) and 'HR' not in request.user.roles:
+        raise PermissionDenied
 
-    sessions = adminApi.get_sessions()
-    return render(request, 'administrators/index.html', {
-        'loggedin_user': request.user,
-        'current_sessions': sessions.filter(is_archived=False),
-        'archived_sessions': sessions.filter(is_archived=True),
-        'apps': adminApi.get_applications(),
-        'instructors': userApi.get_users_by_role(Role.INSTRUCTOR),
-        'students': userApi.get_users_by_role(Role.STUDENT),
-        'users': userApi.get_users()
+    context = { 'loggedin_user': request.user }
+    if 'Admin' in request.user.roles:
+        sessions = adminApi.get_sessions()
+        context['current_sessions'] = sessions.filter(is_archived=False)
+        context['archived_sessions'] = sessions.filter(is_archived=True)
+        context['apps'] = adminApi.get_applications()
+        context['instructors'] = userApi.get_users_by_role(Role.INSTRUCTOR)
+        context['students'] = userApi.get_users_by_role(Role.STUDENT)
+        context['users'] = userApi.get_users()
 
-    })
+    if 'HR' in request.user.roles:
+        apps = adminApi.get_applications()
+        context['accepted_apps'] = apps.filter(applicationstatus__assigned=ApplicationStatus.ACCEPTED).order_by('-id').distinct()
+
+    print(context)
+    return render(request, 'administrators/index.html', context)
 
 # ------------- Sessions -------------
 
@@ -622,7 +628,9 @@ def edit_job(request, session_slug, job_slug):
 def show_application(request, app_slug, path):
     ''' Display an application details '''
     request.user.roles = request.session['loggedin_user']['roles']
-    if not userApi.is_admin(request.user): raise PermissionDenied
+    if not userApi.is_admin(request.user) and 'HR' not in request.user.roles:
+        raise PermissionDenied
+
     if path not in APP_PATH: raise Http404
 
     return render(request, 'administrators/applications/show_application.html', {
@@ -816,7 +824,6 @@ def offer_job(request, session_slug, job_slug):
                 if app_status_form.is_valid():
                     status = app_status_form.save()
                     if status:
-                        print( admin_app_form.cleaned_data )
                         applicant = userApi.get_user(request.POST.get('applicant'))
                         messages.success(request, 'Success! You offered this user ({0} {1}) {2} hours for this job ({3} {4} - {5} {6} {7})'.format(applicant.first_name, applicant.last_name, assigned_hours, job.session.year, job.session.term.code, job.course.code.name, job.course.number.name, job.course.section.name))
                     else:
@@ -989,53 +996,72 @@ def offered_applications_send_email_confirmation(request):
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
+@require_http_methods(['GET', 'POST'])
 def accepted_applications(request):
     ''' Display applications accepted by students '''
     request.user.roles = request.session['loggedin_user']['roles']
-    if not userApi.is_admin(request.user): raise PermissionDenied
+    if not userApi.is_admin(request.user) and 'HR' not in request.user.roles:
+        raise PermissionDenied
 
-    year_q = request.GET.get('year')
-    term_q = request.GET.get('term')
-    code_q = request.GET.get('code')
-    number_q = request.GET.get('number')
-    section_q = request.GET.get('section')
-    first_name_q = request.GET.get('first_name')
-    last_name_q = request.GET.get('last_name')
+    if request.method == 'POST':
+        admin_docs = adminApi.get_admin_docs(request.POST.get('application'))
+        form = HRDocumentsForm(request.POST, instance=admin_docs)
+        if form.is_valid():
+            hr_docs = form.save()
+            if hr_docs:
+                messages.success(request, 'Success! Admin Documents of {0} updated (Application ID: {1})'.format( hr_docs.application.applicant.get_full_name(), hr_docs.application.id ))
+            else:
+                messages.error(request, 'An error occurred.')
+        else:
+            errors = form.errors.get_json_data()
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
-    app_list = adminApi.get_applications()
-    if bool(year_q):
-        app_list = app_list.filter(job__session__year__iexact=year_q)
-    if bool(term_q):
-        app_list = app_list.filter(job__session__term__code__iexact=term_q)
-    if bool(code_q):
-        app_list = app_list.filter(job__course__code__name__iexact=code_q)
-    if bool(number_q):
-        app_list = app_list.filter(job__course__number__name__iexact=number_q)
-    if bool(section_q):
-        app_list = app_list.filter(job__course__section__name__iexact=section_q)
-    if bool(first_name_q):
-        app_list = app_list.filter(applicant__first_name__icontains=first_name_q)
-    if bool(last_name_q):
-        app_list = app_list.filter(applicant__last_name__icontains=last_name_q)
+        return redirect('administrators:accepted_applications')
 
-    app_list = app_list.filter(applicationstatus__assigned=ApplicationStatus.ACCEPTED).order_by('-id').distinct()
-    app_list = adminApi.add_app_info_into_applications(app_list, ['accepted'])
+    else:
+        year_q = request.GET.get('year')
+        term_q = request.GET.get('term')
+        code_q = request.GET.get('code')
+        number_q = request.GET.get('number')
+        section_q = request.GET.get('section')
+        first_name_q = request.GET.get('first_name')
+        last_name_q = request.GET.get('last_name')
 
-    page = request.GET.get('page', 1)
-    paginator = Paginator(app_list, settings.PAGE_SIZE)
+        app_list = adminApi.get_applications()
+        if bool(year_q):
+            app_list = app_list.filter(job__session__year__iexact=year_q)
+        if bool(term_q):
+            app_list = app_list.filter(job__session__term__code__iexact=term_q)
+        if bool(code_q):
+            app_list = app_list.filter(job__course__code__name__iexact=code_q)
+        if bool(number_q):
+            app_list = app_list.filter(job__course__number__name__iexact=number_q)
+        if bool(section_q):
+            app_list = app_list.filter(job__course__section__name__iexact=section_q)
+        if bool(first_name_q):
+            app_list = app_list.filter(applicant__first_name__icontains=first_name_q)
+        if bool(last_name_q):
+            app_list = app_list.filter(applicant__last_name__icontains=last_name_q)
 
-    try:
-        apps = paginator.page(page)
-    except PageNotAnInteger:
-        apps = paginator.page(1)
-    except EmptyPage:
-        apps = paginator.page(paginator.num_pages)
+        app_list = app_list.filter(applicationstatus__assigned=ApplicationStatus.ACCEPTED).order_by('-id').distinct()
+
+        page = request.GET.get('page', 1)
+        paginator = Paginator(app_list, settings.PAGE_SIZE)
+
+        try:
+            apps = paginator.page(page)
+        except PageNotAnInteger:
+            apps = paginator.page(1)
+        except EmptyPage:
+            apps = paginator.page(paginator.num_pages)
+
+        apps = adminApi.add_app_info_into_applications(apps, ['accepted'])
 
     return render(request, 'administrators/applications/accepted_applications.html', {
         'loggedin_user': request.user,
-        'apps': apps,
-        'total_apps': len(app_list)
+        'apps': adminApi.add_salary(apps),
+        'total_apps': len(app_list),
+        'form': HRDocumentsForm()
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -1428,55 +1454,71 @@ def all_admin_docs(request):
     request.user.roles = request.session['loggedin_user']['roles']
     if not userApi.is_admin(request.user): raise PermissionDenied
 
+    year_q = request.GET.get('year')
+    term_q = request.GET.get('term')
+    code_q = request.GET.get('code')
+    number_q = request.GET.get('number')
+    section_q = request.GET.get('section')
     first_name_q = request.GET.get('first_name')
     last_name_q = request.GET.get('last_name')
-    cwl_q = request.GET.get('cwl')
 
-    user_list = userApi.get_users()
+    app_list = adminApi.get_applications()
+    if bool(year_q):
+        app_list = app_list.filter(job__session__year__iexact=year_q)
+    if bool(term_q):
+        app_list = app_list.filter(job__session__term__code__iexact=term_q)
+    if bool(code_q):
+        app_list = app_list.filter(job__course__code__name__iexact=code_q)
+    if bool(number_q):
+        app_list = app_list.filter(job__course__number__name__iexact=number_q)
+    if bool(section_q):
+        app_list = app_list.filter(job__course__section__name__iexact=section_q)
     if bool(first_name_q):
-        user_list = user_list.filter(first_name__icontains=first_name_q)
+        app_list = app_list.filter(applicant__first_name__icontains=first_name_q)
     if bool(last_name_q):
-        user_list = user_list.filter(last_name__icontains=last_name_q)
-    if bool(cwl_q):
-        user_list = user_list.filter(username__icontains=cwl_q)
+        app_list = app_list.filter(applicant__last_name__icontains=last_name_q)
+
+    app_list = app_list.filter(applicationstatus__assigned=ApplicationStatus.ACCEPTED).order_by('-id').distinct()
 
     page = request.GET.get('page', 1)
-    paginator = Paginator(user_list, settings.PAGE_SIZE)
+    paginator = Paginator(app_list, settings.PAGE_SIZE)
 
     try:
-        users = paginator.page(page)
+        apps = paginator.page(page)
     except PageNotAnInteger:
-        users = paginator.page(1)
+        apps = paginator.page(1)
     except EmptyPage:
-        users = paginator.page(paginator.num_pages)
+        apps = paginator.page(paginator.num_pages)
 
+    apps = adminApi.add_app_info_into_applications(apps, ['accepted'])
 
     return render(request, 'administrators/hr/all_admin_docs.html', {
         'loggedin_user': request.user,
-        'users': users,
-        'total_users': len(user_list)
+        'apps': adminApi.add_salary(apps),
+        'total_apps': len(app_list)
     })
 
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
-def view_admin_docs(request, username):
+def view_admin_docs(request, app_slug):
     ''' display an user's confidentiality '''
     request.user.roles = request.session['loggedin_user']['roles']
     if not userApi.is_admin(request.user): raise PermissionDenied
 
-    user = userApi.get_user(username, 'username')
+    app = adminApi.get_application(app_slug, 'slug')
     return render(request, 'administrators/hr/view_admin_docs.html', {
         'loggedin_user': request.user,
-        'user': userApi.add_confidentiality_given_list(user, ['sin','study_permit','union_correspondence','compression_agreement'])
+        'app': app
+        #'user': userApi.add_confidentiality_given_list(user, ['sin','study_permit','union_correspondence','compression_agreement'])
     })
 
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET', 'POST'])
-def edit_admin_docs(request, username):
+def edit_admin_docs(request, app_slug):
     ''' Edit admin documents '''
     request.user.roles = request.session['loggedin_user']['roles']
     if not userApi.is_admin(request.user): raise PermissionDenied
