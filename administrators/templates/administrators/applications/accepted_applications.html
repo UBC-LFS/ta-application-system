@@ -23,10 +23,10 @@
         <th data-sortable="true">Term</th>
         <th data-sortable="true">Job</th>
         <th data-sortable="true">Applicant</th>
-        <th data-sortable="true">Instructor<br /> Preference</th>
+        <th data-sortable="true">Student<br /> Number</th>
+        <th data-sortable="true">Employee<br /> Number</th>
         <th data-sortable="true">Classification</th>
-        <th data-sortable="true">Wage <br /> (CAD)</th>
-        <th data-sortable="true">Salary</th>
+        <th data-sortable="true">Salary <br />(CAD)</th>
         <th>PIN</th>
         <th>TASM</th>
         <th>eForm</th>
@@ -51,19 +51,43 @@
           </td>
           <td>
             <a href="{% url 'administrators:show_user' username=app.applicant.username path='accepted' %}">{{ app.applicant.get_full_name }}</a><br />
+            <small>({{ app.applicant.username }})</small>
             {% include 'ta_app/applications/_modal_app_status.html' with data=app display='name' %}
           </td>
-          <td>{% include 'ta_app/applications/_app_instructor_preference.html' with data=app.get_instructor_preference_display %}</td>
+          <td>{{ app.applicant.profile.student_number }}</td>
+          <td>
+            {% if app.applicant.confidentiality.employee_number %}
+              {{ app.applicant.confidentiality.employee_number }}
+            {% else %}
+              <span class="badge badge-danger">NEW</span>
+            {% endif %}
+          </td>
           <td>
             {% include 'ta_app/applications/_app_classification.html' with data=app %}<br />
+            <small>(${{ app.classification.wage|floatformat:2 }})</small><br />
             {% include 'ta_app/applications/_modal_note.html' with data=app display='name' %}
           </td>
-          <td>${{ app.classification.wage|floatformat:2 }}</td>
           <td>${{ app.salary|floatformat:2 }}</td>
-          <td>{{ app.admindocuments.pin }}</td>
-          <td>{{ app.admindocuments.tasm }}</td>
-          <td>{{ app.admindocuments.eform }}</td>
-          <td>{{ app.admindocuments.speed_chart }}</td>
+          <td>
+            {% if app.admindocuments.pin %}
+              {{ app.admindocuments.pin }}
+            {% endif %}
+          </td>
+          <td>
+            {% if app.admindocuments.tasm == True %}
+              <span class="badge badge-orange">YES</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if app.admindocuments.eform %}
+              {{ app.admindocuments.eform }}
+            {% endif %}
+          </td>
+          <td>
+            {% if app.admindocuments.speed_chart %}
+              {{ app.admindocuments.speed_chart }}
+            {% endif %}
+          </td>
           <td>{% include 'ta_app/applications/_modal_processing_note.html' with data=app %}</td>
           <td>
             <span class="font-weight-bold text-chocolate">{{ app.accepted.assigned_hours }}</span> hours <br />
@@ -138,25 +162,47 @@
                         <div class="field-wrapper">
                           <label for="id_pin">PIN:</label>
                           <div class="help">Optional. Maximum 4 digits long</div>
-                          <input type="text" name="pin" class="form-control" maxlength="4" value="{{ app.admindocuments.pin }}" />
+                          <input type="text" name="pin" class="form-control" maxlength="4"
+                            {% if app.admindocuments.pin %}
+                              value="{{ app.admindocuments.pin }}"
+                            {% else %}
+                              value=""
+                            {% endif %}
+                          />
                         </div>
 
                         <div class="field-wrapper">
                           <label for="id_tasm">TASM:</label>
                           <div class="help">Optional</div>
-                          <input type="checkbox" name="tasm" {% if app.admindocuments.tasm %} checked {% endif %} />
+                          <input type="checkbox" name="tasm"
+                            {% if app.admindocuments.tasm %}
+                              checked
+                            {% endif %}
+                          />
                         </div>
 
                         <div class="field-wrapper">
                           <label for="id_eform">eForm:</label>
                           <div class="help">Optional. Maximum 6 digits long</div>
-                          <input type="text" name="eform" class="form-control" maxlength="6" value="{{ app.admindocuments.eform }}" />
+                          <input type="text" name="eform" class="form-control" maxlength="6"
+                            {% if app.admindocuments.eform %}
+                              value="{{ app.admindocuments.eform }}"
+                            {% else %}
+                              value=""
+                            {% endif %}
+                          />
                         </div>
 
                         <div class="field-wrapper">
                           <label for="id_speed_chart">Speed Chart:</label>
                           <div class="help">Optional. Maximum 4 digits long</div>
-                          <input type="text" name="speed_chart" class="form-control" maxlength="4" value="{{ app.admindocuments.speed_chart }}" />
+                          <input type="text" name="speed_chart" class="form-control" maxlength="4"
+                            {% if app.admindocuments.speed_chart %}
+                              value="{{ app.admindocuments.speed_chart }}"
+                            {% else %}
+                              value=""
+                            {% endif %}
+                          />
                         </div>
 
                         <div class="field-wrapper">

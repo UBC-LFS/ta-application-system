@@ -82,8 +82,6 @@ class Training(models.Model):
         self.slug = slugify(self.name)
         super(Training, self).save(*args, **kwargs)
 
-
-
 def create_sin_path(instance, filename):
     return os.path.join('users', str(instance.user.username), 'sin', filename)
 
@@ -105,14 +103,6 @@ def FileSizeValidator(file):
         raise ValidationError(
             _('The maximum file size that can be uploaded is 1.5 MB. The size of this file (%(name)s) is %(size)s.'), params={'name': file.name, 'size': format_bytes(int(file.size)) }, code='file_size_limit'
         )
-
-def create_union_correspondence_path(instance, filename):
-    return os.path.join('users', str(instance.user.username), 'union_correspondence', filename)
-
-def create_compression_agreement_path(instance, filename):
-    return os.path.join('users', str(instance.user.username), 'compression_agreement', filename)
-
-
 
 class Confidentiality(models.Model):
     ''' '''
@@ -190,7 +180,13 @@ class Profile(models.Model):
     ]
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
-    student_number = models.CharField(max_length=8, unique=True, null=True, blank=True)
+    student_number = models.CharField(
+        max_length=8,
+        unique=True,
+        null=True,
+        blank=True,
+        help_text='The use of a Student Number is optional'
+    )
     preferred_name = models.CharField(
         max_length=256,
         null=True,
@@ -231,10 +227,6 @@ class Profile(models.Model):
     graduation_date = models.DateField(null=True, blank=True)
 
     degrees = models.ManyToManyField(Degree)
-    has_multiple_same_type_degrees = models.BooleanField(
-        default=False,
-        help_text='Please indicate your degrees in Degree Details below if you have multiple same type degrees such as two Bachelors, two Masters or two PhDs (ex. MSc - Biology and MSc - Statistics).'
-    )
 
     degree_details = models.TextField(
         null=True,

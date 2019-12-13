@@ -474,7 +474,7 @@ def add_applications_with_latest_status(apps):
 def add_salary(apps):
     ''' Add a salary in applications '''
     for app in apps:
-        app.salary = round(app.accepted.assigned_hours * app.classification.wage, 2)
+        app.salary = round(app.accepted.assigned_hours * app.classification.wage / 4, 2)
     return apps
 
 

@@ -64,7 +64,6 @@ def index(request):
         apps = adminApi.get_applications()
         context['accepted_apps'] = apps.filter(applicationstatus__assigned=ApplicationStatus.ACCEPTED).order_by('-id').distinct()
 
-    print(context)
     return render(request, 'administrators/index.html', context)
 
 # ------------- Sessions -------------
@@ -346,7 +345,8 @@ def delete_session(request, path):
 def show_job(request, session_slug, job_slug, path):
     ''' Display job details '''
     request.user.roles = request.session['loggedin_user']['roles']
-    if not userApi.is_admin(request.user): raise PermissionDenied
+    if not userApi.is_admin(request.user) and 'HR' not in request.user.roles:
+        raise PermissionDenied
     if path not in JOB_PATH: raise Http404
 
     return render(request, 'administrators/jobs/show_job.html', {
@@ -1005,13 +1005,13 @@ def accepted_applications(request):
 
     if request.method == 'POST':
         admin_docs = adminApi.get_admin_docs(request.POST.get('application'))
-        form = HRDocumentsForm(request.POST, instance=admin_docs)
+        form = AdminDocumentsForm(request.POST, instance=admin_docs)
         if form.is_valid():
-            hr_docs = form.save()
-            if hr_docs:
-                messages.success(request, 'Success! Admin Documents of {0} updated (Application ID: {1})'.format( hr_docs.application.applicant.get_full_name(), hr_docs.application.id ))
+            saved_admin_docs = form.save()
+            if saved_admin_docs:
+                messages.success(request, 'Success! Admin Documents of {0} updated (Application ID: {1})'.format( saved_admin_docs.application.applicant.get_full_name(), saved_admin_docs.application.id ))
             else:
-                messages.error(request, 'An error occurred.')
+                messages.error(request, 'An error occurred while saving admin docs.')
         else:
             errors = form.errors.get_json_data()
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
@@ -1060,8 +1060,7 @@ def accepted_applications(request):
     return render(request, 'administrators/applications/accepted_applications.html', {
         'loggedin_user': request.user,
         'apps': adminApi.add_salary(apps),
-        'total_apps': len(app_list),
-        'form': HRDocumentsForm()
+        'total_apps': len(app_list)
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -1309,14 +1308,16 @@ def all_users(request):
 def show_user(request, username, path):
     ''' Display an user's details '''
     request.user.roles = request.session['loggedin_user']['roles']
-    if not userApi.is_admin(request.user): raise PermissionDenied
+    if not userApi.is_admin(request.user) and 'HR' not in request.user.roles:
+        raise PermissionDenied
     if path not in USER_PATH: raise Http404
 
     user = userApi.get_user(username, 'username')
     user.is_student = userApi.user_has_role(user ,'Student')
+    user = userApi.add_resume(user)
     return render(request, 'administrators/hr/show_user.html', {
         'loggedin_user': request.user,
-        'user': userApi.add_resume(user),
+        'user': userApi.add_confidentiality_given_list(user, ['sin','study_permit']),
         'path': path
     })
 
@@ -1445,239 +1446,6 @@ def create_user(request):
         'user_form': UserForm(),
         'user_profile_form': UserProfileForm()
     })
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
-def all_admin_docs(request):
-    ''' Display all users with admin documents '''
-    request.user.roles = request.session['loggedin_user']['roles']
-    if not userApi.is_admin(request.user): raise PermissionDenied
-
-    year_q = request.GET.get('year')
-    term_q = request.GET.get('term')
-    code_q = request.GET.get('code')
-    number_q = request.GET.get('number')
-    section_q = request.GET.get('section')
-    first_name_q = request.GET.get('first_name')
-    last_name_q = request.GET.get('last_name')
-
-    app_list = adminApi.get_applications()
-    if bool(year_q):
-        app_list = app_list.filter(job__session__year__iexact=year_q)
-    if bool(term_q):
-        app_list = app_list.filter(job__session__term__code__iexact=term_q)
-    if bool(code_q):
-        app_list = app_list.filter(job__course__code__name__iexact=code_q)
-    if bool(number_q):
-        app_list = app_list.filter(job__course__number__name__iexact=number_q)
-    if bool(section_q):
-        app_list = app_list.filter(job__course__section__name__iexact=section_q)
-    if bool(first_name_q):
-        app_list = app_list.filter(applicant__first_name__icontains=first_name_q)
-    if bool(last_name_q):
-        app_list = app_list.filter(applicant__last_name__icontains=last_name_q)
-
-    app_list = app_list.filter(applicationstatus__assigned=ApplicationStatus.ACCEPTED).order_by('-id').distinct()
-
-    page = request.GET.get('page', 1)
-    paginator = Paginator(app_list, settings.PAGE_SIZE)
-
-    try:
-        apps = paginator.page(page)
-    except PageNotAnInteger:
-        apps = paginator.page(1)
-    except EmptyPage:
-        apps = paginator.page(paginator.num_pages)
-
-    apps = adminApi.add_app_info_into_applications(apps, ['accepted'])
-
-    return render(request, 'administrators/hr/all_admin_docs.html', {
-        'loggedin_user': request.user,
-        'apps': adminApi.add_salary(apps),
-        'total_apps': len(app_list)
-    })
-
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
-def view_admin_docs(request, app_slug):
-    ''' display an user's confidentiality '''
-    request.user.roles = request.session['loggedin_user']['roles']
-    if not userApi.is_admin(request.user): raise PermissionDenied
-
-    app = adminApi.get_application(app_slug, 'slug')
-    return render(request, 'administrators/hr/view_admin_docs.html', {
-        'loggedin_user': request.user,
-        'app': app
-        #'user': userApi.add_confidentiality_given_list(user, ['sin','study_permit','union_correspondence','compression_agreement'])
-    })
-
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET', 'POST'])
-def edit_admin_docs(request, app_slug):
-    ''' Edit admin documents '''
-    request.user.roles = request.session['loggedin_user']['roles']
-    if not userApi.is_admin(request.user): raise PermissionDenied
-
-    user = userApi.get_user(username, 'username')
-    user = userApi.add_confidentiality_given_list(user, ['sin','study_permit','union_correspondence','compression_agreement'])
-    confidentiality = userApi.has_user_confidentiality_created(user)
-    if request.method == 'POST':
-
-        # Check SIN and Study Permit
-        file_errors = []
-        if request.FILES.get('union_correspondence') and confidentiality and bool(user.confidentiality.union_correspondence):
-            file_errors.append('Union and Other crrespondence')
-        if request.FILES.get('compression_agreement') and confidentiality and bool(user.confidentiality.compression_agreement):
-            file_errors.append('Compression Agreement')
-
-        if len(file_errors) > 0:
-            msg = ' and '.join(file_errors)
-            messages.error(request, 'An error occurred. Please delete your previous {0} file(s) first, and then try again.'.format(msg))
-            return HttpResponseRedirect( reverse('administrators:edit_admin_docs', args=[username]) )
-
-
-        form = AdminDocumentsForm(request.POST, request.FILES, instance=confidentiality)
-        if form.is_valid():
-            data = form.cleaned_data
-
-            updated_confidentiality = form.save(commit=False)
-
-            if updated_confidentiality.created_at is None:
-                updated_confidentiality.created_at = datetime.now()
-                updated_confidentiality.updated_at = datetime.now()
-                updated_confidentiality.save()
-            else:
-                update_fields = ['updated_at']
-
-                if not updated_confidentiality.created_at:
-                    updated_confidentiality.created_at = datetime.now()
-                    update_fields.append('created_at')
-                updated_confidentiality.updated_at = datetime.now()
-
-                if data['is_international'] is not None:
-                    updated_confidentiality.is_international = data['is_international']
-                    update_fields.append('is_international')
-
-                if data['employee_number'] is not None:
-                    updated_confidentiality.employee_number = data['employee_number']
-                    update_fields.append('employee_number')
-
-                if data['pin'] is not None:
-                    updated_confidentiality.pin = data['pin']
-                    update_fields.append('pin')
-
-                if data['tasm'] is not None:
-                    updated_confidentiality.tasm = data['tasm']
-                    update_fields.append('tasm')
-
-                if data['eform'] is not None:
-                    updated_confidentiality.eform = data['eform']
-                    update_fields.append('eform')
-
-                if data['speed_chart'] is not None:
-                    updated_confidentiality.speed_chart = data['speed_chart']
-                    update_fields.append('speed_chart')
-
-                if data['processing_note'] is not None:
-                    updated_confidentiality.processing_note = data['processing_note']
-                    update_fields.append('processing_note')
-
-                if request.FILES.get('union_correspondence') is not None:
-                    updated_confidentiality.union_correspondence = request.FILES.get('union_correspondence')
-                    update_fields.append('union_correspondence')
-
-                if request.FILES.get('compression_agreement') is not None:
-                    updated_confidentiality.compression_agreement = request.FILES.get('compression_agreement')
-                    update_fields.append('compression_agreement')
-
-                updated_confidentiality.save(update_fields=update_fields)
-
-            if updated_confidentiality:
-                messages.success(request, 'Success! {0} - confidentiality submitted'.format(username))
-                return HttpResponseRedirect( reverse('administrators:view_admin_docs', args=[username]) )
-            else:
-                messages.error(request, 'An error occurred while updating user\'s confidentiality.')
-        else:
-            errors = form.errors.get_json_data()
-            messages.error(request, 'An error occurred while updating user\'s confidentiality because a form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
-
-        return HttpResponseRedirect( reverse('administrators:edit_admin_docs', args=[username]) )
-
-    return render(request, 'administrators/hr/edit_admin_docs.html', {
-        'loggedin_user': request.user,
-        'user': user,
-        'form': userApi.AdminDocumentsForm(data=None, instance=confidentiality, initial={
-            'user': user
-        })
-    })
-
-
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-def download_union_correspondence(request, username, filename):
-    ''' Download user's union_correspondence '''
-    if not userApi.is_valid_user(request.user): raise PermissionDenied
-
-    path = 'users/{0}/union_correspondence/{1}/'.format(username, filename)
-    return serve(request, path, document_root=settings.MEDIA_ROOT)
-
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['POST'])
-def delete_union_correspondence(request):
-    ''' Delete user's union_correspondence '''
-    request.user.roles = request.session['loggedin_user']['roles']
-    if not userApi.is_admin(request.user): raise PermissionDenied
-
-    if request.method == 'POST':
-        username = request.POST.get('user')
-        deleted = userApi.delete_union_correspondence(username)
-        if deleted:
-            messages.success(request, 'Success! {0} - Union and Other Correspondence deleted'.format(username))
-        else:
-            messages.error(request, 'An error occurred. Failed to delete Union and Other Correspondence.')
-    else:
-        messages.error(request, 'An error occurred. Request is not POST.')
-
-    return HttpResponseRedirect( reverse('administrators:edit_admin_docs', args=[username]) )
-
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-def download_compression_agreement(request, username, filename):
-    ''' Download user's compression_agreement '''
-    if not userApi.is_valid_user(request.user): raise PermissionDenied
-
-    path = 'users/{0}/compression_agreement/{1}/'.format(username, filename)
-    return serve(request, path, document_root=settings.MEDIA_ROOT)
-
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['POST'])
-def delete_compression_agreement(request):
-    ''' Delete user's compression_agreement '''
-    request.user.roles = request.session['loggedin_user']['roles']
-    if not userApi.is_admin(request.user): raise PermissionDenied
-
-    if request.method == 'POST':
-        username = request.POST.get('user')
-        deleted = userApi.delete_compression_agreement(username)
-        if deleted:
-            messages.success(request, 'Success! {0} - Compression Agreement deleted'.format(username))
-        else:
-            messages.error(request, 'An error occurred. Failed to delete Compression Agreement.')
-    else:
-        messages.error(request, 'An error occurred. Request is not POST.')
-
-    return HttpResponseRedirect( reverse('administrators:edit_admin_docs', args=[username]) )
 
 
 @login_required(login_url=settings.LOGIN_URL)

@@ -49,15 +49,6 @@ urlpatterns = [
     path('hr/users/destroy/', views.destroy_users, name='destroy_users'),
     path('hr/users/create/', views.create_user, name='create_user'),
     path('hr/users/delete/', views.delete_user, name='delete_user'),
-    path('hr/users/<str:app_slug>/admin-docs/edit/', views.edit_admin_docs, name='edit_admin_docs'),
-    path('hr/users/<str:app_slug>/admin-docs/', views.view_admin_docs, name='view_admin_docs'),
-    path('hr/users/admin-docs/all/', views.all_admin_docs, name='all_admin_docs'),
-
-    path('hr/users/admin-docs/union_correspondence/delete/', views.delete_union_correspondence, name='delete_union_correspondence'),
-    path('hr/users/<str:username>/admin-docs/union_correspondence/<str:filename>/download/', views.download_union_correspondence, name='download_union_correspondence'),
-
-    path('hr/users/admin-docs/compression_agreement/delete/', views.delete_compression_agreement, name='delete_compression_agreement'),
-    path('hr/users/<str:username>/admin-docs/compression_agreement/<str:filename>/download/', views.download_compression_agreement, name='download_compression_agreement'),
 
     path('hr/roles/<str:slug>/edit/', views.edit_role, name='edit_role'),
     path('hr/roles/delete/', views.delete_role, name='delete_role'),

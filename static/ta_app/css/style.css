@@ -161,7 +161,9 @@ main {
 }
 
 /* utils */
-
+.btn-toolbar {
+  justify-content: center !important;
+}
 .line-height-2 {
   line-height: 2.0;
 }

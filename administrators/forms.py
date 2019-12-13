@@ -111,11 +111,6 @@ class SessionConfirmationForm(forms.ModelForm):
     ''' Create a model form for a Session '''
 
     this_year = current_year()
-    """year = forms.CharField(
-        max_length=4,
-        initial=this_year,
-        widget=forms.TextInput(attrs={ 'class': 'form-control' })
-    )"""
     title = forms.CharField(
         initial='TA Application',
         widget=forms.TextInput(attrs={ 'class': 'form-control' })
@@ -130,7 +125,6 @@ class SessionConfirmationForm(forms.ModelForm):
         model = Session
         fields = ['year', 'term', 'title', 'description', 'note', 'courses', 'is_visible', 'is_archived']
         widgets = {
-            #'term': forms.Select(attrs={ 'class':'form-control' }),
             'year': forms.HiddenInput(),
             'term': forms.HiddenInput(),
             'description': SummernoteWidget(),
@@ -162,7 +156,6 @@ class AdminJobForm(forms.ModelForm):
     assigned_ta_hours = forms.FloatField(
         label='Assigned TA Hours',
         widget=forms.TextInput(attrs={ 'class': 'form-control' }),
-        help_text='Valid range is 0 to 4000'
     )
     instructors = MyModelMultipleChoiceField(
         queryset=User.objects.filter(profile__roles=ROLES['Instructor']).order_by('pk'),
@@ -194,7 +187,6 @@ class InstructorJobForm(forms.ModelForm):
             'note': SummernoteWidget()
         }
 
-# checked
 class InstructorApplicationForm(forms.ModelForm):
     class Meta:
         model = Application
@@ -221,7 +213,6 @@ class ApplicationStatusReassignForm(forms.ModelForm):
         }
 
 
-# to be checked
 class AdminApplicationForm(forms.ModelForm):
     class Meta:
         model = Application
@@ -254,14 +245,13 @@ class ApplicationForm(forms.ModelForm):
             'availability': 'Availability requirements',
             'availability_note': 'Availability notes'
         }
-        help_texts = {
-            'supervisor_approval': 'My supervisor has approved for me to TA up to a maximum of 12 hours/week.'
-        }
 
-class HRDocumentsForm(forms.ModelForm):
+class AdminDocumentsForm(forms.ModelForm):
     class Meta:
         model = AdminDocuments
-        fields = ['application', 'pin', 'tasm', 'eform', 'speed_chart', 'processing_note']
+        fields = [
+            'application', 'pin', 'tasm', 'eform', 'speed_chart', 'processing_note'
+        ]
         labels = {
             'pin': 'PIN',
             'tasm': 'TASM',
@@ -274,51 +264,8 @@ class HRDocumentsForm(forms.ModelForm):
             'pin': forms.TextInput(attrs={ 'class':'form-control' }),
             'eform': forms.TextInput(attrs={ 'class':'form-control' }),
             'speed_chart': forms.TextInput(attrs={ 'class':'form-control' }),
-            'processing_note': forms.Textarea(attrs={ 'class':'form-control', 'rows': 2 }),
+            'processing_note': forms.Textarea(attrs={ 'class':'form-control', 'rows': 2 })
         }
-        help_texts = {
-            'pin': 'Optional. Maximum 4 digits long',
-            'tasm': 'Optional',
-            'eform': 'Optional. Maximum 6 digits long',
-            'speed_chart': 'Optional. Maximum 4 digits long',
-            'processing_note': 'Optional'
-        }
-
-class AdminDocumentsForm(forms.ModelForm):
-    class Meta:
-        model = AdminDocuments
-        fields = [
-            'application', 'pin', 'tasm', 'eform', 'speed_chart', 'processing_note',
-            'union_correspondence', 'compression_agreement'
-        ]
-        labels = {
-            'pin': 'PIN',
-            'tasm': 'TASM',
-            'eform': 'eForm',
-            'speed_chart': 'Speed Chart',
-            'processing_note': 'Processing Note',
-            'union_correspondence': 'Union and Other Correspondence',
-            'compression_agreement': 'Compression Agreement'
-        }
-        widgets = {
-            'application': forms.HiddenInput(),
-            'pin': forms.TextInput(attrs={ 'class':'form-control' }),
-            'eform': forms.TextInput(attrs={ 'class':'form-control' }),
-            'speed_chart': forms.TextInput(attrs={ 'class':'form-control' }),
-            'processing_note': forms.Textarea(attrs={ 'class':'form-control', 'rows': 2 }),
-            'union_correspondence': forms.FileInput(),
-            'compression_agreement': forms.FileInput()
-        }
-        help_texts = {
-            'pin': 'Optional. Maximum 4 digits long',
-            'tasm': 'Optional',
-            'eform': 'Optional. Maximum 6 digits long',
-            'speed_chart': 'Optional. Maximum 4 digits long',
-            'processing_note': 'Optional',
-            'union_correspondence': 'Optional. Valid file format: PDF only',
-            'compression_agreement': 'Optional. Valid file format: PDF only'
-        }
-
 
 
 class SessionJobForm(forms.ModelForm):
