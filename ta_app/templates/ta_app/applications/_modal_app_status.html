@@ -1,5 +1,9 @@
 <button type="button" class="btn btn-xs btn-info" data-toggle="modal" data-target="#application-status-modal-{{ data.id }}">
-  <i class="fa fa-file-text-o" aria-hidden="true"></i>
+  {% if display == 'name' %}
+    Status
+  {% else %}
+    <i class="fa fa-file-text-o" aria-hidden="true"></i>
+  {% endif %}
 </button>
 
 <div class="modal fade" id="application-status-modal-{{ data.id }}" tabindex="-1" role="dialog" aria-labelledby="application-status-modal-label-{{ data.id }}" aria-hidden="true">

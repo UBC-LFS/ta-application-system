@@ -103,6 +103,15 @@ def create_user(data):
     )
 
     if user:
+        confidentiality = False
+        if employee_number is not None:
+            confidentiality = Confidentiality.objects.create(
+                user_id=user.id,
+                employee_number=employee_number,
+                created_at=datetime.now(),
+                updated_at=datetime.now()
+            )
+
         user_profile_form = UserProfileForm({
             'student_number': student_number,
             'preferred_name': None,
@@ -111,14 +120,8 @@ def create_user(data):
 
         if user_profile_form.is_valid():
             profile = create_profile(user, user_profile_form.cleaned_data)
-            if profile: return user
-
-        if employee_number is not None:
-            user.confidentiality.objects.create(
-                employee_number=employee_number,
-                created_at=datetime.now(),
-                updated_at=datetime.now()
-            )
+            if profile and confidentiality:
+                return user
 
     return False
 
@@ -219,27 +222,9 @@ def add_confidentiality_given_list(user, array):
         else:
             user.study_permit_decrypt_image = None
 
-        if bool(user.confidentiality.union_correspondence) and 'union_correspondence' in array:
-            user.union_correspondence_filename = os.path.basename(user.confidentiality.union_correspondence.name)
-        else:
-            user.union_correspondence_filename = None
-
-        if bool(user.confidentiality.compression_agreement) and 'compression_agreement' in array:
-            user.compression_agreement_filename = os.path.basename(user.confidentiality.compression_agreement.name)
-        else:
-            user.compression_agreement_filename = None
-
     return user
 
-
-
-
-
 # end Confidentiality
-
-
-
-
 
 
 """
@@ -539,43 +524,10 @@ def delete_user_study_permit(username):
                 return False
     return False
 
-def delete_union_correspondence(username):
-    ''' Delete union_correspondence '''
-    user = get_user(username, 'username')
-
-    if has_user_confidentiality_created(user) and bool(user.confidentiality.union_correspondence):
-        user.confidentiality.union_correspondence.close()
-        if user.confidentiality.union_correspondence.closed:
-
-            try:
-                user.confidentiality.union_correspondence.delete(save=False)
-                deleted = Confidentiality.objects.filter(user_id=user.id).update(union_correspondence=None)
-                return True if deleted and not bool(user.confidentiality.union_correspondence) else False
-            except OSError:
-                return False
-    return False
-
-def delete_compression_agreement(username):
-    ''' Delete compression_agreement '''
-    user = get_user(username, 'username')
-
-    if has_user_confidentiality_created(user) and bool(user.confidentiality.compression_agreement):
-        user.confidentiality.compression_agreement.close()
-        if user.confidentiality.compression_agreement.closed:
-
-            try:
-                user.confidentiality.compression_agreement.delete(save=False)
-                deleted = Confidentiality.objects.filter(user_id=user.id).update(compression_agreement=None)
-                return True if deleted and not bool(user.confidentiality.compression_agreement) else False
-            except OSError:
-                return False
-    return False
-
 
 def create_user_resume(user):
     resume = Resume.objects.create(user_id=user.id)
     return True if resume else None
-
 
 
 def create_expiry_date(year, month, day):
@@ -856,16 +808,6 @@ def add_confidentiality_all(user):
             user.study_permit_decrypt_image = decrypt_image(user.username, user.confidentiality.study_permit, 'study_permit')
         else:
             user.study_permit_decrypt_image = None
-
-        if bool(user.confidentiality.union_correspondence):
-            user.union_correspondence_filename = os.path.basename(user.confidentiality.union_correspondence.name)
-        else:
-            user.union_correspondence_filename = None
-
-        if bool(user.confidentiality.compression_agreement):
-            user.compression_agreement_filename = os.path.basename(user.confidentiality.compression_agreement.name)
-        else:
-            user.compression_agreement_filename = None
 
     return user
 

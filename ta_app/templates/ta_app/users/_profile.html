@@ -15,7 +15,13 @@
 
 <div>
   <h6>Other Program:</h6>
-  <span>{{ data.profile.program_others }}</span>
+  <span>
+    {% if data.profile.program_others %}
+      {{ data.profile.program_others }}
+    {% else %}
+      None
+    {% endif %}
+  </span>
 </div>
 
 <div>

@@ -2,7 +2,7 @@
   <h5>
     {{ data.course.code.name }} {{ data.course.number.name }} {{ data.course.section.name }} <br />
     <small class="text-muted">{{ data.course.name }}</small>
-  </h5>  
+  </h5>
 </div>
 
 <div>
@@ -11,7 +11,7 @@
     {% for instructor in data.instructors.all %}
       <li>{{ instructor.get_full_name }}</li>
     {% empty %}
-      <li>No instructors</li>
+      <li>None</li>
     {% endfor %}
   </ul>
 </div>

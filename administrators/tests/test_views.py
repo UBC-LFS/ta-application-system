@@ -24,7 +24,6 @@ DATA = [
     'ta_app/fixtures/degrees.json',
     'ta_app/fixtures/programs.json',
     'ta_app/fixtures/roles.json',
-    'ta_app/fixtures/sessions.json',
     'ta_app/fixtures/statuses.json',
     'ta_app/fixtures/terms.json',
     'ta_app/fixtures/trainings.json',
@@ -34,6 +33,7 @@ DATA = [
     'administrators/fixtures/favourites.json',
     'administrators/fixtures/job_instructors.json',
     'administrators/fixtures/jobs.json',
+    'administrators/fixtures/sessions.json',
     'users/fixtures/profile_roles.json',
     'users/fixtures/profiles.json',
     'users/fixtures/users.json'
@@ -832,6 +832,11 @@ class ApplicationTest(TestCase):
         self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
         self.assertEqual( len(response.context['apps']), 6)
 
+    def test_admin_docs(self):
+        print('\n- Test: Admin or HR can have update admin docs')
+        self.login()
+
+
     def test_declined_applications(self):
         print('\n- Test: Display applications declined by students')
         self.login()
@@ -975,25 +980,16 @@ class HRTest(TestCase):
     def test_view_url_exists_at_desired_location(self):
         print('\n- Test: view url exists at desired location')
 
-        #response = self.client.get( reverse('administrators:hr') )
-        #self.assertEqual(response.status_code, 302)
-
         response = self.client.get( reverse('administrators:all_users') )
         self.assertEqual(response.status_code, 302)
 
         response = self.client.get( reverse('administrators:create_user') )
         self.assertEqual(response.status_code, 302)
 
-        response = self.client.get( reverse('administrators:view_admin_docs', args=['admin']) )
-        self.assertEqual(response.status_code, 302)
-
         response = self.client.get( reverse('administrators:show_user', args=[USERS[2], 'users']) )
         self.assertEqual(response.status_code, 302)
 
         self.login()
-
-        #response = self.client.get( reverse('administrators:hr') )
-        #self.assertEqual(response.status_code, 200)
 
         response = self.client.get( reverse('administrators:all_users') )
         self.assertEqual(response.status_code, 200)
@@ -1005,15 +1001,6 @@ class HRTest(TestCase):
         self.assertEqual(response.status_code, 404)
 
         response = self.client.get( reverse('administrators:create_user') )
-        self.assertEqual(response.status_code, 200)
-
-        response = self.client.get( reverse('administrators:all_admin_docs') )
-        self.assertEqual(response.status_code, 200)
-
-        response = self.client.get( reverse('administrators:edit_admin_docs', args=[USERS[2]]) )
-        self.assertEqual(response.status_code, 200)
-
-        response = self.client.get( reverse('administrators:view_admin_docs', args=[USERS[2]]) )
         self.assertEqual(response.status_code, 200)
 
     def test_all_users(self):
@@ -1258,7 +1245,7 @@ class HRTest(TestCase):
             'email': 'test.user555@example.com',
             'username': 'test.user555',
             'preferred_name': None,
-            'student_number': '35975560',
+            'student_number': '89782243',
             'employee_number': '1234567',
             'roles': ['5']
         }
@@ -1290,121 +1277,6 @@ class HRTest(TestCase):
         user = userApi.create_user(data)
         self.assertIsNotNone(userApi.user_exists(user.username))
         self.assertTrue(userApi.profile_exists_by_username(user.username))
-
-
-    def test_admin_docs(self):
-        print('\n- Test: display admin documents')
-        self.login()
-
-        response = self.client.get(reverse('administrators:all_admin_docs'))
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context['loggedin_user'].username, USERS[0])
-        self.assertEqual( len(response.context['users']), settings.PAGE_SIZE )
-        self.assertEqual( len(userApi.get_users()), 164 )
-
-    def test_view_confidentiality(self):
-        print('\n- Test: display user\'s confidentiality')
-        self.login()
-
-        response = self.client.get(reverse('administrators:view_admin_docs', args=[USERS[2]]))
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context['loggedin_user'].username, USERS[0])
-        self.assertEqual(response.context['user'].username, USERS[2])
-
-    def test_edit_admin_docs(self):
-        print('\n- Test: edit user\'s confidentiality')
-        self.login()
-
-        user = userApi.get_user(USERS[2], 'username')
-        confidentiality = userApi.has_user_confidentiality_created(user)
-        self.assertIsNone(confidentiality)
-
-        data = {
-            'user': user.id,
-            'is_international': True,
-            'employee_number': '1234567',
-            'pin': '1234',
-            'tasm': False,
-            'eform': '123456',
-            'speed_chart': 'abcd',
-            'union_correspondence': SimpleUploadedFile('compression_agreement.pdf', b'file_content', content_type='application/pdf'),
-            'compression_agreement': SimpleUploadedFile('compression_agreement.pdf', b'file_content', content_type='application/pdf'),
-            'processing_note': 'processing_note'
-        }
-        response = self.client.post( reverse('administrators:edit_admin_docs', args=[ USERS[2] ] ), data=data, format='multipart')
-        messages = self.messages(response)
-        self.assertTrue('Success' in messages[0])
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, '/administrators/hr/users/admin-docs/')
-        self.assertRedirects(response, response.url)
-
-        user = userApi.get_user(data['user'])
-        confidentiality = userApi.has_user_confidentiality_created(user)
-        self.assertIsNotNone(confidentiality)
-        self.assertEqual(confidentiality.is_international, data['is_international'])
-        self.assertEqual(confidentiality.employee_number, data['employee_number'])
-        self.assertEqual(confidentiality.pin, data['pin'])
-        self.assertEqual(confidentiality.tasm, data['tasm'])
-        self.assertEqual(confidentiality.eform, data['eform'])
-        self.assertEqual(confidentiality.speed_chart, data['speed_chart'])
-        self.assertEqual(confidentiality.processing_note, data['processing_note'])
-
-        self.assertIsNotNone(confidentiality.union_correspondence)
-        self.assertTrue('union_correspondence' in confidentiality.union_correspondence.name)
-
-        self.assertIsNotNone(confidentiality.compression_agreement)
-        self.assertTrue('compression_agreement' in confidentiality.compression_agreement.name)
-
-    def test_delete_union_correspondence(self):
-        print('\n- Test: delete union and other correspondence file')
-        self.login()
-
-        user = userApi.get_user(USERS[2], 'username')
-        data = {
-            'user': user.id,
-            'union_correspondence': SimpleUploadedFile('compression_agreement.pdf', b'file_content', content_type='application/pdf')
-        }
-        response = self.client.post( reverse('administrators:edit_admin_docs', args=[ USERS[2] ] ), data=data, format='multipart')
-        messages = self.messages(response)
-        self.assertTrue('Success' in messages[0])
-
-        confidentiality = userApi.has_user_confidentiality_created(user)
-        self.assertIsNotNone(confidentiality.union_correspondence)
-        self.assertTrue('union_correspondence' in confidentiality.union_correspondence.name)
-
-        response = self.client.post( reverse('administrators:delete_union_correspondence'), data=urlencode({ 'user': USERS[2] }), content_type=ContentType )
-        messages = self.messages(response)
-        self.assertTrue('Success' in messages[0])
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, '/administrators/hr/users/{0}/admin-docs/edit/'.format(USERS[2]))
-        self.assertRedirects(response, response.url)
-
-
-
-    def test_delete_compression_agreement(self):
-        print('\n- Test: delete compression agreement file')
-        self.login()
-
-        user = userApi.get_user(USERS[2], 'username')
-        data = {
-            'user': user.id,
-            'compression_agreement': SimpleUploadedFile('compression_agreement.pdf', b'file_content', content_type='application/pdf')
-        }
-        response = self.client.post( reverse('administrators:edit_admin_docs', args=[ USERS[2] ] ), data=data, format='multipart')
-        messages = self.messages(response)
-        self.assertTrue('Success' in messages[0])
-
-        confidentiality = userApi.has_user_confidentiality_created(user)
-        self.assertIsNotNone(confidentiality.compression_agreement)
-        self.assertTrue('compression_agreement' in confidentiality.compression_agreement.name)
-
-        response = self.client.post( reverse('administrators:delete_compression_agreement'), data=urlencode({ 'user': USERS[2] }), content_type=ContentType )
-        messages = self.messages(response)
-        self.assertTrue('Success' in messages[0])
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, '/administrators/hr/users/{0}/admin-docs/edit/'.format(USERS[2]))
-        self.assertRedirects(response, response.url)
-
 
 class CourseTest(TestCase):
     fixtures = DATA

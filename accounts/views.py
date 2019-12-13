@@ -10,10 +10,8 @@ from users import api as userApi
 
 def redirect_to_index_page(roles):
     ''' Redirect to an index page given roles '''
-    if 'Admin' in roles or 'Superadmin' in roles:
+    if 'Admin' in roles or 'Superadmin' in roles or 'HR' in roles:
         return '/administrators/'
-    elif 'HR' in roles:
-        return '/human_resources/'
     elif 'Instructor' in roles:
         return '/instructors/'
     elif 'Student' in roles:

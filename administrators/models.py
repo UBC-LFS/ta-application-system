@@ -1,9 +1,12 @@
-import datetime as dt
-
+from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.text import slugify
-from django.core.validators import MaxValueValidator, MinValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator, FileExtensionValidator
+from django.core.exceptions import ValidationError
+from django.utils.translation import gettext_lazy as _
+
+import datetime as dt
 
 
 class Term(models.Model):
@@ -110,7 +113,8 @@ class Job(models.Model):
     # Admins can assign TA hours
     assigned_ta_hours = models.FloatField(
         default=0.0,
-        validators=[MinValueValidator(0), MaxValueValidator(4000)]
+        validators=[MinValueValidator(0), MaxValueValidator(4000)],
+        help_text='Valid range is 0 to 4000'
     )
 
     # Add up all student's TA hours
@@ -127,8 +131,14 @@ class Job(models.Model):
 
 
 class Classification(models.Model):
-    year = models.CharField(max_length=4)
-    name = models.CharField(max_length=10)
+    year = models.CharField(
+        max_length=10,
+        help_text='Maximum character: 10'
+    )
+    name = models.CharField(
+        max_length=10,
+        help_text='Maximum character: 10'
+    )
     wage = models.FloatField()
     is_active = models.BooleanField(default=True)
     slug = models.SlugField(max_length=256, unique=True)
@@ -169,7 +179,9 @@ class Application(models.Model):
     applicant = models.ForeignKey(User, on_delete=models.CASCADE)
     job = models.ForeignKey(Job, on_delete=models.CASCADE)
 
-    supervisor_approval = models.BooleanField()
+    supervisor_approval = models.BooleanField(
+        help_text='My supervisor has approved for me to TA up to a maximum of 12 hours/week.'
+    )
     how_qualified = models.CharField(max_length=1, choices=PREFERENCE_CHOICES)
     how_interested = models.CharField(max_length=1, choices=PREFERENCE_CHOICES)
     availability = models.BooleanField()
@@ -211,6 +223,42 @@ class ApplicationStatus(models.Model):
 
     class Meta:
         ordering = ['pk']
+
+class AdminDocuments(models.Model):
+    ''' Admin Documents '''
+    application = models.OneToOneField(Application, on_delete=models.CASCADE, primary_key=True)
+
+    pin = models.CharField(
+        max_length=4,
+        null=True,
+        blank=True,
+        help_text='Optional. Maximum 4 digits long'
+    )
+    tasm = models.BooleanField(
+        default=False,
+        help_text='Optional'
+    )
+    eform = models.CharField(
+        max_length=6,
+        unique=True,
+        null=True,
+        blank=True,
+        help_text='Optional. Maximum 6 digits long'
+    )
+    speed_chart = models.CharField(
+        max_length=4,
+        null=True,
+        blank=True,
+        help_text='Optional. Maximum 4 digits long'
+    )
+    processing_note = models.TextField(
+        null=True,
+        blank=True,
+        help_text='Optional'
+    )
+
+    created_at = models.DateField(default=dt.date.today)
+    updated_at = models.DateField(default=dt.date.today)
 
 
 class Favourite(models.Model):

@@ -22,6 +22,7 @@
     data-classes=""
     data-show-export="true"
     data-show-columns="true"
+    data-export-types="['csv']"
   >
     <thead>
       <tr>
@@ -31,6 +32,7 @@
         <th data-sortable="true">Prefered<br /> Name</th>
         <th data-sortable="true">CWL</th>
         <th data-sortable="true">Student<br /> Number</th>
+        <th data-sortable="true">Employee<br /> Number</th>
         <th data-sortable="true">E-mail</th>
         <th data-sortable="true">Role</th>
         <th>Actions</th>
@@ -44,9 +46,24 @@
           </td>
           <td>{{ user.first_name }}</td>
           <td>{{ user.last_name }}</td>
-          <td>{{ user.profile.preferred_name }}</td>
+          <td>
+            {% if user.profile.preferred_name %}
+              {{ user.profile.preferred_name }}
+            {% endif %}
+          </td>
           <td>{{ user.username }}</td>
-          <td>{{ user.profile.student_number }}</td>
+          <td>
+            {% if user.profile.student_number %}
+              {{ user.profile.student_number }}
+            {% endif %}
+          </td>
+          <td>
+            {% if user.confidentiality.employee_number %}
+              {{ user.confidentiality.employee_number }}
+            {% else %}
+              <span class="badge badge-danger">NEW</span>
+            {% endif %}
+          </td>
           <td>{{ user.email }}</td>
           <td>
             {% for role in user.profile.roles.all %}
@@ -58,22 +75,22 @@
           <td>
             <div class="btn-toolbar">
               <a class="btn btn-xs btn-link mr-2" href="{% url 'administrators:edit_user' username=user.username %}">Edit</a>
-
               <form action="{% url 'administrators:delete_user' %}" method="post" onsubmit="return confirm('Are you sure to delete {{ user.first_name }} {{ user.last_name }} ({{ user.username }})?');">
                 {% csrf_token %}
                 <input type="hidden" name="user" value="{{ user.id }}" />
                 <input class="btn btn-xs btn-danger mr-2" type="submit" value="Delete" />
               </form>
-
+            </div>
+            <div class="mt-2">
               {% if loggedin_user.is_superuser %}
 
                 {% for role in user.profile.roles.all %}
                   {% if role.name == "Student" %}
-                    <a class="btn btn-xs btn-info mr-2" href="/impersonate/{{ user.id }}/?next=/students/">Masquerade</a>
+                    <a class="btn btn-xs btn-info" href="/impersonate/{{ user.id }}/?next=/students/">Masquerade</a>
                   {% endif %}
 
                   {% if role.name == "Instructor" %}
-                    <a class="btn btn-xs btn-info mr-2" href="/impersonate/{{ user.id }}/?next=/instructors/">Masquerade</a>
+                    <a class="btn btn-xs btn-info" href="/impersonate/{{ user.id }}/?next=/instructors/">Masquerade</a>
                   {% endif %}
                 {% endfor %}
 

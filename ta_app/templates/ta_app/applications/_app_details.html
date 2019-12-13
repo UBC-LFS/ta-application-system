@@ -32,3 +32,14 @@
   <h6>Updated at:</h6>
   <span>{{ data.updated_at }}</span>
 </div>
+
+<div>
+  <h6>PIN:</h6>
+  <span>
+    {% if data.admindocuments.pin %}
+      {{ data.admindocuments.pin }}
+    {% else %}
+      None
+    {% endif %}
+  </span>
+</div>
