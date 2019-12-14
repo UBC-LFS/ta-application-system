@@ -321,7 +321,10 @@ def delete_job_by_course_ids(session, course_ids):
 
 # Applications
 
-
+def get_application(data, option=None):
+    ''' Get an application '''
+    if option == 'slug': return get_object_or_404(Application, slug=data)
+    return get_object_or_404(Application, id=data)
 
 def add_app_info_into_application(app, list):
     ''' Add some information into an application given by list '''
@@ -468,9 +471,27 @@ def add_applications_with_latest_status(apps):
     return apps
 
 
+def add_salary(apps):
+    ''' Add a salary in applications '''
+    for app in apps:
+        app.salary = round(app.accepted.assigned_hours * app.classification.wage / 4, 2)
+    return apps
+
+
 # end applications
 
 
+# admin documents
+
+def get_admin_docs(app_id):
+    ''' Get am admin docs '''
+    admin_docs = AdminDocuments.objects.filter(application_id=app_id)
+    if admin_docs.exists():
+        return admin_docs.first()
+    return None
+
+
+# end admin documents
 
 
 
@@ -484,10 +505,6 @@ def add_applications_with_latest_status(apps):
 
 
 
-def get_application(data, option=None):
-    ''' Get an application '''
-    if option == 'slug': return get_object_or_404(Application, slug=data)
-    return get_object_or_404(Application, id=data)
 
 def get_applications_with_multiple_ids(ids):
     ''' Get applications with multiple ids '''

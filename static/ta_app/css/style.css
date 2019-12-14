@@ -161,7 +161,9 @@ main {
 }
 
 /* utils */
-
+.btn-toolbar {
+  justify-content: center !important;
+}
 .line-height-2 {
   line-height: 2.0;
 }
@@ -420,6 +422,6 @@ hr.dotted {
 /* Extra large devices (large desktops, 1200px and up) */
 @media (min-width: 1200px) {
   .max-width-container {
-    max-width: 1550px;
+    max-width: 1650px;
   }
 }

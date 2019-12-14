@@ -29,6 +29,9 @@
       {% elif path == 'declined_applications' %}
         <a class="btn btn-sm btn-light" href="{% url 'administrators:declined_applications' %}">Clear</a>
 
+      {% elif path == 'all_admin_docs' %}
+        <a class="btn btn-sm btn-light" href="{% url 'administrators:all_admin_docs' %}">Clear</a>
+
       {% endif %}
     </div>
   </form>

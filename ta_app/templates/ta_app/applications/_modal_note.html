@@ -1,7 +1,11 @@
 {% if data.note %}
 
   <button class="btn btn-xs btn-info" type="button" data-toggle="modal" data-target="#app-note-modal-{{ data.id }}">
-    <i class="fa fa-file-text-o" aria-hidden="true"></i>
+    {% if display == 'name' %}
+      Note
+    {% else %}
+      <i class="fa fa-file-text-o" aria-hidden="true"></i>
+    {% endif %}
   </button>
 
   <div class="modal fade" id="app-note-modal-{{ data.id }}" tabindex="-1" role="dialog" aria-labelledby="app-note-modal-label-{{ data.id }}" aria-hidden="true">
@@ -17,6 +21,5 @@
       </div>
     </div>
   </div>
-{% else %}
-  None
+
 {% endif %}
