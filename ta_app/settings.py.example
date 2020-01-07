@@ -70,7 +70,6 @@ INSTALLED_APPS = [
     'accounts',
     'users',
     'administrators',
-    'human_resources',
     'instructors',
     'students',
     'django_summernote',

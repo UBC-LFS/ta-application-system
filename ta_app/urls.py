@@ -22,7 +22,6 @@ urlpatterns = [
     path('', views.index, name='index'),
     path('accounts/', include('accounts.urls')),
     path('administrators/', include('administrators.urls')),
-    path('human_resources/', include('human_resources.urls')),
     path('instructors/', include('instructors.urls')),
     path('students/', include('students.urls')),
     path('summernote/', include('django_summernote.urls')),
