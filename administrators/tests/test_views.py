@@ -835,7 +835,53 @@ class ApplicationTest(TestCase):
     def test_admin_docs(self):
         print('\n- Test: Admin or HR can have update admin docs')
         self.login()
+        app_id = 1
+        data = {
+            'application': app_id,
+            'pin': '12377',
+            'tasm': True,
+            'eform': 'af3343',
+            'speed_chart': 'adsf',
+            'processing_note': 'this is a processing note'
+        }
+        response = self.client.post(reverse('administrators:accepted_applications'), data=urlencode(data), content_type=ContentType)
+        messages = self.messages(response)
+        self.assertTrue('An error occurred' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/administrators/applications/accepted/')
+        self.assertRedirects(response, response.url)
 
+        data = {
+            'application': app_id,
+            'pin': '1237',
+            'tasm': True,
+            'eform': 'af3343',
+            'speed_chart': 'adsf',
+            'processing_note': 'this is a processing note'
+        }
+        response = self.client.post(reverse('administrators:accepted_applications'), data=urlencode(data), content_type=ContentType)
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/administrators/applications/accepted/')
+        self.assertRedirects(response, response.url)
+
+        response = self.client.get(reverse('administrators:accepted_applications'))
+        self.assertEqual(response.status_code, 200)
+        accepted_applications = response.context['apps']
+
+        app = None
+        for appl in accepted_applications:
+            if appl.id == app_id:
+                app = appl
+
+        self.assertTrue(app.id, app_id)
+        self.assertTrue(app.admindocuments.pin, data['pin'])
+        self.assertTrue(app.admindocuments.tasm, data['tasm'])
+        self.assertTrue(app.admindocuments.eform, data['eform'])
+        self.assertTrue(app.admindocuments.speed_chart, data['speed_chart'])
+        self.assertTrue(app.admindocuments.processing_note, data['processing_note'])
+        
 
     def test_declined_applications(self):
         print('\n- Test: Display applications declined by students')
