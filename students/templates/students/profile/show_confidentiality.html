@@ -4,7 +4,7 @@
 {% include 'students/_menu.html' %}
 <div class="row">
   <div class="col-md-4">
-    {% include 'ta_app/pages/_left_aside.html' with view_name='users'   title='Confidentiality' data=loggedin_user %}
+    {% include 'ta_app/pages/_left_aside.html' with view_name='users'   title='Confidential Information' data=loggedin_user %}
 
     <div class="left-aside-btn-groups">
       <a class="btn btn-outline-primary" href="{% url 'students:show_profile' %}">View Profile</a>
@@ -17,7 +17,7 @@
 
         <h3>Details</h3>
         {% include 'ta_app/users/_confidentiality.html' with data=loggedin_user %}
-        <a class="btn btn-primary mt-4" href="{% url 'students:edit_confidentiality' %}">Edit Confidentiality</a>
+        <a class="btn btn-primary mt-4" href="{% url 'students:edit_confidentiality' %}">Edit Confidential Information</a>
 
       {% else %}
 

@@ -109,13 +109,7 @@ class UserProfileEditForm(forms.ModelForm):
 class StudentProfileForm(forms.ModelForm):
     ''' This is a model form for student profile '''
     date = datetime.now()
-
-    student_number = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={ 'class':'form-control' }),
-        label='Student Number'
-    )
-
+    
     preferred_name = forms.CharField(
         required=False,
         widget=forms.TextInput(attrs={ 'class':'form-control' }),
@@ -143,7 +137,7 @@ class StudentProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
         fields = [
-            'student_number', 'preferred_name', 'qualifications','prior_employment', 'special_considerations',
+            'preferred_name', 'qualifications','prior_employment', 'special_considerations',
             'status', 'program', 'program_others','graduation_date', 'degrees','degree_details',
             'trainings', 'training_details', 'lfs_ta_training', 'lfs_ta_training_details', 'ta_experience', 'ta_experience_details'
         ]

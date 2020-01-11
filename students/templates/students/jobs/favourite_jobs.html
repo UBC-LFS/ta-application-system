@@ -18,9 +18,11 @@
 
 			<div class="bg-prompt">
 		    <div class="prompt p-4 text-center mb-4">
-		      <h4>Message</h4>
+		      <h4>
+						<i class="fa fa-envelope-open-o" aria-hidden="true"></i> Message
+					</h4>
 		      <p class="col-8 mx-auto">
-						You are currently interested in <span class="font-weight-bold text-chocolate">{{ all_favourites|length }}</span> jobs. If you haven't applied it yet, please check it out!
+						You have currently bookmarked <span class="font-weight-bold text-chocolate">{{ all_favourites|length }}</span> job{{ all_favourites|length|pluralize }}. Apply for your favourite jobs now!
 					</p>
 		    </div>
 		  </div>
