@@ -22,7 +22,7 @@
 						<i class="fa fa-envelope-open-o" aria-hidden="true"></i> Message
 					</h4>
 		      <p class="col-8 mx-auto">
-						You have currently bookmarked <span class="font-weight-bold text-chocolate">{{ all_favourites|length }}</span> job{{ all_favourites|length|pluralize }}. Apply for your favourite jobs now!
+						You have currently bookmarked <span class="font-weight-bold text-chocolate">{{ all_favourites|length }}</span> job{% if all_favourites|length > 1 %}s{% endif %}. Apply for your favourite jobs now!
 					</p>
 		    </div>
 		  </div>

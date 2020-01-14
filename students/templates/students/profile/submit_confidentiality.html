@@ -4,17 +4,17 @@
 {% include 'students/_menu.html' %}
 <div class="row">
   <div class="col-md-4">
-    {% include 'ta_app/pages/_left_aside.html' with view_name='users'   title='Submit Confidential Information' data=loggedin_user %}
+    {% include 'ta_app/pages/_left_aside.html' with view_name='users'   title='Submit Confidential Info.' data=loggedin_user %}
 
     <div class="left-aside-btn-groups">
-      <a class="btn btn-outline-primary" href="{% url 'students:show_confidentiality' %}">Back to Confidentiality</a>
+      <a class="btn btn-outline-primary" href="{% url 'students:show_confidentiality' %}">Back to Confidential Info.</a>
     </div>
   </div>
 
   <div class="col-md-8">
 
     <div class="board col-11 mx-auto">
-      <h3>Form</h3>
+      <h3>Confidential Information Form</h3>
 
       {% if form %}
         <small class="text-danger">The maximum file size that can be uploaded is 1.5 MB.</small>
