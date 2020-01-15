@@ -54,6 +54,9 @@ class StudentTest(TestCase):
         response = self.client.get( reverse('students:edit_confidentiality') )
         self.assertEqual(response.status_code, 200)
 
+        response = self.client.get( reverse('students:switch_confidentiality') )
+        self.assertEqual(response.status_code, 200)
+
         response = self.client.get( reverse('students:explore_jobs') )
         self.assertEqual(response.status_code, 200)
 
@@ -251,6 +254,21 @@ class StudentTest(TestCase):
         #self.assertEqual(response.status_code, 302)
         #self.assertRedirects(response, response.url)
 
+    def test_submit_confidentiality(self):
+        print('\n- Test: Check whether an international student or not')
+        self.login()
+
+
+    def test_edit_confidentiality(self):
+        print('\n- Test: Check whether an international student or not')
+        self.login()
+
+
+    def test_switch_confidentiality(self):
+        print('\n- Test: Check whether an international student or not')
+        self.login()
+
+"""
     def test_explore_jobs(self):
         print('\n- Test: Display all lists of session terms')
         self.login()
@@ -514,6 +532,7 @@ class StudentTest(TestCase):
         self.assertEqual(response.context['app'].id, app.id)
         self.assertEqual(response.context['app'].applicant.username, app.applicant.username)
 
+"""
 
 """
 

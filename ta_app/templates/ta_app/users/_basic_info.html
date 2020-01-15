@@ -3,6 +3,7 @@
   <span>{{ data.username }}</span>
 </div>
 
+{% if preferred_name_display == 'True' %}
 <div>
   <h6>Preferred name:</h6>
   <span>
@@ -13,6 +14,7 @@
     {% endif %}
   </span>
 </div>
+{% endif %}
 
 {% if student_number_display == 'True' %}
 <div>

@@ -4,36 +4,61 @@
 {% include 'students/_menu.html' %}
 <div class="row">
   <div class="col-md-4">
-    {% include 'ta_app/pages/_left_aside.html' with view_name='users'   title='Submit Confidentiality' data=loggedin_user %}
+    {% include 'ta_app/pages/_left_aside.html' with view_name='users'   title='Submit Confidential Info.' data=loggedin_user %}
 
     <div class="left-aside-btn-groups">
-      <a class="btn btn-outline-primary" href="{% url 'students:show_confidentiality' %}">Back to Confidentiality</a>
+      <a class="btn btn-outline-primary" href="{% url 'students:show_confidentiality' %}">Back to Confidential Info.</a>
     </div>
   </div>
 
   <div class="col-md-8">
 
     <div class="board col-11 mx-auto">
-      <h3>Form</h3>
+      <h3>Confidential Information Form</h3>
+
+      <div class="bd-callout bd-callout-warning bg-light-gray">
+        <h4>
+          <i class="fa fa-briefcase" aria-hidden="true"></i> Required Documents
+        </h4>
+
+        {% if loggedin_user.confidentiality.nationality == '0' %}
+          {% include 'ta_app/pages/_required_docs_domestic.html' %}
+        {% else %}
+          {% include 'ta_app/pages/_required_docs_international.html' %}
+        {% endif %}
+      </div>
 
       {% if form %}
-        <small class="text-danger">The maximum file size that can be uploaded is 1.5 MB.</small>
+        {% include 'ta_app/pages/_upload_message.html' %}
+
+        <div class="field-wrapper">
+          <label for="id_nationality">Am I a domestic or international student?</label>
+          <input type="radio" name="nationality" id="id_nationality" {% if loggedin_user.confidentiality.nationality == '0' %} checked {% endif %} disabled> Domestic Student<br>
+          <input type="radio" name="nationality" id="id_nationality" {% if loggedin_user.confidentiality.nationality == '1' %} checked {% endif %} disabled> International Student<br>
+        </div>
+
         <form action="" method="post" enctype="multipart/form-data">
           {% csrf_token %}
 
           {% for field in form.visible_fields  %}
-            <div class="field-wrapper">
-              {{ field.label_tag }}
-              {% if field.help_text %}
-                <div class="help">{{ field.help_text|safe }}</div>
-              {% endif %}
-              {{ field }}
-            </div>
+
+            {% if field.name != 'nationality' %}
+              <div class="field-wrapper">
+                {{ field.label_tag }}
+                {% if field.help_text %}
+                  <div class="help">{{ field.help_text|safe }}</div>
+                {% endif %}
+                {{ field }}
+              </div>
+            {% endif %}
+
           {% endfor %}
 
           {% for field in form.hidden_fields %}
             {{ field }}
           {% endfor %}
+
+          <input type="hidden" name="nationality" value="{{ loggedin_user.confidentiality.nationality }}" />
 
           <a class="btn btn-outline-secondary" href="{% url 'students:show_confidentiality' %}">Cancel</a>
           <input class="btn btn-primary" type="submit" value="Submit" />
