@@ -160,6 +160,11 @@ main {
   text-decoration: line-through;
 }
 
+.fa-check {
+  color: #28a745;
+}
+
+
 /* utils */
 .btn-toolbar {
   justify-content: center !important;

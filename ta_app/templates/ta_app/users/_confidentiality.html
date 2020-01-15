@@ -1,14 +1,6 @@
 <div>
-  <h6>Are you an International Student?</h6>
-  <span>
-    {% if data.confidentiality.is_international == True %}
-      Yes
-    {% elif data.confidentiality.is_international == False %}
-      No
-    {% else %}
-      None
-    {% endif %}
-  </span>
+  <h6>Am I a domestic or international student?</h6>
+  <span>{{ data.confidentiality.get_nationality_display }}</span>
 </div>
 
 <div>
@@ -34,39 +26,43 @@
   {% endif %}
 </div>
 
-<div>
-  <h6>SIN Expiry Date:</h6>
-  <span>
-    {% if data.confidentiality.sin_expiry_date %}
-      {{ data.confidentiality.sin_expiry_date }}
-    {% else %}
-      None
-    {% endif %}
-  </span>
-</div>
+{% if data.confidentiality.nationality == '1' %}
 
-<div>
-  <h6>Study Permit:</h6>
-  {% if data.study_permit_decrypt_image %}
-    <img class="img-fluid" src="{{ data.study_permit_decrypt_image.url }}" width="400" height="300" alt="Study-Permit-image" />
-    {% comment %}
-    <a href="{{ data.study_permit_decrypt_image.url }}" download="{{ data.study_permit_decrypt_image.filename }}">{{ data.study_permit_decrypt_image.filename }}</a>
-    {% endcomment %}
-  {% else %}
-    <span>None</span>
-  {% endif %}
-</div>
+  <div>
+    <h6>SIN Expiry Date:</h6>
+    <span>
+      {% if data.confidentiality.sin_expiry_date %}
+        {{ data.confidentiality.sin_expiry_date }}
+      {% else %}
+        None
+      {% endif %}
+    </span>
+  </div>
 
-<div>
-  <h6>Study Permit Expiry Date:</h6>
-  <span>
-    {% if data.confidentiality.study_permit_expiry_date %}
-      {{ data.confidentiality.study_permit_expiry_date }}
+  <div>
+    <h6>Study Permit:</h6>
+    {% if data.study_permit_decrypt_image %}
+      <img class="img-fluid" src="{{ data.study_permit_decrypt_image.url }}" width="400" height="300" alt="Study-Permit-image" />
+      {% comment %}
+      <a href="{{ data.study_permit_decrypt_image.url }}" download="{{ data.study_permit_decrypt_image.filename }}">{{ data.study_permit_decrypt_image.filename }}</a>
+      {% endcomment %}
     {% else %}
-      None
+      <span>None</span>
     {% endif %}
-  </span>
-</div>
+  </div>
+
+  <div>
+    <h6>Study Permit Expiry Date:</h6>
+    <span>
+      {% if data.confidentiality.study_permit_expiry_date %}
+        {{ data.confidentiality.study_permit_expiry_date }}
+      {% else %}
+        None
+      {% endif %}
+    </span>
+  </div>
+
+{% endif %}
 
 <div>
   <h6>Created at:</h6>

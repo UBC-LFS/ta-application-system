@@ -190,8 +190,13 @@ def show_confidentiality(request):
         request.user.roles = request.session['loggedin_user']['roles']
     if 'Student' not in request.user.roles: raise PermissionDenied
 
+    template = 'choose'
+    if userApi.has_user_confidentiality_created(request.user) and request.user.confidentiality and request.user.confidentiality.created_at != None:
+        template = 'detail'
+
     return render(request, 'students/profile/show_confidentiality.html', {
-        'loggedin_user': userApi.add_confidentiality_given_list(request.user, ['sin', 'study_permit'])
+        'loggedin_user': userApi.add_confidentiality_given_list(request.user, ['sin', 'study_permit']),
+        'template': template
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -208,15 +213,13 @@ def check_confidentiality(request):
 
     if request.method == 'POST':
         form = None
-        confidentiality = userApi.has_user_confidentiality_created(request.user)
-        if confidentiality:
+        if userApi.has_user_confidentiality_created(request.user):
             form = ConfidentialityCheckForm(request.POST, instance=request.user.confidentiality)
         else:
             form = ConfidentialityCheckForm(request.POST)
 
         if form.is_valid():
-            confidentiality = form.save()
-            if confidentiality:
+            if form.save():
                 messages.info(request, 'Please submit your information.')
             else:
                 messages.error(request, 'An error occurred while saving confidentiality.')
@@ -238,13 +241,13 @@ def submit_confidentiality(request):
         request.user.roles = request.session['loggedin_user']['roles']
     if 'Student' not in request.user.roles: raise PermissionDenied
 
-    user = userApi.get_user(request.user.id)
+    loggedin_user = request.user
     form = None
     if request.method == 'POST':
-        if user.confidentiality.is_international == True:
-            form = ConfidentialityInternationalForm(request.POST, request.FILES, instance=user.confidentiality)
+        if loggedin_user.confidentiality.nationality == '0':
+            form = ConfidentialityNonInternationalForm(request.POST, request.FILES, instance=loggedin_user.confidentiality)
         else:
-            form = ConfidentialityNonInternationalForm(request.POST, request.FILES, instance=user.confidentiality)
+            form = ConfidentialityInternationalForm(request.POST, request.FILES, instance=loggedin_user.confidentiality)
 
         if form.is_valid():
             sin_file = request.FILES.get('sin')
@@ -259,7 +262,7 @@ def submit_confidentiality(request):
 
             updated_confidentiality.save()
             if updated_confidentiality:
-                messages.success(request, 'Success! {0} - confidentiality submitted'.format(user.username))
+                messages.success(request, 'Success! {0} - confidential information submitted'.format(loggedin_user.get_full_name()))
                 return redirect('students:show_confidentiality')
             else:
                 messages.error(request, 'An error occurred while saving confidentiality.')
@@ -270,14 +273,18 @@ def submit_confidentiality(request):
         return redirect('students:submit_confidentiality')
 
     else:
-        if userApi.has_user_confidentiality_created(user):
-            if bool(user.confidentiality.is_international):
-                form = ConfidentialityInternationalForm(initial={ 'user': user })
+        if userApi.has_user_confidentiality_created(loggedin_user):
+            if loggedin_user.confidentiality.nationality == '0':
+                form = ConfidentialityNonInternationalForm(data=None, instance=loggedin_user.confidentiality, initial={
+                    'user': loggedin_user
+                })
             else:
-                form = ConfidentialityNonInternationalForm(initial={ 'user': user })
+                form = ConfidentialityInternationalForm(data=None, instance=loggedin_user.confidentiality, initial={
+                    'user': loggedin_user
+                })
 
     return render(request, 'students/profile/submit_confidentiality.html', {
-        'loggedin_user': request.user,
+        'loggedin_user': loggedin_user,
         'form': form
     })
 
@@ -294,40 +301,37 @@ def edit_confidentiality(request):
     if 'Student' not in request.user.roles: raise PermissionDenied
 
     loggedin_user = request.user
-    confidentiality = userApi.has_user_confidentiality_created(loggedin_user)
+    form = None
     sin_file = None
     study_permit_file = None
+
+    confidentiality = userApi.has_user_confidentiality_created(loggedin_user)
     if request.method == 'POST':
-        form = ConfidentialityForm(request.POST, request.FILES, instance=request.user.confidentiality)
+
+        # Check SIN and Study Permit
+        sin_study_permit_errors = []
+        if request.FILES.get('sin') and bool(confidentiality.sin):
+            sin_study_permit_errors.append('SIN')
+        if request.FILES.get('study_permit') and bool(confidentiality.study_permit):
+            sin_study_permit_errors.append('Study Permit')
+
+        if len(sin_study_permit_errors) > 0:
+            msg = ' and '.join(sin_study_permit_errors)
+            messages.error(request, 'An error occurred. Please delete your old {0} first, and then try again.'.format(msg))
+            return redirect('students:edit_confidentiality')
+
+        form = ConfidentialityForm(request.POST, request.FILES, instance=confidentiality)
         if form.is_valid():
             data = form.cleaned_data
-            user_id = request.POST.get('user')
-            user = userApi.get_user(user_id)
+            user = data['user']
 
             updated_confidentiality = form.save(commit=False)
             updated_confidentiality.updated_at = datetime.now()
 
-            if data['is_international'] == None:
-                messages.error(request, 'An error occurred. Please select your nationality.')
-                return redirect('students:edit_confidentiality')
-
-            # Check SIN and Study Permit
-            sin_study_permit_errors = []
-            if request.FILES.get('sin') and bool(user.confidentiality.sin):
-                sin_study_permit_errors.append('SIN')
-            if request.FILES.get('study_permit') and bool(user.confidentiality.study_permit):
-                sin_study_permit_errors.append('Study Permit')
-
-            if len(sin_study_permit_errors) > 0:
-                msg = ' and '.join(sin_study_permit_errors)
-                messages.error(request, 'An error occurred. Please delete your previous {0} file(s) first, and then try again.'.format(msg))
-                return redirect('students:edit_confidentiality')
-
             update_fields = []
-
-            if data['is_international'] is not None:
-                updated_confidentiality.is_international = data['is_international']
-                update_fields.append('is_international')
+            if data['nationality'] is not None:
+                updated_confidentiality.nationality = data['nationality']
+                update_fields.append('nationality')
 
             if data['employee_number'] is not None:
                 updated_confidentiality.employee_number = data['employee_number']
@@ -349,27 +353,16 @@ def edit_confidentiality(request):
                 updated_confidentiality.study_permit_expiry_date = data['study_permit_expiry_date']
                 update_fields.append('study_permit_expiry_date')
 
-            if not data['is_international']:
-                updated_confidentiality.sin_expiry_date = None
-                if 'sin_expiry_date' not in update_fields: update_fields.append('sin_expiry_date')
-                updated_confidentiality.study_permit_expiry_date = None
-                if 'study_permit_expiry_date' not in update_fields: update_fields.append('study_permit_expiry_date')
-
-                if request.FILES.get('study_permit') or data['study_permit']:
-                    messages.error(request, 'An error occurred. If you are a Canadian Citizen or Permanent Resident, you won\'t need your Study Permit. If you have your Study Permit, please delete it, and then try again.')
-                    return redirect('students:edit_confidentiality')
-
             updated_confidentiality.save(update_fields=update_fields)
 
             if updated_confidentiality:
-                messages.success(request, 'Success! {0} - confidentiality updated'.format(loggedin_user.username))
+                messages.success(request, 'Success! {0} - confidential information updated'.format(loggedin_user.get_full_name()))
                 return redirect('students:show_confidentiality')
             else:
-                messages.error(request, 'An error occurred while updating confidentiality.')
+                messages.error(request, 'An error occurred while updating confidential information.')
         else:
             errors = form.errors.get_json_data()
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
-
     else:
         if userApi.has_user_confidentiality_created(loggedin_user) and bool(loggedin_user.confidentiality.sin):
             sin_file = os.path.basename(loggedin_user.confidentiality.sin.name)
@@ -377,15 +370,22 @@ def edit_confidentiality(request):
         if userApi.has_user_confidentiality_created(loggedin_user) and bool(loggedin_user.confidentiality.study_permit):
             study_permit_file = os.path.basename(loggedin_user.confidentiality.study_permit.name)
 
+        if loggedin_user.confidentiality.nationality == '0':
+            form = ConfidentialityNonInternationalForm(data=None, instance=confidentiality, initial={
+                'user': loggedin_user
+            })
+        else:
+            form = ConfidentialityInternationalForm(data=None, instance=confidentiality, initial={
+                'user': loggedin_user
+            })
 
     return render(request, 'students/profile/edit_confidentiality.html', {
         'loggedin_user': loggedin_user,
         'sin_file': sin_file,
         'study_permit_file': study_permit_file,
-        'form': ConfidentialityForm(data=None, instance=confidentiality, initial={
-            'user': loggedin_user
-        })
+        'form': form
     })
+
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -401,14 +401,14 @@ def delete_sin(request):
 
     if request.method == 'POST':
         username = request.POST.get('user')
-        deleted_sin = userApi.delete_user_sin(username)
+        delete_sin_expiry_date = request.POST.get('delete_sin_expiry_date')
+        deleted_sin = userApi.delete_user_sin(username, delete_sin_expiry_date)
         if deleted_sin:
             messages.success(request, 'Success! {0} - SIN deleted'.format(username))
         else:
-            messages.error(request, 'An error occurred while deleting a SIN. Please try again.')
+            messages.error(request, 'An error occurred while deleting a SIN file. Please try again.')
 
     return redirect('students:edit_confidentiality')
-
 
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -425,11 +425,12 @@ def delete_study_permit(request):
 
     if request.method == 'POST':
         username = request.POST.get('user')
-        deleted_study_permit = userApi.delete_user_study_permit(username)
+        delete_study_permit_expiry_date = request.POST.get('delete_study_permit_expiry_date')
+        deleted_study_permit = userApi.delete_user_study_permit(username, delete_study_permit_expiry_date)
         if deleted_study_permit:
             messages.success(request, 'Success! {0} - Study Permit deleted'.format(username))
         else:
-            messages.error(request, 'An error occurred while deleting a study permit. Please try again.')
+            messages.error(request, 'An error occurred while deleting a study permit file. Please try again.')
 
     return redirect('students:edit_confidentiality')
 
@@ -759,7 +760,7 @@ def cancel_job(request, session_slug, job_slug):
         if form.is_valid():
             cancelled_status = form.save()
             if cancelled_status:
-                messages.success(request, 'Success! Application of {0} {1} - {2} {3} {4} cancelled.'.format(app.job.session.year, app.job.session.term.code, app.job.course.code.name, app.job.course.number.name, app.job.course.section.name))
+                messages.success(request, 'Application of {0} {1} - {2} {3} {4} cancelled.'.format(app.job.session.year, app.job.session.term.code, app.job.course.code.name, app.job.course.number.name, app.job.course.section.name))
                 return redirect('students:history_jobs')
             else:
                 messages.error(request, 'An error occurred while saving application status.')
@@ -852,7 +853,7 @@ def decline_offer(request, session_slug, job_slug):
             app = form.cleaned_data['application']
             status = form.save()
             if status:
-                messages.success(request, 'Success! You declined the job offer - {0} {1}: {2} {3} {4} '.format(app.job.session.year, app.job.session.term.code, app.job.course.code.name, app.job.course.number.name, app.job.course.section.name))
+                messages.success(request, 'You declined the job offer - {0} {1}: {2} {3} {4} '.format(app.job.session.year, app.job.session.term.code, app.job.course.code.name, app.job.course.number.name, app.job.course.section.name))
             else:
                 messages.error(request, 'An error occurred while saving an status of an application.')
         else:

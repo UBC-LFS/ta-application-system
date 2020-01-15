@@ -106,8 +106,12 @@ def FileSizeValidator(file):
 
 class Confidentiality(models.Model):
     ''' '''
+    NATIONALITY_CHOICES = [
+        ('0', 'Domestic Student'),
+        ('1', 'International Student')
+    ]
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
-    is_international = models.BooleanField(null=True, blank=True)
+    nationality = models.CharField(max_length=1, choices=NATIONALITY_CHOICES, null=True, blank=True)
     employee_number = models.CharField(
         max_length=7,
         unique=True,
@@ -316,7 +320,7 @@ def encrypt_image(obj):
 
 def decrypt_image(username, obj, type):
     filename = os.path.basename(obj.file.name)
-    path = settings.TA_APP_URL + '/students/confidentiality/' + username + '/' + type + '/' + filename + '/download/'
+    path = settings.TA_APP_URL + '/students/confidential_information/' + username + '/' + type + '/' + filename + '/download/'
     content = requests.get(path, stream=True).raw.read()
     #path = None
 

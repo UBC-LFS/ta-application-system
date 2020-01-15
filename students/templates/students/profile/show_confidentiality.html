@@ -4,7 +4,7 @@
 {% include 'students/_menu.html' %}
 <div class="row">
   <div class="col-md-4">
-    {% include 'ta_app/pages/_left_aside.html' with view_name='users'   title='Confidentiality' data=loggedin_user %}
+    {% include 'ta_app/pages/_left_aside.html' with view_name='users' title='Confidential Information' data=loggedin_user %}
 
     <div class="left-aside-btn-groups">
       <a class="btn btn-outline-primary" href="{% url 'students:show_profile' %}">View Profile</a>
@@ -13,11 +13,25 @@
 
   <div class="col-md-8">
     <div class="board col-11 mx-auto">
-      {% if loggedin_user.confidentiality and loggedin_user.confidentiality.created_at != None %}
+      {% if template == 'detail' %}
 
-        <h3>Details</h3>
+        <h3>Details of Confidential Information</h3>
+
+        <div class="bd-callout bd-callout-warning bg-light-gray">
+          <h4>
+            <i class="fa fa-briefcase" aria-hidden="true"></i> Required Documents
+          </h4>
+
+          {% if loggedin_user.confidentiality.nationality == '0' %}
+            {% include 'ta_app/pages/_required_docs_domestic.html' %}
+          {% else %}
+            {% include 'ta_app/pages/_required_docs_international.html' %}
+          {% endif %}
+        </div>
+
         {% include 'ta_app/users/_confidentiality.html' with data=loggedin_user %}
-        <a class="btn btn-primary mt-4" href="{% url 'students:edit_confidentiality' %}">Edit Confidentiality</a>
+
+        <a class="btn btn-primary mt-4" href="{% url 'students:edit_confidentiality' %}">Edit Confidential Information</a>
 
       {% else %}
 
@@ -26,30 +40,36 @@
             <i class="fa fa-bullhorn" aria-hidden="true"></i> Notice
           </h4>
           <p>
+            <i class="fa fa-check" aria-hidden="true"></i>
             Students' uploaded files such as Social Insurance Number (SIN) and Study Permit are encrypted when they upload them through this Web application, and only administrators can have access to the encrypted data in the application.
           </p>
+          {% include 'ta_app/pages/_nationality_message.html' %}
         </div>
 
         <section class="text-secondary">
+
           <div>
-            <p>If you are an international student, please click down below.</p>
+            <p>If you are a Domestic Student, please click down below.</p>
             <form action="{% url 'students:check_confidentiality' %}" method="post">
               {% csrf_token %}
               <input type="hidden" name="user" value="{{ loggedin_user.id }}" />
-              <input type="hidden" name="is_international" value="True" />
-              <input class="btn btn-lg btn-primary" type="submit" value="I am an International student" />
+              <input type="hidden" name="nationality" value="0" />
+              <input class="btn btn-lg btn-primary" type="submit" value="I am a Domestic Student" />
             </form>
           </div>
+
           <div class="my-5">OR</div>
+
           <div>
-            <p>If you are a Canadian citizen or Permanent Resident, please click down below.</p>
+            <p>If you are an International Student, please click down below.</p>
             <form action="{% url 'students:check_confidentiality' %}" method="post">
               {% csrf_token %}
               <input type="hidden" name="user" value="{{ loggedin_user.id }}" />
-              <input type="hidden" name="is_international" value="False" />
-              <input class="btn btn-lg btn-primary" type="submit" value="I am a Canadian citizen/Permanent Resident" />
+              <input type="hidden" name="nationality" value="1" />
+              <input class="btn btn-lg btn-primary" type="submit" value="I am an International Student" />
             </form>
           </div>
+
         </section>
 
       {% endif %}

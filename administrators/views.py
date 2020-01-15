@@ -51,7 +51,7 @@ def index(request):
         raise PermissionDenied
 
     context = { 'loggedin_user': request.user }
-    if 'Admin' in request.user.roles:
+    if 'Admin' in request.user.roles or 'Superadmin' in request.user.roles:
         sessions = adminApi.get_sessions()
         context['current_sessions'] = sessions.filter(is_archived=False)
         context['archived_sessions'] = sessions.filter(is_archived=True)
@@ -60,10 +60,10 @@ def index(request):
         context['students'] = userApi.get_users_by_role(Role.STUDENT)
         context['users'] = userApi.get_users()
 
-    if 'HR' in request.user.roles:
+    elif 'HR' in request.user.roles:
         apps = adminApi.get_applications()
         context['accepted_apps'] = apps.filter(applicationstatus__assigned=ApplicationStatus.ACCEPTED).order_by('-id').distinct()
-
+    
     return render(request, 'administrators/index.html', context)
 
 # ------------- Sessions -------------

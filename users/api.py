@@ -303,24 +303,29 @@ def confidentiality_exists(user):
         return True
     return False
 
-def delete_user_sin(username):
+def delete_user_sin(username, option=None):
     ''' Delete user's SIN '''
     user = get_user(username, 'username')
 
     if has_user_confidentiality_created(user) and bool(user.confidentiality.sin):
         user.confidentiality.sin.close()
-        #print('user.confidentiality.sin.closed ', user.confidentiality.sin.closed)
         if user.confidentiality.sin.closed:
             try:
                 user.confidentiality.sin.delete(save=False)
-                deleted = Confidentiality.objects.filter(user_id=user.id).update(sin=None, sin_expiry_date=None)
+                if option == '1':
+                    deleted = Confidentiality.objects.filter(user_id=user.id).update(sin=None, sin_expiry_date=None)
+                else:
+                    deleted = Confidentiality.objects.filter(user_id=user.id).update(sin=None)
+
+                os.rmdir( os.path.join( settings.MEDIA_ROOT, 'users', username, 'sin' ) )
                 return True if deleted and not bool(user.confidentiality.sin) else False
             except OSError:
+                print("OSError")
                 return False
     return False
 
 
-def delete_user_study_permit(username):
+def delete_user_study_permit(username, option=None):
     ''' Delete user's study permit '''
     user = get_user(username, 'username')
 
@@ -330,9 +335,16 @@ def delete_user_study_permit(username):
         if user.confidentiality.study_permit.closed:
             try:
                 user.confidentiality.study_permit.delete(save=False)
-                deleted = Confidentiality.objects.filter(user_id=user.id).update(study_permit=None, study_permit_expiry_date=None)
+                deleted = None
+                if option == '1':
+                    deleted = Confidentiality.objects.filter(user_id=user.id).update(study_permit=None, study_permit_expiry_date=None)
+                else:
+                    deleted = Confidentiality.objects.filter(user_id=user.id).update(study_permit=None)
+
+                os.rmdir( os.path.join( settings.MEDIA_ROOT, 'users', username, 'study_permit' ) )
                 return True if deleted and not bool(user.confidentiality.study_permit) else False
             except OSError:
+                print("OSError")
                 return False
     return False
 

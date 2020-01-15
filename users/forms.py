@@ -110,12 +110,6 @@ class StudentProfileForm(forms.ModelForm):
     ''' This is a model form for student profile '''
     date = datetime.now()
 
-    student_number = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={ 'class':'form-control' }),
-        label='Student Number'
-    )
-
     preferred_name = forms.CharField(
         required=False,
         widget=forms.TextInput(attrs={ 'class':'form-control' }),
@@ -143,7 +137,7 @@ class StudentProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
         fields = [
-            'student_number', 'preferred_name', 'qualifications','prior_employment', 'special_considerations',
+            'preferred_name', 'qualifications','prior_employment', 'special_considerations',
             'status', 'program', 'program_others','graduation_date', 'degrees','degree_details',
             'trainings', 'training_details', 'lfs_ta_training', 'lfs_ta_training_details', 'ta_experience', 'ta_experience_details'
         ]
@@ -199,15 +193,20 @@ class InstructorProfileForm(forms.ModelForm):
 class ConfidentialityCheckForm(forms.ModelForm):
     class Meta:
         model = Confidentiality
-        fields = ['user', 'is_international']
+        fields = ['user', 'nationality']
         widgets = {
             'user': forms.HiddenInput()
         }
 
 class ConfidentialityNonInternationalForm(forms.ModelForm):
+    nationality = forms.ChoiceField(
+        widget=forms.RadioSelect,
+        choices=Confidentiality.NATIONALITY_CHOICES,
+        label='Am I a domestic or international student?',
+    )
     class Meta:
         model = Confidentiality
-        fields = ['user', 'employee_number', 'sin']
+        fields = ['user', 'nationality', 'employee_number', 'sin']
         widgets = {
             'user': forms.HiddenInput(),
             'sin': forms.FileInput()
@@ -218,6 +217,11 @@ class ConfidentialityNonInternationalForm(forms.ModelForm):
 
 
 class ConfidentialityInternationalForm(forms.ModelForm):
+    nationality = forms.ChoiceField(
+        widget=forms.RadioSelect,
+        choices=Confidentiality.NATIONALITY_CHOICES,
+        label='Am I a domestic or international student?',
+    )
     sin_expiry_date = forms.DateField(
         required=False,
         widget=forms.SelectDateWidget(years=range(DATE.year, DATE.year + 20)),
@@ -230,7 +234,7 @@ class ConfidentialityInternationalForm(forms.ModelForm):
     )
     class Meta:
         model = Confidentiality
-        fields = ['user', 'employee_number', 'sin', 'sin_expiry_date', 'study_permit', 'study_permit_expiry_date']
+        fields = ['user', 'nationality', 'employee_number', 'sin', 'sin_expiry_date', 'study_permit', 'study_permit_expiry_date']
         widgets = {
             'user': forms.HiddenInput(),
             'sin': forms.FileInput(),
@@ -244,6 +248,11 @@ class ConfidentialityInternationalForm(forms.ModelForm):
 
 
 class ConfidentialityForm(forms.ModelForm):
+    nationality = forms.ChoiceField(
+        widget=forms.RadioSelect,
+        choices=Confidentiality.NATIONALITY_CHOICES,
+        label='Am I a domestic or international student?',
+    )
     sin_expiry_date = forms.DateField(
         required=False,
         widget=forms.SelectDateWidget(years=range(DATE.year, DATE.year + 20)),
@@ -256,7 +265,7 @@ class ConfidentialityForm(forms.ModelForm):
     )
     class Meta:
         model = Confidentiality
-        fields = ['user', 'is_international', 'employee_number', 'sin', 'sin_expiry_date', 'study_permit', 'study_permit_expiry_date']
+        fields = ['user', 'nationality', 'employee_number', 'sin', 'sin_expiry_date', 'study_permit', 'study_permit_expiry_date']
         widgets = {
             'user': forms.HiddenInput(),
             'employee_number': forms.TextInput( attrs={ 'class': 'form-control' } ),
@@ -264,11 +273,11 @@ class ConfidentialityForm(forms.ModelForm):
             'study_permit': forms.FileInput()
         }
         labels = {
-            'is_international': 'Are you an International Student?',
             'employee_number': 'Employee Number',
             'sin': 'Social Insurance Number (SIN)',
             'study_permit': 'Study Permit'
         }
+        field_order = ['user', 'nationality', 'employee_number', 'sin', 'sin_expiry_date', 'study_permit', 'study_permit_expiry_date']
 
 
 class ResumeForm(forms.ModelForm):
