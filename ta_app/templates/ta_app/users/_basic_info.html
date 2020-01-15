@@ -3,30 +3,17 @@
   <span>{{ data.username }}</span>
 </div>
 
-{% if preferred_name_display == 'True' %}
-<div>
-  <h6>Preferred name:</h6>
-  <span>
-    {% if data.profile.preferred_name %}
-      {{ data.profile.preferred_name }}
-    {% else %}
-      None
-    {% endif %}
-  </span>
-</div>
-{% endif %}
-
 {% if student_number_display == 'True' %}
-<div>
-  <h6>Student Number:</h6>
-  <span>
-    {% if data.profile.student_number %}
-      {{ data.profile.student_number }}
-    {% else %}
-      None
-    {% endif %}
-  </span>
-</div>
+  <div>
+    <h6>Student Number:</h6>
+    <span>
+      {% if data.profile.student_number %}
+        {{ data.profile.student_number }}
+      {% else %}
+        None
+      {% endif %}
+    </span>
+  </div>
 {% endif %}
 
 <div>

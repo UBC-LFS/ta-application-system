@@ -63,7 +63,7 @@ def index(request):
     elif 'HR' in request.user.roles:
         apps = adminApi.get_applications()
         context['accepted_apps'] = apps.filter(applicationstatus__assigned=ApplicationStatus.ACCEPTED).order_by('-id').distinct()
-    
+
     return render(request, 'administrators/index.html', context)
 
 # ------------- Sessions -------------
@@ -1451,7 +1451,7 @@ def create_user(request):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET', 'POST'])
-def destroy_users(request):
+def destroy_user_contents(request):
     ''' Destroy users who have no actions for 3 years '''
     request.user.roles = request.session['loggedin_user']['roles']
     if not userApi.is_admin(request.user): raise PermissionDenied
@@ -1460,21 +1460,23 @@ def destroy_users(request):
     target_date = None
     if request.method == 'POST':
         data = request.POST.getlist('user')
+        print("data", data)
         count = 0
         for user_id in data:
-            deleted = userApi.trim_profile_resume_confidentiality(user_id)
+            deleted = userApi.destroy_profile_resume_confidentiality(user_id)
             if deleted: count += 1
 
+        print("count", count)
         if count == len(data):
             messages.success(request, 'Success! The information of {0} deleted'.format(data))
         else:
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
-        return redirect('administrators:destroy_users')
+        return redirect('administrators:destroy_user_contents')
     else:
         users, target_date = userApi.get_users('trim')
 
-    return render(request, 'administrators/hr/destroy_users.html', {
+    return render(request, 'administrators/hr/destroy_user_contents.html', {
         'loggedin_user': request.user,
         'users': users,
         'target_date': target_date

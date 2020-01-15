@@ -258,7 +258,7 @@ def delete_user_resume(data):
         user.resume.uploaded.delete()
         deleted = user.resume.delete()
         return True if deleted and not bool(user.resume.uploaded) else False
-    return False
+    return True
 
 
 def resume_exists(user):
@@ -322,7 +322,7 @@ def delete_user_sin(username, option=None):
             except OSError:
                 print("OSError")
                 return False
-    return False
+    return True
 
 
 def delete_user_study_permit(username, option=None):
@@ -346,13 +346,13 @@ def delete_user_study_permit(username, option=None):
             except OSError:
                 print("OSError")
                 return False
-    return False
+    return True
 
 
 # end Confidentiality
 
 
-def trim_profile_resume_confidentiality(user_id):
+def destroy_profile_resume_confidentiality(user_id):
     ''' Trim user's profile, resume and confidentiality '''
     user = get_user(user_id)
 
@@ -362,7 +362,10 @@ def trim_profile_resume_confidentiality(user_id):
 
     resume = delete_user_resume(user)
     profile = trim_profile(user)
-
+    print("sin", sin)
+    print("study_permit", study_permit)
+    print("resume", resume)
+    print("profile", profile)
     return True if user and resume and sin and study_permit and profile else False
 
 
