@@ -112,7 +112,6 @@ class Confidentiality(models.Model):
     ]
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
     nationality = models.CharField(max_length=1, choices=NATIONALITY_CHOICES, null=True, blank=True)
-    is_international = models.BooleanField(null=True, blank=True)
     employee_number = models.CharField(
         max_length=7,
         unique=True,

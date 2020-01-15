@@ -17,6 +17,18 @@
 
         <h3>Details of Confidential Information</h3>
 
+        <div class="bd-callout bd-callout-warning bg-light-gray">
+          <h4>
+            <i class="fa fa-briefcase" aria-hidden="true"></i> Required Documents
+          </h4>
+
+          {% if loggedin_user.confidentiality.nationality == '0' %}
+            {% include 'ta_app/pages/_required_docs_domestic.html' %}
+          {% else %}
+            {% include 'ta_app/pages/_required_docs_international.html' %}
+          {% endif %}
+        </div>
+
         {% include 'ta_app/users/_confidentiality.html' with data=loggedin_user %}
 
         <a class="btn btn-primary mt-4" href="{% url 'students:edit_confidentiality' %}">Edit Confidential Information</a>
@@ -31,14 +43,7 @@
             <i class="fa fa-check" aria-hidden="true"></i>
             Students' uploaded files such as Social Insurance Number (SIN) and Study Permit are encrypted when they upload them through this Web application, and only administrators can have access to the encrypted data in the application.
           </p>
-          <p>
-            <i class="fa fa-check" aria-hidden="true"></i>
-            You are a Domestic Student if you are:
-            <ul>
-              <li>an Canadian citizen</li>
-              <li>an Canadian permanent resident</li>
-            </ul>
-          </p>
+          {% include 'ta_app/pages/_nationality_message.html' %}
         </div>
 
         <section class="text-secondary">
@@ -64,7 +69,7 @@
               <input class="btn btn-lg btn-primary" type="submit" value="I am an International Student" />
             </form>
           </div>
-          
+
         </section>
 
       {% endif %}

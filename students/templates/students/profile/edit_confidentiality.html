@@ -24,14 +24,7 @@
           <i class="fa fa-check" aria-hidden="true"></i>
           If you would like to change your SIN or Study Permit, please delete your old information first, and then update your new one.
         </p>
-        <p>
-          <i class="fa fa-check" aria-hidden="true"></i>
-          You are an Canadian domestic student if you are:
-          <ul>
-            <li>an Canadian citizen</li>
-            <li>an Canadian permanent resident</li>
-          </ul>
-        </p>
+        {% include 'ta_app/pages/_nationality_message.html' %}
       </div>
 
       {% include 'ta_app/pages/_upload_message.html' %}
@@ -59,17 +52,25 @@
 
       <div class="card border-danger my-4">
         <div class="card-body">
-          <h5 class="card-title text-secondary">Delete SIN</h5>
-
           {% if loggedin_user.confidentiality.sin %}
-            <small class="text-muted">File: {{ sin_file }}</small>
+            <div class="mb-2">File: {{ sin_file }}</div>
+
             <form action="{% url 'students:delete_sin' %}" method="post" onsubmit="return confirm('Are you sure to delete this SIN file?')">
               {% csrf_token %}
+
+              {% if loggedin_user.confidentiality.nationality == '1' %}
+                <div>
+                  <small class="text-muted">Please check the box below to to delete your SIN Expiry Date.</small><br />
+                  <input type="checkbox" name="delete_sin_expiry_date" value="1" />
+                  Delete SIN Expiry Date
+                </div>
+              {% endif %}
+
               <input type="hidden" name="user" value="{{ loggedin_user.username }}" />
               <input class="btn btn-danger mt-3" type="submit" value="Delete SIN" />
             </form>
           {% else %}
-            <small class="text-muted">No SIN information</small>
+            <div class="text-secondary">No SIN information</div>
           {% endif %}
         </div>
       </div>
@@ -77,17 +78,23 @@
       {% if loggedin_user.confidentiality.nationality == '1' %}
         <div class="card border-danger my-4">
           <div class="card-body">
-            <h5 class="card-title text-secondary">Delete Study Permit</h5>
-
             {% if loggedin_user.confidentiality.study_permit %}
-              <small class="text-muted">File: {{ study_permit_file }}</small>
+              <div class="mb-2">File: {{ study_permit_file }}</div>
+
               <form action="{% url 'students:delete_study_permit' %}" method="post" onsubmit="return confirm('Are you sure to delete this Study Permit file?')">
                 {% csrf_token %}
+
+                <div>
+                  <small class="text-muted">Please check the box below to to delete your Study Permit Expiry Date.</small><br />
+                  <input type="checkbox" name="delete_study_permit_expiry_date" value="1" />
+                  Delete Study Permit Expiry Date
+                </div>
+
                 <input type="hidden" name="user" value="{{ loggedin_user.username }}" />
                 <input class="btn btn-danger mt-3" type="submit" value="Delete Study Permit" />
               </form>
             {% else %}
-              <small class="text-muted">No Study Permit information</small>
+              <div class="text-secondary">No Study Permit information</div>
             {% endif %}
           </div>
         </div>

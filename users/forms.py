@@ -199,9 +199,14 @@ class ConfidentialityCheckForm(forms.ModelForm):
         }
 
 class ConfidentialityNonInternationalForm(forms.ModelForm):
+    nationality = forms.ChoiceField(
+        widget=forms.RadioSelect,
+        choices=Confidentiality.NATIONALITY_CHOICES,
+        label='Am I a domestic or international student?',
+    )
     class Meta:
         model = Confidentiality
-        fields = ['user', 'employee_number', 'sin']
+        fields = ['user', 'nationality', 'employee_number', 'sin']
         widgets = {
             'user': forms.HiddenInput(),
             'sin': forms.FileInput()
@@ -212,6 +217,11 @@ class ConfidentialityNonInternationalForm(forms.ModelForm):
 
 
 class ConfidentialityInternationalForm(forms.ModelForm):
+    nationality = forms.ChoiceField(
+        widget=forms.RadioSelect,
+        choices=Confidentiality.NATIONALITY_CHOICES,
+        label='Am I a domestic or international student?',
+    )
     sin_expiry_date = forms.DateField(
         required=False,
         widget=forms.SelectDateWidget(years=range(DATE.year, DATE.year + 20)),
@@ -224,7 +234,7 @@ class ConfidentialityInternationalForm(forms.ModelForm):
     )
     class Meta:
         model = Confidentiality
-        fields = ['user', 'employee_number', 'sin', 'sin_expiry_date', 'study_permit', 'study_permit_expiry_date']
+        fields = ['user', 'nationality', 'employee_number', 'sin', 'sin_expiry_date', 'study_permit', 'study_permit_expiry_date']
         widgets = {
             'user': forms.HiddenInput(),
             'sin': forms.FileInput(),

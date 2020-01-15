@@ -16,6 +16,18 @@
     <div class="board col-11 mx-auto">
       <h3>Confidential Information Form</h3>
 
+      <div class="bd-callout bd-callout-warning bg-light-gray">
+        <h4>
+          <i class="fa fa-briefcase" aria-hidden="true"></i> Required Documents
+        </h4>
+
+        {% if loggedin_user.confidentiality.nationality == '0' %}
+          {% include 'ta_app/pages/_required_docs_domestic.html' %}
+        {% else %}
+          {% include 'ta_app/pages/_required_docs_international.html' %}
+        {% endif %}
+      </div>
+
       {% if form %}
         {% include 'ta_app/pages/_upload_message.html' %}
 
@@ -29,18 +41,23 @@
           {% csrf_token %}
 
           {% for field in form.visible_fields  %}
-            <div class="field-wrapper">
-              {{ field.label_tag }}
-              {% if field.help_text %}
-                <div class="help">{{ field.help_text|safe }}</div>
-              {% endif %}
-              {{ field }}
-            </div>
+
+            {% if field.name != 'nationality' %}
+              <div class="field-wrapper">
+                {{ field.label_tag }}
+                {% if field.help_text %}
+                  <div class="help">{{ field.help_text|safe }}</div>
+                {% endif %}
+                {{ field }}
+              </div>
+            {% endif %}
+
           {% endfor %}
 
           {% for field in form.hidden_fields %}
             {{ field }}
           {% endfor %}
+
           <input type="hidden" name="nationality" value="{{ loggedin_user.confidentiality.nationality }}" />
 
           <a class="btn btn-outline-secondary" href="{% url 'students:show_confidentiality' %}">Cancel</a>
