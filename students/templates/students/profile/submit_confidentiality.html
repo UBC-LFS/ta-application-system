@@ -17,7 +17,14 @@
       <h3>Confidential Information Form</h3>
 
       {% if form %}
-        <small class="text-danger">The maximum file size that can be uploaded is 1.5 MB.</small>
+        {% include 'ta_app/pages/_upload_message.html' %}
+
+        <div class="field-wrapper">
+          <label for="id_nationality">Am I a domestic or international student?</label>
+          <input type="radio" name="nationality" id="id_nationality" {% if loggedin_user.confidentiality.nationality == '0' %} checked {% endif %} disabled> Domestic Student<br>
+          <input type="radio" name="nationality" id="id_nationality" {% if loggedin_user.confidentiality.nationality == '1' %} checked {% endif %} disabled> International Student<br>
+        </div>
+
         <form action="" method="post" enctype="multipart/form-data">
           {% csrf_token %}
 
@@ -34,6 +41,7 @@
           {% for field in form.hidden_fields %}
             {{ field }}
           {% endfor %}
+          <input type="hidden" name="nationality" value="{{ loggedin_user.confidentiality.nationality }}" />
 
           <a class="btn btn-outline-secondary" href="{% url 'students:show_confidentiality' %}">Cancel</a>
           <input class="btn btn-primary" type="submit" value="Submit" />
