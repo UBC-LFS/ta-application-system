@@ -80,7 +80,7 @@ def get_user(data, by=None):
 
 def get_users(option=None):
     ''' Get all users '''
-    if option == 'trim':
+    if option == 'destroy':
         target_date = date.today() - timedelta(days=3*365)
         return User.objects.filter( Q(last_login__lt=target_date) & Q(profile__is_trimmed=False) ), target_date
 
@@ -253,11 +253,15 @@ def add_resume(user):
 def delete_user_resume(data):
     ''' Delete user's resume '''
     user = get_user(data, 'username')
-
+    
     if has_user_resume_created(user) and bool(user.resume.uploaded):
         user.resume.uploaded.delete()
         deleted = user.resume.delete()
-        return True if deleted and not bool(user.resume.uploaded) else False
+        if deleted and not bool(user.resume.uploaded):
+            os.rmdir( os.path.join( settings.MEDIA_ROOT, 'users', user.username, 'resume' ) )
+            return True
+        else:
+            return False
     return True
 
 
@@ -317,8 +321,11 @@ def delete_user_sin(username, option=None):
                 else:
                     deleted = Confidentiality.objects.filter(user_id=user.id).update(sin=None)
 
-                os.rmdir( os.path.join( settings.MEDIA_ROOT, 'users', username, 'sin' ) )
-                return True if deleted and not bool(user.confidentiality.sin) else False
+                if deleted and not bool(user.confidentiality.sin):
+                    os.rmdir( os.path.join(settings.MEDIA_ROOT, 'users', username, 'sin') )
+                    return True
+                else:
+                    return False
             except OSError:
                 print("OSError")
                 return False
@@ -341,8 +348,11 @@ def delete_user_study_permit(username, option=None):
                 else:
                     deleted = Confidentiality.objects.filter(user_id=user.id).update(study_permit=None)
 
-                os.rmdir( os.path.join( settings.MEDIA_ROOT, 'users', username, 'study_permit' ) )
-                return True if deleted and not bool(user.confidentiality.study_permit) else False
+                if deleted and not bool(user.confidentiality.study_permit):
+                    os.rmdir( os.path.join( settings.MEDIA_ROOT, 'users', username, 'study_permit' ) )
+                    return True
+                else:
+                    return False
             except OSError:
                 print("OSError")
                 return False

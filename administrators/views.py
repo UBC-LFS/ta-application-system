@@ -1460,21 +1460,19 @@ def destroy_user_contents(request):
     target_date = None
     if request.method == 'POST':
         data = request.POST.getlist('user')
-        print("data", data)
         count = 0
         for user_id in data:
             deleted = userApi.destroy_profile_resume_confidentiality(user_id)
             if deleted: count += 1
 
-        print("count", count)
         if count == len(data):
-            messages.success(request, 'Success! The information of {0} deleted'.format(data))
+            messages.success(request, 'Success! The contents of User IDs {0} are deleted'.format(data))
         else:
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
         return redirect('administrators:destroy_user_contents')
     else:
-        users, target_date = userApi.get_users('trim')
+        users, target_date = userApi.get_users('destroy')
 
     return render(request, 'administrators/hr/destroy_user_contents.html', {
         'loggedin_user': request.user,
