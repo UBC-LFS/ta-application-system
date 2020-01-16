@@ -15,7 +15,7 @@
             <a href="{% url 'students:download_resume' username=user.username filename=user.resume_filename %}" target="_blank">
               {{ user.resume_filename }}
             </a><br />
-            <small>(Uploaded at {{ user.resume.created_at }})</small>
+            <small class="text-muted">Uploaded at {{ user.resume.created_at }}</small>
           {% else %}
             None
           {% endif %}
@@ -36,7 +36,7 @@
 
         {% if user.is_student %}
           <a class="nav-item nav-link" id="nav-profile-tab" data-toggle="tab" href="#nav-profile-admin" role="tab" aria-controls="nav-profile" aria-selected="false">
-            <i class="fa fa-id-card-o" aria-hidden="true"></i> Profile
+            <i class="fa fa-id-card-o" aria-hidden="true"></i> Additional Information
           </a>
           <a class="nav-item nav-link" id="nav-confidentiality-tab" data-toggle="tab" href="#nav-confidentiality-admin" role="tab" aria-controls="nav-confidentiality" aria-selected="false">
             <i class="fa fa-file-text-o" aria-hidden="true"></i> Confidential Information
@@ -55,24 +55,13 @@
             <h6>User ID:</h6>
             <span>{{ user.id }}</span>
           </div>
-
-          <div>
-            <h6>Role:</h6>
-            <ul>
-              {% for role in user.profile.roles.all %}
-                <li>{{ role.name }}</li>
-              {% empty %}
-                <li>None</li>
-              {% endfor %}
-            </ul>
-          </div>
         </div>
       </div>
 
       {% if user.is_student %}
         <div class="tab-pane fade" id="nav-profile-admin" role="tabpanel" aria-labelledby="nav-profile-tab">
           <div class="board col-11 mx-auto">
-            <h3>Profile</h3>
+            <h3>Additional Information</h3>
             {% include 'ta_app/users/_profile.html' with data=user %}
 
             <div>

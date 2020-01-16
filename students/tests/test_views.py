@@ -11,9 +11,8 @@ from users import api as userApi
 
 from administrators.tests.test_views import LOGIN_URL, ContentType, DATA, USERS, SESSION, JOB, APP, COURSE, PASSWORD
 from django.core.files.uploadedfile import SimpleUploadedFile
-from datetime import datetime
+import datetime
 
-#today = datetime.now()
 
 STUDENT = 'user65.test'
 STUDENT_JOB = 'apbi-265-001-sustainable-agriculture-and-food-systems-w1'
@@ -52,9 +51,6 @@ class StudentTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get( reverse('students:edit_confidentiality') )
-        self.assertEqual(response.status_code, 200)
-
-        response = self.client.get( reverse('students:switch_confidentiality') )
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get( reverse('students:explore_jobs') )
@@ -202,12 +198,14 @@ class StudentTest(TestCase):
 
         response = self.client.post( reverse('students:delete_resume'), data=urlencode({ 'user': USERS[2] }), content_type=ContentType )
         messages = self.messages(response)
-        print(messages)
-        #self.assertTrue('Success' in messages[0])
-        #self.assertEqual(response.status_code, 302)
-        #self.assertEqual(response.url, '/students/profile/')
-        #self.assertRedirects(response, response.url)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/students/profile/')
+        self.assertRedirects(response, response.url)
 
+        #response = self.client.get( reverse('students:show_profile') )
+        #self.assertEqual(response.status_code, 200)
+        #self.assertEqual(response.context['loggedin_user'].username,  USERS[2])
         #resume = userApi.has_user_resume_created(userApi.get_user(USERS[2], 'username'))
         #self.assertIsNone(resume)
 
@@ -222,14 +220,14 @@ class StudentTest(TestCase):
         self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
 
 
-    def test_check_confidentiality(self):
-        print('\n- Test: Check whether an international student or not')
+    def test_check_submit_confidentiality(self):
+        print('\n- Test: Check and submit confidential information ')
         self.login()
 
         user = userApi.get_user(USERS[2], 'username')
         data = {
             'user': user.id,
-            'is_international': True
+            'nationality': '1'
         }
 
         response = self.client.post( reverse('students:check_confidentiality'), data=urlencode(data), content_type=ContentType )
@@ -240,35 +238,92 @@ class StudentTest(TestCase):
 
         data = {
             'user': user.id,
+            'nationality': data['nationality'],
             'employee_number': '1234567',
-            'sin': SimpleUploadedFile('sin.PNG', b'file_content', content_type='image/png'),
+            #'sin': SimpleUploadedFile('sin.png', b'\x00\x01\x02\x03', content_type='image/png'),
             'sin_expiry_date': '2020-01-01',
-            'study_permit': SimpleUploadedFile('study_permit.PNG', b'file_content', content_type='image/png'),
-            'study_permit': '2020-05-05'
+            #'study_permit': SimpleUploadedFile('study_permit.png', b'\x00\x01\x02\x03', content_type='image/png'),
+            'study_permit_expiry_date': '2020-05-05'
         }
 
         response = self.client.post( reverse('students:submit_confidentiality'), data=data, format='multipart' )
         messages = self.messages(response)
-        print(messages)
-        #self.assertTrue('Success' in messages[0])
-        #self.assertEqual(response.status_code, 302)
-        #self.assertRedirects(response, response.url)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
 
-    def test_submit_confidentiality(self):
-        print('\n- Test: Check whether an international student or not')
-        self.login()
-
+        response = self.client.get( reverse('students:show_confidentiality') )
+        self.assertEqual(response.status_code, 200)
+        loggedin_user = response.context['loggedin_user']
+        self.assertEqual(loggedin_user.confidentiality.nationality, data['nationality'])
+        self.assertEqual(loggedin_user.confidentiality.employee_number, data['employee_number'])
+        self.assertEqual(loggedin_user.confidentiality.sin_expiry_date, datetime.date(2020, 1, 1))
+        self.assertEqual(loggedin_user.confidentiality.study_permit_expiry_date, datetime.date(2020, 5, 5))
 
     def test_edit_confidentiality(self):
-        print('\n- Test: Check whether an international student or not')
+        print('\n- Test: Edit confidentional information')
         self.login()
 
+        user = userApi.get_user(USERS[2], 'username')
+        data = {
+            'user': user.id,
+            'nationality': '1'
+        }
+        response = self.client.post( reverse('students:check_confidentiality'), data=urlencode(data), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue('Please submit your information' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+        data = {
+            'user': user.id,
+            'nationality': '1',
+            'employee_number': '1234567',
+            'sin_expiry_date': '2020-01-01',
+            'study_permit_expiry_date': '2020-05-05'
+        }
+        response = self.client.post( reverse('students:submit_confidentiality'), data=data, format='multipart' )
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
 
-    def test_switch_confidentiality(self):
-        print('\n- Test: Check whether an international student or not')
-        self.login()
+        data = {
+            'user': user.id,
+            'nationality': '1',
+            'employee_number': '1234568',
+            'sin_expiry_date': '2020-01-11',
+            'study_permit_expiry_date': '2020-05-22'
+        }
+        response = self.client.post( reverse('students:edit_confidentiality'), data=data, format='multipart' )
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
 
-"""
+        response = self.client.get( reverse('students:show_confidentiality') )
+        self.assertEqual(response.status_code, 200)
+        loggedin_user = response.context['loggedin_user']
+        self.assertEqual(loggedin_user.confidentiality.nationality, data['nationality'])
+        self.assertEqual(loggedin_user.confidentiality.employee_number, data['employee_number'])
+        self.assertEqual(loggedin_user.confidentiality.sin_expiry_date, datetime.date(2020, 1, 11))
+        self.assertEqual(loggedin_user.confidentiality.study_permit_expiry_date, datetime.date(2020, 5, 22))
+
+        data = {
+            'user': user.id,
+            'nationality': '0',
+        }
+        response = self.client.post( reverse('students:edit_confidentiality'), data=data, format='multipart' )
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+        response = self.client.get( reverse('students:show_confidentiality') )
+        self.assertEqual(response.status_code, 200)
+        loggedin_user = response.context['loggedin_user']
+        self.assertEqual(loggedin_user.confidentiality.nationality, data['nationality'])
+
+
     def test_explore_jobs(self):
         print('\n- Test: Display all lists of session terms')
         self.login()
@@ -409,7 +464,7 @@ class StudentTest(TestCase):
 
         response = self.client.post( reverse('students:cancel_job', args=[SESSION, STUDENT_JOB]), data=urlencode(data), content_type=ContentType )
         messages = self.messages(response)
-        self.assertTrue('Success' in messages[0])
+        self.assertTrue('Application of 2019 W1 - APBI 260 001 cancelled.' in messages[0])
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, '/students/jobs/history/')
         self.assertRedirects(response, response.url)
@@ -486,7 +541,7 @@ class StudentTest(TestCase):
 
         response = self.client.post( reverse('students:decline_offer', args=[SESSION, STUDENT_JOB]), data=urlencode(data), content_type=ContentType )
         messages = self.messages(response)
-        self.assertTrue('Success' in messages[0])
+        self.assertTrue('You declined the job offer - 2019 W1: APBI 265 001' in messages[0])
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, response.url)
 
@@ -532,7 +587,6 @@ class StudentTest(TestCase):
         self.assertEqual(response.context['app'].id, app.id)
         self.assertEqual(response.context['app'].applicant.username, app.applicant.username)
 
-"""
 
 """
 

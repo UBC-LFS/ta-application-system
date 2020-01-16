@@ -244,10 +244,11 @@ def submit_confidentiality(request):
     loggedin_user = request.user
     form = None
     if request.method == 'POST':
-        if loggedin_user.confidentiality.nationality == '0':
-            form = ConfidentialityNonInternationalForm(request.POST, request.FILES, instance=loggedin_user.confidentiality)
-        else:
-            form = ConfidentialityInternationalForm(request.POST, request.FILES, instance=loggedin_user.confidentiality)
+        if userApi.has_user_confidentiality_created(loggedin_user):
+            if loggedin_user.confidentiality.nationality == '0':
+                form = ConfidentialityNonInternationalForm(request.POST, request.FILES, instance=loggedin_user.confidentiality)
+            else:
+                form = ConfidentialityInternationalForm(request.POST, request.FILES, instance=loggedin_user.confidentiality)
 
         if form.is_valid():
             sin_file = request.FILES.get('sin')
@@ -275,13 +276,9 @@ def submit_confidentiality(request):
     else:
         if userApi.has_user_confidentiality_created(loggedin_user):
             if loggedin_user.confidentiality.nationality == '0':
-                form = ConfidentialityNonInternationalForm(data=None, instance=loggedin_user.confidentiality, initial={
-                    'user': loggedin_user
-                })
+                form = ConfidentialityNonInternationalForm(data=None, instance=loggedin_user.confidentiality, initial={ 'user': loggedin_user })
             else:
-                form = ConfidentialityInternationalForm(data=None, instance=loggedin_user.confidentiality, initial={
-                    'user': loggedin_user
-                })
+                form = ConfidentialityInternationalForm(data=None, instance=loggedin_user.confidentiality, initial={ 'user': loggedin_user })
 
     return render(request, 'students/profile/submit_confidentiality.html', {
         'loggedin_user': loggedin_user,
@@ -370,14 +367,12 @@ def edit_confidentiality(request):
         if userApi.has_user_confidentiality_created(loggedin_user) and bool(loggedin_user.confidentiality.study_permit):
             study_permit_file = os.path.basename(loggedin_user.confidentiality.study_permit.name)
 
-        if loggedin_user.confidentiality.nationality == '0':
-            form = ConfidentialityNonInternationalForm(data=None, instance=confidentiality, initial={
-                'user': loggedin_user
-            })
-        else:
-            form = ConfidentialityInternationalForm(data=None, instance=confidentiality, initial={
-                'user': loggedin_user
-            })
+        if userApi.has_user_confidentiality_created(loggedin_user):
+
+            if loggedin_user.confidentiality.nationality == '0':
+                form = ConfidentialityNonInternationalForm(data=None, instance=confidentiality, initial={ 'user': loggedin_user })
+            else:
+                form = ConfidentialityInternationalForm(data=None, instance=confidentiality, initial={ 'user': loggedin_user })
 
     return render(request, 'students/profile/edit_confidentiality.html', {
         'loggedin_user': loggedin_user,
@@ -853,7 +848,7 @@ def decline_offer(request, session_slug, job_slug):
             app = form.cleaned_data['application']
             status = form.save()
             if status:
-                messages.success(request, 'You declined the job offer - {0} {1}: {2} {3} {4} '.format(app.job.session.year, app.job.session.term.code, app.job.course.code.name, app.job.course.number.name, app.job.course.section.name))
+                messages.success(request, 'You declined the job offer - {0} {1}: {2} {3} {4}.'.format(app.job.session.year, app.job.session.term.code, app.job.course.code.name, app.job.course.number.name, app.job.course.section.name))
             else:
                 messages.error(request, 'An error occurred while saving an status of an application.')
         else:

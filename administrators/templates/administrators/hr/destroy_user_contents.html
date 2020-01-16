@@ -3,13 +3,13 @@
 
 {% include 'administrators/_menu.html' %}
 <div>
-  {% include 'ta_app/pages/_header.html' with title='Destroy Users' text=users|length %}
+  {% include 'ta_app/pages/_header.html' with title='Destroy User Contents' text=users|length %}
 
   <div class="bd-callout bd-callout-warning col-8 mx-auto">
     <h4>Notice</h4>
     <p>
       Users who logged in before the date (<span class="font-weight-bold text-danger">{{ target_date }}</span>) are in the table below.
-      If you would like to destory permanently all of their contents such as profile, resume and confidential information, please click the Destory button below.
+      If you would like to destroy permanently all of their contents such as profile, resume and confidential information, please click the Destroy button below.
     </p>
   </div>
 
@@ -35,7 +35,7 @@
           <th data-sortable="true">User ID</th>
           <th data-sortable="true">Full Name</th>
           <th data-sortable="true">CWL</th>
-          <th data-sortable="true">Student Number</th>
+          <th data-sortable="true">Student<br /> Number</th>
           <th data-sortable="true">Role</th>
           <th data-sortable="true">Date Joined</th>
           <th data-sortable="true">Last Login</th>
@@ -47,13 +47,17 @@
             <td>
               <input type="checkbox" name="user" value="{{ user.id }}" checked />
             </td>
-            <td>
-              <a href="{% url 'administrators:show_user' username=user.username path='destroy' %}">{{ user.id }}</a>
-            </td>
+            <td>{{ user.id }}</td>
             <td>{{ user.get_full_name }}</td>
-            <td>{{ user.username }}</td>
+            <td>
+              <a href="{% url 'administrators:show_user' username=user.username path='destroy' %}">{{ user.username }}</a>
+            </td>
             <td>{{ user.profile.student_number }}</td>
-            <td>{% for role in user.profile.roles.all %} {{ role.name }}, {% endfor %}</td>
+            <td>
+              {% for role in user.profile.roles.all %}
+                {% include 'ta_app/users/_role.html' with data=role.name %}
+              {% endfor %}
+            </td>
             <td>{{ user.date_joined }}</td>
             <td>{{ user.last_login }}</td>
           </tr>
@@ -61,7 +65,7 @@
       </tbody>
     </table>
 
-    <input class="btn btn btn-danger" type="submit" value="Destroy profile, resume and confidentiality" />
+    <input class="btn btn btn-danger mt-3" type="submit" value="Destroy profile, resume and confidential information" />
 
   </form>
 

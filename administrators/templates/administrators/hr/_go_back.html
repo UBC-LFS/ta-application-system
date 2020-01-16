@@ -25,8 +25,8 @@
 {% elif data == 'users' %}
   <a class="btn btn-outline-primary" href="{% url 'administrators:all_users' %}">Back to All Users</a>
 
-{% elif data == 'trim' %}
-  <a class="btn btn-outline-primary" href="{% url 'administrators:trim_users' %}">Back to Trim Users</a>
+{% elif data == 'destroy' %}
+  <a class="btn btn-outline-primary" href="{% url 'administrators:destroy_user_contents' %}">Back to Destroy User Contents</a>
 
 {% else %}
   <a class="btn btn-outline-primary" href="{% url 'administrators:index' %}">Home</a>

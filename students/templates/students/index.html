@@ -47,12 +47,12 @@
 
         <div class="col-8 mx-auto my-4">
           <div>
-            <i class="fa fa-check text-success" aria-hidden="true"></i>
+            <i class="fa fa-check" aria-hidden="true"></i>
             You have <span class="font-weight-bold text-chocolate">{{ apps|length }}</span> applied job{% if apps|length > 1 %}s{% endif %} in total.
             <a class="btn btn-xs btn-link" href="{% url 'students:history_jobs' %}">View History</a>
           </div>
           <div>
-            <i class="fa fa-check text-success" aria-hidden="true"></i>
+            <i class="fa fa-check" aria-hidden="true"></i>
             You have currently bookmarked <span class="font-weight-bold text-chocolate">{{ favourites|length }}</span> job{% if favourites|length > 1 %}s{% endif %}.
             <a class="btn btn-xs btn-link" href="{% url 'students:favourite_jobs' %}">View Favourites</a>
           </div>
