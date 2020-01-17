@@ -8,7 +8,7 @@
   {% include 'administrators/applications/_search_fields.html' with data=apps total=total_apps path='accepted_applications' %}
 
   <table
-    class="table table-bordered table-hover table-striped table-responsive-md text-center"
+    class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center"
     data-toggle="table"
     data-sortable="true"
     data-classes=""
@@ -26,13 +26,14 @@
         <th data-sortable="true">Student<br /> Number</th>
         <th data-sortable="true">Employee<br /> Number</th>
         <th data-sortable="true">Classification</th>
-        <th data-sortable="true">Salary <br />(CAD)</th>
+        <th data-sortable="true">Monthly<br /> Salary<br /> (CAD)</th>
+        <th data-sortable="true">P/T (%)</th>
         <th>PIN</th>
         <th>TASM</th>
         <th>eForm</th>
         <th>Speed<br /> Chart</th>
         <th>Processing<br /> Note</th>
-        <th data-sortable="true">Accepted at</th>
+        <th data-sortable="true">Accepted<br /> at</th>
         <th>Actions</th>
       </tr>
     </thead>
@@ -46,12 +47,12 @@
           <td>{{ app.job.session.term.code }}</td>
           <td>
             <a href="{% url 'administrators:show_job' session_slug=app.job.session.slug job_slug=app.job.course.slug path='accepted' %}">
-              {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}
+              {{ app.job.course.code.name }}<br /> {{ app.job.course.number.name }}<br /> {{ app.job.course.section.name }}
             </a>
           </td>
           <td>
             <a href="{% url 'administrators:show_user' username=app.applicant.username path='accepted' %}">{{ app.applicant.get_full_name }}</a><br />
-            <small>({{ app.applicant.username }})</small>
+            <small>({{ app.applicant.username }})</small><br />
             {% include 'ta_app/applications/_modal_app_status.html' with data=app display='name' %}
           </td>
           <td>{{ app.applicant.profile.student_number }}</td>
@@ -68,6 +69,7 @@
             {% include 'ta_app/applications/_modal_note.html' with data=app display='name' %}
           </td>
           <td>${{ app.salary|floatformat:2 }}</td>
+          <td>{{ app.pt_percentage|floatformat:2 }}</td>
           <td>
             {% if app.admindocuments.pin %}
               {{ app.admindocuments.pin }}
