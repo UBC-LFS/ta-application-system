@@ -950,8 +950,7 @@ def offered_applications_send_email_confirmation(request):
                     )
 
                     # TODO: replace a receiver
-                    receiver = '{0} <brandon.oh@ubc.ca>'.format(name)
-                    #receiver = '{0} <{1}>'.format(name, app.applicant.email)
+                    receiver = '{0} <{1}>'.format(name, app.applicant.email)
 
                     email = adminApi.send_and_create_email(app, data['sender'], receiver, data['title'], message, data['type'])
                     if email: count += 1
