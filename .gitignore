@@ -10,3 +10,4 @@ vagrant
 staticfiles
 saml/certs
 ta_app/settings.py
+Thumbs.db
