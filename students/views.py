@@ -612,6 +612,10 @@ def apply_job(request, session_slug, job_slug):
         request.user.roles = request.session['loggedin_user']['roles']
     if 'Student' not in request.user.roles: raise PermissionDenied
 
+    session = adminApi.get_session(session_slug, 'slug')
+    if not session.is_visible or session.is_archived:
+        raise PermissionDenied
+
     job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
     if not job.is_active: raise PermissionDenied
 

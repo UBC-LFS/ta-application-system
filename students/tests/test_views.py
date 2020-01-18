@@ -385,7 +385,7 @@ class StudentTest(TestCase):
         self.assertEqual( len(response.context['jobs']), 50 )
 
 
-    def test_apply_jobs(self):
+    def test_apply_job(self):
         print('\n- Test: Students can apply for each job')
         self.login()
 
@@ -422,6 +422,15 @@ class StudentTest(TestCase):
         self.assertTrue(response.context['has_applied_job'])
         self.assertFalse(response.context['form'].is_bound)
 
+    def test_apply_jobs_with_closed_term(self):
+        print('\n- Test: Students cannot apply for each job in the closed term')
+        self.login()
+        session = adminApi.get_session(SESSION, 'slug')
+        session.is_visible = False
+        session.save(update_fields=['is_visible'])
+
+        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) )
+        self.assertEqual(response.status_code, 403)
 
     def test_history_jobs(self):
         print('\n- Test: Display History of Jobs applied by a student')
