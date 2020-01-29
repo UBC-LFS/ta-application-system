@@ -224,12 +224,14 @@ class AdminApplicationForm(forms.ModelForm):
 class ApplicationForm(forms.ModelForm):
     ''' Create a model form for an application for students '''
     how_qualified = forms.ChoiceField(
-        choices=Application.PREFERENCE_CHOICES, widget=forms.RadioSelect,
-        label='How qualifed are you?'
+        choices=Application.PREFERENCE_CHOICES,
+        label='How qualifed are you?',
+        help_text='This field is required.'
     )
     how_interested = forms.ChoiceField(
-        choices=Application.PREFERENCE_CHOICES, widget=forms.RadioSelect,
-        label='How interested are you?'
+        choices=Application.PREFERENCE_CHOICES,
+        label='How interested are you?',
+        help_text='This field is required.'
     )
 
     class Meta:
@@ -244,6 +246,9 @@ class ApplicationForm(forms.ModelForm):
             'supervisor_approval': 'Supervisor Approval',
             'availability': 'Availability requirements',
             'availability_note': 'Availability notes'
+        }
+        help_texts = {
+            'availability_note': 'This field is optional.'
         }
 
 class AdminDocumentsForm(forms.ModelForm):

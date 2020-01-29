@@ -206,10 +206,11 @@ class ConfidentialityNonInternationalForm(forms.ModelForm):
     )
     class Meta:
         model = Confidentiality
-        fields = ['user', 'nationality', 'employee_number', 'sin']
+        fields = ['user', 'nationality', 'employee_number', 'sin', 'personal_data_form']
         widgets = {
             'user': forms.HiddenInput(),
-            'sin': forms.FileInput()
+            'sin': forms.FileInput(),
+            'personal_data_form': forms.FileInput()
         }
         labels = {
             'sin': 'Social Insurance Number (SIN)'
@@ -234,16 +235,18 @@ class ConfidentialityInternationalForm(forms.ModelForm):
     )
     class Meta:
         model = Confidentiality
-        fields = ['user', 'nationality', 'employee_number', 'sin', 'sin_expiry_date', 'study_permit', 'study_permit_expiry_date']
+        fields = ['user', 'nationality', 'employee_number', 'sin', 'sin_expiry_date', 'study_permit', 'study_permit_expiry_date', 'personal_data_form']
         widgets = {
             'user': forms.HiddenInput(),
             'sin': forms.FileInput(),
-            'study_permit': forms.FileInput()
+            'study_permit': forms.FileInput(),
+            'personal_data_form': forms.FileInput()
         }
         labels = {
             'employee_number': 'Employee Number',
             'sin': 'Social Insurance Number (SIN)',
-            'study_permit': 'Study Permit'
+            'study_permit': 'Study Permit',
+            'personal_data_form': 'Personal Data Form'
         }
 
 

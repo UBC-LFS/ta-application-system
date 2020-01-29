@@ -64,13 +64,16 @@
 
         <h3>Application Form</h3>
 
-        {% include 'ta_app/pages/_job_preferences.html' %}
+        <div class="text-danger">
+          <i class="fa fa-asterisk" aria-hidden="true"></i>
+          Please fill this form carefully. Once submitted, it cannot be changed.
+        </div>
 
         <form action="" method="post">
           {% csrf_token %}
 
           {% for field in form.visible_fields  %}
-            <div class="field-wrapper my-5">
+            <div class="field-wrapper">
               {% if field.id_for_label == 'id_supervisor_approval' %}
 
                 {{ field.label_tag }}
@@ -115,8 +118,10 @@
             {{ field }}
           {% endfor %}
 
-          <a class="btn btn-outline-secondary" href="{% url 'students:available_jobs' session_slug=job.session.slug %}">Cancel</a>
-          <input class="btn btn-primary" type="submit" value="Submit application" />
+          <div class="mt-5">
+            <a class="btn btn-outline-secondary" href="{% url 'students:available_jobs' session_slug=job.session.slug %}">Cancel</a>
+            <input class="btn btn-primary" type="submit" value="Submit application" />
+          </div>
         </form>
 
       {% endif %}

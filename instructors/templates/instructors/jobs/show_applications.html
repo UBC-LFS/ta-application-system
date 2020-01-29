@@ -46,6 +46,7 @@
         <th data-sortable="true">Application</th>
         <th data-sortable="true">Applied at</th>
         <th>Instructor <br />Preference</th>
+        <th>Applicant <br />Decision</th>
       </tr>
     </thead>
     <tbody>
@@ -58,7 +59,6 @@
           <td>{% include 'ta_app/applications/_modal_app_details.html' with data=app %}</td>
           <td>{{ app.created_at }}</td>
           <td>
-
             {% if app.instructor_preference != app_status.none and app.selected %}
 
               <div>
@@ -91,7 +91,7 @@
                         <p>Thanks!</p>
                       </div>
 
-                      <form action="" method="post" onsubmit="return confirm('Are you sure to select this preference for {{ app.applicant.get_full_name }}?');">
+                      <form action="" method="post">
                         {% csrf_token %}
 
                         <div class="field-wrapper">
@@ -123,6 +123,15 @@
                 </div>
               </div>
 
+            {% endif %}
+          </td>
+          <td>
+            {% if app.applicationstatus_set.last.assigned == app_status.accepted or app.applicationstatus_set.last.assigned == app_status.declined or app.applicationstatus_set.last.assigned == app_status.cancelled %}
+              {% include 'ta_app/applications/_app_status.html' with data=app.applicationstatus_set.last.get_assigned_display %}
+              <div>Assigned <span class="font-weight-bold">{{ app.applicationstatus_set.last.assigned_hours }}</span> hours</div>
+              <small class="text-muted">{{ app.applicationstatus_set.last.created_at }}</small>
+            {% else %}
+              <span class="badge badge-light text-dark">APPLIED</span>
             {% endif %}
           </td>
         </tr>

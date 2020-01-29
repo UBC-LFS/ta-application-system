@@ -155,6 +155,7 @@ class Application(models.Model):
     """ This is a model for applications of students """
 
     PREFERENCE_CHOICES = [
+        ('0', 'Select'),
         ('1', 'Not at all'),
         ('2', 'Marginally'),
         ('3', 'Somewhat'),

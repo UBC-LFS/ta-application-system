@@ -88,6 +88,8 @@ def create_sin_path(instance, filename):
 def create_study_permit_path(instance, filename):
     return os.path.join('users', str(instance.user.username), 'study_permit', filename)
 
+def create_personal_data_form_path(instance, filename):
+    return os.path.join('users', str(instance.user.username), 'personal_data_form', filename)
 
 def format_bytes(size):
     power = 2**10
@@ -136,15 +138,22 @@ class Confidentiality(models.Model):
     )
     study_permit_expiry_date = models.DateField(null=True, blank=True)
 
+    personal_data_form = models.FileField(
+        upload_to=create_personal_data_form_path,
+        validators=[
+            FileExtensionValidator(allowed_extensions=['pdf', 'doc', 'docx']),
+            FileSizeValidator
+        ],
+        null=True,
+        blank=True,
+        help_text='Valid file formats: PDF, DOC, DOCX'
+    )
+
     created_at = models.DateField(null=True, blank=True)
     updated_at = models.DateField(null=True, blank=True)
 
 
     def save(self, *args, **kwargs):
-        #print('save =======', self, kwargs)
-        #print('sin ', self.sin, bool(self.sin))
-        #print('study_permit ', self.study_permit, bool(self.study_permit))
-
         if 'update_fields' in kwargs:
             if 'sin' in kwargs['update_fields']:
                 self.sin = encrypt_image(self.sin)

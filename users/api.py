@@ -253,7 +253,7 @@ def add_resume(user):
 def delete_user_resume(data):
     ''' Delete user's resume '''
     user = get_user(data, 'username')
-    
+
     if has_user_resume_created(user) and bool(user.resume.uploaded):
         user.resume.uploaded.delete()
         deleted = user.resume.delete()
@@ -358,6 +358,28 @@ def delete_user_study_permit(username, option=None):
                 return False
     return True
 
+
+def add_personal_data_form(user):
+    ''' Add personal data form of an user '''
+    if has_user_confidentiality_created(user) and bool(user.confidentiality.personal_data_form):
+        user.personal_data_form_filename = os.path.basename(user.confidentiality.personal_data_form.name)
+    else:
+        user.personal_data_form_filename = None
+    return user
+
+
+def delete_personal_data_form(data):
+    ''' Delete user's personal data form '''
+    user = get_user(data, 'username')
+
+    if has_user_resume_created(user) and bool(user.confidentiality.personal_data_form):
+        user.confidentiality.personal_data_form.delete()
+        if not bool(user.confidentiality.personal_data_form):
+            os.rmdir( os.path.join( settings.MEDIA_ROOT, 'users', user.username, 'personal_data_form' ) )
+            return True
+        else:
+            return False
+    return True
 
 # end Confidentiality
 

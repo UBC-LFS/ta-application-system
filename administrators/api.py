@@ -13,6 +13,7 @@ from users import api as userApi
 
 from datetime import datetime
 
+TA_MAX_HOUR = 192
 
 # Courses
 
@@ -389,7 +390,7 @@ def add_salary(apps):
     ''' Add a salary in applications '''
     for app in apps:
         app.salary = round(app.accepted.assigned_hours * app.classification.wage / 4, 2)
-        app.pt_percentage = round(app.accepted.assigned_hours / settings.TA_MAX_HOUR * 100, 2)
+        app.pt_percentage = round(app.accepted.assigned_hours / TA_MAX_HOUR * 100, 2)
     return apps
 
 

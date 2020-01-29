@@ -239,8 +239,6 @@ def show_applications(request, session_slug, job_slug):
 
         return HttpResponseRedirect( reverse('instructors:show_applications', args=[session_slug, job_slug]) )
 
-    apps = adminApi.get_applications_with_status_by_session_slug_job_slug(session_slug, job_slug)
-
     return render(request, 'instructors/jobs/show_applications.html', {
         'loggedin_user': request.user,
         'job': job,
