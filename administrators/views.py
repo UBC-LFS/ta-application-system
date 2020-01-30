@@ -1062,6 +1062,17 @@ def accepted_applications(request):
         'total_apps': len(app_list)
     })
 
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def terminate_application(request):
+    ''' Display applications declined by students '''
+    request.user.roles = request.session['loggedin_user']['roles']
+    if not userApi.is_admin(request.user): raise PermissionDenied
+
+
+
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
@@ -1230,6 +1241,11 @@ def decline_reassign_confirmation(request):
             app = adminApi.get_application(app_id)
             ta_hours = app.job.accumulated_ta_hours
             new_ta_hours = float(ta_hours) - float(old_assigned_hours) + float(new_assigned_hours)
+
+            print("old_assigned_hours", old_assigned_hours)
+            print("new_assigned_hours", new_assigned_hours)
+            print(ta_hours)
+
 
     return render(request, 'administrators/applications/decline_reassign_confirmation.html', {
         'loggedin_user': request.user,

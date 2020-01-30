@@ -51,7 +51,9 @@
             </a>
           </td>
           <td>
-            <a href="{% url 'administrators:show_user' username=app.applicant.username path='accepted' %}">{{ app.applicant.get_full_name }}</a><br />
+            <a href="{% url 'administrators:show_user' username=app.applicant.username path='accepted' %}">
+              {{ app.applicant.first_name }} <br />{{ app.applicant.last_name }}
+            </a><br />
             <small>({{ app.applicant.username }})</small><br />
             {% include 'ta_app/applications/_modal_app_status.html' with data=app display='name' %}
           </td>

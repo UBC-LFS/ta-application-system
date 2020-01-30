@@ -3,7 +3,7 @@ from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.text import slugify
-from django.core.validators import FileExtensionValidator
+from django.core.validators import FileExtensionValidator, MinLengthValidator, MaxLengthValidator
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
@@ -106,6 +106,13 @@ def FileSizeValidator(file):
             _('The maximum file size that can be uploaded is 1.5 MB. The size of this file (%(name)s) is %(size)s.'), params={'name': file.name, 'size': format_bytes(int(file.size)) }, code='file_size_limit'
         )
 
+def NumericalValueValidator(value):
+    if value.isnumeric() == False:
+        raise ValidationError(
+            _('This field must be numerical value only.'), params={'value': value}, code='numerical_value'
+        )
+
+
 class Confidentiality(models.Model):
     ''' '''
     NATIONALITY_CHOICES = [
@@ -119,7 +126,12 @@ class Confidentiality(models.Model):
         unique=True,
         null=True,
         blank=True,
-        help_text='Please enter your Employee Number (7 digits) if you have it'
+        help_text='7-digit numerical value only',
+        validators=[
+            NumericalValueValidator,
+            MinLengthValidator(7),
+            MaxLengthValidator(7)
+        ]
     )
     sin = models.ImageField(
         upload_to=create_sin_path,
@@ -329,7 +341,7 @@ def encrypt_image(obj):
 
 def decrypt_image(username, obj, type):
     filename = os.path.basename(obj.file.name)
-    path = settings.TA_APP_URL + '/students/confidential_information/' + username + '/' + type + '/' + filename + '/download/'
+    path = settings.TA_APP_URL + '/students/confidential_information/' + username + '/download/' + type + '/' + filename + '/'
     content = requests.get(path, stream=True).raw.read()
     #path = None
 

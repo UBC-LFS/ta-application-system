@@ -198,7 +198,7 @@ class ConfidentialityCheckForm(forms.ModelForm):
             'user': forms.HiddenInput()
         }
 
-class ConfidentialityNonInternationalForm(forms.ModelForm):
+class ConfidentialityDomesticForm(forms.ModelForm):
     nationality = forms.ChoiceField(
         widget=forms.RadioSelect,
         choices=Confidentiality.NATIONALITY_CHOICES,
@@ -213,7 +213,9 @@ class ConfidentialityNonInternationalForm(forms.ModelForm):
             'personal_data_form': forms.FileInput()
         }
         labels = {
-            'sin': 'Social Insurance Number (SIN)'
+            'employee_number': 'Employee Number',
+            'sin': 'Social Insurance Number (SIN)',
+            'personal_data_form': 'Personal Data Form'
         }
 
 
@@ -268,7 +270,7 @@ class ConfidentialityForm(forms.ModelForm):
     )
     class Meta:
         model = Confidentiality
-        fields = ['user', 'nationality', 'employee_number', 'sin', 'sin_expiry_date', 'study_permit', 'study_permit_expiry_date']
+        fields = ['user', 'nationality', 'employee_number', 'sin', 'sin_expiry_date', 'study_permit', 'study_permit_expiry_date', 'personal_data_form']
         widgets = {
             'user': forms.HiddenInput(),
             'employee_number': forms.TextInput( attrs={ 'class': 'form-control' } ),
@@ -278,9 +280,10 @@ class ConfidentialityForm(forms.ModelForm):
         labels = {
             'employee_number': 'Employee Number',
             'sin': 'Social Insurance Number (SIN)',
-            'study_permit': 'Study Permit'
+            'study_permit': 'Study Permit',
+            'personal_data_form': 'Personal Data Form'
         }
-        field_order = ['user', 'nationality', 'employee_number', 'sin', 'sin_expiry_date', 'study_permit', 'study_permit_expiry_date']
+        field_order = ['user', 'nationality', 'employee_number', 'sin', 'sin_expiry_date', 'study_permit', 'study_permit_expiry_date', 'personal_data_form']
 
 
 class ResumeForm(forms.ModelForm):

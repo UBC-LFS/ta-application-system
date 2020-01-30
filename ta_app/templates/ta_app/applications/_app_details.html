@@ -1,6 +1,12 @@
 <div>
   <h6>Supervisor Approval:</h6>
-  <span>{{ data.supervisor_approval }}</span>
+  <span>
+    {% if data.supervisor_approval %}
+      Yes
+    {% else %}
+      No
+    {% endif %}
+  </span>
 </div>
 
 <div>
@@ -14,13 +20,25 @@
 </div>
 
 <div>
-  <h6>Availability requirements:</h6>
-  <span>{{ data.availability }}</span>
+  <h6>Availability Requirements:</h6>
+  <span>
+    {% if data.availability %}
+      Yes, I understand
+    {% else %}
+      No
+    {% endif %}
+  </span>
 </div>
 
 <div>
-  <h6>Availability notes:</h6>
-  <span>{{ data.availability_note }}</span>
+  <h6>Availability Notes:</h6>
+  <span>
+    {% if data.availability_note %}
+      {{ data.availability_note }}
+    {% else %}
+      None
+    {% endif %}
+  </span>
 </div>
 
 <div>
@@ -33,13 +51,15 @@
   <span>{{ data.updated_at }}</span>
 </div>
 
-<div>
-  <h6>PIN:</h6>
-  <span>
-    {% if data.admindocuments.pin %}
-      {{ data.admindocuments.pin }}
-    {% else %}
-      None
-    {% endif %}
-  </span>
-</div>
+{% if pin_display == 'True' %}
+  <div>
+    <h6>PIN:</h6>
+    <span>
+      {% if data.admindocuments.pin %}
+        {{ data.admindocuments.pin }}
+      {% else %}
+        None
+      {% endif %}
+    </span>
+  </div>
+{% endif %}

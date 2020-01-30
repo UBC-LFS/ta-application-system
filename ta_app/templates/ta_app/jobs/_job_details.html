@@ -18,22 +18,46 @@
 
 <div>
   <h6>Title:</h6>
-  <span>{{ data.title }}</span>
+  <span>
+    {% if data.title %}
+      {{ data.title }}
+    {% else %}
+      None
+    {% endif %}
+  </span>
 </div>
 
 <div>
   <h6>Description:</h6>
-  <span>{{ data.description|safe }}</span>
+  <span>
+    {% if data.description %}
+      {{ data.description|safe }}
+    {% else %}
+      None
+    {% endif %}
+  </span>
 </div>
 
 <div>
   <h6>Qualification:</h6>
-  <span>{{ data.qualification|safe }}</span>
+  <span>
+    {% if data.qualification %}
+      {{ data.qualification|safe }}
+    {% else %}
+      None
+    {% endif %}
+  </span>
 </div>
 
 <div>
   <h6>Note:</h6>
-  <span>{{ data.note|safe }}</span>
+  <span>
+    {% if data.note %}
+      {{ data.note|safe }}
+    {% else %}
+      None
+    {% endif %}
+  </span>
 </div>
 
 <div>

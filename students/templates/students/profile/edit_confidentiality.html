@@ -50,11 +50,22 @@
         <input class="btn btn-primary" type="submit" value="Update" />
       </form>
 
-      <div class="card border-danger">
+      <div class="card border-secondary mt-5">
         <div class="card-body">
-          <div>
+          <h5 class="card-title text-info">Delete uploaded files</h5>
+
+          <p class="text-danger">
+            <i class="fa fa-asterisk" aria-hidden="true"></i>
+            Your files will be deleted permanently when you click the Delete buttons.
+          </p>
+
+          <div class="mb-4">
             {% if loggedin_user.confidentiality.sin %}
-              <span>File: {{ sin_file }}</span>
+              <span>
+                <i class="fa fa-file-text-o" aria-hidden="true"></i>
+                SIN:
+                <span class="text-secondary">{{ sin_file }}</span>
+              </span>
 
               <form action="{% url 'students:delete_sin' %}" method="post" onsubmit="return confirm('Are you sure to delete this SIN file?')">
                 {% csrf_token %}
@@ -68,18 +79,25 @@
                 {% endif %}
 
                 <input type="hidden" name="user" value="{{ loggedin_user.username }}" />
-                <input class="btn btn-danger mt-3" type="submit" value="Delete SIN" />
+                <input class="btn btn-danger btn-xs mt-1" type="submit" value="Delete SIN" />
               </form>
             {% else %}
-              <div class="text-secondary">No SIN found</div>
+              <span>
+                <i class="fa fa-file-text-o" aria-hidden="true"></i>
+                SIN:
+                <span class="text-secondary">None</span>
+              </span>
             {% endif %}
           </div>
 
-          <div>
-            {% if loggedin_user.confidentiality.nationality == '1' %}
-
+          {% if loggedin_user.confidentiality.nationality == '1' %}
+            <div class="mb-4">
               {% if loggedin_user.confidentiality.study_permit %}
-                <span>File: {{ study_permit_file }}</span>
+                <span>
+                  <i class="fa fa-file-text-o" aria-hidden="true"></i>
+                  Study Permit:
+                  <span class="text-secondary">{{ study_permit_file }}</span>
+                </span>
 
                 <form action="{% url 'students:delete_study_permit' %}" method="post" onsubmit="return confirm('Are you sure to delete this Study Permit file?')">
                   {% csrf_token %}
@@ -91,30 +109,40 @@
                   </div>
 
                   <input type="hidden" name="user" value="{{ loggedin_user.username }}" />
-                  <input class="btn btn-danger" type="submit" value="Delete Study Permit" />
+                  <input class="btn btn-danger btn-xs mt-1" type="submit" value="Delete Study Permit" />
                 </form>
               {% else %}
-                <div class="text-secondary">No Study Permit found</div>
+                <span>
+                  <i class="fa fa-file-text-o" aria-hidden="true"></i>
+                  Study Permit:
+                  <span class="text-secondary">None</span>
+                </span>
               {% endif %}
-
-            {% endif %}
-          </div>
+            </div>
+          {% endif %}
 
           <div>
             {% if loggedin_user.confidentiality.personal_data_form %}
-              <span>File: {{ personal_data_form_file }}</span>
-
+              <span>
+                <i class="fa fa-file-text-o" aria-hidden="true"></i>
+                Personal Data Form:
+                <span class="text-secondary">{{ personal_data_form_file }}</span>
+              </span>
               <form action="{% url 'students:delete_personal_data_form' %}" method="post" onsubmit="return confirm('Are you sure to delete this Personal Data Form file?')">
                 {% csrf_token %}
 
                 <input type="hidden" name="user" value="{{ loggedin_user.username }}" />
-                <input class="btn btn-danger btn-xs" type="submit" value="Delete Personal Data Form" />
+                <input class="btn btn-danger btn-xs mt-1" type="submit" value="Delete Personal Data Form" />
               </form>
             {% else %}
-              <div class="text-secondary">No Personal Data Form found</div>
+              <span>
+                <i class="fa fa-file-text-o" aria-hidden="true"></i>
+                Personal Data Form:
+                <span class="text-secondary">None</span>
+              </span>
             {% endif %}
           </div>
-          
+
         </div>
       </div>
 

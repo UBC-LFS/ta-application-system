@@ -245,9 +245,10 @@ def submit_confidentiality(request):
     loggedin_user = request.user
     form = None
     if request.method == 'POST':
+
         if userApi.has_user_confidentiality_created(loggedin_user):
             if loggedin_user.confidentiality.nationality == '0':
-                form = ConfidentialityNonInternationalForm(request.POST, request.FILES, instance=loggedin_user.confidentiality)
+                form = ConfidentialityDomesticForm(request.POST, request.FILES, instance=loggedin_user.confidentiality)
             else:
                 form = ConfidentialityInternationalForm(request.POST, request.FILES, instance=loggedin_user.confidentiality)
 
@@ -277,7 +278,7 @@ def submit_confidentiality(request):
     else:
         if userApi.has_user_confidentiality_created(loggedin_user):
             if loggedin_user.confidentiality.nationality == '0':
-                form = ConfidentialityNonInternationalForm(data=None, instance=loggedin_user.confidentiality, initial={ 'user': loggedin_user })
+                form = ConfidentialityDomesticForm(data=None, instance=loggedin_user.confidentiality, initial={ 'user': loggedin_user })
             else:
                 form = ConfidentialityInternationalForm(data=None, instance=loggedin_user.confidentiality, initial={ 'user': loggedin_user })
 
@@ -352,6 +353,10 @@ def edit_confidentiality(request):
                 updated_confidentiality.study_permit_expiry_date = data['study_permit_expiry_date']
                 update_fields.append('study_permit_expiry_date')
 
+            if request.FILES.get('personal_data_form') is not None:
+                updated_confidentiality.study_permit = request.FILES.get('personal_data_form')
+                update_fields.append('personal_data_form')
+
             updated_confidentiality.save(update_fields=update_fields)
 
             if updated_confidentiality:
@@ -375,7 +380,7 @@ def edit_confidentiality(request):
         if userApi.has_user_confidentiality_created(loggedin_user):
 
             if loggedin_user.confidentiality.nationality == '0':
-                form = ConfidentialityNonInternationalForm(data=None, instance=confidentiality, initial={ 'user': loggedin_user })
+                form = ConfidentialityDomesticForm(data=None, instance=confidentiality, initial={ 'user': loggedin_user })
             else:
                 form = ConfidentialityInternationalForm(data=None, instance=confidentiality, initial={ 'user': loggedin_user })
 
