@@ -79,7 +79,12 @@
             {% elif app.declined %}
 
               {% include 'ta_app/applications/_app_status.html' with data=app.declined.get_assigned_display %}<br />
-              <small class="text-muted">{{ app.declined.created_at }}</small>
+              <div><small class="text-muted">{{ app.declined.created_at }}</small></div>
+
+              {% if app.is_declined_reassigned %}
+                <hr />
+                <a href="{% url 'students:reaccept_application' app_slug=app.slug %}">Re-accept</a>
+              {% endif %}
 
             {% elif app.cancelled %}
 

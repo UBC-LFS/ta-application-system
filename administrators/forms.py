@@ -195,6 +195,28 @@ class InstructorApplicationForm(forms.ModelForm):
             'instructor_preference': ''
         }
 
+class ReassignApplicationForm(forms.ModelForm):
+    class Meta:
+        model = Application
+        fields = ['note', 'is_declined_reassigned']
+        widgets = {
+            'note': SummernoteWidget()
+        }
+        labels = {
+            'is_declined_reassigned': 'Are you sure to decline and re-assign this application?'
+        }
+
+class TerminateApplicationForm(forms.ModelForm):
+    class Meta:
+        model = Application
+        fields = ['note', 'is_terminated']
+        widgets = {
+            'note': SummernoteWidget()
+        }
+        labels = {
+            'is_terminated': 'Are you sure to terminate this application?'
+        }
+
 
 class ApplicationStatusForm(forms.ModelForm):
     class Meta:

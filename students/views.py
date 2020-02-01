@@ -784,6 +784,48 @@ def history_jobs(request):
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET','POST'])
+def reaccept_application(request, app_slug):
+    ''' Re-accept an accepted application after declined '''
+    if request.user.is_impersonate:
+        if not userApi.is_admin(request.session['loggedin_user'], 'dict'): raise PermissionDenied
+        request.user.roles = userApi.get_user_roles(request.user)
+    else:
+        request.user.roles = request.session['loggedin_user']['roles']
+    if 'Student' not in request.user.roles: raise PermissionDenied
+
+    app = adminApi.get_application(app_slug, 'slug')
+    if not app.is_declined_reassigned: raise Http404
+
+    if request.method == 'POST':
+        assigned_hours = request.POST.get('assigned_hours')
+        form = ApplicationStatusForm({
+            'application': request.POST.get('application'),
+            'assigned': ApplicationStatus.ACCEPTED,
+            'assigned_hours': assigned_hours
+        })
+        if form.is_valid():
+            app = form.cleaned_data['application']
+            if form.save():
+                if adminApi.update_job_accumulated_ta_hours(app.job.session.slug, app.job.course.slug, assigned_hours):
+                    messages.success(request, 'Success! You accepted the job offer - {0} {1}: {2} {3} {4} '.format(app.job.session.year, app.job.session.term.code, app.job.course.code.name, app.job.course.number.name, app.job.course.section.name))
+                else:
+                    messages.error(request, 'An error occurred while updating ta hours.')
+            else:
+                messages.error(request, 'An error occurred while saving a status of an application.')
+        else:
+            errors = form.errors.get_json_data()
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+
+        return redirect('students:history_jobs')
+
+    return render(request, 'students/jobs/reaccept_application.html', {
+        'loggedin_user': request.user,
+        'app': adminApi.add_app_info_into_application(app, ['accepted','declined'])
+    })
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET', 'POST'])
 def cancel_job(request, session_slug, job_slug):
     ''' Cancel an accepted job '''
@@ -798,21 +840,19 @@ def cancel_job(request, session_slug, job_slug):
     app = apps.filter(job__session__slug=session_slug, job__course__slug=job_slug)
 
     if app is None or len(app) == 0: raise Http404
+
     app = adminApi.add_app_info_into_application(app.first(), ['accepted', 'cancelled'])
+    if not app.is_terminated or app.cancelled: raise Http404
 
     if request.method == 'POST':
-        app_id = request.POST.get('application')
-        assigned_hours = request.POST.get('assigned_hours')
         form = ApplicationStatusReassignForm({
-            'application': app_id,
+            'application': request.POST.get('application'),
             'assigned': ApplicationStatus.CANCELLED,
-            'assigned_hours': assigned_hours,
+            'assigned_hours': request.POST.get('assigned_hours'),
             'parent_id': app.accepted.id
         })
-
         if form.is_valid():
-            cancelled_status = form.save()
-            if cancelled_status:
+            if form.save():
                 messages.success(request, 'Application of {0} {1} - {2} {3} {4} cancelled.'.format(app.job.session.year, app.job.session.term.code, app.job.course.code.name, app.job.course.number.name, app.job.course.section.name))
                 return redirect('students:history_jobs')
             else:
@@ -865,16 +905,16 @@ def accept_offer(request, session_slug, job_slug):
     if 'Student' not in request.user.roles: raise PermissionDenied
 
     if request.method == 'POST':
-        app_id = request.POST.get('application')
         assigned_hours = request.POST.get('assigned_hours')
-        assigned = ApplicationStatus.ACCEPTED
-        form = ApplicationStatusForm({ 'application': app_id, 'assigned': assigned, 'assigned_hours': assigned_hours })
+        form = ApplicationStatusForm({
+            'application': request.POST.get('application'),
+            'assigned': ApplicationStatus.ACCEPTED,
+            'assigned_hours': assigned_hours
+        })
         if form.is_valid():
             app = form.cleaned_data['application']
-            status = form.save()
-            if status:
-                updated = adminApi.update_job_accumulated_ta_hours(session_slug, job_slug, assigned_hours)
-                if updated:
+            if form.save():
+                if adminApi.update_job_accumulated_ta_hours(session_slug, job_slug, assigned_hours):
                     messages.success(request, 'Success! You accepted the job offer - {0} {1}: {2} {3} {4} '.format(app.job.session.year, app.job.session.term.code, app.job.course.code.name, app.job.course.number.name, app.job.course.section.name))
                 else:
                     messages.error(request, 'An error occurred while updating ta hours.')

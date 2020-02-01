@@ -371,7 +371,8 @@ def add_applications_with_latest_status(apps):
         elif status.assigned == ApplicationStatus.DECLINED:
             app.declined = None
             declined = app.applicationstatus_set.filter(assigned=ApplicationStatus.DECLINED)
-            if declined.exists(): app.declined = declined.last()
+            if declined.exists():
+                app.declined = declined.last()
 
         elif status.assigned == ApplicationStatus.CANCELLED:
             app.cancelled = None
@@ -478,13 +479,9 @@ def update_application_instructor_preference(app_id, instructor_preference):
     app.save(update_fields=['instructor_preference', 'updated_at'])
     return app
 
-def terminate_application(app_id):
+def get_terminated_applications():
     ''' Update an application for the termination of an application '''
-    app = get_object_or_404(Application, id=app_id)
-    app.is_terminated = True
-    app.updated_at = datetime.now()
-    app.save(update_fields=['is_terminated'])
-    return app
+    return Application.objects.filter(is_terminated=True)
 
 
 # end applications

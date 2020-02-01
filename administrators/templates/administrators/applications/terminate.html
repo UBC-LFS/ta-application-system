@@ -4,17 +4,25 @@
 {% include 'administrators/_menu.html' %}
 <div class="row">
   <div class="col-md-4">
-    {% include 'ta_app/pages/_left_aside.html' with view_name='emails' title='Send Reminder' data=email %}
+    {% include 'ta_app/pages/_left_aside.html' with view_name='applications' title='Terminate Application' data=app %}
 
     <div class="left-aside-btn-groups">
-      <a class="btn btn-outline-primary" href="{% url 'administrators:email_history' %}">Back to Email History</a>
+      <a class="btn btn-outline-primary" href="{% url 'administrators:accepted_applications' %}">Back to Accepted Applications</a>
     </div>
   </div>
 
   <div class="col-md-8">
-
     <div class="board col-11 mx-auto">
-      <h3>Send Reminder</h3>
+      <h3>Terminate Form</h3>
+
+      <div>
+        <h5>User:</h5>
+        <span>
+          {{ app.applicant.get_full_name }}
+          (CWL: {{ app.applicant.username }})
+        </span>
+      </div>
+
 
       <form action="" method="post">
         {% csrf_token %}
@@ -33,11 +41,11 @@
           {{ field }}
         {% endfor %}
 
-        <a class="btn btn-outline-secondary" href="{% url 'administrators:email_history' %}">Cancel</a>
-        <input class="btn btn-primary" type="submit" value="Send Reminder" />
+        <input class="btn btn-lg btn-primary" type="submit" value="Confirm to terminate" />
       </form>
-    </div>
 
+
+    </div>
   </div>
 </div>
 

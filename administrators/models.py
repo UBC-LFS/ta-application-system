@@ -192,6 +192,7 @@ class Application(models.Model):
     note = models.TextField(null=True, blank=True)
 
     instructor_preference = models.CharField(max_length=1, choices=INSTRUCTOR_PREFERENCE_CHOICES, default=NONE)
+    is_declined_reassigned = models.BooleanField(default=False)
     is_terminated = models.BooleanField(default=False)
 
     created_at = models.DateField(default=dt.date.today)
@@ -227,9 +228,7 @@ class ApplicationStatus(models.Model):
     assigned = models.CharField(max_length=1, choices=ASSSIGNED_CHOICES, default=NONE)
     assigned_hours = models.FloatField(
         default=0.0,
-        validators=[
-            MaxValueValidator(4000)
-        ]
+        validators=[MaxValueValidator(4000)]
     )
     parent_id = models.CharField(max_length=256, null=True, blank=True)
     created_at = models.DateField(default=dt.date.today)

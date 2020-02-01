@@ -18,7 +18,7 @@
         <h3>Decline and Re-assign</h3>
 
         <div>
-          <h6>User:</h6>
+          <h5>User:</h5>
           <span>{{ app.applicant.get_full_name }} (CWL: {{ app.applicant.username }})</span>
         </div>
 
@@ -28,13 +28,13 @@
               <i class="fa fa-bell-o" aria-hidden="true"></i> Attention
             </h4>
             <p class="col-8 mx-auto">
-              Assigned hours will change from <span class="font-weight-bold text-danger">{{ old_assigned_hours }}</span> hours to <span class="font-weight-bold text-danger">{{ new_assigned_hours }}</span> hours.
+              The assigned hours of this user will change from <span class="font-weight-bold text-danger">{{ old_assigned_hours }}</span> hours to <span class="font-weight-bold text-danger">{{ new_assigned_hours }}</span> hours.
             </p>
           </div>
         </div>
 
         <div class="text-center">
-          <h4 class="text-info">Summary</h4>
+          <h4 class="text-info">TA Hours Update Summary</h4>
           <table class="table font-size-1">
             <thead>
               <tr>
@@ -78,6 +78,20 @@
 
           <form action="" method="post">
             {% csrf_token %}
+
+            {% for field in form.visible_fields  %}
+              <div class="field-wrapper">
+                {{ field.label_tag }}
+                {% if field.help_text %}
+                  <div class="help">{{ field.help_text|safe }}</div>
+                {% endif %}
+                {{ field }}
+              </div>
+            {% endfor %}
+
+            {% for field in form.hidden_fields %}
+              {{ field }}
+            {% endfor %}
 
             <input type="hidden" name="application" value="{{ app.id }}" />
             <input type="hidden" name="old_assigned_hours" value="{{ old_assigned_hours }}" />

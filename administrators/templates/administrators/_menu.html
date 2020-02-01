@@ -6,9 +6,9 @@
         Sessions
       </button>
       <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-        <a class="dropdown-item" href="{% url 'administrators:current_sessions' %}">Current Sessions</a>
-        <a class="dropdown-item" href="{% url 'administrators:archived_sessions' %}">Archived Sessions</a>
-        <a class="dropdown-item" href="{% url 'administrators:create_session' %}">Create Session</a>
+        <a class="dropdown-item" href="{% url 'administrators:current_sessions' %}">Current</a>
+        <a class="dropdown-item" href="{% url 'administrators:archived_sessions' %}">Archived</a>
+        <a class="dropdown-item" href="{% url 'administrators:create_session' %}">Create</a>
       </div>
     </div>
 
@@ -30,11 +30,12 @@
       </button>
       <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
         <a class="dropdown-item" href="{% url 'administrators:applications_dashboard' %}">Dashboard</a>
-        <a class="dropdown-item" href="{% url 'administrators:all_applications' %}">All Applications</a>
-        <a class="dropdown-item" href="{% url 'administrators:selected_applications' %}">Selected Applications</a>
-        <a class="dropdown-item" href="{% url 'administrators:offered_applications' %}">Offered Applications</a>
-        <a class="dropdown-item" href="{% url 'administrators:accepted_applications' %}">Accepted Applications</a>
-        <a class="dropdown-item" href="{% url 'administrators:declined_applications' %}">Declined Applications</a>
+        <a class="dropdown-item" href="{% url 'administrators:all_applications' %}">All</a>
+        <a class="dropdown-item" href="{% url 'administrators:selected_applications' %}">Selected</a>
+        <a class="dropdown-item" href="{% url 'administrators:offered_applications' %}">Offered</a>
+        <a class="dropdown-item" href="{% url 'administrators:accepted_applications' %}">Accepted</a>
+        <a class="dropdown-item" href="{% url 'administrators:declined_applications' %}">Declined</a>
+        <a class="dropdown-item" href="{% url 'administrators:terminated_applications' %}">Terminated</a>
         <a class="dropdown-item" href="{% url 'administrators:email_history' %}">Email History</a>
       </div>
     </div>
@@ -44,8 +45,8 @@
         Users
       </button>
       <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-        <a class="dropdown-item" href="{% url 'administrators:all_users' %}">All Users</a>
-        <a class="dropdown-item" href="{% url 'administrators:create_user' %}">Create User</a>
+        <a class="dropdown-item" href="{% url 'administrators:all_users' %}">All</a>
+        <a class="dropdown-item" href="{% url 'administrators:create_user' %}">Create</a>
         <a class="dropdown-item" href="{% url 'administrators:destroy_user_contents' %}">Destroy User Contents</a>
         <a class="dropdown-item" href="{% url 'administrators:roles' %}">Roles</a>
       </div>
@@ -56,8 +57,8 @@
         Courses
       </button>
       <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-        <a class="dropdown-item" href="{% url 'administrators:all_courses' %}">All Courses</a>
-        <a class="dropdown-item" href="{% url 'administrators:create_course' %}">Create Course</a>
+        <a class="dropdown-item" href="{% url 'administrators:all_courses' %}">All</a>
+        <a class="dropdown-item" href="{% url 'administrators:create_course' %}">Create</a>
       </div>
     </div>
 
@@ -85,7 +86,7 @@
         Applications
       </button>
       <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-        <a class="dropdown-item" href="{% url 'administrators:accepted_applications' %}">Accepted Applications</a>
+        <a class="dropdown-item" href="{% url 'administrators:accepted_applications' %}">Accepted</a>
       </div>
     </div>
   {% endif %}

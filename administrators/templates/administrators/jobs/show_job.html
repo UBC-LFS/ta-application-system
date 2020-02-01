@@ -90,7 +90,7 @@
           <td>{{ app.id }}</td>
           <td>{{ app.applicant.first_name }} {{ app.applicant.last_name }}</td>
           <td>{{ app.applicant.username }}</td>
-          <td>{% include 'ta_app/applications/_modal_app_details.html' with data=app %}</td>
+          <td>{% include 'ta_app/applications/_modal_app_details.html' with data=app pin_display='True' %}</td>
           <td>{% include 'ta_app/applications/_modal_app_status.html' with data=app %}</td>
           <td>{% include 'ta_app/applications/_app_instructor_preference.html' with data=app.get_instructor_preference_display %}</td>
           <td>{% include 'ta_app/applications/_app_classification.html' with data=app %}</td>

@@ -27,33 +27,23 @@
   <div class="col-md-8">
     <div class="board col-11 mx-auto">
 
-      {% if app.cancelled %}
+      <h3>Cancel Confirmation</h3>
+      {% include 'ta_app/pages/_submit_note.html' %}
 
-        <div class="bd-callout bd-callout-danger">
-          <h4>Notice</h4>
-          <p>You've already cancelled this accepted job.</p>
-        </div>
+      <div class="mt-5">
+        <h5 class="text-info">Are you sure to cancel this accepted job?</h5>
+        <p class="text-secondary">Please click the Confirm button below if you would like to cancel your job.</p>
 
-      {% else %}
+        <form action="" method="post">
+          {% csrf_token %}
 
-        <h3>Confirmation</h3>
-        {% include 'ta_app/pages/_submit_note.html' %}
+          <input type="hidden" name="assigned_hours" value="{{ app.accepted.assigned_hours }}" />
+          <input type="hidden" name="application" value="{{ app.id }}" />
 
-        <div class="mt-5">
-          <h5>Are you sure to cancel this accepted job?</h5>
-          <p class="text-secondary">Please click the Confirm button below if you would like to cancel your job.</p>
-
-          <form action="" method="post" onsubmit="return confirm('Are you sure to cancel this accepted job: {{ app.job.session.year}} {{ app.job.session.term.code }} - {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}?')">
-            {% csrf_token %}
-            <input type="hidden" name="assigned_hours" value="{{ app.accepted.assigned_hours }}" />
-            <input type="hidden" name="application" value="{{ app.id }}" />
-
-            <a class="btn btn-outline-secondary" href="{% url 'students:history_jobs' %}">Cancel</a>
-            <input class="btn btn-danger" type="submit" value="Confirm to cancel this accepted job" />
-          </form>
-        </div>
-
-      {% endif %}
+          <a class="btn btn-outline-secondary" href="{% url 'students:history_jobs' %}">Cancel</a>
+          <input class="btn btn-danger" type="submit" value="Confirm to cancel" />
+        </form>
+      </div>
 
     </div>
   </div>

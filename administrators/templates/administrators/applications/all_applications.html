@@ -5,7 +5,7 @@
 <div>
   {% include 'ta_app/pages/_header.html' with title='All Applications' %}
 
-  {% include 'administrators/applications/_search_fields.html' with data=apps total=total_apps path='all_applications' %}
+  {% include 'administrators/applications/_search_fields.html' with data=apps total=total_apps path='all' %}
 
   <table
     class="table table-bordered table-hover table-striped table-responsive-md text-center"
@@ -45,13 +45,16 @@
             </a>
           </td>
           <td>
-            <a href="{% url 'administrators:show_user' username=app.applicant.username path='all' %}">{{ app.applicant.first_name }} {{ app.applicant.last_name }}</a>
+            <a href="{% url 'administrators:show_user' username=app.applicant.username path='all' %}">
+              {{ app.applicant.get_full_name }}
+            </a>
+            <div><small class="text-muted">({{ app.applicant.username }})</small></div>
           </td>
           <td>{% include 'ta_app/applications/_modal_app_status.html' with data=app %}</td>
           <td>{% include 'ta_app/applications/_app_instructor_preference.html' with data=app.get_instructor_preference_display %}</td>
           <td>
             {% if app.classification %}
-              {{ app.classification.name }}
+              {{ app.classification.year }} {{ app.classification.name }}
             {% else %}
               None
             {% endif %}

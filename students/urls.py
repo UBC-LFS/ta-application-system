@@ -34,7 +34,6 @@ urlpatterns = [
     path('sessions/<str:session_slug>/jobs/available/', views.available_jobs, name='available_jobs'),
     path('sessions/<str:session_slug>/jobs/<str:job_slug>/details/', views.show_job, name='show_job'),
 
+    path('applications/<str:app_slug>/re-accept/', views.reaccept_application, name='reaccept_application'),
     path('applications/<str:app_slug>/', views.show_application, name='show_application')
-
-    #path('profile/<str:username>/confidentiality/submit/', views.submit_confidentiality, name='submit_confidentiality')
 ]
