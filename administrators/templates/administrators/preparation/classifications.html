@@ -3,7 +3,7 @@
 
 {% include 'administrators/_menu.html' %}
 <div class="row">
-  <div class="col-md-5">
+  <div class="col-md-4">
     {% include 'ta_app/pages/_header.html' with title='Classifications' text=classifications|length %}
 
     <div class="bg-prompt">
@@ -12,14 +12,28 @@
 
         <form action="{% url 'administrators:classifications' %}" method="post">
           {% csrf_token %}
-          <table>{{ form.as_table }}</table>
+
+          {% for field in form.visible_fields  %}
+            <div class="field-wrapper">
+              {{ field.label_tag }}
+              {% if field.help_text %}
+                <div class="help">{{ field.help_text|safe }}</div>
+              {% endif %}
+              {{ field }}
+            </div>
+          {% endfor %}
+
+          {% for field in form.hidden_fields %}
+            {{ field }}
+          {% endfor %}
+
           <input class="btn btn-primary mt-3" type="submit" value="Create" />
         </form>
       </div>
     </div>
   </div>
 
-  <div class="col-md-7">
+  <div class="col-md-8">
 
     <table class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center">
       <thead>
@@ -28,6 +42,8 @@
           <th>Year</th>
           <th>Name</th>
           <th>Wage</th>
+          <th>By month</th>
+          <th>Max Hours</th>
           <th>Is active</th>
           <th>Actions</th>
         </tr>
@@ -39,6 +55,8 @@
             <td>{{ classification.year }}</td>
             <td>{{ classification.name }}</td>
             <td>${{ classification.wage }}</td>
+            <td>{{ classification.by_month }}</td>
+            <td>{{ classification.max_hours }}</td>
             <td>{{ classification.is_active }}</td>
             <td>
               <div class="btn-toolbar">

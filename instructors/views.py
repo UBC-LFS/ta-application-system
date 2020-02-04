@@ -191,40 +191,39 @@ def show_applications(request, session_slug, job_slug):
 
     job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
     if request.method == 'POST':
+
         if request.POST.get('instructor_preference') == Application.NONE:
             messages.error(request, 'An error occurred. Please select your preference, then try again.')
+            return HttpResponseRedirect( reverse('instructors:show_applications', args=[session_slug, job_slug]) )
+
+        if request.POST.get('instructor_preference') == Application.NO_PREFERENCE and float(request.POST.get('assigned_hours')) > 0.0:
+            messages.error(request, 'An error occurred. Please leave 0.0 for Assign TA Hours if you would to select No Preference, then try again.')
+            return HttpResponseRedirect( reverse('instructors:show_applications', args=[session_slug, job_slug]) )
+
+        if float(request.POST.get('assigned_hours')) == 0.0 and request.POST.get('instructor_preference') != Application.NO_PREFERENCE:
+            messages.error(request, 'An error occurred. Please assign TA hours, then try again.')
+            return HttpResponseRedirect( reverse('instructors:show_applications', args=[session_slug, job_slug]) )
+
+        if float(request.POST.get('assigned_hours')) > float(job.assigned_ta_hours):
+            messages.error( request, 'An error occurred. You cannot assign {0} hours because its maximum hours is {1}. then try it again.'.format(request.POST.get('assigned_hours'), job.assigned_ta_hours) )
             return HttpResponseRedirect( reverse('instructors:show_applications', args=[session_slug, job_slug]) )
 
         instructor_app_form = InstructorApplicationForm(request.POST)
         if instructor_app_form.is_valid():
             app_status_form = ApplicationStatusForm(request.POST)
+
             if app_status_form.is_valid():
                 app_id = request.POST.get('application')
                 instructor_preference = request.POST.get('instructor_preference')
-                assigned_hours = request.POST.get('instructor_preference')
-
-                if instructor_preference == Application.NO_PREFERENCE and float(assigned_hours) > 0.0:
-                    messages.error(request, 'An error occurred. Please leave 0.0 for Assign TA Hours if you would to select No Preference, then try again.')
-                    return HttpResponseRedirect( reverse('instructors:show_applications', args=[session_slug, job_slug]) )
-
-                if float(assigned_hours) <= 0.0 and instructor_preference != Application.NO_PREFERENCE:
-                    messages.error(request, 'An error occurred. Please check Assign TA hours, then try again.')
-                    return HttpResponseRedirect( reverse('instructors:show_applications', args=[session_slug, job_slug]) )
-
-                if float(assigned_hours) > float(job.assigned_ta_hours):
-                    messages.error( request, 'An error occurred. You cannot assign {0} hours because its maximum hours is {1}. then try it again.'.format(request.POST.get('assigned_hours'), job.assigned_ta_hours) )
-                    return HttpResponseRedirect( reverse('instructors:show_applications', args=[session_slug, job_slug]) )
 
                 updated_app = adminApi.update_application_instructor_preference(app_id, instructor_preference)
                 if updated_app:
                     if app_status_form.save():
                         messages.success(request, 'Success! {0} is selected.'.format(updated_app.applicant.username))
-                        return HttpResponseRedirect( reverse('instructors:show_applications', args=[session_slug, job_slug]) )
                     else:
                         messages.error(request, 'An error occurred while updating an application status.')
                 else:
                     messages.error(request, 'An error occurred while updating an instructor_preference.')
-
             else:
                 errors = app_status_form.errors.get_json_data()
                 messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))

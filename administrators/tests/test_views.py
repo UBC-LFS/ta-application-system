@@ -40,7 +40,7 @@ DATA = [
 ]
 
 
-USERS = [ 'user2.admin', 'barbara.stefanska', 'user100.test']
+USERS = [ 'user2.admin', 'User56.Ins', 'user100.test']
 PASSWORD = '12'
 
 SESSION = '2019-w1'
@@ -605,7 +605,7 @@ class ApplicationTest(TestCase):
         response = self.client.get( reverse('administrators:declined_applications') )
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get( reverse('administrators:offered_applications_send_email_confirmation') )
+        response = self.client.get( reverse('administrators:applications_send_email_confirmation', args=['offered']) )
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get( reverse('administrators:email_history') )
@@ -736,21 +736,21 @@ class ApplicationTest(TestCase):
 
         data = { 'application': [], 'type': admin_emails.first().slug }
 
-        response = self.client.post(reverse('administrators:offered_applications_send_email'), data=urlencode(data, True), content_type=ContentType)
+        response = self.client.post(reverse('administrators:applications_send_email', args=['offered']), data=urlencode(data, True), content_type=ContentType)
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, response.url)
         self.assertEqual(response.url, '/administrators/applications/offered/')
         response = self.client.get(response.url)
 
         data['application'] = ['1', '25']
-        response = self.client.post(reverse('administrators:offered_applications_send_email'), data=urlencode(data, True), content_type=ContentType)
+        response = self.client.post(reverse('administrators:applications_send_email', args=['offered']), data=urlencode(data, True), content_type=ContentType)
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, response.url)
-        self.assertEqual(response.url, '/administrators/applications/offered/send_email/confirmation/')
+        self.assertEqual(response.url, '/administrators/applications/send_email/confirmation/p/offered/')
 
         response = self.client.get(response.url)
         session = self.client.session
-        self.assertEqual(session['offered_applications_form_data']['applications'], data['application'])
+        self.assertEqual(session['applications_form_data']['applications'], data['application'])
 
         app_ids = []
         user_emails = []
@@ -771,7 +771,7 @@ class ApplicationTest(TestCase):
             'message': 'You have got an job offer',
             'type': response.context['admin_email'].type
         }
-        response = self.client.post(reverse('administrators:offered_applications_send_email_confirmation'), data=urlencode(data, True), content_type=ContentType)
+        response = self.client.post(reverse('administrators:applications_send_email_confirmation', args=['offered']), data=urlencode(data, True), content_type=ContentType)
         messages = self.messages(response)
         self.assertTrue('Success' in messages[0])
         self.assertEqual(response.status_code, 302)
@@ -881,7 +881,7 @@ class ApplicationTest(TestCase):
         self.assertTrue(app.admindocuments.eform, data['eform'])
         self.assertTrue(app.admindocuments.speed_chart, data['speed_chart'])
         self.assertTrue(app.admindocuments.processing_note, data['processing_note'])
-        
+
 
     def test_declined_applications(self):
         print('\n- Test: Display applications declined by students')
@@ -898,7 +898,7 @@ class ApplicationTest(TestCase):
         print('\n- Test: Decline and reassign a job offer with new assigned hours')
         self.login()
 
-        app_id = 22
+        app_id = 1
 
         response = self.client.get( reverse('administrators:accepted_applications') )
         self.assertEqual(response.status_code, 200)
@@ -950,6 +950,7 @@ class ApplicationTest(TestCase):
 
         response = self.client.post( reverse('administrators:decline_reassign_confirmation'), data=urlencode(data), content_type=ContentType )
         messages = self.messages(response)
+        print(messages)
         self.assertTrue('Success' in messages[0])
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, response.url)
@@ -963,7 +964,10 @@ class ApplicationTest(TestCase):
             if app.id == app_id:
                 updated_app = app
                 break
-        status = []
+
+        print(updated_app)
+
+        """status = []
         for st in updated_app.applicationstatus_set.all():
             status.append({
                 'id': st.id,
@@ -979,16 +983,37 @@ class ApplicationTest(TestCase):
         self.assertEqual(status[7]['assigned'], ApplicationStatus.ACCEPTED)
         self.assertEqual(status[7]['assigned_hours'], float(data['new_assigned_hours']))
         self.assertEqual( float(updated_app.job.accumulated_ta_hours), float(accumulated_ta_hours) - float(data['old_assigned_hours']) + float(data['new_assigned_hours']) )
+        """
 
     def test_terminate(self):
         print('\n- Test: terminate an application')
         self.login()
 
-        app_id = '7'
+        app_id = '22'
         appl = adminApi.get_application(app_id)
-        data = { 'application': app_id }
+        data = {
+            'note': 'terminated note',
+            'is_terminated': True
+        }
+        print(appl.slug)
         response = self.client.post(reverse('administrators:terminate', args=[appl.slug]), data=urlencode(data), content_type=ContentType)
+        self.assertEqual(response.status_code, 404)
+        self.assertTrue(appl.is_terminated)
+
+        self.login('user66.test', '12')
+
+        app_id = '8'
+        appl = adminApi.get_application(app_id)
+        self.assertFalse(appl.is_terminated)
+        data = {
+            'note': 'terminated note',
+            'is_terminated': True
+        }
+        response = self.client.post(reverse('administrators:terminate', args=[appl.slug]), data=urlencode(data), content_type=ContentType)
+        print()
+        self.assertEqual(response.status_code, 200)
         messages = self.messages(response)
+        print(messages)
         self.assertTrue('Success' in messages[0])
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, response.url)
@@ -1291,7 +1316,7 @@ class HRTest(TestCase):
             'email': 'test.user555@example.com',
             'username': 'test.user555',
             'preferred_name': None,
-            'student_number': '89782243',
+            'student_number': 'AJWUGNUE',
             'employee_number': '1234567',
             'roles': ['5']
         }
@@ -1299,6 +1324,7 @@ class HRTest(TestCase):
         self.assertFalse(userApi.profile_exists_by_username(data['username']))
         response = self.client.post(reverse('administrators:create_user'), data=urlencode(data, True), content_type=ContentType)
         messages = self.messages(response)
+
         self.assertTrue('An error occurred' in messages[0])
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, response.url)
@@ -1313,7 +1339,7 @@ class HRTest(TestCase):
             'username': 'test.user55',
             'password': '12',
             'preferred_name': None,
-            'student_number': '12345678',
+            'student_number': 'AJWUGNU3',
             'employee_number': '9876521',
             'roles': ['5']
         }
@@ -2067,6 +2093,8 @@ class PreparationTest(TestCase):
             'year': '2020',
             'name': 'Marker 2',
             'wage': '16.05',
+            'by_month': 4,
+            'max_hours': 192,
             'is_active': True
         }
         response = self.client.post( reverse('administrators:classifications'), data=urlencode(data), content_type=ContentType )
@@ -2091,6 +2119,8 @@ class PreparationTest(TestCase):
             'year': '2020',
             'name': 'Marker 2',
             'wage': '16.05',
+            'by_month': 4,
+            'max_hours': 192,
             'is_active': False
         }
         response = self.client.post( reverse('administrators:edit_classification', args=[slug]), data=urlencode(data), content_type=ContentType )
@@ -2119,6 +2149,8 @@ class PreparationTest(TestCase):
             'year': '2020',
             'name': 'Marker 2',
             'wage': '16.05',
+            'by_month': 4,
+            'max_hours': 192,
             'is_active': True
         }
         response = self.client.post( reverse('administrators:classifications'), data=urlencode(data), content_type=ContentType )
@@ -2142,90 +2174,3 @@ class PreparationTest(TestCase):
         for c in response.context['classifications']:
             if c.id == classification.id: found = True
         self.assertFalse(found)
-
-
-
-
-"""
-def apply_jobs(self, user, active_sessions):
-    ''' Students apply jobs '''
-    num_applications = 0
-    num = 0
-    for session in active_sessions:
-        for job in session.job_set.all():
-            if num % 2 == 0:
-                data = {
-                    'applicant': user.id,
-                    'job': str(job.id),
-                    'supervisor_approval': 'True',
-                    'how_qualified': '4',
-                    'how_interested': '4',
-                    'availability': 'True',
-                    'availability_note': 'good'
-                }
-                response = self.client.post(reverse('home:show_job', args=[session.slug, job.course.slug]), data=urlencode(data, True), content_type=ContentType)
-                self.assertEqual(response.status_code, 302) # Redirect to session details
-                #self.assertRedirects(response, response.url)
-                messages = [m.message for m in get_messages(response.wsgi_request)]
-                self.assertTrue('Success' in messages[num_applications]) # Check a success message
-                num_applications += 1
-            num += 1
-    return num_applications
-
-def offer_jobs(self, applications):
-    ''' Admins send a job offer '''
-
-    num = 0
-    num_offers = 0
-    for app in applications:
-        if num % 2 == 1:
-            data = {
-                'applicant': str(app.applicant.id),
-                'assigned': ApplicationStatus.OFFERED,
-                'assigned_hours': '30.0'
-            }
-            response = self.client.post(reverse('administrators:offer_job', args=[app.job.session.slug, app.job.course.slug]), data=urlencode(data), content_type=ContentType)
-            self.assertEqual(response.status_code, 302)
-            #self.assertRedirects(response, response.url)
-            messages = [m.message for m in get_messages(response.wsgi_request)]
-            self.assertTrue('Success' in messages[num_offers]) # Check a success message
-
-            # Check status of the application
-            for st in app.status.all():
-                if st.assigned == ApplicationStatus.OFFERED:
-                    self.assertEqual(st.assigned, data['assigned'])
-                    self.assertEqual(st.assigned_hours, float(data['assigned_hours']))
-            num_offers += 1
-        num += 1
-    return num_offers
-    """
-
-
-
-
-
-"""
-    def test_edit_job_application(self):
-        print('\n- Test: Edit classification and note in select applications')
-        self.login()
-
-        app_id = '12'
-        app = adminApi.get_application(app_id)
-
-        data = {
-            'application': app_id,
-            'classification': '2',
-            'note': 'This is a note.'
-        }
-        response = self.client.post(reverse('administrators:edit_job_application', args=[app.job.session.slug, app.job.course.slug]), data=urlencode(data), content_type=ContentType)
-        messages = self.messages(response)
-        self.assertTrue('Success' in messages[0])
-        self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, response.url)
-
-        app = adminApi.get_application(app_id)
-        self.assertEqual(app.classification.id, int(data['classification']))
-        self.assertEqual(app.note, data['note'])
-
-
-"""

@@ -81,7 +81,7 @@
     <tbody>
       {% for app in job.application_set.all %}
         <tr>
-          <td>{% include 'ta_app/applications/_modal_app_details.html' with data=app display='id'pin_display='True' %}</td>
+          <td>{% include 'ta_app/applications/_modal_app_details.html' with data=app display='id' pin_display='True' %}</td>
           <td>{{ app.applicant.get_full_name }}</td>
           <td>{{ app.applicant.username }}</td>
           <td>

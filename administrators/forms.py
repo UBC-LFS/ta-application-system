@@ -60,11 +60,13 @@ class TermForm(forms.ModelForm):
 class ClassificationForm(forms.ModelForm):
     class Meta:
         model = Classification
-        fields = ['year', 'name', 'wage', 'is_active']
+        fields = ['year', 'name', 'wage', 'by_month', 'max_hours', 'is_active']
         widgets = {
             'year': forms.TextInput(attrs={ 'class': 'form-control' }),
             'name': forms.TextInput(attrs={ 'class': 'form-control' }),
-            'wage': forms.NumberInput(attrs={ 'class': 'form-control' })
+            'wage': forms.NumberInput(attrs={ 'class': 'form-control' }),
+            'by_month': forms.NumberInput(attrs={ 'class': 'form-control' }),
+            'max_hours': forms.NumberInput(attrs={ 'class': 'form-control' })
         }
 
 class CourseForm(forms.ModelForm):

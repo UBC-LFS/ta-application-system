@@ -446,22 +446,17 @@ class StudentTest(TestCase):
         print('\n- Test: A student cancels a job offer')
         self.login()
 
-        response = self.client.get( reverse('students:cancel_job', args=[SESSION, JOB]) )
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context['loggedin_user'].username, USERS[2])
-        self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
-        self.assertEqual(response.context['app'].id, 1)
-        self.assertFalse(response.context['app'].is_terminated)
+        response = self.client.get( reverse('students:cancel_job', args=[SESSION, 'apbi-200-001-introduction-to-soil-science-w1']) )
+        self.assertEqual(response.status_code, 404)
 
-        self.login('user66.test', '12')
         STUDENT_JOB = 'apbi-260-001-agroecology-i-introduction-to-principles-and-techniques-w1'
         response = self.client.get( reverse('students:cancel_job', args=[SESSION, STUDENT_JOB]) )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context['loggedin_user'].username, 'user66.test')
+        self.assertEqual(response.context['loggedin_user'].username, USERS[2])
         self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
 
         app = response.context['app']
-        self.assertEqual(app.id, 7)
+        self.assertEqual(app.id, 22)
         self.assertTrue(app.is_terminated)
 
         data = {
@@ -567,6 +562,33 @@ class StudentTest(TestCase):
         self.assertEqual(apps[1].declined.assigned_hours, 0.0)
 
 
+    def test_reaccept_application(self):
+        print('\n- Test: Students re-accept new job offers')
+        self.login('user65.test', '12')
+
+        STUDENT_JOB = 'apbi-260-001-agroecology-i-introduction-to-principles-and-techniques-w1'
+        APP_SLUG = '2019-w1-apbi-260-001-agroecology-i-introduction-to-principles-and-techniques-w1-application-by-user66test'
+        response = self.client.get( reverse('students:reaccept_application', args=[APP_SLUG]) )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['loggedin_user'].username, STUDENT)
+        self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
+        self.assertEqual(response.context['app'].job.session.slug, SESSION)
+        self.assertEqual(response.context['app'].job.course.slug, STUDENT_JOB)
+
+        app = response.context['app']
+        data = {
+            'application': app.id,
+            'assigned_hours': app.declined.assigned_hours
+        }
+
+        response = self.client.post( reverse('students:reaccept_application', args=[APP_SLUG]), data=urlencode(data), content_type=ContentType )
+        messages = self.messages(response)
+
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+
     def test_show_job(self):
         print('\n- Test: display a job')
         self.login()
@@ -595,49 +617,3 @@ class StudentTest(TestCase):
         app = adminApi.get_application(response.context['app'].slug, 'slug')
         self.assertEqual(response.context['app'].id, app.id)
         self.assertEqual(response.context['app'].applicant.username, app.applicant.username)
-
-
-"""
-
-    def test_replace_user_resume(self):
-        print('\n- Test: replace user resume')
-        self.login('test.user10', '12')
-
-        user_id = '10'
-        username = 'test.user10'
-        resume_name = 'resume.pdf'
-        data = {
-            'user': user_id,
-            'resume': SimpleUploadedFile(resume_name, b'file_content', content_type='application/pdf')
-        }
-        response = self.client.post( reverse('students:upload_resume'), data=data, format='multipart')
-        messages = self.messages(response)
-        self.assertTrue('Success' in messages[0])
-        self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, response.url)
-
-        response = self.client.get(reverse('students:show_profile'))
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context['loggedin_user'].username, username)
-        self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
-        self.assertIsNotNone(response.context['user'].resume)
-
-        updated_resume_name = 'updated_resume.pdf'
-        updated_data = {
-            'user': user_id,
-            'resume': SimpleUploadedFile(updated_resume_name, b'file_content', content_type='application/pdf')
-        }
-        response = self.client.post( reverse('students:upload_resume'), data=updated_data, format='multipart')
-        messages = self.messages(response)
-        #print(messages)
-        #self.assertTrue('Success' in messages[0])
-        #self.assertEqual(response.status_code, 302)
-        #self.assertRedirects(response, response.url)
-
-        #response = self.client.get(reverse('students:show_profile'))
-        #self.assertEqual(response.status_code, 200)
-        #self.assertEqual(response.context['loggedin_user'].username, username)
-        #self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
-        #self.assertIsNotNone(response.context['user'].resume)
-
-"""

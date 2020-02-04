@@ -103,7 +103,7 @@
             {% if 'Admin' in loggedin_user.roles or 'Superadmin' in loggedin_user.roles %}
 
               {% if app.is_declined_reassigned %}
-              <button class="btn btn-xs btn-primary mb-2" type="button" data-toggle="modal" data-target="#job-application-modal-{{ app.id }}" disabled>
+              <button class="btn btn-xs btn-secondary mb-2" type="button" data-toggle="modal" data-target="#job-application-modal-{{ app.id }}" disabled>
                 Declined &<br /> Re-assigned
               </button><br />
               {% else %}
@@ -143,9 +143,9 @@
               </div>
 
               {% if app.is_terminated %}
-                <button class="btn btn-xs btn-link" type="button" disabled>Terminated</button><br />
+                <button class="btn btn-xs btn-secondary" type="button" disabled>Terminated</button><br />
               {% else %}
-                <a class="btn btn-xs btn-link" href="{% url 'administrators:terminate' app_slug=app.slug %}">Terminate</a><br />
+                <a class="btn btn-xs btn-success" href="{% url 'administrators:terminate' app_slug=app.slug %}">Terminate</a><br />
               {% endif %}
             {% endif %}
 

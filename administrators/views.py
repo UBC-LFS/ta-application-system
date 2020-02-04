@@ -1139,7 +1139,6 @@ def decline_reassign_confirmation(request):
                         reaasigned_app.save()
                         if reaasigned_app:
                             messages.success(request, 'Success! The status of Application (ID: {0}) updated'.format(app_id))
-                            return redirect('administrators:declined_applications')
                         else:
                             messages.error(request, 'An error occurred. Failed to update a note in the application.')
                     else:
