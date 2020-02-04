@@ -2,7 +2,7 @@ from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.text import slugify
-from django.core.validators import MaxValueValidator, MinValueValidator, FileExtensionValidator
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
@@ -140,6 +140,16 @@ class Classification(models.Model):
         help_text='Maximum character: 10'
     )
     wage = models.FloatField()
+    by_month = models.IntegerField(
+        default=4,
+        help_text='Minimun value: 1, Maximum Value: 12',
+        validators=[MinValueValidator(1), MaxValueValidator(12)]
+    )
+    max_hours = models.IntegerField(
+        default=192,
+        help_text='Minimun value: 0, Maximum Value: 4000',
+        validators=[MinValueValidator(0), MaxValueValidator(4000)]
+    )
     is_active = models.BooleanField(default=True)
     slug = models.SlugField(max_length=256, unique=True)
 
@@ -155,6 +165,7 @@ class Application(models.Model):
     """ This is a model for applications of students """
 
     PREFERENCE_CHOICES = [
+        ('0', 'Select'),
         ('1', 'Not at all'),
         ('2', 'Marginally'),
         ('3', 'Somewhat'),
@@ -191,6 +202,7 @@ class Application(models.Model):
     note = models.TextField(null=True, blank=True)
 
     instructor_preference = models.CharField(max_length=1, choices=INSTRUCTOR_PREFERENCE_CHOICES, default=NONE)
+    is_declined_reassigned = models.BooleanField(default=False)
     is_terminated = models.BooleanField(default=False)
 
     created_at = models.DateField(default=dt.date.today)
@@ -205,6 +217,13 @@ class Application(models.Model):
         super(Application, self).save(*args, **kwargs)
 
 
+def NumericalValueValidator(value):
+    if value.isnumeric() == False:
+        raise ValidationError(
+            _('This field must be numerical value only.'), params={'value': value}, code='numerical_value'
+        )
+
+
 class ApplicationStatus(models.Model):
     ''' Application Status '''
     NONE = '0'
@@ -217,7 +236,10 @@ class ApplicationStatus(models.Model):
 
     application = models.ForeignKey(Application, on_delete=models.CASCADE)
     assigned = models.CharField(max_length=1, choices=ASSSIGNED_CHOICES, default=NONE)
-    assigned_hours = models.FloatField(default=0.00)
+    assigned_hours = models.FloatField(
+        default=0.0,
+        validators=[MaxValueValidator(4000)]
+    )
     parent_id = models.CharField(max_length=256, null=True, blank=True)
     created_at = models.DateField(default=dt.date.today)
 

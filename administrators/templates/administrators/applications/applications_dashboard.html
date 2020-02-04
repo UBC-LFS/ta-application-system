@@ -12,7 +12,7 @@
     </div>
   </div>
 
-  {% include 'administrators/applications/_search_fields.html' with data=statuses total=total_statuses path='applications_dashboard' %}
+  {% include 'administrators/applications/_search_fields.html' with data=statuses total=total_statuses path='dashboard' %}
 
   <table
     class="table table-bordered table-hover table-striped table-responsive-md text-center"
@@ -48,7 +48,7 @@
                 {% include 'ta_app/applications/_app_status.html' with data=st.get_assigned_display %}
 
               {% else %}
-                <span class="badge badge-success">Declined & Re-assigned</span>
+                <span class="badge badge-danger">DECLINED &<br /> RE-ASSIGNED</span>
 
               {% endif %}
 

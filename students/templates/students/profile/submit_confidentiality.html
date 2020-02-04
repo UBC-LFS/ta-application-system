@@ -29,6 +29,7 @@
       </div>
 
       {% if form %}
+      
         {% include 'ta_app/pages/_upload_message.html' %}
 
         <div class="field-wrapper">
@@ -60,8 +61,11 @@
 
           <input type="hidden" name="nationality" value="{{ loggedin_user.confidentiality.nationality }}" />
 
-          <a class="btn btn-outline-secondary" href="{% url 'students:show_confidentiality' %}">Cancel</a>
-          <input class="btn btn-primary" type="submit" value="Submit" />
+          <div class="mt-5">
+            <a class="btn btn-outline-secondary" href="{% url 'students:show_confidentiality' %}">Cancel</a>
+            <input class="btn btn-primary" type="submit" value="Submit" />
+          </div>
+
         </form>
       {% else %}
         <div class="alert alert-danger" role="alert">

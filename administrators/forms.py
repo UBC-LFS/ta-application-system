@@ -60,11 +60,13 @@ class TermForm(forms.ModelForm):
 class ClassificationForm(forms.ModelForm):
     class Meta:
         model = Classification
-        fields = ['year', 'name', 'wage', 'is_active']
+        fields = ['year', 'name', 'wage', 'by_month', 'max_hours', 'is_active']
         widgets = {
             'year': forms.TextInput(attrs={ 'class': 'form-control' }),
             'name': forms.TextInput(attrs={ 'class': 'form-control' }),
-            'wage': forms.NumberInput(attrs={ 'class': 'form-control' })
+            'wage': forms.NumberInput(attrs={ 'class': 'form-control' }),
+            'by_month': forms.NumberInput(attrs={ 'class': 'form-control' }),
+            'max_hours': forms.NumberInput(attrs={ 'class': 'form-control' })
         }
 
 class CourseForm(forms.ModelForm):
@@ -195,6 +197,28 @@ class InstructorApplicationForm(forms.ModelForm):
             'instructor_preference': ''
         }
 
+class ReassignApplicationForm(forms.ModelForm):
+    class Meta:
+        model = Application
+        fields = ['note', 'is_declined_reassigned']
+        widgets = {
+            'note': SummernoteWidget()
+        }
+        labels = {
+            'is_declined_reassigned': 'Are you sure to decline and re-assign this application?'
+        }
+
+class TerminateApplicationForm(forms.ModelForm):
+    class Meta:
+        model = Application
+        fields = ['note', 'is_terminated']
+        widgets = {
+            'note': SummernoteWidget()
+        }
+        labels = {
+            'is_terminated': 'Are you sure to terminate this application?'
+        }
+
 
 class ApplicationStatusForm(forms.ModelForm):
     class Meta:
@@ -224,12 +248,14 @@ class AdminApplicationForm(forms.ModelForm):
 class ApplicationForm(forms.ModelForm):
     ''' Create a model form for an application for students '''
     how_qualified = forms.ChoiceField(
-        choices=Application.PREFERENCE_CHOICES, widget=forms.RadioSelect,
-        label='How qualifed are you?'
+        choices=Application.PREFERENCE_CHOICES,
+        label='How qualifed are you?',
+        help_text='This field is required.'
     )
     how_interested = forms.ChoiceField(
-        choices=Application.PREFERENCE_CHOICES, widget=forms.RadioSelect,
-        label='How interested are you?'
+        choices=Application.PREFERENCE_CHOICES,
+        label='How interested are you?',
+        help_text='This field is required.'
     )
 
     class Meta:
@@ -244,6 +270,9 @@ class ApplicationForm(forms.ModelForm):
             'supervisor_approval': 'Supervisor Approval',
             'availability': 'Availability requirements',
             'availability_note': 'Availability notes'
+        }
+        help_texts = {
+            'availability_note': 'This field is optional.'
         }
 
 class AdminDocumentsForm(forms.ModelForm):

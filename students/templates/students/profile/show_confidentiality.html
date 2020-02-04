@@ -9,6 +9,15 @@
     <div class="left-aside-btn-groups">
       <a class="btn btn-outline-primary" href="{% url 'students:show_profile' %}">View Profile</a>
     </div>
+
+    <div class="bd-callout bd-callout-warning bg-light-gray col-11 mx-auto">
+      <h4>
+        <i class="fa fa-info-circle" aria-hidden="true"></i> Note
+      </h4>
+      <p>
+        Please go to <a href="{% url 'students:edit_confidentiality' %}">Edit Confidential Information</a> if you would like to delete your uploaded files.
+      </p>
+    </div>
   </div>
 
   <div class="col-md-8">

@@ -25,7 +25,7 @@ from datetime import datetime
 from django.contrib.auth.models import User
 
 
-APP_MEMU = ['dashboard', 'all', 'selected', 'offered', 'accepted', 'declined']
+APP_MEMU = ['dashboard', 'all', 'selected', 'offered', 'accepted', 'declined', 'terminated']
 SESSION_PATH = ['current', 'archived']
 JOB_PATH = ['prepare', 'progress'] + APP_MEMU
 APP_PATH = APP_MEMU + ['emails' ]
@@ -895,106 +895,6 @@ def offered_applications(request):
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['POST'])
-def offered_applications_send_email(request):
-    ''' Send an email for offered applications '''
-    request.user.roles = request.session['loggedin_user']['roles']
-    if not userApi.is_admin(request.user): raise PermissionDenied
-
-    if request.method == 'POST':
-        applications = request.POST.getlist('application')
-        if len(applications) > 0:
-            type = request.POST.get('type')
-            request.session['offered_applications_form_data'] = { 'applications': applications, 'type': type }
-            return redirect('administrators:offered_applications_send_email_confirmation')
-        else:
-            messages.error(request, 'An error occurred. Please select applications, then try again.')
-
-    return redirect('administrators:offered_applications')
-
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET', 'POST'])
-def offered_applications_send_email_confirmation(request):
-    ''' Display a list of email for offered applications '''
-    request.user.roles = request.session['loggedin_user']['roles']
-    if not userApi.is_admin(request.user): raise PermissionDenied
-
-    applications = []
-    receiver_list = []
-    form = None
-    type = None
-    admin_email = None
-
-    form_data = request.session.get('offered_applications_form_data')
-    if form_data:
-        app_ids = form_data['applications']
-        applications = adminApi.get_offered_applications_with_multiple_ids(app_ids)
-        receiver_list = [ app.applicant.email for app in applications ]
-
-        if request.method == 'POST':
-            form = EmailForm(request.POST)
-            if form.is_valid():
-                data = form.cleaned_data
-
-                count = 0
-                for app in applications:
-                    name = app.applicant.first_name + ' ' + app.applicant.last_name
-                    message = data['message'].format(
-                        name,
-                        app.job.session.year + ' ' + app.job.session.term.code,
-                        app.job.course.code.name + ' ' + app.job.course.number.name + ' ' + app.job.course.section.name,
-                        app.offered.assigned_hours,
-                        app.classification.name
-                    )
-
-                    # TODO: replace a receiver
-                    receiver = '{0} <{1}>'.format(name, app.applicant.email)
-
-                    email = adminApi.send_and_create_email(app, data['sender'], receiver, data['title'], message, data['type'])
-                    if email: count += 1
-
-                if count == len(applications):
-                    messages.success(request, 'Success! Email has sent to {0}'.format( data['receiver'] ))
-                else:
-                    messages.error(request, 'An error occurred.')
-
-                del request.session['offered_applications_form_data']
-                return redirect('administrators:offered_applications')
-            else:
-                errors = form.errors.get_json_data()
-                messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
-
-            return redirect('administrators:offered_applications_send_email_confirmation')
-
-        else:
-            type = form_data['type']
-            admin_email = adminApi.get_admin_email_by_slug(type)
-            title = admin_email.title
-            message = admin_email.message
-
-            form = EmailForm(initial={
-                'sender': settings.EMAIL_FROM,
-                'receiver': receiver_list,
-                'title': title,
-                'message': message,
-                'type': admin_email.type
-            })
-
-    return render(request, 'administrators/applications/offered_applications_send_email_confirmation.html', {
-        'loggedin_user': request.user,
-        'applications': applications,
-        'sender': settings.EMAIL_FROM,
-        'receiver': receiver_list,
-        'form': form,
-        'admin_email': admin_email if admin_email else None
-    })
-
-
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET', 'POST'])
 def accepted_applications(request):
     ''' Display applications accepted by students '''
@@ -1062,6 +962,7 @@ def accepted_applications(request):
         'total_apps': len(app_list)
     })
 
+
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
@@ -1110,7 +1011,8 @@ def declined_applications(request):
     return render(request, 'administrators/applications/declined_applications.html', {
         'loggedin_user': request.user,
         'apps': apps,
-        'total_apps': len(app_list)
+        'total_apps': len(app_list),
+        'admin_emails': adminApi.get_admin_emails()
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -1169,10 +1071,27 @@ def decline_reassign(request):
     if not userApi.is_admin(request.user): raise PermissionDenied
 
     if request.method == 'POST':
-        new_assigned_hours = request.POST.get('new_assigned_hours')
         app = adminApi.get_application( request.POST.get('application') )
+
+        if app.is_declined_reassigned: raise Http404
+
+        old_assigned_hours = request.POST.get('old_assigned_hours')
+        new_assigned_hours = request.POST.get('new_assigned_hours')
+
+        if new_assigned_hours.isnumeric():
+            messages.error(request, 'An error occurred. Please check assigned hours. Your new assigned hours must be numerival value only.')
+            return redirect('administrators:accepted_applications')
+
+        if float(new_assigned_hours) < 0:
+            messages.error(request, 'An error occurred. Please check assigned hours. Your new assigned hours must be greater than 0.')
+            return redirect('administrators:accepted_applications')
+
+        if float(old_assigned_hours) == float(new_assigned_hours):
+            messages.error(request, 'An error occurred. Please check assigned hours. Your new assigned hours are same as current assigned hours.')
+            return redirect('administrators:accepted_applications')
+
         if float(new_assigned_hours) == 0.0 or float(new_assigned_hours) > float(app.job.assigned_ta_hours):
-            messages.error(request, 'An error occurred. Please check assigned hours. Hours are between 0.0 and {0}'.format(app.job.assigned_ta_hours))
+            messages.error(request, 'An error occurred. Please check assigned hours. Valid assigned hours are between 0.0 and {0}'.format(app.job.assigned_ta_hours))
             return redirect('administrators:accepted_applications')
 
         request.session['decline_reassign_form_data'] = request.POST
@@ -1193,26 +1112,40 @@ def decline_reassign_confirmation(request):
     new_assigned_hours = None
     new_ta_hours = None
     if request.method == 'POST':
+        if request.POST.get('is_declined_reassigned') == None:
+            messages.error(request, 'An error occurred. Please click the checkbox to decline and re-assign.')
+            return redirect('administrators:decline_reassign_confirmation')
+
         app_id = request.POST.get('application')
         old_assigned_hours = request.POST.get('old_assigned_hours')
         new_assigned_hours = request.POST.get('new_assigned_hours')
         app = adminApi.get_application(app_id)
         accepted_status = adminApi.get_accepted_status(app)
 
-        form = ApplicationStatusReassignForm({ 'application': app_id, 'assigned': ApplicationStatus.DECLINED, 'assigned_hours': 0.00, 'parent_id': accepted_status.id })
+        form = ApplicationStatusReassignForm({
+            'application': app_id,
+            'assigned': ApplicationStatus.DECLINED,
+            'assigned_hours': new_assigned_hours,
+            'parent_id': accepted_status.id
+        })
+
         if form.is_valid():
-            declined_status = form.save()
-            if declined_status:
-                reassign_form = ApplicationStatusForm({ 'application': app_id, 'assigned': ApplicationStatus.ACCEPTED, 'assigned_hours': new_assigned_hours })
-                reassigned_status = reassign_form.save()
-                if reassigned_status:
-                    updated = adminApi.update_job_accumulated_ta_hours(app.job.session.slug, app.job.course.slug, float(new_assigned_hours) - float(old_assigned_hours))
-                    if updated:
-                        messages.success(request, 'Success! The status of Application (ID: {0}) updated'.format(app_id))
+            if form.save():
+                if adminApi.update_job_accumulated_ta_hours(app.job.session.slug, app.job.course.slug, float(new_assigned_hours) - float(old_assigned_hours)):
+                    reassign_form = ReassignApplicationForm(request.POST, instance=app)
+                    if reassign_form.is_valid():
+                        reaasigned_app = reassign_form.save(commit=False)
+                        reaasigned_app.updated_at = datetime.now()
+                        reaasigned_app.save()
+                        if reaasigned_app:
+                            messages.success(request, 'Success! The status of Application (ID: {0}) updated'.format(app_id))
+                        else:
+                            messages.error(request, 'An error occurred. Failed to update a note in the application.')
                     else:
-                        messages.error(request, 'An error occurred. Failed to update ta hours in a job')
+                        errors = form.errors.get_json_data()
+                        messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
                 else:
-                    messages.error(request, 'An error occurred while updating a reassigned status.')
+                    messages.error(request, 'An error occurred. Failed to update ta hours in a job')
             else:
                 messages.error(request, 'An error occurred while saving a declined status.')
         else:
@@ -1220,6 +1153,7 @@ def decline_reassign_confirmation(request):
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
         return redirect('administrators:accepted_applications')
+
     else:
         data = request.session.get('decline_reassign_form_data')
         if data:
@@ -1236,25 +1170,196 @@ def decline_reassign_confirmation(request):
         'app': app,
         'old_assigned_hours': old_assigned_hours,
         'new_assigned_hours': new_assigned_hours,
-        'new_ta_hours': new_ta_hours
+        'new_ta_hours': new_ta_hours,
+        'form': ReassignApplicationForm(data=None, instance=app)
     })
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['POST'])
+@require_http_methods(['GET','POST'])
 def terminate(request, app_slug):
     ''' Terminate an application, then students can can their accepted jobs '''
     request.user.roles = request.session['loggedin_user']['roles']
     if not userApi.is_admin(request.user): raise PermissionDenied
 
-    if request.method == 'POST':
-        terminated_app = adminApi.terminate_application( request.POST.get('application') )
-        if terminated_app:
-            messages.success(request, 'Success! Application (ID: {0}) terminated.'.format(terminated_app.id))
-        else:
-            messages.error(request, 'An error occurred while termniating an application.')
+    app = adminApi.get_application(app_slug, 'slug')
+    if app.is_terminated: raise Http404
 
-    return redirect('administrators:accepted_applications')
+    if request.method == 'POST':
+        if request.POST.get('is_terminated') == None:
+            messages.error(request, 'An error occurred. Please click the checkbox to terminate.')
+            return HttpResponseRedirect( reverse('administrators:terminate', args=[app_slug]) )
+
+        form = TerminateApplicationForm(request.POST, instance=app)
+        if form.is_valid():
+            terminated_app = form.save(commit=False)
+            terminated_app.updated_at = datetime.now()
+            terminated_app.save()
+            if terminated_app:
+                messages.success(request, 'Success! Application (ID: {0}) terminated.'.format(terminated_app.id))
+                return redirect('administrators:terminated_applications')
+            else:
+                messages.error(request, 'An error occurred while termniating an application.')
+        else:
+            errors = form.errors.get_json_data()
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+
+        return HttpResponseRedirect( reverse('administrators:terminate_application', args=[app_slug]) )
+
+    return render(request, 'administrators/applications/terminate.html', {
+        'loggedin_user': request.user,
+        'app': app,
+        'form': TerminateApplicationForm(data=None, instance=app)
+    })
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def terminated_applications(request):
+    ''' Terminated applications '''
+    request.user.roles = request.session['loggedin_user']['roles']
+    if not userApi.is_admin(request.user): raise PermissionDenied
+
+    year_q = request.GET.get('year')
+    term_q = request.GET.get('term')
+    code_q = request.GET.get('code')
+    number_q = request.GET.get('number')
+    section_q = request.GET.get('section')
+    first_name_q = request.GET.get('first_name')
+    last_name_q = request.GET.get('last_name')
+
+    app_list = adminApi.get_terminated_applications()
+    if bool(year_q):
+        app_list = app_list.filter(job__session__year__iexact=year_q)
+    if bool(term_q):
+        app_list = app_list.filter(job__session__term__code__iexact=term_q)
+    if bool(code_q):
+        app_list = app_list.filter(job__course__code__name__iexact=code_q)
+    if bool(number_q):
+        app_list = app_list.filter(job__course__number__name__iexact=number_q)
+    if bool(section_q):
+        app_list = app_list.filter(job__course__section__name__iexact=section_q)
+    if bool(first_name_q):
+        app_list = app_list.filter(applicant__first_name__icontains=first_name_q)
+    if bool(last_name_q):
+        app_list = app_list.filter(applicant__last_name__icontains=last_name_q)
+
+    page = request.GET.get('page', 1)
+    paginator = Paginator(app_list, settings.PAGE_SIZE)
+
+    try:
+        apps = paginator.page(page)
+    except PageNotAnInteger:
+        apps = paginator.page(1)
+    except EmptyPage:
+        apps = paginator.page(paginator.num_pages)
+
+    return render(request, 'administrators/applications/terminated_applications.html', {
+        'loggedin_user': request.user,
+        'apps': apps,
+        'total_apps': len(app_list),
+        'admin_emails': adminApi.get_admin_emails()
+    })
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['POST'])
+def applications_send_email(request, path):
+    ''' Send an email for applications '''
+    request.user.roles = request.session['loggedin_user']['roles']
+    if not userApi.is_admin(request.user): raise PermissionDenied
+
+    if request.method == 'POST':
+        applications = request.POST.getlist('application')
+        if len(applications) > 0:
+            type = request.POST.get('type')
+            request.session['applications_form_data'] = { 'applications': applications, 'type': type }
+            #return redirect('administrators:applications_send_email_confirmation')
+            return HttpResponseRedirect( reverse('administrators:applications_send_email_confirmation', args=[path]) )
+        else:
+            messages.error(request, 'An error occurred. Please select applications, then try again.')
+
+    return redirect('administrators:{0}_applications'.format(path))
+
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET', 'POST'])
+def applications_send_email_confirmation(request, path):
+    ''' Display a list of email for offered applications '''
+    request.user.roles = request.session['loggedin_user']['roles']
+    if not userApi.is_admin(request.user): raise PermissionDenied
+
+    applications = []
+    receiver_list = []
+    form = None
+    type = None
+    admin_email = None
+
+    form_data = request.session.get('applications_form_data')
+    if form_data:
+        app_ids = form_data['applications']
+        applications = adminApi.get_offered_applications_with_multiple_ids(app_ids)
+        receiver_list = [ app.applicant.email for app in applications ]
+
+        if request.method == 'POST':
+            form = EmailForm(request.POST)
+            if form.is_valid():
+                data = form.cleaned_data
+
+                count = 0
+                for app in applications:
+                    name = app.applicant.first_name + ' ' + app.applicant.last_name
+                    message = data['message'].format(
+                        name,
+                        app.job.session.year + ' ' + app.job.session.term.code,
+                        app.job.course.code.name + ' ' + app.job.course.number.name + ' ' + app.job.course.section.name,
+                        app.offered.assigned_hours,
+                        app.classification.name
+                    )
+
+                    # TODO: replace a receiver
+                    receiver = '{0} <{1}>'.format(name, app.applicant.email)
+
+                    email = adminApi.send_and_create_email(app, data['sender'], receiver, data['title'], message, data['type'])
+                    if email: count += 1
+
+                if count == len(applications):
+                    messages.success(request, 'Success! Email has sent to {0}'.format( data['receiver'] ))
+                else:
+                    messages.error(request, 'An error occurred.')
+
+                del request.session['applications_form_data']
+                return redirect('administrators:{0}_applications'.format(path))
+            else:
+                errors = form.errors.get_json_data()
+                messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+
+            return redirect('administrators:applications_send_email_confirmation')
+
+        else:
+            type = form_data['type']
+            admin_email = adminApi.get_admin_email_by_slug(type)
+            title = admin_email.title
+            message = admin_email.message
+
+            form = EmailForm(initial={
+                'sender': settings.EMAIL_FROM,
+                'receiver': receiver_list,
+                'title': title,
+                'message': message,
+                'type': admin_email.type
+            })
+
+    return render(request, 'administrators/applications/applications_send_email_confirmation.html', {
+        'loggedin_user': request.user,
+        'applications': applications,
+        'sender': settings.EMAIL_FROM,
+        'receiver': receiver_list,
+        'form': form,
+        'admin_email': admin_email if admin_email else None,
+        'path': path
+    })
 
 
 

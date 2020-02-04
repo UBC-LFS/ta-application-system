@@ -25,8 +25,8 @@ urlpatterns = [
     path('sessions/<str:session_slug>/jobs/<str:job_slug>/applications/', views.show_job_applications, name='show_job_applications'),
     path('sessions/<str:session_slug>/jobs/<str:job_slug>/p/<str:path>/details/', views.show_job, name='show_job'),
 
-    path('applications/offered/send_email/confirmation/', views.offered_applications_send_email_confirmation, name='offered_applications_send_email_confirmation'),
-    path('applications/offered/send_email/', views.offered_applications_send_email, name='offered_applications_send_email'),
+    path('applications/send_email/confirmation/p/<str:path>/', views.applications_send_email_confirmation, name='applications_send_email_confirmation'),
+    path('applications/send_email/p/<str:path>/', views.applications_send_email, name='applications_send_email'),
 
     path('sessions/<str:session_slug>/jobs/<str:job_slug>/offer/', views.offer_job, name='offer_job'),
     path('applications/offered/email_history/', views.email_history, name='email_history'),
@@ -41,6 +41,7 @@ urlpatterns = [
     path('applications/offered/', views.offered_applications, name='offered_applications'),
     path('applications/accepted/', views.accepted_applications, name='accepted_applications'),
     path('applications/declined/', views.declined_applications, name='declined_applications'),
+    path('applications/terminated/', views.terminated_applications, name='terminated_applications'),
     path('applications/<str:app_slug>/p/<str:path>/details/', views.show_application, name='show_application'),
 
     path('hr/users/<str:username>/edit/', views.edit_user, name='edit_user'),
