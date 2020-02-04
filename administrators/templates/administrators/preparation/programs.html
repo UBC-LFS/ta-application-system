@@ -65,8 +65,8 @@
                             {% csrf_token %}
 
                             <div class="field-wrapper">
-                              <label for="id_name_{{ program.id }}" class="font-weight-bold">Name:</label>
-                              <input id="name_{{ program.id }}" type="text" name="name" value="{{ program.name }}" class="form-control" />
+                              <label for="id_name_{{ program.id }}">Name:</label>
+                              <input id="id_name_{{ program.id }}" type="text" name="name" value="{{ program.name }}" class="form-control" />
                             </div>
 
                             <input class="btn btn-primary" type="submit" value="Update" />

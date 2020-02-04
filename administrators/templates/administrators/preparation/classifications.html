@@ -71,28 +71,28 @@
                             {% csrf_token %}
 
                             <div class="field-wrapper">
-                              <label for="id_year_{{ classification.id }}" class="font-weight-bold">Year:</label>
+                              <label for="id_year_{{ classification.id }}">Year:</label>
                               <div class="help">Maximum character: 10</div>
-                              <input id="year_{{ classification.id }}" type="text" name="year" value="{{ classification.year }}" class="form-control" />
+                              <input id="id_year_{{ classification.id }}" type="text" name="year" value="{{ classification.year }}" class="form-control" />
                             </div>
 
                             <div class="field-wrapper">
-                              <label for="id_name_{{ classification.id }}" class="font-weight-bold">Name:</label>
+                              <label for="id_name_{{ classification.id }}">Name:</label>
                               <div class="help">Maximum character: 10</div>
-                              <input id="name_{{ classification.id }}" type="text" name="name" value="{{ classification.name }}" class="form-control" />
+                              <input id="id_name_{{ classification.id }}" type="text" name="name" value="{{ classification.name }}" class="form-control" />
                             </div>
 
                             <div class="field-wrapper">
-                              <label for="id_wage_{{ classification.id }}" class="font-weight-bold">Wage:</label>
-                              <input id="wage_{{ classification.id }}" type="number" name="wage" value="{{ classification.wage }}" class="form-control" />
+                              <label for="id_wage_{{ classification.id }}">Wage:</label>
+                              <input id="id_wage_{{ classification.id }}" type="number" name="wage" value="{{ classification.wage }}" class="form-control" />
                             </div>
 
                             <div class="field-wrapper">
-                              <label for="id_is_active_{{ classification.id }}" class="font-weight-bold">Is active:</label>
+                              <label for="id_is_active_{{ classification.id }}">Is active:</label>
                               {% if classification.is_active %}
-                                <input id="is_active_{{ classification.id }}" type="checkbox" name="id_is_active" checked />
+                                <input id="id_is_active_{{ classification.id }}" type="checkbox" name="id_is_active" checked />
                               {% else %}
-                                <input id="is_active_{{ classification.id }}" type="checkbox" name="id_is_active" />
+                                <input id="id_is_active_{{ classification.id }}" type="checkbox" name="id_is_active" />
                               {% endif %}
                             </div>
 

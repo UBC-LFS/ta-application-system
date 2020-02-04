@@ -133,7 +133,7 @@
                           <div class="field-wrapper">
                             <label for="id_new_assigned_hours_{{ app.id }}">New Assigned Hours:</label>
                             <div class="help">Numerical value only</div>
-                            <input id="new_assigned_hours_{{ app.id }}" type="number" name="new_assigned_hours" id="id_new_assigned_hours" value="{{ app.accepted.assigned_hours }}" class="form-control" />
+                            <input id="id_new_assigned_hours_{{ app.id }}" type="number" name="new_assigned_hours" id="id_new_assigned_hours" value="{{ app.accepted.assigned_hours }}" class="form-control" />
                           </div>
 
                           <input type="hidden" name="old_assigned_hours" value="{{ app.accepted.assigned_hours }}" />
@@ -176,7 +176,7 @@
                         <div class="field-wrapper">
                           <label for="id_pin_{{ app.id }}">PIN:</label>
                           <div class="help">Optional. Maximum 4 digits long</div>
-                          <input id="pin_{{ app.id }}" type="text" name="pin" class="form-control" maxlength="4"
+                          <input id="id_pin_{{ app.id }}" type="text" name="pin" class="form-control" maxlength="4"
                             {% if app.admindocuments.pin %}
                               value="{{ app.admindocuments.pin }}"
                             {% else %}
@@ -188,7 +188,7 @@
                         <div class="field-wrapper">
                           <label for="id_tasm_{{ app.id }}">TASM:</label>
                           <div class="help">Optional</div>
-                          <input id="tasm_{{ app.id }}" type="checkbox" name="tasm"
+                          <input id="id_tasm_{{ app.id }}" type="checkbox" name="tasm"
                             {% if app.admindocuments.tasm %}
                               checked
                             {% endif %}
@@ -198,7 +198,7 @@
                         <div class="field-wrapper">
                           <label for="id_eform_{{ app.id }}">eForm:</label>
                           <div class="help">Optional. Maximum 6 digits long</div>
-                          <input id="eform_{{ app.id }}" type="text" name="eform" class="form-control" maxlength="6"
+                          <input id="id_eform_{{ app.id }}" type="text" name="eform" class="form-control" maxlength="6"
                             {% if app.admindocuments.eform %}
                               value="{{ app.admindocuments.eform }}"
                             {% else %}
@@ -210,7 +210,7 @@
                         <div class="field-wrapper">
                           <label for="id_speed_chart_{{ app.id }}">Speed Chart:</label>
                           <div class="help">Optional. Maximum 4 digits long</div>
-                          <input id="speed_chart_{{ app.id }}" type="text" name="speed_chart" class="form-control" maxlength="4"
+                          <input id="id_speed_chart_{{ app.id }}" type="text" name="speed_chart" class="form-control" maxlength="4"
                             {% if app.admindocuments.speed_chart %}
                               value="{{ app.admindocuments.speed_chart }}"
                             {% else %}
@@ -222,7 +222,7 @@
                         <div class="field-wrapper">
                           <label for="id_processing_note_{{ app.id }}">Processing Note:</label>
                           <div class="help">Optional</div>
-                          <textarea id="processing_note_{{ app.id }}" name="processing_note" cols="40" rows="2" class="form-control">{{ app.admindocuments.processing_note }}</textarea>
+                          <textarea id="id_processing_note_{{ app.id }}" name="processing_note" cols="40" rows="2" class="form-control">{{ app.admindocuments.processing_note }}</textarea>
                         </div>
 
                         <input type="hidden" name="application" value="{{ app.id }}" />

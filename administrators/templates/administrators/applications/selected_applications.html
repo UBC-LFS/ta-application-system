@@ -108,7 +108,7 @@
 
                         <div class="field-wrapper">
                           <label for="id_classification_{{ app.id }}">Classification:</label>
-                          <select id="classification_{{ app.id }}" name="classification" class="form-control">
+                          <select id="id_classification_{{ app.id }}" name="classification" class="form-control">
                             <option value="">Select</option>
                             {% for choice in classification_choices %}
                               {% if choice.id == app.classification.id %}
@@ -122,15 +122,15 @@
 
                         <div class="field-wrapper">
                           <label for="id_note_{{ app.id }}">Note:</label>
-                          <textarea id="note_{{ app.id }}" name="note" rows="2" cols="40" class="form-control">{% if app.note %} {{ app.note }} {% endif %}</textarea>
+                          <textarea id="id_note_{{ app.id }}" name="note" rows="2" cols="40" class="form-control">{% if app.note %} {{ app.note }} {% endif %}</textarea>
                         </div>
 
                         <div class="field-wrapper">
                           <label for="id_assigned_hours_{{ app.id }}">Assigned Hours:</label>
                           {% if app.offered %}
-                            <input id="assigned_hours_{{ app.id }}" type="number" name="assigned_hours" value="{{ app.offered.assigned_hours }}" class="form-control" />
+                            <input id="id_assigned_hours_{{ app.id }}" type="number" name="assigned_hours" value="{{ app.offered.assigned_hours }}" class="form-control" />
                           {% else %}
-                            <input id="assigned_hours_{{ app.id }}" type="number" name="assigned_hours" value="{{ app.selected.assigned_hours }}" class="form-control" />
+                            <input id="id_assigned_hours_{{ app.id }}" type="number" name="assigned_hours" value="{{ app.selected.assigned_hours }}" class="form-control" />
                           {% endif %}
                         </div>
 

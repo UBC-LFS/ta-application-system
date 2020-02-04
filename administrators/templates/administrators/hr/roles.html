@@ -65,8 +65,8 @@
                           <form action="{% url 'administrators:edit_role' role.slug %}" method="post">
                             {% csrf_token %}
                             <div class="field-wrapper">
-                              <label for="id_name_{{ role.id }}" class="font-weight-bold">Name:</label>
-                              <input id="name_{{ role.id }}" type="text" name="name" maxlength="256" value="{{ role.name }}" class="form-control" />
+                              <label for="id_name_{{ role.id }}">Name:</label>
+                              <input id="id_name_{{ role.id }}" type="text" name="name" maxlength="256" value="{{ role.name }}" class="form-control" />
                             </div>
                             <input class="btn btn-primary mt-3" type="submit" value="Update" />
                           </form>

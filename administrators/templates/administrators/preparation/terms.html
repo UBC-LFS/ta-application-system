@@ -70,26 +70,26 @@
                             {% csrf_token %}
 
                             <div class="field-wrapper">
-                              <label for="id_code_{{ term.id }}" class="font-weight-bold">Code:</label>
+                              <label for="id_code_{{ term.id }}">Code:</label>
                               <div class="help">This field is unique and maximum characters: 20</div>
-                              <input id="code_{{ term.id }}" type="text" name="code" maxlength="20" value="{{ term.code }}" class="form-control" />
+                              <input id="id_code_{{ term.id }}" type="text" name="code" maxlength="20" value="{{ term.code }}" class="form-control" />
                             </div>
 
                             <div class="field-wrapper">
-                              <label for="id_name_{{ term.id }}" class="font-weight-bold">Name:</label>
-                              <input id="name_{{ term.id }}" type="text" name="name" maxlength="256" value="{{ term.name }}" class="form-control" />
+                              <label for="id_name_{{ term.id }}">Name:</label>
+                              <input id="id_name_{{ term.id }}" type="text" name="name" maxlength="256" value="{{ term.name }}" class="form-control" />
                             </div>
 
                             <div class="field-wrapper">
-                              <label for="id_by_month_{{ term.id }}" class="font-weight-bold">By month:</label>
+                              <label for="id_by_month_{{ term.id }}">By month:</label>
                               <div class="help">Minimun value: 1, Maximum Value: 12</div>
-                              <input id="by_month_{{ term.id }}" type="number" name="by_month" maxlength="12" value="{{ term.by_month }}" class="form-control" />
+                              <input id="id_by_month_{{ term.id }}" type="number" name="by_month" maxlength="12" value="{{ term.by_month }}" class="form-control" />
                             </div>
 
                             <div class="field-wrapper">
-                              <label for="id_max_hours_{{ term.id }}" class="font-weight-bold">Max hours:</label>
+                              <label for="id_max_hours_{{ term.id }}">Max hours:</label>
                               <div class="help">Minimun value: 0, Maximum Value: 4000</div>
-                              <input id="max_hours_{{ term.id }}" type="number" name="max_hours" maxlength="4000" value="{{ term.max_hours }}" class="form-control" />
+                              <input id="id_max_hours_{{ term.id }}" type="number" name="max_hours" maxlength="4000" value="{{ term.max_hours }}" class="form-control" />
                             </div>
 
                             <input class="btn btn-primary" type="submit" value="Update Term" />

@@ -1197,7 +1197,7 @@ def terminate(request, app_slug):
             terminated_app.save()
             if terminated_app:
                 messages.success(request, 'Success! Application (ID: {0}) terminated.'.format(terminated_app.id))
-                return redirect('administrators:terminated_applications')
+                return redirect('administrators:accepted_applications')
             else:
                 messages.error(request, 'An error occurred while termniating an application.')
         else:

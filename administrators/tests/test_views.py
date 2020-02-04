@@ -950,7 +950,13 @@ class ApplicationTest(TestCase):
 
         response = self.client.post( reverse('administrators:decline_reassign_confirmation'), data=urlencode(data), content_type=ContentType )
         messages = self.messages(response)
-        print(messages)
+        self.assertTrue('An error occurred' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+        data['is_declined_reassigned'] = True
+        response = self.client.post( reverse('administrators:decline_reassign_confirmation'), data=urlencode(data), content_type=ContentType )
+        messages = self.messages(response)
         self.assertTrue('Success' in messages[0])
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, response.url)
@@ -965,7 +971,10 @@ class ApplicationTest(TestCase):
                 updated_app = app
                 break
 
-        print(updated_app)
+        self.assertEqual(str(updated_app.id), data['application'])
+        self.assertTrue(updated_app.is_declined_reassigned)
+        self.assertEqual(updated_app.applicationstatus_set.last().get_assigned_display(), 'Declined')
+        self.assertEqual(str(updated_app.applicationstatus_set.last().assigned_hours), data['new_assigned_hours'])
 
         """status = []
         for st in updated_app.applicationstatus_set.all():
@@ -991,18 +1000,16 @@ class ApplicationTest(TestCase):
 
         app_id = '22'
         appl = adminApi.get_application(app_id)
+        self.assertTrue(appl.is_terminated)
+
         data = {
             'note': 'terminated note',
             'is_terminated': True
         }
-        print(appl.slug)
         response = self.client.post(reverse('administrators:terminate', args=[appl.slug]), data=urlencode(data), content_type=ContentType)
         self.assertEqual(response.status_code, 404)
-        self.assertTrue(appl.is_terminated)
 
-        self.login('user66.test', '12')
-
-        app_id = '8'
+        app_id = 8
         appl = adminApi.get_application(app_id)
         self.assertFalse(appl.is_terminated)
         data = {
@@ -1010,10 +1017,7 @@ class ApplicationTest(TestCase):
             'is_terminated': True
         }
         response = self.client.post(reverse('administrators:terminate', args=[appl.slug]), data=urlencode(data), content_type=ContentType)
-        print()
-        self.assertEqual(response.status_code, 200)
         messages = self.messages(response)
-        print(messages)
         self.assertTrue('Success' in messages[0])
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, response.url)
@@ -1024,7 +1028,7 @@ class ApplicationTest(TestCase):
 
         application = None
         for app in apps:
-            if str(app.id) == app_id:
+            if app.id == app_id:
                 application = app
                 break
 
@@ -1721,13 +1725,29 @@ class PreparationTest(TestCase):
         self.assertEqual(found, 1)
 
 
-    """def test_delete_term(self):
+    def test_delete_term(self):
         print('\n- Test: delete a term')
         self.login()
 
         total_terms = len(adminApi.get_terms())
 
-        term_id = 9
+        data = {
+            'code': 'WG',
+            'name': 'Winter G',
+            'by_month': 4,
+            'max_hours': 192
+        }
+        response = self.client.post( reverse('administrators:terms'), data=urlencode(data), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+        response = self.client.get( reverse('administrators:terms') )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual( len(response.context['terms']), total_terms + 1 )
+
+        term_id = total_terms + 1
         response = self.client.post( reverse('administrators:delete_term'), data=urlencode({ 'term': term_id }), content_type=ContentType )
         messages = self.messages(response)
         self.assertTrue('Success' in messages[0])
@@ -1736,12 +1756,13 @@ class PreparationTest(TestCase):
 
         response = self.client.get(reverse('administrators:terms'))
         self.assertEqual(response.status_code, 200)
-        self.assertEqual( len(response.context['terms']), total_terms - 1)
+        self.assertEqual( len(response.context['terms']), total_terms)
 
         found = False
         for term in response.context['terms']:
             if term.id == term_id: found = True
-        self.assertFalse(found)"""
+        self.assertFalse(found)
+
 
     def test_degrees(self):
         print('\n- Test: Display all degrees and create a degree')
