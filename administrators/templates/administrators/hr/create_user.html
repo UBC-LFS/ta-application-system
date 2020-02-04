@@ -50,17 +50,6 @@
 					{{ field }}
 				{% endfor %}
 
-        {% comment %}
-				<div class="field-wrapper">
-					<label for="id_roles">Roles:</label>
-					{% for role in roles %}
-						<div>
-							<input type="checkbox" name="roles" value="{{ role.id }}" /> {{ role.name }}
-						</div>
-					{% endfor %}
-				</div>
-        {% endcomment %}
-
         <a class="btn btn-outline-secondary" href="{% url 'administrators:all_users' %}">Cancel</a>
 				<input class="btn btn-primary" type="submit" value="Create" />
 			</form>
@@ -68,33 +57,5 @@
 		</div>
   </div>
 </div>
-
-
-{% comment %}
-<h3 class="margin-top-30">Create a user</h3>
-<div class="new-user-form padding-20">
-	<form action="" method="post">
-		{% csrf_token %}
-		<div class="form-group">
-			<label for="id_first_name">First Name</label>
-			<input id="id_first_name" type="text" name="first_name" required="" maxlength="30" class="form-control" placeholder="First Name">
-		</div>
-		<div class="form-group">
-			<label for="id_last_name">Last Name</label>
-			<input id="id_last_name" type="text" name="last_name" required="" maxlength="150" class="form-control" placeholder="Last Name">
-		</div>
-		<div class="form-group">
-			<label for="id_email">Email</label>
-			<input id="id_email" type="email" name="email" required="" maxlength="254" class="form-control" placeholder="Email">
-		</div>
-		<div class="form-group">
-			<label for="id_username">CWL</label>
-			<input id="id_usernamename" type="text" name="username" required="" maxlength="150" class="form-control" placeholder="Username">
-		</div>
-		<input type="submit" class="btn btn-success" value="Submit"/>
-	</form>
-</div>
-{% endcomment %}
-
 
 {% endblock %}

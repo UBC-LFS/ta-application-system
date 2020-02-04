@@ -61,19 +61,19 @@ urlpatterns = [
     path('courses/<str:course_slug>/edit/', views.edit_course, name='edit_course'),
 
     path('preparation/terms/delete/', views.delete_term, name='delete_term'),
-    path('preparation/terms/<str:code>/edit/', views.edit_term, name='edit_term'),
+    path('preparation/terms/<int:term_id>/edit/', views.edit_term, name='edit_term'),
     path('preparation/terms/', views.terms, name='terms'),
 
     path('preparation/course_codes/delete/', views.delete_course_code, name='delete_course_code'),
-    path('preparation/course_codes/<str:name>/edit/', views.edit_course_code, name='edit_course_code'),
+    path('preparation/course_codes/<int:course_code_id>/edit/', views.edit_course_code, name='edit_course_code'),
     path('preparation/course_codes/', views.course_codes, name='course_codes'),
 
     path('preparation/course_numbers/delete/', views.delete_course_number, name='delete_course_number'),
-    path('preparation/course_numbers/<str:name>/edit/', views.edit_course_number, name='edit_course_number'),
+    path('preparation/course_numbers/<int:course_number_id>/edit/', views.edit_course_number, name='edit_course_number'),
     path('preparation/course_numbers/', views.course_numbers, name='course_numbers'),
 
     path('preparation/course_sections/delete/', views.delete_course_section, name='delete_course_section'),
-    path('preparation/course_sections/<str:name>/edit/', views.edit_course_section, name='edit_course_section'),
+    path('preparation/course_sections/<int:course_section_id>/edit/', views.edit_course_section, name='edit_course_section'),
     path('preparation/course_sections/', views.course_sections, name='course_sections'),
 
     path('preparation/statuses/delete/', views.delete_status, name='delete_status'),
