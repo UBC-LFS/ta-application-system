@@ -4,7 +4,9 @@
     "pk": 1,
     "fields": {
       "code": "W",
-      "name": "Winter Term"
+      "name": "Winter Term",
+      "by_month": 4,
+      "max_hours": 192
     }
   },
   {
@@ -12,7 +14,9 @@
     "pk": 2,
     "fields": {
       "code": "W1",
-      "name": "Winter Term 1"
+      "name": "Winter Term 1",
+      "by_month": 4,
+      "max_hours": 192
     }
   },
   {
@@ -20,7 +24,9 @@
     "pk": 3,
     "fields": {
       "code": "W2",
-      "name": "Winter Term 2"
+      "name": "Winter Term 2",
+      "by_month": 4,
+      "max_hours": 192
     }
   },
   {
@@ -28,7 +34,9 @@
     "pk": 4,
     "fields": {
       "code": "WA",
-      "name": "Winter Term A"
+      "name": "Winter Term A",
+      "by_month": 4,
+      "max_hours": 192
     }
   },
   {
@@ -36,7 +44,9 @@
     "pk": 5,
     "fields": {
       "code": "WC",
-      "name": "Winter Term C"
+      "name": "Winter Term C",
+      "by_month": 4,
+      "max_hours": 192
     }
   },
   {
@@ -44,7 +54,9 @@
     "pk": 6,
     "fields": {
       "code": "W1+2",
-      "name": "Winter Term 1 + 2"
+      "name": "Winter Term 1 + 2",
+      "by_month": 4,
+      "max_hours": 192
     }
   },
   {
@@ -52,7 +64,9 @@
     "pk": 7,
     "fields": {
       "code": "S",
-      "name": "Summer Term"
+      "name": "Summer Term",
+      "by_month": 4,
+      "max_hours": 192
     }
   },
   {
@@ -60,7 +74,9 @@
     "pk": 8,
     "fields": {
       "code": "S1",
-      "name": "Summer Term 1"
+      "name": "Summer Term 1",
+      "by_month": 4,
+      "max_hours": 192
     }
   },
   {
@@ -68,7 +84,9 @@
     "pk": 9,
     "fields": {
       "code": "S2",
-      "name": "Summer Term 2"
+      "name": "Summer Term 2",
+      "by_month": 4,
+      "max_hours": 192
     }
   },
   {
@@ -76,7 +94,9 @@
     "pk": 10,
     "fields": {
       "code": "SA",
-      "name": "Summer Term A"
+      "name": "Summer Term A",
+      "by_month": 4,
+      "max_hours": 192
     }
   },
   {
@@ -84,7 +104,9 @@
     "pk": 11,
     "fields": {
       "code": "S1+2",
-      "name": "Summer Term 1 + 2"
+      "name": "Summer Term 1 + 2",
+      "by_month": 4,
+      "max_hours": 192
     }
   }
 ]

@@ -2093,8 +2093,6 @@ class PreparationTest(TestCase):
             'year': '2020',
             'name': 'Marker 2',
             'wage': '16.05',
-            'by_month': 4,
-            'max_hours': 192,
             'is_active': True
         }
         response = self.client.post( reverse('administrators:classifications'), data=urlencode(data), content_type=ContentType )
@@ -2119,8 +2117,6 @@ class PreparationTest(TestCase):
             'year': '2020',
             'name': 'Marker 2',
             'wage': '16.05',
-            'by_month': 4,
-            'max_hours': 192,
             'is_active': False
         }
         response = self.client.post( reverse('administrators:edit_classification', args=[slug]), data=urlencode(data), content_type=ContentType )
@@ -2149,8 +2145,6 @@ class PreparationTest(TestCase):
             'year': '2020',
             'name': 'Marker 2',
             'wage': '16.05',
-            'by_month': 4,
-            'max_hours': 192,
             'is_active': True
         }
         response = self.client.post( reverse('administrators:classifications'), data=urlencode(data), content_type=ContentType )
