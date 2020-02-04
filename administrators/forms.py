@@ -49,24 +49,22 @@ class TermForm(forms.ModelForm):
     ''' Create a model form for a term '''
     class Meta:
         model = Term
-        fields = ['code', 'name']
+        fields = ['code', 'name', 'by_month', 'max_hours',]
         widgets = {
             'code': forms.TextInput(attrs={ 'class': 'form-control' }),
-            'name': forms.TextInput(attrs={ 'class': 'form-control' })
+            'name': forms.TextInput(attrs={ 'class': 'form-control' }),
+            'by_month': forms.NumberInput(attrs={ 'class': 'form-control' }),
+            'max_hours': forms.NumberInput(attrs={ 'class': 'form-control' })
         }
-
-
 
 class ClassificationForm(forms.ModelForm):
     class Meta:
         model = Classification
-        fields = ['year', 'name', 'wage', 'by_month', 'max_hours', 'is_active']
+        fields = ['year', 'name', 'wage', 'is_active']
         widgets = {
             'year': forms.TextInput(attrs={ 'class': 'form-control' }),
             'name': forms.TextInput(attrs={ 'class': 'form-control' }),
-            'wage': forms.NumberInput(attrs={ 'class': 'form-control' }),
-            'by_month': forms.NumberInput(attrs={ 'class': 'form-control' }),
-            'max_hours': forms.NumberInput(attrs={ 'class': 'form-control' })
+            'wage': forms.NumberInput(attrs={ 'class': 'form-control' })
         }
 
 class CourseForm(forms.ModelForm):

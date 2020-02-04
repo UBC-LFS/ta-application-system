@@ -13,7 +13,16 @@ class Term(models.Model):
     """ Create a Term model """
     code = models.CharField(max_length=20, unique=True)
     name = models.CharField(max_length=256)
-
+    by_month = models.IntegerField(
+        default=4,
+        help_text='Minimun value: 1, Maximum Value: 12',
+        validators=[MinValueValidator(1), MaxValueValidator(12)]
+    )
+    max_hours = models.IntegerField(
+        default=192,
+        help_text='Minimun value: 0, Maximum Value: 4000',
+        validators=[MinValueValidator(0), MaxValueValidator(4000)]
+    )
     class Meta:
         ordering = ['pk']
 
@@ -140,16 +149,6 @@ class Classification(models.Model):
         help_text='Maximum character: 10'
     )
     wage = models.FloatField()
-    by_month = models.IntegerField(
-        default=4,
-        help_text='Minimun value: 1, Maximum Value: 12',
-        validators=[MinValueValidator(1), MaxValueValidator(12)]
-    )
-    max_hours = models.IntegerField(
-        default=192,
-        help_text='Minimun value: 0, Maximum Value: 4000',
-        validators=[MinValueValidator(0), MaxValueValidator(4000)]
-    )
     is_active = models.BooleanField(default=True)
     slug = models.SlugField(max_length=256, unique=True)
 
