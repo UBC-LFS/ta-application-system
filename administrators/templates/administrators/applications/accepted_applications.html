@@ -120,23 +120,27 @@
                       <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                     </div>
                     <div class="modal-body text-left">
+                      <div class="modal-item">
+                        <h5>
+                          To {{ app.applicant.get_full_name }}
+                          <small class="text-muted">(CWL: {{ app.applicant.username }})</small>
+                        </h5>
+                        <h6 class="mb-3">for {{ app.job.session.year }} {{ app.job.session.term.code }} - {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</h6>
 
-                      <h5>To {{ app.applicant.get_full_name }} ({{ app.applicant.username }})</h5>
-                      <h6 class="text-secondary mb-3">for {{ app.job.session.year }} {{ app.job.session.term.code }} - {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</h6>
+                        <form action="{% url 'administrators:decline_reassign' %}" method="post">
+                          {% csrf_token %}
 
-                      <form action="{% url 'administrators:decline_reassign' %}" method="post">
-                        {% csrf_token %}
+                          <div class="field-wrapper">
+                            <label for="id_new_assigned_hours_{{ app.id }}">New Assigned Hours:</label>
+                            <div class="help">Numerical value only</div>
+                            <input id="new_assigned_hours_{{ app.id }}" type="number" name="new_assigned_hours" id="id_new_assigned_hours" value="{{ app.accepted.assigned_hours }}" class="form-control" />
+                          </div>
 
-                        <div class="field-wrapper">
-                          <label for="id_new_assigned_hours">New Assigned Hours:</label>
-                          <div class="help">Numerical value only</div>
-                          <input type="number" name="new_assigned_hours" id="id_new_assigned_hours" value="{{ app.accepted.assigned_hours }}" />
-                        </div>
-
-                        <input type="hidden" name="old_assigned_hours" value="{{ app.accepted.assigned_hours }}" />
-                        <input type="hidden" name="application" value="{{ app.id }}" />
-                        <input class="btn btn-primary" type="submit" value="Decline & Re-assign" />
-                      </form>
+                          <input type="hidden" name="old_assigned_hours" value="{{ app.accepted.assigned_hours }}" />
+                          <input type="hidden" name="application" value="{{ app.id }}" />
+                          <input class="btn btn-primary" type="submit" value="Decline & Re-assign" />
+                        </form>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -160,16 +164,19 @@
                   <div class="modal-body text-left">
 
                     <div class="modal-item">
-                      <h4>{{ app.applicant.get_full_name }} ({{ app.applicant.username }})</h4>
-                      <h6 class="text-secondary mb-3">for {{ app.job.session.year }} {{ app.job.session.term.code }} - {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</h6>
+                      <h5>
+                        {{ app.applicant.get_full_name }}
+                        <small class="text-muted">(CWL: {{ app.applicant.username }})</small>
+                      </h5>
+                      <h6 class="mb-3">for {{ app.job.session.year }} {{ app.job.session.term.code }} - {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</h6>
 
                       <form action="" method="post">
                         {% csrf_token %}
 
                         <div class="field-wrapper">
-                          <label for="id_pin">PIN:</label>
+                          <label for="id_pin_{{ app.id }}">PIN:</label>
                           <div class="help">Optional. Maximum 4 digits long</div>
-                          <input type="text" name="pin" class="form-control" maxlength="4"
+                          <input id="pin_{{ app.id }}" type="text" name="pin" class="form-control" maxlength="4"
                             {% if app.admindocuments.pin %}
                               value="{{ app.admindocuments.pin }}"
                             {% else %}
@@ -179,9 +186,9 @@
                         </div>
 
                         <div class="field-wrapper">
-                          <label for="id_tasm">TASM:</label>
+                          <label for="id_tasm_{{ app.id }}">TASM:</label>
                           <div class="help">Optional</div>
-                          <input type="checkbox" name="tasm"
+                          <input id="tasm_{{ app.id }}" type="checkbox" name="tasm"
                             {% if app.admindocuments.tasm %}
                               checked
                             {% endif %}
@@ -189,9 +196,9 @@
                         </div>
 
                         <div class="field-wrapper">
-                          <label for="id_eform">eForm:</label>
+                          <label for="id_eform_{{ app.id }}">eForm:</label>
                           <div class="help">Optional. Maximum 6 digits long</div>
-                          <input type="text" name="eform" class="form-control" maxlength="6"
+                          <input id="eform_{{ app.id }}" type="text" name="eform" class="form-control" maxlength="6"
                             {% if app.admindocuments.eform %}
                               value="{{ app.admindocuments.eform }}"
                             {% else %}
@@ -201,9 +208,9 @@
                         </div>
 
                         <div class="field-wrapper">
-                          <label for="id_speed_chart">Speed Chart:</label>
+                          <label for="id_speed_chart_{{ app.id }}">Speed Chart:</label>
                           <div class="help">Optional. Maximum 4 digits long</div>
-                          <input type="text" name="speed_chart" class="form-control" maxlength="4"
+                          <input id="speed_chart_{{ app.id }}" type="text" name="speed_chart" class="form-control" maxlength="4"
                             {% if app.admindocuments.speed_chart %}
                               value="{{ app.admindocuments.speed_chart }}"
                             {% else %}
@@ -213,9 +220,9 @@
                         </div>
 
                         <div class="field-wrapper">
-                          <label for="id_processing_note">Processing Note:</label>
+                          <label for="id_processing_note_{{ app.id }}">Processing Note:</label>
                           <div class="help">Optional</div>
-                          <textarea name="processing_note" cols="40" rows="2" class="form-control">{{ app.admindocuments.processing_note }}</textarea>
+                          <textarea id="processing_note_{{ app.id }}" name="processing_note" cols="40" rows="2" class="form-control">{{ app.admindocuments.processing_note }}</textarea>
                         </div>
 
                         <input type="hidden" name="application" value="{{ app.id }}" />

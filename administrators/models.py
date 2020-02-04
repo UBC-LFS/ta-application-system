@@ -11,7 +11,11 @@ import datetime as dt
 
 class Term(models.Model):
     """ Create a Term model """
-    code = models.CharField(max_length=20, unique=True)
+    code = models.CharField(
+        max_length=20,
+        unique=True,
+        help_text='This field is unique and maximum characters: 20',
+    )
     name = models.CharField(max_length=256)
     by_month = models.IntegerField(
         default=4,
@@ -32,7 +36,11 @@ class Term(models.Model):
 
 class CourseCode(models.Model):
     """ Create a CourseCode model """
-    name = models.CharField(max_length=5, unique=True)
+    name = models.CharField(
+        max_length=5,
+        unique=True,
+        help_text='Maximum characters: 5'
+    )
 
     class Meta:
         ordering = ['name']
@@ -42,7 +50,11 @@ class CourseCode(models.Model):
 
 class CourseNumber(models.Model):
     """ Create a CourseNumber model """
-    name = models.CharField(max_length=5, unique=True)
+    name = models.CharField(
+        max_length=5,
+        unique=True,
+        help_text='Maximum characters: 5'
+    )
     class Meta:
         ordering = ['name']
 
@@ -51,7 +63,11 @@ class CourseNumber(models.Model):
 
 class CourseSection(models.Model):
     """ Create a CourseSection model """
-    name = models.CharField(max_length=5, unique=True)
+    name = models.CharField(
+        max_length=5,
+        unique=True,
+        help_text='Maximum characters: 5'
+    )
 
     class Meta:
         ordering = ['name']

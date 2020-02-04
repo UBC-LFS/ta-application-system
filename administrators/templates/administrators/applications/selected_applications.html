@@ -85,71 +85,62 @@
               <div class="modal-dialog modal-lg" role="document">
                 <div class="modal-content">
                   <div class="modal-header">
-                    <h5 class="modal-title" id="job-application-offer-modal-label-{{ app.id }}">Offer</h5>
+                    <h5 class="modal-title text-info" id="job-application-offer-modal-label-{{ app.id }}">Offer</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                   </div>
                   <div class="modal-body text-left">
-                    <h4>
-                      To {{ app.applicant.get_full_name }}
-                      <small class="text-muted">({{ app.applicant.username }})</small>
-                      {% if 'MFRE' in app.applicant.profile.program.name %}
-                        <span class="badge badge-warning">MFRE</span>
-                      {% elif 'MLWS' in app.applicant.profile.program.name %}
-                        <span class="badge badge-warning">MLWS</span>
-                      {% elif 'MFS' in app.applicant.profile.program.name %}
-                        <span class="badge badge-warning">MFS</span>
-                      {% endif %}
-                    </h4>
-                    <h6 class="text-secondary mb-3">for {{ app.job.session.year }} {{ app.job.session.term.code }} - {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</h6>
+                    <div class="modal-item">
+                      <h4>
+                        To {{ app.applicant.get_full_name }}
+                        <small class="text-muted">({{ app.applicant.username }})</small>
+                        {% if 'MFRE' in app.applicant.profile.program.name %}
+                          <span class="badge badge-warning">MFRE</span>
+                        {% elif 'MLWS' in app.applicant.profile.program.name %}
+                          <span class="badge badge-warning">MLWS</span>
+                        {% elif 'MFS' in app.applicant.profile.program.name %}
+                          <span class="badge badge-warning">MFS</span>
+                        {% endif %}
+                      </h4>
+                      <h6 class="text-secondary mb-3">for {{ app.job.session.year }} {{ app.job.session.term.code }} - {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</h6>
 
-                    <form action="{% url 'administrators:offer_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}" method="post">
-                      {% csrf_token %}
-                      <table class="table table-borderless">
-                        <tr>
-                          <td>
-                            <span class="font-weight-bold">Classification:</span>
-                          </td>
-                          <td>
-                            <select name="classification">
-                              <option value="">Select</option>
-                              {% for choice in classification_choices %}
-                                {% if choice.id == app.classification.id %}
-                                  <option value="{{ choice.id }}" selected>{{ choice.year }} {{ choice.name }}</option>
-                                {% else %}
-                                  <option value="{{ choice.id }}">{{ choice.year }} {{ choice.name }}</option>
-                                {% endif %}
-                              {% endfor %}
-                            </select>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td>
-                            <span class="font-weight-bold">Note:</span>
-                          </td>
-                          <td>
-                            <textarea name="note" rows="2" cols="40">{% if app.note %} {{ app.note }} {% endif %}</textarea>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td>
-                            <span class="font-weight-bold">Assigned Hours:</span>
-                          </td>
-                          <td>
-                            {% if app.offered %}
-                              <input type="text" name="assigned_hours" value="{{ app.offered.assigned_hours }}" />
-                            {% else %}
-                              <input type="text" name="assigned_hours" value="{{ app.selected.assigned_hours }}" />
-                            {% endif %}
-                          </td>
-                        </tr>
-                      </table>
+                      <form action="{% url 'administrators:offer_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}" method="post">
+                        {% csrf_token %}
 
-                      <input type="hidden" name="application" value="{{ app.id }}" />
-                      <input type="hidden" name="assigned" value="{{ app_status.offered }}" />
-                      <input type="hidden" name="applicant" value="{{ app.applicant.id }}" />
+                        <div class="field-wrapper">
+                          <label for="id_classification_{{ app.id }}">Classification:</label>
+                          <select id="classification_{{ app.id }}" name="classification" class="form-control">
+                            <option value="">Select</option>
+                            {% for choice in classification_choices %}
+                              {% if choice.id == app.classification.id %}
+                                <option value="{{ choice.id }}" selected>{{ choice.year }} {{ choice.name }}</option>
+                              {% else %}
+                                <option value="{{ choice.id }}">{{ choice.year }} {{ choice.name }}</option>
+                              {% endif %}
+                            {% endfor %}
+                          </select>
+                        </div>
 
-                      <input class="btn btn-primary" type="submit" value="Offer" />
-                    </form>
+                        <div class="field-wrapper">
+                          <label for="id_note_{{ app.id }}">Note:</label>
+                          <textarea id="note_{{ app.id }}" name="note" rows="2" cols="40" class="form-control">{% if app.note %} {{ app.note }} {% endif %}</textarea>
+                        </div>
+
+                        <div class="field-wrapper">
+                          <label for="id_assigned_hours_{{ app.id }}">Assigned Hours:</label>
+                          {% if app.offered %}
+                            <input id="assigned_hours_{{ app.id }}" type="number" name="assigned_hours" value="{{ app.offered.assigned_hours }}" class="form-control" />
+                          {% else %}
+                            <input id="assigned_hours_{{ app.id }}" type="number" name="assigned_hours" value="{{ app.selected.assigned_hours }}" class="form-control" />
+                          {% endif %}
+                        </div>
+
+                        <input type="hidden" name="application" value="{{ app.id }}" />
+                        <input type="hidden" name="assigned" value="{{ app_status.offered }}" />
+                        <input type="hidden" name="applicant" value="{{ app.applicant.id }}" />
+
+                        <input class="btn btn-primary" type="submit" value="Offer" />
+                      </form>
+                    </div>
                   </div>
                 </div>
               </div>

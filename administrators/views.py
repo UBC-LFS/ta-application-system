@@ -1756,13 +1756,13 @@ def terms(request):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['POST'])
-def edit_term(request, code):
+def edit_term(request, term_id):
     ''' Edit a term '''
     request.user.roles = request.session['loggedin_user']['roles']
     if not userApi.is_admin(request.user): raise PermissionDenied
 
     if request.method == 'POST':
-        term = adminApi.get_term_by_code(code)
+        term = adminApi.get_term(term_id)
         form = TermForm(request.POST, instance=term)
         if form.is_valid():
             updated_term = form.save()
@@ -1822,13 +1822,13 @@ def course_codes(request):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['POST'])
-def edit_course_code(request, name):
+def edit_course_code(request, course_code_id):
     ''' Edit a course code '''
     request.user.roles = request.session['loggedin_user']['roles']
     if not userApi.is_admin(request.user): raise PermissionDenied
 
     if request.method == 'POST':
-        course_code = adminApi.get_course_code_by_name(name)
+        course_code = adminApi.get_course_code(course_code_id)
         form = CourseCodeForm(request.POST, instance=course_code)
         if form.is_valid():
             updated_course_code = form.save()
@@ -1891,13 +1891,13 @@ def course_numbers(request):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['POST'])
-def edit_course_number(request, name):
+def edit_course_number(request, course_number_id):
     ''' '''
     request.user.roles = request.session['loggedin_user']['roles']
     if not userApi.is_admin(request.user): raise PermissionDenied
 
     if request.method == 'POST':
-        course_number = adminApi.get_course_number_by_name(name)
+        course_number = adminApi.get_course_number(course_number_id)
         form = CourseNumberForm(request.POST, instance=course_number)
         if form.is_valid():
             updated_course_number = form.save()
@@ -1960,13 +1960,13 @@ def course_sections(request):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['POST'])
-def edit_course_section(request, name):
+def edit_course_section(request, course_section_id):
     ''' '''
     request.user.roles = request.session['loggedin_user']['roles']
     if not userApi.is_admin(request.user): raise PermissionDenied
 
     if request.method == 'POST':
-        course_section = adminApi.get_course_section_by_name(name)
+        course_section = adminApi.get_course_section(course_section_id)
         form = CourseSectionForm(request.POST, instance=course_section)
         if form.is_valid():
             updated_course_section = form.save()
