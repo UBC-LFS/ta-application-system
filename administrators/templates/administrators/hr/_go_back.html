@@ -22,6 +22,9 @@
 {% elif data == 'declined' %}
   <a class="btn btn-outline-primary" href="{% url 'administrators:declined_applications' %}">Back to Declined Applications</a>
 
+{% elif data == 'terminated' %}
+  <a class="btn btn-outline-primary" href="{% url 'administrators:terminated_applications' %}">Back to Terminated Applications</a>
+
 {% elif data == 'users' %}
   <a class="btn btn-outline-primary" href="{% url 'administrators:all_users' %}">Back to All Users</a>
 

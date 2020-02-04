@@ -194,8 +194,9 @@ def show_confidentiality(request):
     if userApi.has_user_confidentiality_created(request.user) and request.user.confidentiality and request.user.confidentiality.created_at != None:
         template = 'detail'
 
+    user = userApi.add_confidentiality_given_list(request.user, ['sin', 'study_permit'])
     return render(request, 'students/profile/show_confidentiality.html', {
-        'loggedin_user': userApi.add_confidentiality_given_list(request.user, ['sin', 'study_permit']),
+        'loggedin_user': userApi.add_personal_data_form(user),
         'template': template
     })
 
@@ -244,9 +245,10 @@ def submit_confidentiality(request):
     loggedin_user = request.user
     form = None
     if request.method == 'POST':
+
         if userApi.has_user_confidentiality_created(loggedin_user):
             if loggedin_user.confidentiality.nationality == '0':
-                form = ConfidentialityNonInternationalForm(request.POST, request.FILES, instance=loggedin_user.confidentiality)
+                form = ConfidentialityDomesticForm(request.POST, request.FILES, instance=loggedin_user.confidentiality)
             else:
                 form = ConfidentialityInternationalForm(request.POST, request.FILES, instance=loggedin_user.confidentiality)
 
@@ -276,7 +278,7 @@ def submit_confidentiality(request):
     else:
         if userApi.has_user_confidentiality_created(loggedin_user):
             if loggedin_user.confidentiality.nationality == '0':
-                form = ConfidentialityNonInternationalForm(data=None, instance=loggedin_user.confidentiality, initial={ 'user': loggedin_user })
+                form = ConfidentialityDomesticForm(data=None, instance=loggedin_user.confidentiality, initial={ 'user': loggedin_user })
             else:
                 form = ConfidentialityInternationalForm(data=None, instance=loggedin_user.confidentiality, initial={ 'user': loggedin_user })
 
@@ -301,6 +303,7 @@ def edit_confidentiality(request):
     form = None
     sin_file = None
     study_permit_file = None
+    personal_data_form_file = None
 
     confidentiality = userApi.has_user_confidentiality_created(loggedin_user)
     if request.method == 'POST':
@@ -350,6 +353,10 @@ def edit_confidentiality(request):
                 updated_confidentiality.study_permit_expiry_date = data['study_permit_expiry_date']
                 update_fields.append('study_permit_expiry_date')
 
+            if request.FILES.get('personal_data_form') is not None:
+                updated_confidentiality.study_permit = request.FILES.get('personal_data_form')
+                update_fields.append('personal_data_form')
+
             updated_confidentiality.save(update_fields=update_fields)
 
             if updated_confidentiality:
@@ -367,10 +374,13 @@ def edit_confidentiality(request):
         if userApi.has_user_confidentiality_created(loggedin_user) and bool(loggedin_user.confidentiality.study_permit):
             study_permit_file = os.path.basename(loggedin_user.confidentiality.study_permit.name)
 
+        if userApi.has_user_confidentiality_created(loggedin_user) and bool(loggedin_user.confidentiality.personal_data_form):
+            personal_data_form_file = os.path.basename(loggedin_user.confidentiality.personal_data_form.name)
+
         if userApi.has_user_confidentiality_created(loggedin_user):
 
             if loggedin_user.confidentiality.nationality == '0':
-                form = ConfidentialityNonInternationalForm(data=None, instance=confidentiality, initial={ 'user': loggedin_user })
+                form = ConfidentialityDomesticForm(data=None, instance=confidentiality, initial={ 'user': loggedin_user })
             else:
                 form = ConfidentialityInternationalForm(data=None, instance=confidentiality, initial={ 'user': loggedin_user })
 
@@ -378,6 +388,7 @@ def edit_confidentiality(request):
         'loggedin_user': loggedin_user,
         'sin_file': sin_file,
         'study_permit_file': study_permit_file,
+        'personal_data_form_file': personal_data_form_file,
         'form': form
     })
 
@@ -430,6 +441,28 @@ def delete_study_permit(request):
     return redirect('students:edit_confidentiality')
 
 
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['POST'])
+def delete_personal_data_form(request):
+    ''' Delete a personal data form '''
+    if request.user.is_impersonate:
+        if not userApi.is_admin(request.session['loggedin_user'], 'dict'): raise PermissionDenied
+        request.user.roles = userApi.get_user_roles(request.user)
+    else:
+        request.user.roles = request.session['loggedin_user']['roles']
+    if 'Student' not in request.user.roles: raise PermissionDenied
+
+    if request.method == 'POST':
+        username = request.POST.get('user')
+        if userApi.delete_personal_data_form(username):
+            messages.success(request, 'Success! {0} - Personal Data Form deleted'.format(username))
+        else:
+            messages.error(request, 'An error occurred while deleting a Personal Data Form file. Please try again.')
+
+    return redirect('students:edit_confidentiality')
+
+
 #@login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
@@ -448,6 +481,18 @@ def download_study_permit(request, username, filename):
     #if not userApi.is_valid_user(request.user): raise PermissionDenied
     path = 'users/{0}/study_permit/{1}/'.format(username, filename)
     return serve(request, path, document_root=settings.MEDIA_ROOT)
+
+
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def download_personal_data_form(request, username, filename):
+    ''' Download user's personal data form '''
+    if not userApi.is_valid_user(request.user): raise PermissionDenied
+
+    path = 'users/{0}/personal_data_form/{1}/'.format(username, filename)
+    return serve(request, path, document_root=settings.MEDIA_ROOT)
+
 
 # Jobs
 
@@ -620,6 +665,15 @@ def apply_job(request, session_slug, job_slug):
     if not job.is_active: raise PermissionDenied
 
     if request.method == 'POST':
+
+        if request.POST.get('availability') == None:
+            messages.error(request, 'An error occurred. Please read the "Availability requirements".')
+            return HttpResponseRedirect( reverse('students:apply_job', args=[session_slug, job_slug]) )
+
+        if request.POST.get('how_qualified') == '0' or request.POST.get('how_interested') == '0':
+            messages.error(request, 'An error occurred. Please select "How qualifed are you?" or "How interested are you?".')
+            return HttpResponseRedirect( reverse('students:apply_job', args=[session_slug, job_slug]) )
+
         form = ApplicationForm(request.POST)
         if form.is_valid():
             app = form.save()
@@ -730,6 +784,48 @@ def history_jobs(request):
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET','POST'])
+def reaccept_application(request, app_slug):
+    ''' Re-accept an accepted application after declined '''
+    if request.user.is_impersonate:
+        if not userApi.is_admin(request.session['loggedin_user'], 'dict'): raise PermissionDenied
+        request.user.roles = userApi.get_user_roles(request.user)
+    else:
+        request.user.roles = request.session['loggedin_user']['roles']
+    if 'Student' not in request.user.roles: raise PermissionDenied
+
+    app = adminApi.get_application(app_slug, 'slug')
+    if not app.is_declined_reassigned: raise Http404
+
+    if request.method == 'POST':
+        assigned_hours = request.POST.get('assigned_hours')
+        form = ApplicationStatusForm({
+            'application': request.POST.get('application'),
+            'assigned': ApplicationStatus.ACCEPTED,
+            'assigned_hours': assigned_hours
+        })
+        if form.is_valid():
+            app = form.cleaned_data['application']
+            if form.save():
+                if adminApi.update_job_accumulated_ta_hours(app.job.session.slug, app.job.course.slug, assigned_hours):
+                    messages.success(request, 'Success! You accepted the job offer - {0} {1}: {2} {3} {4} '.format(app.job.session.year, app.job.session.term.code, app.job.course.code.name, app.job.course.number.name, app.job.course.section.name))
+                else:
+                    messages.error(request, 'An error occurred while updating ta hours.')
+            else:
+                messages.error(request, 'An error occurred while saving a status of an application.')
+        else:
+            errors = form.errors.get_json_data()
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+
+        return redirect('students:history_jobs')
+
+    return render(request, 'students/jobs/reaccept_application.html', {
+        'loggedin_user': request.user,
+        'app': adminApi.add_app_info_into_application(app, ['accepted','declined'])
+    })
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET', 'POST'])
 def cancel_job(request, session_slug, job_slug):
     ''' Cancel an accepted job '''
@@ -744,21 +840,19 @@ def cancel_job(request, session_slug, job_slug):
     app = apps.filter(job__session__slug=session_slug, job__course__slug=job_slug)
 
     if app is None or len(app) == 0: raise Http404
+
     app = adminApi.add_app_info_into_application(app.first(), ['accepted', 'cancelled'])
+    if not app.is_terminated or app.cancelled: raise Http404
 
     if request.method == 'POST':
-        app_id = request.POST.get('application')
-        assigned_hours = request.POST.get('assigned_hours')
         form = ApplicationStatusReassignForm({
-            'application': app_id,
+            'application': request.POST.get('application'),
             'assigned': ApplicationStatus.CANCELLED,
-            'assigned_hours': assigned_hours,
+            'assigned_hours': request.POST.get('assigned_hours'),
             'parent_id': app.accepted.id
         })
-
         if form.is_valid():
-            cancelled_status = form.save()
-            if cancelled_status:
+            if form.save():
                 messages.success(request, 'Application of {0} {1} - {2} {3} {4} cancelled.'.format(app.job.session.year, app.job.session.term.code, app.job.course.code.name, app.job.course.number.name, app.job.course.section.name))
                 return redirect('students:history_jobs')
             else:
@@ -811,16 +905,16 @@ def accept_offer(request, session_slug, job_slug):
     if 'Student' not in request.user.roles: raise PermissionDenied
 
     if request.method == 'POST':
-        app_id = request.POST.get('application')
         assigned_hours = request.POST.get('assigned_hours')
-        assigned = ApplicationStatus.ACCEPTED
-        form = ApplicationStatusForm({ 'application': app_id, 'assigned': assigned, 'assigned_hours': assigned_hours })
+        form = ApplicationStatusForm({
+            'application': request.POST.get('application'),
+            'assigned': ApplicationStatus.ACCEPTED,
+            'assigned_hours': assigned_hours
+        })
         if form.is_valid():
             app = form.cleaned_data['application']
-            status = form.save()
-            if status:
-                updated = adminApi.update_job_accumulated_ta_hours(session_slug, job_slug, assigned_hours)
-                if updated:
+            if form.save():
+                if adminApi.update_job_accumulated_ta_hours(session_slug, job_slug, assigned_hours):
                     messages.success(request, 'Success! You accepted the job offer - {0} {1}: {2} {3} {4} '.format(app.job.session.year, app.job.session.term.code, app.job.course.code.name, app.job.course.number.name, app.job.course.section.name))
                 else:
                     messages.error(request, 'An error occurred while updating ta hours.')

@@ -17,7 +17,7 @@
 <div>
   <h6>Social Insurance Number (SIN):</h6>
   {% if data.sin_decrypt_image %}
-    <img class="img-fluid" src="{{ data.sin_decrypt_image.url }}" width="400" height="300" alt="SIN-image" />
+    <img class="img-fluid" src="{{ data.sin_decrypt_image.url }}" width="500" height="400" alt="SIN-image" />
     {% comment %}
     <a href="{{ data.sin_decrypt_image.url }}" download="{{ data.sin_decrypt_image.filename }}">{{ data.sin_decrypt_image.filename }}</a>
     {% endcomment %}
@@ -42,7 +42,7 @@
   <div>
     <h6>Study Permit:</h6>
     {% if data.study_permit_decrypt_image %}
-      <img class="img-fluid" src="{{ data.study_permit_decrypt_image.url }}" width="400" height="300" alt="Study-Permit-image" />
+      <img class="img-fluid" src="{{ data.study_permit_decrypt_image.url }}" width="500" height="400" alt="Study-Permit-image" />
       {% comment %}
       <a href="{{ data.study_permit_decrypt_image.url }}" download="{{ data.study_permit_decrypt_image.filename }}">{{ data.study_permit_decrypt_image.filename }}</a>
       {% endcomment %}
@@ -63,6 +63,18 @@
   </div>
 
 {% endif %}
+
+<div>
+  <h6>Personal Data Form:</h6>
+  {% if data.confidentiality.personal_data_form %}
+    <a class="btn btn-link" href="{% url 'students:download_personal_data_form' username=loggedin_user.username filename=loggedin_user.personal_data_form_filename %}" target="_blank">
+      <i class="fa fa-cloud-download" aria-hidden="true"></i> {{ loggedin_user.personal_data_form_filename }}
+    </a>
+  {% else %}
+    <span>None</span>
+  {% endif %}
+</div>
+
 
 <div>
   <h6>Created at:</h6>

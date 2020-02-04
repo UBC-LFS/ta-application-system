@@ -12,7 +12,21 @@
 
         <form action="{% url 'administrators:course_numbers' %}" method="post">
           {% csrf_token %}
-          <table>{{ form.as_table }}</table>
+
+          {% for field in form.visible_fields  %}
+            <div class="field-wrapper">
+              {{ field.label_tag }}
+              {% if field.help_text %}
+                <div class="help">{{ field.help_text|safe }}</div>
+              {% endif %}
+              {{ field }}
+            </div>
+          {% endfor %}
+
+          {% for field in form.hidden_fields %}
+            {{ field }}
+          {% endfor %}
+          
           <input class="btn btn-primary mt-3" type="submit" value="Create" />
         </form>
       </div>

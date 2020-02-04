@@ -11,23 +11,26 @@
     <div class="mt-1">
       <button class="btn btn-sm btn-secondary" type="submit">Search</button>
 
-      {% if path == 'applications_dashboard' %}
+      {% if path == 'dashboard' %}
         <a class="btn btn-sm btn-light" href="{% url 'administrators:applications_dashboard' %}">Clear</a>
 
-      {% elif path == 'all_applications' %}
+      {% elif path == 'all' %}
         <a class="btn btn-sm btn-light" href="{% url 'administrators:all_applications' %}">Clear</a>
 
-      {% elif path == 'selected_applications' %}
+      {% elif path == 'selected' %}
         <a class="btn btn-sm btn-light" href="{% url 'administrators:selected_applications' %}">Clear</a>
 
-      {% elif path == 'offered_applications' %}
+      {% elif path == 'offered' %}
         <a class="btn btn-sm btn-light" href="{% url 'administrators:offered_applications' %}">Clear</a>
 
-      {% elif path == 'accepted_applications' %}
+      {% elif path == 'accepted' %}
         <a class="btn btn-sm btn-light" href="{% url 'administrators:accepted_applications' %}">Clear</a>
 
-      {% elif path == 'declined_applications' %}
+      {% elif path == 'declined' %}
         <a class="btn btn-sm btn-light" href="{% url 'administrators:declined_applications' %}">Clear</a>
+
+      {% elif path == 'terminated' %}
+        <a class="btn btn-sm btn-light" href="{% url 'administrators:terminated_applications' %}">Clear</a>
 
       {% elif path == 'all_admin_docs' %}
         <a class="btn btn-sm btn-light" href="{% url 'administrators:all_admin_docs' %}">Clear</a>

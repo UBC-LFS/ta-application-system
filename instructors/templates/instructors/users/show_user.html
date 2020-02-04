@@ -19,7 +19,7 @@
           <i class="fa fa-user-circle-o" aria-hidden="true"></i> Basic Information
         </a>
         <a class="nav-item nav-link" id="nav-profile-tab" data-toggle="tab" href="#nav-profile-instructor" role="tab" aria-controls="nav-profile" aria-selected="false">
-          <i class="fa fa-id-card-o" aria-hidden="true"></i> Profile
+          <i class="fa fa-id-card-o" aria-hidden="true"></i> Additional Information
         </a>
 
         {% if user.is_student %}
@@ -35,13 +35,13 @@
       <div class="tab-pane fade show active" id="nav-basic-info-instructor" role="tabpanel" aria-labelledby="nav-basic-info-tab">
         <div class="board col-11 mx-auto">
           <h3>Basic Information</h3>
-          {% include 'ta_app/users/_basic_info.html' with data=user %}
+          {% include 'ta_app/users/_basic_info.html' with data=user student_number_display='True' %}
         </div>
       </div>
 
       <div class="tab-pane fade" id="nav-profile-instructor" role="tabpanel" aria-labelledby="nav-profile-tab">
         <div class="board col-11 mx-auto">
-          <h3>Profile</h3>
+          <h3>Additional Information</h3>
           {% include 'ta_app/users/_profile.html' with data=user %}
         </div>
       </div>

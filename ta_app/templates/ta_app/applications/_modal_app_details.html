@@ -10,13 +10,11 @@
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="app-details-modal-label-{{ data.id }}">Application Details</h5>
+        <h5 class="modal-title text-info" id="app-details-modal-label-{{ data.id }}">Application Details</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
       </div>
       <div class="modal-body text-left">
-        <div class="board">
-          <h3>Details</h3>
-
+        <div class="modal-item">
           <div>
             <h6>Applicant:</h6>
             <span>
@@ -25,7 +23,7 @@
             </span>
           </div>
 
-          {% include 'ta_app/applications/_app_details.html' with data=data %}
+          {% include 'ta_app/applications/_app_details.html' with data=data pin_display=pin_display %}
         </div>
       </div>
     </div>

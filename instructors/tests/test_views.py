@@ -11,9 +11,9 @@ from users import api as userApi
 
 from administrators.tests.test_views import LOGIN_URL, ContentType, DATA, SESSION, PASSWORD
 from django.core.files.uploadedfile import SimpleUploadedFile
+import datetime
 
-
-USER = 'mcqueen.jenny'
+USER = 'User42.Ins'
 JOB = 'apbi-200-002-introduction-to-soil-science-w1'
 STUDENT = 'user66.test'
 
@@ -192,4 +192,18 @@ class InstructorTest(TestCase):
         response = self.client.get( reverse('instructors:show_applications', args=[SESSION, JOB]) )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['job'].application_set.first().instructor_preference, Application.REQUESTED)
-        self.assertEqual( len(response.context['apps']) , 4 )
+
+        apps = response.context['apps']
+        self.assertEqual( len(apps) , 4 )
+
+        second_app = None
+        count = 0
+        for app in apps:
+            if count == 1: second_app = app
+            count += 1
+
+        self.assertEqual(second_app.id, 11)
+        self.assertEqual(second_app.applicant.username, 'user70.test')
+        self.assertEqual(second_app.applicationstatus_set.last().get_assigned_display(), 'Accepted')
+        self.assertEqual(second_app.applicationstatus_set.last().assigned_hours, 65.5)
+        self.assertEqual(second_app.applicationstatus_set.last().created_at, datetime.date(2019, 9, 20))

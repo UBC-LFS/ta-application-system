@@ -127,7 +127,7 @@
               <td>{{ app.job.assigned_ta_hours }}</td>
               <td>{{ app.job.accumulated_ta_hours }}</td>
               <td>
-                {% include 'ta_app/applications/_modal_app_details.html' with data=app display='id' %}
+                {% include 'ta_app/applications/_modal_app_details.html' with data=app display='id' pin_display='True' %}
               </td>
               <td>
                 {% include 'ta_app/applications/_app_status.html' with data=app.applicationstatus_set.last.get_assigned_display %}

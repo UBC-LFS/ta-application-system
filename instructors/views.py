@@ -190,8 +190,8 @@ def show_applications(request, session_slug, job_slug):
     if 'Instructor' not in request.user.roles: raise PermissionDenied
 
     job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
-
     if request.method == 'POST':
+
         if request.POST.get('instructor_preference') == Application.NONE:
             messages.error(request, 'An error occurred. Please select your preference, then try again.')
             return HttpResponseRedirect( reverse('instructors:show_applications', args=[session_slug, job_slug]) )
@@ -208,9 +208,7 @@ def show_applications(request, session_slug, job_slug):
             messages.error( request, 'An error occurred. You cannot assign {0} hours because its maximum hours is {1}. then try it again.'.format(request.POST.get('assigned_hours'), job.assigned_ta_hours) )
             return HttpResponseRedirect( reverse('instructors:show_applications', args=[session_slug, job_slug]) )
 
-
         instructor_app_form = InstructorApplicationForm(request.POST)
-
         if instructor_app_form.is_valid():
             app_status_form = ApplicationStatusForm(request.POST)
 
@@ -220,15 +218,12 @@ def show_applications(request, session_slug, job_slug):
 
                 updated_app = adminApi.update_application_instructor_preference(app_id, instructor_preference)
                 if updated_app:
-                    updated_status = app_status_form.save()
-                    if updated_status:
+                    if app_status_form.save():
                         messages.success(request, 'Success! {0} is selected.'.format(updated_app.applicant.username))
-                        return HttpResponseRedirect( reverse('instructors:show_applications', args=[session_slug, job_slug]) )
                     else:
                         messages.error(request, 'An error occurred while updating an application status.')
                 else:
                     messages.error(request, 'An error occurred while updating an instructor_preference.')
-
             else:
                 errors = app_status_form.errors.get_json_data()
                 messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
@@ -238,8 +233,6 @@ def show_applications(request, session_slug, job_slug):
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
         return HttpResponseRedirect( reverse('instructors:show_applications', args=[session_slug, job_slug]) )
-
-    apps = adminApi.get_applications_with_status_by_session_slug_job_slug(session_slug, job_slug)
 
     return render(request, 'instructors/jobs/show_applications.html', {
         'loggedin_user': request.user,

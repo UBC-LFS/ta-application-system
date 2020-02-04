@@ -189,7 +189,7 @@ main {
 .custom-table,
 .custom-table th,
 .custom-table td {
-  border: 1px solid #343a40;
+  border: 1px solid #bbb;
 }
 
 .custom-table th,
@@ -213,8 +213,26 @@ main {
 
 .prompt > p,
 .prompt > div > p {
-  color: #6c757d;
+  color: #343a40;
 }
+
+.modal-item {
+  padding: 1rem 1.5rem;
+}
+
+.modal-item > div {
+  margin-bottom: 1.5rem;
+}
+
+.modal-item > div > h6 {
+  font-weight: 600;
+}
+
+.modal-item > div > span {
+  color: #6c757d;
+  font-size: 1rem;
+}
+
 
 .board {
   background-color: #f3f7f7;
