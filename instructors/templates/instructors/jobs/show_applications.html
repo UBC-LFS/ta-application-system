@@ -98,8 +98,8 @@
                           {% csrf_token %}
 
                           <div class="field-wrapper">
-                            <label for="id_instructor_preference">Instructor Preference:</label>
-                            <select class="form-control" name="instructor_preference" id="id_instructor_preference">
+                            <label for="id_instructor_preference_{{ app.id }}">Instructor Preference:</label>
+                            <select class="form-control" name="instructor_preference" id="id_instructor_preference_{{ app.id }}">
                               {% for choice in instructor_preference_choices %}
                                 {% if choice.0 == app.instructor_preference %}
                                   <option value="{{ choice.0 }}" selected>{{ choice.1 }}</option>
@@ -111,12 +111,12 @@
                           </div>
 
                           <div class="field-wrapper">
-                            <label for="id_assigned_hours">
+                            <label for="id_assigned_hours_{{ app.id }}">
                               Assign TA Hours:
                               <small class="text-muted">(Numerical value only)</small>
                             </label>
 
-                            <input class="form-control" type="number" name="assigned_hours" id="id_assigned_hours" value="0.0" />
+                            <input class="form-control" type="number" name="assigned_hours" id="id_assigned_hours_{{ app.id }}" value="0.0" />
                           </div>
 
                           <input type="hidden" name="assigned" value="{{ app_status.selected }}" />
