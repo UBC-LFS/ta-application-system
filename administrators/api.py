@@ -390,8 +390,8 @@ def add_applications_with_latest_status(apps):
 def add_salary(apps):
     ''' Add a salary in applications '''
     for app in apps:
-        app.salary = round(app.accepted.assigned_hours * app.classification.wage / app.classification.by_month, 2)
-        app.pt_percentage = round(app.accepted.assigned_hours / app.classification.max_hours * 100, 2)
+        app.salary = round(app.accepted.assigned_hours * app.classification.wage / app.job.session.term.by_month, 2)
+        app.pt_percentage = round(app.accepted.assigned_hours / app.job.session.term.max_hours * 100, 2)
     return apps
 
 

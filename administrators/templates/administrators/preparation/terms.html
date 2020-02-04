@@ -3,7 +3,7 @@
 
 {% include 'administrators/_menu.html' %}
 <div class="row">
-  <div class="col-md-5">
+  <div class="col-md-4">
     {% include 'ta_app/pages/_header.html' with title='Terms' text=terms|length %}
 
     <div class="bg-prompt">
@@ -33,13 +33,15 @@
     </div>
   </div>
 
-  <div class="col-md-7">
+  <div class="col-md-8">
     <table class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center">
       <thead>
         <tr>
           <th>ID</th>
           <th>Code</th>
           <th>Name</th>
+          <th>By month</th>
+          <th>Max hours</th>
           <th>Actions</th>
         </tr>
       </thead>
@@ -49,6 +51,8 @@
             <td>{{ term.id }}</td>
             <td>{{ term.code }}</td>
             <td>{{ term.name }}</td>
+            <td>{{ term.by_month }}</td>
+            <td>{{ term.max_hours }}</td>
             <td>
               <div class="btn-toolbar">
                 <button class="btn btn-xs btn-primary mr-2" type="button" data-toggle="modal" data-target="#term-edit-modal-{{ term.id }}">Edit</button>
