@@ -40,6 +40,7 @@ def index(request):
 @require_http_methods(['GET'])
 def show_user(request, session_slug, job_slug, username):
     ''' Display an user's details '''
+    print("show_user", request.user, request.user.is_impersonate)
     if request.user.is_impersonate:
         if not userApi.is_admin(request.session['loggedin_user'], 'dict'): raise PermissionDenied
         request.user.roles = userApi.get_user_roles(request.user)
@@ -67,7 +68,6 @@ def show_jobs(request):
     else:
         request.user.roles = request.session['loggedin_user']['roles']
     if 'Instructor' not in request.user.roles: raise PermissionDenied
-
 
     year_q = request.GET.get('year')
     term_q = request.GET.get('term')
@@ -101,7 +101,6 @@ def show_jobs(request):
             filters = filters & Q(course__section__name__iexact=section_q)
         else:
             filters = Q(course__section__name__iexact=section_q)
-
 
     job_list = request.user.job_set.all()
     if filters != None:
@@ -182,6 +181,7 @@ def show_job(request, session_slug, job_slug):
 @require_http_methods(['GET', 'POST'])
 def show_applications(request, session_slug, job_slug):
     ''' Display applications applied by students '''
+    print("show_applications", request.user, request.user.is_impersonate)
     if request.user.is_impersonate:
         if not userApi.is_admin(request.session['loggedin_user'], 'dict'): raise PermissionDenied
         request.user.roles = userApi.get_user_roles(request.user)
@@ -191,22 +191,30 @@ def show_applications(request, session_slug, job_slug):
 
     job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
     if request.method == 'POST':
+        instructor_preference = request.POST.get('instructor_preference')
+        assigned_hours = request.POST.get('assigned_hours')
 
-        if request.POST.get('instructor_preference') == Application.NONE:
+        if adminApi.is_valid_float(assigned_hours) == False:
+            messages.error(request, 'An error occurred. Please check assigned hours. Assigned hours must be numerival value only or be greater than 0.0.')
+            return HttpResponseRedirect( reverse('instructors:show_applications', args=[session_slug, job_slug]) )
+
+        assigned_hours = float(assigned_hours)
+        if instructor_preference == Application.NONE:
             messages.error(request, 'An error occurred. Please select your preference, then try again.')
             return HttpResponseRedirect( reverse('instructors:show_applications', args=[session_slug, job_slug]) )
 
-        if request.POST.get('instructor_preference') == Application.NO_PREFERENCE and float(request.POST.get('assigned_hours')) > 0.0:
+        if instructor_preference == Application.NO_PREFERENCE and assigned_hours > 0.0:
             messages.error(request, 'An error occurred. Please leave 0.0 for Assign TA Hours if you would to select No Preference, then try again.')
             return HttpResponseRedirect( reverse('instructors:show_applications', args=[session_slug, job_slug]) )
 
-        if float(request.POST.get('assigned_hours')) == 0.0 and request.POST.get('instructor_preference') != Application.NO_PREFERENCE:
+        if assigned_hours > float(job.assigned_ta_hours):
+            messages.error( request, 'An error occurred. You cannot assign {0} hours because its maximum hours is {1}. then try it again.'.format(request.POST.get('assigned_hours'), job.assigned_ta_hours) )
+            return HttpResponseRedirect( reverse('instructors:show_applications', args=[session_slug, job_slug]) )
+
+        if assigned_hours == 0.0 and instructor_preference != Application.NO_PREFERENCE:
             messages.error(request, 'An error occurred. Please assign TA hours, then try again.')
             return HttpResponseRedirect( reverse('instructors:show_applications', args=[session_slug, job_slug]) )
 
-        if float(request.POST.get('assigned_hours')) > float(job.assigned_ta_hours):
-            messages.error( request, 'An error occurred. You cannot assign {0} hours because its maximum hours is {1}. then try it again.'.format(request.POST.get('assigned_hours'), job.assigned_ta_hours) )
-            return HttpResponseRedirect( reverse('instructors:show_applications', args=[session_slug, job_slug]) )
 
         instructor_app_form = InstructorApplicationForm(request.POST)
         if instructor_app_form.is_valid():
@@ -214,8 +222,6 @@ def show_applications(request, session_slug, job_slug):
 
             if app_status_form.is_valid():
                 app_id = request.POST.get('application')
-                instructor_preference = request.POST.get('instructor_preference')
-
                 updated_app = adminApi.update_application_instructor_preference(app_id, instructor_preference)
                 if updated_app:
                     if app_status_form.save():

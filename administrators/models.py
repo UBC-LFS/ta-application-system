@@ -232,13 +232,6 @@ class Application(models.Model):
         super(Application, self).save(*args, **kwargs)
 
 
-def NumericalValueValidator(value):
-    if value.isnumeric() == False:
-        raise ValidationError(
-            _('This field must be numerical value only.'), params={'value': value}, code='numerical_value'
-        )
-
-
 class ApplicationStatus(models.Model):
     ''' Application Status '''
     NONE = '0'
