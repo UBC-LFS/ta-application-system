@@ -267,6 +267,10 @@ main {
   font-size: 1rem;
 }
 
+.bg-white {
+  background-color: #fff;
+}
+
 .gray-box {
   border: 1px solid #e6e6e6;
   background-color: #fff;

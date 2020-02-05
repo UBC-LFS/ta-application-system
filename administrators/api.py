@@ -676,6 +676,7 @@ def delete_admin_email(admin_email_id):
 
 def is_valid_float(num):
     try:
+        n = float(num)
         return True
     except ValueError:
         return False

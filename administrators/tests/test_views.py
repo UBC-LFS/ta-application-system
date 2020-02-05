@@ -670,6 +670,39 @@ class ApplicationTest(TestCase):
         app_id = '2'
         app = adminApi.get_application(app_id)
         self.assertFalse(adminApi.get_offered(app))
+
+
+        data = {
+            'note': 'this is a note',
+            'assigned_hours': 'abcde',
+            'application': app_id,
+            'assigned': ApplicationStatus.OFFERED,
+            'applicant': '65',
+            'classification': '2'
+        }
+        response = self.client.post(reverse('administrators:offer_job', args=[app.job.session.slug, app.job.course.slug]), data=urlencode(data), content_type=ContentType)
+        messages = self.messages(response)
+        self.assertTrue('An error occurred' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/administrators/applications/selected/')
+        self.assertRedirects(response, response.url)
+
+
+        data = {
+            'note': 'this is a note',
+            'assigned_hours': '-20.0',
+            'application': app_id,
+            'assigned': ApplicationStatus.OFFERED,
+            'applicant': '65',
+            'classification': '2'
+        }
+        response = self.client.post(reverse('administrators:offer_job', args=[app.job.session.slug, app.job.course.slug]), data=urlencode(data), content_type=ContentType)
+        messages = self.messages(response)
+        self.assertTrue('An error occurred' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/administrators/applications/selected/')
+        self.assertRedirects(response, response.url)
+
         data = {
             'note': 'this is a note',
             'assigned_hours': '20.0',
@@ -683,6 +716,8 @@ class ApplicationTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, '/administrators/applications/selected/')
         self.assertRedirects(response, response.url)
+
+
 
         data['classification'] = ''
         response = self.client.post(reverse('administrators:offer_job', args=[app.job.session.slug, app.job.course.slug]), data=urlencode(data), content_type=ContentType)
@@ -899,7 +934,6 @@ class ApplicationTest(TestCase):
         self.login()
 
         app_id = 1
-
         response = self.client.get( reverse('administrators:accepted_applications') )
         self.assertEqual(response.status_code, 200)
         accepted_applications = response.context['apps']
@@ -909,6 +943,31 @@ class ApplicationTest(TestCase):
             if app.id == app_id:
                 application = app
                 break
+
+
+        data = {
+            'application': str(application.id),
+            'new_assigned_hours': 'abcde',
+            'old_assigned_hours': str(application.accepted.assigned_hours)
+        }
+        response = self.client.post(reverse('administrators:decline_reassign'), data=urlencode(data), content_type=ContentType)
+        messages = self.messages(response)
+        self.assertTrue('An error occurred' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/administrators/applications/accepted/')
+        self.assertRedirects(response, response.url)
+
+        data = {
+            'application': str(application.id),
+            'new_assigned_hours': '-10.0',
+            'old_assigned_hours': str(application.accepted.assigned_hours)
+        }
+        response = self.client.post(reverse('administrators:decline_reassign'), data=urlencode(data), content_type=ContentType)
+        messages = self.messages(response)
+        self.assertTrue('An error occurred' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/administrators/applications/accepted/')
+        self.assertRedirects(response, response.url)
 
         data = {
             'application': str(application.id),

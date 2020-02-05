@@ -816,6 +816,11 @@ def offer_job(request, session_slug, job_slug):
             return redirect('administrators:selected_applications')
 
         assigned_hours = float(assigned_hours)
+
+        if assigned_hours < 0.0:
+            messages.error(request, 'An error occurred. Please check assigned hours. Assigned hours must be greater than 0.')
+            return redirect('administrators:selected_applications')
+
         job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
         if assigned_hours > float(job.assigned_ta_hours):
             messages.error(request, 'An error occurred. Please you cannot assign {0} hours because its maximum hours is {1}, then try again.'.format(assigned_hours, job.assigned_ta_hours))
