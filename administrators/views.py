@@ -811,8 +811,18 @@ def offer_job(request, session_slug, job_slug):
 
         assigned_hours = request.POST.get('assigned_hours')
 
+        if adminApi.is_valid_float(assigned_hours) == False:
+            messages.error(request, 'An error occurred. Please check assigned hours. Assigned hours must be numerival value only.')
+            return redirect('administrators:selected_applications')
+
+        assigned_hours = float(assigned_hours)
+
+        if assigned_hours < 0.0:
+            messages.error(request, 'An error occurred. Please check assigned hours. Assigned hours must be greater than 0.')
+            return redirect('administrators:selected_applications')
+
         job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
-        if float(assigned_hours) > float(job.assigned_ta_hours):
+        if assigned_hours > float(job.assigned_ta_hours):
             messages.error(request, 'An error occurred. Please you cannot assign {0} hours because its maximum hours is {1}, then try again.'.format(assigned_hours, job.assigned_ta_hours))
             return redirect('administrators:selected_applications')
 
@@ -1078,19 +1088,26 @@ def decline_reassign(request):
         old_assigned_hours = request.POST.get('old_assigned_hours')
         new_assigned_hours = request.POST.get('new_assigned_hours')
 
-        if new_assigned_hours.isnumeric():
+        if adminApi.is_valid_float(old_assigned_hours) == False:
+            messages.error(request, 'An error occurred. Please contact administrators. Your old assigned hours must be numerival value only.')
+            return redirect('administrators:accepted_applications')
+
+        if adminApi.is_valid_float(new_assigned_hours) == False:
             messages.error(request, 'An error occurred. Please check assigned hours. Your new assigned hours must be numerival value only.')
             return redirect('administrators:accepted_applications')
 
-        if float(new_assigned_hours) < 0:
+        old_assigned_hours = float(old_assigned_hours)
+        new_assigned_hours = float(new_assigned_hours)
+
+        if new_assigned_hours < 0.0:
             messages.error(request, 'An error occurred. Please check assigned hours. Your new assigned hours must be greater than 0.')
             return redirect('administrators:accepted_applications')
 
-        if float(old_assigned_hours) == float(new_assigned_hours):
+        if old_assigned_hours == new_assigned_hours:
             messages.error(request, 'An error occurred. Please check assigned hours. Your new assigned hours are same as current assigned hours.')
             return redirect('administrators:accepted_applications')
 
-        if float(new_assigned_hours) == 0.0 or float(new_assigned_hours) > float(app.job.assigned_ta_hours):
+        if new_assigned_hours == 0.0 or new_assigned_hours > float(app.job.assigned_ta_hours):
             messages.error(request, 'An error occurred. Please check assigned hours. Valid assigned hours are between 0.0 and {0}'.format(app.job.assigned_ta_hours))
             return redirect('administrators:accepted_applications')
 

@@ -73,7 +73,9 @@
 
               {% if app.job.is_active and app.is_terminated %}
                 <hr />
-                <a href="{% url 'students:cancel_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}">Cancel</a>
+                <a href="{% url 'students:cancel_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}">
+                  Contract<br /> Termination
+                </a>
               {% endif %}
 
             {% elif app.declined %}

@@ -13,7 +13,6 @@ from users import api as userApi
 
 from datetime import datetime
 
-TA_MAX_HOUR = 192
 
 # Courses
 
@@ -673,120 +672,11 @@ def delete_admin_email(admin_email_id):
     return admin_email if admin_email else False
 
 
-# removed
+# utils
 
-"""
-def get_applications_by_user(user):
-    ''' to be removed '''
-    return Application.objects.filter(applicant_id=user.id)
-"""
-
-"""
-def get_not_visible_active_sessions():
-    return Session.objects.filter(is_visible=False, is_archived=False)
-"""
-
-"""
-def add_applications_statistics(jobs):
-    ''' add statistics of applications in a job '''
-    for job in Job.objects.all():
-        offered_app = 0
-        accepted_app = 0
-        declined_app = 0
-        for app in job.application_set.all():
-            if get_offered(app): offered_app += 1
-            if get_accepted(app): accepted_app += 1
-            if get_declined(app): declined_app += 1
-
-        job.offered_applications = offered_app
-        job.accepted_applications = accepted_app
-        job.declined_applications = declined_app
-
-    return jobs
-"""
-
-"""def get_jobs_with_applications_statistics():
-    ''' get jobs with statistics of applications '''
-    jobs = []
-    for job in Job.objects.all():
-        offered_app = 0
-        accepted_app = 0
-        declined_app = 0
-        for app in job.application_set.all():
-            if get_offered(app): offered_app += 1
-            if get_accepted(app): accepted_app += 1
-            if get_declined(app): declined_app += 1
-
-        job.offered_applications = offered_app
-        job.accepted_applications = accepted_app
-        job.declined_applications = declined_app
-        jobs.append(job)
-
-    return jobs"""
-
-
-"""
-def get_selected_applications():
-    ''' Get applications selected by instructors '''
-    #apps = Application.objects.filter( ~Q(instructor_preference=Application.NONE) & ~Q(instructor_preference=Application.NO_PREFERENCE) ).order_by('job')
-    apps = Application.objects.filter(applicationstatus__assigned=ApplicationStatus.SELECTED).order_by('-id')
-    for app in apps:
-        app.resume_filename = None
-        if userApi.has_user_resume_created(app.applicant) and bool(app.applicant.resume.uploaded):
-            app.resume_filename = os.path.basename(app.applicant.resume.uploaded.name)
-
-        app.selected = None
-        selected = app.applicationstatus_set.filter(assigned=ApplicationStatus.SELECTED)
-        if selected.exists(): app.selected = selected.first()
-
-        app.offered = None
-        offered = app.applicationstatus_set.filter(assigned=ApplicationStatus.OFFERED)
-        if offered.exists(): app.offered = offered.last()
-
-    return apps
-"""
-
-"""
-def get_applications_by_status(status):
-    ''' Get applications by status '''
-    apps = Application.objects.filter(applicationstatus__assigned=status).order_by('-id').distinct()
-    for app in apps:
-        found_status = app.applicationstatus_set.filter(assigned=status)
-
-        if status == ApplicationStatus.SELECTED:
-            app.resume_filename = None
-            if userApi.has_user_resume_created(app.applicant) and bool(app.applicant.resume.uploaded):
-                app.resume_filename = os.path.basename(app.applicant.resume.uploaded.name)
-
-            app.selected = None
-            selected = app.applicationstatus_set.filter(assigned=ApplicationStatus.SELECTED)
-            if selected.exists(): app.selected = selected.first()
-
-            app.offered = None
-            offered = app.applicationstatus_set.filter(assigned=ApplicationStatus.OFFERED)
-            if offered.exists(): app.offered = offered.last()
-
-        elif status == ApplicationStatus.OFFERED:
-            app.offered = None
-            if found_status.exists(): app.offered = found_status.last()
-
-        elif status == ApplicationStatus.ACCEPTED:
-            app.accepted = None
-            if found_status.exists(): app.accepted = found_status.last()
-
-        elif status == ApplicationStatus.DECLINED:
-            app.declined = None
-            if found_status.exists(): app.declined = found_status.last()
-
-    return apps
-"""
-
-
-"""
-def valid_path(path):
-    valid_list = ['administrators', 'human_resources', 'instructors', 'students', 'users']
-    path_list = path.split('/')
-    if path_list[1] in valid_list:
-        return path_list[1]
-    raise Http404
-"""
+def is_valid_float(num):
+    try:
+        n = float(num)
+        return True
+    except ValueError:
+        return False
