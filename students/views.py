@@ -853,7 +853,7 @@ def cancel_job(request, session_slug, job_slug):
         })
         if form.is_valid():
             if form.save():
-                messages.success(request, 'Application of {0} {1} - {2} {3} {4} cancelled.'.format(app.job.session.year, app.job.session.term.code, app.job.course.code.name, app.job.course.number.name, app.job.course.section.name))
+                messages.success(request, 'Application of {0} {1} - {2} {3} {4} terminated.'.format(app.job.session.year, app.job.session.term.code, app.job.course.code.name, app.job.course.number.name, app.job.course.section.name))
                 return redirect('students:history_jobs')
             else:
                 messages.error(request, 'An error occurred while saving application status.')
