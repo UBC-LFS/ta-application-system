@@ -66,7 +66,7 @@ class InstructorTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, USER)
         self.assertEqual(response.context['loggedin_user'].roles, ['Instructor'])
-        self.assertEqual(response.context['user'].username, STUDENT)
+        self.assertEqual(response.context['selected_user'].username, STUDENT)
 
     def test_show_jobs(self):
         print('\n- Display jobs by instructors')
@@ -141,11 +141,39 @@ class InstructorTest(TestCase):
         self.assertEqual(response.context['job'].application_set.first().instructor_preference, '0')
         self.assertEqual( len(response.context['instructor_preference_choices']), 5 )
 
+        # Invalid assigned hours
         data = {
             'assigned': ApplicationStatus.OFFERED,
             'application': '6',
             'instructor_preference': Application.NONE,
-            'assigned_hours': 0.0
+            'assigned_hours': 'abcde'
+        }
+        response = self.client.post( reverse('instructors:show_applications', args=[SESSION, JOB]), data=urlencode(data), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue('An error occurred' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/instructors/sessions/{0}/jobs/{1}/applications/'.format(SESSION, JOB))
+        self.assertRedirects(response, response.url)
+
+        # Minus assigned hours
+        data = {
+            'assigned': ApplicationStatus.OFFERED,
+            'application': '6',
+            'instructor_preference': Application.NONE,
+            'assigned_hours': '-20.2'
+        }
+        response = self.client.post( reverse('instructors:show_applications', args=[SESSION, JOB]), data=urlencode(data), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue('An error occurred' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/instructors/sessions/{0}/jobs/{1}/applications/'.format(SESSION, JOB))
+        self.assertRedirects(response, response.url)
+
+        data = {
+            'assigned': ApplicationStatus.OFFERED,
+            'application': '6',
+            'instructor_preference': Application.NONE,
+            'assigned_hours': '0.0'
         }
         response = self.client.post( reverse('instructors:show_applications', args=[SESSION, JOB]), data=urlencode(data), content_type=ContentType )
         messages = self.messages(response)
@@ -155,7 +183,7 @@ class InstructorTest(TestCase):
         self.assertRedirects(response, response.url)
 
         data['instructor_preference'] = Application.NO_PREFERENCE
-        data['assigned_hours'] = 10.0
+        data['assigned_hours'] = '10.0'
         response = self.client.post( reverse('instructors:show_applications', args=[SESSION, JOB]), data=urlencode(data), content_type=ContentType )
         messages = self.messages(response)
         self.assertTrue('An error occurred' in messages[0])
@@ -164,7 +192,7 @@ class InstructorTest(TestCase):
         self.assertRedirects(response, response.url)
 
         data['instructor_preference'] = Application.ACCEPTABLE
-        data['assigned_hours'] = 0.0
+        data['assigned_hours'] = '0.0'
         response = self.client.post( reverse('instructors:show_applications', args=[SESSION, JOB]), data=urlencode(data), content_type=ContentType )
         messages = self.messages(response)
         self.assertTrue('An error occurred' in messages[0])
@@ -173,7 +201,7 @@ class InstructorTest(TestCase):
         self.assertRedirects(response, response.url)
 
         data['instructor_preference'] = Application.ACCEPTABLE
-        data['assigned_hours'] = 201.0
+        data['assigned_hours'] = '201.0'
         response = self.client.post( reverse('instructors:show_applications', args=[SESSION, JOB]), data=urlencode(data), content_type=ContentType )
         messages = self.messages(response)
         self.assertTrue('An error occurred' in messages[0])
@@ -182,7 +210,7 @@ class InstructorTest(TestCase):
         self.assertRedirects(response, response.url)
 
         data['instructor_preference'] = Application.REQUESTED
-        data['assigned_hours'] = 20.0
+        data['assigned_hours'] = '20.0'
         response = self.client.post( reverse('instructors:show_applications', args=[SESSION, JOB]), data=urlencode(data), content_type=ContentType )
         messages = self.messages(response)
         self.assertTrue('Success' in messages[0])

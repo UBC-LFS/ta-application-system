@@ -4,7 +4,7 @@
 {% include 'instructors/_menu.html' %}
 <div class="row">
   <div class="col-md-4">
-    {% include 'ta_app/pages/_left_aside.html' with view_name='users' title='User Details' data=user %}
+    {% include 'ta_app/pages/_left_aside.html' with view_name='users' title='User Details' data=selected_user %}
 
     <div class="left-aside-btn-groups mb-5">
       <a class="btn btn-outline-primary" href="{% url 'instructors:show_applications' session_slug=session_slug job_slug=job_slug %}">Back to Applications</a>
@@ -22,7 +22,7 @@
           <i class="fa fa-id-card-o" aria-hidden="true"></i> Additional Information
         </a>
 
-        {% if user.is_student %}
+        {% if selected_user.is_student %}
           <a class="nav-item nav-link" id="nav-resume-tab" data-toggle="tab" href="#nav-resume-instructor" role="tab" aria-controls="nav-resume" aria-selected="false">
             <i class="fa fa-file-text-o" aria-hidden="true"></i> Resume
           </a>
@@ -35,26 +35,26 @@
       <div class="tab-pane fade show active" id="nav-basic-info-instructor" role="tabpanel" aria-labelledby="nav-basic-info-tab">
         <div class="board col-11 mx-auto">
           <h3>Basic Information</h3>
-          {% include 'ta_app/users/_basic_info.html' with data=user student_number_display='True' %}
+          {% include 'ta_app/users/_basic_info.html' with data=selected_user student_number_display='True' %}
         </div>
       </div>
 
       <div class="tab-pane fade" id="nav-profile-instructor" role="tabpanel" aria-labelledby="nav-profile-tab">
         <div class="board col-11 mx-auto">
           <h3>Additional Information</h3>
-          {% include 'ta_app/users/_profile.html' with data=user %}
+          {% include 'ta_app/users/_profile.html' with data=selected_user %}
         </div>
       </div>
 
-      {% if user.is_student %}
+      {% if selected_user.is_student %}
         <div class="tab-pane fade" id="nav-resume-instructor" role="tabpanel" aria-labelledby="nav-resume">
           <div class="board col-11 mx-auto">
             <h3>Resume</h3>
-            {% if user.resume_filename %}
-              <a href="{% url 'students:download_resume' username=user.username filename=user.resume_filename %}" target="_blank">
-                {{ user.resume_filename }}
+            {% if selected_user.resume_filename %}
+              <a href="{% url 'students:download_resume' username=selected_user.username filename=selected_user.resume_filename %}" target="_blank">
+                {{ selected_user.resume_filename }}
               </a>
-              | {{ user.resume.created_at }}
+              | {{ selected_user.resume.created_at }}
             {% else %}
               None
             {% endif %}

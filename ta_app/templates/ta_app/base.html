@@ -67,12 +67,12 @@
 
 	<main class="mb-5">
 		<div class="container max-width-container">
-			{% if user.is_impersonate %}
+			{% if loggedin_user.is_impersonate %}
 				<div id="impersonate-card" class="card bg-light-gray">
 					<div class="card-body">
 						<div>
 							You are now masquerading as
-							<span class="font-weight-bold text-primary">{{ user.get_full_name }}</span>
+							<span class="font-weight-bold text-primary">{{ loggedin_user.get_full_name }}</span>
 						</div>
 						<a class="btn btn-sm btn-outline-info mt-2" href="/impersonate/stop/?next=/administrators/hr/users/all/">
 							Switch back <i class="fa fa-sign-out" aria-hidden="true"></i>
@@ -80,6 +80,7 @@
 					</div>
 				</div>
 			{% endif %}
+			
 			{% block content %}{% endblock %}
 		</div>
 	</main>

@@ -4,10 +4,9 @@
 {% include 'students/_menu.html' %}
 <div class="row">
   <div class="col-md-4">
-    {% include 'ta_app/pages/_left_aside.html' with view_name='job_applications' title='Cancel Job' data=app.job %}
+    {% include 'ta_app/pages/_left_aside.html' with view_name='job_applications' title='Contract Termination' data=app.job %}
 
-
-    <div class="col-11 mx-auto text-center mt-4">
+    <div class="col-10 mx-auto text-center mt-4">
       <table class="table">
         <tr class="text-secondary">
           <td>Job Details</td>
@@ -18,7 +17,6 @@
       </table>
     </div>
 
-
     <div class="left-aside-btn-groups">
       <a class="btn btn-outline-primary" href="{% url 'students:history_jobs' %}">Back to History of Jobs</a>
     </div>
@@ -27,12 +25,12 @@
   <div class="col-md-8">
     <div class="board col-11 mx-auto">
 
-      <h3>Cancel Confirmation</h3>
+      <h3>Confirmation</h3>
       {% include 'ta_app/pages/_submit_note.html' %}
 
-      <div class="mt-5">
-        <h5 class="text-info">Are you sure to cancel this accepted job?</h5>
-        <p class="text-secondary">Please click the Confirm button below if you would like to cancel your job.</p>
+      <div class="card border-secondary bg-white mt-4 p-4">
+        <p>I have been in contact with the TA administrator regarding the termination of this contract.</p>
+        <p>Please click on the "Confirm" button to terminate this contract.</p>
 
         <form action="" method="post">
           {% csrf_token %}
@@ -41,7 +39,7 @@
           <input type="hidden" name="application" value="{{ app.id }}" />
 
           <a class="btn btn-outline-secondary" href="{% url 'students:history_jobs' %}">Cancel</a>
-          <input class="btn btn-danger" type="submit" value="Confirm to cancel" />
+          <input class="btn btn-danger" type="submit" value="Confirm" />
         </form>
       </div>
 
