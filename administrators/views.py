@@ -607,7 +607,7 @@ def edit_job(request, session_slug, job_slug):
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
         return HttpResponseRedirect(reverse('administrators:edit_job', args=[session_slug, job_slug]))
-
+    print(job.description)
     return render(request, 'administrators/jobs/edit_job.html', {
         'loggedin_user': request.user,
         'job': job,

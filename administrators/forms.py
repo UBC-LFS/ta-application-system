@@ -9,7 +9,6 @@ from users.models import Role
 import datetime as dt
 
 
-#ROLES = { role.name: role.id for role in Role.objects.all() }
 ROLES = {
     'Superadmin': 1,
     'Admin': 2,
@@ -71,16 +70,33 @@ class CourseForm(forms.ModelForm):
     ''' Create a model form for a course '''
     class Meta:
         model = Course
-        fields = ['code', 'number','section', 'name', 'term']
+        fields = ['code', 'number','section', 'name', 'term', 'overview', 'job_description', 'job_note']
         widgets = {
             'code': forms.Select(attrs={ 'class': 'form-control' }),
             'number': forms.Select(attrs={ 'class': 'form-control' }),
             'section': forms.Select(attrs={ 'class': 'form-control' }),
             'name': forms.TextInput(attrs={ 'class': 'form-control' }),
-            'term': forms.Select(attrs={ 'class': 'form-control' })
+            'term': forms.Select(attrs={ 'class': 'form-control' }),
+            'overview': SummernoteWidget(),
+            'job_description': SummernoteWidget(),
+            'job_note': SummernoteWidget()
+        }
+        labels = {
+            'job_description': 'Job Description',
+            'job_note': 'Job Note'
+        }
+        help_texts = {
+            'code': 'This field is required.',
+            'number': 'This field is required.',
+            'section': 'This field is required.',
+            'name': 'This field is required. Maximum 256 characters allowed.',
+            'term': 'This field is required.',
+            'overview': 'This field is optional.',
+            'job_description': 'This field is optional.',
+            'job_note': 'This field is optional.'
         }
 
-    field_order = ['code', 'number','section', 'name', 'term']
+    field_order = ['code', 'number','section', 'name', 'term', 'overview', 'job_description', 'job_note']
 
 
 class SessionForm(forms.ModelForm):
@@ -89,11 +105,14 @@ class SessionForm(forms.ModelForm):
     year = forms.CharField(
         max_length=4,
         initial=next_year,
-        widget=forms.TextInput(attrs={ 'class': 'form-control' })
+        widget=forms.TextInput(attrs={ 'class': 'form-control' }),
+        help_text='This field is required.'
     )
     title = forms.CharField(
+        max_length=256,
         initial='TA Application',
-        widget=forms.TextInput(attrs={ 'class': 'form-control' })
+        widget=forms.TextInput(attrs={ 'class': 'form-control' }),
+        help_text='This field is required. Maximum 256 characters allowed.'
     )
 
     class Meta:
@@ -103,6 +122,11 @@ class SessionForm(forms.ModelForm):
             'term': forms.Select(attrs={ 'class': 'form-control' }),
             'description': SummernoteWidget(),
             'note': SummernoteWidget()
+        }
+        help_texts = {
+            'term': 'This field is required.',
+            'description': 'This field is optional.',
+            'note': 'This field is optional.'
         }
 
     field_order = ['year', 'term', 'title', 'description', 'note']
@@ -147,46 +171,58 @@ class MyModelMultipleChoiceField(ModelMultipleChoiceField):
     def label_from_instance(self, obj):
         return obj.get_full_name()
 
+
 class AdminJobForm(forms.ModelForm):
     ''' '''
-    title = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={ 'class': 'form-control' })
-    )
     assigned_ta_hours = forms.FloatField(
         label='Assigned TA Hours',
         widget=forms.TextInput(attrs={ 'class': 'form-control' }),
-        help_text='Valid range is 0 to 4000'
+        help_text='This field is required. Valid range is 0 to 4000.'
     )
     instructors = MyModelMultipleChoiceField(
         queryset=User.objects.filter(profile__roles=ROLES['Instructor']).order_by('pk'),
-        widget=forms.CheckboxSelectMultiple()
+        widget=forms.CheckboxSelectMultiple(),
+        help_text='This field is required.'
     )
     class Meta:
         model = Job
-        fields = ['title', 'description', 'qualification', 'note', 'instructors', 'assigned_ta_hours', 'is_active']
+        fields = ['course_overview', 'description', 'note', 'instructors', 'assigned_ta_hours', 'is_active']
         widgets = {
+            'course_overview': SummernoteWidget(),
             'description': SummernoteWidget(),
-            'note': SummernoteWidget(),
-            'qualification': SummernoteWidget()
+            'note': SummernoteWidget()
         }
-    field_order = ['title', 'description', 'qualification', 'note', 'assigned_ta_hours', 'is_active', 'instructors']
+        labels = {
+            'course_overview': 'Course Overview'
+        }
+        help_texts = {
+            'course_overview': 'This field is optional.',
+            'description': 'This field is optional.',
+            'note': 'This field is optional.'
+        }
+    field_order = ['course_overview', 'description', 'note', 'assigned_ta_hours', 'is_active', 'instructors']
 
 
 class InstructorJobForm(forms.ModelForm):
     ''' Create a model form for job details of an instructor '''
-    title = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={ 'class': 'form-control' })
-    )
     class Meta:
         model = Job
-        fields = ['title', 'description', 'qualification', 'note']
+        fields = ['course_overview', 'description', 'note']
         widgets = {
+            'course_overview': SummernoteWidget(),
             'description': SummernoteWidget(),
-            'qualification': SummernoteWidget(),
             'note': SummernoteWidget()
         }
+        labels = {
+            'course_overview': 'Course Overview'
+        }
+        help_texts = {
+            'course_overview': 'This field is optional.',
+            'description': 'This field is optional.',
+            'note': 'This field is optional.'
+        }
+
+
 
 class InstructorApplicationForm(forms.ModelForm):
     class Meta:
@@ -296,22 +332,6 @@ class AdminDocumentsForm(forms.ModelForm):
         }
 
 
-class SessionJobForm(forms.ModelForm):
-    class Meta:
-        model = Job
-        fields = ['session', 'course']
-
-
-class JobForm(forms.ModelForm):
-    instructors = forms.ModelMultipleChoiceField(
-        queryset=User.objects.filter(profile__roles=ROLES['Instructor']),
-        widget=forms.CheckboxSelectMultiple()
-    )
-    class Meta:
-        model = Job
-        fields = ['title', 'description', 'qualification', 'note', 'instructors', 'is_active']
-
-
 class FavouriteForm(forms.ModelForm):
     class Meta:
         model = Favourite
@@ -357,3 +377,22 @@ class AdminEmailForm(forms.ModelForm):
             'message': SummernoteWidget(),
             'type': forms.TextInput(attrs={ 'class':'form-control' }),
         }
+
+
+
+"""
+class SessionJobForm(forms.ModelForm):
+    class Meta:
+        model = Job
+        fields = ['session', 'course']
+
+
+class JobForm(forms.ModelForm):
+    instructors = forms.ModelMultipleChoiceField(
+        queryset=User.objects.filter(profile__roles=ROLES['Instructor']),
+        widget=forms.CheckboxSelectMultiple()
+    )
+    class Meta:
+        model = Job
+        fields = ['title', 'description', 'qualification', 'note', 'instructors', 'is_active']
+"""

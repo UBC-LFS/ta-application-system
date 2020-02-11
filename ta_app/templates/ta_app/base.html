@@ -8,6 +8,7 @@
 	<link href="https://unpkg.com/bootstrap-table@1.15.4/dist/bootstrap-table.min.css" rel="stylesheet">
 
 	{% load static %}
+	<link rel="icon" type="image/jpg" href="{% static 'ta_app/images/ubc-favicon.jpg' %}">
 	<link rel="stylesheet" type="text/css" href="{% static 'ta_app/css/style.css' %}">
 	<link rel="stylesheet" type="text/css" href="{% static 'ta_app/css/font-awesome.min.css' %}">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.min.css">
@@ -80,7 +81,7 @@
 					</div>
 				</div>
 			{% endif %}
-			
+
 			{% block content %}{% endblock %}
 		</div>
 	</main>

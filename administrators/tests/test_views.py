@@ -20,7 +20,6 @@ DATA = [
     'ta_app/fixtures/course_codes.json',
     'ta_app/fixtures/course_numbers.json',
     'ta_app/fixtures/course_sections.json',
-    'ta_app/fixtures/courses.json',
     'ta_app/fixtures/degrees.json',
     'ta_app/fixtures/programs.json',
     'ta_app/fixtures/roles.json',
@@ -29,6 +28,7 @@ DATA = [
     'ta_app/fixtures/trainings.json',
     'administrators/fixtures/applications.json',
     'administrators/fixtures/applicationstatus.json',
+    'administrators/fixtures/courses.json',
     'administrators/fixtures/emails.json',
     'administrators/fixtures/favourites.json',
     'administrators/fixtures/job_instructors.json',
@@ -417,9 +417,8 @@ class JobTest(TestCase):
         self.assertEqual( form.initial['instructors'][0].username, USERS[1] )
 
         data = {
-            'title': 'new title',
+            'course_overview': 'new course overview',
             'description': 'new description',
-            'quallification': 'new quallification',
             'note': 'new note',
             'assigned_ta_hours': '180.00',
             'is_active': False,
@@ -433,7 +432,7 @@ class JobTest(TestCase):
         self.assertRedirects(response, response.url)
 
         updated_job = adminApi.get_job_by_session_slug_job_slug(SESSION, JOB)
-        self.assertEqual(updated_job.title, data['title'])
+        self.assertEqual(updated_job.course_overview, data['course_overview'])
         self.assertEqual(updated_job.description, data['description'])
         self.assertEqual(updated_job.note, data['note'])
         self.assertEqual(updated_job.assigned_ta_hours, float(data['assigned_ta_hours']))
@@ -2173,7 +2172,7 @@ class PreparationTest(TestCase):
 
         response = self.client.get( reverse('administrators:course_numbers') )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual( len(response.context['course_numbers']), 71 )
+        self.assertEqual( len(response.context['course_numbers']), 74 )
         self.assertFalse(response.context['form'].is_bound)
 
         data = { 'name': '530' }
@@ -2185,7 +2184,7 @@ class PreparationTest(TestCase):
 
         response = self.client.get( reverse('administrators:course_numbers') )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual( len(response.context['course_numbers']), 72 )
+        self.assertEqual( len(response.context['course_numbers']), 75 )
         self.assertEqual(response.context['course_numbers'].last().name, data['name'])
 
     def test_edit_course_number(self):
@@ -2247,7 +2246,7 @@ class PreparationTest(TestCase):
 
         response = self.client.get( reverse('administrators:course_sections') )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual( len(response.context['course_sections']), 14 )
+        self.assertEqual( len(response.context['course_sections']), 22 )
         self.assertFalse(response.context['form'].is_bound)
 
         data = { 'name': '99Z' }
@@ -2259,7 +2258,7 @@ class PreparationTest(TestCase):
 
         response = self.client.get( reverse('administrators:course_sections') )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual( len(response.context['course_sections']), 15 )
+        self.assertEqual( len(response.context['course_sections']), 23 )
         self.assertEqual(response.context['course_sections'].last().name, data['name'])
 
     def test_edit_course_section(self):

@@ -468,7 +468,7 @@ class StudentTest(TestCase):
 
         response = self.client.post( reverse('students:cancel_job', args=[SESSION, STUDENT_JOB]), data=urlencode(data), content_type=ContentType )
         messages = self.messages(response)
-        self.assertTrue('Application of 2019 W1 - APBI 260 001 cancelled.' in messages[0])
+        self.assertTrue('Application of 2019 W1 - APBI 260 001 terminated.' in messages[0])
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, '/students/jobs/history/')
         self.assertRedirects(response, response.url)

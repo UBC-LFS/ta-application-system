@@ -63,7 +63,7 @@
               {% csrf_token %}
               <input type="hidden" name="user" value="{{ loggedin_user.id }}" />
               <input type="hidden" name="nationality" value="0" />
-              <input class="btn btn-lg btn-primary" type="submit" value="I am a Domestic Student" />
+              <input class="btn btn-lg btn-primary" type="submit" value="Domestic Student" />
             </form>
           </div>
 
@@ -75,7 +75,7 @@
               {% csrf_token %}
               <input type="hidden" name="user" value="{{ loggedin_user.id }}" />
               <input type="hidden" name="nationality" value="1" />
-              <input class="btn btn-lg btn-primary" type="submit" value="I am an International Student" />
+              <input class="btn btn-lg btn-primary" type="submit" value="International Student" />
             </form>
           </div>
 

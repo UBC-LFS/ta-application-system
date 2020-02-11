@@ -16,13 +16,18 @@
     <nav class="mb-4">
       <div class="nav nav-tabs" id="nav-tab" role="tablist">
         <a class="nav-item nav-link active" id="nav-basic-info-tab" data-toggle="tab" href="#nav-basic-info-student" role="tab" aria-controls="nav-basic-info" aria-selected="true">
-          <i class="fa fa-user-circle-o" aria-hidden="true"></i> Basic Information
+          <i class="fa fa-user-circle-o" aria-hidden="true"></i>
+          <span class="mobile-hide-xs">Basic</span>
+          <span class="mobile-hide">Information</span>
         </a>
         <a class="nav-item nav-link" id="nav-profile-tab" data-toggle="tab" href="#nav-profile-student" role="tab" aria-controls="nav-profile" aria-selected="false">
-          <i class="fa fa-id-card-o" aria-hidden="true"></i> Additional Information
+          <i class="fa fa-id-card-o" aria-hidden="true"></i>
+          <span class="mobile-hide-xs">Additional</span>
+          <span class="mobile-hide">Information</span>
         </a>
         <a class="nav-item nav-link" id="nav-resume-tab" data-toggle="tab" href="#nav-resume-student" role="tab" aria-controls="nav-resume" aria-selected="false">
-          <i class="fa fa-file-text-o" aria-hidden="true"></i> Resume
+          <i class="fa fa-file-text-o" aria-hidden="true"></i>
+          <span class="mobile-hide-xs">Resume</span>
         </a>
       </div>
     </nav>
@@ -79,8 +84,14 @@
               <div class="card-text">
                 <h5 class="card-title">Upload your resume</h5>
 
-                <small class="text-muted">Valid file formats: jpg, jpeg, png, pdf, doc, docx</small><br />
-                <small class="text-muted">The maximum file size that can be uploaded is 1.5 MB.</small>
+                <div class="mb-3">
+                  <small class="text-muted">
+                    - Valid file formats: jpg, jpeg, png, pdf, doc, docx <br />
+                    - The maximum file size that can be uploaded is 1.5 MB. <br />
+                    - Ensure a filename has at most 100 characters.
+                  </small>
+                </div>
+
                 <form action="{% url 'students:upload_resume' %}" method="post" enctype="multipart/form-data">
                   {% csrf_token %}
                   <table>{{ form.as_table }}</table>
