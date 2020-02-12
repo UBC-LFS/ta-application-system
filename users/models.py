@@ -126,7 +126,6 @@ class Confidentiality(models.Model):
         unique=True,
         null=True,
         blank=True,
-        help_text='7-digit numerical value only',
         validators=[
             NumericalValueValidator,
             MinLengthValidator(7),
@@ -134,19 +133,19 @@ class Confidentiality(models.Model):
         ]
     )
     sin = models.ImageField(
+        max_length=256,
         upload_to=create_sin_path,
         null=True,
         blank=True,
-        validators=[FileSizeValidator],
-        help_text='Valid file formats: JPG, JPEG, PNG'
+        validators=[FileSizeValidator]
     )
     sin_expiry_date = models.DateField(null=True, blank=True)
     study_permit = models.ImageField(
+        max_length=256,
         upload_to=create_study_permit_path,
         null=True,
         blank=True,
-        validators=[FileSizeValidator],
-        help_text='Valid file formats: JPG, JPEG, PNG'
+        validators=[FileSizeValidator]
     )
     study_permit_expiry_date = models.DateField(null=True, blank=True)
 
@@ -158,8 +157,7 @@ class Confidentiality(models.Model):
             FileSizeValidator
         ],
         null=True,
-        blank=True,
-        help_text='Valid file formats: PDF, DOC, DOCX'
+        blank=True
     )
 
     created_at = models.DateField(null=True, blank=True)
@@ -211,31 +209,26 @@ class Profile(models.Model):
         max_length=8,
         unique=True,
         null=True,
-        blank=True,
-        help_text='The use of a Student Number is optional'
+        blank=True
     )
     preferred_name = models.CharField(
         max_length=256,
         null=True,
-        blank=True,
-        help_text='The use of a Preferred Name is optional'
+        blank=True
     )
     roles = models.ManyToManyField(Role)
 
     qualifications = models.TextField(
         null=True,
-        blank=True,
-        help_text='List and give a 2-3 sentence justification of your qualifications for your top three preferred courses. If you list fewer than three, justfiy all of them. Qualifications might include coursework experience, TA expericne, work in the area, contact with the course\'s instructor, etc. List any special arrangements you have made with regard to TAing here.'
+        blank=True
     )
     prior_employment = models.TextField(
         null=True,
-        blank=True,
-        help_text='Please let any current or previous employment history you feel is relevant to the position you are applying for as a TA. Include company name, position, length of employment, supervisor\'s name and contact information (phone or email). Please indicate if you do not wish us to contact any employer for a reference.'
+        blank=True
     )
     special_considerations = models.TextField(
         null=True,
-        blank=True,
-        help_text='List any qualifications, experience, special considerations which may apply to this application. For example, you might list prior teaching experience, describe any special arrangements or requests for TAing with a particular instructor or for a particular course, or include a text copy of your current resume.'
+        blank=True
     )
 
     status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, null=True, blank=True)
@@ -243,13 +236,11 @@ class Profile(models.Model):
         Program,
         on_delete=models.DO_NOTHING,
         null=True,
-        blank=True,
-        help_text='What program will you be registered in during the next Session?'
+        blank=True
     )
     program_others = models.TextField(
         null=True,
-        blank=True,
-        help_text='Please indicate your program if you select Others in the Current Program above.'
+        blank=True
     )
     graduation_date = models.DateField(null=True, blank=True)
 
@@ -257,28 +248,24 @@ class Profile(models.Model):
 
     degree_details = models.TextField(
         null=True,
-        blank=True,
-        help_text='Please indicate your degree details: most recent completed or conferred or multiple same type degrees (ex. BSc - Biochemistry - U of T, November 24, 2014).'
+        blank=True
     )
     trainings = models.ManyToManyField(Training)
     training_details = models.TextField(
         null=True,
-        blank=True,
-        help_text='If you have completed TA and/or PBL training, please provide some details (name of workshop, dates of workshop, etc) in the text box.'
+        blank=True
     )
 
     lfs_ta_training = models.CharField(max_length=1, choices=LFS_TA_TRAINING_CHOICES, null=True, blank=True)
     lfs_ta_training_details = models.TextField(
         null=True,
-        blank=True,
-        help_text='Have you completed any LFS TA training sessions? If yes, please provide details (name of session/workshop, dates, etc).'
+        blank=True
     )
 
     ta_experience = models.CharField(max_length=1, choices=LFS_TA_TRAINING_CHOICES, null=True, blank=True)
     ta_experience_details = models.TextField(
         null=True,
-        blank=True,
-        help_text='If yes, please list course name & session (example: FHN 350 002, 2010W Term 2)'
+        blank=True
     )
 
     is_trimmed = models.BooleanField(default=False)

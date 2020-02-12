@@ -7,6 +7,11 @@ This project is a web-based TA hiring process system.
 RUN apk update && apk add build-base libressl-dev postgresql-dev libffi-dev gcc python3-dev musl-dev libxml2-dev libxslt-dev xmlsec-dev jpeg-dev
 ```
 
+### Install prerequisites for Ubuntu
+```
+$ sudo apt-get install python3-pip python3-setuptools python3-dev
+```
+
 ## Summary of Deployment
 0. Rename *ta_app/settings.py.example* to *ta_app/settings.py*
 
