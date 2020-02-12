@@ -38,7 +38,7 @@ class StudentTest(TestCase):
         print('\n- Test: view url exists at desired location')
         self.login()
 
-        response = self.client.get( reverse('students:show_profile') )
+        response = self.client.get( reverse('students:show_profile', args=['basic']) )
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get( reverse('students:edit_profile') )
@@ -84,7 +84,7 @@ class StudentTest(TestCase):
         print('\n- Test: Display all lists of session terms')
         self.login()
 
-        response = self.client.get( reverse('students:show_profile') )
+        response = self.client.get( reverse('students:show_profile', args=['basic']) )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username,  USERS[2])
         self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
@@ -116,10 +116,10 @@ class StudentTest(TestCase):
         messages = self.messages(response)
         self.assertTrue('Success' in messages[0])
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, '/students/profile/')
+        self.assertEqual(response.url, '/students/profile/information/basic/')
         self.assertRedirects(response, response.url)
 
-        response = self.client.get( reverse('students:show_profile') )
+        response = self.client.get( reverse('students:show_profile', args=['basic']) )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, USERS[2])
         self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
@@ -159,13 +159,13 @@ class StudentTest(TestCase):
         messages = self.messages(response)
         self.assertTrue('Success' in messages[0])
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, '/students/profile/')
+        self.assertEqual(response.url, '/students/profile/information/resume/')
         self.assertRedirects(response, response.url)
 
         resume = userApi.has_user_resume_created(userApi.get_user(USERS[2], 'username'))
         self.assertIsNotNone(resume)
 
-        response = self.client.get(reverse('students:show_profile'))
+        response = self.client.get(reverse('students:show_profile', args=['basic']))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, USERS[2])
         self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
@@ -190,7 +190,7 @@ class StudentTest(TestCase):
         resume = userApi.has_user_resume_created(userApi.get_user(USERS[2], 'username'))
         self.assertIsNotNone(resume)
 
-        response = self.client.get(reverse('students:show_profile'))
+        response = self.client.get(reverse('students:show_profile', args=['basic']))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, USERS[2])
         self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
@@ -200,7 +200,7 @@ class StudentTest(TestCase):
         messages = self.messages(response)
         self.assertTrue('Success' in messages[0])
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, '/students/profile/')
+        self.assertEqual(response.url, '/students/profile/information/resume/')
         self.assertRedirects(response, response.url)
 
         #response = self.client.get( reverse('students:show_profile') )

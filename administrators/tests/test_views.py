@@ -382,7 +382,7 @@ class JobTest(TestCase):
         response = self.client.get( reverse('administrators:instructor_jobs_details', args=[ USERS[1] ]) )
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get( reverse('administrators:student_jobs_details', args=[ USERS[2] ]) )
+        response = self.client.get( reverse('administrators:student_jobs_details', args=[USERS[2], 'basic']) )
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get( reverse('administrators:edit_job', args=[SESSION, JOB]) )
@@ -542,7 +542,7 @@ class JobTest(TestCase):
         print('\n- Test: display jobs that a student has')
         self.login()
 
-        response = self.client.get( reverse('administrators:student_jobs_details', args=[ USERS[2] ]) )
+        response = self.client.get( reverse('administrators:student_jobs_details', args=[USERS[2], 'basic']) )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, USERS[0])
         self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
@@ -1119,7 +1119,7 @@ class HRTest(TestCase):
         response = self.client.get( reverse('administrators:create_user') )
         self.assertEqual(response.status_code, 302)
 
-        response = self.client.get( reverse('administrators:show_user', args=[USERS[2], 'users']) )
+        response = self.client.get( reverse('administrators:show_user', args=[USERS[2], 'users', 'basic']) )
         self.assertEqual(response.status_code, 302)
 
         self.login()
@@ -1127,10 +1127,10 @@ class HRTest(TestCase):
         response = self.client.get( reverse('administrators:all_users') )
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get( reverse('administrators:show_user', args=[USERS[2], 'users']) )
+        response = self.client.get( reverse('administrators:show_user', args=[USERS[2], 'users', 'basic']) )
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get( reverse('administrators:show_user', args=[USERS[2], 'user']) )
+        response = self.client.get( reverse('administrators:show_user', args=[USERS[2], 'user', 'basic']) )
         self.assertEqual(response.status_code, 404)
 
         response = self.client.get( reverse('administrators:create_user') )
@@ -1148,7 +1148,7 @@ class HRTest(TestCase):
         print('\n- Test: show a user')
         self.login()
 
-        response = self.client.get(reverse('administrators:show_user', args=[USERS[2], 'users']))
+        response = self.client.get(reverse('administrators:show_user', args=[USERS[2], 'users', 'basic']))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, USERS[0])
         self.assertEqual(response.context['user'].username, USERS[2])
@@ -1158,7 +1158,7 @@ class HRTest(TestCase):
         print('\n- Test: show no existing user ')
         self.login()
 
-        response = self.client.get(reverse('administrators:show_user', args=['zzzzzz', 'users']))
+        response = self.client.get(reverse('administrators:show_user', args=['zzzzzz', 'users', 'basic']))
         self.assertEqual(response.status_code, 404)
 
 
@@ -1258,7 +1258,7 @@ class HRTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, response.url)
 
-        response = self.client.get(reverse('administrators:show_user', args=[USERS[2], 'users']))
+        response = self.client.get(reverse('administrators:show_user', args=[USERS[2], 'users', 'basic']))
         self.assertEqual(response.status_code, 404)
 
         self.assertIsNone(userApi.user_exists(user.username))

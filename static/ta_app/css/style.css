@@ -32,8 +32,14 @@ footer {
   text-align: center;
 }
 
-.footer-content {
-  line-height: 100px;
+footer > .container {
+  height: 100px;
+  display: table;
+}
+
+footer .footer-item {
+  display: table-cell;
+  vertical-align: middle;
 }
 
 
@@ -446,6 +452,24 @@ hr.dotted {
   .mobile-hide {
     display: none;
   }
+  footer > .container,
+  footer .footer-item {
+    display: block;
+  }
+  footer .footer-item {
+    font-size: 0.8rem;
+  }
+  footer .footer-item:first-child {
+    line-height: 60px;
+  }
+  footer .footer-item:last-child {
+    line-height: 10px;
+  }
+
+  .local-login .card {
+    padding: 1rem 0.5rem !important;
+    margin: 2rem 0 !important;
+  }
 }
 
 /* Small devices (landscape phones, 576px and up) */
@@ -460,6 +484,9 @@ hr.dotted {
   .mobile-hide {
     display: none;
   }
+  .local-login .card {
+    padding: 1rem !important;
+  }
 }
 
 /* Medium devices (tablets, 768px and up) */
@@ -470,6 +497,9 @@ hr.dotted {
   }
   .mobile-hide {
     display: none;
+  }
+  .local-login .card {
+    padding: 1rem !important;
   }
 }
 
