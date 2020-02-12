@@ -45,7 +45,7 @@
             </a>
           </td>
           <td>
-            <a href="{% url 'administrators:show_user' username=app.applicant.username path='all' %}">
+            <a href="{% url 'administrators:show_user' username=app.applicant.username path='all' tab='basic' %}">
               {{ app.applicant.get_full_name }}
             </a>
             <div><small class="text-muted">({{ app.applicant.username }})</small></div>

@@ -45,7 +45,7 @@ def index(request):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
-def show_profile(request):
+def show_profile(request, tab):
     ''' Display user profile '''
     if request.user.is_impersonate:
         if not userApi.is_admin(request.session['loggedin_user'], 'dict'): raise PermissionDenied
@@ -57,7 +57,8 @@ def show_profile(request):
     loggedin_user = userApi.add_resume(request.user)
     return render(request, 'students/profile/show_profile.html', {
         'loggedin_user': loggedin_user,
-        'form': ResumeForm(initial={ 'user': loggedin_user })
+        'form': ResumeForm(initial={ 'user': loggedin_user }),
+        'current_tab': tab
     })
 
 
@@ -87,7 +88,7 @@ def edit_profile(request):
                 updated = userApi.update_student_profile_degrees_trainings(updated_profile, profile_degrees, profile_trainings, data)
                 if updated:
                     messages.success(request, 'Success! {0} - profile updated'.format(loggedin_user.username))
-                    return redirect('students:show_profile')
+                    return HttpResponseRedirect( reverse('students:show_profile', args=['basic']) )
                 else:
                     messages.error(request, 'An error occurred while degrees and trainings of a profile.')
             else:
@@ -122,11 +123,11 @@ def upload_resume(request):
     if request.method == 'POST':
         if len(request.FILES) == 0:
             messages.error(request, 'An error occurred. Please select your resume, then try again.')
-            return redirect('students:show_profile')
+            return HttpResponseRedirect( reverse('students:show_profile', args=['resume']) )
 
         if loggedin_user.resume_filename:
             messages.error(request, 'An error occurred. Please remove your previous resume, then try again.')
-            return redirect('students:show_profile')
+            return HttpResponseRedirect( reverse('students:show_profile', args=['resume']) )
 
         form = ResumeForm(request.POST, request.FILES)
         if form.is_valid():
@@ -141,7 +142,7 @@ def upload_resume(request):
             errors = form.errors.get_json_data()
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
-    return redirect('students:show_profile')
+    return HttpResponseRedirect( reverse('students:show_profile', args=['resume']) )
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -175,7 +176,7 @@ def delete_resume(request):
     else:
         messages.error(request, 'An error occurred. Request is not POST.')
 
-    return redirect('students:show_profile')
+    return HttpResponseRedirect( reverse('students:show_profile', args=['resume']) )
 
 
 @login_required(login_url=settings.LOGIN_URL)

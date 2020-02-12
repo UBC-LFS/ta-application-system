@@ -50,7 +50,7 @@
             <td>{{ user.id }}</td>
             <td>{{ user.get_full_name }}</td>
             <td>
-              <a href="{% url 'administrators:show_user' username=user.username path='destroy' %}">{{ user.username }}</a>
+              <a href="{% url 'administrators:show_user' username=user.username path='destroy' tab='basic' %}">{{ user.username }}</a>
             </td>
             <td>{{ user.profile.student_number }}</td>
             <td>

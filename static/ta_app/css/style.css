@@ -436,8 +436,9 @@ hr.dotted {
   .col-md-8 {
     margin-top: 50px;
   }
-  .nav-tabs a[data-toggle="tab"] {
-    margin: 0 auto;
+  .nav-tabs > a {
+    padding: 0.35rem;
+    font-size: 0.85rem;
   }
   .mobile-hide-xs {
     display: none;
