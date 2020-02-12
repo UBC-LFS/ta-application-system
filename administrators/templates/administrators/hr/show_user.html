@@ -28,63 +28,71 @@
   </div>
 
   <div class="col-md-8">
+
     <nav class="mb-4">
-      <div class="nav nav-tabs" id="nav-tab" role="tablist">
-        <a class="nav-item nav-link active" id="nav-basic-info-tab" data-toggle="tab" href="#nav-basic-info-admin" role="tab" aria-controls="nav-basic-info" aria-selected="true">
-          <i class="fa fa-user-circle-o" aria-hidden="true"></i> Basic Information
+      <div class="nav nav-tabs">
+        <a class="nav-item nav-link {% if current_tab == 'basic' %} active {% endif %}" href="{% url 'administrators:show_user' username=user.username path=path tab='basic' %}">
+          <span class="mobile-hide-xs"><i class="fa fa-user-circle-o" aria-hidden="true"></i></span>
+          Basic
+          <span class="mobile-hide">Information</span>
         </a>
 
         {% if user.is_student %}
-          <a class="nav-item nav-link" id="nav-profile-tab" data-toggle="tab" href="#nav-profile-admin" role="tab" aria-controls="nav-profile" aria-selected="false">
-            <i class="fa fa-id-card-o" aria-hidden="true"></i> Additional Information
+          <a class="nav-item nav-link {% if current_tab == 'additional' %} active {% endif %}" href="{% url 'administrators:show_user' username=user.username path=path tab='additional' %}">
+            <span class="mobile-hide-xs"><i class="fa fa-id-card-o" aria-hidden="true"></i></span>
+            Additional
+            <span class="mobile-hide">Information</span>
           </a>
-          <a class="nav-item nav-link" id="nav-confidentiality-tab" data-toggle="tab" href="#nav-confidentiality-admin" role="tab" aria-controls="nav-confidentiality" aria-selected="false">
-            <i class="fa fa-file-text-o" aria-hidden="true"></i> Confidential Information
+          <a class="nav-item nav-link {% if current_tab == 'confidential' %} active {% endif %}" href="{% url 'administrators:show_user' username=user.username path=path tab='confidential' %}">
+            <span class="mobile-hide-xs"><i class="fa fa-file-text-o" aria-hidden="true"></i></span>
+            Confidential
+            <span class="mobile-hide">Information</span>
           </a>
         {% endif %}
       </div>
     </nav>
 
-    <div class="tab-content">
-      <div class="tab-pane fade show active" id="nav-basic-info-admin" role="tabpanel" aria-labelledby="nav-basic-info-tab">
-        <div class="board col-11 mx-auto">
-          <h3>Basic Information</h3>
-
-          {% if user.is_student %}
-            {% include 'ta_app/users/_basic_info.html' with data=user student_number_display='True' %}
-          {% else %}
-            {% include 'ta_app/users/_basic_info.html' with data=user student_number_display='False' %}
-          {% endif %}
-
-          <div>
-            <h6>User ID:</h6>
-            <span>{{ user.id }}</span>
-          </div>
-        </div>
-      </div>
+    {% if current_tab == 'additional' %}
 
       {% if user.is_student %}
-        <div class="tab-pane fade" id="nav-profile-admin" role="tabpanel" aria-labelledby="nav-profile-tab">
-          <div class="board col-11 mx-auto">
-            <h3>Additional Information</h3>
-            {% include 'ta_app/users/_profile.html' with data=user %}
+        <div class="board col-11 mx-auto">
+          <h3>Additional Information</h3>
+          {% include 'ta_app/users/_profile.html' with data=user %}
 
-            <div>
-              <h6>Is trimmed:</h6>
-              <span>{{ user.profile.is_trimmed }}</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="tab-pane fade" id="nav-confidentiality-admin" role="tabpanel" aria-labelledby="nav-confidentiality">
-          <div class="board col-11 mx-auto">
-            <h3>Confidential Information</h3>
-            {% include 'ta_app/users/_confidentiality.html' with data=user %}
+          <div>
+            <h6>Is trimmed:</h6>
+            <span>{{ user.profile.is_trimmed }}</span>
           </div>
         </div>
       {% endif %}
 
-    </div>
+    {% elif current_tab == 'confidential' %}
+
+      {% if user.is_student %}
+        <div class="board col-11 mx-auto">
+          <h3>Confidential Information</h3>
+          {% include 'ta_app/users/_confidentiality.html' with data=user %}
+        </div>
+      {% endif %}
+
+    {% else %}
+
+      <div class="board col-11 mx-auto">
+        <h3>Basic Information</h3>
+
+        {% if user.is_student %}
+          {% include 'ta_app/users/_basic_info.html' with data=user student_number_display='True' %}
+        {% else %}
+          {% include 'ta_app/users/_basic_info.html' with data=user student_number_display='False' %}
+        {% endif %}
+
+        <div>
+          <h6>User ID:</h6>
+          <span>{{ user.id }}</span>
+        </div>
+      </div>
+
+    {% endif %}
 
   </div>
 </div>

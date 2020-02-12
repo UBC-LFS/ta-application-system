@@ -151,6 +151,7 @@ class Confidentiality(models.Model):
     study_permit_expiry_date = models.DateField(null=True, blank=True)
 
     personal_data_form = models.FileField(
+        max_length=256,
         upload_to=create_personal_data_form_path,
         validators=[
             FileExtensionValidator(allowed_extensions=['pdf', 'doc', 'docx']),
@@ -184,6 +185,7 @@ def create_resume_path(instance, filename):
 class Resume(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
     uploaded = models.FileField(
+        max_length=256,
         upload_to=create_resume_path,
         validators=[
             FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png', 'pdf', 'doc', 'docx']),

@@ -429,20 +429,57 @@ hr.dotted {
   .visible-current-sessions {
     margin: 0 !important;
   }
+  #btn-logout {
+    display: block;
+    margin: 0 !important;
+  }
+  .col-md-8 {
+    margin-top: 50px;
+  }
+  .nav-tabs > a {
+    padding: 0.35rem;
+    font-size: 0.85rem;
+  }
+  .mobile-hide-xs {
+    display: none;
+  }
+  .mobile-hide {
+    display: none;
+  }
 }
 
 /* Small devices (landscape phones, 576px and up) */
 @media (min-width: 576px) and (max-width: 767.98px) {
+  #btn-logout {
+    display: block;
+    margin: 0 !important;
+  }
+  .col-md-8 {
+    margin-top: 50px;
+  }
+  .mobile-hide {
+    display: none;
+  }
 }
 
 /* Medium devices (tablets, 768px and up) */
 @media (min-width: 768px) and (max-width: 991.98px) {
+  #btn-logout {
+    display: block;
+    margin: 0 !important;
+  }
+  .mobile-hide {
+    display: none;
+  }
 }
 
 /* Large devices (desktops, 992px and up) */
 @media (min-width: 992px) and (max-width: 1199.98px) {
   .max-width-container {
     max-width: 95%;
+  }
+  .mobile-hide {
+    display: none;
   }
 }
 

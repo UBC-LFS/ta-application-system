@@ -32,6 +32,9 @@
         <th data-sortable="true">Number</th>
         <th data-sortable="true">Section</th>
         <th data-sortable="true">Name</th>
+        <th>Overview</th>
+        <th>Job <br /> Description</th>
+        <th>Job <br /> Note</th>
         <th>Actions</th>
       </tr>
     </thead>
@@ -44,6 +47,69 @@
           <td>{{ course.number }}</td>
           <td>{{ course.section }}</td>
           <td class="text-left">{{ course.name }}</td>
+          <td>
+            {% if course.overview %}
+              <button class="btn btn-xs btn-info" type="button" data-toggle="modal" data-target="#overview-modal-{{ course.id }}">
+                  <i class="fa fa-file-text-o" aria-hidden="true"></i>
+              </button>
+
+              <div class="modal fade" id="overview-modal-{{ course.id }}" tabindex="-1" role="dialog" aria-labelledby="overview-modal-label-{{ course.id }}" aria-hidden="true">
+                <div class="modal-dialog modal-lg" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title text-info" id="overview-modal-label-{{ data.id }}">Overview</h5>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    </div>
+                    <div class="modal-body text-left">
+                      {{ course.overview|safe }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {% endif %}
+          </td>
+          <td>
+            {% if course.job_description %}
+              <button class="btn btn-xs btn-info" type="button" data-toggle="modal" data-target="#job-desc-modal-{{ course.id }}">
+                  <i class="fa fa-file-text-o" aria-hidden="true"></i>
+              </button>
+
+              <div class="modal fade" id="job-desc-modal-{{ course.id }}" tabindex="-1" role="dialog" aria-labelledby="job-desc-modal-label-{{ course.id }}" aria-hidden="true">
+                <div class="modal-dialog modal-lg" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title text-info" id="job-desc-modal-label-{{ data.id }}">Job Description</h5>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    </div>
+                    <div class="modal-body text-left">
+                      {{ course.job_description|safe }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {% endif %}
+          </td>
+          <td>
+            {% if course.job_note %}
+              <button class="btn btn-xs btn-info" type="button" data-toggle="modal" data-target="#job-note-modal-{{ course.id }}">
+                  <i class="fa fa-file-text-o" aria-hidden="true"></i>
+              </button>
+
+              <div class="modal fade" id="job-note-modal-{{ course.id }}" tabindex="-1" role="dialog" aria-labelledby="job-note-modal-label-{{ course.id }}" aria-hidden="true">
+                <div class="modal-dialog modal-lg" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title text-info" id="job-note-modal-label-{{ data.id }}">Job Note</h5>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    </div>
+                    <div class="modal-body text-left">
+                      {{ course.job_note|safe }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {% endif %}
+          </td>
           <td>
             <div class="btn-toolbar">
               <a class="btn btn-xs btn-link mr-2" href="{% url 'administrators:edit_course' course.slug %}">Edit</a>

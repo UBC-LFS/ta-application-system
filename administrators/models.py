@@ -82,6 +82,9 @@ class Course(models.Model):
     section = models.ForeignKey(CourseSection, on_delete=models.DO_NOTHING)
     term = models.ForeignKey(Term, on_delete=models.DO_NOTHING)
     name = models.CharField(max_length=256, null=True)
+    overview = models.TextField(null=True, blank=True)
+    job_description = models.TextField(null=True, blank=True)
+    job_note = models.TextField(null=True, blank=True)
     slug = models.SlugField(max_length=256, unique=True)
 
     class Meta:
@@ -127,9 +130,8 @@ class Session(models.Model):
 
 #checked
 class Job(models.Model):
-    title = models.CharField(max_length=256, null=True, blank=True)
+    course_overview = models.TextField(null=True, blank=True)
     description = models.TextField(null=True, blank=True)
-    qualification = models.TextField(null=True, blank=True)
     note = models.TextField(null=True, blank=True)
     session = models.ForeignKey(Session, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)

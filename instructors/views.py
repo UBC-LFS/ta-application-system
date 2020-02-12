@@ -38,7 +38,7 @@ def index(request):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
-def show_user(request, session_slug, job_slug, username):
+def show_user(request, session_slug, job_slug, username, tab):
     ''' Display an user's details '''
     if request.user.is_impersonate:
         if not userApi.is_admin(request.session['loggedin_user'], 'dict'): raise PermissionDenied
@@ -53,7 +53,8 @@ def show_user(request, session_slug, job_slug, username):
         'loggedin_user': request.user,
         'selected_user': userApi.add_resume(user),
         'session_slug': session_slug,
-        'job_slug': job_slug
+        'job_slug': job_slug,
+        'current_tab': tab
     })
 
 @login_required(login_url=settings.LOGIN_URL)

@@ -31,7 +31,7 @@
       {% for instructor in users %}
         <tr>
           <td>
-            <a class="btn btn-xs btn-info" href="{% url 'administrators:show_user' username=instructor.username path='instructor' %}">{{ instructor.id }}</a>
+            <a class="btn btn-xs btn-info" href="{% url 'administrators:show_user' username=instructor.username path='instructor' tab='basic' %}">{{ instructor.id }}</a>
           </td>
           <td>{{ instructor.first_name }}</td>
           <td>{{ instructor.last_name }}</td>
