@@ -23,8 +23,8 @@ $(document).ready(function () {
     }
   }
 
+  /*
   $('#student-nav-tab a[data-toggle="tab"]').on('click', function(e) {
-    //e.preventDefault();
     window.localStorage.setItem('activeTab', $(e.target).attr('href'));
   });
 
@@ -35,6 +35,6 @@ $(document).ready(function () {
 
   $('#btn-logout').on('click', function(e) {
     window.localStorage.removeItem("activeTab");
-  });
+  });*/
 
 });
