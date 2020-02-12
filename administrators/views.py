@@ -559,7 +559,7 @@ def instructor_jobs_details(request, username):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
-def student_jobs_details(request, username):
+def student_jobs_details(request, username, tab):
     ''' Display jobs that an student has '''
     request.user.roles = request.session['loggedin_user']['roles']
     if not userApi.is_admin(request.user): raise PermissionDenied
@@ -570,7 +570,8 @@ def student_jobs_details(request, username):
         'loggedin_user': request.user,
         'user': user,
         'apps': adminApi.add_app_info_into_applications(apps, ['offered', 'accepted']),
-        'total_assigned_hours': adminApi.get_total_assigned_hours(apps, ['offered', 'accepted'])
+        'total_assigned_hours': adminApi.get_total_assigned_hours(apps, ['offered', 'accepted']),
+        'current_tab': tab
     })
 
 
@@ -607,7 +608,7 @@ def edit_job(request, session_slug, job_slug):
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
         return HttpResponseRedirect(reverse('administrators:edit_job', args=[session_slug, job_slug]))
-
+    print(job.description)
     return render(request, 'administrators/jobs/edit_job.html', {
         'loggedin_user': request.user,
         'job': job,
@@ -1426,7 +1427,7 @@ def all_users(request):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
-def show_user(request, username, path):
+def show_user(request, username, path, tab):
     ''' Display an user's details '''
     request.user.roles = request.session['loggedin_user']['roles']
     if not userApi.is_admin(request.user) and 'HR' not in request.user.roles:
@@ -1439,7 +1440,8 @@ def show_user(request, username, path):
     return render(request, 'administrators/hr/show_user.html', {
         'loggedin_user': request.user,
         'user': userApi.add_confidentiality_given_list(user, ['sin','study_permit']),
-        'path': path
+        'path': path,
+        'current_tab': tab
     })
 
 

@@ -4,7 +4,7 @@
       Profile
     </button>
     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-      <a class="dropdown-item" href="{% url 'students:show_profile' %}">View Profile</a>
+      <a class="dropdown-item" href="{% url 'students:show_profile' tab='basic' %}">View Profile</a>
       <a class="dropdown-item" href="{% url 'students:show_confidentiality' %}">Confidential Information</a>
     </div>
   </div>

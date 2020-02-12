@@ -59,7 +59,7 @@
               </a>
             </td>
             <td>
-              <a href="{% url 'administrators:show_user' username=app.applicant.username path='declined' %}">{{ app.applicant.get_full_name }}</a>
+              <a href="{% url 'administrators:show_user' username=app.applicant.username path='declined' tab='basic' %}">{{ app.applicant.get_full_name }}</a>
             </td>
             <td>
               {% include 'ta_app/applications/_modal_app_status.html' with data=app %}

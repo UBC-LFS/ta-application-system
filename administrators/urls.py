@@ -20,7 +20,7 @@ urlpatterns = [
     path('jobs/instructor/', views.instructor_jobs, name='instructor_jobs'),
 
     path('instructor/<str:username>/jobs/', views.instructor_jobs_details, name='instructor_jobs_details'),
-    path('student/<str:username>/jobs/', views.student_jobs_details, name='student_jobs_details'),
+    path('student/<str:username>/jobs/<str:tab>/', views.student_jobs_details, name='student_jobs_details'),
     path('sessions/<str:session_slug>/jobs/<str:job_slug>/edit/', views.edit_job, name='edit_job'),
     path('sessions/<str:session_slug>/jobs/<str:job_slug>/applications/', views.show_job_applications, name='show_job_applications'),
     path('sessions/<str:session_slug>/jobs/<str:job_slug>/p/<str:path>/details/', views.show_job, name='show_job'),
@@ -45,7 +45,7 @@ urlpatterns = [
     path('applications/<str:app_slug>/p/<str:path>/details/', views.show_application, name='show_application'),
 
     path('hr/users/<str:username>/edit/', views.edit_user, name='edit_user'),
-    path('hr/users/<str:username>/p/<str:path>/details/', views.show_user, name='show_user'),
+    path('hr/users/<str:username>/p/<str:path>/details/information/<str:tab>/', views.show_user, name='show_user'),
     path('hr/users/all/', views.all_users, name='all_users'),
     path('hr/users/destroy/contents', views.destroy_user_contents, name='destroy_user_contents'),
     path('hr/users/create/', views.create_user, name='create_user'),

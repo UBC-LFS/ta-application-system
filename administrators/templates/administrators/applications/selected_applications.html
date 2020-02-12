@@ -46,7 +46,7 @@
             </a>
           </td>
           <td>
-            <a href="{% url 'administrators:show_user' username=app.applicant.username path='selected' %}">{{ app.applicant.get_full_name }}</a>
+            <a href="{% url 'administrators:show_user' username=app.applicant.username path='selected' tab='basic' %}">{{ app.applicant.get_full_name }}</a>
             <br />
             {% if 'MFRE' in app.applicant.profile.program.name %}
               <span class="badge badge-warning">MFRE</span>

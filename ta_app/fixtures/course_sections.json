@@ -31,70 +31,126 @@
     "model": "administrators.coursesection",
     "pk": 5,
     "fields": {
-      "name": "006"
+      "name": "005"
     }
   },
   {
     "model": "administrators.coursesection",
     "pk": 6,
     "fields": {
-      "name": "101"
+      "name": "006"
     }
   },
   {
     "model": "administrators.coursesection",
     "pk": 7,
     "fields": {
-      "name": "102"
+      "name": "101"
     }
   },
   {
     "model": "administrators.coursesection",
     "pk": 8,
     "fields": {
-      "name": "103"
+      "name": "102"
     }
   },
   {
     "model": "administrators.coursesection",
     "pk": 9,
     "fields": {
-      "name": "198"
+      "name": "103"
     }
   },
   {
     "model": "administrators.coursesection",
     "pk": 10,
     "fields": {
-      "name": "199"
+      "name": "198"
     }
   },
   {
     "model": "administrators.coursesection",
     "pk": 11,
     "fields": {
-      "name": "298"
+      "name": "199"
     }
   },
   {
     "model": "administrators.coursesection",
     "pk": 12,
     "fields": {
-      "name": "99A"
+      "name": "298"
     }
   },
   {
     "model": "administrators.coursesection",
     "pk": 13,
     "fields": {
-      "name": "99C"
+      "name": "99A"
     }
   },
   {
     "model": "administrators.coursesection",
     "pk": 14,
     "fields": {
+      "name": "99C"
+    }
+  },
+  {
+    "model": "administrators.coursesection",
+    "pk": 15,
+    "fields": {
       "name": "99E"
+    }
+  },
+  {
+    "model": "administrators.coursesection",
+    "pk": 16,
+    "fields": {
+      "name": "98A"
+    }
+  },
+  {
+    "model": "administrators.coursesection",
+    "pk": 17,
+    "fields": {
+      "name": "98B"
+    }
+  },
+  {
+    "model": "administrators.coursesection",
+    "pk": 18,
+    "fields": {
+      "name": "920"
+    }
+  },
+  {
+    "model": "administrators.coursesection",
+    "pk": 19,
+    "fields": {
+      "name": "921"
+    }
+  },
+  {
+    "model": "administrators.coursesection",
+    "pk": 20,
+    "fields": {
+      "name": "941"
+    }
+  },
+  {
+    "model": "administrators.coursesection",
+    "pk": 21,
+    "fields": {
+      "name": "942"
+    }
+  },
+  {
+    "model": "administrators.coursesection",
+    "pk": 22,
+    "fields": {
+      "name": "951"
     }
   }
 ]

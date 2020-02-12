@@ -51,7 +51,7 @@
             </a>
           </td>
           <td>
-            <a href="{% url 'administrators:show_user' username=app.applicant.username path='accepted' %}">
+            <a href="{% url 'administrators:show_user' username=app.applicant.username path='accepted' tab='basic' %}">
               {{ app.applicant.first_name }} <br />{{ app.applicant.last_name }}
             </a><br />
             <small>({{ app.applicant.username }})</small><br />

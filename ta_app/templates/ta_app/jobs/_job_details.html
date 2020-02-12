@@ -17,10 +17,10 @@
 </div>
 
 <div>
-  <h6>Title:</h6>
+  <h6>Course Overview:</h6>
   <span>
-    {% if data.title %}
-      {{ data.title }}
+    {% if data.course_overview %}
+      {{ data.course_overview|safe }}
     {% else %}
       None
     {% endif %}
@@ -32,17 +32,6 @@
   <span>
     {% if data.description %}
       {{ data.description|safe }}
-    {% else %}
-      None
-    {% endif %}
-  </span>
-</div>
-
-<div>
-  <h6>Qualification:</h6>
-  <span>
-    {% if data.qualification %}
-      {{ data.qualification|safe }}
     {% else %}
       None
     {% endif %}

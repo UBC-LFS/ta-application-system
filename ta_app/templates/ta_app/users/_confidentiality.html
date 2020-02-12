@@ -1,6 +1,12 @@
 <div>
   <h6>Am I a domestic or international student?</h6>
-  <span>{{ data.confidentiality.get_nationality_display }}</span>
+  <span>
+    {% if data.confidentiality.nationality %}
+      {{ data.confidentiality.get_nationality_display }}
+    {% else %}
+      None
+    {% endif %}
+  </span>
 </div>
 
 <div>
@@ -16,11 +22,9 @@
 
 <div>
   <h6>Social Insurance Number (SIN):</h6>
+
   {% if data.sin_decrypt_image %}
     <img class="img-fluid" src="{{ data.sin_decrypt_image.url }}" width="500" height="400" alt="SIN-image" />
-    {% comment %}
-    <a href="{{ data.sin_decrypt_image.url }}" download="{{ data.sin_decrypt_image.filename }}">{{ data.sin_decrypt_image.filename }}</a>
-    {% endcomment %}
   {% else %}
     <span>None</span>
   {% endif %}
@@ -41,11 +45,9 @@
 
   <div>
     <h6>Study Permit:</h6>
+
     {% if data.study_permit_decrypt_image %}
       <img class="img-fluid" src="{{ data.study_permit_decrypt_image.url }}" width="500" height="400" alt="Study-Permit-image" />
-      {% comment %}
-      <a href="{{ data.study_permit_decrypt_image.url }}" download="{{ data.study_permit_decrypt_image.filename }}">{{ data.study_permit_decrypt_image.filename }}</a>
-      {% endcomment %}
     {% else %}
       <span>None</span>
     {% endif %}

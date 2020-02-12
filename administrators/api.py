@@ -125,9 +125,9 @@ def get_job_by_session_slug_job_slug(session_slug, job_slug):
 
 def create_jobs(session, courses):
     ''' Create jobs in a session '''
-    objs = [ Job(session=session, course=course) for course in courses ]
+    objs = [ Job(session=session, course=course, course_overview=course.overview, description=course.job_description, note=course.job_note) for course in courses ]
     jobs = Job.objects.bulk_create(objs)
-    return True if jobs else None
+    return True if jobs else False
 
 
 def get_favourites(user):
@@ -219,7 +219,7 @@ def update_job_accumulated_ta_hours(session_slug, job_slug, ta_hours):
 
 def get_recent_ten_job_details(course, year):
     ''' Get recent ten job '''
-    return Job.objects.filter( Q(session__year__lte=year) & Q(course__code=course.code) & Q(course__number=course.number) ).order_by('-created_at')[:10]
+    return Job.objects.filter( Q(session__year__lt=year) & Q(course__code=course.code) & Q(course__number=course.number) ).order_by('-created_at')[:10]
 
 def delete_job_by_course_ids(session, course_ids):
     ''' Delete a job by course id '''

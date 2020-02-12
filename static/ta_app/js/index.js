@@ -23,18 +23,17 @@ $(document).ready(function () {
     }
   }
 
-  $('#nav-tab a[data-toggle="tab"]').on('click', function(e) {
-    e.preventDefault();
+  $('#student-nav-tab a[data-toggle="tab"]').on('click', function(e) {
+    //e.preventDefault();
     window.localStorage.setItem('activeTab', $(e.target).attr('href'));
   });
 
   var activeTab = window.localStorage.getItem('activeTab');
   if (activeTab) {
-    $('#nav-tab a[href="' + activeTab + '"]').tab('show');
+    $('#student-nav-tab a[href="' + activeTab + '"]').tab('show');
   }
 
   $('#btn-logout').on('click', function(e) {
-    // e.preventDefault();
     window.localStorage.removeItem("activeTab");
   });
 

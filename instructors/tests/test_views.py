@@ -89,12 +89,11 @@ class InstructorTest(TestCase):
         self.assertEqual(response.context['job'].course.slug, JOB)
         self.assertFalse(response.context['form'].is_bound)
         self.assertEqual(response.context['form'].instance, response.context['job'])
-        self.assertEqual( len(response.context['jobs']), 10 )
+        self.assertEqual( len(response.context['jobs']), 6 )
 
         data = {
-            'title': 'job title',
+            'course_overview': 'course overview',
             'description': 'job description',
-            'qualification': 'job qualification',
             'note': 'job note'
         }
 
@@ -107,9 +106,8 @@ class InstructorTest(TestCase):
 
         response = self.client.get( reverse('instructors:edit_job', args=[SESSION, JOB]) )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context['job'].title, data['title'])
+        self.assertEqual(response.context['job'].course_overview, data['course_overview'])
         self.assertEqual(response.context['job'].description, data['description'])
-        self.assertEqual(response.context['job'].qualification, data['qualification'])
         self.assertEqual(response.context['job'].note, data['note'])
 
     def test_show_job(self):

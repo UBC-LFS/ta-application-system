@@ -500,5 +500,30 @@
     "fields": {
       "name": "529"
     }
+  },
+  {
+    "model": "administrators.coursenumber",
+    "pk": 72,
+    "fields": {
+      "name": "222"
+    }
+  },
+  {
+    "model": "administrators.coursenumber",
+    "pk": 73,
+    "fields": {
+      "name": "443"
+    }
+  },
+  {
+    "model": "administrators.coursenumber",
+    "pk": 74,
+    "fields": {
+      "name": "496A"
+    }
   }
 ]
+
+
+
+
