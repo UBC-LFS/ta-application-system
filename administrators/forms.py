@@ -27,6 +27,9 @@ class CourseCodeForm(forms.ModelForm):
         widgets = {
             'name': forms.TextInput(attrs={ 'class': 'form-control' })
         }
+        help_texts = {
+            'name': 'This field is unique. Maximum characters is 5.'
+        }
 
 class CourseNumberForm(forms.ModelForm):
     class Meta:
@@ -35,6 +38,9 @@ class CourseNumberForm(forms.ModelForm):
         widgets = {
             'name': forms.TextInput(attrs={ 'class': 'form-control' })
         }
+        help_texts = {
+            'name': 'This field is unique. Maximum characters is 5.'
+        }
 
 class CourseSectionForm(forms.ModelForm):
     class Meta:
@@ -42,6 +48,9 @@ class CourseSectionForm(forms.ModelForm):
         fields = ['name']
         widgets = {
             'name': forms.TextInput(attrs={ 'class': 'form-control' })
+        }
+        help_texts = {
+            'name': 'This field is unique. Maximum characters is 5.'
         }
 
 class TermForm(forms.ModelForm):
@@ -55,6 +64,11 @@ class TermForm(forms.ModelForm):
             'by_month': forms.NumberInput(attrs={ 'class': 'form-control' }),
             'max_hours': forms.NumberInput(attrs={ 'class': 'form-control' })
         }
+        help_texts = {
+            'code': 'This field is unique and maximum characters: 20',
+            'by_month': 'Minimun value: 1, Maximum Value: 12',
+            'max_hours': 'Minimun value: 0, Maximum Value: 4000'
+        }
 
 class ClassificationForm(forms.ModelForm):
     class Meta:
@@ -64,6 +78,10 @@ class ClassificationForm(forms.ModelForm):
             'year': forms.TextInput(attrs={ 'class': 'form-control' }),
             'name': forms.TextInput(attrs={ 'class': 'form-control' }),
             'wage': forms.NumberInput(attrs={ 'class': 'form-control' })
+        }
+        help_texts = {
+            'year': 'Maximum character is 10',
+            'name': 'Maximum character: 10'
         }
 
 class CourseForm(forms.ModelForm):
@@ -307,6 +325,7 @@ class ApplicationForm(forms.ModelForm):
             'availability_note': 'Availability notes'
         }
         help_texts = {
+            'supervisor_approval': 'My supervisor has approved for me to TA up to a maximum of 12 hours/week.',
             'availability_note': 'This field is optional.'
         }
 
@@ -329,6 +348,13 @@ class AdminDocumentsForm(forms.ModelForm):
             'eform': forms.TextInput(attrs={ 'class':'form-control' }),
             'speed_chart': forms.TextInput(attrs={ 'class':'form-control' }),
             'processing_note': forms.Textarea(attrs={ 'class':'form-control', 'rows': 2 })
+        }
+        help_texts = {
+            'pin': 'This field is optional. Maximum 4 digits long.',
+            'tasm': 'This field is optional.',
+            'eform': 'This field is optional. Maximum 6 digits long.',
+            'speed_chart': 'This field is optional. Maximum 4 digits long',
+            'processing_note': 'This field is optional.'
         }
 
 

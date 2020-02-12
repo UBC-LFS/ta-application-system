@@ -11,20 +11,14 @@ import datetime as dt
 
 class Term(models.Model):
     """ Create a Term model """
-    code = models.CharField(
-        max_length=20,
-        unique=True,
-        help_text='This field is unique and maximum characters: 20',
-    )
+    code = models.CharField(max_length=20, unique=True)
     name = models.CharField(max_length=256)
     by_month = models.IntegerField(
         default=4,
-        help_text='Minimun value: 1, Maximum Value: 12',
         validators=[MinValueValidator(1), MaxValueValidator(12)]
     )
     max_hours = models.IntegerField(
         default=192,
-        help_text='Minimun value: 0, Maximum Value: 4000',
         validators=[MinValueValidator(0), MaxValueValidator(4000)]
     )
     class Meta:
@@ -36,12 +30,7 @@ class Term(models.Model):
 
 class CourseCode(models.Model):
     """ Create a CourseCode model """
-    name = models.CharField(
-        max_length=5,
-        unique=True,
-        help_text='Maximum characters: 5'
-    )
-
+    name = models.CharField(max_length=5, unique=True)
     class Meta:
         ordering = ['name']
 
@@ -50,11 +39,7 @@ class CourseCode(models.Model):
 
 class CourseNumber(models.Model):
     """ Create a CourseNumber model """
-    name = models.CharField(
-        max_length=5,
-        unique=True,
-        help_text='Maximum characters: 5'
-    )
+    name = models.CharField(max_length=5, unique=True)
     class Meta:
         ordering = ['name']
 
@@ -63,12 +48,7 @@ class CourseNumber(models.Model):
 
 class CourseSection(models.Model):
     """ Create a CourseSection model """
-    name = models.CharField(
-        max_length=5,
-        unique=True,
-        help_text='Maximum characters: 5'
-    )
-
+    name = models.CharField(max_length=5, unique=True)
     class Meta:
         ordering = ['name']
 
@@ -140,8 +120,7 @@ class Job(models.Model):
     # Admins can assign TA hours
     assigned_ta_hours = models.FloatField(
         default=0.0,
-        validators=[MinValueValidator(0), MaxValueValidator(4000)],
-        help_text='Valid range is 0 to 4000'
+        validators=[MinValueValidator(0), MaxValueValidator(4000)]
     )
 
     # Add up all student's TA hours
@@ -158,14 +137,8 @@ class Job(models.Model):
 
 
 class Classification(models.Model):
-    year = models.CharField(
-        max_length=10,
-        help_text='Maximum character: 10'
-    )
-    name = models.CharField(
-        max_length=10,
-        help_text='Maximum character: 10'
-    )
+    year = models.CharField(max_length=10)
+    name = models.CharField(max_length=10)
     wage = models.FloatField()
     is_active = models.BooleanField(default=True)
     slug = models.SlugField(max_length=256, unique=True)
@@ -207,9 +180,7 @@ class Application(models.Model):
     applicant = models.ForeignKey(User, on_delete=models.CASCADE)
     job = models.ForeignKey(Job, on_delete=models.CASCADE)
 
-    supervisor_approval = models.BooleanField(
-        help_text='My supervisor has approved for me to TA up to a maximum of 12 hours/week.'
-    )
+    supervisor_approval = models.BooleanField()
     how_qualified = models.CharField(max_length=1, choices=PREFERENCE_CHOICES)
     how_interested = models.CharField(max_length=1, choices=PREFERENCE_CHOICES)
     availability = models.BooleanField()
@@ -260,34 +231,11 @@ class AdminDocuments(models.Model):
     ''' Admin Documents '''
     application = models.OneToOneField(Application, on_delete=models.CASCADE, primary_key=True)
 
-    pin = models.CharField(
-        max_length=4,
-        null=True,
-        blank=True,
-        help_text='Optional. Maximum 4 digits long'
-    )
-    tasm = models.BooleanField(
-        default=False,
-        help_text='Optional'
-    )
-    eform = models.CharField(
-        max_length=6,
-        unique=True,
-        null=True,
-        blank=True,
-        help_text='Optional. Maximum 6 digits long'
-    )
-    speed_chart = models.CharField(
-        max_length=4,
-        null=True,
-        blank=True,
-        help_text='Optional. Maximum 4 digits long'
-    )
-    processing_note = models.TextField(
-        null=True,
-        blank=True,
-        help_text='Optional'
-    )
+    pin = models.CharField(max_length=4, null=True, blank=True)
+    tasm = models.BooleanField(default=False)
+    eform = models.CharField(max_length=6, unique=True, null=True, blank=True)
+    speed_chart = models.CharField(max_length=4, null=True, blank=True)
+    processing_note = models.TextField(null=True, blank=True)
 
     created_at = models.DateField(default=dt.date.today)
     updated_at = models.DateField(default=dt.date.today)
