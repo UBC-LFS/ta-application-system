@@ -62,7 +62,7 @@ class InstructorTest(TestCase):
         print('\n- Display an user profile')
         self.login()
 
-        response = self.client.get( reverse('instructors:show_user', args=[SESSION, JOB, STUDENT]) )
+        response = self.client.get( reverse('instructors:show_user', args=[SESSION, JOB, STUDENT, 'basic']) )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, USER)
         self.assertEqual(response.context['loggedin_user'].roles, ['Instructor'])
