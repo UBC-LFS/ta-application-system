@@ -23,18 +23,4 @@ $(document).ready(function () {
     }
   }
 
-  /*
-  $('#student-nav-tab a[data-toggle="tab"]').on('click', function(e) {
-    window.localStorage.setItem('activeTab', $(e.target).attr('href'));
-  });
-
-  var activeTab = window.localStorage.getItem('activeTab');
-  if (activeTab) {
-    $('#student-nav-tab a[href="' + activeTab + '"]').tab('show');
-  }
-
-  $('#btn-logout').on('click', function(e) {
-    window.localStorage.removeItem("activeTab");
-  });*/
-
 });

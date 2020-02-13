@@ -195,7 +195,7 @@ def update_user_profile_roles(profile, old_roles, data):
     profile.roles.remove( *old_roles )
     new_roles = list( data.get('roles') )
     profile.roles.add( *new_roles )
-    return True if profile else None
+    return True if profile else False
 
 
 def get_user_roles(user):
