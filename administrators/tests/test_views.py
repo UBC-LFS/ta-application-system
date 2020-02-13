@@ -1247,6 +1247,39 @@ class HRTest(TestCase):
         self.assertEqual(response.url, '/administrators/hr/users/{0}/edit/'.format(USERS[2]))
         self.assertRedirects(response, response.url)
 
+        data['employee_number'] = 'new.username'
+        response = self.client.post(reverse('administrators:edit_user', args=[ USERS[2] ]), data=urlencode(data, True), content_type=ContentType)
+        messages = self.messages(response)
+        self.assertTrue('An error occurred' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/administrators/hr/users/{0}/edit/'.format(USERS[2]))
+        self.assertRedirects(response, response.url)
+
+        data['employee_number'] = '123'
+        response = self.client.post(reverse('administrators:edit_user', args=[ USERS[2] ]), data=urlencode(data, True), content_type=ContentType)
+        messages = self.messages(response)
+        self.assertTrue('An error occurred' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/administrators/hr/users/{0}/edit/'.format(USERS[2]))
+        self.assertRedirects(response, response.url)
+
+        data['student_number'] = 'new.username'
+        response = self.client.post(reverse('administrators:edit_user', args=[ USERS[2] ]), data=urlencode(data, True), content_type=ContentType)
+        messages = self.messages(response)
+        self.assertTrue('An error occurred' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/administrators/hr/users/{0}/edit/'.format(USERS[2]))
+        self.assertRedirects(response, response.url)
+
+        data['student_number'] = '123'
+        response = self.client.post(reverse('administrators:edit_user', args=[ USERS[2] ]), data=urlencode(data, True), content_type=ContentType)
+        messages = self.messages(response)
+        self.assertTrue('An error occurred' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/administrators/hr/users/{0}/edit/'.format(USERS[2]))
+        self.assertRedirects(response, response.url)
+
+        data['student_number'] = '12345670'
         data['employee_number'] = '1234567'
         response = self.client.post(reverse('administrators:edit_user', args=[ USERS[2] ]), data=urlencode(data, True), content_type=ContentType)
         messages = self.messages(response)
@@ -1299,10 +1332,9 @@ class HRTest(TestCase):
         self.login()
 
         data = {
-            'student_number': '92342343',
+            'student_number': '923423434',
             'preferred_name': 'new preferred name'
         }
-
         response = self.client.post(reverse('administrators:create_user'), data=urlencode(data, True), content_type=ContentType)
         messages = self.messages(response)
         self.assertTrue('An error occurred' in messages[0])
@@ -1310,6 +1342,15 @@ class HRTest(TestCase):
         self.assertEqual(response.url, '/administrators/hr/users/create/')
         self.assertRedirects(response, response.url)
 
+        data['student_number'] = 'abcdefg'
+        response = self.client.post(reverse('administrators:create_user'), data=urlencode(data, True), content_type=ContentType)
+        messages = self.messages(response)
+        self.assertTrue('An error occurred' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/administrators/hr/users/create/')
+        self.assertRedirects(response, response.url)
+
+        data['student_number'] = '92342343'
         data['first_name'] = 'new first name'
         response = self.client.post(reverse('administrators:create_user'), data=urlencode(data, True), content_type=ContentType)
         messages = self.messages(response)
@@ -1342,8 +1383,24 @@ class HRTest(TestCase):
         self.assertEqual(response.url, '/administrators/hr/users/create/')
         self.assertRedirects(response, response.url)
 
-        data['username'] = 'new.username'
+        data['employee_number'] = ['5']
+        response = self.client.post(reverse('administrators:create_user'), data=urlencode(data, True), content_type=ContentType)
+        messages = self.messages(response)
+        self.assertTrue('An error occurred' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/administrators/hr/users/create/')
+        self.assertRedirects(response, response.url)
 
+        data['employee_number'] = ['gdsddfds']
+        response = self.client.post(reverse('administrators:create_user'), data=urlencode(data, True), content_type=ContentType)
+        messages = self.messages(response)
+        self.assertTrue('An error occurred' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/administrators/hr/users/create/')
+        self.assertRedirects(response, response.url)
+
+        data['employee_number'] = ['8754544']
+        data['username'] = 'new.username'
         self.assertIsNone(userApi.user_exists(data['username']))
         self.assertFalse(userApi.profile_exists_by_username(data['username']))
 
