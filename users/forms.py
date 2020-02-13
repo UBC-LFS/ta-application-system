@@ -52,19 +52,23 @@ class UserForm(forms.ModelForm):
     ''' User model form '''
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'email', 'username']
-        labels = { 'email': 'Email', 'username': 'CWL' }
-        help_texts = {
-            'first_name': 'Required',
-            'last_name': 'Required',
-            'email': 'Required',
-            'username': 'Required'
+        fields = ['first_name', 'last_name', 'email', 'username', 'is_superuser']
+        labels = {
+            'email': 'Email',
+            'username': 'CWL'
         }
         widgets = {
             'first_name': forms.TextInput(attrs={ 'required': True, 'class': 'form-control' }),
             'last_name': forms.TextInput(attrs={ 'required': True, 'class': 'form-control' }),
             'email': forms.EmailInput(attrs={ 'required': True, 'class': 'form-control' }),
             'username': forms.TextInput(attrs={ 'required': True, 'class': 'form-control' }),
+        }
+        help_texts = {
+            'first_name': 'This field is required. Maximum length is 30.',
+            'last_name': 'This field is required. Maximum length is 150.',
+            'email': 'This field is required. Maximum length is 254.',
+            'username': 'This field is required. Maximum length is 150.',
+            'is_superuser': 'This field is necessary for Masquerade. If an user\'s role is an administrator or super-administrator, please select this field. '
         }
 
 class UserProfileForm(forms.ModelForm):
@@ -86,7 +90,7 @@ class UserProfileForm(forms.ModelForm):
             'preferred_name': forms.TextInput(attrs={ 'class': 'form-control' })
         }
         help_texts = {
-            'student_number': 'This field is optional and unique. Maximum length is 8.',
+            'student_number': 'This field is optional and unique, and 8 digits in length.',
             'preferred_name': 'This field is optional. Maximum length is 256.'
         }
 
@@ -110,7 +114,7 @@ class UserProfileEditForm(forms.ModelForm):
             'preferred_name': forms.TextInput(attrs={ 'class': 'form-control' })
         }
         help_texts = {
-            'student_number': 'This field is optional and unique. Maximum length is 8.',
+            'student_number': 'This field is optional and unique, and 8 digits in length.',
             'preferred_name': 'This field is optional. Maximum length is 256.'
         }
 
@@ -218,6 +222,22 @@ class ConfidentialityCheckForm(forms.ModelForm):
             'user': forms.HiddenInput()
         }
 
+class EmployeeNumberForm(forms.ModelForm):
+    class Meta:
+        model = Confidentiality
+        fields = ['user', 'employee_number']
+        widgets = {
+            'user': forms.HiddenInput(),
+            'employee_number': forms.TextInput(attrs={ 'class': 'form-control' })
+        }
+        labels = {
+            'employee_number': 'Employee Number'
+        }
+        help_texts = {
+            'employee_number': 'This field is optional and unique, and 7 digits in length.'
+        }
+
+
 class ConfidentialityDomesticForm(forms.ModelForm):
     nationality = forms.ChoiceField(
         widget=forms.RadioSelect,
@@ -238,7 +258,7 @@ class ConfidentialityDomesticForm(forms.ModelForm):
             'personal_data_form': 'Personal Data Form'
         }
         help_texts = {
-            'employee_number': 'This field is optional and unique. Only 7-digit numerical value allowed.',
+            'employee_number': 'This field is optional and unique, and 7 digits in length.',
             'sin': 'Valid file formats: JPG, JPEG, PNG. A filename has at most 256 characters.',
             'personal_data_form': 'Valid file formats: PDF, DOC, DOCX. A filename has at most 256 characters.'
         }

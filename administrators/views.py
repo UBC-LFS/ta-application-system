@@ -608,7 +608,7 @@ def edit_job(request, session_slug, job_slug):
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
         return HttpResponseRedirect(reverse('administrators:edit_job', args=[session_slug, job_slug]))
-    
+
     return render(request, 'administrators/jobs/edit_job.html', {
         'loggedin_user': request.user,
         'job': job,
@@ -1435,11 +1435,16 @@ def show_user(request, username, path, tab):
     if path not in USER_PATH: raise Http404
 
     user = userApi.get_user(username, 'username')
-    user.is_student = userApi.user_has_role(user ,'Student')
     user = userApi.add_resume(user)
+
+    if tab == 'confidential':
+        user = userApi.add_confidentiality_given_list(user, ['sin','study_permit'])
+        user = userApi.add_personal_data_form(user)
+
+    user.is_student = userApi.user_has_role(user ,'Student')
     return render(request, 'administrators/hr/show_user.html', {
         'loggedin_user': request.user,
-        'user': userApi.add_confidentiality_given_list(user, ['sin','study_permit']),
+        'user': user,
         'path': path,
         'current_tab': tab
     })
@@ -1454,58 +1459,61 @@ def edit_user(request, username):
     if not userApi.is_admin(request.user): raise PermissionDenied
 
     user = userApi.get_user(username, 'username')
+    confidentiality = userApi.has_user_confidentiality_created(user)
+    print('confidentiality', confidentiality)
+
     if request.method == 'POST':
         user_id = request.POST.get('user')
         profile_roles = user.profile.roles.all()
 
         user_form = UserForm(request.POST, instance=user)
-        if user_form.is_valid():
+        user_profile_edit_form = UserProfileEditForm(request.POST, instance=user.profile)
+        employee_number_form = EmployeeNumberForm(request.POST, instance=confidentiality)
+
+        if user_form.is_valid() and user_profile_edit_form.is_valid() and employee_number_form.is_valid():
+            errors = []
             updated_user = user_form.save()
 
-            user_profile_edit_form = UserProfileEditForm(request.POST, instance=user.profile)
-            if user_profile_edit_form.is_valid():
-                data = user_profile_edit_form.cleaned_data
-                updated_profile = user_profile_edit_form.save(commit=False)
-                updated_profile.updated_at = datetime.now()
-                updated_profile.save()
+            data = user_profile_edit_form.cleaned_data
+            updated_profile = user_profile_edit_form.save(commit=False)
+            updated_profile.updated_at = datetime.now()
+            updated_profile.save()
 
-                # Important: only superuser can run user switching
-                roles = [ role.name for role in list(data.get('roles')) ]
-                is_superuser = False
-                if Role.ADMIN in roles or Role.SUPERADMIN in roles:
-                    is_superuser = True
+            updated_confidentiality = employee_number_form.save(commit=False)
+            updated_confidentiality.updated_at = datetime.now()
+            updated_confidentiality.save()
 
-                if is_superuser != updated_user.is_superuser:
-                    updated_user.is_superuser = is_superuser
-                    updated_user.save(update_fields=['is_superuser'])
+            if not updated_user: errors.append('An error occurred while updating an user form.')
+            if not updated_profile: errors.append('An error occurred while updating a profile.')
+            if not updated_confidentiality: errors.append('An error occurred while updating an employee number.')
 
-                if updated_profile:
-                    updated = userApi.update_user_profile_roles(updated_profile, profile_roles, data)
-                    if updated:
-                        messages.success(request, 'Success! Roles of {0} updated'.format(user.username))
-                        return redirect('administrators:all_users')
-                    else:
-                        messages.error(request, 'An error occurred while updating profile roles.')
-                else:
-                    messages.error(request, 'An error occurred while updating a profile. Please contact administrators.')
-            else:
-                errors = user_profile_edit_form.errors.get_json_data()
-                messages.error(request, 'An error occurred while updating a user because a form is invalid. {0}'.format( userApi.get_error_messages(errors) ) )
+            updated = userApi.update_user_profile_roles(updated_profile, profile_roles, data)
+            if not updated: errors.append(request, 'An error occurred while updating profile roles.')
+
+            messages.success(request, 'Success! Roles of {0} updated'.format(user.username))
+            return redirect('administrators:all_users')
         else:
-            errors = user_form.errors.get_json_data()
-            messages.error(request, 'An error occurred while updating a user because a form is invalid. {0}'.format( userApi.get_error_messages(errors) ) )
+            errors = []
+            user_errors = user_form.errors.get_json_data()
+            profile_errors = user_profile_edit_form.errors.get_json_data()
+            confid_errors = employee_number_form.errors.get_json_data()
+            if user_errors: errors.append( userApi.get_error_messages(user_errors) )
+            if profile_errors: errors.append( userApi.get_error_messages(profile_errors) )
+            if confid_errors: errors.append( userApi.get_error_messages(confid_errors) )
+
+            messages.error(request, 'An error occurred while updating an User Form. {0}'.format( ' '.join(errors) ))
 
         return HttpResponseRedirect( reverse('administrators:edit_user', args=[username]) )
+
 
     return render(request, 'administrators/hr/edit_user.html', {
         'loggedin_user': request.user,
         'user': user,
         'roles': userApi.get_roles(),
         'user_form': UserForm(data=None, instance=user),
-        'user_profile_form': UserProfileEditForm(data=None, instance=user.profile)
+        'user_profile_form': UserProfileEditForm(data=None, instance=user.profile),
+        'employee_number_form': EmployeeNumberForm(data=None, instance=confidentiality)
     })
-
-
 
 
 @login_required(login_url=settings.LOGIN_URL)
