@@ -9,7 +9,7 @@ RUN apk update && apk add build-base libressl-dev postgresql-dev libffi-dev gcc 
 
 ### Install prerequisites for Ubuntu
 ```
-$ sudo apt-get install python3-pip python3-setuptools python3-dev
+$ sudo apt-get install python3-pip python3-setuptools python3-dev libxml2-dev libxmlsec1-dev libxmlsec1-openssl
 ```
 
 ## Summary of Deployment

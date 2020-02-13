@@ -7,7 +7,6 @@ from django.core.validators import FileExtensionValidator, MinLengthValidator, M
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
-
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.core.files.base import ContentFile
 import sys
@@ -209,7 +208,12 @@ class Profile(models.Model):
         max_length=8,
         unique=True,
         null=True,
-        blank=True
+        blank=True,
+        validators=[
+            NumericalValueValidator,
+            MinLengthValidator(8),
+            MaxLengthValidator(8)
+        ]
     )
     preferred_name = models.CharField(
         max_length=256,
