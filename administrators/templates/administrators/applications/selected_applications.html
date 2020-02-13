@@ -58,9 +58,30 @@
           </td>
           <td>
             {% if app.resume_filename %}
-              <a href="{% url 'students:download_resume' username=app.applicant.username filename=app.resume_filename %}" target="_blank">{{ app.resume_filename }}</a>
-            {% else %}
-              No
+              <button class="btn btn-xs btn-info" type="button" data-toggle="modal" data-target="#resume-modal-{{ app.id }}">
+                <i class="fa fa-file-text-o" aria-hidden="true"></i>
+              </button>
+
+              <div class="modal fade" id="resume-modal-{{ app.id }}" tabindex="-1" role="dialog" aria-labelledby="resume-modal-label-{{ app.id }}" aria-hidden="true">
+                <div class="modal-dialog modal-lg" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title text-info" id="resume-modal-label-{{ app.id }}">Resume</h5>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    </div>
+                    <div class="modal-body text-left">
+                      <div class="modal-item">
+                        <h5>
+                          File: <a href="{% url 'students:download_resume' username=app.applicant.username filename=app.resume_filename %}" target="_blank">{{ app.resume_filename }}</a>
+                        </h5>
+                        <p>
+                          Uploaded at {{ app.applicant.resume.created_at }}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             {% endif %}
           </td>
           <td>
