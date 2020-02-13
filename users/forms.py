@@ -90,7 +90,7 @@ class UserProfileForm(forms.ModelForm):
             'preferred_name': forms.TextInput(attrs={ 'class': 'form-control' })
         }
         help_texts = {
-            'student_number': 'This field is optional and unique, and 8 digits in length.',
+            'student_number': 'This field is optional. Must be numeric, and 8 digits in length.',
             'preferred_name': 'This field is optional. Maximum length is 256.'
         }
 
@@ -114,7 +114,7 @@ class UserProfileEditForm(forms.ModelForm):
             'preferred_name': forms.TextInput(attrs={ 'class': 'form-control' })
         }
         help_texts = {
-            'student_number': 'This field is optional and unique, and 8 digits in length.',
+            'student_number': 'This field is optional. Must be numeric, and 8 digits in length.',
             'preferred_name': 'This field is optional. Maximum length is 256.'
         }
 
@@ -234,7 +234,7 @@ class EmployeeNumberForm(forms.ModelForm):
             'employee_number': 'Employee Number'
         }
         help_texts = {
-            'employee_number': 'This field is optional and unique, and 7 digits in length.'
+            'employee_number': 'This field is optional. Must be numeric, and 7 digits in length. If you have it, please enter your employee number.'
         }
 
 
@@ -258,7 +258,7 @@ class ConfidentialityDomesticForm(forms.ModelForm):
             'personal_data_form': 'Personal Data Form'
         }
         help_texts = {
-            'employee_number': 'This field is optional and unique, and 7 digits in length.',
+            'employee_number': 'This field is optional. Must be numeric, and 7 digits in length. If you have it, please enter your employee number.',
             'sin': 'Valid file formats: JPG, JPEG, PNG. A filename has at most 256 characters.',
             'personal_data_form': 'Valid file formats: PDF, DOC, DOCX. A filename has at most 256 characters.'
         }
@@ -296,7 +296,7 @@ class ConfidentialityInternationalForm(forms.ModelForm):
             'personal_data_form': 'Personal Data Form'
         }
         help_texts = {
-            'employee_number': 'This field is optional and unique. Only 7-digit numerical value allowed.',
+            'employee_number': 'This field is optional. Must be numeric, and 7 digits in length. If you have it, please enter your employee number.',
             'sin': 'Valid file formats: JPG, JPEG, PNG. A filename has at most 256 characters.',
             'study_permit': 'Valid file formats: JPG, JPEG, PNG. A filename has at most 256 characters.',
             'personal_data_form': 'Valid file formats: PDF, DOC, DOCX. A filename has at most 256 characters.'
@@ -335,7 +335,7 @@ class ConfidentialityForm(forms.ModelForm):
             'personal_data_form': 'Personal Data Form'
         }
         help_texts = {
-            'employee_number': 'This field is optional and unique. Only 7-digit numerical value allowed.',
+            'employee_number': 'This field is optional. Must be numeric, and 7 digits in length. If you have it, please enter your employee number.',
             'sin': 'Valid file formats: JPG, JPEG, PNG. A filename has at most 256 characters.',
             'study_permit': 'Valid file formats: JPG, JPEG, PNG. A filename has at most 256 characters.',
             'personal_data_form': 'Valid file formats: PDF, DOC, DOCX. A filename has at most 256 characters.'
