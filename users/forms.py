@@ -222,7 +222,23 @@ class ConfidentialityCheckForm(forms.ModelForm):
             'user': forms.HiddenInput()
         }
 
+
 class EmployeeNumberForm(forms.ModelForm):
+    class Meta:
+        model = Confidentiality
+        fields = ['employee_number']
+        widgets = {
+            'employee_number': forms.TextInput(attrs={ 'class': 'form-control' })
+        }
+        labels = {
+            'employee_number': 'Employee Number'
+        }
+        help_texts = {
+            'employee_number': 'This field is optional. Must be numeric, and 7 digits in length. If you have it, please enter your employee number.'
+        }
+
+
+class EmployeeNumberEditForm(forms.ModelForm):
     class Meta:
         model = Confidentiality
         fields = ['user', 'employee_number']
