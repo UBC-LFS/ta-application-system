@@ -828,24 +828,31 @@ def offer_job(request, session_slug, job_slug):
             return redirect('administrators:selected_applications')
 
         admin_app_form = AdminApplicationForm(request.POST)
-        if admin_app_form.is_valid():
+        app_status_form = ApplicationStatusForm(request.POST)
+
+        if admin_app_form.is_valid() and app_status_form.is_valid():
             updated_app = adminApi.update_application_classification_note(request.POST.get('application'), admin_app_form.cleaned_data)
-            if updated_app:
-                app_status_form = ApplicationStatusForm(request.POST)
-                if app_status_form.is_valid():
-                    status = app_status_form.save()
-                    if status:
-                        applicant = userApi.get_user(request.POST.get('applicant'))
-                        messages.success(request, 'Success! You offered this user ({0} {1}) {2} hours for this job ({3} {4} - {5} {6} {7})'.format(applicant.first_name, applicant.last_name, assigned_hours, job.session.year, job.session.term.code, job.course.code.name, job.course.number.name, job.course.section.name))
-                    else:
-                        messages.error(request, 'An error occurred. Failed to offer a job.')
-                else:
-                    errors = form.errors.get_json_data()
-                    messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
-            else:
-                messages.error(request, 'An error occurred. Failed to update classification and note.')
+            status = app_status_form.save()
+
+            errors = []
+            if not updated_app: errors.append('An error occurred. Failed to update classification and note.')
+            if not status: errors.append('An error occurred. Failed to update the application status.')
+
+            if len(errors) > 0:
+                messages.error(request, 'An error occurred while sending a job offer. {0}'.format( ' '.join(errors) ))
+                return HttpResponseRedirect( reverse('administrators:edit_user', args=[username]) )
+
+            applicant = userApi.get_user(request.POST.get('applicant'))
+            messages.success(request, 'Success! You offered this user ({0} {1}) {2} hours for this job ({3} {4} - {5} {6} {7})'.format(applicant.first_name, applicant.last_name, assigned_hours, job.session.year, job.session.term.code, job.course.code.name, job.course.number.name, job.course.section.name))
         else:
-            errors = form.errors.get_json_data()
+            errors = []
+
+            admin_app_errors = admin_app_form.errors.get_json_data()
+            app_status_errors = app_status_form.errors.get_json_data()
+
+            if admin_app_errors: errors.append( userApi.get_error_messages(admin_app_errors) )
+            if app_status_errors: errors.append( userApi.get_error_messages(app_status_errors) )
+
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
     return redirect('administrators:selected_applications')
@@ -1140,37 +1147,43 @@ def decline_reassign_confirmation(request):
         app = adminApi.get_application(app_id)
         accepted_status = adminApi.get_accepted_status(app)
 
-        form = ApplicationStatusReassignForm({
+        status_form = ApplicationStatusReassignForm({
             'application': app_id,
             'assigned': ApplicationStatus.DECLINED,
             'assigned_hours': new_assigned_hours,
             'parent_id': accepted_status.id
         })
 
-        if form.is_valid():
-            if form.save():
-                if adminApi.update_job_accumulated_ta_hours(app.job.session.slug, app.job.course.slug, float(new_assigned_hours) - float(old_assigned_hours)):
-                    reassign_form = ReassignApplicationForm(request.POST, instance=app)
-                    if reassign_form.is_valid():
-                        reaasigned_app = reassign_form.save(commit=False)
-                        reaasigned_app.updated_at = datetime.now()
-                        reaasigned_app.save()
-                        if reaasigned_app:
-                            messages.success(request, 'Success! The status of Application (ID: {0}) updated'.format(app_id))
-                        else:
-                            messages.error(request, 'An error occurred. Failed to update a note in the application.')
-                    else:
-                        errors = form.errors.get_json_data()
-                        messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
-                else:
-                    messages.error(request, 'An error occurred. Failed to update ta hours in a job')
-            else:
-                messages.error(request, 'An error occurred while saving a declined status.')
+        reassign_form = ReassignApplicationForm(request.POST, instance=app)
+
+        if status_form.is_valid() and reassign_form.is_valid():
+            app_status = status_form.save()
+
+            reaasigned_app = reassign_form.save(commit=False)
+            reaasigned_app.updated_at = datetime.now()
+            reaasigned_app.save()
+
+            updated_ta_hours = adminApi.update_job_accumulated_ta_hours(app.job.session.slug, app.job.course.slug, float(new_assigned_hours) - float(old_assigned_hours))
+
+            errors = []
+            if not app_status: errors.append('An error occurred while saving a declined status.')
+            if not reaasigned_app: errors.append('An error occurred. Failed to update a note in the application.')
+            if not updated_ta_hours: errors.append('An error occurred. Failed to update ta hours in a job.')
+
+            if len(errors) > 0:
+                messages.error(request, 'An error occurred while sending a job offer. {0}'.format( ' '.join(errors) ))
+                return redirect('administrators:decline_reassign_confirmation')
+
+            messages.success(request, 'Success! The status of Application (ID: {0}) updated'.format(app_id))
+            return redirect('administrators:accepted_applications')
         else:
             errors = form.errors.get_json_data()
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
-        return redirect('administrators:accepted_applications')
+            errors = form.errors.get_json_data()
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+
+        return redirect('administrators:decline_reassign_confirmation')
 
     else:
         data = request.session.get('decline_reassign_form_data')
@@ -1292,7 +1305,6 @@ def applications_send_email(request, path):
         if len(applications) > 0:
             type = request.POST.get('type')
             request.session['applications_form_data'] = { 'applications': applications, 'type': type }
-            #return redirect('administrators:applications_send_email_confirmation')
             return HttpResponseRedirect( reverse('administrators:applications_send_email_confirmation', args=[path]) )
         else:
             messages.error(request, 'An error occurred. Please select applications, then try again.')
@@ -1460,7 +1472,6 @@ def edit_user(request, username):
 
     user = userApi.get_user(username, 'username')
     confidentiality = userApi.has_user_confidentiality_created(user)
-    print('confidentiality', confidentiality)
 
     if request.method == 'POST':
         user_id = request.POST.get('user')
@@ -1474,7 +1485,6 @@ def edit_user(request, username):
             errors = []
             updated_user = user_form.save()
 
-            data = user_profile_edit_form.cleaned_data
             updated_profile = user_profile_edit_form.save(commit=False)
             updated_profile.updated_at = datetime.now()
             updated_profile.save()
@@ -1487,10 +1497,14 @@ def edit_user(request, username):
             if not updated_profile: errors.append('An error occurred while updating a profile.')
             if not updated_confidentiality: errors.append('An error occurred while updating an employee number.')
 
-            updated = userApi.update_user_profile_roles(updated_profile, profile_roles, data)
+            updated = userApi.update_user_profile_roles(updated_profile, profile_roles, user_profile_edit_form.cleaned_data)
             if not updated: errors.append(request, 'An error occurred while updating profile roles.')
 
-            messages.success(request, 'Success! Roles of {0} updated'.format(user.username))
+            if len(errors) > 0:
+                messages.error(request, 'An error occurred while saving an User Form. {0}'.format( ' '.join(errors) ))
+                return HttpResponseRedirect( reverse('administrators:edit_user', args=[username]) )
+
+            messages.success(request, 'Success! User information of {0} (CWL: {1}) updated'.format(user.get_full_name(), user.username))
             return redirect('administrators:all_users')
         else:
             errors = []

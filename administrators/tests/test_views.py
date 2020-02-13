@@ -1203,6 +1203,8 @@ class HRTest(TestCase):
         data = {
             'user': user.id,
             'student_number': '12222222',
+            'employee_number': '12345678',
+            'is_superuser': False,
             'preferred_name': 'new name',
             'roles': ['4']
         }
@@ -1238,6 +1240,14 @@ class HRTest(TestCase):
         self.assertRedirects(response, response.url)
 
         data['username'] = 'new.username'
+        response = self.client.post(reverse('administrators:edit_user', args=[ USERS[2] ]), data=urlencode(data, True), content_type=ContentType)
+        messages = self.messages(response)
+        self.assertTrue('An error occurred' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/administrators/hr/users/{0}/edit/'.format(USERS[2]))
+        self.assertRedirects(response, response.url)
+
+        data['employee_number'] = '1234567'
         response = self.client.post(reverse('administrators:edit_user', args=[ USERS[2] ]), data=urlencode(data, True), content_type=ContentType)
         messages = self.messages(response)
         self.assertTrue('Success' in messages[0])
@@ -1401,7 +1411,7 @@ class HRTest(TestCase):
             'username': 'test.user55',
             'password': '12',
             'preferred_name': None,
-            'student_number': 'AJWUGNU3',
+            'student_number': '12345678',
             'employee_number': '9876521',
             'roles': ['5']
         }
