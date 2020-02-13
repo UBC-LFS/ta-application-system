@@ -1465,6 +1465,78 @@ def show_user(request, username, path, tab):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET', 'POST'])
+def create_user(request):
+    ''' Create a user '''
+    request.user.roles = request.session['loggedin_user']['roles']
+    if not userApi.is_admin(request.user): raise PermissionDenied
+
+    if request.method == 'POST':
+        user_form = UserForm(request.POST)
+        user_profile_form = UserProfileForm(request.POST)
+
+        if user_form.is_valid() and user_profile_form.is_valid():
+            user = user_form.save(commit=False)
+            user.set_password( make_password(settings.USER_PASSWORD) )
+            user.save()
+
+            profile = userApi.create_profile(user, user_profile_form.cleaned_data)
+
+            errors = []
+            if not user: errors.append('An error occurred while creating an user.')
+            if not profile: errors.append('An error occurred while creating an user profile.')
+
+            if len(errors) > 0:
+                messages.error(request, 'An error occurred while saving an User Form. {0}'.format( ' '.join(errors) ))
+                return redirect('administrators:create_user')
+
+            confidentiality = userApi.has_user_confidentiality_created(user)
+
+            data = {
+                'user': user.id,
+                'employee_number': request.POST.get('employee_number')
+            }
+            employee_number_form = EmployeeNumberEditForm(data, instance=confidentiality)
+
+            if employee_number_form.is_valid() == False:
+                employee_number_errors = employee_number_form.errors.get_json_data()
+                messages.error(request, 'An error occurred while creating an User Form. {0}'.format(employee_number_errors))
+
+            employee_number = employee_number_form.save()
+
+            if not employee_number: errors.append('An error occurred while updating an employee number.')
+
+            if len(errors) > 0:
+                messages.error(request, 'An error occurred while saving an User Form. {0}'.format( ' '.join(errors) ))
+                return redirect('administrators:create_user')
+
+            messages.success(request, 'Success! {0} {1} (CWL: {2}) created'.format(user.first_name, user.last_name, user.username))
+            return redirect('administrators:all_users')
+
+        else:
+            errors = []
+
+            user_errors = user_form.errors.get_json_data()
+            profile_errors = user_profile_form.errors.get_json_data()
+
+            if user_errors: errors.append( userApi.get_error_messages(user_errors) )
+            if profile_errors: errors.append( userApi.get_error_messages(profile_errors) )
+
+            messages.error(request, 'An error occurred while creating an User Form. {0}'.format( ' '.join(errors) ))
+
+        return redirect('administrators:create_user')
+
+    return render(request, 'administrators/hr/create_user.html', {
+        'loggedin_user': request.user,
+        'users': userApi.get_users(),
+        'user_form': UserForm(),
+        'user_profile_form': UserProfileForm(),
+        'employee_number_form': EmployeeNumberForm()
+    })
+
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET', 'POST'])
 def edit_user(request, username):
     ''' Edit a user '''
     request.user.roles = request.session['loggedin_user']['roles']
@@ -1479,10 +1551,9 @@ def edit_user(request, username):
 
         user_form = UserForm(request.POST, instance=user)
         user_profile_edit_form = UserProfileEditForm(request.POST, instance=user.profile)
-        employee_number_form = EmployeeNumberForm(request.POST, instance=confidentiality)
+        employee_number_form = EmployeeNumberEditForm(request.POST, instance=confidentiality)
 
         if user_form.is_valid() and user_profile_edit_form.is_valid() and employee_number_form.is_valid():
-            errors = []
             updated_user = user_form.save()
 
             updated_profile = user_profile_edit_form.save(commit=False)
@@ -1492,6 +1563,8 @@ def edit_user(request, username):
             updated_confidentiality = employee_number_form.save(commit=False)
             updated_confidentiality.updated_at = datetime.now()
             updated_confidentiality.save()
+
+            errors = []
 
             if not updated_user: errors.append('An error occurred while updating an user form.')
             if not updated_profile: errors.append('An error occurred while updating a profile.')
@@ -1508,9 +1581,11 @@ def edit_user(request, username):
             return redirect('administrators:all_users')
         else:
             errors = []
+
             user_errors = user_form.errors.get_json_data()
             profile_errors = user_profile_edit_form.errors.get_json_data()
             confid_errors = employee_number_form.errors.get_json_data()
+
             if user_errors: errors.append( userApi.get_error_messages(user_errors) )
             if profile_errors: errors.append( userApi.get_error_messages(profile_errors) )
             if confid_errors: errors.append( userApi.get_error_messages(confid_errors) )
@@ -1526,7 +1601,7 @@ def edit_user(request, username):
         'roles': userApi.get_roles(),
         'user_form': UserForm(data=None, instance=user),
         'user_profile_form': UserProfileEditForm(data=None, instance=user.profile),
-        'employee_number_form': EmployeeNumberForm(data=None, instance=confidentiality)
+        'employee_number_form': EmployeeNumberEditForm(data=None, instance=confidentiality)
     })
 
 
@@ -1547,51 +1622,6 @@ def delete_user(request):
             messages.error(request, 'An error occurred while deleting a user.')
 
     return redirect('administrators:all_users')
-
-
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET', 'POST'])
-def create_user(request):
-    ''' Create a user '''
-    request.user.roles = request.session['loggedin_user']['roles']
-    if not userApi.is_admin(request.user): raise PermissionDenied
-
-    if request.method == 'POST':
-        user_form = UserForm(request.POST)
-        if user_form.is_valid():
-            user_profile_form = UserProfileForm(request.POST)
-
-            if user_profile_form.is_valid():
-                user = user_form.save(commit=False)
-                user.set_password( make_password(settings.USER_PASSWORD) )
-                user.save()
-                if user:
-                    profile = userApi.create_profile(user, user_profile_form.cleaned_data)
-                    if profile:
-                        messages.success(request, 'Success! {0} {1} ({2}) created'.format(user.first_name, user.last_name, user.username))
-                        return redirect('administrators:all_users')
-                    else:
-                        messages.error(request, 'An error occurred while creating a user profile. Please contact administrators.')
-                else:
-                    messages.error(request, 'An error occurred while creating a user. Please contact administrators.')
-            else:
-                errors = user_profile_form.errors.get_json_data()
-                messages.error(request, 'An error occurred while creating a user because a form is invalid. {0}'.format( userApi.get_error_messages(errors) ) )
-        else:
-            errors = user_form.errors.get_json_data()
-            messages.error(request, 'An error occurred while creating a user because a form is invalid. {0}'.format( userApi.get_error_messages(errors) ) )
-
-        return redirect('administrators:create_user')
-
-    return render(request, 'administrators/hr/create_user.html', {
-        'loggedin_user': request.user,
-        'users': userApi.get_users(),
-        'user_form': UserForm(),
-        'user_profile_form': UserProfileForm()
-    })
-
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)

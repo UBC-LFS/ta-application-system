@@ -32,8 +32,14 @@
 					</div>
 				{% endfor %}
 
-				{% for field in user_form.hidden_fields %}
-					{{ field }}
+        {% for field in employee_number_form.visible_fields  %}
+					<div class="field-wrapper">
+						{{ field.label_tag }}
+						{% if field.help_text %}
+							<div class="help">{{ field.help_text|safe }}</div>
+						{% endif %}
+						{{ field }}
+					</div>
 				{% endfor %}
 
         {% for field in user_profile_form.visible_fields  %}
@@ -44,10 +50,6 @@
 						{% endif %}
 						{{ field }}
 					</div>
-				{% endfor %}
-
-				{% for field in user_profile_form.hidden_fields %}
-					{{ field }}
 				{% endfor %}
 
         <a class="btn btn-outline-secondary" href="{% url 'administrators:all_users' %}">Cancel</a>
