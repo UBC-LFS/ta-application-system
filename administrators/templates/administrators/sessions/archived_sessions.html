@@ -5,6 +5,14 @@
 <div>
   {% include 'ta_app/pages/_header.html' with title='Archived Sessions' %}
 
+  <div class="bg-prompt">
+    <div class="prompt p-4 text-center mb-4">
+      <h4>New</h4>
+      <p class="col-8 mx-auto">If you would like to create a new session, please click the botton below.</p>
+      <a class="btn btn-outline-primary" href="{% url 'administrators:create_session' %}">Create Session</a>
+    </div>
+  </div>
+
   {% include 'administrators/sessions/_search_fields.html' with data=sessions total=total_sessions path='archived_sessions' %}
 
   <table
