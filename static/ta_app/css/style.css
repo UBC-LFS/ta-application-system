@@ -237,7 +237,7 @@ main {
 }
 
 .modal-item .job-desc > div > h6 {
-  color: #009688;
+  color: #007bff;
 }
 
 .modal-item > div > span {
@@ -246,14 +246,14 @@ main {
 }
 
 .modal-item .job-desc {
-  background-color: #e6e6e6;
+  background-color: #f8f8f8;
   padding: 1rem 1.3rem;
-  border: 1px solid #6c757d;
+  border: 1px solid #e0e0e0;
   border-radius: 4px;
 }
 
 .modal-item .job-desc > div > span {
-  font-size: 0.85rem;
+  font-size: 0.9rem;
 }
 
 
@@ -291,7 +291,7 @@ main {
 }
 
 .board .job-desc {
-  background-color: #fff;
+  background-color: #f8f8f8;
   padding: 1rem 1.3rem;
   border: 1px solid #6c757d;
   border-radius: 4px;
@@ -302,11 +302,11 @@ main {
 }
 
 .board .job-desc > div > h6 {
-  color: #009688;
+  color: #007bff;
 }
 
 .board .job-desc > div > span {
-  font-size: 0.85rem;
+  font-size: 0.9rem;
 }
 
 .bg-white {
