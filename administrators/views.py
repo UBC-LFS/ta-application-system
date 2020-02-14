@@ -1856,11 +1856,11 @@ def delete_term(request):
 
     if request.method == 'POST':
         term_id = request.POST.get('term')
-        deleted_term = adminApi.delete_term(term_id)
-        if deleted_term:
-            messages.success(request, 'Success! {0} ({1}) deleted'.format(deleted_term.name, deleted_term.code))
+        result = adminApi.delete_term(term_id)
+        if result['status'] == True:
+            messages.success(request, 'Success! {0} ({1}) deleted'.format(result['term'].name, result['term'].code))
         else:
-            messages.error(request, 'An error occurred.')
+            messages.error(request, 'An error occurred. {0}'.format(result['error']))
     return redirect("administrators:terms")
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -1921,11 +1921,11 @@ def delete_course_code(request):
 
     if request.method == 'POST':
         course_code_id = request.POST.get('course_code')
-        deleted_course_code = adminApi.delete_course_code(course_code_id)
-        if deleted_course_code:
-            messages.success(request, 'Success! {0} deleted'.format(deleted_course_code.name))
+        result = adminApi.delete_course_code(course_code_id)
+        if result['status'] == True:
+            messages.success(request, 'Success! {0} deleted'.format(result['course_code'].name))
         else:
-            messages.error(request, 'An error occurred.')
+            messages.error(request, 'An error occurred. {0}'.format(result['error']))
     return redirect('administrators:course_codes')
 
 
@@ -1992,11 +1992,11 @@ def delete_course_number(request):
 
     if request.method == 'POST':
         course_number_id = request.POST.get('course_number')
-        deleted_course_number = adminApi.delete_course_number(course_number_id)
-        if deleted_course_number:
-            messages.success(request, 'Success! {0} deleted'.format(deleted_course_number.name))
+        result = adminApi.delete_course_number(course_number_id)
+        if result['status'] == True:
+            messages.success(request, 'Success! {0} deleted'.format(result['course_number'].name))
         else:
-            messages.error(request, 'An error occurred.')
+            messages.error(request, 'An error occurred. {0}'.format(result['error']))
     return redirect('administrators:course_numbers')
 
 # Course Section
@@ -2059,11 +2059,11 @@ def delete_course_section(request):
 
     if request.method == 'POST':
         course_section_id = request.POST.get('course_section')
-        deleted_course_section = adminApi.delete_course_section(course_section_id)
-        if deleted_course_section:
-            messages.success(request, 'Success! {0} deleted'.format(deleted_course_section.name))
+        result = adminApi.delete_course_section(course_section_id)
+        if result['status'] == True:
+            messages.success(request, 'Success! {0} deleted'.format(result['course_section'].name))
         else:
-            messages.error(request, 'An error occurred.')
+            messages.error(request, 'An error occurred. {0}'.format(result['error']))
     return redirect('administrators:course_sections')
 
 
