@@ -16,37 +16,39 @@
   </ul>
 </div>
 
-<div>
-  <h6>Course Overview:</h6>
-  <span>
-    {% if data.course_overview %}
-      {{ data.course_overview|safe }}
-    {% else %}
-      None
-    {% endif %}
-  </span>
-</div>
+<div class="job-desc">
+  <div>
+    <h6>Course Overview:</h6>
+    <span>
+      {% if data.course_overview %}
+        {{ data.course_overview|safe }}
+      {% else %}
+        None
+      {% endif %}
+    </span>
+  </div>
 
-<div>
-  <h6>Description:</h6>
-  <span>
-    {% if data.description %}
-      {{ data.description|safe }}
-    {% else %}
-      None
-    {% endif %}
-  </span>
-</div>
+  <div>
+    <h6>Description:</h6>
+    <span>
+      {% if data.description %}
+        {{ data.description|safe }}
+      {% else %}
+        None
+      {% endif %}
+    </span>
+  </div>
 
-<div>
-  <h6>Note:</h6>
-  <span>
-    {% if data.note %}
-      {{ data.note|safe }}
-    {% else %}
-      None
-    {% endif %}
-  </span>
+  <div>
+    <h6>Note:</h6>
+    <span>
+      {% if data.note %}
+        {{ data.note|safe }}
+      {% else %}
+        None
+      {% endif %}
+    </span>
+  </div>
 </div>
 
 <div>
