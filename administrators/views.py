@@ -7,7 +7,7 @@ from django.http import HttpResponseRedirect, Http404
 from django.core.exceptions import PermissionDenied
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.cache import cache_control
-from django.contrib.auth.hashers import make_password
+
 from django.db.models import Q
 from django.views.static import serve
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -1476,7 +1476,7 @@ def create_user(request):
 
         if user_form.is_valid() and user_profile_form.is_valid():
             user = user_form.save(commit=False)
-            user.set_password( make_password(settings.USER_PASSWORD) )
+            user.set_password(settings.USER_PASSWORD)
             user.save()
 
             profile = userApi.create_profile(user, user_profile_form.cleaned_data)

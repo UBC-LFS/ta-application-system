@@ -119,10 +119,9 @@ class CourseForm(forms.ModelForm):
 
 class SessionForm(forms.ModelForm):
     ''' Create a model form for a Session '''
-    next_year = current_year() + 1
     year = forms.CharField(
         max_length=4,
-        initial=next_year,
+        initial=current_year(),
         widget=forms.TextInput(attrs={ 'class': 'form-control' }),
         help_text='This field is required.'
     )
