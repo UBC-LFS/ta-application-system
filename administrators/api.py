@@ -6,6 +6,7 @@ from django.db.models import Q
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.core.mail import EmailMultiAlternatives
+from django.db import IntegrityError
 
 from administrators.models import *
 from users.models import *
@@ -563,8 +564,11 @@ def get_term_by_code(code):
 def delete_term(term_id):
     ''' Delete a term '''
     term = get_term(term_id)
-    term.delete()
-    return term if term else False
+    try:
+        term.delete()
+        return { 'status': True, 'term': term }
+    except IntegrityError as e:
+        return { 'status': False, 'error': e}
 
 
 # Course Codes
@@ -585,8 +589,11 @@ def get_course_code_by_name(name):
 def delete_course_code(course_code_id):
     ''' '''
     course_code = get_course_code(course_code_id)
-    course_code.delete()
-    return course_code if course_code else False
+    try:
+        course_code.delete()
+        return { 'status': True, 'course_code': course_code }
+    except IntegrityError as e:
+        return { 'status': False, 'error': e}
 
 
 
@@ -606,8 +613,11 @@ def get_course_number_by_name(name):
 def delete_course_number(course_number_id):
     ''' '''
     course_number = get_course_number(course_number_id)
-    course_number.delete()
-    return course_number if course_number else False
+    try:
+        course_number.delete()
+        return { 'status': True, 'course_number': course_number }
+    except IntegrityError as e:
+        return { 'status': False, 'error': e}
 
 
 # Course codes
@@ -626,9 +636,11 @@ def get_course_section_by_name(name):
 def delete_course_section(course_section_id):
     ''' '''
     course_section =get_course_section(course_section_id)
-    course_section.delete()
-    return course_section if course_section else False
-
+    try:
+        course_section.delete()
+        return { 'status': True, 'course_section': course_section }
+    except IntegrityError as e:
+        return { 'status': False, 'error': e}
 
 
 # classifications
