@@ -195,7 +195,7 @@ main {
 .custom-table,
 .custom-table th,
 .custom-table td {
-  border: 1px solid #bbb;
+  border-bottom: 1px solid #ccc;
 }
 
 .custom-table th,
@@ -226,17 +226,34 @@ main {
   padding: 1rem 1.5rem;
 }
 
-.modal-item > div {
+.modal-item > div,
+.modal-item .job-desc > div {
   margin-bottom: 1.5rem;
 }
 
-.modal-item > div > h6 {
+.modal-item > div > h6,
+.modal-item .job-desc > div > h6 {
   font-weight: 600;
+}
+
+.modal-item .job-desc > div > h6 {
+  color: #009688;
 }
 
 .modal-item > div > span {
   color: #6c757d;
   font-size: 1rem;
+}
+
+.modal-item .job-desc {
+  background-color: #e6e6e6;
+  padding: 1rem 1.3rem;
+  border: 1px solid #6c757d;
+  border-radius: 4px;
+}
+
+.modal-item .job-desc > div > span {
+  font-size: 0.85rem;
 }
 
 
@@ -271,6 +288,25 @@ main {
 .board > div > ul {
   color: #6c757d;
   font-size: 1rem;
+}
+
+.board .job-desc {
+  background-color: #fff;
+  padding: 1rem 1.3rem;
+  border: 1px solid #6c757d;
+  border-radius: 4px;
+}
+
+.board .job-desc > div {
+  margin-bottom: 1.5rem;
+}
+
+.board .job-desc > div > h6 {
+  color: #009688;
+}
+
+.board .job-desc > div > span {
+  font-size: 0.85rem;
 }
 
 .bg-white {
