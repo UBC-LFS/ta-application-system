@@ -88,13 +88,13 @@ class CourseForm(forms.ModelForm):
     ''' Create a model form for a course '''
     class Meta:
         model = Course
-        fields = ['code', 'number','section', 'name', 'term', 'overview', 'job_description', 'job_note']
+        fields = ['term', 'code', 'number', 'section', 'name', 'overview', 'job_description', 'job_note']
         widgets = {
+            'term': forms.Select(attrs={ 'class': 'form-control' }),
             'code': forms.Select(attrs={ 'class': 'form-control' }),
             'number': forms.Select(attrs={ 'class': 'form-control' }),
             'section': forms.Select(attrs={ 'class': 'form-control' }),
             'name': forms.TextInput(attrs={ 'class': 'form-control' }),
-            'term': forms.Select(attrs={ 'class': 'form-control' }),
             'overview': SummernoteWidget(),
             'job_description': SummernoteWidget(),
             'job_note': SummernoteWidget()
@@ -104,17 +104,44 @@ class CourseForm(forms.ModelForm):
             'job_note': 'Job Note'
         }
         help_texts = {
+            'term': 'This field is required.',
             'code': 'This field is required.',
             'number': 'This field is required.',
             'section': 'This field is required.',
             'name': 'This field is required. Maximum 256 characters allowed.',
-            'term': 'This field is required.',
             'overview': 'This field is optional.',
             'job_description': 'This field is optional.',
             'job_note': 'This field is optional.'
         }
 
-    field_order = ['code', 'number','section', 'name', 'term', 'overview', 'job_description', 'job_note']
+    field_order = ['term', 'code', 'number','section', 'name', 'overview', 'job_description', 'job_note']
+
+
+class CourseEditForm(forms.ModelForm):
+    ''' Create a model form for a course '''
+    class Meta:
+        model = Course
+        fields = ['name', 'overview', 'job_description', 'job_note']
+        widgets = {
+            'name': forms.TextInput(attrs={ 'class': 'form-control' }),
+            'overview': SummernoteWidget(),
+            'job_description': SummernoteWidget(),
+            'job_note': SummernoteWidget()
+        }
+        labels = {
+            'job_description': 'Job Description',
+            'job_note': 'Job Note'
+        }
+        help_texts = {
+            'name': 'This field is required. Maximum 256 characters allowed.',
+            'overview': 'This field is optional.',
+            'job_description': 'This field is optional.',
+            'job_note': 'This field is optional.'
+        }
+
+    field_order = ['name', 'overview', 'job_description', 'job_note']
+
+
 
 
 class SessionForm(forms.ModelForm):
