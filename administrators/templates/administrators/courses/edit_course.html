@@ -24,6 +24,30 @@
       <form action="" method="post">
         {% csrf_token %}
 
+        <div class="field-wrapper">
+          <label for="id_term">Term:</label>
+          <div class="help">This field is required.</div>
+          <input id="id_term" type="text" value="{{ course.term.code }}" class="form-control" disabled />
+        </div>
+
+        <div class="field-wrapper">
+          <label for="id_code">Code:</label>
+          <div class="help">This field is required.</div>
+          <input id="id_code" type="text" value="{{ course.code.name }}" class="form-control" disabled />
+        </div>
+
+        <div class="field-wrapper">
+          <label for="id_number">Number:</label>
+          <div class="help">This field is required.</div>
+          <input id="id_number" type="text" value="{{ course.number.name }}" class="form-control" disabled />
+        </div>
+
+        <div class="field-wrapper">
+          <label for="id_section">Section:</label>
+          <div class="help">This field is required.</div>
+          <input id="id_section" type="text" value="{{ course.section.name }}" class="form-control" disabled />
+        </div>
+
         {% for field in form.visible_fields  %}
           <div class="field-wrapper">
             {{ field.label_tag }}

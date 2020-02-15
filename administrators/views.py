@@ -1668,6 +1668,10 @@ def all_courses(request):
     request.user.roles = request.session['loggedin_user']['roles']
     if not userApi.is_admin(request.user): raise PermissionDenied
 
+    """if request.method == 'POST':
+        Course.objects.all().delete()
+        return redirect('administrators:all_courses')"""
+
     term_q = request.GET.get('term')
     code_q = request.GET.get('code')
     number_q = request.GET.get('number')
@@ -1742,7 +1746,7 @@ def edit_course(request, course_slug):
 
     course = adminApi.get_course(course_slug, 'slug')
     if request.method == 'POST':
-        form = CourseForm(request.POST, instance=course)
+        form = CourseEditForm(request.POST, instance=course)
         if form.is_valid():
             updated_course = form.save()
             if updated_course:
@@ -1759,7 +1763,7 @@ def edit_course(request, course_slug):
     return render(request, 'administrators/courses/edit_course.html', {
         'loggedin_user': request.user,
         'course': course,
-        'form': CourseForm(data=None, instance=course)
+        'form': CourseEditForm(data=None, instance=course)
     })
 
 @login_required(login_url=settings.LOGIN_URL)
