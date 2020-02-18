@@ -59,7 +59,7 @@ $ python
 long binary string shows up (i.e., b'23fva4-09234ndsfas=sdf0-8973u2rel=')
 
 # You can save only the string part for ENCRYPT_SALT and ENCRYPT_PASSWORD into your system environment variables
-So, os.environ['TA_APP_ENCRYPT_SALT'] would be 23fva4-09234ndsfas=sdf0-8973u2rel=
+So, os.environ['TA_APP_ENCRYPT_SALT'] would be **23fva4-09234ndsfas=sdf0-8973u2rel=**
 ```
 
 > Reference: [cryptography](https://github.com/pyca/cryptography)

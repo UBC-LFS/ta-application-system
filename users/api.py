@@ -375,7 +375,7 @@ def delete_personal_data_form(data):
     if has_user_confidentiality_created(user) and bool(user.confidentiality.personal_data_form):
         user.confidentiality.personal_data_form.delete(save=False)
         deleted = Confidentiality.objects.filter(user_id=user.id).update(personal_data_form=None)
-        print('delete_personal_data_form', deleted)
+        
         if deleted and not bool(user.confidentiality.personal_data_form):
             os.rmdir( os.path.join( settings.MEDIA_ROOT, 'users', user.username, 'personal_data_form' ) )
             return True
