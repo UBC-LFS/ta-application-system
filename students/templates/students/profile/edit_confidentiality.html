@@ -61,6 +61,7 @@
 
           <div class="mb-4">
             {% if loggedin_user.confidentiality.sin %}
+
               <span>
                 <i class="fa fa-file-text-o" aria-hidden="true"></i>
                 SIN:
@@ -81,7 +82,9 @@
                 <input type="hidden" name="user" value="{{ loggedin_user.username }}" />
                 <input class="btn btn-danger btn-xs mt-1" type="submit" value="Delete SIN" />
               </form>
+
             {% else %}
+
               <span>
                 <i class="fa fa-file-text-o" aria-hidden="true"></i>
                 SIN:
@@ -93,6 +96,7 @@
           {% if loggedin_user.confidentiality.nationality == '1' %}
             <div class="mb-4">
               {% if loggedin_user.confidentiality.study_permit %}
+
                 <span>
                   <i class="fa fa-file-text-o" aria-hidden="true"></i>
                   Study Permit:
@@ -111,23 +115,28 @@
                   <input type="hidden" name="user" value="{{ loggedin_user.username }}" />
                   <input class="btn btn-danger btn-xs mt-1" type="submit" value="Delete Study Permit" />
                 </form>
+
               {% else %}
+
                 <span>
                   <i class="fa fa-file-text-o" aria-hidden="true"></i>
                   Study Permit:
                   <span class="text-secondary">None</span>
                 </span>
+
               {% endif %}
             </div>
           {% endif %}
 
           <div>
             {% if loggedin_user.confidentiality.personal_data_form %}
+
               <span>
                 <i class="fa fa-file-text-o" aria-hidden="true"></i>
                 Personal Data Form:
                 <span class="text-secondary">{{ personal_data_form_file }}</span>
               </span>
+
               <form action="{% url 'students:delete_personal_data_form' %}" method="post" onsubmit="return confirm('Are you sure to delete this Personal Data Form file?')">
                 {% csrf_token %}
 

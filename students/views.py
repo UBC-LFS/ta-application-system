@@ -355,7 +355,7 @@ def edit_confidentiality(request):
                 update_fields.append('study_permit_expiry_date')
 
             if request.FILES.get('personal_data_form') is not None:
-                updated_confidentiality.study_permit = request.FILES.get('personal_data_form')
+                updated_confidentiality.personal_data_form = request.FILES.get('personal_data_form')
                 update_fields.append('personal_data_form')
 
             updated_confidentiality.save(update_fields=update_fields)
