@@ -376,10 +376,10 @@ class AdminDocumentsForm(forms.ModelForm):
             'processing_note': forms.Textarea(attrs={ 'class':'form-control', 'rows': 2 })
         }
         help_texts = {
-            'pin': 'This field is optional. Maximum 4 digits long.',
+            'pin': 'This field is optional. Maximum length is 4.',
             'tasm': 'This field is optional.',
-            'eform': 'This field is optional. Maximum 6 digits long.',
-            'speed_chart': 'This field is optional. Maximum 4 digits long',
+            'eform': 'This field is optional. Maximum length is 6.',
+            'speed_chart': 'This field is optional. Maximum length is 4.',
             'processing_note': 'This field is optional.'
         }
 

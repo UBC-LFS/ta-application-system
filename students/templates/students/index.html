@@ -14,7 +14,7 @@
           Recent Applied Jobs ({{ recent_apps|length }})
         </h6>
         <div class="card-body">
-          <ul class="line-height-2">
+          <ul>
             {% for app in recent_apps %}
               <li>
                 <span
@@ -23,8 +23,8 @@
                   {% endif %}
                 >
                   {{ app.job.session.year }} {{ app.job.session.term.code }} - {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}
-                </span>
-                <small class="text-muted">({{ app.created_at }})</small>
+                </span><br />
+                <small class="text-muted">applied at {{ app.created_at }}</small>
               </li>
             {% empty %}
               <li>No applied jobs found</li>
