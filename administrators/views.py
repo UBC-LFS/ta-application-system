@@ -1668,10 +1668,6 @@ def all_courses(request):
     request.user.roles = request.session['loggedin_user']['roles']
     if not userApi.is_admin(request.user): raise PermissionDenied
 
-    """if request.method == 'POST':
-        Course.objects.all().delete()
-        return redirect('administrators:all_courses')"""
-
     term_q = request.GET.get('term')
     code_q = request.GET.get('code')
     number_q = request.GET.get('number')
