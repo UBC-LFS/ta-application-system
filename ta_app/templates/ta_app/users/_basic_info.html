@@ -1,6 +1,12 @@
 <div>
   <h6>CWL:</h6>
-  <span>{{ data.username }}</span>
+  <span>
+    {% if data.username %}
+      {{ data.username }}
+    {% else %}
+      None
+    {% endif %}
+  </span>
 </div>
 
 {% if student_number_display == 'True' %}
@@ -18,15 +24,33 @@
 
 <div>
   <h6>E-mail:</h6>
-  <span>{{ data.email }}</span>
+  <span>
+    {% if data.email %}
+      {{ data.email }}
+    {% else %}
+      None
+    {% endif %}
+  </span>
 </div>
 
 <div>
   <h6>Date Joined:</h6>
-  <span>{{ data.date_joined }}</span>
+  <span>
+    {% if data.date_joined %}
+      {{ data.date_joined }}
+    {% else %}
+      None
+    {% endif %}
+  </span>
 </div>
 
 <div>
   <h6>Last Login:</h6>
-  <span>{{ data.last_login }}</span>
+  <span>
+    {% if data.last_login %}
+      {{ data.last_login }}
+    {% else %}
+      None
+    {% endif %}
+  </span>
 </div>

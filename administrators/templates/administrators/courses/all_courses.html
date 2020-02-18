@@ -15,13 +15,6 @@
 
   {% include 'administrators/courses/_search_fields.html' with data=courses total=total_courses %}
 
-  {% comment %}
-  <form action="" method="post">
-    {% csrf_token %}
-    <input type="submit"  value="Delete All" />
-  </form>
-  {% endcomment %}
-
   <table
     class="table table-bordered table-hover table-striped table-responsive-md text-center"
     data-toggle="table"

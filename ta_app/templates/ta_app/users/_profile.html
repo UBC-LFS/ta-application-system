@@ -1,16 +1,34 @@
 <div>
   <h6>Preferred Name:</h6>
-  <span>{{ data.profile.preferred_name }}</span>
+  <span>
+    {% if data.profile.preferred_name %}
+      {{ data.profile.preferred_name }}
+    {% else %}
+      None
+    {% endif %}
+  </span>
 </div>
 
 <div>
   <h6>Status:</h6>
-  <span>{{ data.profile.status }}</span>
+  <span>
+    {% if data.profile.status %}
+      {{ data.profile.status }}
+    {% else %}
+      None
+    {% endif %}
+  </span>
 </div>
 
 <div>
   <h6>Current Program:</h6>
-  <span>{{ data.profile.program }}</span>
+  <span>
+    {% if data.profile.program %}
+      {{ data.profile.program }}
+    {% else %}
+      None
+    {% endif %}
+  </span>
 </div>
 
 <div>
@@ -26,7 +44,13 @@
 
 <div>
   <h6>Anticipated Graduation:</h6>
-  <span>{{ data.profile.graduation_date }}</span>
+  <span>
+    {% if data.profile.graduation_date %}
+      {{ data.profile.graduation_date }}
+    {% else %}
+      None
+    {% endif %}
+  </span>
 </div>
 
 <div>
@@ -42,7 +66,13 @@
 
 <div>
   <h6>Degree Details:</h6>
-  <span>{{ data.profile.degree_details }}</span>
+  <span>
+    {% if data.profile.degree_details %}
+      {{ data.profile.degree_details }}
+    {% else %}
+      None
+    {% endif %}
+  </span>
 </div>
 
 <div>
@@ -58,42 +88,90 @@
 
 <div>
   <h6>Training Details:</h6>
-  <span>{{ data.profile.training_details }}</span>
+  <span>
+    {% if data.profile.training_details %}
+      {{ data.profile.training_details }}
+    {% else %}
+      None
+    {% endif %}
+  </span>
 </div>
 
 <div>
   <h6>LFS TA Training:</h6>
-  <span>{{ data.profile.get_lfs_ta_training_display }}</span>
+  <span>
+    {% if data.profile.get_lfs_ta_training_display %}
+      {{ data.profile.get_lfs_ta_training_display }}
+    {% else %}
+      None
+    {% endif %}
+  </span>
 </div>
 
 <div>
   <h6>LFS TA Training Details:</h6>
-  <span>{{ data.profile.lfs_ta_training_details }}</span>
+  <span>
+    {% if data.profile.lfs_ta_training_details %}
+      {{ data.profile.lfs_ta_training_details }}
+    {% else %}
+      None
+    {% endif %}
+  </span>
 </div>
 
 <div>
   <h6>Previous TA Experience:</h6>
-  <span>{{ data.profile.get_ta_experience_display }}</span>
+  <span>
+    {% if data.profile.get_ta_experience_display %}
+      {{ data.profile.get_ta_experience_display }}
+    {% else %}
+      None
+    {% endif %}
+  </span>
 </div>
 
 <div>
   <h6>Previous TA Experience Details:</h6>
-  <span>{{ data.profile.ta_experience_details }}</span>
+  <span>
+    {% if data.profile.ta_experience_details %}
+      {{ data.profile.ta_experience_details }}
+    {% else %}
+      None
+    {% endif %}
+  </span>
 </div>
 
 <div>
   <h6>Explanation of Qualifications:</h6>
-  <span>{{ data.profile.qualifications }}</span>
+  <span>
+    {% if data.profile.qualifications %}
+      {{ data.profile.qualifications }}
+    {% else %}
+      None
+    {% endif %}
+  </span>
 </div>
 
 <div>
   <h6>Information on Prior Employment:</h6>
-  <span>{{ data.profile.prior_employment }}</span>
+  <span>
+    {% if data.profile.prior_employment %}
+      {{ data.profile.prior_employment }}
+    {% else %}
+      None
+    {% endif %}
+  </span>
 </div>
 
 <div>
   <h6>Special Considerations:</h6>
-  <span>{{ data.profile.special_considerations }}</span>
+  <span>
+    {% if data.profile.special_considerations %}
+      {{ data.profile.special_considerations }}
+    {% else %}
+      None
+    {% endif %}
+  </span>
 </div>
 
 <div>
