@@ -56,7 +56,17 @@
                 <td>{{ app.job.session.term.code }}</td>
                 <td>{{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</td>
                 <td>{{ app.classification.name }}</td>
-                <td>{{ app.offered.assigned_hours }}</td>
+                <td>
+                  {% if path == 'offered' %}
+                    {{ app.offered.assigned_hours }}
+                  {% elif path == 'declined' %}
+                    {{ app.declined.assigned_hours }}
+                  {% elif path == 'terminated' %}
+                    {{ app.accepted.assigned_hours }}
+                  {% else %}
+                    Oops! Something went wrong
+                  {% endif %}
+                </td>
                 <td>
                   {{ app.applicant.get_full_name }}<br />
                   <small class="text-muted">{{ app.applicant.email }}</small>
