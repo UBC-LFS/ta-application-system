@@ -446,13 +446,20 @@ def get_applications_with_status_by_session_slug_job_slug(session_slug, job_slug
     return apps
 
 
-def get_offered_applications_with_multiple_ids(ids):
+def get_applications_with_multiple_ids_by_path(ids, path):
     ''' Get offered applications with multiple ids'''
     apps = get_applications_with_multiple_ids(ids)
     for app in apps:
-        offered = app.applicationstatus_set.filter(assigned=ApplicationStatus.OFFERED)
-        if offered.exists():
-            app.offered = offered.last()
+        if path == 'offered':
+            offered = app.applicationstatus_set.filter(assigned=ApplicationStatus.OFFERED)
+            if offered.exists(): app.offered = offered.last()
+        elif path == 'declined':
+            declined = app.applicationstatus_set.filter(assigned=ApplicationStatus.DECLINED)
+            if declined.exists(): app.declined = declined.last()
+        elif path == 'terminated':
+            accepted = app.applicationstatus_set.filter(assigned=ApplicationStatus.ACCEPTED)
+            if accepted.exists(): app.accepted = accepted.last()
+
     return apps
 
 def update_application_classification_note(app_id, data):

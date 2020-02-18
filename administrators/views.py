@@ -1329,7 +1329,7 @@ def applications_send_email_confirmation(request, path):
     form_data = request.session.get('applications_form_data')
     if form_data:
         app_ids = form_data['applications']
-        applications = adminApi.get_offered_applications_with_multiple_ids(app_ids)
+        applications = adminApi.get_applications_with_multiple_ids_by_path(app_ids, path)
         receiver_list = [ app.applicant.email for app in applications ]
 
         if request.method == 'POST':
@@ -1339,12 +1339,20 @@ def applications_send_email_confirmation(request, path):
 
                 count = 0
                 for app in applications:
+                    assigned_hours = None
+                    if path == 'offered':
+                        assigned_hours = app.offered.assigned_hours
+                    elif path == 'declined':
+                        assigned_hours = app.declined.assigned_hours
+                    elif path == 'terminated':
+                        assigned_hours = app.accepted.assigned_hours
+
                     name = app.applicant.first_name + ' ' + app.applicant.last_name
                     message = data['message'].format(
                         name,
                         app.job.session.year + ' ' + app.job.session.term.code,
                         app.job.course.code.name + ' ' + app.job.course.number.name + ' ' + app.job.course.section.name,
-                        app.offered.assigned_hours,
+                        assigned_hours,
                         app.classification.name
                     )
 
@@ -1380,7 +1388,7 @@ def applications_send_email_confirmation(request, path):
                 'message': message,
                 'type': admin_email.type
             })
-
+    print(path)
     return render(request, 'administrators/applications/applications_send_email_confirmation.html', {
         'loggedin_user': request.user,
         'applications': applications,
