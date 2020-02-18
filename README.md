@@ -2,6 +2,11 @@
 
 This project is a web-based TA hiring process system.
 
+### Features
+- Used 6 different badges to display the status of job applications: Applied, Selected, Accepted, Offered, Declined and Terminated
+- Enable Masquerade mode
+- Email sending services
+
 ### Install prerequisites for Alpine
 ```
 RUN apk update && apk add build-base libressl-dev postgresql-dev libffi-dev gcc python3-dev musl-dev libxml2-dev libxslt-dev xmlsec-dev jpeg-dev
