@@ -290,12 +290,12 @@ def add_confidentiality_given_list(user, array):
 
     if has_user_confidentiality_created(user):
         if bool(user.confidentiality.sin) and 'sin' in array:
-            user.sin_decrypt_image = decrypt_image(user.username, user.confidentiality.sin, 'sin')
+            user.sin_decrypt_image = decrypt_image(user.confidentiality.sin)
         else:
             user.sin_decrypt_image = None
 
         if bool(user.confidentiality.study_permit) and 'study_permit' in array:
-            user.study_permit_decrypt_image = decrypt_image(user.username, user.confidentiality.study_permit, 'study_permit')
+            user.study_permit_decrypt_image = decrypt_image(user.confidentiality.study_permit)
         else:
             user.study_permit_decrypt_image = None
 
@@ -375,7 +375,7 @@ def delete_personal_data_form(data):
     if has_user_confidentiality_created(user) and bool(user.confidentiality.personal_data_form):
         user.confidentiality.personal_data_form.delete(save=False)
         deleted = Confidentiality.objects.filter(user_id=user.id).update(personal_data_form=None)
-        
+
         if deleted and not bool(user.confidentiality.personal_data_form):
             os.rmdir( os.path.join( settings.MEDIA_ROOT, 'users', user.username, 'personal_data_form' ) )
             return True

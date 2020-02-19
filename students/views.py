@@ -31,7 +31,9 @@ def index(request):
     else:
         request.user.roles = request.session['loggedin_user']['roles']
     if 'Student' not in request.user.roles: raise PermissionDenied
-
+    # TODO:
+    # change: get_total_assigned_hours
+    # when terminated
     apps = request.user.application_set.all()
     return render(request, 'students/index.html', {
         'loggedin_user': request.user,
@@ -462,27 +464,6 @@ def delete_personal_data_form(request):
             messages.error(request, 'An error occurred while deleting a Personal Data Form file. Please try again.')
 
     return redirect('students:edit_confidentiality')
-
-
-#@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
-def download_sin(request, username, filename):
-    ''' Download a SIN '''
-    #if not userApi.is_valid_user(request.user): raise PermissionDenied
-    path = 'users/{0}/sin/{1}/'.format(username, filename)
-    return serve(request, path, document_root=settings.MEDIA_ROOT)
-
-
-#@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
-def download_study_permit(request, username, filename):
-    ''' Download a Study Permit '''
-    #if not userApi.is_valid_user(request.user): raise PermissionDenied
-    path = 'users/{0}/study_permit/{1}/'.format(username, filename)
-    return serve(request, path, document_root=settings.MEDIA_ROOT)
-
 
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -989,3 +970,29 @@ def show_application(request, app_slug):
         'loggedin_user': request.user,
         'app': adminApi.get_application(app_slug, 'slug')
     })
+
+
+
+
+
+
+"""
+#@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def download_sin(request, username, filename):
+    ''' Download a SIN '''
+    #if not userApi.is_valid_user(request.user): raise PermissionDenied
+    path = 'users/{0}/sin/{1}/'.format(username, filename)
+    return serve(request, path, document_root=settings.MEDIA_ROOT)
+
+
+#@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def download_study_permit(request, username, filename):
+    ''' Download a Study Permit '''
+    #if not userApi.is_valid_user(request.user): raise PermissionDenied
+    path = 'users/{0}/study_permit/{1}/'.format(username, filename)
+    return serve(request, path, document_root=settings.MEDIA_ROOT)
+"""
