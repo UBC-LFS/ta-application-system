@@ -1388,7 +1388,7 @@ def applications_send_email_confirmation(request, path):
                 'message': message,
                 'type': admin_email.type
             })
-    print(path)
+    
     return render(request, 'administrators/applications/applications_send_email_confirmation.html', {
         'loggedin_user': request.user,
         'applications': applications,

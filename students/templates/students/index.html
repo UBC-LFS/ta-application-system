@@ -24,7 +24,7 @@
                 >
                   {{ app.job.session.year }} {{ app.job.session.term.code }} - {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}
                 </span><br />
-                <small class="text-muted">applied at {{ app.created_at }}</small>
+                <small class="text-muted">Created at {{ app.created_at }}</small>
               </li>
             {% empty %}
               <li>No applied jobs found</li>

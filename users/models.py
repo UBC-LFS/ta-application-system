@@ -11,7 +11,6 @@ from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.core.files.base import ContentFile
 import sys
 import base64
-import requests
 from io import BytesIO
 from PIL import Image as PILImage
 from cryptography.fernet import Fernet
@@ -326,34 +325,31 @@ def encrypt_image(obj):
     encrypted = fernet.encrypt(output.read())
     content = ContentFile(encrypted)
 
-    #img.close()
-    #content.close()
-    #output.close()
+    img.close()
+    content.close()
+    output.close()
 
     return InMemoryUploadedFile(content,'ImageField', '{0}.jpg'.format(file_name), 'image/jpeg', sys.getsizeof(content), None)
 
-def decrypt_image(username, obj, type):
-    filename = os.path.basename(obj.file.name)
-    path = settings.TA_APP_URL + '/students/confidential_information/' + username + '/download/' + type + '/' + filename + '/'
-    content = requests.get(path, stream=True).raw.read()
-    #path = None
-
+def decrypt_image(obj):
     fernet = encrypt_algorithm()
+
+    content = None
+    with obj.open() as f:
+        content = f.read()
+
     decrypted = fernet.decrypt(content)
     url = 'data:image/jpg;base64,' + base64.b64encode(decrypted).decode('utf-8')
 
     imageStream = BytesIO(decrypted)
     img = PILImage.open(imageStream)
-    #imageStream.seek(0)
-    #imageStream.close()
-
     width, height = img.size
 
-    #img.seek(0)
-    #img.close()
-
+    imageStream.close()
+    img.close()
+    
     return {
-        'filename': filename,
+        'filename': os.path.basename(obj.file.name),
         'url': url,
         'width': width,
         'height': height
