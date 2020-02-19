@@ -31,9 +31,7 @@ def index(request):
     else:
         request.user.roles = request.session['loggedin_user']['roles']
     if 'Student' not in request.user.roles: raise PermissionDenied
-    # TODO:
-    # change: get_total_assigned_hours
-    # when terminated
+    
     apps = request.user.application_set.all()
     return render(request, 'students/index.html', {
         'loggedin_user': request.user,
