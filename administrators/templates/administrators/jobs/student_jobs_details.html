@@ -221,6 +221,9 @@
                 {% include 'ta_app/applications/_modal_app_details.html' with data=app display='id' pin_display='True' %}
               </td>
               <td>
+                {% if app.is_declined_reassigned %}
+                  <span class="badge badge-success">RE</span>
+                {% endif %}
                 {% include 'ta_app/applications/_app_status.html' with data=app.applicationstatus_set.last.get_assigned_display %}
                 {% include 'ta_app/applications/_modal_app_status.html' with data=app %}<br />
                 <small class="text-muted">{{ app.applicationstatus_set.last.created_at }}</small>
@@ -232,6 +235,8 @@
         </tbody>
       </table>
     </div>
+
+    {% include 'ta_app/pages/_note_reassigned_offer.html' %}
 
   {% endif %}
 
