@@ -339,13 +339,14 @@ def get_total_assigned_hours(apps, list):
                     total_hours['offered'][year_term] = offered.last().assigned_hours
 
         if 'accepted' in list:
-            accepted = app.applicationstatus_set.filter(assigned=ApplicationStatus.ACCEPTED)
-            if accepted.exists():
-                year_term = '{0}-{1}'.format(app.job.session.year, app.job.session.term.code)
-                if year_term in total_hours['accepted'].keys():
-                    total_hours['accepted'][year_term] += accepted.last().assigned_hours
-                else:
-                    total_hours['accepted'][year_term] = accepted.last().assigned_hours
+            if app.is_terminated == False:
+                accepted = app.applicationstatus_set.filter(assigned=ApplicationStatus.ACCEPTED)
+                if accepted.exists():
+                    year_term = '{0}-{1}'.format(app.job.session.year, app.job.session.term.code)
+                    if year_term in total_hours['accepted'].keys():
+                        total_hours['accepted'][year_term] += accepted.last().assigned_hours
+                    else:
+                        total_hours['accepted'][year_term] = accepted.last().assigned_hours
 
     return total_hours
 
