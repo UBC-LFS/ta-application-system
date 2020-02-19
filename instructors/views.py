@@ -244,6 +244,7 @@ def show_applications(request, session_slug, job_slug):
 
         return HttpResponseRedirect( reverse('instructors:show_applications', args=[session_slug, job_slug]) )
 
+    
     return render(request, 'instructors/jobs/show_applications.html', {
         'loggedin_user': request.user,
         'job': job,

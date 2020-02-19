@@ -85,6 +85,9 @@
           <td>{{ app.applicant.get_full_name }}</td>
           <td>{{ app.applicant.username }}</td>
           <td>
+            {% if app.is_declined_reassigned %}
+              <span class="badge badge-success">RE</span>
+            {% endif %}
             {% include 'ta_app/applications/_app_status.html' with data=app.applicationstatus_set.last.get_assigned_display %}
             {% include 'ta_app/applications/_modal_app_status.html' with data=app %}<br />
             <small class="text-muted">{{ app.applicationstatus_set.last.created_at }}</small>
@@ -98,6 +101,9 @@
       {% endfor %}
     </tbody>
   </table>
+
+  {% include 'ta_app/pages/_note_reassigned_offer.html' %}
+  
 </div>
 
 {% endblock %}

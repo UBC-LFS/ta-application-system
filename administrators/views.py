@@ -1163,12 +1163,9 @@ def decline_reassign_confirmation(request):
             reaasigned_app.updated_at = datetime.now()
             reaasigned_app.save()
 
-            updated_ta_hours = adminApi.update_job_accumulated_ta_hours(app.job.session.slug, app.job.course.slug, float(new_assigned_hours) - float(old_assigned_hours))
-
             errors = []
             if not app_status: errors.append('An error occurred while saving a declined status.')
             if not reaasigned_app: errors.append('An error occurred. Failed to update a note in the application.')
-            if not updated_ta_hours: errors.append('An error occurred. Failed to update ta hours in a job.')
 
             if len(errors) > 0:
                 messages.error(request, 'An error occurred while sending a job offer. {0}'.format( ' '.join(errors) ))
@@ -1388,7 +1385,7 @@ def applications_send_email_confirmation(request, path):
                 'message': message,
                 'type': admin_email.type
             })
-    
+
     return render(request, 'administrators/applications/applications_send_email_confirmation.html', {
         'loggedin_user': request.user,
         'applications': applications,
