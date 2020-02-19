@@ -212,9 +212,11 @@ def update_job_instructors(job, old_instructors, new_instructors):
 def update_job_accumulated_ta_hours(session_slug, job_slug, ta_hours):
     ''' Update ta hours in a job '''
     job = get_job_by_session_slug_job_slug(session_slug, job_slug)
-    new_hours = job.accumulated_ta_hours + float(ta_hours)
+
+    new_hours = job.accumulated_ta_hours + ta_hours
     job.accumulated_ta_hours = new_hours
     job.updated_at = datetime.now()
+
     saved = job.save(update_fields=['accumulated_ta_hours', 'updated_at'])
     return True if job else False
 

@@ -65,6 +65,10 @@
 
             {% elif app.accepted %}
 
+              {% if app.is_declined_reassigned %}
+                <span class="badge badge-success">RE</span>
+              {% endif %}
+
               {% include 'ta_app/applications/_app_status.html' with data=app.accepted.get_assigned_display %}<br />
               <small class="text-muted">{{ app.accepted.created_at }}</small>
               <div>
@@ -105,6 +109,8 @@
   </table>
 
   {% include 'ta_app/pages/_table_paginator.html' with data=apps %}
+
+  {% include 'ta_app/pages/_note_reassigned_offer.html' %}
 
 </div>
 
