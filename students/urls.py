@@ -19,8 +19,6 @@ urlpatterns = [
     path('confidential_information/study_permit/delete/', views.delete_study_permit, name='delete_study_permit'),
     path('confidential_information/personal_data_form/delete/', views.delete_personal_data_form, name='delete_personal_data_form'),
     path('confidential_information/', views.show_confidentiality, name='show_confidentiality'),
-    #path('confidential_information/<str:username>/download/sin/<str:filename>/', views.download_sin, name='download_sin'),
-    #path('confidential_information/<str:username>/download/study_permit/<str:filename>/', views.download_study_permit, name='download_study_permit'),
     path('confidential_information/<str:username>/download/personal_data_form/<str:filename>/', views.download_personal_data_form, name='download_personal_data_form'),
 
     path('jobs/explore/', views.explore_jobs, name='explore_jobs'),
@@ -37,4 +35,7 @@ urlpatterns = [
 
     path('applications/<str:app_slug>/re-accept/', views.reaccept_application, name='reaccept_application'),
     path('applications/<str:app_slug>/', views.show_application, name='show_application')
+
+    #path('confidential_information/<str:username>/download/sin/<str:filename>/', views.download_sin, name='download_sin'),
+    #path('confidential_information/<str:username>/download/study_permit/<str:filename>/', views.download_study_permit, name='download_study_permit'),
 ]
