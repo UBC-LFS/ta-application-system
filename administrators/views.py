@@ -1554,6 +1554,7 @@ def edit_user(request, username):
 
     if request.method == 'POST':
         user_id = request.POST.get('user')
+        employee_number = request.POST.get('employee_number')
         profile_roles = user.profile.roles.all()
 
         user_form = UserForm(request.POST, instance=user)
@@ -1567,15 +1568,16 @@ def edit_user(request, username):
             updated_profile.updated_at = datetime.now()
             updated_profile.save()
 
-            updated_confidentiality = employee_number_form.save(commit=False)
-            updated_confidentiality.updated_at = datetime.now()
-            updated_confidentiality.save()
+            updated_employee_number = employee_number_form.save(commit=False)
+            updated_employee_number.updated_at = datetime.now()
+            updated_employee_number.employee_number = employee_number_form.cleaned_data['employee_number']
+            updated_employee_number.save(update_fields=['employee_number'])
 
             errors = []
 
             if not updated_user: errors.append('An error occurred while updating an user form.')
             if not updated_profile: errors.append('An error occurred while updating a profile.')
-            if not updated_confidentiality: errors.append('An error occurred while updating an employee number.')
+            if not updated_employee_number: errors.append('An error occurred while updating an employee number.')
 
             updated = userApi.update_user_profile_roles(updated_profile, profile_roles, user_profile_edit_form.cleaned_data)
             if not updated: errors.append(request, 'An error occurred while updating profile roles.')
