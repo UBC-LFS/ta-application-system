@@ -207,11 +207,13 @@
                         <div class="field-wrapper">
                           <label for="id_note_{{ app.id }}">Note:</label>
                           <div class="help">Administrators and instructors can see this note.</div>
-                          <textarea id="id_note_{{ app.id }}" name="note" rows="2" cols="40" class="form-control">{% if app.note %} {{ app.note }} {% endif %}</textarea>
+                          <textarea id="id_note_{{ app.id }}" name="note" rows="5" class="form-control">{% if app.note %} {{ app.note|safe }} {% endif %}</textarea>
                         </div>
 
                         <div class="field-wrapper">
-                          <label for="id_assigned_hours_{{ app.id }}">Assigned Hours:</label>
+                          <label for="id_assigned_hours_{{ app.id }}">Assigned Hours by Instructor:</label>
+                          <div class="help">Only numerical value allowed.</div>
+
                           {% if app.offered %}
                             <input id="id_assigned_hours_{{ app.id }}" type="number" step="0.01" name="assigned_hours" value="{{ app.offered.assigned_hours }}" class="form-control" />
                           {% else %}
