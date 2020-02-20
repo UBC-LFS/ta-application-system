@@ -155,14 +155,14 @@ class StudentProfileForm(forms.ModelForm):
             'trainings', 'training_details', 'lfs_ta_training', 'lfs_ta_training_details', 'ta_experience', 'ta_experience_details'
         ]
         widgets = {
-            'program_others': forms.Textarea(attrs={ 'rows':2, 'class':'form-control' }),
-            'degree_details': forms.Textarea(attrs={ 'rows':2, 'class':'form-control' }),
-            'training_details': forms.Textarea(attrs={ 'rows':2, 'class':'form-control' }),
-            'lfs_ta_training_details': forms.Textarea(attrs={ 'rows':2, 'class':'form-control' }),
-            'qualifications': forms.Textarea(attrs={ 'rows':2, 'class':'form-control' }),
-            'prior_employment': forms.Textarea(attrs={ 'rows':2, 'class':'form-control' }),
-            'special_considerations': forms.Textarea(attrs={ 'rows':2, 'class':'form-control' }),
-            'ta_experience_details': forms.Textarea(attrs={ 'rows':2, 'class':'form-control' })
+            'program_others': forms.Textarea(attrs={ 'rows':5, 'class':'form-control' }),
+            'degree_details': forms.Textarea(attrs={ 'rows':5, 'class':'form-control' }),
+            'training_details': forms.Textarea(attrs={ 'rows':5, 'class':'form-control' }),
+            'lfs_ta_training_details': forms.Textarea(attrs={ 'rows':5, 'class':'form-control' }),
+            'qualifications': forms.Textarea(attrs={ 'rows':5, 'class':'form-control' }),
+            'prior_employment': forms.Textarea(attrs={ 'rows':5, 'class':'form-control' }),
+            'special_considerations': forms.Textarea(attrs={ 'rows':5, 'class':'form-control' }),
+            'ta_experience_details': forms.Textarea(attrs={ 'rows':5, 'class':'form-control' })
         }
         labels = {
             'program': 'Current Program',
