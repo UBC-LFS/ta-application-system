@@ -826,7 +826,7 @@ def offer_job(request, session_slug, job_slug):
 
         job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
         if assigned_hours > float(job.assigned_ta_hours):
-            messages.error(request, 'An error occurred. Please you cannot assign {0} hours because its maximum hours is {1}, then try again.'.format(assigned_hours, job.assigned_ta_hours))
+            messages.error(request, 'An error occurred. Please you cannot assign {0} hours Total Assigned TA Hours is {1}, then try again.'.format(assigned_hours, job.assigned_ta_hours))
             return redirect('administrators:selected_applications')
 
         admin_app_form = AdminApplicationForm(request.POST)
