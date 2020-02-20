@@ -286,6 +286,9 @@ class ReassignApplicationForm(forms.ModelForm):
         labels = {
             'is_declined_reassigned': 'Are you sure to decline and re-assign this application?'
         }
+        help_texts = {
+            'note': 'Administrators and instructors can see this note.'
+        }
 
 class TerminateApplicationForm(forms.ModelForm):
     class Meta:
@@ -296,6 +299,9 @@ class TerminateApplicationForm(forms.ModelForm):
         }
         labels = {
             'is_terminated': 'Are you sure to terminate this application?'
+        }
+        help_texts = {
+            'note': 'Administrators and instructors can see this note.'
         }
 
 

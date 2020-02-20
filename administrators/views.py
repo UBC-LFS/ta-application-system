@@ -791,12 +791,7 @@ def selected_applications(request):
         'admin_application_form': AdminApplicationForm(),
         'status_form': ApplicationStatusForm(initial={ 'assigned': ApplicationStatus.OFFERED }),
         'classification_choices': adminApi.get_classifications(),
-        'app_status': APP_STATUS,
-        'special_programs': {
-            'mfre': '',
-            'mlws': '',
-            'mfs': ''
-        }
+        'app_status': APP_STATUS
     })
 
 @login_required(login_url=settings.LOGIN_URL)

@@ -175,7 +175,7 @@
 
                         <div class="field-wrapper">
                           <label for="id_pin_{{ app.id }}">PIN:</label>
-                          <div class="help">Optional. Maximum 4 digits long</div>
+                          <div class="help">This field is optional. Maximum 4 characters allowed.</div>
                           <input id="id_pin_{{ app.id }}" type="text" name="pin" class="form-control" maxlength="4"
                             {% if app.admindocuments.pin %}
                               value="{{ app.admindocuments.pin }}"
@@ -187,7 +187,7 @@
 
                         <div class="field-wrapper">
                           <label for="id_tasm_{{ app.id }}">TASM:</label>
-                          <div class="help">Optional</div>
+                          <div class="help">This field is optional.</div>
                           <input id="id_tasm_{{ app.id }}" type="checkbox" name="tasm"
                             {% if app.admindocuments.tasm %}
                               checked
@@ -197,7 +197,7 @@
 
                         <div class="field-wrapper">
                           <label for="id_eform_{{ app.id }}">eForm:</label>
-                          <div class="help">Optional. Maximum 6 digits long</div>
+                          <div class="help">This field is optional. Maximum 6 characters allowed.</div>
                           <input id="id_eform_{{ app.id }}" type="text" name="eform" class="form-control" maxlength="6"
                             {% if app.admindocuments.eform %}
                               value="{{ app.admindocuments.eform }}"
@@ -209,7 +209,7 @@
 
                         <div class="field-wrapper">
                           <label for="id_speed_chart_{{ app.id }}">Speed Chart:</label>
-                          <div class="help">Optional. Maximum 4 digits long</div>
+                          <div class="help">This field is optional. Maximum 4 characters allowed.</div>
                           <input id="id_speed_chart_{{ app.id }}" type="text" name="speed_chart" class="form-control" maxlength="4"
                             {% if app.admindocuments.speed_chart %}
                               value="{{ app.admindocuments.speed_chart }}"
@@ -221,7 +221,7 @@
 
                         <div class="field-wrapper">
                           <label for="id_processing_note_{{ app.id }}">Processing Note:</label>
-                          <div class="help">Optional</div>
+                          <div class="help">This field is optional. Only administrators can see this processing note.</div>
                           <textarea id="id_processing_note_{{ app.id }}" name="processing_note" cols="40" rows="2" class="form-control">{{ app.admindocuments.processing_note }}</textarea>
                         </div>
 
