@@ -538,7 +538,8 @@ def show_job_applications(request, session_slug, job_slug):
     job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
     return render(request, 'administrators/jobs/show_job_applications.html', {
         'loggedin_user': request.user,
-        'job': adminApi.add_job_with_applications_statistics(job)
+        'job': adminApi.add_job_with_applications_statistics(job),
+        'app_status': APP_STATUS
     })
 
 
@@ -571,7 +572,8 @@ def student_jobs_details(request, username, tab):
         'user': user,
         'apps': adminApi.add_app_info_into_applications(apps, ['offered', 'accepted']),
         'total_assigned_hours': adminApi.get_total_assigned_hours(apps, ['offered', 'accepted']),
-        'current_tab': tab
+        'current_tab': tab,
+        'app_status': APP_STATUS
     })
 
 
