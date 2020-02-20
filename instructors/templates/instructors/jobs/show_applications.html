@@ -45,6 +45,7 @@
         <th data-sortable="true">Applied at</th>
         <th>Instructor <br />Preference</th>
         <th>Application <br />Status</th>
+        <th>Note</th>
       </tr>
     </thead>
     <tbody>
@@ -149,6 +150,9 @@
             {% else %}
               <span class="badge badge-light text-dark">PENDING</span>
             {% endif %}
+          </td>
+          <td>
+            {% include 'ta_app/applications/_modal_note.html' with data=app %}
           </td>
         </tr>
       {% endfor %}
