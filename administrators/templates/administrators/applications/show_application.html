@@ -26,6 +26,7 @@
         <table class="custom-table text-center">
           <thead>
             <tr>
+              <th>Status ID</th>
               <th>Status</th>
               <th>Assigned TA Hours</th>
               <th>Parent ID</th>
@@ -35,6 +36,7 @@
           <tbody>
             {% for st in app.applicationstatus_set.all %}
               <tr>
+                <td>{{ st.id }}</td>
                 <td>
                   {% include 'ta_app/applications/_app_status.html' with data=st.get_assigned_display %}
                 </td>
