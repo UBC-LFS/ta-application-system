@@ -80,7 +80,7 @@
                 {% endif %}
 
                 <input type="hidden" name="user" value="{{ loggedin_user.username }}" />
-                <input class="btn btn-danger btn-xs mt-1" type="submit" value="Delete SIN" />
+                <input class="btn btn-outline-danger btn-xs mt-1" type="submit" value="Delete SIN" />
               </form>
 
             {% else %}
@@ -113,7 +113,7 @@
                   </div>
 
                   <input type="hidden" name="user" value="{{ loggedin_user.username }}" />
-                  <input class="btn btn-danger btn-xs mt-1" type="submit" value="Delete Study Permit" />
+                  <input class="btn btn-outline-danger btn-xs mt-1" type="submit" value="Delete Study Permit" />
                 </form>
 
               {% else %}
@@ -141,7 +141,7 @@
                 {% csrf_token %}
 
                 <input type="hidden" name="user" value="{{ loggedin_user.username }}" />
-                <input class="btn btn-danger btn-xs mt-1" type="submit" value="Delete Personal Data Form" />
+                <input class="btn btn-outline-danger btn-xs mt-1" type="submit" value="Delete Personal Data Form" />
               </form>
             {% else %}
               <span>

@@ -28,7 +28,7 @@
   </div>
 
   <div class="col-md-8">
-    
+
     <nav class="mb-4">
       <div class="nav nav-tabs">
         <a class="nav-item nav-link {% if current_tab == 'basic' %} active {% endif %}" href="{% url 'administrators:show_user' username=user.username path=path tab='basic' %}">
@@ -92,7 +92,8 @@
         </div>
 
         <div>
-          <h6>Is superuser:</h6>
+          <h6>Superuser status:</h6>
+          <div><small>This field is necessary for Masquerade. If an user's role is an administrator or super-administrator, please select this field.</small></div>
           <span>
             {% if user.is_superuser %}
               Yes
