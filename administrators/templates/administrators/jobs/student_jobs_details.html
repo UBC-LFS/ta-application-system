@@ -221,7 +221,7 @@
                 {% include 'ta_app/applications/_modal_app_details.html' with data=app display='id' pin_display='True' %}
               </td>
               <td>
-                {% if app.is_declined_reassigned %}
+                {% if app.applicationstatus_set.last.assigned == app_status.accepted and app.is_declined_reassigned %}
                   <span class="badge badge-success">RE</span>
                 {% endif %}
                 {% include 'ta_app/applications/_app_status.html' with data=app.applicationstatus_set.last.get_assigned_display %}
