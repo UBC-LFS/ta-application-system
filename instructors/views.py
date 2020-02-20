@@ -194,13 +194,13 @@ def show_applications(request, session_slug, job_slug):
         assigned_hours = request.POST.get('assigned_hours')
 
         if adminApi.is_valid_float(assigned_hours) == False:
-            messages.error(request, 'An error occurred. Please check assigned hours. Assigned TA Hours must be numerival value only or be greater than 0.0.')
+            messages.error(request, 'An error occurred. Please check assigned hours. Assign TA Hours must be numerival value only or be greater than 0.0.')
             return HttpResponseRedirect( reverse('instructors:show_applications', args=[session_slug, job_slug]) )
 
         assigned_hours = float(assigned_hours)
 
         if assigned_hours < 0.0:
-            messages.error(request, 'An error occurred. Please check assigned hours. Assigned TA Hours must be greater than 0.')
+            messages.error(request, 'An error occurred. Please check assigned hours. Assign TA Hours must be greater than 0.')
             return HttpResponseRedirect( reverse('instructors:show_applications', args=[session_slug, job_slug]) )
 
         if instructor_preference == Application.NONE:
@@ -212,7 +212,7 @@ def show_applications(request, session_slug, job_slug):
             return HttpResponseRedirect( reverse('instructors:show_applications', args=[session_slug, job_slug]) )
 
         if assigned_hours > float(job.assigned_ta_hours):
-            messages.error( request, 'An error occurred. You cannot assign {0} hours because its maximum hours is {1}. then try it again.'.format(request.POST.get('assigned_hours'), job.assigned_ta_hours) )
+            messages.error( request, 'An error occurred. You cannot assign {0} hours because Total Assigned TA Hours is {1}. then try again.'.format(request.POST.get('assigned_hours'), job.assigned_ta_hours) )
             return HttpResponseRedirect( reverse('instructors:show_applications', args=[session_slug, job_slug]) )
 
         if assigned_hours == 0.0 and instructor_preference != Application.NO_PREFERENCE:
@@ -244,7 +244,7 @@ def show_applications(request, session_slug, job_slug):
 
         return HttpResponseRedirect( reverse('instructors:show_applications', args=[session_slug, job_slug]) )
 
-    
+
     return render(request, 'instructors/jobs/show_applications.html', {
         'loggedin_user': request.user,
         'job': job,

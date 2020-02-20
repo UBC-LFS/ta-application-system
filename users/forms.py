@@ -68,7 +68,7 @@ class UserForm(forms.ModelForm):
             'last_name': 'This field is required. Maximum length is 150.',
             'email': 'This field is required. Maximum length is 254.',
             'username': 'This field is required. Maximum length is 150.',
-            'is_superuser': 'This field is necessary for Masquerade. If an user\'s role is an administrator or super-administrator, please select this field. '
+            'is_superuser': 'This field is necessary for Masquerade. If an user\'s role is an administrator or super-administrator, please select this field.'
         }
 
 class UserProfileForm(forms.ModelForm):
