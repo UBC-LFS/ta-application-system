@@ -124,7 +124,7 @@
                         </span>
                       </div>
                       <div>
-                        <h6>Assigned TA Hours by instructor:</h6>
+                        <h6>Assigned TA Hours by Instructor:</h6>
                         <span>
                           {% if app.selected.assigned_hours %}
                             {{ app.selected.assigned_hours }} hour{% if app.selected.assigned_hours > 1 %}s {% endif %}
@@ -206,6 +206,7 @@
 
                         <div class="field-wrapper">
                           <label for="id_note_{{ app.id }}">Note:</label>
+                          <div class="help">Administrators and instructors can see this note.</div>
                           <textarea id="id_note_{{ app.id }}" name="note" rows="2" cols="40" class="form-control">{% if app.note %} {{ app.note }} {% endif %}</textarea>
                         </div>
 
