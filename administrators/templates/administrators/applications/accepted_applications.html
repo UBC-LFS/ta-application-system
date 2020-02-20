@@ -103,9 +103,9 @@
             {% if 'Admin' in loggedin_user.roles or 'Superadmin' in loggedin_user.roles %}
 
               {% if app.is_declined_reassigned %}
-              <button class="btn btn-xs btn-secondary mb-2" type="button" data-toggle="modal" data-target="#job-application-modal-{{ app.id }}" disabled>
-                Declined &<br /> Re-assigned
-              </button><br />
+                <button class="btn btn-xs btn-secondary mb-2" type="button" data-toggle="modal" data-target="#job-application-modal-{{ app.id }}" disabled>
+                  Declined &<br /> Re-assigned
+                </button><br />
               {% else %}
                 <button class="btn btn-xs btn-primary mb-2" type="button" data-toggle="modal" data-target="#job-application-modal-{{ app.id }}">
                   Decline &<br /> Re-assign
