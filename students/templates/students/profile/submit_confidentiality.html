@@ -16,20 +16,12 @@
     <div class="board col-11 mx-auto">
       <h3>Confidential Information Form</h3>
 
-      <div class="bd-callout bd-callout-warning bg-light-gray">
-        <h4>
-          <i class="fa fa-briefcase" aria-hidden="true"></i> Required Documents
-        </h4>
-
-        {% if loggedin_user.confidentiality.nationality == '0' %}
-          {% include 'ta_app/pages/_required_docs_domestic.html' %}
-        {% else %}
-          {% include 'ta_app/pages/_required_docs_international.html' %}
-        {% endif %}
+      <div class="bd-callout bd-callout-warning bg-light-gray font-size-sm">
+        {% include 'ta_app/pages/_required_docs_confidentiality.html' with data=loggedin_user.confidentiality.nationality %}
       </div>
 
       {% if form %}
-      
+
         {% include 'ta_app/pages/_upload_message.html' %}
 
         <div class="field-wrapper">

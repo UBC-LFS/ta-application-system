@@ -361,7 +361,7 @@ def edit_confidentiality(request):
             updated_confidentiality.save(update_fields=update_fields)
 
             if updated_confidentiality:
-                messages.success(request, 'Success! {0} - confidential information updated'.format(loggedin_user.get_full_name()))
+                messages.success(request, 'Success! Confidential information of {0} updated'.format(loggedin_user.get_full_name()))
                 return redirect('students:show_confidentiality')
             else:
                 messages.error(request, 'An error occurred while updating confidential information.')
@@ -393,12 +393,11 @@ def edit_confidentiality(request):
         'form': form
     })
 
-
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['POST'])
-def delete_sin(request):
-    ''' Delete a SIN '''
+def delete_confidential_information(request):
+    ''' Delete a confidential information '''
     if request.user.is_impersonate:
         if not userApi.is_admin(request.session['loggedin_user'], 'dict'): raise PermissionDenied
         request.user.roles = userApi.get_user_roles(request.user)
@@ -407,59 +406,11 @@ def delete_sin(request):
     if 'Student' not in request.user.roles: raise PermissionDenied
 
     if request.method == 'POST':
-        username = request.POST.get('user')
-        delete_sin_expiry_date = request.POST.get('delete_sin_expiry_date')
-        deleted_sin = userApi.delete_user_sin(username, delete_sin_expiry_date)
-        if deleted_sin:
-            messages.success(request, 'Success! {0} - SIN deleted'.format(username))
+        result = userApi.delete_confidential_information(request.POST)
+        if result == True:
+            messages.success(request, 'Success! Confidential Information of {0} deleted'.format(request.POST.get('user')))
         else:
-            messages.error(request, 'An error occurred while deleting a SIN file. Please try again.')
-
-    return redirect('students:edit_confidentiality')
-
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['POST'])
-def delete_study_permit(request):
-    ''' '''
-    if request.user.is_impersonate:
-        if not userApi.is_admin(request.session['loggedin_user'], 'dict'): raise PermissionDenied
-        request.user.roles = userApi.get_user_roles(request.user)
-    else:
-        request.user.roles = request.session['loggedin_user']['roles']
-    if 'Student' not in request.user.roles: raise PermissionDenied
-
-    if request.method == 'POST':
-        username = request.POST.get('user')
-        delete_study_permit_expiry_date = request.POST.get('delete_study_permit_expiry_date')
-        deleted_study_permit = userApi.delete_user_study_permit(username, delete_study_permit_expiry_date)
-        if deleted_study_permit:
-            messages.success(request, 'Success! {0} - Study Permit deleted'.format(username))
-        else:
-            messages.error(request, 'An error occurred while deleting a study permit file. Please try again.')
-
-    return redirect('students:edit_confidentiality')
-
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['POST'])
-def delete_personal_data_form(request):
-    ''' Delete a personal data form '''
-    if request.user.is_impersonate:
-        if not userApi.is_admin(request.session['loggedin_user'], 'dict'): raise PermissionDenied
-        request.user.roles = userApi.get_user_roles(request.user)
-    else:
-        request.user.roles = request.session['loggedin_user']['roles']
-    if 'Student' not in request.user.roles: raise PermissionDenied
-
-    if request.method == 'POST':
-        username = request.POST.get('user')
-        if userApi.delete_personal_data_form(username):
-            messages.success(request, 'Success! {0} - Personal Data Form deleted'.format(username))
-        else:
-            messages.error(request, 'An error occurred while deleting a Personal Data Form file. Please try again.')
+            messages.error(request, 'An error occurred while deleting. Failed to delete {0}'.format(result))
 
     return redirect('students:edit_confidentiality')
 
@@ -789,6 +740,7 @@ def reaccept_application(request, app_slug):
             appl = form.cleaned_data['application']
             if form.save():
                 new_hours = float(assigned_hours) - float(app.accepted.assigned_hours )
+                
                 if adminApi.update_job_accumulated_ta_hours(appl.job.session.slug, appl.job.course.slug, new_hours):
                     messages.success(request, 'Success! You accepted the job offer - {0} {1}: {2} {3} {4} '.format(appl.job.session.year, appl.job.session.term.code, appl.job.course.code.name, appl.job.course.number.name, appl.job.course.section.name))
                 else:
@@ -999,4 +951,77 @@ def download_study_permit(request, username, filename):
     #if not userApi.is_valid_user(request.user): raise PermissionDenied
     path = 'users/{0}/study_permit/{1}/'.format(username, filename)
     return serve(request, path, document_root=settings.MEDIA_ROOT)
+"""
+
+
+
+"""
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['POST'])
+def delete_sin(request):
+    ''' Delete a SIN '''
+    if request.user.is_impersonate:
+        if not userApi.is_admin(request.session['loggedin_user'], 'dict'): raise PermissionDenied
+        request.user.roles = userApi.get_user_roles(request.user)
+    else:
+        request.user.roles = request.session['loggedin_user']['roles']
+    if 'Student' not in request.user.roles: raise PermissionDenied
+
+    if request.method == 'POST':
+        username = request.POST.get('user')
+        delete_sin_expiry_date = request.POST.get('delete_sin_expiry_date')
+        deleted_sin = userApi.delete_user_sin(username, delete_sin_expiry_date)
+        if deleted_sin:
+            messages.success(request, 'Success! {0} - SIN deleted'.format(username))
+        else:
+            messages.error(request, 'An error occurred while deleting a SIN file. Please try again.')
+
+    return redirect('students:edit_confidentiality')
+
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['POST'])
+def delete_study_permit(request):
+    ''' '''
+    if request.user.is_impersonate:
+        if not userApi.is_admin(request.session['loggedin_user'], 'dict'): raise PermissionDenied
+        request.user.roles = userApi.get_user_roles(request.user)
+    else:
+        request.user.roles = request.session['loggedin_user']['roles']
+    if 'Student' not in request.user.roles: raise PermissionDenied
+
+    if request.method == 'POST':
+        username = request.POST.get('user')
+        delete_study_permit_expiry_date = request.POST.get('delete_study_permit_expiry_date')
+        deleted_study_permit = userApi.delete_user_study_permit(username, delete_study_permit_expiry_date)
+        if deleted_study_permit:
+            messages.success(request, 'Success! {0} - Study Permit deleted'.format(username))
+        else:
+            messages.error(request, 'An error occurred while deleting a study permit file. Please try again.')
+
+    return redirect('students:edit_confidentiality')
+
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['POST'])
+def delete_personal_data_form(request):
+    ''' Delete a personal data form '''
+    if request.user.is_impersonate:
+        if not userApi.is_admin(request.session['loggedin_user'], 'dict'): raise PermissionDenied
+        request.user.roles = userApi.get_user_roles(request.user)
+    else:
+        request.user.roles = request.session['loggedin_user']['roles']
+    if 'Student' not in request.user.roles: raise PermissionDenied
+
+    if request.method == 'POST':
+        username = request.POST.get('user')
+        if userApi.delete_personal_data_form(username):
+            messages.success(request, 'Success! {0} - Personal Data Form deleted'.format(username))
+        else:
+            messages.error(request, 'An error occurred while deleting a Personal Data Form file. Please try again.')
+
+    return redirect('students:edit_confidentiality')
 """

@@ -9,15 +9,19 @@
     <div class="left-aside-btn-groups">
       <a class="btn btn-outline-primary" href="{% url 'students:show_profile' tab='basic' %}">View Profile</a>
     </div>
-    
+
     {% if template == 'detail' %}
       <div class="bd-callout bd-callout-warning bg-light-gray col-10 mx-auto">
-        <h4>
+        <h5>
           <i class="fa fa-info-circle" aria-hidden="true"></i> Note
-        </h4>
+        </h5>
         <p>
           Please go to <a href="{% url 'students:edit_confidentiality' %}">Edit Confidential Information</a> if you would like to delete your uploaded files.
         </p>
+      </div>
+
+      <div class="bd-callout bd-callout-warning bg-light-gray col-10 mx-auto font-size-sm">
+        {% include 'ta_app/pages/_notice_confidentiality.html' %}
       </div>
     {% endif %}
   </div>
@@ -28,18 +32,6 @@
 
         <h3>Details of Confidential Information</h3>
 
-        <div class="bd-callout bd-callout-warning bg-light-gray">
-          <h4>
-            <i class="fa fa-briefcase" aria-hidden="true"></i> Required Documents
-          </h4>
-
-          {% if loggedin_user.confidentiality.nationality == '0' %}
-            {% include 'ta_app/pages/_required_docs_domestic.html' %}
-          {% else %}
-            {% include 'ta_app/pages/_required_docs_international.html' %}
-          {% endif %}
-        </div>
-
         {% include 'ta_app/users/_confidentiality.html' with data=loggedin_user %}
 
         <a class="btn btn-primary mt-4" href="{% url 'students:edit_confidentiality' %}">Edit Confidential Information</a>
@@ -47,14 +39,7 @@
       {% else %}
 
         <div class="bd-callout bd-callout-warning bg-light-gray">
-          <h4>
-            <i class="fa fa-bullhorn" aria-hidden="true"></i> Notice
-          </h4>
-          <p>
-            <i class="fa fa-check" aria-hidden="true"></i>
-            Students' uploaded files such as Social Insurance Number (SIN) and Study Permit are encrypted when they upload them through this Web application, and only administrators can have access to the encrypted data in the application.
-          </p>
-          {% include 'ta_app/pages/_nationality_message.html' %}
+          {% include 'ta_app/pages/_notice_confidentiality.html' %}
         </div>
 
         <section class="text-secondary">

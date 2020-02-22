@@ -1605,7 +1605,10 @@ class CourseTest(TestCase):
             'number': '1',
             'section': '1',
             'name': 'new course',
-            'term': '2'
+            'term': '2',
+            'overview': 'overview',
+            'job_description': 'description',
+            'job_note': 'note'
         }
         response = self.client.post( reverse('administrators:create_course'), data=urlencode(data), content_type=ContentType )
         messages = self.messages(response)
@@ -1640,14 +1643,13 @@ class CourseTest(TestCase):
         self.assertEqual(response.context['course'].slug, COURSE)
         self.assertFalse(response.context['form'].is_bound)
 
-        course_id = response.context['course'].id
+        course = response.context['course']
 
         data = {
-            'code': 2,
-            'number': 1,
-            'section': 1,
             'name': 'edit course',
-            'term': 2
+            'overview': 'new overview',
+            'job_description': 'new job description',
+            'job_note': 'new job note'
         }
 
         response = self.client.post( reverse('administrators:edit_course', args=[COURSE]), data=urlencode(data), content_type=ContentType )
@@ -1657,14 +1659,16 @@ class CourseTest(TestCase):
         self.assertRedirects(response, response.url)
         self.assertEqual(response.url, '/administrators/courses/all/')
 
-        course = adminApi.get_course(course_id)
+        new_course = adminApi.get_course(course.id)
 
-        self.assertEqual(course.id, course_id)
-        self.assertEqual(course.code.id, data['code'])
-        self.assertEqual(course.number.id, data['number'])
-        self.assertEqual(course.section.id, data['section'])
-        self.assertEqual(course.term.id, data['term'])
-        self.assertEqual(course.name, data['name'])
+        self.assertEqual(new_course.id, course.id)
+        self.assertEqual(new_course.code.id, course.code.id)
+        self.assertEqual(new_course.number.id, course.number.id)
+        self.assertEqual(new_course.section.id, course.section.id)
+        self.assertEqual(new_course.term.id, course.term.id)
+        self.assertEqual(new_course.name, data['name'])
+        self.assertEqual(new_course.job_description, data['job_description'])
+        self.assertEqual(new_course.job_note, data['job_note'])
 
     def test_delete_course(self):
         print('\n- Test: delete a course')

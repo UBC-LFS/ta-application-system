@@ -15,9 +15,10 @@ urlpatterns = [
     path('confidential_information/check/', views.check_confidentiality, name='check_confidentiality'),
     path('confidential_information/submit/', views.submit_confidentiality, name='submit_confidentiality'),
     path('confidential_information/edit/', views.edit_confidentiality, name='edit_confidentiality'),
-    path('confidential_information/sin/delete/', views.delete_sin, name='delete_sin'),
-    path('confidential_information/study_permit/delete/', views.delete_study_permit, name='delete_study_permit'),
-    path('confidential_information/personal_data_form/delete/', views.delete_personal_data_form, name='delete_personal_data_form'),
+    path('confidential_information/delete/', views.delete_confidential_information, name='delete_confidential_information'),
+    #path('confidential_information/sin/delete/', views.delete_sin, name='delete_sin'),
+    #path('confidential_information/study_permit/delete/', views.delete_study_permit, name='delete_study_permit'),
+    #path('confidential_information/personal_data_form/delete/', views.delete_personal_data_form, name='delete_personal_data_form'),
     path('confidential_information/', views.show_confidentiality, name='show_confidentiality'),
     path('confidential_information/<str:username>/download/personal_data_form/<str:filename>/', views.download_personal_data_form, name='download_personal_data_form'),
 

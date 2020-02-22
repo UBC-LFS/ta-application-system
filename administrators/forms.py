@@ -80,8 +80,8 @@ class ClassificationForm(forms.ModelForm):
             'wage': forms.NumberInput(attrs={ 'class': 'form-control' })
         }
         help_texts = {
-            'year': 'Maximum character is 10',
-            'name': 'Maximum character: 10'
+            'year': 'Maximum characters: 10',
+            'name': 'Maximum characters: 10'
         }
 
 class CourseForm(forms.ModelForm):
@@ -219,7 +219,7 @@ class MyModelMultipleChoiceField(ModelMultipleChoiceField):
 class AdminJobForm(forms.ModelForm):
     ''' '''
     assigned_ta_hours = forms.FloatField(
-        label='Assigned TA Hours',
+        label='Total Assigned TA Hours',
         widget=forms.TextInput(attrs={ 'class': 'form-control' }),
         help_text='This field is required. Valid range is 0 to 4000.'
     )
