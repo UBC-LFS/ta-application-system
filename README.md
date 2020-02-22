@@ -6,7 +6,7 @@ This project is a web-based TA hiring process system.
 - Encrypt/Decrypt images
 - Enable Masquerade mode
 - Email sending services
-- Used 6 different badges to display the status of job applications: Applied, Selected, Accepted, Offered, Declined and Terminated
+- Used 6 different badges to display the status of job applications: **Applied**, **Selected**, **Accepted**, **Offered**, **Declined** and **Terminated**
 
 ### Install prerequisites for Alpine
 ```
