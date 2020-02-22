@@ -72,13 +72,13 @@
 
                             <div class="field-wrapper">
                               <label for="id_year_{{ classification.id }}">Year:</label>
-                              <div class="help">Maximum character: 10</div>
+                              <div class="help">Maximum characters: 10</div>
                               <input id="id_year_{{ classification.id }}" type="text" name="year" value="{{ classification.year }}" class="form-control" />
                             </div>
 
                             <div class="field-wrapper">
                               <label for="id_name_{{ classification.id }}">Name:</label>
-                              <div class="help">Maximum character: 10</div>
+                              <div class="help">Maximum characters: 10</div>
                               <input id="id_name_{{ classification.id }}" type="text" name="name" value="{{ classification.name }}" class="form-control" />
                             </div>
 
@@ -90,9 +90,9 @@
                             <div class="field-wrapper">
                               <label for="id_is_active_{{ classification.id }}">Is active:</label>
                               {% if classification.is_active %}
-                                <input id="id_is_active_{{ classification.id }}" type="checkbox" name="id_is_active" checked />
+                                <input id="id_is_active_{{ classification.id }}" type="checkbox" name="is_active" checked />
                               {% else %}
-                                <input id="id_is_active_{{ classification.id }}" type="checkbox" name="id_is_active" />
+                                <input id="id_is_active_{{ classification.id }}" type="checkbox" name="is_active" />
                               {% endif %}
                             </div>
 

@@ -1563,16 +1563,21 @@ def edit_user(request, username):
             updated_profile.updated_at = datetime.now()
             updated_profile.save()
 
-            updated_employee_number = employee_number_form.save(commit=False)
-            updated_employee_number.updated_at = datetime.now()
-            updated_employee_number.employee_number = employee_number_form.cleaned_data['employee_number']
-            updated_employee_number.save(update_fields=['employee_number'])
-
             errors = []
+            
+            if employee_number_form.cleaned_data['employee_number'] is not None:
+                updated_employee_number = employee_number_form.save(commit=False)
+                updated_employee_number.updated_at = datetime.now()
+                if confidentiality:
+                    updated_employee_number.employee_number = employee_number_form.cleaned_data['employee_number']
+                    updated_employee_number.save(update_fields=['employee_number'])
+                else:
+                    updated_employee_number.save()
+
+                if not updated_employee_number: errors.append('An error occurred while updating an employee number.')
 
             if not updated_user: errors.append('An error occurred while updating an user form.')
             if not updated_profile: errors.append('An error occurred while updating a profile.')
-            if not updated_employee_number: errors.append('An error occurred while updating an employee number.')
 
             updated = userApi.update_user_profile_roles(updated_profile, profile_roles, user_profile_edit_form.cleaned_data)
             if not updated: errors.append(request, 'An error occurred while updating profile roles.')
@@ -2462,6 +2467,7 @@ def edit_classification(request, slug):
         classification = adminApi.get_classification_by_slug(slug)
         form = ClassificationForm(request.POST, instance=classification)
         if form.is_valid():
+            print(form.cleaned_data)
             updated_classification = form.save()
             if updated_classification:
                 messages.success(request, 'Success! {0} {1} updated'.format(updated_classification.year, updated_classification.name))
