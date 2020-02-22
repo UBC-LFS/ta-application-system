@@ -341,7 +341,8 @@ main {
     border-left-color: #d9534f;
 }
 
-.bd-callout h4 {
+.bd-callout h4,
+.bd-callout h5 {
     margin-top: 0;
     margin-bottom: .25rem;
 }
@@ -351,11 +352,13 @@ main {
   color: #343a40 !important;
 }
 
-.bd-callout-warning h4 {
+.bd-callout-warning h4,
+.bd-callout-warning h5 {
     color: #f0ad4e;
 }
 
-.bd-callout-danger h4 {
+.bd-callout-danger h4,
+.bd-callout-danger h5 {
     color: #d9534f;
 }
 
@@ -393,6 +396,15 @@ hr.dotted {
 .font-size-1 {
   font-size: 1rem !important;
 }
+
+.font-size-sm {
+  font-size: 0.9rem !important;
+}
+
+.font-size-xs {
+  font-size: 0.8rem !important;
+}
+
 
 .badge {
   /* color: #fff; */

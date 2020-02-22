@@ -302,10 +302,60 @@ def add_confidentiality_given_list(user, array):
     return user
 
 def confidentiality_exists(user):
-    """ Check user's confidentiality exists """
+    ''' Check user's confidentiality exists '''
     if Confidentiality.objects.filter(user__id=user.id).exists():
         return True
     return False
+
+def delete_confidential_information(data):
+    ''' Delete your confidential information '''
+
+    username = data.get('user')
+    employee_number = data.get('employee_number')
+    sin = data.get('sin')
+    sin_expiry_date = data.get('sin_expiry_date')
+    study_permit = data.get('study_permit')
+    study_permit_expiry_date = data.get('study_permit_expiry_date')
+    personal_data_form = data.get('personal_data_form')
+
+    user = get_user(username, 'username')
+    confidentiality = Confidentiality.objects.filter(user_id=user.id)
+
+    errors = []
+    if employee_number is not None:
+        if confidentiality.update(employee_number=None) == False:
+            errors.append('Employee Number')
+
+    if personal_data_form is not None:
+        if delete_personal_data_form(username) == False:
+            errors.append('Personal Data Form.')
+
+    if sin is not None:
+        if sin_expiry_date is not None:
+            if delete_user_sin(username, '1') == False:
+                errors.append('SIN and SIN expiry date.')
+        else:
+            if delete_user_sin(username) == False:
+                errors.append('SIN')
+    else:
+        if sin_expiry_date is not None:
+            if confidentiality.update(sin_expiry_date=None) == False:
+                errors.append('SIN Expiry Date')
+
+    if study_permit is not None:
+        if study_permit_expiry_date is not None:
+            if delete_user_study_permit(username, '1') == False:
+                errors.append('Study Permit and Study Permit Expiry Date')
+        else:
+            if delete_user_study_permit(username) == False:
+                errors.append('Study Permit')
+    else:
+        if study_permit_expiry_date is not None:
+            if confidentiality.update(study_permit_expiry_date=None) == False:
+                errors.append('Study Permit Expiry Date')
+
+    return True if len(errors) == 0 else ', '.join(errors)
+
 
 def delete_user_sin(username, option=None):
     ''' Delete user's SIN '''
@@ -327,7 +377,6 @@ def delete_user_sin(username, option=None):
                 else:
                     return False
             except OSError:
-                print("OSError")
                 return False
     return True
 
@@ -338,7 +387,6 @@ def delete_user_study_permit(username, option=None):
 
     if has_user_confidentiality_created(user) and bool(user.confidentiality.study_permit):
         user.confidentiality.study_permit.close()
-        #print('user.confidentiality.study_permit.closed ', user.confidentiality.study_permit.closed)
         if user.confidentiality.study_permit.closed:
             try:
                 user.confidentiality.study_permit.delete(save=False)
@@ -354,7 +402,6 @@ def delete_user_study_permit(username, option=None):
                 else:
                     return False
             except OSError:
-                print("OSError")
                 return False
     return True
 
@@ -396,10 +443,6 @@ def destroy_profile_resume_confidentiality(user_id):
 
     resume = delete_user_resume(user)
     profile = trim_profile(user)
-    print("sin", sin)
-    print("study_permit", study_permit)
-    print("resume", resume)
-    print("profile", profile)
     return True if user and resume and sin and study_permit and profile else False
 
 

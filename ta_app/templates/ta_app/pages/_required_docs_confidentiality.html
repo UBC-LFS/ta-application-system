@@ -1,0 +1,42 @@
+
+<h5>
+  <i class="fa fa-briefcase" aria-hidden="true"></i> Required Documents
+</h5>
+
+{% if loggedin_user.confidentiality.nationality == '0' %}
+  <p>
+    If you are a <span class="font-weight-bold text-dark">Domestic Student</span>, please update the following documents:
+    <ul>
+      <li>Employee Number (if you have it)</li>
+      <li>Social Insurance Number (SIN)</li>
+      <li>
+        Personal Data Form if you are a new employee.
+        <a href="https://www.hr.ubc.ca/forms/personal-data-form-help/" target="_blank">Download</a>
+      </li>
+    </ul>
+  </p>
+
+{% else %}
+
+  <p>
+    If you are an <span class="font-weight-bold text-dark">International Student</span>, please update the following documents:
+    <ul>
+      <li>Employee Number (if you have it)</li>
+      <li>Social Insurance Number (SIN) with SIN Expiry Date</li>
+      <li>Study Permit with Study Permit Expiry Date</li>
+      <li>
+        Personal Data Form if you are a new employee.
+        <a href="https://www.hr.ubc.ca/forms/personal-data-form-help/" target="_blank">Download</a>
+      </li>
+    </ul>
+  </p>
+{% endif %}
+
+<p>
+  <span class="font-weight-bold">Note:</span>
+  If you would like to change your SIN {% if loggedin_user.confidentiality.nationality == '1' %}or Study Permit{% endif %}, please delete your old information first, and then update your new one.
+</p>
+<p>
+  <i class="fa fa-check" aria-hidden="true"></i>
+  Students' uploaded files such as SIN and Study Permit are encrypted when they upload them through this Web application, and only administrators can have access to the encrypted data in the application.
+</p>
