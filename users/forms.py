@@ -195,18 +195,7 @@ class StudentProfileForm(forms.ModelForm):
         'lfs_ta_training', 'lfs_ta_training_details', 'ta_experience','ta_experience_details',
         'qualifications','prior_employment', 'special_considerations'
     ]
-
-
-    """
-    def __init__(self, *args, **kwargs):
-        self.instance = kwargs.pop('instance', None)
-        super(StudentProfileForm, self).__init__(*args, **kwargs)
-        print(self.initial)
-        print(kwargs)
-        print(self.instance)
-        #if self.instance:
-        #    print('instance', self.instance)
-    """
+    
 
 class InstructorProfileForm(forms.ModelForm):
     class Meta:

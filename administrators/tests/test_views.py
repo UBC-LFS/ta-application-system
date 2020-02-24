@@ -1034,23 +1034,6 @@ class ApplicationTest(TestCase):
         self.assertEqual(updated_app.applicationstatus_set.last().get_assigned_display(), 'Declined')
         self.assertEqual(str(updated_app.applicationstatus_set.last().assigned_hours), data['new_assigned_hours'])
 
-        """status = []
-        for st in updated_app.applicationstatus_set.all():
-            status.append({
-                'id': st.id,
-                'assigned': st.assigned,
-                'assigned_hours': st.assigned_hours,
-                'parent_id': st.parent_id
-            })
-        self.assertEqual(len(status), 8)
-        self.assertEqual(status[5]['assigned'], ApplicationStatus.ACCEPTED)
-        self.assertEqual(status[6]['assigned'], ApplicationStatus.DECLINED)
-        self.assertEqual(status[6]['assigned_hours'], 0.0)
-        self.assertEqual(status[6]['parent_id'], str(status[5]['id']))
-        self.assertEqual(status[7]['assigned'], ApplicationStatus.ACCEPTED)
-        self.assertEqual(status[7]['assigned_hours'], float(data['new_assigned_hours']))
-        self.assertEqual( float(updated_app.job.accumulated_ta_hours), float(accumulated_ta_hours) - float(data['old_assigned_hours']) + float(data['new_assigned_hours']) )
-        """
 
     def test_terminate(self):
         print('\n- Test: terminate an application')
