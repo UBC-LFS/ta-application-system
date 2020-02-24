@@ -22,6 +22,7 @@
   >
     <thead>
       <tr>
+        <th></th>
         <th data-sortable="true">Year</th>
         <th data-sortable="true">Term</th>
         <th data-sortable="true">Job</th>
@@ -33,6 +34,21 @@
     <tbody>
       {% for app in apps %}
         <tr>
+          <td>
+            {% if app.offered %}
+              {% if app.job.is_active %}
+                <i class="fa fa-envelope fa-lg text-chocolate" aria-hidden="true"></i>
+              {% endif %}
+            {% elif app.accepted %}
+              {% if app.job.is_active and app.is_terminated %}
+                <i class="fa fa-envelope fa-lg text-chocolate" aria-hidden="true"></i>
+              {% endif %}
+            {% elif app.declined %}
+              {% if app.is_declined_reassigned %}
+                <i class="fa fa-envelope fa-lg text-chocolate" aria-hidden="true"></i>
+              {% endif %}
+            {% endif %}
+          </td>
           <td>{{ app.job.session.year }}</td>
           <td>{{ app.job.session.term.code }}</td>
           <td>

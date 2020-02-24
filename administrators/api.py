@@ -538,20 +538,7 @@ def send_and_create_email(app, sender, receiver, title, message, type):
         type = type
     )
     return True if msg and created_email else False
-    """
-    if sent and created_email:
-        print( 'Email has sent to {0} and is created'.format(receiver) )
-        return True
-    elif sent and not created_email:
-        print( 'Email has sent to {0} and is created'.format(receiver) )
-        if created_email:
-            print('The Email sent to {0} is created'.format(receiver))
-        else:
-            print('The Email sent to {0} is NOT created'.format(receiver))
-    else:
-        messages.error(request, 'Error! Failed to send an email to {0}'.format(receiver))
-    return False"""
-
+    
 
 # end emails
 
