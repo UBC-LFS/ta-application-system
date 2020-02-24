@@ -792,12 +792,12 @@ def selected_applications(request):
         elif app.job.assigned_ta_hours < app.job.accumulated_ta_hours:
             app.ta_hour_progress = 'over'
         else:
-            if (app.job.assigned_ta_hours * 1.0/4.0) < app.job.accumulated_ta_hours:
-                app.ta_hour_progress = 'under_one_quarter'
+            if (app.job.assigned_ta_hours * 3.0/4.0) < app.job.accumulated_ta_hours:
+                app.ta_hour_progress = 'under_three_quarters'
             elif (app.job.assigned_ta_hours * 2.0/4.0) < app.job.accumulated_ta_hours:
                 app.ta_hour_progress = 'under_half'
-            elif (app.job.assigned_ta_hours * 3.0/4.0) < app.job.accumulated_ta_hours:
-                app.ta_hour_progress = 'under_three_quarters'
+            elif (app.job.assigned_ta_hours * 1.0/4.0) < app.job.accumulated_ta_hours:
+                app.ta_hour_progress = 'under_one_quarter'
 
     return render(request, 'administrators/applications/selected_applications.html', {
         'loggedin_user': request.user,
