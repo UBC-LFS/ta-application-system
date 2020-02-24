@@ -774,7 +774,7 @@ def selected_applications(request):
         app_list = app_list.filter(applicant__last_name__icontains=last_name_q)
 
     app_list = app_list.filter(applicationstatus__assigned=ApplicationStatus.SELECTED).order_by('-id').distinct()
-    app_list = adminApi.add_app_info_into_applications(app_list, ['resume', 'selected', 'offered'])
+    app_list = adminApi.add_app_info_into_applications(app_list, ['resume', 'selected', 'offered', 'declined'])
 
     page = request.GET.get('page', 1)
     paginator = Paginator(app_list, settings.PAGE_SIZE)
@@ -785,6 +785,19 @@ def selected_applications(request):
         apps = paginator.page(1)
     except EmptyPage:
         apps = paginator.page(paginator.num_pages)
+
+    for app in apps:
+        if app.job.assigned_ta_hours == app.job.accumulated_ta_hours:
+            app.ta_hour_progress = 'done'
+        elif app.job.assigned_ta_hours < app.job.accumulated_ta_hours:
+            app.ta_hour_progress = 'over'
+        else:
+            if (app.job.assigned_ta_hours * 1.0/4.0) < app.job.accumulated_ta_hours:
+                app.ta_hour_progress = 'under_one_quarter'
+            elif (app.job.assigned_ta_hours * 2.0/4.0) < app.job.accumulated_ta_hours:
+                app.ta_hour_progress = 'under_half'
+            elif (app.job.assigned_ta_hours * 3.0/4.0) < app.job.accumulated_ta_hours:
+                app.ta_hour_progress = 'under_three_quarters'
 
     return render(request, 'administrators/applications/selected_applications.html', {
         'loggedin_user': request.user,
