@@ -14,6 +14,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from users.forms import *
 from users import api as userApi
+from administrators.views import USER_TAB
 from administrators.forms import *
 from administrators import api as adminApi
 
@@ -53,6 +54,8 @@ def show_profile(request, tab):
     else:
         request.user.roles = request.session['loggedin_user']['roles']
     if 'Student' not in request.user.roles: raise PermissionDenied
+
+    if tab not in USER_TAB: raise Http404
 
     loggedin_user = userApi.add_resume(request.user)
     return render(request, 'students/profile/show_profile.html', {
@@ -740,7 +743,7 @@ def reaccept_application(request, app_slug):
             appl = form.cleaned_data['application']
             if form.save():
                 new_hours = float(assigned_hours) - float(app.accepted.assigned_hours )
-                
+
                 if adminApi.update_job_accumulated_ta_hours(appl.job.session.slug, appl.job.course.slug, new_hours):
                     messages.success(request, 'Success! You accepted the job offer - {0} {1}: {2} {3} {4} '.format(appl.job.session.year, appl.job.session.term.code, appl.job.course.code.name, appl.job.course.number.name, appl.job.course.section.name))
                 else:

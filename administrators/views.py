@@ -25,11 +25,12 @@ from datetime import datetime
 from django.contrib.auth.models import User
 
 
-APP_MEMU = ['dashboard', 'all', 'selected', 'offered', 'accepted', 'declined', 'terminated']
+APP_MENU = ['dashboard', 'all', 'selected', 'offered', 'accepted', 'declined', 'terminated']
 SESSION_PATH = ['current', 'archived']
-JOB_PATH = ['prepare', 'progress'] + APP_MEMU
-APP_PATH = APP_MEMU + ['emails' ]
-USER_PATH = ['instructor', 'student', 'users', 'destroy'] + APP_MEMU
+JOB_PATH = ['prepare', 'progress'] + APP_MENU
+APP_PATH = APP_MENU + ['emails']
+USER_PATH = ['instructor', 'student', 'users', 'destroy'] + APP_MENU
+USER_TAB = ['basic', 'additional', 'confidential', 'resume']
 APP_STATUS = {
     'none': ApplicationStatus.NONE,
     'applied': ApplicationStatus.NONE,
@@ -323,6 +324,7 @@ def delete_session(request, path):
     ''' Delete a Session '''
     request.user.roles = request.session['loggedin_user']['roles']
     if not userApi.is_admin(request.user): raise PermissionDenied
+    if path not in SESSION_PATH: raise Http404
 
     if request.method == 'POST':
         session_id = request.POST.get('session')
@@ -564,6 +566,7 @@ def student_jobs_details(request, username, tab):
     ''' Display jobs that an student has '''
     request.user.roles = request.session['loggedin_user']['roles']
     if not userApi.is_admin(request.user): raise PermissionDenied
+    if tab not in APP_MENU: raise Http404
 
     user = userApi.get_user(username, 'username')
     apps = user.application_set.all()
@@ -633,7 +636,6 @@ def show_application(request, app_slug, path):
     request.user.roles = request.session['loggedin_user']['roles']
     if not userApi.is_admin(request.user) and 'HR' not in request.user.roles:
         raise PermissionDenied
-
     if path not in APP_PATH: raise Http404
 
     return render(request, 'administrators/applications/show_application.html', {
@@ -1293,6 +1295,7 @@ def applications_send_email(request, path):
     ''' Send an email for applications '''
     request.user.roles = request.session['loggedin_user']['roles']
     if not userApi.is_admin(request.user): raise PermissionDenied
+    if path not in APP_MENU: raise Http404
 
     if request.method == 'POST':
         applications = request.POST.getlist('application')
@@ -1313,6 +1316,7 @@ def applications_send_email_confirmation(request, path):
     ''' Display a list of email for offered applications '''
     request.user.roles = request.session['loggedin_user']['roles']
     if not userApi.is_admin(request.user): raise PermissionDenied
+    if path not in APP_MENU: raise Http404
 
     applications = []
     receiver_list = []
@@ -1446,7 +1450,8 @@ def show_user(request, username, path, tab):
     request.user.roles = request.session['loggedin_user']['roles']
     if not userApi.is_admin(request.user) and 'HR' not in request.user.roles:
         raise PermissionDenied
-    if path not in USER_PATH: raise Http404
+    if path not in USER_PATH or tab not in USER_TAB:
+        raise Http404
 
     user = userApi.get_user(username, 'username')
     user = userApi.add_resume(user)
@@ -1564,7 +1569,7 @@ def edit_user(request, username):
             updated_profile.save()
 
             errors = []
-            
+
             if employee_number_form.cleaned_data['employee_number'] is not None:
                 updated_employee_number = employee_number_form.save(commit=False)
                 updated_employee_number.updated_at = datetime.now()
@@ -2467,7 +2472,6 @@ def edit_classification(request, slug):
         classification = adminApi.get_classification_by_slug(slug)
         form = ClassificationForm(request.POST, instance=classification)
         if form.is_valid():
-            print(form.cleaned_data)
             updated_classification = form.save()
             if updated_classification:
                 messages.success(request, 'Success! {0} {1} updated'.format(updated_classification.year, updated_classification.name))

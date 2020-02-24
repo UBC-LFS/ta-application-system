@@ -192,6 +192,7 @@
 
                         <div class="field-wrapper">
                           <label for="id_classification_{{ app.id }}">Classification:</label>
+                          <div class="help">This field is required.</div>
                           <select id="id_classification_{{ app.id }}" name="classification" class="form-control">
                             <option value="">Select</option>
                             {% for choice in classification_choices %}

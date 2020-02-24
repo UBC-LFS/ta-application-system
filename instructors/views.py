@@ -10,7 +10,7 @@ from django.views.decorators.cache import cache_control
 from django.db.models import Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
-from administrators.views import APP_STATUS
+from administrators.views import APP_STATUS, USER_TAB
 from administrators.models import *
 from administrators.forms import *
 from administrators import api as adminApi
@@ -46,6 +46,8 @@ def show_user(request, session_slug, job_slug, username, tab):
     else:
         request.user.roles = request.session['loggedin_user']['roles']
     if 'Instructor' not in request.user.roles: raise PermissionDenied
+
+    if tab not in USER_TAB: raise Http404
 
     user = userApi.get_user(username, 'username')
     user.is_student = userApi.user_has_role(user ,'Student')
@@ -229,7 +231,7 @@ def show_applications(request, session_slug, job_slug):
                 updated_app = adminApi.update_application_instructor_preference(app_id, instructor_preference)
                 if updated_app:
                     if app_status_form.save():
-                        messages.success(request, 'Success! {0} is selected.'.format(updated_app.applicant.username))
+                        messages.success(request, 'Success! {0} (CWL: {1}) is selected.'.format(updated_app.applicant.get_full_name(), updated_app.applicant.username))
                     else:
                         messages.error(request, 'An error occurred while updating an application status.')
                 else:
