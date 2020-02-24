@@ -53,7 +53,9 @@
             <td>{{ classification.year }}</td>
             <td>{{ classification.name }}</td>
             <td>${{ classification.wage }}</td>
-            <td>{{ classification.is_active }}</td>
+            <td>
+              {% include 'ta_app/jobs/_job_is_active.html' with data=classification %}
+            </td>
             <td>
               <div class="btn-toolbar">
                 <button class="btn btn-xs btn-primary mr-2" type="button" data-toggle="modal" data-target="#classification-edit-modal-{{ classification.id }}">Edit</button>
