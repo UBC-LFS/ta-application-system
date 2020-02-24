@@ -44,7 +44,19 @@
           <td>
             <a href="{% url 'administrators:show_job' session_slug=app.job.session.slug job_slug=app.job.course.slug path='selected' %}">
               {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}
-            </a>
+            </a><br />
+
+            {% if app.ta_hour_progress == 'done' %}
+              <i class="fa fa-check text-success" aria-hidden="true"></i>
+            {% elif app.ta_hour_progress == 'over' %}
+              <i class="fa fa-times-circle text-danger" aria-hidden="true"></i>
+            {% elif app.ta_hour_progress == 'under_one_quarter' %}
+              <i class="fa fa-battery-quarter text-success" aria-hidden="true"></i>
+            {% elif app.ta_hour_progress == 'under_half' %}
+              <i class="fa fa-battery-half text-success" aria-hidden="true"></i>
+            {% elif app.ta_hour_progress == 'under_three_quarters' %}
+              <i class="fa fa-battery-three-quarters text-success" aria-hidden="true"></i>
+            {% endif %}
           </td>
           <td>
             <a href="{% url 'administrators:show_user' username=app.applicant.username path='selected' tab='basic' %}">{{ app.applicant.get_full_name }}</a>
@@ -89,7 +101,6 @@
             {% include 'ta_app/applications/_app_instructor_preference.html' with data=app.get_instructor_preference_display %}
           </td>
           <td>
-
             <button class="btn btn-xs btn-info" type="button" data-toggle="modal" data-target="#ta-hours-info-modal-{{ app.id }}">
               <i class="fa fa-file-text-o" aria-hidden="true"></i>
             </button>
@@ -134,7 +145,7 @@
                         </span>
                       </div>
                       <div>
-                        <h6>Assigned TA Hours by Offer:</h6>
+                        <h6>Assigned TA Hours by Administrator:</h6>
                         <span>
                           {% if app.offered.assigned_hours %}
                             {{ app.offered.assigned_hours }} hour{% if app.offered.assigned_hours > 1 %}s {% endif %}
@@ -142,6 +153,12 @@
                             None
                           {% endif %}
                         </span>
+                        <div class="font-weight-bold text-chocolate">
+                          Delcined and re-assigned:
+                          {% if app.is_declined_reassigned %}
+                            {{ app.declined.assigned_hours }} hour{% if app.declined.assigned_hours > 1 %}s {% endif %}
+                          {% endif %}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -240,6 +257,32 @@
   </table>
 
   {% include 'ta_app/pages/_table_paginator.html' with data=apps %}
+
+  <div class="font-size-xs mt-5">
+    <h6>Note for icons:</h6>
+    <ul>
+      <li>
+        Total Assigned TA Hours == Accumulated TA Hours:
+        <i class="fa fa-check text-success" aria-hidden="true"></i>
+      </li>
+      <li>
+        Total Assigned TA Hours * 1/4 < Accumulated TA Hours:
+        <i class="fa fa-battery-quarter text-success" aria-hidden="true"></i>
+      </li>
+      <li>
+        Total Assigned TA Hours * 2/4 < Accumulated TA Hours:
+        <i class="fa fa-battery-half text-success" aria-hidden="true"></i>
+      </li>
+      <li>
+        Total Assigned TA Hours * 3/4 < Accumulated TA Hours:
+        <i class="fa fa-battery-three-quarters text-success" aria-hidden="true"></i>
+      </li>
+      <li>
+        Total Assigned TA Hours < Accumulated TA Hours
+        <i class="fa fa-times-circle text-danger" aria-hidden="true"></i>
+      </li>
+    </ul>
+  </div>
 
 </div>
 
