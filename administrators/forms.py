@@ -435,22 +435,3 @@ class AdminEmailForm(forms.ModelForm):
             'message': SummernoteWidget(),
             'type': forms.TextInput(attrs={ 'class':'form-control' }),
         }
-
-
-
-"""
-class SessionJobForm(forms.ModelForm):
-    class Meta:
-        model = Job
-        fields = ['session', 'course']
-
-
-class JobForm(forms.ModelForm):
-    instructors = forms.ModelMultipleChoiceField(
-        queryset=User.objects.filter(profile__roles=ROLES['Instructor']),
-        widget=forms.CheckboxSelectMultiple()
-    )
-    class Meta:
-        model = Job
-        fields = ['title', 'description', 'qualification', 'note', 'instructors', 'is_active']
-"""
