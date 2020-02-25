@@ -21,10 +21,11 @@
         <th data-sortable="true">User ID</th>
         <th data-sortable="true">First Name</th>
         <th data-sortable="true">Last Name</th>
-        <th data-sortable="true">Preferred Name</th>
+        <th data-sortable="true">Preferred<br /> Name</th>
         <th data-sortable="true">CWL</th>
         <th data-sortable="true">E-mail</th>
-        <th data-sortable="true">Jobs</th>
+        <th data-sortable="true">Total<br /> Jobs</th>
+        <th data-sortable="true">Total<br /> Applicants</th>
       </tr>
     </thead>
     <tbody>
@@ -45,6 +46,7 @@
               {{ instructor.job_set.count }}
             {% endif %}
           </td>
+          <td>{{ instructor.total_applicants }}</td>
         </tr>
       {% endfor %}
     </tbody>

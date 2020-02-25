@@ -254,3 +254,42 @@ def show_applications(request, session_slug, job_slug):
         'instructor_preference_choices': Application.INSTRUCTOR_PREFERENCE_CHOICES,
         'app_status': APP_STATUS
     })
+
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET', 'POST'])
+def write_note(request, app_slug):
+    ''' Write a note to administraotors '''
+    if request.user.is_impersonate:
+        if not userApi.is_admin(request.session['loggedin_user'], 'dict'): raise PermissionDenied
+        request.user.roles = userApi.get_user_roles(request.user)
+    else:
+        request.user.roles = request.session['loggedin_user']['roles']
+    if 'Instructor' not in request.user.roles: raise PermissionDenied
+
+    app = adminApi.get_application(app_slug, 'slug')
+
+    if request.method == 'POST':
+        form = ApplicationNoteForm(request.POST, instance=app)
+        if form.is_valid():
+            appl = form.save(commit=False)
+            appl.updated_at = datetime.now()
+            appl.save()
+            if appl:
+                messages.success(request, 'Success! {0} {1} - {2} {3} {4}: Note for {5}(CWL: {6}) updated.'.format(appl.job.session.year, appl.job.session.term.code, appl.job.course.code.name, appl.job.course.number.name, appl.job.course.section.name, appl.applicant.get_full_name(), appl.applicant.username))
+                return HttpResponseRedirect( reverse('instructors:show_applications', args=[app.job.session.slug, app.job.course.slug]) )
+            else:
+                messages.error(request, 'An error occurred while writing a note.')
+        else:
+            errors = form.errors.get_json_data()
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+
+        return HttpResponseRedirect( reverse('instructors:write_note', args=[app_slug]) )
+
+    return render(request, 'instructors/jobs/write_note.html', {
+        'loggedin_user': request.user,
+        'app': adminApi.add_app_info_into_application(app, ['selected']),
+        'form': ApplicationNoteForm(data=None, instance=app),
+        'app_status': APP_STATUS
+    })

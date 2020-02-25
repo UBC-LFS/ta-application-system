@@ -1,0 +1,85 @@
+{% extends 'ta_app/base.html' %}
+{% block content %}
+
+{% include 'instructors/_menu.html' %}
+<div class="row">
+  <div class="col-md-4">
+    {% include 'ta_app/pages/_left_aside.html' with view_name='applications' title='Write Note' data=app %}
+
+    <div class="left-aside-btn-groups">
+      <a class="btn btn-outline-primary" href="{% url 'instructors:show_applications' session_slug=app.job.session.slug job_slug=app.job.course.slug %}">Back to Applications</a>
+    </div>
+  </div>
+
+  <div class="col-md-8">
+    <div class="board col-11 mx-auto">
+      <h3>Write Note Form</h3>
+
+      <div>
+        <h5>Applicant:</h5>
+        <span>{{ app.applicant.get_full_name }} (CWL: {{ app.applicant.username }})</span>
+      </div>
+
+      <div>
+        <h5>Instructor Preference:</h5>
+        <span>
+          {% if app.instructor_preference != app_status.none and app.selected %}
+
+            {% include 'ta_app/applications/_app_instructor_preference.html' with data=app.get_instructor_preference_display %}
+            <div>Assigned <span class="font-weight-bold">{{ app.selected.assigned_hours }}</span> hours</div>
+            <small class="text-muted">{{ app.selected.created_at }}</small>
+
+          {% else %}
+            None
+          {% endif %}
+        </span>
+      </div>
+
+      <div>
+        <h5>Application Status:</h5>
+        <span>
+          {% if app.applicationstatus_set.last.assigned == app_status.offered or app.applicationstatus_set.last.assigned == app_status.accepted or app.applicationstatus_set.last.assigned == app_status.declined or app.applicationstatus_set.last.assigned == app_status.cancelled %}
+
+            {% if app.applicationstatus_set.last.assigned == app_status.accepted and app.is_declined_reassigned %}
+              <span class="badge badge-success">RE</span>
+            {% endif %}
+
+            {% include 'ta_app/applications/_app_status.html' with data=app.applicationstatus_set.last.get_assigned_display %}
+
+            {% if app.applicationstatus_set.last.assigned == app_status.offered or app.applicationstatus_set.last.assigned == app_status.accepted %}
+              <div>Assigned <span class="font-weight-bold">{{ app.applicationstatus_set.last.assigned_hours }}</span> hours</div>
+            {% endif %}
+
+            <div><small class="text-muted">{{ app.applicationstatus_set.last.created_at }}</small></div>
+
+          {% else %}
+            <span class="badge badge-light text-dark">PENDING</span>
+          {% endif %}
+        </span>
+      </div>
+
+      <form action="" method="post">
+        {% csrf_token %}
+
+        {% for field in form.visible_fields  %}
+          <div class="field-wrapper">
+            {{ field.label_tag }}
+            {% if field.help_text %}
+              <div class="help">{{ field.help_text|safe }}</div>
+            {% endif %}
+            {{ field }}
+          </div>
+        {% endfor %}
+
+        {% for field in form.hidden_fields %}
+          {{ field }}
+        {% endfor %}
+
+        <a class="btn btn-outline-secondary" href="{% url 'instructors:show_applications' session_slug=app.job.session.slug job_slug=app.job.course.slug %}">Cancel</a>
+        <input class="btn btn-primary" type="submit" value="Write" />
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

@@ -74,13 +74,13 @@
   <nav>
     <div class="nav nav-tabs">
       <a class="nav-item nav-link {% if current_tab == 'all' %} active {% endif %}" href="{% url 'administrators:student_jobs_details' username=user.username tab='all' %}">
-        All Jobs
+        All Jobs ({{ apps|length }})
       </a>
       <a class="nav-item nav-link {% if current_tab == 'offered' %} active {% endif %}" href="{% url 'administrators:student_jobs_details' username=user.username tab='offered' %}">
-        Offered Jobs
+        Offered Jobs ({{ offered_apps|length }})
       </a>
       <a class="nav-item nav-link {% if current_tab == 'accepted' %} active {% endif %}" href="{% url 'administrators:student_jobs_details' username=user.username tab='accepted' %}">
-        Accepted Jobs
+        Accepted Jobs ({{ accepted_apps|length }})
       </a>
     </div>
   </nav>
@@ -88,7 +88,11 @@
   {% if current_tab == 'offered' %}
 
     <div>
-      <h4 class="mt-5 mb-3">Offered Jobs</h4>
+      <h4 class="mt-5 mb-3">
+        Offered Jobs
+        <small class="text-muted">(Total: {{ offered_apps|length }})</small>
+      </h4>
+
       <table
         class="table table-bordered table-hover table-striped table-responsive-md text-center"
         data-toggle="table"
@@ -113,19 +117,17 @@
           </tr>
         </thead>
         <tbody>
-          {% for app in apps %}
-            {% if app.offered %}
-              <tr>
-                <td>{{ app.job.session.year }}</td>
-                <td>{{ app.job.session.term.code }}</td>
-                <td>{{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</td>
-                <td>
-                  {% include 'ta_app/applications/_app_status.html' with data=app.offered.get_assigned_display %}
-                </td>
-                <td>{{ app.offered.assigned_hours }} hours</td>
-                <td>{{ app.offered.created_at }}</td>
-              </tr>
-            {% endif %}
+          {% for app in offered_apps %}
+            <tr>
+              <td>{{ app.job.session.year }}</td>
+              <td>{{ app.job.session.term.code }}</td>
+              <td>{{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</td>
+              <td>
+                {% include 'ta_app/applications/_app_status.html' with data=app.offered.get_assigned_display %}
+              </td>
+              <td>{{ app.offered.assigned_hours }} hours</td>
+              <td>{{ app.offered.created_at }}</td>
+            </tr>
           {% endfor %}
         </tbody>
       </table>
@@ -134,7 +136,10 @@
   {% elif current_tab == 'accepted' %}
 
     <div>
-      <h4 class="mt-5 mb-3">Accepted Jobs</h4>
+      <h4 class="mt-5 mb-3">
+        Accepted Jobs
+        <small class="text-muted">(Total: {{ accepted_apps|length }})</small>
+      </h4>
 
       <table
         class="table table-bordered table-hover table-striped table-responsive-md text-center"
@@ -160,8 +165,8 @@
           </tr>
         </thead>
         <tbody>
-          {% for app in apps %}
-            {% if app.accepted %}
+          {% for app in accepted_apps %}
+
             <tr>
               <td>{{ app.job.session.year }}</td>
               <td>{{ app.job.session.term.code }}</td>
@@ -172,7 +177,7 @@
               <td>{{ app.accepted.assigned_hours }} hours</td>
               <td>{{ app.accepted.created_at }}</td>
             </tr>
-            {% endif %}
+
           {% endfor %}
         </tbody>
       </table>

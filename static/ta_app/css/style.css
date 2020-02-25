@@ -226,6 +226,11 @@ main {
   padding: 1rem 1.5rem;
 }
 
+.modal-item > h4 {
+  color: #007bff;
+}
+
+.modal-item > h4,
 .modal-item > div,
 .modal-item .job-desc > div {
   margin-bottom: 1.5rem;
@@ -245,11 +250,23 @@ main {
   font-size: 1rem;
 }
 
+.modal-item .job-desc,
+.modal-item .note {
+  padding: 1rem 1.3rem;
+  border-radius: 4px;
+  border: 1px solid #e0e0e0;
+}
+
 .modal-item .job-desc {
   background-color: #f8f8f8;
-  padding: 1rem 1.3rem;
-  border: 1px solid #e0e0e0;
-  border-radius: 4px;
+}
+
+.modal-item .note {
+  background-color: #e6e6e6;
+}
+
+.modal-item .note > p:last-child {
+  margin-bottom: 0 !important;
 }
 
 .modal-item .job-desc > div > span {
