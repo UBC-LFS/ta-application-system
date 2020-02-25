@@ -322,6 +322,17 @@ class ApplicationStatusReassignForm(forms.ModelForm):
         }
 
 
+class ApplicationNoteForm(forms.ModelForm):
+    class Meta:
+        model = Application
+        fields = ['note']
+        widgets = {
+            'note': SummernoteWidget()
+        }
+        help_texts = {
+            'note': 'Administrators and instructors can see this note.'
+        }
+
 class AdminApplicationForm(forms.ModelForm):
     class Meta:
         model = Application

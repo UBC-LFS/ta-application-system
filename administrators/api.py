@@ -199,8 +199,7 @@ def add_total_applicants(instructor):
     for job in instructor.job_set.all():
         count += job.application_set.count()
 
-    instructor.total_applicants = count
-    return instructor
+    return count
 
 
 def update_job_instructors(job, old_instructors, new_instructors):
@@ -538,7 +537,7 @@ def send_and_create_email(app, sender, receiver, title, message, type):
         type = type
     )
     return True if msg and created_email else False
-    
+
 
 # end emails
 

@@ -68,8 +68,6 @@ class SessionTest(TestCase):
 
     def test_view_url_exists_at_desired_location(self):
         self.login()
-        #response = self.client.get( reverse('administrators:sessions') )
-        #self.assertEqual(response.status_code, 200)
 
         response = self.client.get( reverse('administrators:current_sessions') )
         self.assertEqual(response.status_code, 200)
@@ -355,9 +353,6 @@ class JobTest(TestCase):
         print('\n- Test: view url exists at desired location')
         self.login()
 
-        #response = self.client.get( reverse('administrators:jobs') )
-        #self.assertEqual(response.status_code, 200)
-
         response = self.client.get( reverse('administrators:show_job', args=[SESSION, JOB, 'prepare']) )
         self.assertEqual(response.status_code, 200)
 
@@ -382,8 +377,11 @@ class JobTest(TestCase):
         response = self.client.get( reverse('administrators:instructor_jobs_details', args=[ USERS[1] ]) )
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get( reverse('administrators:student_jobs_details', args=[USERS[2], 'basic']) )
+        response = self.client.get( reverse('administrators:student_jobs_details', args=[USERS[2], 'all']) )
         self.assertEqual(response.status_code, 200)
+
+        response = self.client.get( reverse('administrators:student_jobs_details', args=[USERS[2], 'alll']) )
+        self.assertEqual(response.status_code, 404)
 
         response = self.client.get( reverse('administrators:edit_job', args=[SESSION, JOB]) )
         self.assertEqual(response.status_code, 200)
@@ -542,18 +540,25 @@ class JobTest(TestCase):
         print('\n- Test: display jobs that a student has')
         self.login()
 
-        response = self.client.get( reverse('administrators:student_jobs_details', args=[USERS[2], 'basic']) )
+        response = self.client.get( reverse('administrators:student_jobs_details', args=[USERS[2], 'all']) )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, USERS[0])
         self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
         self.assertEqual(response.context['user'].username, USERS[2])
 
-        #self.assertEqual( len(response.context['offered_apps']), 5 )
-        #self.assertEqual( response.context['offered_total_assigned_hours']['2019-W1'], 100.0 )
-        #self.assertEqual( response.context['offered_total_assigned_hours']['2019-S'], 80.0 )
-        #self.assertEqual( len(response.context['accepted_apps']), 4 )
-        #self.assertEqual( response.context['accepted_total_assigned_hours']['2019-W1'], 60.0 )
-        #self.assertEqual( response.context['accepted_total_assigned_hours']['2019-S'], 80.0 )
+        apps = response.context['apps']
+        num_offered = 0
+        num_accepted = 0
+        for app in apps:
+            if app.offered is not None: num_offered += 1
+            if app.accepted is not None: num_accepted += 1
+
+        total_assigned_hours = response.context['total_assigned_hours']
+        self.assertEqual( total_assigned_hours['offered'], {'2019-W1': 100.0, '2019-W2': 20.0, '2019-S': 35.0} )
+        self.assertEqual( total_assigned_hours['accepted'], {'2019-W1': 100.0, '2019-W2': 50.0} )
+        self.assertEqual(len(apps), 7)
+        self.assertEqual(num_offered, 4)
+        self.assertEqual(num_accepted, 3)
 
 
 class ApplicationTest(TestCase):
@@ -576,9 +581,6 @@ class ApplicationTest(TestCase):
     def test_view_url_exists_at_desired_location(self):
         print('\n- Test: view url exists at desired location')
         self.login()
-
-        #response = self.client.get( reverse('administrators:applications') )
-        #self.assertEqual(response.status_code, 200)
 
         response = self.client.get( reverse('administrators:show_application', args=[APP, 'all']) )
         self.assertEqual(response.status_code, 200)
@@ -607,11 +609,11 @@ class ApplicationTest(TestCase):
         response = self.client.get( reverse('administrators:applications_send_email_confirmation', args=['offered']) )
         self.assertEqual(response.status_code, 200)
 
+        response = self.client.get( reverse('administrators:applications_send_email_confirmation', args=['offeredd']) )
+        self.assertEqual(response.status_code, 404)
+
         response = self.client.get( reverse('administrators:email_history') )
         self.assertEqual(response.status_code, 200)
-
-        #response = self.client.get( reverse('administrators:send_reminder', args=['1']) )
-        #self.assertEqual(response.status_code, 200)
 
         response = self.client.get( reverse('administrators:decline_reassign_confirmation') )
         self.assertEqual(response.status_code, 200)
@@ -657,8 +659,6 @@ class ApplicationTest(TestCase):
         self.assertEqual(response.context['loggedin_user'].username, USERS[0])
         self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
         self.assertEqual( len(response.context['apps']), 20)
-        self.assertFalse(response.context['admin_application_form'].is_bound)
-        self.assertFalse(response.context['status_form'].is_bound)
         self.assertEqual( len(response.context['classification_choices']), 6)
         self.assertEqual(response.context['app_status']['offered'], ApplicationStatus.OFFERED)
 
@@ -1110,14 +1110,18 @@ class HRTest(TestCase):
         response = self.client.get( reverse('administrators:all_users') )
         self.assertEqual(response.status_code, 200)
 
+        response = self.client.get( reverse('administrators:create_user') )
+        self.assertEqual(response.status_code, 200)
+
         response = self.client.get( reverse('administrators:show_user', args=[USERS[2], 'users', 'basic']) )
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get( reverse('administrators:show_user', args=[USERS[2], 'user', 'basic']) )
         self.assertEqual(response.status_code, 404)
 
-        response = self.client.get( reverse('administrators:create_user') )
-        self.assertEqual(response.status_code, 200)
+        response = self.client.get( reverse('administrators:show_user', args=[USERS[2], 'users', 'basicd']) )
+        self.assertEqual(response.status_code, 404)
+
 
     def test_all_users(self):
         print('\n- Test: get all users')
@@ -1552,9 +1556,6 @@ class CourseTest(TestCase):
     def test_view_url_exists_at_desired_location(self):
         print('\n- Test: view url exists at desired location')
         self.login()
-
-        #response = self.client.get( reverse('administrators:courses') )
-        #self.assertEqual(response.status_code, 200)
 
         response = self.client.get( reverse('administrators:all_courses') )
         self.assertEqual(response.status_code, 200)

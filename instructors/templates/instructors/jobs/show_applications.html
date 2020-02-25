@@ -16,7 +16,7 @@
     <div class="board col-11 mx-auto">
       <h3>Application Details</h3>
 
-      <div class="card border-info  mt-4">
+      <div class="card border-info mt-4">
         <div class="card-header bg-info text-white">Information of TA hours</div>
         <div class="card-body">
           <span class="font-weight-bold">Accumulated TA hours</span> are accumulated when students accept their job offers with assigned hours.
@@ -153,6 +153,7 @@
           </td>
           <td>
             {% include 'ta_app/applications/_modal_note.html' with data=app %}
+            <a class="btn btn-link btn-xs" href="{% url 'instructors:write_note' app_slug=app.slug %}">Write</a>
           </td>
         </tr>
       {% endfor %}
