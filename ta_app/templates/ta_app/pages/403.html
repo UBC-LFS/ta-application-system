@@ -3,20 +3,14 @@
 
 <div class="text-center">
   <h4 class="mt-5">
-    <i class="fa fa-lock" aria-hidden="true"></i> Permission Denied
+    <i class="fa fa-lock" aria-hidden="true"></i>
+    Permission Denied
   </h4>
   <p>
     You do not have permission to access this page. Please refer to your system administrator.
   </p>
 
-  {% if 'Admin' in loggedin_user.roles or 'Superadmin' in roles or 'HR' in loggedin_user.roles %}
-    <p><a href="{% url 'administrators:index' %}">Go to Administrator Home</a></p>
-  {% elif 'Instructor' in loggedin_user.roles %}
-    <p><a href="{% url 'instructors:index' %}">Go to Instructor Home</a></p>
-  {% else %}
-    <p><a href="{% url 'students:index' %}">Go to Student Home</a></p>
-  {% endif %}
-
+  {% include 'ta_app/pages/_error_page_urls.html' with data=loggedin_user %}
 </div>
 
 {% endblock %}

@@ -482,6 +482,9 @@ def instructor_jobs(request):
     except EmptyPage:
         users = paginator.page(paginator.num_pages)
 
+    for user in users:
+        user.total_applicants = adminApi.add_total_applicants(user)
+
     return render(request, 'administrators/jobs/instructor_jobs.html', {
         'loggedin_user': request.user,
         'users': users,
@@ -554,9 +557,10 @@ def instructor_jobs_details(request, username):
     if not userApi.is_admin(request.user): raise PermissionDenied
 
     user = userApi.get_user(username, 'username')
+    user.total_applicants = adminApi.add_total_applicants(user)
     return render(request, 'administrators/jobs/instructor_jobs_details.html', {
         'loggedin_user': request.user,
-        'user': adminApi.add_total_applicants(user)
+        'user': user
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -570,11 +574,21 @@ def student_jobs_details(request, username, tab):
 
     user = userApi.get_user(username, 'username')
     apps = user.application_set.all()
+    apps = adminApi.add_app_info_into_applications(apps, ['offered', 'accepted'])
+
+    offered_apps = []
+    accepted_apps = []
+    for app in apps:
+        if app.offered: offered_apps.append(app)
+        if app.accepted: accepted_apps.append(app)
+
     return render(request, 'administrators/jobs/student_jobs_details.html', {
         'loggedin_user': request.user,
         'user': user,
-        'apps': adminApi.add_app_info_into_applications(apps, ['offered', 'accepted']),
         'total_assigned_hours': adminApi.get_total_assigned_hours(apps, ['offered', 'accepted']),
+        'apps': apps,
+        'offered_apps': offered_apps,
+        'accepted_apps': accepted_apps,
         'current_tab': tab,
         'app_status': APP_STATUS
     })
@@ -803,8 +817,6 @@ def selected_applications(request):
         'loggedin_user': request.user,
         'apps': apps,
         'total_apps': len(app_list),
-        'admin_application_form': AdminApplicationForm(),
-        'status_form': ApplicationStatusForm(initial={ 'assigned': ApplicationStatus.OFFERED }),
         'classification_choices': adminApi.get_classifications(),
         'app_status': APP_STATUS
     })

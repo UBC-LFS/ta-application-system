@@ -233,3 +233,43 @@ class InstructorTest(TestCase):
         self.assertEqual(second_app.applicationstatus_set.last().get_assigned_display(), 'Accepted')
         self.assertEqual(second_app.applicationstatus_set.last().assigned_hours, 65.5)
         self.assertEqual(second_app.applicationstatus_set.last().created_at, datetime.date(2019, 9, 20))
+
+
+    def test_write_note(self):
+        print('\n- Write a note')
+        self.login()
+
+        APP = SESSION + '-' + JOB + '-application-by-user66test'
+        app = adminApi.get_application(APP, 'slug')
+        self.assertIsNone(app.note)
+
+        data = { 'note': 'new note' }
+        response = self.client.post( reverse('instructors:write_note', args=[APP]), data=urlencode(data), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+        response = self.client.get( reverse('instructors:show_applications', args=[SESSION, JOB]) )
+        self.assertEqual(response.status_code, 200)
+        apps = response.context['apps']
+
+        appl = None
+        for a in apps:
+            if app.id == a.id: appl = a
+
+        self.assertIsNotNone(appl)
+        self.assertEqual(app.id, appl.id)
+        self.assertEqual(app.applicant, appl.applicant)
+        self.assertEqual(app.job, appl.job)
+        self.assertEqual(app.supervisor_approval, appl.supervisor_approval)
+        self.assertEqual(app.how_qualified, appl.how_qualified)
+        self.assertEqual(app.how_interested, appl.how_interested)
+        self.assertEqual(app.availability, appl.availability)
+        self.assertEqual(app.availability_note, appl.availability_note)
+        self.assertEqual(app.classification, appl.classification)
+        self.assertEqual(app.instructor_preference, appl.instructor_preference)
+        self.assertEqual(app.is_declined_reassigned, appl.is_declined_reassigned)
+        self.assertEqual(app.is_terminated, appl.is_terminated)
+        self.assertIsNotNone(appl.note)
+        self.assertEqual(appl.note, data['note'])
