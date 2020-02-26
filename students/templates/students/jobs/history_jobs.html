@@ -2,132 +2,136 @@
 {% block content %}
 
 {% include 'students/_menu.html' %}
-<div>
-  {% include 'ta_app/pages/_header.html' with title='History of Jobs' text=apps|length %}
+<div class="row">
+  <div class="col-md-3">
+    {% include 'ta_app/pages/_left_aside_compact.html' with view_name='history_jobs' title='History of Jobs' %}
 
-  <div class="bg-prompt">
-    <div class="prompt p-4 text-center mb-4">
-      <h4>Status: Get a glance</h4>
-      <p class="col-8 mx-auto">Please check status of your submitted applications carefully.</p>
+    <div class="left-aside-btn-groups">
       <a class="btn btn-outline-primary" href="{% url 'students:explore_jobs' %}">Back to Explore Jobs</a>
     </div>
   </div>
 
-  {% include 'students/jobs/_search_fields.html' with data=apps total=total_apps path='history_jobs' %}
-  <table
-    class="table table-bordered table-hover table-striped table-responsive-md text-center font-size-1"
-    data-toggle="table"
-    data-sortable="true"
-    data-classes=""
-  >
-    <thead>
-      <tr>
-        <th></th>
-        <th data-sortable="true">Year</th>
-        <th data-sortable="true">Term</th>
-        <th data-sortable="true">Job</th>
-        <th data-sortable="true">Application</th>
-        <th data-sortable="true">Applied at</th>
-        <th data-sortable="true">Status</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for app in apps %}
+  <div class="col-md-9">
+    <h5 class="text-info mb-5">
+      <i class="fa fa-info-circle" aria-hidden="true"></i>
+      Number of Jobs: {{ apps|length }}
+    </h5>
+
+    {% include 'students/jobs/_search_fields.html' with data=apps total=total_apps path='history_jobs' %}
+    <table
+      class="table table-bordered table-hover table-striped table-responsive-md text-center font-size-1"
+      data-toggle="table"
+      data-sortable="true"
+      data-classes=""
+    >
+      <thead>
         <tr>
-          <td>
-            {% if app.offered %}
-              {% if app.job.is_active %}
-                <i class="fa fa-envelope fa-lg text-chocolate" aria-hidden="true"></i>
-              {% endif %}
-            {% elif app.accepted %}
-              {% if app.job.is_active and app.is_terminated %}
-                <i class="fa fa-envelope fa-lg text-chocolate" aria-hidden="true"></i>
-              {% endif %}
-            {% elif app.declined %}
-              {% if app.is_declined_reassigned %}
-                <i class="fa fa-envelope fa-lg text-chocolate" aria-hidden="true"></i>
-              {% endif %}
-            {% endif %}
-          </td>
-          <td>{{ app.job.session.year }}</td>
-          <td>{{ app.job.session.term.code }}</td>
-          <td>
-            <a href="{% url 'students:show_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}">
-              {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}
-            </a>
-
-            {% if not app.job.is_active %}
-              <br />
-              <span class="badge badge-light">No longer available</span>
-            {% endif %}
-          </td>
-          <td>
-            <a href="{% url 'students:show_application' app_slug=app.slug %}">View</a>
-          </td>
-          <td>{{ app.applied.created_at }}</td>
-          <td>
-            {% if app.offered %}
-
-              {% include 'ta_app/applications/_app_status.html' with data=app.offered.get_assigned_display %}<br />
-              <small class="text-muted">{{ app.offered.created_at }}</small>
-              <div>
-                <span class="font-weight-bold">{{ app.offered.assigned_hours }}</span> hours
-              </div>
-
-              {% if app.job.is_active %}
-              <hr />
-              <a href="{% url 'students:accept_decline_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}">Accept / Decline</a>
-              {% endif %}
-
-            {% elif app.accepted %}
-
-              {% if app.is_declined_reassigned %}
-                <span class="badge badge-success">RE</span>
-              {% endif %}
-
-              {% include 'ta_app/applications/_app_status.html' with data=app.accepted.get_assigned_display %}<br />
-              <small class="text-muted">{{ app.accepted.created_at }}</small>
-              <div>
-                <span class="font-weight-bold">{{ app.accepted.assigned_hours }}</span> hours
-              </div>
-
-              {% if app.job.is_active and app.is_terminated %}
-                <hr />
-                <a href="{% url 'students:cancel_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}">
-                  Contract<br /> Termination
-                </a>
-              {% endif %}
-
-            {% elif app.declined %}
-
-              {% include 'ta_app/applications/_app_status.html' with data=app.declined.get_assigned_display %}<br />
-              <div><small class="text-muted">{{ app.declined.created_at }}</small></div>
-
-              {% if app.is_declined_reassigned %}
-                <hr />
-                <a href="{% url 'students:reaccept_application' app_slug=app.slug %}">Re-accept</a>
-              {% endif %}
-
-            {% elif app.cancelled %}
-
-              {% include 'ta_app/applications/_app_status.html' with data=app.cancelled.get_assigned_display %}<br />
-              <small class="text-muted">{{ app.cancelled.created_at }}</small>
-
-            {% else %}
-
-              {% include 'ta_app/applications/_app_status.html' with data='None' %}
-
-            {% endif %}
-          </td>
+          <th class="p-0"></th>
+          <th data-sortable="true">Year</th>
+          <th data-sortable="true">Term</th>
+          <th data-sortable="true">Job</th>
+          <th data-sortable="true">Application</th>
+          <th data-sortable="true">Applied at</th>
+          <th data-sortable="true">Status</th>
         </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+        {% for app in apps %}
+          <tr>
+            <td>
+              {% if app.offered %}
+                {% if app.job.is_active %}
+                  <i class="fa fa-envelope fa-lg text-chocolate" aria-hidden="true"></i>
+                {% endif %}
+              {% elif app.accepted %}
+                {% if app.job.is_active and app.is_terminated %}
+                  <i class="fa fa-envelope fa-lg text-chocolate" aria-hidden="true"></i>
+                {% endif %}
+              {% elif app.declined %}
+                {% if app.is_declined_reassigned %}
+                  <i class="fa fa-envelope fa-lg text-chocolate" aria-hidden="true"></i>
+                {% endif %}
+              {% endif %}
+            </td>
+            <td>{{ app.job.session.year }}</td>
+            <td>{{ app.job.session.term.code }}</td>
+            <td>
+              <a href="{% url 'students:show_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}">
+                {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}
+              </a>
 
-  {% include 'ta_app/pages/_table_paginator.html' with data=apps %}
+              {% if not app.job.is_active %}
+                <br />
+                <span class="badge badge-light">No longer available</span>
+              {% endif %}
+            </td>
+            <td>
+              <a href="{% url 'students:show_application' app_slug=app.slug %}">View</a>
+            </td>
+            <td>{{ app.applied.created_at }}</td>
+            <td>
+              {% if app.offered %}
 
-  {% include 'ta_app/pages/_note_reassigned_offer.html' %}
+                {% include 'ta_app/applications/_app_status.html' with data=app.offered.get_assigned_display %}<br />
+                <small class="text-muted">{{ app.offered.created_at }}</small>
+                <div>
+                  <span class="font-weight-bold">{{ app.offered.assigned_hours }}</span> hours
+                </div>
 
+                {% if app.job.is_active %}
+                <hr />
+                <a href="{% url 'students:accept_decline_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}">Accept / Decline</a>
+                {% endif %}
+
+              {% elif app.accepted %}
+
+                {% if app.is_declined_reassigned %}
+                  <span class="badge badge-success">RE</span>
+                {% endif %}
+
+                {% include 'ta_app/applications/_app_status.html' with data=app.accepted.get_assigned_display %}<br />
+                <small class="text-muted">{{ app.accepted.created_at }}</small>
+                <div>
+                  <span class="font-weight-bold">{{ app.accepted.assigned_hours }}</span> hours
+                </div>
+
+                {% if app.job.is_active and app.is_terminated %}
+                  <hr />
+                  <a href="{% url 'students:cancel_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}">
+                    Contract<br /> Termination
+                  </a>
+                {% endif %}
+
+              {% elif app.declined %}
+
+                {% include 'ta_app/applications/_app_status.html' with data=app.declined.get_assigned_display %}<br />
+                <div><small class="text-muted">{{ app.declined.created_at }}</small></div>
+
+                {% if app.is_declined_reassigned %}
+                  <hr />
+                  <a href="{% url 'students:reaccept_application' app_slug=app.slug %}">Re-accept</a>
+                {% endif %}
+
+              {% elif app.cancelled %}
+
+                {% include 'ta_app/applications/_app_status.html' with data=app.cancelled.get_assigned_display %}<br />
+                <small class="text-muted">{{ app.cancelled.created_at }}</small>
+
+              {% else %}
+
+                {% include 'ta_app/applications/_app_status.html' with data='None' %}
+
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    {% include 'ta_app/pages/_table_paginator.html' with data=apps %}
+
+    {% include 'ta_app/pages/_note_reassigned_offer.html' %}
+  </div>
 </div>
 
 {% endblock %}

@@ -44,19 +44,7 @@
           <td>
             <a href="{% url 'administrators:show_job' session_slug=app.job.session.slug job_slug=app.job.course.slug path='selected' %}">
               {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}
-            </a><br />
-
-            {% if app.ta_hour_progress == 'done' %}
-              <i class="fa fa-check text-success" aria-hidden="true"></i>
-            {% elif app.ta_hour_progress == 'over' %}
-              <i class="fa fa-times-circle text-danger" aria-hidden="true"></i>
-            {% elif app.ta_hour_progress == 'under_one_quarter' %}
-              <i class="fa fa-battery-quarter text-success" aria-hidden="true"></i>
-            {% elif app.ta_hour_progress == 'under_half' %}
-              <i class="fa fa-battery-half text-success" aria-hidden="true"></i>
-            {% elif app.ta_hour_progress == 'under_three_quarters' %}
-              <i class="fa fa-battery-three-quarters text-success" aria-hidden="true"></i>
-            {% endif %}
+            </a>
           </td>
           <td>
             <a href="{% url 'administrators:show_user' username=app.applicant.username path='selected' tab='basic' %}">{{ app.applicant.get_full_name }}</a>
@@ -85,7 +73,7 @@
                     <div class="modal-body text-left">
                       <div class="modal-item">
                         <h5>
-                          File: <a href="{% url 'students:download_resume' username=app.applicant.username filename=app.resume_filename %}" target="_blank">{{ app.resume_filename }}</a>
+                          File: <a href="{% url 'students:download_file' username=app.applicant.username item='resume' filename=app.resume_filename %}" target="_blank">{{ app.resume_filename }}</a>
                         </h5>
                         <p>
                           Uploaded at {{ app.applicant.resume.created_at }}
@@ -109,7 +97,31 @@
               <div class="modal-dialog modal-lg" role="document">
                 <div class="modal-content">
                   <div class="modal-header">
-                    <h5 class="modal-title text-info" id="ta-hours-info-modal-label-{{ app.id }}">Information of TA Hours</h5>
+                    <h5 class="modal-title text-info" id="ta-hours-info-modal-label-{{ app.id }}">
+                      Information of TA Hours
+
+                      {% if app.ta_hour_progress == 'done' %}
+                        <i class="fa fa-check text-success" aria-hidden="true"></i>
+                        <small class="text-muted">(Matched)</small>
+
+                      {% elif app.ta_hour_progress == 'over' %}
+                        <i class="fa fa-times-circle text-danger" aria-hidden="true"></i>
+                        <small class="text-muted">(Matched!)</small>
+
+                      {% elif app.ta_hour_progress == 'under_one_quarter' %}
+                        <i class="fa fa-battery-quarter text-success" aria-hidden="true"></i>
+                        <small class="text-muted">(Reached one quarter)</small>
+
+                      {% elif app.ta_hour_progress == 'under_half' %}
+                        <i class="fa fa-battery-half text-success" aria-hidden="true"></i>
+                        <small class="text-muted">(Reached half)</small>
+
+                      {% elif app.ta_hour_progress == 'under_three_quarters' %}
+                        <i class="fa fa-battery-three-quarters text-success" aria-hidden="true"></i>
+                        <small class="text-muted">(Reached three quarters)</small>
+
+                      {% endif %}
+                    </h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                   </div>
                   <div class="modal-body text-left">
@@ -165,7 +177,19 @@
                 </div>
               </div>
             </div>
+            <br/>
 
+            {% if app.ta_hour_progress == 'done' %}
+              <i class="fa fa-check text-success" aria-hidden="true"></i>
+            {% elif app.ta_hour_progress == 'over' %}
+              <i class="fa fa-times-circle text-danger" aria-hidden="true"></i>
+            {% elif app.ta_hour_progress == 'under_one_quarter' %}
+              <i class="fa fa-battery-quarter text-success" aria-hidden="true"></i>
+            {% elif app.ta_hour_progress == 'under_half' %}
+              <i class="fa fa-battery-half text-success" aria-hidden="true"></i>
+            {% elif app.ta_hour_progress == 'under_three_quarters' %}
+              <i class="fa fa-battery-three-quarters text-success" aria-hidden="true"></i>
+            {% endif %}
           </td>
           <td>
             {% include 'ta_app/applications/_app_classification.html' with data=app %}<br />

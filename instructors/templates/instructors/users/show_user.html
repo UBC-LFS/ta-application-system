@@ -47,7 +47,7 @@
           {% if selected_user.resume_filename %}
             <div>
               File:
-              <a href="{% url 'students:download_resume' username=selected_user.username filename=selected_user.resume_filename %}" target="_blank">
+              <a href="{% url 'students:download_file' username=selected_user.username item='resume' filename=selected_user.resume_filename %}" target="_blank">
                 {{ selected_user.resume_filename }}
               </a><br />
             </div>

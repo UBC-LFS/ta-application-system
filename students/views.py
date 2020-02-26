@@ -4,7 +4,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseRedirect, Http404
+from django.http import HttpResponseRedirect, Http404, HttpResponse
 from django.core.exceptions import PermissionDenied
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.cache import cache_control
@@ -146,15 +146,6 @@ def upload_resume(request):
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
     return HttpResponseRedirect( reverse('students:show_profile', args=['resume']) )
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-def download_resume(request, username, filename):
-    ''' Download user's resume '''
-    if not userApi.is_valid_user(request.user): raise PermissionDenied
-
-    path = 'users/{0}/resume/{1}/'.format(username, filename)
-    return serve(request, path, document_root=settings.MEDIA_ROOT)
 
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -420,12 +411,31 @@ def delete_confidential_information(request):
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-def download_personal_data_form(request, username, filename):
-    ''' Download user's personal data form '''
+def download_file(request, username, item, filename):
+    ''' Download user' uploaded files '''
     if not userApi.is_valid_user(request.user): raise PermissionDenied
 
-    path = 'users/{0}/personal_data_form/{1}/'.format(username, filename)
-    return serve(request, path, document_root=settings.MEDIA_ROOT)
+    file_path = os.path.join(settings.MEDIA_ROOT, 'users', username, item, filename)
+    filename_splited = os.path.splitext(filename)
+
+    content_type = None
+    if '.doc' in filename_splited:
+        content_type = 'application/msword'
+    elif '.docx' in filename_splited:
+        content_type = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    elif '.pdf' in filename_splited:
+        content_type = 'application/pdf'
+    elif '.jpg' in filename_splited or '.jpeg' in filename_splited:
+        content_type = 'image/jpeg'
+    elif '.png' in filename_splited:
+        content_type = 'image/png'
+
+    if os.path.exists(file_path) or content_type is not None:
+        with open(file_path, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type=content_type)
+            response['Content-Disposition'] = 'inline; filename=' + filename
+            return response
+    raise Http404
 
 
 # Jobs

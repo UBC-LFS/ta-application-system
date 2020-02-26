@@ -70,7 +70,7 @@
   <h6>Personal Data Form:</h6>
 
   {% if data.confidentiality.personal_data_form %}
-    <a class="btn btn-link" href="{% url 'students:download_personal_data_form' username=data.username filename=data.personal_data_form_filename %}" target="_blank">
+    <a class="btn btn-link" href="{% url 'students:download_file' username=data.username item='personal_data_form' filename=data.personal_data_form_filename %}" target="_blank">
       <i class="fa fa-cloud-download" aria-hidden="true"></i> {{ data.personal_data_form_filename }}
     </a>
   {% else %}

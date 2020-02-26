@@ -1,0 +1,23 @@
+{% load static %}
+
+<aside class="col-10 mx-auto">
+  {% include 'ta_app/pages/_header.html' with title=title %}
+
+  <div class="left-content compact">
+
+    {% if view_name == 'job_applications' %}
+
+      <h6>{{ data.session.year }} {{ data.session.term.name }} ({{ data.session.term.code }})</h6>
+      <h6>{{ data.course.code.name }} {{ data.course.number.name }} {{ data.course.section.name }}</h6>
+      <p>{{ data.course.name }}</p>
+
+    {% elif view_name == 'history_jobs' %}
+      <h6>
+        <i class="fa fa-bell-o" aria-hidden="true"></i> Get a glance
+      </h6>
+      <p>Please check your application status carefully.</p>
+
+    {% endif %}
+
+  </div>
+</aside>

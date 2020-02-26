@@ -3,165 +3,176 @@
 
 {% include 'instructors/_menu.html' %}
 <div class="row">
-  <div class="col-md-4">
-    {% include 'ta_app/pages/_left_aside.html' with view_name='job_applications' title='Applications' data=job %}
+  <div class="col-md-3">
+    {% include 'ta_app/pages/_left_aside_compact.html' with view_name='job_applications' title='Applications' data=job %}
 
     <div class="left-aside-btn-groups">
       <a class="btn btn-outline-primary" href="{% url 'instructors:show_jobs' %}">Back to Jobs</a>
     </div>
   </div>
 
-  <div class="col-md-8">
-
-    <div class="board col-11 mx-auto">
-      <h3>Application Details</h3>
-
-      <div class="card border-info mt-4">
-        <div class="card-header bg-info text-white">Information of TA hours</div>
-        <div class="card-body">
-          <span class="font-weight-bold">Accumulated TA hours</span> are accumulated when students accept their job offers with assigned hours.
-          <ul>
-            <li>Total Assigned TA Hours: <span class="font-weight-bold text-danger">{{ job.assigned_ta_hours }}</span> hours</li>
-            <li>Accumulated TA hours: <span class="font-weight-bold text-danger">{{ job.accumulated_ta_hours }}</span> hours</li>
-          </ul>
-        </div>
+  <div class="col-md-9">
+    <div class="mb-5">
+      <div>
+        <h5 class="text-info">
+          <i class="fa fa-info-circle" aria-hidden="true"></i>
+          Summary of TA hours
+        </h5>
+        <ul>
+          <li>Total Assigned TA Hours: <span class="font-weight-bold text-danger">{{ job.assigned_ta_hours }}</span> hours</li>
+          <li>Accumulated TA hours: <span class="font-weight-bold text-danger">{{ job.accumulated_ta_hours }}</span> hours</li>
+        </ul>
       </div>
+      <span class="font-weight-bold">Note:</span> <code>Accumulated TA hours</code> are accumulated when students accept their job offers with assigned hours.
     </div>
 
-  </div>
-</div>
+    <h5 class="text-info">
+      <i class="fa fa-info-circle" aria-hidden="true"></i>
+      Number of Applications: {{ job.application_set.all|length }}
+    </h5>
 
-<div class="mt-5">
-  <h4>
-    Applications
-    <small class="text-muted">(Total: {{ job.application_set.all|length }})</small>
-  </h4>
-  <table class="table table-bordered table-hover table-striped table-responsive-md text-center font-size-1" data-toggle="table" data-sortable="true" data-classes="" data-pagination="true" data-search="true">
-    <thead>
-      <tr>
-        <th data-sortable="true">Applicant</th>
-        <th data-sortable="true">CWL</th>
-        <th data-sortable="true">Application</th>
-        <th data-sortable="true">Applied at</th>
-        <th>Instructor <br />Preference</th>
-        <th>Application <br />Status</th>
-        <th>Note</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for app in apps %}
+    <table class="table table-bordered table-hover table-striped table-responsive-md text-center font-size-1" data-toggle="table" data-sortable="true" data-classes="" data-pagination="true" data-search="true">
+      <thead>
         <tr>
-          <td>{{ app.applicant.get_full_name }}</td>
-          <td>
-            <a href="{% url 'instructors:show_user' session_slug=job.session.slug job_slug=job.course.slug username=app.applicant.username tab='basic' %}">{{ app.applicant.username }}</a>
-          </td>
-          <td>{% include 'ta_app/applications/_modal_app_details.html' with data=app pin_display='False' %}</td>
-          <td>{{ app.created_at }}</td>
-          <td>
-            {% if app.instructor_preference != app_status.none and app.selected %}
+          <th data-sortable="true">Applicant</th>
+          <th data-sortable="true">CWL</th>
+          <th data-sortable="true">Application</th>
+          <th data-sortable="true">Applied at</th>
+          <th>Instructor <br />Preference</th>
+          <th>Application <br />Status</th>
+          <th>Note</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for app in apps %}
+          <tr>
+            <td>{{ app.applicant.get_full_name }}</td>
+            <td>
+              <a href="{% url 'instructors:show_user' session_slug=job.session.slug job_slug=job.course.slug username=app.applicant.username tab='basic' %}">{{ app.applicant.username }}</a>
+            </td>
+            <td>{% include 'ta_app/applications/_modal_app_details.html' with data=app pin_display='False' %}</td>
+            <td>{{ app.created_at }}</td>
+            <td>
+              {% if app.instructor_preference != app_status.none and app.selected %}
 
-              <div>
-                {% include 'ta_app/applications/_app_instructor_preference.html' with data=app.get_instructor_preference_display %}
-              </div>
-              <div>Assigned <span class="font-weight-bold">{{ app.selected.assigned_hours }}</span> hours</div>
-              <small class="text-muted">{{ app.selected.created_at }}</small>
+                <div>
+                  {% include 'ta_app/applications/_app_instructor_preference.html' with data=app.get_instructor_preference_display %}
+                </div>
+                <div>Assigned <span class="font-weight-bold">{{ app.selected.assigned_hours }}</span> hours</div>
+                <small class="text-muted">{{ app.selected.created_at }}</small>
 
-            {% else %}
+              {% else %}
 
-              <button type="button" class="btn btn-xs btn-info" data-toggle="modal" data-target="#application-select-modal-{{ app.id }}">Select</button>
+                <button type="button" class="btn btn-xs btn-info" data-toggle="modal" data-target="#application-select-modal-{{ app.id }}">Select</button>
 
-              <div class="modal fade" id="application-select-modal-{{ app.id }}" tabindex="-1" role="dialog" aria-labelledby="application-select-modal-label-{{ app.id }}" aria-hidden="true">
-                <div class="modal-dialog modal-lg" role="document">
-                  <div class="modal-content">
-                    <div class="modal-header">
-                      <h5 class="modal-title text-info" id="application-select-modal-label-{{ app.id }}">
-                        Course: {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}
-                      </h5>
-                      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    </div>
-                    <div class="modal-body text-left">
-
-                      <div class="prompt text-center">
-                        <h4 class="text-primary">{{ app.applicant.get_full_name }}</h4>
-                        <p class="col-10 mx-auto">
-                          Please select your preference, and assign TA hours for this course carefully. Once submitted, it cannot be changed.<br />
-                        </p>
-                        <p class="col-10 mx-auto">
-                          If you select <span class="font-weight-bold">No Preference</span>, please leave <span class="font-weight-bold">0.0</span> for Assign TA Hours.
-                        </p>
-                        <p>Thanks!</p>
+                <div class="modal fade" id="application-select-modal-{{ app.id }}" tabindex="-1" role="dialog" aria-labelledby="application-select-modal-label-{{ app.id }}" aria-hidden="true">
+                  <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title text-info" id="application-select-modal-label-{{ app.id }}">
+                          Course: {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}
+                        </h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                       </div>
+                      <div class="modal-body text-left">
 
-                      <div class="p-4">
-                        <form action="" method="post">
-                          {% csrf_token %}
+                        <div class="prompt text-center">
+                          <h4 class="text-primary">{{ app.applicant.get_full_name }}</h4>
+                          <p class="col-10 mx-auto">
+                            Please select your preference, and assign TA hours for this course carefully. Once submitted, it cannot be changed.<br />
+                          </p>
+                          <p class="col-10 mx-auto">
+                            If you select <span class="font-weight-bold">No Preference</span>, please leave <span class="font-weight-bold">0.0</span> for Assign TA Hours.
+                          </p>
+                          <p>Thanks!</p>
+                        </div>
 
-                          <div class="field-wrapper">
-                            <label for="id_instructor_preference_{{ app.id }}">Instructor Preference:</label>
-                            <select class="form-control" name="instructor_preference" id="id_instructor_preference_{{ app.id }}">
-                              {% for choice in instructor_preference_choices %}
-                                {% if choice.0 == app.instructor_preference %}
-                                  <option value="{{ choice.0 }}" selected>{{ choice.1 }}</option>
-                                {% else %}
-                                  <option value="{{ choice.0 }}">{{ choice.1 }}</option>
-                                {% endif %}
-                              {% endfor %}
-                            </select>
-                          </div>
+                        <div class="p-4">
+                          <form action="" method="post">
+                            {% csrf_token %}
 
-                          <div class="field-wrapper">
-                            <label for="id_assigned_hours_{{ app.id }}">
-                              Assign TA Hours:
-                              <small class="text-muted">(Numerical value only)</small>
-                            </label>
+                            <div class="field-wrapper">
+                              <label for="id_instructor_preference_{{ app.id }}">Instructor Preference:</label>
+                              <select class="form-control" name="instructor_preference" id="id_instructor_preference_{{ app.id }}">
+                                {% for choice in instructor_preference_choices %}
+                                  {% if choice.0 == app.instructor_preference %}
+                                    <option value="{{ choice.0 }}" selected>{{ choice.1 }}</option>
+                                  {% else %}
+                                    <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+                                  {% endif %}
+                                {% endfor %}
+                              </select>
+                            </div>
 
-                            <input class="form-control" type="number" step="0.01" name="assigned_hours" id="id_assigned_hours_{{ app.id }}" value="0.0" />
-                          </div>
+                            <div class="field-wrapper">
+                              <label for="id_assigned_hours_{{ app.id }}">
+                                Assign TA Hours:
+                                <small class="text-muted">(Numerical value only)</small>
+                              </label>
 
-                          <input type="hidden" name="assigned" value="{{ app_status.selected }}" />
-                          <input type="hidden" name="application" value="{{ app.id }}" />
+                              <input class="form-control" type="number" step="0.01" name="assigned_hours" id="id_assigned_hours_{{ app.id }}" value="0.0" />
+                            </div>
 
-                          <input class="btn btn-sm btn-primary" type="submit" value="Submit" />
-                        </form>
+                            <input type="hidden" name="assigned" value="{{ app_status.selected }}" />
+                            <input type="hidden" name="application" value="{{ app.id }}" />
+
+                            <input class="btn btn-sm btn-primary" type="submit" value="Submit" />
+                          </form>
+                        </div>
+
                       </div>
-
                     </div>
                   </div>
                 </div>
-              </div>
 
-            {% endif %}
-          </td>
-          <td>
-            {% if app.applicationstatus_set.last.assigned == app_status.offered or app.applicationstatus_set.last.assigned == app_status.accepted or app.applicationstatus_set.last.assigned == app_status.declined or app.applicationstatus_set.last.assigned == app_status.cancelled %}
-
-              {% if app.applicationstatus_set.last.assigned == app_status.accepted and app.is_declined_reassigned %}
-                <span class="badge badge-success">RE</span>
               {% endif %}
+            </td>
+            <td>
+              {% if app.applicationstatus_set.last.assigned == app_status.offered or app.applicationstatus_set.last.assigned == app_status.accepted or app.applicationstatus_set.last.assigned == app_status.declined or app.applicationstatus_set.last.assigned == app_status.cancelled %}
 
-              {% include 'ta_app/applications/_app_status.html' with data=app.applicationstatus_set.last.get_assigned_display %}
+                {% if app.applicationstatus_set.last.assigned == app_status.accepted and app.is_declined_reassigned %}
+                  <span class="badge badge-success">RE</span>
+                {% endif %}
 
-              {% if app.applicationstatus_set.last.assigned == app_status.offered or app.applicationstatus_set.last.assigned == app_status.accepted %}
-                <div>Assigned <span class="font-weight-bold">{{ app.applicationstatus_set.last.assigned_hours }}</span> hours</div>
+                {% include 'ta_app/applications/_app_status.html' with data=app.applicationstatus_set.last.get_assigned_display %}
+
+                {% if app.applicationstatus_set.last.assigned == app_status.offered or app.applicationstatus_set.last.assigned == app_status.accepted %}
+                  <div>Assigned <span class="font-weight-bold">{{ app.applicationstatus_set.last.assigned_hours }}</span> hours</div>
+                {% endif %}
+
+                <div><small class="text-muted">{{ app.applicationstatus_set.last.created_at }}</small></div>
+
+              {% else %}
+                <span class="badge badge-light text-dark">PENDING</span>
               {% endif %}
+            </td>
+            <td>
+              {% include 'ta_app/applications/_modal_note.html' with data=app %}
+              <a class="btn btn-link btn-xs" href="{% url 'instructors:write_note' app_slug=app.slug %}">Write</a>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
 
-              <div><small class="text-muted">{{ app.applicationstatus_set.last.created_at }}</small></div>
+    <div class="mt-3 font-size-sm">
+      <span class="font-weight-bold">Note: </span>
+      <ul>
+        <li>
+          Please click on the icon
+          <span class="btn btn-info btn-xs font-size-xs"><i class="fa fa-file-text-o" aria-hidden="true"></i></span>
+          if you would like to see a note on the Note column (rightmost in the Applications table), or
+        </li>
+        <li>
+          please click on
+          <span class="text-info">Write</span>
+          on the Note column to take a note.
+        </li>
+        <li>This <span class="badge badge-success">RE</span> badge represents that applicants accept their re-assigned job offers.</li>
+      </ul>
+    </div>
 
-            {% else %}
-              <span class="badge badge-light text-dark">PENDING</span>
-            {% endif %}
-          </td>
-          <td>
-            {% include 'ta_app/applications/_modal_note.html' with data=app %}
-            <a class="btn btn-link btn-xs" href="{% url 'instructors:write_note' app_slug=app.slug %}">Write</a>
-          </td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-
-  {% include 'ta_app/pages/_note_reassigned_offer.html' %}
-
+  </div>
 </div>
 
 {% endblock %}
