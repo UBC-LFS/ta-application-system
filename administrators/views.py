@@ -460,7 +460,7 @@ def instructor_jobs(request):
     preferred_name_q = request.GET.get('preferred_name')
     cwl_q = request.GET.get('cwl')
 
-    user_list = userApi.get_users()
+    user_list = userApi.get_instructors()
     if bool(first_name_q):
         user_list = user_list.filter(first_name__icontains=first_name_q)
     if bool(last_name_q):
@@ -469,8 +469,6 @@ def instructor_jobs(request):
         user_list = user_list.filter(profile__preferred_name__icontains=preferred_name_q)
     if bool(cwl_q):
         user_list = user_list.filter(username__icontains=cwl_q)
-
-    user_list = user_list.filter(profile__roles__name=Role.INSTRUCTOR)
 
     page = request.GET.get('page', 1)
     paginator = Paginator(user_list, settings.PAGE_SIZE)
@@ -1162,7 +1160,7 @@ def decline_reassign_confirmation(request):
     new_ta_hours = None
     if request.method == 'POST':
         if request.POST.get('is_declined_reassigned') == None:
-            messages.error(request, 'An error occurred. Please click the checkbox to decline and re-assign.')
+            messages.error(request, 'An error occurred. Please click on the checkbox to decline and re-assign.')
             return redirect('administrators:decline_reassign_confirmation')
 
         app_id = request.POST.get('application')
@@ -1239,7 +1237,7 @@ def terminate(request, app_slug):
 
     if request.method == 'POST':
         if request.POST.get('is_terminated') == None:
-            messages.error(request, 'An error occurred. Please click the checkbox to terminate.')
+            messages.error(request, 'An error occurred. Please click on the checkbox to terminate.')
             return HttpResponseRedirect( reverse('administrators:terminate', args=[app_slug]) )
 
         form = TerminateApplicationForm(request.POST, instance=app)

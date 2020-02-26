@@ -17,13 +17,14 @@
           <ul>
             {% for app in recent_apps %}
               <li>
-                <span
-                  {% if not app.job.is_active %}
-                    class="not-active text-secondary"
-                  {% endif %}
-                >
-                  {{ app.job.session.year }} {{ app.job.session.term.code }} - {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}
-                </span><br />
+                {% if not app.job.is_active %}
+                  <span class="not-active text-secondary">
+                    {{ app.job.session.year }} {{ app.job.session.term.code }} - {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}
+                  </span>
+                {% else %}
+                  <a href="{% url 'students:show_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}">{{ app.job.session.year }} {{ app.job.session.term.code }} - {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</a>
+                {% endif %}
+                <br />
                 <small class="text-muted">Created at {{ app.created_at }}</small>
               </li>
             {% empty %}
@@ -58,7 +59,7 @@
           </div>
         </div>
 
-        <p class="col-8 mx-auto">If you would like to explore current openings, please click the button bellow.</p>
+        <p class="col-8 mx-auto">If you would like to explore current openings, please click on the button bellow.</p>
 
         <a class="btn btn-sm btn-outline-primary" href="{% url 'students:explore_jobs' %}">Explore Jobs</a>
       </div>
