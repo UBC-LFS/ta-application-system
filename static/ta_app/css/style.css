@@ -258,7 +258,8 @@ main {
   color: #007bff;
 }
 
-.modal-item > div > span {
+.modal-item > div > span,
+.modal-item > div > ul {
   color: #6c757d;
   font-size: 1rem;
 }
