@@ -46,7 +46,7 @@
 
       {% if user.resume_filename %}
         <div>
-          <a class="btn btn-link" href="{% url 'students:download_resume' username=loggedin_user.username filename=loggedin_user.resume_filename %}" target="_blank">
+          <a class="btn btn-link" href="{% url 'students:download_file' username=loggedin_user.username item='resume' filename=loggedin_user.resume_filename %}" target="_blank">
             <i class="fa fa-cloud-download" aria-hidden="true"></i> {{ loggedin_user.resume_filename }}
           </a>
           <br />
@@ -80,7 +80,7 @@
                 <small class="text-muted">
                   - Valid file formats: jpg, jpeg, png, pdf, doc, docx <br />
                   - The maximum file size that can be uploaded is 1.5 MB. <br />
-                  - Ensure a filename has at most 100 characters.
+                  - Ensure a filename has at most 256 characters.
                 </small>
               </div>
 

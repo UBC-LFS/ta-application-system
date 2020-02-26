@@ -12,7 +12,7 @@
           <i class="fa fa-cloud-download" aria-hidden="true"></i> Resume
         </h5>
           {% if user.resume_filename %}
-            <a href="{% url 'students:download_resume' username=user.username filename=user.resume_filename %}" target="_blank">
+            <a href="{% url 'students:download_file' username=user.username item='resume' filename=user.resume_filename %}" target="_blank">
               {{ user.resume_filename }}
             </a><br />
             <small class="text-muted">Uploaded at {{ user.resume.created_at }}</small>

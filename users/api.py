@@ -86,6 +86,10 @@ def get_users(option=None):
 
     return User.objects.all().order_by('id')
 
+def get_instructors():
+    ''' Get instructors '''
+    return User.objects.filter(profile__roles__name=Role.INSTRUCTOR).order_by('last_name')
+
 def get_users_by_role(role):
     ''' Get users by role '''
     return User.objects.filter(profile__roles__name=role).order_by('last_name')

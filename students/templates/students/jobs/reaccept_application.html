@@ -30,7 +30,7 @@
       <h3>Re-accept Confirmation</h3>
       {% include 'ta_app/pages/_submit_note.html' %}
 
-      <div class="bd-callout bd-callout-warning bg-light-gray">
+      <div class="bd-callout bd-callout-warning bg-white">
         <h4>
           <i class="fa fa-envelope-open-o" aria-hidden="true"></i> Important Message
         </h4>
@@ -49,7 +49,7 @@
           New assigned hours:
           <span class="font-weight-bold">{{ app.declined.assigned_hours }}</span> hours
         </p>
-        <p class="text-secondary">Please click the Confirm button below if you would like to accept your new offer.</p>
+        <p class="text-secondary">Please click on the Confirm button below if you would like to accept your new offer.</p>
 
         <form action="" method="post">
           {% csrf_token %}
