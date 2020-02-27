@@ -124,6 +124,14 @@ $ python manage.py check --deploy
 $ python manage.py runserver
 ```
 
+14. Timezone in settings.py
+https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+
+```
+# Choose the timezone where you live
+TIME_ZONE = 'America/Vancouver'
+```
+
 
 ## Login locally
 1. Create a superuser
