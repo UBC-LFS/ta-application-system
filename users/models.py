@@ -161,6 +161,8 @@ class Confidentiality(models.Model):
     created_at = models.DateField(null=True, blank=True)
     updated_at = models.DateField(null=True, blank=True)
 
+    def __str__(self):
+        return self.user.username
 
     def save(self, *args, **kwargs):
         if 'update_fields' in kwargs:
@@ -347,7 +349,7 @@ def decrypt_image(obj):
 
     imageStream.close()
     img.close()
-    
+
     return {
         'filename': os.path.basename(obj.file.name),
         'url': url,

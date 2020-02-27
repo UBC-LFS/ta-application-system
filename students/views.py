@@ -186,7 +186,7 @@ def show_confidentiality(request):
     if 'Student' not in request.user.roles: raise PermissionDenied
 
     template = 'choose'
-    if userApi.has_user_confidentiality_created(request.user) and request.user.confidentiality and request.user.confidentiality.created_at != None:
+    if userApi.has_user_confidentiality_created(request.user) and request.user.confidentiality and request.user.confidentiality.nationality != None:
         template = 'detail'
 
     user = userApi.add_confidentiality_given_list(request.user, ['sin', 'study_permit'])
