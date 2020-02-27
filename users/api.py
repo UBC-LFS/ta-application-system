@@ -94,10 +94,43 @@ def get_users_by_role(role):
     ''' Get users by role '''
     return User.objects.filter(profile__roles__name=role).order_by('last_name')
 
-def user_exists(username):
+def user_exists_username(username):
     ''' Check user exists '''
     if User.objects.filter(username=username).exists():
         return User.objects.get(username=username)
+    return None
+
+def user_exists(data):
+    ''' Check user exists '''
+
+    user = User.objects.filter(username=data['username'])
+    if user.exists():
+        u = user.first()
+        if has_user_profile_created(u) == None:
+            user_profile_form = UserProfileForm({
+                'student_number': data['student_number'],
+                'preferred_name': None,
+                'roles': [ ROLES['Student'] ]
+            })
+
+            if user_profile_form.is_valid():
+                profile = Profile.objects.create(user_id=u.id, student_number=data['student_number'])
+                profile.roles.add( *user_profile_form.cleaned_data['roles'] )
+
+        else:
+            profile = get_profile(u)
+            if profile.student_number is None and data['student_number'] is not None:
+                profile.student_number = data['student_number']
+                profile.save(update_fields=['student_number'])
+
+        confi = has_user_confidentiality_created(u)
+        if confi is not None:
+            if confi.employee_number == None and data['employee_number'] is not None:
+                confi.employee_number = data['employee_number']
+                confi.save(update_fields=['employee_number'])
+
+        return User.objects.get(id=u.id)
+
     return None
 
 
@@ -119,14 +152,12 @@ def create_user(data):
     )
 
     if user:
-        confidentiality = False
-        if employee_number is not None:
-            confidentiality = Confidentiality.objects.create(
-                user_id=user.id,
-                employee_number=employee_number,
-                created_at=datetime.now(),
-                updated_at=datetime.now()
-            )
+        confidentiality = Confidentiality.objects.create(
+            user_id=user.id,
+            employee_number=employee_number,
+            created_at=datetime.now(),
+            updated_at=datetime.now()
+        )
 
         user_profile_form = UserProfileForm({
             'student_number': student_number,
@@ -153,6 +184,42 @@ def delete_user(user_id):
 
 # Profile
 
+
+def profile_exists(user):
+    """ Check user's profile exists """
+    if Profile.objects.filter(user__id=user.id).exists():
+        return True
+    return False
+
+def profile_exists_by_username(username):
+    ''' Check user's profile exists '''
+    profile = Profile.objects.filter(user__username=username)
+    if profile.exists(): return profile
+    return False
+
+def has_user_profile_created(user):
+    ''' Check an user has a profile '''
+    try:
+        return user.profile
+    except Profile.DoesNotExist:
+        return None
+
+
+def create_profile_init(user):
+    return Profile.objects.create(user_id=user.id)
+
+
+def create_profile(user, data):
+    ''' Create an user's profile '''
+    student_number = None
+    if data['student_number']:
+        student_number = data['student_number']
+
+    profile = Profile.objects.create(user_id=user.id, student_number=student_number, preferred_name=data['preferred_name'], is_trimmed=False)
+    profile.roles.add( *data['roles'] )
+
+    return profile if profile else False
+
 def get_profile(user):
     try:
         return Profile.objects.get(user_id=user.id)
@@ -176,25 +243,6 @@ def update_student_profile_degrees_trainings(profile, old_degrees, old_trainings
 
     return True if profile else None
 
-
-def create_profile(user, data):
-    ''' Create an user's profile '''
-    student_number = None
-    if data['student_number']:
-        student_number = data['student_number']
-
-    profile = Profile.objects.create(user_id=user.id, student_number=student_number, preferred_name=data['preferred_name'], is_trimmed=False)
-    profile.roles.add( *data['roles'] )
-
-    return profile if profile else False
-
-def has_user_profile_created(user):
-    ''' Check an user has a profile '''
-    try:
-        return user.profile
-    except Profile.DoesNotExist:
-        return None
-
 def update_user_profile_roles(profile, old_roles, data):
     profile.roles.remove( *old_roles )
     new_roles = list( data.get('roles') )
@@ -211,19 +259,6 @@ def get_user_roles(user):
 def user_has_role(user, role):
     if user.profile.roles.filter(name=role).exists(): return True
     return False
-
-def profile_exists_by_username(username):
-    ''' Check user's profile exists '''
-    profile = Profile.objects.filter(user__username=username)
-    if profile.exists(): return profile
-    return False
-
-def profile_exists(user):
-    """ Check user's profile exists """
-    if Profile.objects.filter(user__id=user.id).exists():
-        return True
-    return False
-
 
 def trim_profile(user):
     ''' Remove user's profile except student_number '''
@@ -280,6 +315,9 @@ def resume_exists(user):
 
 
 # Confidentiality
+
+def create_confidentiality(user):
+    return Confidentiality.objects.create(user_id=user.id)
 
 def has_user_confidentiality_created(user):
     ''' Check an user has a confidentiality '''

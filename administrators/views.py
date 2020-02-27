@@ -1593,17 +1593,15 @@ def edit_user(request, username):
 
             errors = []
 
-            if employee_number_form.cleaned_data['employee_number'] is not None:
-                updated_employee_number = employee_number_form.save(commit=False)
-                updated_employee_number.updated_at = datetime.now()
-                if confidentiality:
-                    updated_employee_number.employee_number = employee_number_form.cleaned_data['employee_number']
-                    updated_employee_number.save(update_fields=['employee_number'])
-                else:
-                    updated_employee_number.save()
+            if confidentiality == None:
+                confidentiality = userApi.create_confidentiality(user)
 
-                if not updated_employee_number: errors.append('An error occurred while updating an employee number.')
+            updated_employee_number = employee_number_form.save(commit=False)
+            updated_employee_number.updated_at = datetime.now()
+            updated_employee_number.employee_number = employee_number_form.cleaned_data['employee_number']
+            updated_employee_number.save(update_fields=['employee_number'])
 
+            if not updated_employee_number: errors.append('An error occurred while updating an employee number.')
             if not updated_user: errors.append('An error occurred while updating an user form.')
             if not updated_profile: errors.append('An error occurred while updating a profile.')
 
@@ -1631,6 +1629,12 @@ def edit_user(request, username):
 
         return HttpResponseRedirect( reverse('administrators:edit_user', args=[username]) )
 
+    else:
+        profile = userApi.has_user_profile_created(user)
+        if profile == None:
+            profile = userApi.create_profile_init(user)
+            user = userApi.get_user(username, 'username')
+            messages.warning(request, 'This user (CWL: {0}) does not have any profile. Users must have at least one role. Please choose a role.'.format(user.username))
 
     return render(request, 'administrators/hr/edit_user.html', {
         'loggedin_user': request.user,

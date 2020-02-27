@@ -57,7 +57,7 @@ def authenticate(saml_authentication=None):
             elif 'ubcEduStudentNumber' in key:
                 user_data['student_number'] = value[0]
 
-        user = userApi.user_exists(user_data['username'])
+        user = userApi.user_exists(user_data)
         if user == None:
             user = userApi.create_user(user_data)
         return user
