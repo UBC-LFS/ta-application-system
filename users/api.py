@@ -14,6 +14,9 @@ from users.forms import *
 from administrators.forms import ROLES
 from datetime import datetime, date, timedelta
 
+import random
+import string
+
 
 # for auth
 
@@ -148,9 +151,8 @@ def create_user(data):
         last_name=last_name,
         email=email,
         username=username,
-        password=make_password(settings.USER_PASSWORD)
+        password=make_password( password_generator() )
     )
-
     if user:
         confidentiality = Confidentiality.objects.create(
             user_id=user.id,
@@ -615,3 +617,6 @@ def get_error_messages(errors):
         value = errors[key]
         messages += key.replace('_', ' ').upper() + ': ' + value[0]['message'] + ' '
     return messages.strip()
+
+def password_generator():
+    return ''.join(random.choices(string.ascii_lowercase + string.digits, k=50))
