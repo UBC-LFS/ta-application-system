@@ -40,7 +40,6 @@ EMAIL_FROM = os.environ['TA_APP_EMAIL_FROM']
 TA_APP_URL = os.environ['TA_APP_URL']
 ENCRYPT_SALT = os.environ['TA_APP_ENCRYPT_SALT']
 ENCRYPT_PASSWORD = os.environ['TA_APP_ENCRYPT_PASSWORD']
-USER_PASSWORD = os.environ['TA_APP_USER_PASSWORD']
 
 ## Change MEDIA_ROOT
 MEDIA_ROOT = '/srv/www/ta_app_system/media'
