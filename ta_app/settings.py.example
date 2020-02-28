@@ -49,6 +49,7 @@ SECRET_KEY = os.environ['TA_APP_SECRET_KEY']
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
+LOCAL_LOGIN = False
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
