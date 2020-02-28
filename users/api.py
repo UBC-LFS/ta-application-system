@@ -119,13 +119,13 @@ def user_exists(data):
 
         else:
             profile = get_profile(u)
-            if profile.student_number is None and data['student_number'] is not None:
+            if (profile.student_number is None and data['student_number'] is not None) or (profile.student_number != data['student_number']):
                 profile.student_number = data['student_number']
                 profile.save(update_fields=['student_number'])
 
         confi = has_user_confidentiality_created(u)
         if confi is not None:
-            if confi.employee_number == None and data['employee_number'] is not None:
+            if (confi.employee_number == None and data['employee_number'] is not None) or (confi.employee_number != data['employee_number']):
                 confi.employee_number = data['employee_number']
                 confi.save(update_fields=['employee_number'])
 
