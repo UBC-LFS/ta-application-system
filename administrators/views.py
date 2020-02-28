@@ -1506,7 +1506,7 @@ def create_user(request):
 
         if user_form.is_valid() and user_profile_form.is_valid():
             user = user_form.save(commit=False)
-            user.set_password(settings.USER_PASSWORD)
+            user.set_password( userApi.password_generator() )
             user.save()
 
             profile = userApi.create_profile(user, user_profile_form.cleaned_data)
