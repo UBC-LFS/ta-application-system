@@ -144,7 +144,12 @@ $ python manage.py createsuperuser --username=joe --email=joe@example.com
 $ python manage.py runserver
 ```
 
-3. Open a new window with an URL ``` http://localhost:8000/accounts/local_login/ ```
+
+3. If you would like to log in through the local login, please change **LOCAL_LOGIN** to **True** in settings.py.
+```
+LOCAL_LOGIN=True
+```
+Open a new window with an URL ``` http://localhost:8000/accounts/local_login/ ```
 
 
 Happy coding!

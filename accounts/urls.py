@@ -8,7 +8,7 @@ urlpatterns = [
     path('login/', views.login, name='login')
 ]
 
-if settings.DEBUG:
+if settings.LOCAL_LOGIN:
     urlpatterns += [
         path('local_login/', views.local_login, name='local_login')
     ]
