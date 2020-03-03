@@ -224,7 +224,7 @@ class AdminJobForm(forms.ModelForm):
         help_text='This field is required. Valid range is 0 to 4000.'
     )
     instructors = MyModelMultipleChoiceField(
-        queryset=User.objects.filter(profile__roles=ROLES['Instructor']).order_by('pk'),
+        queryset=User.objects.filter(profile__roles=ROLES['Instructor']).order_by('first_name'),
         widget=forms.CheckboxSelectMultiple(),
         help_text='This field is required.'
     )

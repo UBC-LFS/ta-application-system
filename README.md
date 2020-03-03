@@ -2,6 +2,8 @@
 
 This project is a web-based TA hiring process system.
 
+Wiki: https://github.com/UBC-LFS/ta-application-system/wiki
+
 ### Features
 - Encrypt/Decrypt images
 - Enable Masquerade mode
