@@ -6,14 +6,15 @@ from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
 from django.db.models import Q
 
-import shutil
-from PIL import Image
-
 from users.models import *
 from users.forms import *
+from administrators.models import *
 from administrators.forms import ROLES
-from datetime import datetime, date, timedelta
+from administrators import api as adminApi
 
+from datetime import datetime, date, timedelta
+import shutil
+from PIL import Image
 import random
 import string
 
@@ -177,8 +178,15 @@ def create_user(data):
 def delete_user(user_id):
     ''' Delete a user '''
     user = get_user(user_id)
+    apps = adminApi.get_applications_user(user)
+    for app in apps:
+        accepted = app.applicationstatus_set.filter(assigned=ApplicationStatus.ACCEPTED)
+        if accepted.exists():
+            app.job.accumulated_ta_hours -= accepted.last().assigned_hours
+
+    destroy = destroy_profile_resume_confidentiality(user_id)
     user.delete()
-    return user
+    return user if user and destroy else False
 
 
 # end user
@@ -483,11 +491,14 @@ def destroy_profile_resume_confidentiality(user_id):
 
     sin = delete_user_sin(user.username)
     study_permit = delete_user_study_permit(user.username)
-    user.confidentiality.delete()
+    personal_data_form = delete_personal_data_form(user.username)
+
+    if has_user_confidentiality_created(user):
+        user.confidentiality.delete()
 
     resume = delete_user_resume(user)
     profile = trim_profile(user)
-    return True if user and resume and sin and study_permit and profile else False
+    return True if user and resume and sin and study_permit and personal_data_form and profile else False
 
 
 def create_expiry_date(year, month, day):

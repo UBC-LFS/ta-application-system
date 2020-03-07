@@ -239,6 +239,10 @@ def get_application(data, option=None):
     if option == 'slug': return get_object_or_404(Application, slug=data)
     return get_object_or_404(Application, id=data)
 
+def get_applications_user(user):
+    ''' Get an user's applications '''
+    return Application.objects.filter(applicant__id=user.id)
+
 def create_application_status(app):
     ''' Create a status of an application '''
     app_status = ApplicationStatus.objects.create(application=app, assigned=ApplicationStatus.NONE, assigned_hours=0.0)
