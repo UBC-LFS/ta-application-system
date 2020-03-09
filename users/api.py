@@ -133,6 +133,7 @@ def user_exists(data):
                 confi.employee_number = data['employee_number']
                 confi.save(update_fields=['employee_number'])
 
+
         return User.objects.get(id=u.id)
 
     return None
@@ -182,7 +183,9 @@ def delete_user(user_id):
     for app in apps:
         accepted = app.applicationstatus_set.filter(assigned=ApplicationStatus.ACCEPTED)
         if accepted.exists():
+            print('accepted', app.job.accumulated_ta_hours, accepted.last().assigned_hours)
             app.job.accumulated_ta_hours -= accepted.last().assigned_hours
+            print('accepted new', app.job.accumulated_ta_hours)
 
     destroy = destroy_profile_resume_confidentiality(user_id)
     user.delete()
@@ -409,6 +412,15 @@ def delete_confidential_information(data):
     return True if len(errors) == 0 else ', '.join(errors)
 
 
+def add_personal_data_form(user):
+    ''' Add personal data form of an user '''
+    if has_user_confidentiality_created(user) and bool(user.confidentiality.personal_data_form):
+        user.personal_data_form_filename = os.path.basename(user.confidentiality.personal_data_form.name)
+    else:
+        user.personal_data_form_filename = None
+    return user
+
+
 def delete_user_sin(username, option=None):
     ''' Delete user's SIN '''
     user = get_user(username, 'username')
@@ -429,7 +441,10 @@ def delete_user_sin(username, option=None):
                 else:
                     return False
             except OSError:
+                print('sin OSError')
                 return False
+        else:
+            return False
     return True
 
 
@@ -449,22 +464,16 @@ def delete_user_study_permit(username, option=None):
                     deleted = Confidentiality.objects.filter(user_id=user.id).update(study_permit=None)
 
                 if deleted and not bool(user.confidentiality.study_permit):
-                    os.rmdir( os.path.join( settings.MEDIA_ROOT, 'users', username, 'study_permit' ) )
+                    os.rmdir( os.path.join(settings.MEDIA_ROOT, 'users', username, 'study_permit') )
                     return True
                 else:
                     return False
             except OSError:
+                print('study permit OSError')
                 return False
+        else:
+            return False
     return True
-
-
-def add_personal_data_form(user):
-    ''' Add personal data form of an user '''
-    if has_user_confidentiality_created(user) and bool(user.confidentiality.personal_data_form):
-        user.personal_data_form_filename = os.path.basename(user.confidentiality.personal_data_form.name)
-    else:
-        user.personal_data_form_filename = None
-    return user
 
 
 def delete_personal_data_form(data):
@@ -472,12 +481,20 @@ def delete_personal_data_form(data):
     user = get_user(data, 'username')
 
     if has_user_confidentiality_created(user) and bool(user.confidentiality.personal_data_form):
-        user.confidentiality.personal_data_form.delete(save=False)
-        deleted = Confidentiality.objects.filter(user_id=user.id).update(personal_data_form=None)
+        user.confidentiality.personal_data_form.close()
+        if user.confidentiality.personal_data_form.closed:
+            try:
+                user.confidentiality.personal_data_form.delete(save=False)
+                deleted = Confidentiality.objects.filter(user_id=user.id).update(personal_data_form=None)
 
-        if deleted and not bool(user.confidentiality.personal_data_form):
-            os.rmdir( os.path.join( settings.MEDIA_ROOT, 'users', user.username, 'personal_data_form' ) )
-            return True
+                if deleted and not bool(user.confidentiality.personal_data_form):
+                    os.rmdir( os.path.join(settings.MEDIA_ROOT, 'users', user.username, 'personal_data_form') )
+                    return True
+                else:
+                    return False
+            except OSError:
+                print('pdf OSError')
+                return False
         else:
             return False
     return True
