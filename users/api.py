@@ -120,18 +120,35 @@ def user_exists(data):
             if user_profile_form.is_valid():
                 profile = Profile.objects.create(user_id=u.id, student_number=data['student_number'])
                 profile.roles.add( *user_profile_form.cleaned_data['roles'] )
-
         else:
             profile = get_profile(u)
-            if (profile.student_number is None and data['student_number'] is not None) or (profile.student_number != data['student_number']):
-                profile.student_number = data['student_number']
-                profile.save(update_fields=['student_number'])
+            if profile.student_number is None:
+                if data['student_number'] is not None:
+                    profile.student_number = data['student_number']
+                    profile.save(update_fields=['student_number'])
+            else:
+                if data['student_number'] is not None and profile.student_number != data['student_number']:
+                    profile.student_number = data['student_number']
+                    profile.save(update_fields=['student_number'])
 
         confi = has_user_confidentiality_created(u)
-        if confi is not None:
-            if (confi.employee_number == None and data['employee_number'] is not None) or (confi.employee_number != data['employee_number']):
-                confi.employee_number = data['employee_number']
-                confi.save(update_fields=['employee_number'])
+        if confi == None:
+            if data['employee_number'] is not None:
+                Confidentiality.objects.create(
+                    user_id=u.id,
+                    employee_number=data['employee_number'],
+                    created_at=datetime.now(),
+                    updated_at=datetime.now()
+                )
+        else:
+            if confi.employee_number == None:
+                if data['employee_number'] is not None:
+                    confi.employee_number = data['employee_number']
+                    confi.save(update_fields=['employee_number'])
+            else:
+                if data['employee_number'] is not None and confi.employee_number != data['employee_number']:
+                    confi.employee_number = data['employee_number']
+                    confi.save(update_fields=['employee_number'])
 
 
         return User.objects.get(id=u.id)
@@ -330,7 +347,7 @@ def resume_exists(user):
 # Confidentiality
 
 def create_confidentiality(user):
-    return Confidentiality.objects.create(user_id=user.id)
+    return Confidentiality.objects.create(user_id=user.id, created_at=datetime.now(), updated_at=datetime.now())
 
 def has_user_confidentiality_created(user):
     ''' Check an user has a confidentiality '''

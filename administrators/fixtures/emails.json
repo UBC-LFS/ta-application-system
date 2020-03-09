@@ -4,7 +4,7 @@
     "pk": 1,
     "fields": {
       "application_id": "24",
-      "sender": "TA Application <abc_university@examp.com>",
+      "sender": "TA Application <abc_company@example.com>",
       "receiver": "User100 Test <user100.test@example.com>",
       "title": "Congratulations! You get a job offer [Type 1]",
       "message": "<p>We are happy to offer you a two-term TA position for 2019 W2:</p><p>APBI 260 001 for 20.0 hours as a STA.</p>",
@@ -17,7 +17,7 @@
     "pk": 2,
     "fields": {
       "application_id": "22",
-      "sender": "TA Application <abc_university@examp.com>",
+      "sender": "TA Application <abc_company@example.com>",
       "receiver": "User100 Test <user100.test@example.com>",
       "title": "Congratulations! You get a job offer [Type 1]",
       "message": "<p>We are happy to offer you a two-term TA position for 2019 W1:</p><p>APBI 260 001 for 70.0 hours as a GTA I.</p>",
@@ -30,7 +30,7 @@
     "pk": 3,
     "fields": {
       "application_id": "11",
-      "sender": "TA Application <abc_university@examp.com>",
+      "sender": "TA Application <abc_company@example.com>",
       "receiver": "User70 Test <user100.test@example.com>",
       "title": "REMINDER: Congratulations! You get a job offer [Type 1]",
       "message": "<p>We are happy to offer you a two-term TA position for 2019 W1:</p><p><br></p><p>APBI 200 002 for 65.5 hours as a GTA I.</p>",
@@ -43,7 +43,7 @@
     "pk": 4,
     "fields": {
       "application_id": "10",
-      "sender": "TA Application <abc_university@examp.com>",
+      "sender": "TA Application <abc_company@example.com>",
       "receiver": "User70 Test <user100.test@example.com>",
       "title": "Congratulations! You get a job offer [Type 1]",
       "message": "<p>We are happy to offer you a two-term TA position for 2019 W1:</p><p>APBI 200 001 for 45.0 hours as a STA.</p>",
@@ -56,7 +56,7 @@
     "pk": 5,
     "fields": {
       "application_id": "8",
-      "sender": "TA Application <abc_university@examp.com>",
+      "sender": "TA Application <abc_company@example.com>",
       "receiver": "User66 Test <user100.test@example.com>",
       "title": "Congratulations! You get a job offer [Type 1]",
       "message": "<p>We are happy to offer you a two-term TA position for 2019 W2:</p><p>APBI 200 001 for 30.0 hours as a STA.</p>",

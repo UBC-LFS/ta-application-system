@@ -1531,7 +1531,10 @@ def create_user(request):
                 employee_number_errors = employee_number_form.errors.get_json_data()
                 messages.error(request, 'An error occurred while creating an User Form. {0}'.format(employee_number_errors))
 
-            employee_number = employee_number_form.save()
+            employee_number = employee_number_form.save(commit=False)
+            employee_number.created_at = datetime.now()
+            employee_number.updated_at = datetime.now()
+            employee_number.save()
 
             if not employee_number: errors.append('An error occurred while updating an employee number.')
 
@@ -1599,7 +1602,7 @@ def edit_user(request, username):
             updated_employee_number = employee_number_form.save(commit=False)
             updated_employee_number.updated_at = datetime.now()
             updated_employee_number.employee_number = employee_number_form.cleaned_data['employee_number']
-            updated_employee_number.save(update_fields=['employee_number'])
+            updated_employee_number.save(update_fields=['employee_number', 'updated_at'])
 
             if not updated_employee_number: errors.append('An error occurred while updating an employee number.')
             if not updated_user: errors.append('An error occurred while updating an user form.')
