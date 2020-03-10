@@ -98,6 +98,7 @@ def get_users_by_role(role):
     ''' Get users by role '''
     return User.objects.filter(profile__roles__name=role).order_by('last_name')
 
+
 def user_exists_username(username):
     ''' Check user exists '''
     if User.objects.filter(username=username).exists():
@@ -200,13 +201,18 @@ def delete_user(user_id):
     for app in apps:
         accepted = app.applicationstatus_set.filter(assigned=ApplicationStatus.ACCEPTED)
         if accepted.exists():
-            print('accepted', app.job.accumulated_ta_hours, accepted.last().assigned_hours)
-            app.job.accumulated_ta_hours -= accepted.last().assigned_hours
-            print('accepted new', app.job.accumulated_ta_hours)
+            job = adminApi.get_job_by_session_slug_job_slug(app.job.session.slug, app.job.course.slug)
+            job.accumulated_ta_hours -= accepted.last().assigned_hours
+            job.updated_at = datetime.now()
+            job.save(update_fields=['accumulated_ta_hours', 'updated_at'])
 
-    destroy = destroy_profile_resume_confidentiality(user_id)
+    sin = delete_user_sin(user.username)
+    study_permit = delete_user_study_permit(user.username)
+    personal_data_form = delete_personal_data_form(user.username)
+    resume = delete_user_resume(user)
+    os.rmdir( os.path.join( settings.MEDIA_ROOT, 'users', user.username ) )
     user.delete()
-    return user if user and destroy else False
+    return user if user_exists_username(user.username) == None and sin and study_permit and personal_data_form and resume else False
 
 
 # end user
@@ -292,10 +298,39 @@ def user_has_role(user, role):
 
 def trim_profile(user):
     ''' Remove user's profile except student_number '''
-    student_number = user.profile.student_number
-    user.profile.delete()
-    profile = Profile.objects.create(user_id=user.id, student_number=student_number, is_trimmed=True)
-    return profile if profile else False
+    profile = has_user_profile_created(user)
+    degrees = profile.degrees.all()
+    trainings = profile.trainings.all()
+    if profile:
+        profile.qualifications = None
+        profile.prior_employment = None
+        profile.special_considerations = None
+        profile.status = None
+        profile.program = None
+        profile.program_others = None
+        profile.graduation_date = None
+        profile.degree_details = None
+        profile.training_details = None
+        profile.lfs_ta_training = None
+        profile.lfs_ta_training_details = None
+        profile.ta_experience = None
+        profile.ta_experience_details = None
+        profile.is_trimmed = True
+
+        profile.degrees.remove( *degrees )
+        profile.trainings.remove( *trainings )
+
+        updated_fields = [
+            'qualifications', 'prior_employment', 'special_considerations',
+            'status', 'program', 'program_others', 'graduation_date',
+            'degree_details', 'training_details', 'lfs_ta_training',
+            'lfs_ta_training_details', 'ta_experience', 'ta_experience_details',
+            'is_trimmed'
+        ]
+        profile.save(update_fields=updated_fields)
+
+        return True
+    return False
 
 
 # end profile
@@ -532,7 +567,8 @@ def destroy_profile_resume_confidentiality(user_id):
 
     resume = delete_user_resume(user)
     profile = trim_profile(user)
-    return True if user and resume and sin and study_permit and personal_data_form and profile else False
+    os.rmdir( os.path.join( settings.MEDIA_ROOT, 'users', user.username ) )
+    return True if user and resume and sin and study_permit and profile else False
 
 
 def create_expiry_date(year, month, day):

@@ -1281,9 +1281,14 @@ class HRTest(TestCase):
 
         user = userApi.get_user(USERS[2], 'username')
         apps = adminApi.get_applications_user(user)
-        jobs = []
+
+        items = []
         for app in apps:
-            jobs.append({ 'id': app.job.id, 'accumulated_ta_hours': app.job.accumulated_ta_hours })
+            accepted = app.applicationstatus_set.filter(assigned=ApplicationStatus.ACCEPTED)
+            if accepted.exists():
+                items.append({ 'job': app.job, 'assigned_hours': accepted.last().assigned_hours })
+            else:
+                items.append({ 'job': app.job, 'assigned_hours': 0.0 })
 
         data = { 'user': user.id }
         response = self.client.post(reverse('administrators:delete_user'), data=urlencode(data), content_type=ContentType)
@@ -1293,15 +1298,9 @@ class HRTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, response.url)
 
-        response = self.client.get( reverse('administrators:progress_jobs') )
-        existing_jobs = response.context['jobs']
-
-        all_jobs = adminApi.get_jobs()
-        for job in jobs:
-            new_job = all_jobs.filter(pk=job['id'])
-            j = new_job.first()
-            j.refresh_from_db()
-            print(job['accumulated_ta_hours'], j.accumulated_ta_hours)
+        for item in items:
+            new_job = adminApi.get_job_by_session_slug_job_slug(item['job'].session.slug, item['job'].course.slug)
+            self.assertEqual(item['job'].accumulated_ta_hours - item['assigned_hours'], new_job.accumulated_ta_hours)
 
         response = self.client.get(reverse('administrators:show_user', args=[USERS[2], 'users', 'basic']))
         self.assertEqual(response.status_code, 404)
