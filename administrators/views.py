@@ -1651,6 +1651,25 @@ def edit_user(request, username):
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def delete_user_confirmation(request, username):
+    ''' Delete a user '''
+    request.user.roles = request.session['loggedin_user']['roles']
+    if not userApi.is_admin(request.user): raise PermissionDenied
+
+    user = userApi.get_user(username, 'username')
+    user = userApi.add_confidentiality_given_list(user, ['sin','study_permit'])
+    user = userApi.add_personal_data_form(user)
+    return render(request, 'administrators/hr/delete_user_confirmation.html', {
+        'loggedin_user': request.user,
+        'user': userApi.add_resume(user),
+        'users': userApi.get_users(),
+        'apps': adminApi.get_applications_user(user)
+    })
+
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['POST'])
 def delete_user(request):
     ''' Delete a user '''
@@ -1691,7 +1710,13 @@ def destroy_user_contents(request):
 
         return redirect('administrators:destroy_user_contents')
     else:
-        users, target_date = userApi.get_users('destroy')
+        user_list, target_date = userApi.get_users('destroy')
+        users = []
+        for user in user_list:
+            user = userApi.add_confidentiality_given_list(user, ['sin','study_permit'])
+            user = userApi.add_personal_data_form(user)
+            user = userApi.add_resume(user)
+            users.append(user)
 
     return render(request, 'administrators/hr/destroy_user_contents.html', {
         'loggedin_user': request.user,

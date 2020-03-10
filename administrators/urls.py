@@ -46,6 +46,7 @@ urlpatterns = [
 
     path('hr/users/<str:username>/edit/', views.edit_user, name='edit_user'),
     path('hr/users/<str:username>/p/<str:path>/details/information/<str:tab>/', views.show_user, name='show_user'),
+    path('hr/users/<str:username>/delete/confirmation', views.delete_user_confirmation, name='delete_user_confirmation'),
     path('hr/users/all/', views.all_users, name='all_users'),
     path('hr/users/destroy/contents', views.destroy_user_contents, name='destroy_user_contents'),
     path('hr/users/create/', views.create_user, name='create_user'),
