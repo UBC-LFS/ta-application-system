@@ -201,6 +201,10 @@ def add_total_applicants(instructor):
 
     return count
 
+def remove_job_instructors(job, instructors):
+    ''' Remove job instructors'''
+    job.instructors.remove( *instructors )
+    return True if job else None
 
 def update_job_instructors(job, old_instructors, new_instructors):
     ''' Update instructors in a job '''
