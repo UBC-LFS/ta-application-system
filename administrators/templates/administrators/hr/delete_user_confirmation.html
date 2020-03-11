@@ -69,64 +69,108 @@
       </div>
       <div>
         <h6>Applications:</h6>
-        <span>
-          {% if apps|length > 0 %}
-            <button class="btn btn-xs btn-info" type="button" data-toggle="modal" data-target="#delete-user-apps-modal-{{ user.id }}">
-              {{ apps|length }}
-            </button>
 
-            <div class="modal fade" id="delete-user-apps-modal-{{ user.id }}" tabindex="-1" role="dialog" aria-labelledby="delete-user-apps-modal-label-{{ user.id }}" aria-hidden="true">
-              <div class="modal-dialog modal-lg" role="document">
-                <div class="modal-content">
-                  <div class="modal-header">
-                    <h5 class="modal-title text-info" id="delete-user-apps-modal-label-{{ user.id }}">Applications</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                  </div>
-                  <div class="modal-item text-left font-size-1">
+        {% if apps|length > 0 %}
+          <button class="btn btn-xs btn-info" type="button" data-toggle="modal" data-target="#delete-user-apps-modal-{{ user.id }}">
+            {{ apps|length }}
+          </button>
 
-                    <table class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center">
-                      <thead>
+          <div class="modal fade" id="delete-user-apps-modal-{{ user.id }}" tabindex="-1" role="dialog" aria-labelledby="delete-user-apps-modal-label-{{ user.id }}" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title text-info" id="delete-user-apps-modal-label-{{ user.id }}">Applications</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                </div>
+                <div class="modal-item text-left font-size-1">
+
+                  <table class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center">
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>Year</th>
+                        <th>Term</th>
+                        <th>Job</th>
+                        <th>Status</th>
+                        <th>Classification</th>
+                        <th>Created at</th>
+                        <th>Updated at</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for app in apps %}
                         <tr>
-                          <th>ID</th>
-                          <th>Year</th>
-                          <th>Term</th>
-                          <th>Job</th>
-                          <th>Status</th>
-                          <th>Classification</th>
-                          <th>Created at</th>
-                          <th>Updated at</th>
+                          <td>{{ app.id }}</td>
+                          <td>{{ app.job.session.year }}</td>
+                          <td>{{ app.job.session.term.code }}</td>
+                          <td>{{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</td>
+                          <td>{% include 'ta_app/applications/_app_status.html' with data=app.applicationstatus_set.last.get_assigned_display %}</td>
+                          <td>
+                            {% if app.classification %}
+                              {{ app.classification.year }} {{ app.classification.name }}
+                            {% else %}
+                              None
+                            {% endif %}
+                          </td>
+                          <td>{{ app.created_at }}</td>
+                          <td>{{ app.updated_at }}</td>
                         </tr>
-                      </thead>
-                      <tbody>
-                        {% for app in apps %}
-                          <tr>
-                            <td>{{ app.id }}</td>
-                            <td>{{ app.job.session.year }}</td>
-                            <td>{{ app.job.session.term.code }}</td>
-                            <td>{{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</td>
-                            <td>{% include 'ta_app/applications/_app_status.html' with data=app.applicationstatus_set.last.get_assigned_display %}</td>
-                            <td>
-                              {% if app.classification %}
-                                {{ app.classification.year }} {{ app.classification.name }}
-                              {% else %}
-                                None
-                              {% endif %}
-                            </td>
-                            <td>{{ app.created_at }}</td>
-                            <td>{{ app.updated_at }}</td>
-                          </tr>
-                        {% endfor %}
-                      </tbody>
-                    </table>
+                      {% endfor %}
+                    </tbody>
+                  </table>
 
-                  </div>
                 </div>
               </div>
             </div>
-          {% else %}
-            None
-          {% endif %}
-        </span>
+          </div>
+        {% else %}
+          None
+        {% endif %}
+
+      </div>
+
+      <div>
+        <h6>Accumulated TA Hours</h6>
+        {% if apps|length > 0 %}
+          <button class="btn btn-xs btn-info" type="button" data-toggle="modal" data-target="#delete-user-ta-hours-modal-{{ user.id }}">
+            {{ apps|length }}
+          </button>
+
+          <div class="modal fade" id="delete-user-ta-hours-modal-{{ user.id }}" tabindex="-1" role="dialog" aria-labelledby="delete-user-ta-hours-modal-label-{{ user.id }}" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title text-info" id="delete-user-ta-hours-modal-label-{{ user.id }}">Accumulated TA Hours</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                </div>
+                <div class="modal-item text-left font-size-1">
+                  <table class="table table-sm table-bordered table-hover table-striped table-responsive-md">
+                    <thead>
+                      <tr>
+                        <th>Job</th>
+                        <th>Accumulated TA Hours</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for app in apps %}
+                        <tr>
+                          <td>{{ app.job.session.year }} {{ app.job.session.term.code }} {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</td>
+                          {% if app.accepted.assigned_hours %}
+                            <td>{{ app.new_accumulated_ta_hours }} hours = {{ app.job.accumulated_ta_hours }} - {{ app.accepted.assigned_hours }}</td>
+                          {% else %}
+                            <td>{{ app.new_accumulated_ta_hours }} hours = {{ app.job.accumulated_ta_hours }} - 0.0</td>
+                          {% endif %}
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% else %}
+          None
+        {% endif %}
       </div>
 
       <form action="{% url 'administrators:delete_user' %}" method="post" class="mt-5">

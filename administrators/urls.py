@@ -9,6 +9,7 @@ urlpatterns = [
     path('sessions/create/confirmation/', views.create_session_confirmation, name='create_session_confirmation'),
     path('sessions/create/', views.create_session, name='create_session'),
     path('sessions/delete/p/<str:path>/', views.delete_session, name='delete_session'),
+    path('sessions/<str:session_slug>/p/<str:path>/delete/confirmation/', views.delete_session_confirmation, name='delete_session_confirmation'),
     path('sessions/<str:session_slug>/p/<str:path>/edit/', views.edit_session, name='edit_session'),
     path('sessions/<str:session_slug>/p/<str:path>/details/', views.show_session, name='show_session'),
     path('sessions/current/', views.current_sessions, name='current_sessions'),

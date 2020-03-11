@@ -13,6 +13,9 @@
       Users who logged in before the date (<span class="font-weight-bold text-danger">{{ target_date }}</span>) are in the table below.
       If you would like to destroy permanently all of their contents such as profile, resume and confidential information, please click on the Destroy button below.
     </p>
+    <p>
+      <code>Is trimmed</code> is False by default. It would be True if administrators destroy the contents of users who haven't logged in for 3 years. Only users whose <code>Is trimmed</code> is False will show up in the table below.
+    </p>
   </div>
 
   <form action="" method="post" onsubmit="return confirm('Are you sure to remove the information of those users?')">

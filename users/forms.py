@@ -103,7 +103,7 @@ class UserProfileEditForm(forms.ModelForm):
     )
     class Meta:
         model = Profile
-        fields = ['user', 'student_number', 'preferred_name', 'roles']
+        fields = ['user', 'student_number', 'preferred_name', 'roles', 'is_trimmed']
         labels = {
             'student_number': 'Student Number',
             'preferred_name': 'Preferred Name'
@@ -115,7 +115,8 @@ class UserProfileEditForm(forms.ModelForm):
         }
         help_texts = {
             'student_number': 'This field is optional. Must be numeric, and 8 digits in length.',
-            'preferred_name': 'This field is optional. Maximum length is 256.'
+            'preferred_name': 'This field is optional. Maximum length is 256.',
+            'is_trimmed': "This field is False by default. It would be True if administrators destroy the contents of users who haven't logged in for 3 years."
         }
 
 class StudentProfileForm(forms.ModelForm):
@@ -195,7 +196,7 @@ class StudentProfileForm(forms.ModelForm):
         'lfs_ta_training', 'lfs_ta_training_details', 'ta_experience','ta_experience_details',
         'qualifications','prior_employment', 'special_considerations'
     ]
-    
+
 
 class InstructorProfileForm(forms.ModelForm):
     class Meta:

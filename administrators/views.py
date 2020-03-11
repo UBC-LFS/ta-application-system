@@ -317,6 +317,26 @@ def edit_session(request, session_slug, path):
         'path': path
     })
 
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def delete_session_confirmation(request, session_slug, path):
+    ''' Confirmation to delete a Session '''
+    request.user.roles = request.session['loggedin_user']['roles']
+    if not userApi.is_admin(request.user): raise PermissionDenied
+    if path not in SESSION_PATH: raise Http404
+
+    sessions = adminApi.get_sessions()
+    return render(request, 'administrators/sessions/delete_session_confirmation.html', {
+        'loggedin_user': request.user,
+        'current_sessions': sessions.filter(is_archived=False),
+        'archived_sessions': sessions.filter(is_archived=True),
+        'session': adminApi.get_session(session_slug, 'slug'),
+        'path': path
+    })
+
+
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['POST'])
@@ -1666,11 +1686,21 @@ def delete_user_confirmation(request, username):
     user = userApi.get_user(username, 'username')
     user = userApi.add_confidentiality_given_list(user, ['sin','study_permit'])
     user = userApi.add_personal_data_form(user)
+    app_list = adminApi.get_applications_user(user)
+    apps = []
+    for app in app_list:
+        app = adminApi.add_app_info_into_application(app, ['accepted'])
+        if app.accepted == None:
+            app.new_accumulated_ta_hours = app.job.accumulated_ta_hours
+        else:
+            app.new_accumulated_ta_hours = app.job.accumulated_ta_hours - app.accepted.assigned_hours
+        apps.append(app)
+
     return render(request, 'administrators/hr/delete_user_confirmation.html', {
         'loggedin_user': request.user,
         'user': userApi.add_resume(user),
         'users': userApi.get_users(),
-        'apps': adminApi.get_applications_user(user)
+        'apps': apps
     })
 
 
