@@ -603,21 +603,29 @@ def edit_job(request, session_slug, job_slug):
     job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
     job_instructors = job.instructors.all()
     if request.method == 'POST':
-        form = AdminJobForm(request.POST, instance=job)
-        if form.is_valid():
-            data = form.cleaned_data
-            new_instructors = data.get('instructors')
+        ins = request.POST.getlist('instructors')
+        form = None
+        if len(ins) == 0:
+            form = AdminJobEditForm(request.POST, instance=job)
+        else:
+            form = AdminJobForm(request.POST, instance=job)
 
+        if form.is_valid():
             updated_job = form.save(commit=False)
             updated_job.updated_at = datetime.now()
             updated_job.save()
+
             if updated_job:
-                updated = adminApi.update_job_instructors(updated_job, job_instructors, new_instructors)
-                if updated:
+                updated_ins = None
+                if len(ins) == 0:
+                    updated_ins = adminApi.remove_job_instructors(updated_job, job_instructors)
+                else:
+                    updated_ins = adminApi.update_job_instructors(updated_job, job_instructors, form.cleaned_data['instructors'])
+                if updated_ins:
                     messages.success(request, 'Success! {0} {1} {2} {3} {4} updated'.format(updated_job.session.year, updated_job.session.term.code, updated_job.course.code.name, updated_job.course.number.name, updated_job.course.section.name))
                     return redirect('administrators:prepare_jobs')
                 else:
-                    messages.error(request, 'An error occurred while updateing instructors of a job.')
+                    messages.error(request, 'An error occurred while updating instructors of a job.')
             else:
                 messages.error(request, 'An error occurred while updating a job.')
         else:
@@ -633,8 +641,6 @@ def edit_job(request, session_slug, job_slug):
             'instructors': job_instructors
         })
     })
-
-
 
 
 # Applications

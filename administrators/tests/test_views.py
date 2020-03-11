@@ -440,25 +440,34 @@ class JobTest(TestCase):
         instructor_ids = [ str(ins.id) for ins in updated_job.instructors.all() ]
         self.assertEqual( instructor_ids, data['instructors'] )
 
+
     def test_edit_job_with_no_instructors(self):
         print('\n- Test: edit a job with no instructors')
         self.login()
 
         data = {
-            'title': 'new title',
+            'course_overview': 'new course overview',
             'description': 'new description',
-            'quallification': 'new quallification',
             'note': 'new note',
-            'assigned_ta_hours': '180.00',
+            'assigned_ta_hours': '185.00',
             'is_active': False,
             'instructors': []
         }
         response = self.client.post( reverse('administrators:edit_job', args=[SESSION, JOB]), data=urlencode(data, True), content_type=ContentType )
         messages = self.messages(response)
-        self.assertTrue('An error occurred' in messages[0])
+        self.assertTrue('Success' in messages[0])
         self.assertEqual(response.status_code, 302)
-        self.assertEquals(response.url, '/administrators/sessions/{0}/jobs/{1}/edit/'.format(SESSION, JOB))
+        self.assertEquals(response.url, '/administrators/jobs/prepare/')
         self.assertRedirects(response, response.url)
+
+        updated_job = adminApi.get_job_by_session_slug_job_slug(SESSION, JOB)
+        self.assertEqual(updated_job.course_overview, data['course_overview'])
+        self.assertEqual(updated_job.description, data['description'])
+        self.assertEqual(updated_job.note, data['note'])
+        self.assertEqual(updated_job.assigned_ta_hours, float(data['assigned_ta_hours']))
+        self.assertEqual(updated_job.is_active, data['is_active'])
+        self.assertEqual(len(updated_job.instructors.all()), len(data['instructors']))
+
 
     def test_edit_not_existing_job(self):
         print('\n- Test: display all progress jobs')
