@@ -77,6 +77,11 @@ class InstructorTest(TestCase):
         self.assertEqual(response.context['loggedin_user'].username, USER)
         self.assertEqual(response.context['loggedin_user'].roles, ['Instructor'])
         self.assertEqual( response.context['loggedin_user'].job_set.count(), 11)
+        jobs = response.context['loggedin_user'].job_set.all()
+        for job in jobs:
+            self.assertGreaterEqual(job.assigned_ta_hours, 0.0)
+            self.assertGreaterEqual(job.accumulated_ta_hours, 0.0)
+
 
     def test_edit_job(self):
         print('\n- Display jobs by instructors')

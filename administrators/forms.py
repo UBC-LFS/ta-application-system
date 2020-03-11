@@ -226,7 +226,7 @@ class AdminJobForm(forms.ModelForm):
     instructors = MyModelMultipleChoiceField(
         queryset=User.objects.filter(profile__roles=ROLES['Instructor']).order_by('first_name'),
         widget=forms.CheckboxSelectMultiple(),
-        help_text='This field is required.'
+        help_text='This field is optional.'
     )
     class Meta:
         model = Job
@@ -245,6 +245,32 @@ class AdminJobForm(forms.ModelForm):
             'note': 'This field is optional.'
         }
     field_order = ['course_overview', 'description', 'note', 'assigned_ta_hours', 'is_active', 'instructors']
+
+class AdminJobEditForm(forms.ModelForm):
+    ''' '''
+    assigned_ta_hours = forms.FloatField(
+        label='Total Assigned TA Hours',
+        widget=forms.TextInput(attrs={ 'class': 'form-control' }),
+        help_text='This field is required. Valid range is 0 to 4000.'
+    )
+
+    class Meta:
+        model = Job
+        fields = ['course_overview', 'description', 'note', 'assigned_ta_hours', 'is_active']
+        widgets = {
+            'course_overview': SummernoteWidget(),
+            'description': SummernoteWidget(),
+            'note': SummernoteWidget()
+        }
+        labels = {
+            'course_overview': 'Course Overview'
+        }
+        help_texts = {
+            'course_overview': 'This field is optional.',
+            'description': 'This field is optional.',
+            'note': 'This field is optional.'
+        }
+    field_order = ['course_overview', 'description', 'note', 'assigned_ta_hours', 'is_active']
 
 
 class InstructorJobForm(forms.ModelForm):
