@@ -20,6 +20,10 @@
     <div class="col-11 mx-auto">
       <h3 class="text-primary mb-5">Apply Now!</h3>
 
+      {% if not can_apply %}
+        {% include 'ta_app/pages/_apply_important_message.html' %}
+      {% endif %}
+
       {% include 'students/jobs/_search_fields.html' with data=jobs total=total_jobs session_slug=session_slug path='available_jobs' %}
       <table
         class="table table-bordered table-hover table-striped table-responsive-md text-center font-size-1"
@@ -67,7 +71,13 @@
                 {% else %}
 
                   {% if job.is_active %}
-                    <a href="{% url 'students:apply_job' session_slug=job.session.slug job_slug=job.course.slug %}">Apply</a>
+                    {% if can_apply %}
+                      <a href="{% url 'students:apply_job' session_slug=job.session.slug job_slug=job.course.slug %}">Apply</a>
+                    {% else %}
+                      <span class="text-secondary">
+                        <i class="fa fa-lock" aria-hidden="true"></i> Apply
+                      </span>
+                    {% endif %}
                   {% endif %}
 
                 {% endif %}

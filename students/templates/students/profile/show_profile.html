@@ -98,6 +98,11 @@
 
       <div class="board col-11 mx-auto">
         <h3>Basic Information</h3>
+
+        {% if not can_apply %}
+          {% include 'ta_app/pages/_apply_important_message.html' %}
+        {% endif %}
+
         {% include 'ta_app/users/_basic_info.html' with data=loggedin_user student_number_display='True' %}
       </div>
 
