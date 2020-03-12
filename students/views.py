@@ -33,6 +33,10 @@ def index(request):
         request.user.roles = request.session['loggedin_user']['roles']
     if 'Student' not in request.user.roles: raise PermissionDenied
 
+    can_apply = userApi.can_apply(request.user)
+    if can_apply == False:
+        return HttpResponseRedirect( reverse('students:show_profile', args=['basic']) )
+
     apps = request.user.application_set.all()
     return render(request, 'students/index.html', {
         'loggedin_user': request.user,
@@ -61,7 +65,8 @@ def show_profile(request, tab):
     return render(request, 'students/profile/show_profile.html', {
         'loggedin_user': loggedin_user,
         'form': ResumeForm(initial={ 'user': loggedin_user }),
-        'current_tab': tab
+        'current_tab': tab,
+        'can_apply': userApi.can_apply(request.user)
     })
 
 
@@ -457,7 +462,8 @@ def explore_jobs(request):
     return render(request, 'students/jobs/explore_jobs.html', {
         'loggedin_user': request.user,
         'visible_current_sessions': sessions.filter( Q(is_visible=True) & Q(is_archived=False) ),
-        'favourites': adminApi.get_favourites(request.user)
+        'favourites': adminApi.get_favourites(request.user),
+        'can_apply': userApi.can_apply(request.user)
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -532,7 +538,8 @@ def favourite_jobs(request):
         'loggedin_user': request.user,
         'all_favourites': all_favourites,
         'favourites': adminApi.add_applied_jobs_to_favourites(request.user, favourites),
-        'total_favourites': len(favourite_list)
+        'total_favourites': len(favourite_list),
+        'can_apply': userApi.can_apply(request.user)
     })
 
 
@@ -546,7 +553,10 @@ def available_jobs(request, session_slug):
         request.user.roles = userApi.get_user_roles(request.user)
     else:
         request.user.roles = request.session['loggedin_user']['roles']
-    if 'Student' not in request.user.roles: raise PermissionDenied
+
+    can_apply = userApi.can_apply(request.user)
+    if 'Student' not in request.user.roles or can_apply == False:
+        raise PermissionDenied
 
     code_q = request.GET.get('code')
     number_q = request.GET.get('number')
@@ -586,7 +596,8 @@ def available_jobs(request, session_slug):
         'loggedin_user': request.user,
         'session_slug': session_slug,
         'jobs': adminApi.add_applied_favourite_jobs(request.user, jobs),
-        'total_jobs': len(job_list)
+        'total_jobs': len(job_list),
+        'can_apply': can_apply
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -599,17 +610,14 @@ def apply_job(request, session_slug, job_slug):
         request.user.roles = userApi.get_user_roles(request.user)
     else:
         request.user.roles = request.session['loggedin_user']['roles']
-    if 'Student' not in request.user.roles: raise PermissionDenied
 
     session = adminApi.get_session(session_slug, 'slug')
-    if not session.is_visible or session.is_archived:
+    job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
+    can_apply = userApi.can_apply(request.user)
+    if 'Student' not in request.user.roles or session.is_visible == False or session.is_archived == True or job.is_active == False or can_apply == False:
         raise PermissionDenied
 
-    job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
-    if not job.is_active: raise PermissionDenied
-
     if request.method == 'POST':
-
         if request.POST.get('availability') == None:
             messages.error(request, 'An error occurred. Please read the "Availability requirements".')
             return HttpResponseRedirect( reverse('students:apply_job', args=[session_slug, job_slug]) )

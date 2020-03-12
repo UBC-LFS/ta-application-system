@@ -34,9 +34,93 @@ class StudentTest(TestCase):
     def messages(self, res):
         return [m.message for m in get_messages(res.wsgi_request)]
 
+    def submit_profile_resume(self, username):
+        ''' Submit profile and resume '''
+        data = {
+            'preferred_name': 'preferred name',
+            'qualifications': 'qualifications',
+            'prior_employment': 'prior employment',
+            'special_considerations': 'special considerations',
+            'status': '3',
+            'program': '5',
+            'program_others': 'program others',
+            'graduation_date': '2020-05-20',
+            'degrees': ['2', '5'],
+            'degree_details': 'degree details',
+            'trainings': ['2', '3'],
+            'training_details': 'training details',
+            'lfs_ta_training': '1',
+            'lfs_ta_training_details': 'Lfs ta training details',
+            'ta_experience': '2',
+            'ta_experience_details': 'Ta experience details'
+        }
+
+        response = self.client.post( reverse('students:edit_profile'), data=urlencode(data, True), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/students/profile/information/basic/')
+        self.assertRedirects(response, response.url)
+
+        response = self.client.get( reverse('students:show_profile', args=['basic']) )
+        self.assertEqual(response.status_code, 200)
+
+        self.assertEqual(response.context['loggedin_user'].username, username)
+        self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
+
+        user = response.context['loggedin_user']
+        self.assertEqual(user.profile.preferred_name, data['preferred_name'])
+        self.assertEqual(user.profile.qualifications, data['qualifications'])
+        self.assertEqual(user.profile.prior_employment, data['prior_employment'])
+        self.assertEqual(user.profile.special_considerations, data['special_considerations'])
+        self.assertEqual(user.profile.status.id, int(data['status']))
+        self.assertEqual(user.profile.program.id, int(data['program']))
+        self.assertEqual(user.profile.program_others, data['program_others'])
+        self.assertEqual(user.profile.graduation_date.year, 2020)
+        self.assertEqual(user.profile.graduation_date.month, 5)
+        self.assertEqual(user.profile.graduation_date.day, 20)
+        self.assertEqual( len(user.profile.degrees.all()), len(data['degrees']) )
+        self.assertEqual(user.profile.degree_details, data['degree_details'])
+        self.assertEqual( len(user.profile.trainings.all()), len(data['trainings']) )
+        self.assertEqual(user.profile.training_details, data['training_details'])
+        self.assertEqual(user.profile.lfs_ta_training, data['lfs_ta_training'])
+        self.assertEqual(user.profile.lfs_ta_training_details, data['lfs_ta_training_details'])
+        self.assertEqual(user.profile.ta_experience, data['ta_experience'])
+        self.assertEqual(user.profile.ta_experience_details, data['ta_experience_details'])
+
+        user = userApi.get_user(username, 'username')
+        resume_name = 'resume.pdf'
+        data = {
+            'user': user.id,
+            'resume': SimpleUploadedFile('resume.pdf', b'file_content', content_type='application/pdf')
+        }
+        response = self.client.post( reverse('students:upload_resume'), data=data, format='multipart')
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/students/profile/information/resume/')
+        self.assertRedirects(response, response.url)
+
+        resume = userApi.has_user_resume_created(user)
+        self.assertIsNotNone(resume)
+
+
     def test_view_url_exists_at_desired_location(self):
         print('\n- Test: view url exists at desired location')
         self.login()
+
+        response = self.client.get( reverse('students:index') )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/students/profile/information/basic/')
+        self.assertRedirects(response, response.url)
+
+        response = self.client.get( reverse('students:available_jobs', args=[SESSION]) )
+        self.assertEqual(response.status_code, 403)
+
+        response = self.client.get( reverse('students:apply_job', args=[SESSION, JOB]) )
+        self.assertEqual(response.status_code, 403)
+
+        self.submit_profile_resume(USERS[2])
 
         response = self.client.get( reverse('students:index') )
         self.assertEqual(response.status_code, 200)
@@ -107,6 +191,7 @@ class StudentTest(TestCase):
             'program_others': 'program others',
             'graduation_date': '2020-05-20',
             'degrees': ['2', '5'],
+            'degree_details': 'degree details',
             'trainings': ['2', '3'],
             'training_details': 'training details',
             'lfs_ta_training': '1',
@@ -139,6 +224,7 @@ class StudentTest(TestCase):
         self.assertEqual(user.profile.graduation_date.month, 5)
         self.assertEqual(user.profile.graduation_date.day, 20)
         self.assertEqual( len(user.profile.degrees.all()), len(data['degrees']) )
+        self.assertEqual(user.profile.degree_details, data['degree_details'])
         self.assertEqual( len(user.profile.trainings.all()), len(data['trainings']) )
         self.assertEqual(user.profile.training_details, data['training_details'])
         self.assertEqual(user.profile.lfs_ta_training, data['lfs_ta_training'])
@@ -355,6 +441,11 @@ class StudentTest(TestCase):
         self.login()
 
         response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) )
+        self.assertEqual(response.status_code, 403)
+
+        self.submit_profile_resume(USERS[2])
+
+        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) )
         self.assertEqual(response.status_code, 200)
 
         data = {
@@ -382,6 +473,11 @@ class StudentTest(TestCase):
         self.login()
 
         response = self.client.get( reverse('students:available_jobs', args=[SESSION]) )
+        self.assertEqual(response.status_code, 403)
+
+        self.submit_profile_resume(USERS[2])
+
+        response = self.client.get( reverse('students:available_jobs', args=[SESSION]) )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, USERS[2])
         self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
@@ -391,6 +487,11 @@ class StudentTest(TestCase):
     def test_apply_job(self):
         print('\n- Test: Students can apply for each job')
         self.login()
+
+        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) )
+        self.assertEqual(response.status_code, 403)
+
+        self.submit_profile_resume(USERS[2])
 
         response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) )
         self.assertEqual(response.status_code, 200)
@@ -425,12 +526,45 @@ class StudentTest(TestCase):
         self.assertTrue(response.context['has_applied_job'])
         self.assertFalse(response.context['form'].is_bound)
 
-    def test_apply_jobs_with_closed_term(self):
-        print('\n- Test: Students cannot apply for each job in the closed term')
+    def test_cannot_apply_jobs(self):
+        print('\n- Test: Students cannot apply for each job')
+
+        # not student role
+        self.login(USERS[0], PASSWORD)
+        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) )
+        self.assertEqual(response.status_code, 403)
+
+        self.login(USERS[1], PASSWORD)
+        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) )
+        self.assertEqual(response.status_code, 403)
+
         self.login()
+
+        # didn't complete profile and resume
+        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) )
+        self.assertEqual(response.status_code, 403)
+
+        self.submit_profile_resume(USERS[2])
+
         session = adminApi.get_session(SESSION, 'slug')
         session.is_visible = False
-        session.save(update_fields=['is_visible'])
+        session.is_archived = True
+        session.save(update_fields=['is_visible', 'is_archived'])
+
+        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) )
+        self.assertEqual(response.status_code, 403)
+
+        session = adminApi.get_session(SESSION, 'slug')
+        session.is_visible = True
+        session.is_archived = True
+        session.save(update_fields=['is_visible', 'is_archived'])
+
+        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) )
+        self.assertEqual(response.status_code, 403)
+
+        job = adminApi.get_job_by_session_slug_job_slug(SESSION, STUDENT_JOB)
+        job.is_active = False
+        job.save(update_fields=['is_active'])
 
         response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) )
         self.assertEqual(response.status_code, 403)
@@ -570,6 +704,13 @@ class StudentTest(TestCase):
 
         STUDENT = 'user66.test'
         self.login(STUDENT, '12')
+
+        response = self.client.get( reverse('students:index') )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/students/profile/information/basic/')
+        self.assertRedirects(response, response.url)
+
+        self.submit_profile_resume(STUDENT)
 
         response = self.client.get( reverse('students:index') )
         self.assertEqual(response.status_code, 200)
