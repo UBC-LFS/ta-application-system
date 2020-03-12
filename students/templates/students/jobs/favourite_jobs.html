@@ -81,10 +81,12 @@
 										{% if can_apply %}
 											<a class="btn btn-xs btn-link" href="{% url 'students:apply_job' session_slug=fav.job.session.slug job_slug=fav.job.course.slug %}">Apply</a>
 										{% else %}
-											<button class="btn btn-link" type="button" disabled>Apply</button>
+											<span class="text-secondary">
+												<i class="fa fa-lock" aria-hidden="true"></i> Apply
+											</span>
 										{% endif %}
 										<hr />
-										
+
 									{% endif %}
 								{% endif %}
 
