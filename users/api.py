@@ -87,7 +87,7 @@ def get_users(option=None):
         target_date = date.today() - timedelta(days=3*365)
         return User.objects.filter( Q(last_login__lt=target_date) & Q(profile__is_trimmed=False) ), target_date
 
-    return User.objects.all().order_by('id')
+    return User.objects.all().order_by('last_name', 'first_name')
 
 def get_instructors():
     ''' Get instructors '''
@@ -512,8 +512,22 @@ def create_expiry_date(year, month, day):
     return datetime( int(year), int(month), int(day) )
 
 
-# Confidentiality
+def can_apply(user):
+    ''' Check whether students can apply or not '''
+    profile = has_user_profile_created(user)
 
+    if has_user_resume_created(user) is not None and profile is not None:
+        if profile.qualifications is not None and profile.prior_employment is not None and profile.special_considerations is not None and \
+            profile.program_others is not None and profile.graduation_date is not None and profile.degree_details is not None and \
+            profile.training_details is not None and profile.lfs_ta_training is not None and profile.lfs_ta_training_details is not None and \
+            profile.ta_experience is not None and profile.ta_experience_details is not None and profile.status is not None and \
+            profile.program is not None and profile.degrees.count() > 0 and profile.trainings.count() > 0:
+
+            if len(profile.program_others) > 0 and len(profile.degree_details) > 0 and len(profile.training_details) > 0 and \
+                len(profile.lfs_ta_training_details) > 0 and len(profile.ta_experience_details) > 0 and len(profile.qualifications) > 0 and \
+                len(profile.prior_employment) > 0 and len(profile.special_considerations) > 0:
+                return True
+    return False
 
 # Roles
 
