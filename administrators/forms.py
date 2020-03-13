@@ -371,13 +371,11 @@ class ApplicationForm(forms.ModelForm):
     ''' Create a model form for an application for students '''
     how_qualified = forms.ChoiceField(
         choices=Application.PREFERENCE_CHOICES,
-        label='How qualifed are you?',
-        help_text='This field is required.'
+        label='How qualifed are you?'
     )
     how_interested = forms.ChoiceField(
         choices=Application.PREFERENCE_CHOICES,
-        label='How interested are you?',
-        help_text='This field is required.'
+        label='How interested are you?'
     )
 
     class Meta:
@@ -394,7 +392,7 @@ class ApplicationForm(forms.ModelForm):
             'availability_note': 'Availability notes'
         }
         help_texts = {
-            'supervisor_approval': 'My supervisor has approved for me to TA up to a maximum of 12 hours/week.',
+            'supervisor_approval': "I have my graduate supervisor or professional Masters degree Program Director's approval for me to TA up to a maximum of 12 hours/week.",
             'availability_note': 'This field is optional.'
         }
 

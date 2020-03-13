@@ -89,23 +89,28 @@ def edit_profile(request):
         form = StudentProfileForm(request.POST, instance=loggedin_user.profile)
         if form.is_valid():
             data = form.cleaned_data
+
+            if data['program'].id == 16 and bool(data['program_others']) == False:
+                messages.error(request, 'An error occurred. Please indicate your program if you select "Others" in the Current Program')
+                return redirect('students:edit_profile')
+
             updated_profile = form.save(commit=False)
             updated_profile.updated_at = datetime.now()
             form.save()
             if updated_profile:
                 updated = userApi.update_student_profile_degrees_trainings(updated_profile, profile_degrees, profile_trainings, data)
                 if updated:
-                    messages.success(request, 'Success! {0} - profile updated'.format(loggedin_user.username))
+                    messages.success(request, 'Success! {0} - additional information updated'.format(loggedin_user.username))
                     return HttpResponseRedirect( reverse('students:show_profile', args=['basic']) )
                 else:
                     messages.error(request, 'An error occurred while degrees and trainings of a profile.')
             else:
-                messages.error(request, 'An error occurred while updating student\'s profile.')
+                messages.error(request, "An error occurred while updating student's profile.")
         else:
             errors = form.errors.get_json_data()
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
-        return HttpResponseRedirect( reverse('students:edit_profile', args=[username]) )
+        return redirect('students:edit_profile')
 
     return render(request, 'students/profile/edit_profile.html', {
         'loggedin_user': loggedin_user,
@@ -618,6 +623,10 @@ def apply_job(request, session_slug, job_slug):
         raise PermissionDenied
 
     if request.method == 'POST':
+        if request.user.profile.status is not None and request.user.profile.status.id != 1 and request.POST.get('supervisor_approval') == None:
+            messages.error(request, 'An error occurred. You need your "Supervisor Approval" to submit the form if you are not an Undergraduate student.')
+            return HttpResponseRedirect( reverse('students:apply_job', args=[session_slug, job_slug]) )
+
         if request.POST.get('availability') == None:
             messages.error(request, 'An error occurred. Please read the "Availability requirements".')
             return HttpResponseRedirect( reverse('students:apply_job', args=[session_slug, job_slug]) )
