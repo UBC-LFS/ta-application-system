@@ -166,7 +166,7 @@ class StudentProfileForm(forms.ModelForm):
         queryset=Training.objects.all(),
         widget=forms.CheckboxSelectMultiple(),
         label='Training',
-        help_text='This field is optional.'
+        help_text='I acknowledge that I have completed or will be completing these training requirement as listed below. (You must check all fields to proceed).'
     )
     training_details = forms.CharField(
         required=True,

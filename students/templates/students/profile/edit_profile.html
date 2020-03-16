@@ -31,7 +31,7 @@
           <div class="field-wrapper my-5">
             <label for="{{ field.id_for_label }}">
               {{ field.label }}:
-              {% if field.id_for_label == 'id_preferred_name' or field.id_for_label == 'id_program_others' or field.id_for_label == 'id_special_considerations' or field.id_for_label == 'id_prior_employment' or field.label == 'Training' %}
+              {% if field.id_for_label == 'id_preferred_name' or field.id_for_label == 'id_program_others' or field.id_for_label == 'id_special_considerations' or field.id_for_label == 'id_prior_employment' %}
               {% else %}
                 <small class="text-danger"><i class="fa fa-asterisk" aria-hidden="true"></i></small>
               {% endif %}
