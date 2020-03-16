@@ -97,6 +97,9 @@ def edit_profile(request):
             if data['graduation_date'] == None:
                 errors.append('Anticipated Graduation Date: This field is required.')
 
+            if len(data['trainings']) != 4:
+                errors.append('Training: you have completed or will be completing these training requirement.')
+
             if len(errors) > 0:
                 messages.error(request, 'An error occurred. {0}'.format(' '.join(errors)))
                 return redirect('students:edit_profile')
@@ -631,7 +634,7 @@ def apply_job(request, session_slug, job_slug):
 
     if request.method == 'POST':
         if request.user.profile.status is not None and request.user.profile.status.id != 1 and request.POST.get('supervisor_approval') == None:
-            messages.error(request, 'An error occurred. You need your "Supervisor Approval" to submit the form if you are not an Undergraduate student.')
+            messages.error(request, "An error occurred. You are a graduate student, you need to have your graduate supervisor's approval to be granted a TAship.")
             return HttpResponseRedirect( reverse('students:apply_job', args=[session_slug, job_slug]) )
 
         if request.POST.get('availability') == None:
