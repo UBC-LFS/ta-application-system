@@ -47,7 +47,7 @@ class StudentTest(TestCase):
             'graduation_date': '2020-05-20',
             'degrees': ['2', '5'],
             'degree_details': 'degree details',
-            'trainings': ['2', '3'],
+            'trainings': ['1','2', '3', '4'],
             'training_details': 'training details',
             'lfs_ta_training': '1',
             'lfs_ta_training_details': 'Lfs ta training details',
@@ -119,7 +119,7 @@ class StudentTest(TestCase):
             'graduation_date': '2020-05-20',
             'degrees': ['2', '5'],
             'degree_details': 'degree details',
-            'trainings': ['2', '3'],
+            'trainings': ['1', '2', '3', '4'],
             'training_details': 'training details',
             'lfs_ta_training': '1',
             'lfs_ta_training_details': 'Lfs ta training details',
@@ -335,6 +335,33 @@ class StudentTest(TestCase):
         response = self.client.post( reverse('students:edit_profile'), data=urlencode(data4, True), content_type=ContentType )
         messages = self.messages(response)
         self.assertTrue('An error occurred. Form is invalid. QUALIFICATIONS: This field is required.' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/students/profile/edit/')
+        self.assertRedirects(response, response.url)
+
+        data5 = {
+            'preferred_name': 'preferred name',
+            'status': '3',
+            'program': '5',
+            'program_others': '',
+            'graduation_date': '2020-05-20',
+            'degrees': ['2', '5'],
+            'degree_details': 'degree details',
+            'trainings': ['1', '2', '3'],
+            'training_details': 'training details',
+            'lfs_ta_training': '1',
+            'lfs_ta_training_details': 'Lfs ta training details',
+            'ta_experience': '2',
+            'ta_experience_details': 'Ta experience details',
+            'preferred_name': 'preferred name',
+            'prior_employment': 'prior employment',
+            'qualifications': 'qualifications',
+            'special_considerations': 'special_considerations'
+        }
+
+        response = self.client.post( reverse('students:edit_profile'), data=urlencode(data5, True), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue('An error occurred. Training: you have completed or will be completing these training requirement.' in messages[0])
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, '/students/profile/edit/')
         self.assertRedirects(response, response.url)
@@ -709,7 +736,7 @@ class StudentTest(TestCase):
 
         response = self.client.post( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]), data=urlencode(data), content_type=ContentType )
         messages = self.messages(response)
-        self.assertTrue('An error occurred. You need your "Supervisor Approval" to submit the form if you are not an Undergraduate student.' in messages[0])
+        self.assertTrue("An error occurred. You are a graduate student, you need to have your graduate supervisor's approval to be granted a TAship." in messages[0])
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, '/students/sessions/{0}/jobs/{1}/apply/'.format(SESSION, STUDENT_JOB))
         self.assertRedirects(response, response.url)
