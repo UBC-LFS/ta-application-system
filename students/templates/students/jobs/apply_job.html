@@ -64,27 +64,30 @@
 
         <h3>Application Form</h3>
 
-        <div class="text-danger">
-          <i class="fa fa-asterisk" aria-hidden="true"></i>
-          Please fill this form carefully. Once submitted, it cannot be changed.
+        <div class="bg-white p-3">
+          <ul class="text-dark mb-0">
+            <li><span class="text-danger">Please fill out this form carefully. Once submitted, it cannot be changed.</span></li>
+            <li><small class="text-danger"><i class="fa fa-asterisk" aria-hidden="true"></i></small>: This field is required</li>
+          </ul>
         </div>
 
         <form action="" method="post">
           {% csrf_token %}
 
           {% for field in form.visible_fields  %}
-            <div class="field-wrapper">
-              {% if field.id_for_label == 'id_supervisor_approval' %}
+            <div class="field-wrapper mb-5">
 
-                {{ field.label_tag }}
-                {% if field.help_text %}
-                  <div class="help">{{ field.help_text|safe }}</div>
+              <label for="{{ field.id_for_label }}">
+                {{ field.label }}
+                {% if field.id_for_label == 'id_supervisor_approval' %}
+                  <span class="font-weight-normal">(required for graduate students only)</span>
                 {% endif %}
-                {{ field }} <span class="font-weight-bold text-dark">Yes</span>
+                {% if field.id_for_label == 'id_how_qualified' or field.id_for_label == 'id_how_interested' or field.id_for_label == 'id_availability' %}
+                  <small class="text-danger"><i class="fa fa-asterisk" aria-hidden="true"></i></small>
+                {% endif %}
+              </label>
 
-              {% elif field.id_for_label == 'id_availability' %}
-
-                {{ field.label_tag }}
+              {% if field.id_for_label == 'id_availability' %}
                 <div class="help">
                   By accepting any TA appointment within LFS, you are expected to be available for the duration of the assignment:
                   <ul>
@@ -97,20 +100,21 @@
                   </ul>
                   Keep in mind that final exams are not controlled by LFS and may be scheduled up to the final day of the exam period and that final exam marking could take place after the end of the examination period. If you need to be absend for any period of time, you are expected to contact the course instructor and arrange for a proper replacement. If you already have plans to be absent at any time during the duration of the assignment, you should describe these plans in the additional comments box below AND inform your course instructor as soon as you are assigned.
                 </div>
-                {% if field.help_text %}
-                  <div class="help">{{ field.help_text|safe }}</div>
-                {% endif %}
-                {{ field }} <span class="font-weight-bold text-dark">I understand</span>
-
-              {% else %}
-
-                {{ field.label_tag }}
-                {% if field.help_text %}
-                  <div class="help">{{ field.help_text|safe }}</div>
-                {% endif %}
-                {{ field }}
-
               {% endif %}
+
+              {% if field.help_text %}
+                <div class="help">{{ field.help_text|safe }}</div>
+              {% endif %}
+              {{ field }}
+
+              {% if field.id_for_label == 'id_supervisor_approval' %}
+                <span class="font-weight-bold text-dark">Yes</span>
+              {% endif %}
+
+              {% if field.id_for_label == 'id_availability' %}
+                <span class="font-weight-bold text-dark">I understand</span>
+              {% endif %}
+
             </div>
           {% endfor %}
 

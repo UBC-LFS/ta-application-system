@@ -517,15 +517,14 @@ def can_apply(user):
     profile = has_user_profile_created(user)
 
     if has_user_resume_created(user) is not None and profile is not None:
-        if profile.qualifications is not None and profile.prior_employment is not None and profile.special_considerations is not None and \
-            profile.program_others is not None and profile.graduation_date is not None and profile.degree_details is not None and \
-            profile.training_details is not None and profile.lfs_ta_training is not None and profile.lfs_ta_training_details is not None and \
-            profile.ta_experience is not None and profile.ta_experience_details is not None and profile.status is not None and \
-            profile.program is not None and profile.degrees.count() > 0 and profile.trainings.count() > 0:
+        if profile.graduation_date is not None and profile.status is not None and profile.program is not None and \
+            profile.degree_details is not None and profile.training_details is not None and profile.lfs_ta_training is not None and \
+            profile.lfs_ta_training_details is not None and profile.ta_experience is not None and \
+            profile.ta_experience_details is not None and profile.qualifications is not None and profile.degrees.count() > 0:
 
-            if len(profile.program_others) > 0 and len(profile.degree_details) > 0 and len(profile.training_details) > 0 and \
-                len(profile.lfs_ta_training_details) > 0 and len(profile.ta_experience_details) > 0 and len(profile.qualifications) > 0 and \
-                len(profile.prior_employment) > 0 and len(profile.special_considerations) > 0:
+            if len(profile.degree_details) > 0 and len(profile.training_details) > 0 and \
+                len(profile.lfs_ta_training_details) > 0 and len(profile.ta_experience_details) > 0 and \
+                len(profile.qualifications) > 0:
                 return True
     return False
 
@@ -573,7 +572,8 @@ def delete_status(status_id):
     status.delete()
     return status if status else False
 
-
+def undergraduate_status():
+    return Status.objects.filter(name='Undergraduate student')
 
 # programs
 
