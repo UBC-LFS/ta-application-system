@@ -89,6 +89,7 @@ def edit_profile(request):
         form = StudentProfileForm(request.POST, instance=loggedin_user.profile)
         if form.is_valid():
             data = form.cleaned_data
+
             errors = []
             if data['program'].id == 16 and bool(data['program_others']) == False:
                 errors.append('Please indicate your program if you select "Others" in the Current Program.')

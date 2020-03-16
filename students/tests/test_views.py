@@ -96,6 +96,78 @@ class StudentTest(TestCase):
         }
         response = self.client.post( reverse('students:upload_resume'), data=data, format='multipart')
         messages = self.messages(response)
+
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/students/profile/information/resume/')
+        self.assertRedirects(response, response.url)
+
+        resume = userApi.has_user_resume_created(user)
+        self.assertIsNotNone(resume)
+
+
+    def submit_profile_resume_undergraduate(self, username):
+        ''' Submit profile and resume '''
+        data = {
+            'preferred_name': 'preferred name',
+            'qualifications': 'qualifications',
+            'prior_employment': 'prior employment',
+            'special_considerations': 'special considerations',
+            'status': '1',
+            'program': '5',
+            'program_others': 'program others',
+            'graduation_date': '2020-05-20',
+            'degrees': ['2', '5'],
+            'degree_details': 'degree details',
+            'trainings': ['2', '3'],
+            'training_details': 'training details',
+            'lfs_ta_training': '1',
+            'lfs_ta_training_details': 'Lfs ta training details',
+            'ta_experience': '2',
+            'ta_experience_details': 'Ta experience details'
+        }
+
+        response = self.client.post( reverse('students:edit_profile'), data=urlencode(data, True), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/students/profile/information/basic/')
+        self.assertRedirects(response, response.url)
+
+        response = self.client.get( reverse('students:show_profile', args=['basic']) )
+        self.assertEqual(response.status_code, 200)
+
+        self.assertEqual(response.context['loggedin_user'].username, username)
+        self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
+
+        user = response.context['loggedin_user']
+        self.assertEqual(user.profile.preferred_name, data['preferred_name'])
+        self.assertEqual(user.profile.qualifications, data['qualifications'])
+        self.assertEqual(user.profile.prior_employment, data['prior_employment'])
+        self.assertEqual(user.profile.special_considerations, data['special_considerations'])
+        self.assertEqual(user.profile.status.id, int(data['status']))
+        self.assertEqual(user.profile.program.id, int(data['program']))
+        self.assertEqual(user.profile.program_others, data['program_others'])
+        self.assertEqual(user.profile.graduation_date.year, 2020)
+        self.assertEqual(user.profile.graduation_date.month, 5)
+        self.assertEqual(user.profile.graduation_date.day, 20)
+        self.assertEqual( len(user.profile.degrees.all()), len(data['degrees']) )
+        self.assertEqual(user.profile.degree_details, data['degree_details'])
+        self.assertEqual( len(user.profile.trainings.all()), len(data['trainings']) )
+        self.assertEqual(user.profile.training_details, data['training_details'])
+        self.assertEqual(user.profile.lfs_ta_training, data['lfs_ta_training'])
+        self.assertEqual(user.profile.lfs_ta_training_details, data['lfs_ta_training_details'])
+        self.assertEqual(user.profile.ta_experience, data['ta_experience'])
+        self.assertEqual(user.profile.ta_experience_details, data['ta_experience_details'])
+
+        user = userApi.get_user(username, 'username')
+        resume_name = 'resume.pdf'
+        data = {
+            'user': user.id,
+            'resume': SimpleUploadedFile('resume.pdf', b'file_content', content_type='application/pdf')
+        }
+        response = self.client.post( reverse('students:upload_resume'), data=data, format='multipart')
+        messages = self.messages(response)
         self.assertTrue('Success' in messages[0])
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, '/students/profile/information/resume/')
@@ -181,7 +253,8 @@ class StudentTest(TestCase):
         print('\n- Test: Edit user profile')
         self.login()
 
-        data = {
+        # graduation date is none
+        data1 = {
             'status': '3',
             'program': '5',
             'degrees': ['2', '5'],
@@ -194,34 +267,15 @@ class StudentTest(TestCase):
             'qualifications': 'qualifications',
         }
 
-        response = self.client.post( reverse('students:edit_profile'), data=urlencode(data, True), content_type=ContentType )
+        response = self.client.post( reverse('students:edit_profile'), data=urlencode(data1, True), content_type=ContentType )
         messages = self.messages(response)
         self.assertTrue('An error occurred. Anticipated Graduation Date: This field is required.' in messages[0])
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, '/students/profile/edit/')
         self.assertRedirects(response, response.url)
 
-        data = {
-            'status': '3',
-            'program': '16',
-            'degrees': ['2', '5'],
-            'degree_details': 'degree details',
-            'training_details': 'training details',
-            'lfs_ta_training': '1',
-            'lfs_ta_training_details': 'Lfs ta training details',
-            'ta_experience': '2',
-            'ta_experience_details': 'Ta experience details',
-            'qualifications': 'qualifications'
-        }
-
-        response = self.client.post( reverse('students:edit_profile'), data=urlencode(data, True), content_type=ContentType )
-        messages = self.messages(response)
-        self.assertTrue('An error occurred. Please indicate your program if you select "Others" in the Current Program. Anticipated Graduation Date: This field is required.' in messages[0])
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, '/students/profile/edit/')
-        self.assertRedirects(response, response.url)
-
-        data = {
+        # fill in the others of program
+        data2 = {
             'status': '3',
             'program': '16',
             'graduation_date': '2020-05-05',
@@ -235,15 +289,37 @@ class StudentTest(TestCase):
             'qualifications': 'qualifications'
         }
 
-        response = self.client.post( reverse('students:edit_profile'), data=urlencode(data, True), content_type=ContentType )
+        response = self.client.post( reverse('students:edit_profile'), data=urlencode(data2, True), content_type=ContentType )
         messages = self.messages(response)
-        print(messages)
         self.assertTrue('An error occurred. Please indicate your program if you select "Others" in the Current Program.' in messages[0])
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, '/students/profile/edit/')
         self.assertRedirects(response, response.url)
 
-        data = {
+        # fill in the others of program and graduation date is none
+        data3 = {
+            'status': '3',
+            'program': '16',
+            'degrees': ['2', '5'],
+            'degree_details': 'degree details',
+            'training_details': 'training details',
+            'lfs_ta_training': '1',
+            'lfs_ta_training_details': 'Lfs ta training details',
+            'ta_experience': '2',
+            'ta_experience_details': 'Ta experience details',
+            'qualifications': 'qualifications'
+        }
+
+        response = self.client.post( reverse('students:edit_profile'), data=urlencode(data3, True), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue('An error occurred. Please indicate your program if you select "Others" in the Current Program. Anticipated Graduation Date: This field is required.' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/students/profile/edit/')
+        self.assertRedirects(response, response.url)
+
+
+        # qualification is none
+        data4 = {
             'status': '3',
             'program': '5',
             'graduation_date': '2020-05-05',
@@ -256,7 +332,7 @@ class StudentTest(TestCase):
             'ta_experience_details': 'Ta experience details'
         }
 
-        response = self.client.post( reverse('students:edit_profile'), data=urlencode(data, True), content_type=ContentType )
+        response = self.client.post( reverse('students:edit_profile'), data=urlencode(data4, True), content_type=ContentType )
         messages = self.messages(response)
         self.assertTrue('An error occurred. Form is invalid. QUALIFICATIONS: This field is required.' in messages[0])
         self.assertEqual(response.status_code, 302)
@@ -264,18 +340,23 @@ class StudentTest(TestCase):
         self.assertRedirects(response, response.url)
 
         data = {
+            'preferred_name': 'preferred name',
             'status': '3',
             'program': '5',
-            'graduation_date': '2020-05-05',
+            'program_others': '',
+            'graduation_date': '2020-05-20',
             'degrees': ['2', '5'],
             'degree_details': 'degree details',
+            'trainings': ['1', '2', '3', '4'],
             'training_details': 'training details',
             'lfs_ta_training': '1',
             'lfs_ta_training_details': 'Lfs ta training details',
             'ta_experience': '2',
             'ta_experience_details': 'Ta experience details',
             'preferred_name': 'preferred name',
-            'prior_employment': 'prior employment'
+            'prior_employment': 'prior employment',
+            'qualifications': 'qualifications',
+            'special_considerations': 'special_considerations'
         }
 
         response = self.client.post( reverse('students:edit_profile'), data=urlencode(data, True), content_type=ContentType )
@@ -562,12 +643,88 @@ class StudentTest(TestCase):
         self.assertEqual( len(response.context['jobs']), 50 )
 
 
-    def test_apply_job(self):
-        print('\n- Test: Students can apply for each job')
+    def test_apply_job_undergraduate(self):
+        print('\n- Test: Undergraduate students can apply for each job')
         self.login()
 
         response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) )
         self.assertEqual(response.status_code, 403)
+
+        self.submit_profile_resume_undergraduate(USERS[2])
+
+        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['loggedin_user'].username, USERS[2])
+        self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
+        self.assertEqual(response.context['job'].course.slug, STUDENT_JOB)
+        self.assertFalse(response.context['has_applied_job'])
+        self.assertFalse(response.context['form'].is_bound)
+
+        data = {
+            'applicant': response.context['loggedin_user'].id,
+            'job': response.context['job'].id,
+            'how_qualified': '4',
+            'how_interested': '3',
+            'availability': True,
+            'availability_note': 'nothing'
+        }
+
+        response = self.client.post( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]), data=urlencode(data), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/students/sessions/{0}/jobs/available/'.format(SESSION))
+        self.assertRedirects(response, response.url)
+
+        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['loggedin_user'].username, USERS[2])
+        self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
+        self.assertEqual(response.context['job'].course.slug, STUDENT_JOB)
+        self.assertTrue(response.context['has_applied_job'])
+        self.assertFalse(response.context['form'].is_bound)
+
+    def test_apply_job_no_supervisor_approval(self):
+        print('\n- Test: Graudate students cannot apply for each job without supervisor approval')
+        self.login()
+
+        self.submit_profile_resume(USERS[2])
+
+        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['loggedin_user'].username, USERS[2])
+        self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
+        self.assertEqual(response.context['job'].course.slug, STUDENT_JOB)
+        self.assertFalse(response.context['has_applied_job'])
+        self.assertFalse(response.context['form'].is_bound)
+
+        data = {
+            'applicant': response.context['loggedin_user'].id,
+            'job': response.context['job'].id,
+            'how_qualified': '4',
+            'how_interested': '3',
+            'availability': True,
+            'availability_note': 'nothing'
+        }
+
+        response = self.client.post( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]), data=urlencode(data), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue('An error occurred. You need your "Supervisor Approval" to submit the form if you are not an Undergraduate student.' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/students/sessions/{0}/jobs/{1}/apply/'.format(SESSION, STUDENT_JOB))
+        self.assertRedirects(response, response.url)
+
+        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['loggedin_user'].username, USERS[2])
+        self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
+        self.assertEqual(response.context['job'].course.slug, STUDENT_JOB)
+        self.assertFalse(response.context['has_applied_job'])
+        self.assertFalse(response.context['form'].is_bound)
+
+    def test_apply_job(self):
+        print('\n- Test: Graudate students can apply for each job')
+        self.login()
 
         self.submit_profile_resume(USERS[2])
 
