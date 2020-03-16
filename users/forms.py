@@ -5,6 +5,7 @@ from . import api
 from datetime import datetime
 import datetime as dt
 
+
 DATE = datetime.now()
 
 class TrainingForm(forms.ModelForm):
@@ -128,25 +129,83 @@ class StudentProfileForm(forms.ModelForm):
         label='Preferred Name',
         help_text='This field is optional. Maximum length is 256.'
     )
-
+    status = forms.ModelChoiceField(
+        required=True,
+        queryset=Status.objects.all(),
+        label='Status',
+        empty_label='Select'
+    )
+    program = forms.ModelChoiceField(
+        required=True,
+        queryset=Program.objects.all(),
+        label='Current Program',
+        help_text='What program will you be registered in during the next Session?',
+        empty_label='Select'
+    )
     graduation_date = forms.DateField(
         required=False,
         widget=forms.SelectDateWidget(years=range(date.year, date.year + 20)),
-        label='Anticipated Graduation'
+        label='Anticipated Graduation Date',
+        help_text='Format: Month-Day-Year'
     )
     degrees = forms.ModelMultipleChoiceField(
-        required=False,
+        required=True,
         queryset=Degree.objects.all(),
         widget=forms.CheckboxSelectMultiple(),
         label='Most Recent Degrees',
         help_text='Please select your most recent degrees.'
+    )
+    degree_details = forms.CharField(
+        required=True,
+        widget=forms.Textarea(attrs={ 'rows':5, 'class':'form-control' }),
+        label='Degree Details',
+        help_text='Please indicate your degree details: most recent completed or conferred or multiple same type degrees (ex. BSc - Biochemistry - U of T, November 24, 2014).'
     )
     trainings = forms.ModelMultipleChoiceField(
         required=False,
         queryset=Training.objects.all(),
         widget=forms.CheckboxSelectMultiple(),
         label='Training',
+        help_text='This field is optional.'
     )
+    training_details = forms.CharField(
+        required=True,
+        widget=forms.Textarea(attrs={ 'rows':5, 'class':'form-control' }),
+        label='Training Details',
+        help_text='If you have completed TA and/or PBL training, please provide some details (name of workshop, dates of workshop, etc) in the text box.'
+    )
+
+    TA_CHOICES = [('', 'Select')] + Profile.LFS_TA_TRAINING_CHOICES
+
+    lfs_ta_training = forms.ChoiceField(
+        required=True,
+        choices=TA_CHOICES,
+        label='LFS TA Training'
+    )
+    lfs_ta_training_details = forms.CharField(
+        required=True,
+        widget=forms.Textarea(attrs={ 'rows':5, 'class':'form-control' }),
+        label='LFS TA Training Details',
+        help_text='Have you completed any LFS TA training sessions? If yes, please provide details (name of session/workshop, dates, etc).'
+    )
+    ta_experience = forms.ChoiceField(
+        required=True,
+        choices=TA_CHOICES,
+        label='Previous TA Experience'
+    )
+    ta_experience_details = forms.CharField(
+        required=True,
+        widget=forms.Textarea(attrs={ 'rows':5, 'class':'form-control' }),
+        label='Previous TA Experience Details',
+        help_text='If yes, please list course name & session (example: FHN 350 002, 2010W Term 2)'
+    )
+    qualifications = forms.CharField(
+        required=True,
+        widget=forms.Textarea(attrs={ 'rows':5, 'class':'form-control' }),
+        label='Explanation of Qualifications',
+        help_text="List and give a 2-3 sentence justification of your qualifications for your top three preferred courses. If you list fewer than three, justfiy all of them. Qualifications might include coursework experience, TA expericne, work in the area, contact with the course\'s instructor, etc. List any special arrangements you have made with regard to TAing here."
+    )
+
     class Meta:
         model = Profile
         fields = [
@@ -156,37 +215,19 @@ class StudentProfileForm(forms.ModelForm):
         ]
         widgets = {
             'program_others': forms.Textarea(attrs={ 'rows':5, 'class':'form-control' }),
-            'degree_details': forms.Textarea(attrs={ 'rows':5, 'class':'form-control' }),
-            'training_details': forms.Textarea(attrs={ 'rows':5, 'class':'form-control' }),
-            'lfs_ta_training_details': forms.Textarea(attrs={ 'rows':5, 'class':'form-control' }),
-            'qualifications': forms.Textarea(attrs={ 'rows':5, 'class':'form-control' }),
             'prior_employment': forms.Textarea(attrs={ 'rows':5, 'class':'form-control' }),
             'special_considerations': forms.Textarea(attrs={ 'rows':5, 'class':'form-control' }),
-            'ta_experience_details': forms.Textarea(attrs={ 'rows':5, 'class':'form-control' })
         }
         labels = {
-            'program': 'Current Program',
+
             'program_others': 'Other Program',
-            'degree_details': 'Degree Details',
-            'training_details': 'Training Details',
-            'lfs_ta_training': 'LFS TA Training',
-            'lfs_ta_training_details': 'LFS TA Training Details',
-            'ta_experience': 'Previous TA Experience',
-            'ta_experience_details': 'Previous TA Experience Details',
-            'qualifications': 'Explanation of Qualifications',
             'prior_employment': 'Information on Prior Employment (if any)',
             'special_considerations': 'Special Considerations'
         }
         help_texts = {
-            'program': 'What program will you be registered in during the next Session?',
-            'program_others': 'Please indicate your program if you select Others in the Current Program above.',
-            'degree_details': 'Please indicate your degree details: most recent completed or conferred or multiple same type degrees (ex. BSc - Biochemistry - U of T, November 24, 2014).',
-            'training_details': 'If you have completed TA and/or PBL training, please provide some details (name of workshop, dates of workshop, etc) in the text box.',
-            'lfs_ta_training_details': 'Have you completed any LFS TA training sessions? If yes, please provide details (name of session/workshop, dates, etc).',
-            'ta_experience_details': 'If yes, please list course name & session (example: FHN 350 002, 2010W Term 2)',
-            'qualifications': 'List and give a 2-3 sentence justification of your qualifications for your top three preferred courses. If you list fewer than three, justfiy all of them. Qualifications might include coursework experience, TA expericne, work in the area, contact with the course\'s instructor, etc. List any special arrangements you have made with regard to TAing here.',
-            'prior_employment': 'Please let any current or previous employment history you feel is relevant to the position you are applying for as a TA. Include company name, position, length of employment, supervisor\'s name and contact information (phone or email). Please indicate if you do not wish us to contact any employer for a reference.',
-            'special_considerations': 'List any qualifications, experience, special considerations which may apply to this application. For example, you might list prior teaching experience, describe any special arrangements or requests for TAing with a particular instructor or for a particular course, or include a text copy of your current resume.'
+            'program_others': 'Please indicate your program if you select "Others" in the Current Program above.',
+            'prior_employment': 'This is optional. Please let any current or previous employment history you feel is relevant to the position you are applying for as a TA. Include company name, position, length of employment, supervisor\'s name and contact information (phone or email). Please indicate if you do not wish us to contact any employer for a reference.',
+            'special_considerations': 'This is optional. List any qualifications, experience, special considerations which may apply to this application. For example, you might list prior teaching experience, describe any special arrangements or requests for TAing with a particular instructor or for a particular course, or include a text copy of your current resume.'
         }
 
     field_order = [
@@ -195,7 +236,7 @@ class StudentProfileForm(forms.ModelForm):
         'lfs_ta_training', 'lfs_ta_training_details', 'ta_experience','ta_experience_details',
         'qualifications','prior_employment', 'special_considerations'
     ]
-    
+
 
 class InstructorProfileForm(forms.ModelForm):
     class Meta:

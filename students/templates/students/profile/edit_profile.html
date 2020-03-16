@@ -18,7 +18,7 @@
 
       <div class="bg-white p-3">
         <ul class="text-dark mb-0">
-          <li>All fields must be filled (except <span class="font-weight-bold">Preferred Name</span> which is optional).</li>
+          <li>All required fields must be filled. (<small class="text-danger"><i class="fa fa-asterisk" aria-hidden="true"></i></small>: This field is required)</li>
           <li>If a field doesn't apply to you, please enter <span class="font-weight-bold">N/A</span>.</li>
         </ul>
       </div>
@@ -27,13 +27,21 @@
         {% csrf_token %}
 
         {% for field in form.visible_fields %}
+
           <div class="field-wrapper my-5">
-            {{ field.label_tag }}
+            <label for="{{ field.id_for_label }}">
+              {{ field.label }}:
+              {% if field.id_for_label == 'id_preferred_name' or field.id_for_label == 'id_program_others' or field.id_for_label == 'id_special_considerations' or field.id_for_label == 'id_prior_employment' or field.label == 'Training' %}
+              {% else %}
+                <small class="text-danger"><i class="fa fa-asterisk" aria-hidden="true"></i></small>
+              {% endif %}
+            </label>
             {% if field.help_text %}
               <div class="help">{{ field.help_text|safe }}</div>
             {% endif %}
             {{ field }}
           </div>
+
         {% endfor %}
 
         {% for field in form.hidden_fields %}
