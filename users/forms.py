@@ -143,9 +143,9 @@ class StudentProfileForm(forms.ModelForm):
         empty_label='Select'
     )
     graduation_date = forms.DateField(
-        required=True,
+        required=False,
         widget=forms.SelectDateWidget(years=range(date.year, date.year + 20)),
-        label='Anticipated Graduation',
+        label='Anticipated Graduation Date',
         help_text='Format: Month-Day-Year'
     )
     degrees = forms.ModelMultipleChoiceField(
@@ -174,9 +174,12 @@ class StudentProfileForm(forms.ModelForm):
         label='Training Details',
         help_text='If you have completed TA and/or PBL training, please provide some details (name of workshop, dates of workshop, etc) in the text box.'
     )
+
+    TA_CHOICES = [('', 'Select')] + Profile.LFS_TA_TRAINING_CHOICES
+
     lfs_ta_training = forms.ChoiceField(
         required=True,
-        choices=Profile.LFS_TA_TRAINING_CHOICES,
+        choices=TA_CHOICES,
         label='LFS TA Training'
     )
     lfs_ta_training_details = forms.CharField(
@@ -187,7 +190,7 @@ class StudentProfileForm(forms.ModelForm):
     )
     ta_experience = forms.ChoiceField(
         required=True,
-        choices=Profile.LFS_TA_TRAINING_CHOICES,
+        choices=TA_CHOICES,
         label='Previous TA Experience'
     )
     ta_experience_details = forms.CharField(

@@ -182,22 +182,100 @@ class StudentTest(TestCase):
         self.login()
 
         data = {
-            'preferred_name': 'preferred name',
-            'qualifications': 'qualifications',
-            'prior_employment': 'prior employment',
-            'special_considerations': 'special considerations',
             'status': '3',
             'program': '5',
-            'program_others': 'program others',
-            'graduation_date': '2020-05-20',
             'degrees': ['2', '5'],
             'degree_details': 'degree details',
-            'trainings': ['2', '3'],
+            'training_details': 'training details',
+            'lfs_ta_training': '1',
+            'lfs_ta_training_details': 'Lfs ta training details',
+            'ta_experience': '2',
+            'ta_experience_details': 'Ta experience details',
+            'qualifications': 'qualifications',
+        }
+
+        response = self.client.post( reverse('students:edit_profile'), data=urlencode(data, True), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue('An error occurred. Anticipated Graduation Date: This field is required.' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/students/profile/edit/')
+        self.assertRedirects(response, response.url)
+
+        data = {
+            'status': '3',
+            'program': '16',
+            'degrees': ['2', '5'],
+            'degree_details': 'degree details',
+            'training_details': 'training details',
+            'lfs_ta_training': '1',
+            'lfs_ta_training_details': 'Lfs ta training details',
+            'ta_experience': '2',
+            'ta_experience_details': 'Ta experience details',
+            'qualifications': 'qualifications'
+        }
+
+        response = self.client.post( reverse('students:edit_profile'), data=urlencode(data, True), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue('An error occurred. Please indicate your program if you select "Others" in the Current Program. Anticipated Graduation Date: This field is required.' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/students/profile/edit/')
+        self.assertRedirects(response, response.url)
+
+        data = {
+            'status': '3',
+            'program': '16',
+            'graduation_date': '2020-05-05',
+            'degrees': ['2', '5'],
+            'degree_details': 'degree details',
+            'training_details': 'training details',
+            'lfs_ta_training': '1',
+            'lfs_ta_training_details': 'Lfs ta training details',
+            'ta_experience': '2',
+            'ta_experience_details': 'Ta experience details',
+            'qualifications': 'qualifications'
+        }
+
+        response = self.client.post( reverse('students:edit_profile'), data=urlencode(data, True), content_type=ContentType )
+        messages = self.messages(response)
+        print(messages)
+        self.assertTrue('An error occurred. Please indicate your program if you select "Others" in the Current Program.' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/students/profile/edit/')
+        self.assertRedirects(response, response.url)
+
+        data = {
+            'status': '3',
+            'program': '5',
+            'graduation_date': '2020-05-05',
+            'degrees': ['2', '5'],
+            'degree_details': 'degree details',
             'training_details': 'training details',
             'lfs_ta_training': '1',
             'lfs_ta_training_details': 'Lfs ta training details',
             'ta_experience': '2',
             'ta_experience_details': 'Ta experience details'
+        }
+
+        response = self.client.post( reverse('students:edit_profile'), data=urlencode(data, True), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue('An error occurred. Form is invalid. QUALIFICATIONS: This field is required.' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/students/profile/edit/')
+        self.assertRedirects(response, response.url)
+
+        data = {
+            'status': '3',
+            'program': '5',
+            'graduation_date': '2020-05-05',
+            'degrees': ['2', '5'],
+            'degree_details': 'degree details',
+            'training_details': 'training details',
+            'lfs_ta_training': '1',
+            'lfs_ta_training_details': 'Lfs ta training details',
+            'ta_experience': '2',
+            'ta_experience_details': 'Ta experience details',
+            'preferred_name': 'preferred name',
+            'prior_employment': 'prior employment'
         }
 
         response = self.client.post( reverse('students:edit_profile'), data=urlencode(data, True), content_type=ContentType )

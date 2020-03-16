@@ -89,9 +89,15 @@ def edit_profile(request):
         form = StudentProfileForm(request.POST, instance=loggedin_user.profile)
         if form.is_valid():
             data = form.cleaned_data
-
+            errors = []
             if data['program'].id == 16 and bool(data['program_others']) == False:
-                messages.error(request, 'An error occurred. Please indicate your program if you select "Others" in the Current Program')
+                errors.append('Please indicate your program if you select "Others" in the Current Program.')
+
+            if data['graduation_date'] == None:
+                errors.append('Anticipated Graduation Date: This field is required.')
+
+            if len(errors) > 0:
+                messages.error(request, 'An error occurred. {0}'.format(' '.join(errors)))
                 return redirect('students:edit_profile')
 
             updated_profile = form.save(commit=False)
