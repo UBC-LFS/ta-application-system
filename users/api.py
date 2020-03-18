@@ -88,7 +88,7 @@ def get_users(option=None):
         target_date = date.today() - timedelta(days=3*365)
         return User.objects.filter( Q(last_login__lt=target_date) & Q(profile__is_trimmed=False) ), target_date
 
-    return User.objects.all().order_by('last_name', 'first_name')
+    return User.objects.all().order_by('id')
 
 def get_instructors():
     ''' Get instructors '''
