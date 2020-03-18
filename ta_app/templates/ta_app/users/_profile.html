@@ -35,7 +35,7 @@
   <h6>Other Program:</h6>
   <span>
     {% if data.profile.program_others %}
-      {{ data.profile.program_others }}
+      {{ data.profile.program_others|safe }}
     {% else %}
       None
     {% endif %}
@@ -68,7 +68,7 @@
   <h6>Degree Details:</h6>
   <span>
     {% if data.profile.degree_details %}
-      {{ data.profile.degree_details }}
+      {{ data.profile.degree_details|safe }}
     {% else %}
       None
     {% endif %}
@@ -90,7 +90,7 @@
   <h6>Training Details:</h6>
   <span>
     {% if data.profile.training_details %}
-      {{ data.profile.training_details }}
+      {{ data.profile.training_details|safe }}
     {% else %}
       None
     {% endif %}
@@ -112,7 +112,7 @@
   <h6>LFS TA Training Details:</h6>
   <span>
     {% if data.profile.lfs_ta_training_details %}
-      {{ data.profile.lfs_ta_training_details }}
+      {{ data.profile.lfs_ta_training_details|safe }}
     {% else %}
       None
     {% endif %}
@@ -134,7 +134,7 @@
   <h6>Previous TA Experience Details:</h6>
   <span>
     {% if data.profile.ta_experience_details %}
-      {{ data.profile.ta_experience_details }}
+      {{ data.profile.ta_experience_details|safe }}
     {% else %}
       None
     {% endif %}
@@ -145,7 +145,7 @@
   <h6>Explanation of Qualifications:</h6>
   <span>
     {% if data.profile.qualifications %}
-      {{ data.profile.qualifications }}
+      {{ data.profile.qualifications|safe }}
     {% else %}
       None
     {% endif %}
@@ -156,7 +156,7 @@
   <h6>Information on Prior Employment:</h6>
   <span>
     {% if data.profile.prior_employment %}
-      {{ data.profile.prior_employment }}
+      {{ data.profile.prior_employment|safe }}
     {% else %}
       None
     {% endif %}
@@ -167,7 +167,7 @@
   <h6>Special Considerations:</h6>
   <span>
     {% if data.profile.special_considerations %}
-      {{ data.profile.special_considerations }}
+      {{ data.profile.special_considerations|safe }}
     {% else %}
       None
     {% endif %}

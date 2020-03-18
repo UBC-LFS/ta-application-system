@@ -90,7 +90,7 @@ main {
 }
 
 .help {
-  color: #6c757d;
+  color: #474d52;
   font-size: 0.8rem;
   margin-bottom: 5px;
 }
@@ -232,7 +232,7 @@ main {
 
 .prompt > p,
 .prompt > div > p {
-  color: #343a40;
+  color: #474d52;
 }
 
 .modal-item {
@@ -260,7 +260,7 @@ main {
 
 .modal-item > div > span,
 .modal-item > div > ul {
-  color: #6c757d;
+  color: #474d52;
   font-size: 1rem;
 }
 
@@ -306,7 +306,7 @@ main {
 
 .board > div > h5,
 .board > div > h6 {
-  font-weight: 600;
+  font-weight: 650;
 }
 
 .board > h4,
@@ -317,7 +317,7 @@ main {
 .board > div > span,
 .board > form > div > span,
 .board > div > ul {
-  color: #6c757d;
+  color: #474d52;
   font-size: 1rem;
 }
 
@@ -466,7 +466,7 @@ hr.dotted {
 }
 
 .text-dark-gray {
-  color: #343a40;
+  color: #474d52;
 }
 
 .text-chocolate {
@@ -478,7 +478,7 @@ hr.dotted {
 }
 
 .bg-light-gray {
-  background-color: #e6e6e6;
+  background-color: #f2f2f2;
 }
 
 .bg-chocolate {

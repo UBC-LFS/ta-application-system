@@ -515,12 +515,13 @@ def create_expiry_date(year, month, day):
 def can_apply(user):
     ''' Check whether students can apply or not '''
     profile = has_user_profile_created(user)
+    trainings = get_trainings()
 
     if has_user_resume_created(user) is not None and profile is not None:
         if profile.graduation_date is not None and profile.status is not None and profile.program is not None and \
             profile.degree_details is not None and profile.training_details is not None and profile.lfs_ta_training is not None and \
             profile.lfs_ta_training_details is not None and profile.ta_experience is not None and \
-            profile.ta_experience_details is not None and profile.qualifications is not None and profile.trainings.count() == 4 and profile.degrees.count() > 0:
+            profile.ta_experience_details is not None and profile.qualifications is not None and profile.trainings.count() == len(trainings) and profile.degrees.count() > 0:
             if len(profile.degree_details) > 0 and len(profile.training_details) > 0 and \
                 len(profile.lfs_ta_training_details) > 0 and len(profile.ta_experience_details) > 0 and \
                 len(profile.qualifications) > 0:
@@ -571,8 +572,12 @@ def delete_status(status_id):
     status.delete()
     return status if status else False
 
-def undergraduate_status():
-    return Status.objects.filter(name='Undergraduate student')
+def get_undergraduate_status():
+    status = Status.objects.filter(name__icontains='undergraduate')
+    if status.exists():
+        return status.first().id
+    else:
+        return None
 
 # programs
 
@@ -594,6 +599,13 @@ def delete_program(program_id):
     program.delete()
     return program if program else False
 
+def get_program_others_id():
+    ''' Get id of others in program '''
+    program = Program.objects.filter(name__icontains='other')
+    if program.exists():
+        return program.first().id
+    else:
+        return None
 
 # Degrees
 

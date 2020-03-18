@@ -27,7 +27,7 @@
 
             {% include 'ta_app/applications/_app_instructor_preference.html' with data=app.get_instructor_preference_display %}
             <div>Assigned <span class="font-weight-bold">{{ app.selected.assigned_hours }}</span> hours</div>
-            <small class="text-muted">{{ app.selected.created_at }}</small>
+            <small class="text-dark-gray">{{ app.selected.created_at }}</small>
 
           {% else %}
             None
@@ -50,7 +50,7 @@
               <div>Assigned <span class="font-weight-bold">{{ app.applicationstatus_set.last.assigned_hours }}</span> hours</div>
             {% endif %}
 
-            <div><small class="text-muted">{{ app.applicationstatus_set.last.created_at }}</small></div>
+            <div><small class="text-dark-gray">{{ app.applicationstatus_set.last.created_at }}</small></div>
 
           {% else %}
             <span class="badge badge-light text-dark">PENDING</span>

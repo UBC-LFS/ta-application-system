@@ -91,7 +91,7 @@
 
             {% include 'ta_app/applications/_app_status.html' with data=app.applicationstatus_set.last.get_assigned_display %}
             {% include 'ta_app/applications/_modal_app_status.html' with data=app %}<br />
-            <small class="text-muted">{{ app.applicationstatus_set.last.created_at }}</small>
+            <small class="text-dark-gray">{{ app.applicationstatus_set.last.created_at }}</small>
           </td>
           <td>{% include 'ta_app/applications/_app_instructor_preference.html' with data=app.get_instructor_preference_display %}</td>
           <td>{% include 'ta_app/applications/_app_classification.html' with data=app %}</td>

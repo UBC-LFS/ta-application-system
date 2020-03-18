@@ -90,7 +90,7 @@
     <div>
       <h4 class="mt-5 mb-3">
         Offered Jobs
-        <small class="text-muted">(Total: {{ offered_apps|length }})</small>
+        <small class="text-dark-gray">(Total: {{ offered_apps|length }})</small>
       </h4>
 
       <table
@@ -138,7 +138,7 @@
     <div>
       <h4 class="mt-5 mb-3">
         Accepted Jobs
-        <small class="text-muted">(Total: {{ accepted_apps|length }})</small>
+        <small class="text-dark-gray">(Total: {{ accepted_apps|length }})</small>
       </h4>
 
       <table
@@ -189,7 +189,7 @@
     <div>
       <h4 class="mt-5 mb-3">
         All Jobs
-        <small class="text-muted">(Total: {{ apps|length }})</small>
+        <small class="text-dark-gray">(Total: {{ apps|length }})</small>
       </h4>
 
       <table
@@ -235,7 +235,7 @@
                 {% endif %}
                 {% include 'ta_app/applications/_app_status.html' with data=app.applicationstatus_set.last.get_assigned_display %}
                 {% include 'ta_app/applications/_modal_app_status.html' with data=app %}<br />
-                <small class="text-muted">{{ app.applicationstatus_set.last.created_at }}</small>
+                <small class="text-dark-gray">{{ app.applicationstatus_set.last.created_at }}</small>
               </td>
               <td>{{ app.created_at }}</td>
               <td>{{ app.updated_at }}</td>

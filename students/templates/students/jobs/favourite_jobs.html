@@ -60,7 +60,7 @@
 							<td>
 								<span
 									{% if not fav.job.is_active %}
-										class="not-active text-secondary"
+										class="not-active text-dark-gray"
 									{% endif %}
 								>
 									{{ fav.job.course.code.name }} {{ fav.job.course.number.name }} {{ fav.job.course.section.name }}
@@ -73,7 +73,7 @@
 								{% if fav.my_app %}
 									{% include 'ta_app/applications/_app_status.html' with data='None' %}
 									<br />
-									<small class="text-muted">{{ fav.my_app.created_at }}</small>
+									<small class="text-dark-gray">{{ fav.my_app.created_at }}</small>
 									<hr />
 								{% else %}
 									{% if fav.job.is_active %}
@@ -81,7 +81,7 @@
 										{% if can_apply %}
 											<a class="btn btn-xs btn-link" href="{% url 'students:apply_job' session_slug=fav.job.session.slug job_slug=fav.job.course.slug %}">Apply</a>
 										{% else %}
-											<span class="text-secondary">
+											<span class="text-dark-gray">
 												<i class="fa fa-lock" aria-hidden="true"></i> Apply
 											</span>
 										{% endif %}
