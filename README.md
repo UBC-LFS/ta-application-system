@@ -44,7 +44,6 @@ HOST = os.environ['TA_APP_DB_HOST']
 PORT = os.environ['TA_APP_DB_PORT']
 EMAIL_HOST = os.environ['TA_APP_EMAIL_HOST']
 EMAIL_FROM = os.environ['TA_APP_EMAIL_FROM']
-TA_APP_URL = os.environ['TA_APP_URL']
 ENCRYPT_SALT = os.environ['TA_APP_ENCRYPT_SALT']
 ENCRYPT_PASSWORD = os.environ['TA_APP_ENCRYPT_PASSWORD']
 ```

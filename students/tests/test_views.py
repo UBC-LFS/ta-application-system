@@ -291,7 +291,7 @@ class StudentTest(TestCase):
 
         response = self.client.post( reverse('students:edit_profile'), data=urlencode(data2, True), content_type=ContentType )
         messages = self.messages(response)
-        self.assertTrue('An error occurred. Please indicate your program if you select "Others" in the Current Program.' in messages[0])
+        self.assertTrue('An error occurred. Please indicate the name of your program if you select "Other" in Current Program.' in messages[0])
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, '/students/profile/edit/')
         self.assertRedirects(response, response.url)
@@ -312,7 +312,7 @@ class StudentTest(TestCase):
 
         response = self.client.post( reverse('students:edit_profile'), data=urlencode(data3, True), content_type=ContentType )
         messages = self.messages(response)
-        self.assertTrue('An error occurred. Please indicate your program if you select "Others" in the Current Program. Anticipated Graduation Date: This field is required.' in messages[0])
+        self.assertTrue('An error occurred. Please indicate the name of your program if you select "Other" in Current Program. Anticipated Graduation Date: This field is required.' in messages[0])
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, '/students/profile/edit/')
         self.assertRedirects(response, response.url)
@@ -361,7 +361,7 @@ class StudentTest(TestCase):
 
         response = self.client.post( reverse('students:edit_profile'), data=urlencode(data5, True), content_type=ContentType )
         messages = self.messages(response)
-        self.assertTrue('An error occurred. Training: you have completed or will be completing these training requirement.' in messages[0])
+        self.assertTrue('An error occurred. Training: You must check all fields to proceed.' in messages[0])
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, '/students/profile/edit/')
         self.assertRedirects(response, response.url)
@@ -736,7 +736,7 @@ class StudentTest(TestCase):
 
         response = self.client.post( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]), data=urlencode(data), content_type=ContentType )
         messages = self.messages(response)
-        self.assertTrue("An error occurred. You are a graduate student, you need to have your graduate supervisor's approval to be granted a TAship." in messages[0])
+        self.assertTrue('An error occurred. You must check "Yes" in the box under "Supervisor Approval" if you are a graduate student. Undergraduate students should leave this box blank.' in messages[0])
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, '/students/sessions/{0}/jobs/{1}/apply/'.format(SESSION, STUDENT_JOB))
         self.assertRedirects(response, response.url)

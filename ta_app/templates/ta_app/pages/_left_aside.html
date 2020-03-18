@@ -15,8 +15,8 @@
       <div class="prompt p-3 mb-4">
         {% if view_name == 'users' %}
 
-          <h6>{{ data.get_full_name }}</h6>
-          <p class="text-secondary">{{ data.username }}</p>
+          <h5>{{ data.get_full_name }}</h5>
+          <p>{{ data.username }}</p>
 
           {% for role in data.profile.roles.all %}
             {% include 'ta_app/users/_role.html' with data=role.name %}
@@ -27,19 +27,19 @@
         {% elif view_name == 'sessions' %}
 
           <h6>{{ data.year }} {{ data.term.name }}</h6>
-          <p class="text-secondary mb-0">{{ data.term.code }}</p>
+          <p class="mb-0">{{ data.term.code }}</p>
 
         {% elif view_name == 'jobs' %}
 
           <h6>{{ data.session.year }} {{ data.session.term.name }} ({{ data.session.term.code }})</h6>
-          <p class="text-secondary mb-0">{{ data.session.title }}</p>
+          <p class="mb-0">{{ data.session.title }}</p>
 
         {% elif view_name == 'applications' %}
 
           <div class="text-left">
             <h6>{{ data.job.session.year }} {{ data.job.session.term.name }} ({{ data.job.session.term.code }})</h6>
             <h6>{{ data.job.course.code.name }} {{ data.job.course.number.name }} {{ data.job.course.section.name }}</h6>
-            <p class="text-secondary mb-0">{{ data.job.course.name }}</p>
+            <p class="mb-0">{{ data.job.course.name }}</p>
           </div>
 
         {% elif view_name == 'job_applications' %}
@@ -47,15 +47,15 @@
           <div class="text-left">
             <h6>{{ data.session.year }} {{ data.session.term.name }} ({{ data.session.term.code }})</h6>
             <h6>{{ data.course.code.name }} {{ data.course.number.name }} {{ data.course.section.name }}</h6>
-            <p class="text-secondary mb-0">{{ data.course.name }}</p>
+            <p class="mb-0">{{ data.course.name }}</p>
           </div>
 
         {% elif view_name == 'emails' %}
 
           <h6>Sender</h6>
-          <p class="text-secondary">{{ data.sender }}</p>
+          <p>{{ data.sender }}</p>
           <h6>Receiver</h6>
-          <p class="text-secondary">{{ data.receiver }}</p>
+          <p>{{ data.receiver }}</p>
 
         {% else %}
 

@@ -80,7 +80,10 @@ def edit_profile(request):
         request.user.roles = userApi.get_user_roles(request.user)
     else:
         request.user.roles = request.session['loggedin_user']['roles']
-    if 'Student' not in request.user.roles: raise PermissionDenied
+
+    PROGRAM_OTHERS = userApi.get_program_others_id()
+    if 'Student' not in request.user.roles or PROGRAM_OTHERS == None:
+        raise PermissionDenied
 
     loggedin_user = request.user
     profile_degrees = loggedin_user.profile.degrees.all()
@@ -91,14 +94,14 @@ def edit_profile(request):
             data = form.cleaned_data
 
             errors = []
-            if data['program'].id == 16 and bool(data['program_others']) == False:
-                errors.append('Please indicate your program if you select "Others" in the Current Program.')
+            if data['program'].id == PROGRAM_OTHERS and bool(data['program_others']) == False:
+                errors.append('Please indicate the name of your program if you select "Other" in Current Program.')
 
             if data['graduation_date'] == None:
                 errors.append('Anticipated Graduation Date: This field is required.')
 
             if len(data['trainings']) != 4:
-                errors.append('Training: you have completed or will be completing these training requirement.')
+                errors.append('Training: You must check all fields to proceed.')
 
             if len(errors) > 0:
                 messages.error(request, 'An error occurred. {0}'.format(' '.join(errors)))
@@ -629,20 +632,23 @@ def apply_job(request, session_slug, job_slug):
     session = adminApi.get_session(session_slug, 'slug')
     job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
     can_apply = userApi.can_apply(request.user)
-    if 'Student' not in request.user.roles or session.is_visible == False or session.is_archived == True or job.is_active == False or can_apply == False:
+    UNDERGRADUATE_STUDENT = userApi.get_undergraduate_status()
+
+    if 'Student' not in request.user.roles or session.is_visible == False or session.is_archived == True or job.is_active == False or can_apply == False or UNDERGRADUATE_STUDENT == None:
         raise PermissionDenied
 
     if request.method == 'POST':
-        if request.user.profile.status is not None and request.user.profile.status.id != 1 and request.POST.get('supervisor_approval') == None:
-            messages.error(request, "An error occurred. You are a graduate student, you need to have your graduate supervisor's approval to be granted a TAship.")
+
+        if request.user.profile.status is not None and request.user.profile.status.id != UNDERGRADUATE_STUDENT and request.POST.get('supervisor_approval') == None:
+            messages.error(request, 'An error occurred. You must check "Yes" in the box under "Supervisor Approval" if you are a graduate student. Undergraduate students should leave this box blank.')
             return HttpResponseRedirect( reverse('students:apply_job', args=[session_slug, job_slug]) )
 
         if request.POST.get('availability') == None:
-            messages.error(request, 'An error occurred. Please read the "Availability requirements".')
+            messages.error(request, 'An error occurred. You must check "I understand" in the box under "Availability requirements". Please read through it.')
             return HttpResponseRedirect( reverse('students:apply_job', args=[session_slug, job_slug]) )
 
         if request.POST.get('how_qualified') == '0' or request.POST.get('how_interested') == '0':
-            messages.error(request, 'An error occurred. Please select "How qualifed are you?" or "How interested are you?".')
+            messages.error(request, 'An error occurred. Please select both "How qualifed are you?" and "How interested are you?".')
             return HttpResponseRedirect( reverse('students:apply_job', args=[session_slug, job_slug]) )
 
         form = ApplicationForm(request.POST)

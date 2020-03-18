@@ -56,9 +56,9 @@
 
             {% if loggedin_user.confidentiality.employee_number %}
               <div class="field-wrapper">
-                <i class="fa fa-file-text-o text-secondary" aria-hidden="true"></i> Employee Number:
+                <i class="fa fa-file-text-o text-dark-gray" aria-hidden="true"></i> Employee Number:
                 <input id="id_employee_number"type="checkbox" name="employee_number" /><br />
-                <small class="text-muted">{{ loggedin_user.confidentiality.employee_number }}</small>
+                <small class="text-dark-gray">{{ loggedin_user.confidentiality.employee_number }}</small>
               </div>
             {% endif %}
 
@@ -66,7 +66,7 @@
               <div class="field-wrapper">
                 <i class="fa fa-file-image-o text-success" aria-hidden="true"></i> SIN:
                 <input id="id_sin" type="checkbox" name="sin" /><br />
-                <small class="text-muted">{{ sin_file }}</small>
+                <small class="text-dark-gray">{{ sin_file }}</small>
               </div>
             {% endif %}
 
@@ -74,9 +74,9 @@
 
               {% if loggedin_user.confidentiality.sin_expiry_date %}
                 <div class="field-wrapper">
-                  <i class="fa fa-file-text-o text-secondary" aria-hidden="true"></i> SIN Expiry Date:
+                  <i class="fa fa-file-text-o text-dark-gray" aria-hidden="true"></i> SIN Expiry Date:
                   <input id="id_sin_expiry_date" type="checkbox" name="sin_expiry_date" /><br />
-                  <small class="text-muted">{{ loggedin_user.confidentiality.sin_expiry_date }}</small>
+                  <small class="text-dark-gray">{{ loggedin_user.confidentiality.sin_expiry_date }}</small>
                 </div>
               {% endif %}
 
@@ -84,15 +84,15 @@
                 <div class="field-wrapper">
                   <i class="fa fa-file-image-o text-success" aria-hidden="true"></i> Study Permit:
                   <input id="id_study_permit" type="checkbox" name="study_permit" /><br />
-                  <small class="text-muted">{{ study_permit_file }}</small>
+                  <small class="text-dark-gray">{{ study_permit_file }}</small>
                 </div>
               {% endif %}
 
               {% if loggedin_user.confidentiality.study_permit_expiry_date %}
                 <div class="field-wrapper">
-                  <i class="fa fa-file-text-o text-secondary" aria-hidden="true"></i> Study Permit Expiry Date:
+                  <i class="fa fa-file-text-o text-dark-gray" aria-hidden="true"></i> Study Permit Expiry Date:
                   <input id="id_study_permit_expiry_date" type="checkbox" name="study_permit_expiry_date" /><br />
-                  <small class="text-muted">{{ loggedin_user.confidentiality.study_permit_expiry_date }}</small>
+                  <small class="text-dark-gray">{{ loggedin_user.confidentiality.study_permit_expiry_date }}</small>
                 </div>
               {% endif %}
             {% endif %}
@@ -101,7 +101,7 @@
               <div class="field-wrapper">
                 <i class="fa fa-file-word-o text-primary" aria-hidden="true"></i> Personal Data Form:
                 <input id="personal_data_form" type="checkbox" name="personal_data_form" /><br />
-                <small class="text-muted">{{ personal_data_form_file }}</small>
+                <small class="text-dark-gray">{{ personal_data_form_file }}</small>
               </div>
             {% endif %}
 

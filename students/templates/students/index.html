@@ -18,14 +18,14 @@
             {% for app in recent_apps %}
               <li>
                 {% if not app.job.is_active %}
-                  <span class="not-active text-secondary">
+                  <span class="not-active text-dark-gray">
                     {{ app.job.session.year }} {{ app.job.session.term.code }} - {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}
                   </span>
                 {% else %}
                   <a href="{% url 'students:show_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}">{{ app.job.session.year }} {{ app.job.session.term.code }} - {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</a>
                 {% endif %}
                 <br />
-                <small class="text-muted">Created at {{ app.created_at }}</small>
+                <small class="text-dark-gray">Created at {{ app.created_at }}</small>
               </li>
             {% empty %}
               <li>No applied jobs found</li>
