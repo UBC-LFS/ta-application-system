@@ -73,7 +73,7 @@
               {% if app.offered %}
 
                 {% include 'ta_app/applications/_app_status.html' with data=app.offered.get_assigned_display %}<br />
-                <small class="text-muted">{{ app.offered.created_at }}</small>
+                <small class="text-dark-gray">{{ app.offered.created_at }}</small>
                 <div>
                   <span class="font-weight-bold">{{ app.offered.assigned_hours }}</span> hours
                 </div>
@@ -90,7 +90,7 @@
                 {% endif %}
 
                 {% include 'ta_app/applications/_app_status.html' with data=app.accepted.get_assigned_display %}<br />
-                <small class="text-muted">{{ app.accepted.created_at }}</small>
+                <small class="text-dark-gray">{{ app.accepted.created_at }}</small>
                 <div>
                   <span class="font-weight-bold">{{ app.accepted.assigned_hours }}</span> hours
                 </div>
@@ -105,7 +105,7 @@
               {% elif app.declined %}
 
                 {% include 'ta_app/applications/_app_status.html' with data=app.declined.get_assigned_display %}<br />
-                <div><small class="text-muted">{{ app.declined.created_at }}</small></div>
+                <div><small class="text-dark-gray">{{ app.declined.created_at }}</small></div>
 
                 {% if app.is_declined_reassigned %}
                   <hr />
@@ -115,7 +115,7 @@
               {% elif app.cancelled %}
 
                 {% include 'ta_app/applications/_app_status.html' with data=app.cancelled.get_assigned_display %}<br />
-                <small class="text-muted">{{ app.cancelled.created_at }}</small>
+                <small class="text-dark-gray">{{ app.cancelled.created_at }}</small>
 
               {% else %}
 
