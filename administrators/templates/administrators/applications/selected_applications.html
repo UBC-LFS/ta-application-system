@@ -102,23 +102,23 @@
 
                       {% if app.ta_hour_progress == 'done' %}
                         <i class="fa fa-check text-success" aria-hidden="true"></i>
-                        <small class="text-muted">(Matched)</small>
+                        <small class="text-dark-gray">(Matched)</small>
 
                       {% elif app.ta_hour_progress == 'over' %}
                         <i class="fa fa-times-circle text-danger" aria-hidden="true"></i>
-                        <small class="text-muted">(Exceeded!)</small>
+                        <small class="text-dark-gray">(Exceeded!)</small>
 
                       {% elif app.ta_hour_progress == 'under_one_quarter' %}
                         <i class="fa fa-battery-quarter text-success" aria-hidden="true"></i>
-                        <small class="text-muted">(Reached one quarter)</small>
+                        <small class="text-dark-gray">(Reached one quarter)</small>
 
                       {% elif app.ta_hour_progress == 'under_half' %}
                         <i class="fa fa-battery-half text-success" aria-hidden="true"></i>
-                        <small class="text-muted">(Reached half)</small>
+                        <small class="text-dark-gray">(Reached half)</small>
 
                       {% elif app.ta_hour_progress == 'under_three_quarters' %}
                         <i class="fa fa-battery-three-quarters text-success" aria-hidden="true"></i>
-                        <small class="text-muted">(Reached three quarters)</small>
+                        <small class="text-dark-gray">(Reached three quarters)</small>
 
                       {% endif %}
                     </h5>
@@ -201,7 +201,7 @@
           <td>
             {% if app.offered %}
               <button class="btn btn-xs btn-info" type="button" data-toggle="modal" data-target="#job-application-offer-modal-{{ app.id }}">Offered</button><br />
-              <small class="text-muted">{{ app.offered.created_at }}</small>
+              <small class="text-dark-gray">{{ app.offered.created_at }}</small>
             {% else %}
               <button class="btn btn-xs btn-primary" type="button" data-toggle="modal" data-target="#job-application-offer-modal-{{ app.id }}">Offer</button>
             {% endif %}
@@ -217,7 +217,7 @@
                     <div class="modal-item">
                       <h4>
                         To {{ app.applicant.get_full_name }}
-                        <small class="text-muted">({{ app.applicant.username }})</small>
+                        <small class="text-dark-gray">({{ app.applicant.username }})</small>
                         {% if 'MFRE' in app.applicant.profile.program.name %}
                           <span class="badge badge-warning">MFRE</span>
                         {% elif 'MLWS' in app.applicant.profile.program.name %}
@@ -226,7 +226,7 @@
                           <span class="badge badge-warning">MFS</span>
                         {% endif %}
                       </h4>
-                      <h6 class="text-secondary mb-3">for {{ app.job.session.year }} {{ app.job.session.term.code }} - {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</h6>
+                      <h6 class="text-dark-gray mb-3">for {{ app.job.session.year }} {{ app.job.session.term.code }} - {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</h6>
 
                       <form action="{% url 'administrators:offer_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}" method="post">
                         {% csrf_token %}

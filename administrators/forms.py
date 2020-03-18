@@ -371,13 +371,11 @@ class ApplicationForm(forms.ModelForm):
     ''' Create a model form for an application for students '''
     how_qualified = forms.ChoiceField(
         choices=Application.PREFERENCE_CHOICES,
-        label='How qualifed are you?',
-        help_text='This field is required.'
+        label='How qualifed are you?'
     )
     how_interested = forms.ChoiceField(
         choices=Application.PREFERENCE_CHOICES,
-        label='How interested are you?',
-        help_text='This field is required.'
+        label='How interested are you?'
     )
 
     class Meta:
@@ -386,15 +384,15 @@ class ApplicationForm(forms.ModelForm):
         widgets = {
             'applicant': forms.HiddenInput(),
             'job': forms.HiddenInput(),
-            'availability_note': forms.Textarea(attrs={ 'rows':2, 'class':'form-control' })
+            'availability_note': SummernoteWidget()
         }
         labels = {
-            'supervisor_approval': 'Supervisor Approval',
-            'availability': 'Availability requirements',
-            'availability_note': 'Availability notes'
+            'supervisor_approval': 'Supervisor Approval:',
+            'availability': 'Availability Requirements:',
+            'availability_note': 'Availability Notes:'
         }
         help_texts = {
-            'supervisor_approval': 'My supervisor has approved for me to TA up to a maximum of 12 hours/week.',
+            'supervisor_approval': "I have my graduate supervisor's or Professional Master's Degree Program Director's approval to TA up to a maximum of 12 hours/week.",
             'availability_note': 'This field is optional.'
         }
 

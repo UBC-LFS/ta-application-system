@@ -4,7 +4,7 @@
 {% include 'students/_menu.html' %}
 <div class="row">
   <div class="col-md-4">
-    {% include 'ta_app/pages/_left_aside.html' with view_name='users' title='Edit Profile' data=loggedin_user %}
+    {% include 'ta_app/pages/_left_aside.html' with view_name='users' title='Edit Additional Info.' data=loggedin_user %}
 
     <div class="left-aside-btn-groups">
       <a class="btn btn-outline-primary" href="{% url 'students:show_profile' tab='basic' %}">View Profile</a>
@@ -14,19 +14,34 @@
   <div class="col-md-8">
 
     <div class="board col-11 mx-auto">
-      <h3>Profile Form</h3>
+      <h3>Additional Information Edit Form</h3>
+
+      <div class="bg-white border p-3">
+        <ul class="text-dark mb-0">
+          <li>All required fields must be filled. (<small class="text-danger"><i class="fa fa-asterisk" aria-hidden="true"></i></small>: This field is required)</li>
+          <li>If a field doesn't apply to you, please enter <span class="font-weight-bold">N/A</span>.</li>
+        </ul>
+      </div>
 
       <form action="" method="post">
         {% csrf_token %}
 
         {% for field in form.visible_fields %}
+
           <div class="field-wrapper my-5">
-            {{ field.label_tag }}
+            <label for="{{ field.id_for_label }}">
+              {{ field.label }}:
+              {% if field.id_for_label == 'id_preferred_name' or field.id_for_label == 'id_program_others' or field.id_for_label == 'id_special_considerations' or field.id_for_label == 'id_prior_employment' %}
+              {% else %}
+                <small class="text-danger"><i class="fa fa-asterisk" aria-hidden="true"></i></small>
+              {% endif %}
+            </label>
             {% if field.help_text %}
               <div class="help">{{ field.help_text|safe }}</div>
             {% endif %}
             {{ field }}
           </div>
+
         {% endfor %}
 
         {% for field in form.hidden_fields %}
@@ -34,7 +49,7 @@
         {% endfor %}
 
         <a class="btn btn-outline-secondary" href="{% url 'students:show_profile' tab='basic' %}">Cancel</a>
-        <input class="btn btn-primary" type="submit" value="Update Profile" />
+        <input class="btn btn-primary" type="submit" value="Update" />
       </form>
     </div>
 

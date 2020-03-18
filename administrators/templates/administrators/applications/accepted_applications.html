@@ -97,7 +97,7 @@
             <div>
               <span class="font-weight-bold text-chocolate">{{ app.accepted.assigned_hours }}</span> hours
             </div>
-            <small class="text-muted">{{ app.accepted.created_at }}</small>
+            <small class="text-dark-gray">{{ app.accepted.created_at }}</small>
           </td>
           <td>
             {% if 'Admin' in loggedin_user.roles or 'Superadmin' in loggedin_user.roles %}
@@ -123,7 +123,7 @@
                       <div class="modal-item">
                         <h5>
                           To {{ app.applicant.get_full_name }}
-                          <small class="text-muted">(CWL: {{ app.applicant.username }})</small>
+                          <small class="text-dark-gray">(CWL: {{ app.applicant.username }})</small>
                         </h5>
                         <h6 class="mb-3">for {{ app.job.session.year }} {{ app.job.session.term.code }} - {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</h6>
 
@@ -166,7 +166,7 @@
                     <div class="modal-item">
                       <h5>
                         {{ app.applicant.get_full_name }}
-                        <small class="text-muted">(CWL: {{ app.applicant.username }})</small>
+                        <small class="text-dark-gray">(CWL: {{ app.applicant.username }})</small>
                       </h5>
                       <h6 class="mb-3">for {{ app.job.session.year }} {{ app.job.session.term.code }} - {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</h6>
 

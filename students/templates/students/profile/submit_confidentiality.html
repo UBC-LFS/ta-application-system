@@ -16,7 +16,7 @@
     <div class="board col-11 mx-auto">
       <h3>Confidential Information Form</h3>
 
-      <div class="bd-callout bd-callout-warning bg-light-gray font-size-sm">
+      <div class="bd-callout bd-callout-warning font-size-sm">
         {% include 'ta_app/pages/_required_docs_confidentiality.html' with data=loggedin_user.confidentiality.nationality %}
       </div>
 
@@ -36,8 +36,14 @@
           {% for field in form.visible_fields  %}
 
             {% if field.name != 'nationality' %}
-              <div class="field-wrapper">
-                {{ field.label_tag }}
+              <div class="field-wrapper mb-5">
+                <label for="{{ field.id_for_label }}">
+                  {{ field.label }}
+                  {% if field.id_for_label != 'id_emplyee_number' %}
+                    <small class="text-danger"><i class="fa fa-asterisk" aria-hidden="true"></i></small>
+                  {% endif %}
+                </label>
+                
                 {% if field.help_text %}
                   <div class="help">{{ field.help_text|safe }}</div>
                 {% endif %}

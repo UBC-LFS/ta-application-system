@@ -4,6 +4,8 @@ from .models import *
 from . import api
 from datetime import datetime
 import datetime as dt
+from django_summernote.widgets import SummernoteWidget, SummernoteInplaceWidget
+
 
 DATE = datetime.now()
 
@@ -90,7 +92,7 @@ class UserProfileForm(forms.ModelForm):
             'preferred_name': forms.TextInput(attrs={ 'class': 'form-control' })
         }
         help_texts = {
-            'student_number': 'This field is optional. Must be numeric, and 8 digits in length.',
+            'student_number': 'This field is optional. Must be numeric and 8 digits in length.',
             'preferred_name': 'This field is optional. Maximum length is 256.'
         }
 
@@ -114,7 +116,7 @@ class UserProfileEditForm(forms.ModelForm):
             'preferred_name': forms.TextInput(attrs={ 'class': 'form-control' })
         }
         help_texts = {
-            'student_number': 'This field is optional. Must be numeric, and 8 digits in length.',
+            'student_number': 'This field is optional. Must be numeric and 8 digits in length.',
             'preferred_name': 'This field is optional. Maximum length is 256.',
             'is_trimmed': "This field is False by default. It would be True if administrators destroy the contents of users who haven't logged in for 3 years."
         }
@@ -122,32 +124,89 @@ class UserProfileEditForm(forms.ModelForm):
 class StudentProfileForm(forms.ModelForm):
     ''' This is a model form for student profile '''
     date = datetime.now()
+    TA_CHOICES = [('', 'Select')] + Profile.LFS_TA_TRAINING_CHOICES
 
     preferred_name = forms.CharField(
         required=False,
         widget=forms.TextInput(attrs={ 'class':'form-control' }),
         label='Preferred Name',
-        help_text='This field is optional. Maximum length is 256.'
+        help_text='This field is optional. Maximum length is 256 characters.'
     )
-
+    status = forms.ModelChoiceField(
+        required=True,
+        queryset=Status.objects.all(),
+        label='Status',
+        empty_label='Select'
+    )
+    program = forms.ModelChoiceField(
+        required=True,
+        queryset=Program.objects.all(),
+        label='Current Program',
+        help_text='What program will you be registered in during the next Session?',
+        empty_label='Select'
+    )
     graduation_date = forms.DateField(
         required=False,
         widget=forms.SelectDateWidget(years=range(date.year, date.year + 20)),
-        label='Anticipated Graduation'
+        label='Anticipated Graduation Date',
+        help_text='Format: Month-Day-Year'
     )
     degrees = forms.ModelMultipleChoiceField(
-        required=False,
+        required=True,
         queryset=Degree.objects.all(),
         widget=forms.CheckboxSelectMultiple(),
         label='Most Recent Degrees',
         help_text='Please select your most recent degrees.'
+    )
+    degree_details = forms.CharField(
+        required=True,
+        widget=SummernoteWidget(),
+        label='Degree Details',
+        help_text='Please indicate your degree details: most recent completed or conferred degree (e.g., BSc - Biochemistry - U of T, November 24, 2014).'
     )
     trainings = forms.ModelMultipleChoiceField(
         required=False,
         queryset=Training.objects.all(),
         widget=forms.CheckboxSelectMultiple(),
         label='Training',
+        help_text='I acknowledge that I have completed or will be completing these training requirement as listed below prior to the start date of any TA appointment I may receive. (You must check all fields to proceed).'
     )
+    training_details = forms.CharField(
+        required=True,
+        widget=SummernoteWidget(),
+        label='Training Details',
+        help_text='If you have completed TA and/or PBL training, please provide some details (name of workshop, dates of workshop, etc) in the text box.'
+    )
+
+    lfs_ta_training = forms.ChoiceField(
+        required=True,
+        choices=TA_CHOICES,
+        label='LFS TA Training'
+    )
+    lfs_ta_training_details = forms.CharField(
+        required=True,
+        widget=SummernoteWidget(),
+        label='LFS TA Training Details',
+        help_text='Have you completed any LFS TA training sessions? If yes, please provide details (name of session/workshop, dates, etc).'
+    )
+    ta_experience = forms.ChoiceField(
+        required=True,
+        choices=TA_CHOICES,
+        label='Previous TA Experience'
+    )
+    ta_experience_details = forms.CharField(
+        required=True,
+        widget=SummernoteWidget(),
+        label='Previous TA Experience Details',
+        help_text='If yes, please list course name & session (example: FHN 350 002, 2010W Term 2)'
+    )
+    qualifications = forms.CharField(
+        required=True,
+        widget=SummernoteWidget(),
+        label='Explanation of Qualifications',
+        help_text="List and give a 2-3 sentence description of your qualifications for your top three preferred courses. If you list fewer than three courses, describe qualifications for all of them. Qualifications might include coursework experience, TA expericne, work in the area, contact with the course's instructor, etc. List any special arrangements you have made with regard to TAing here."
+    )
+
     class Meta:
         model = Profile
         fields = [
@@ -156,38 +215,19 @@ class StudentProfileForm(forms.ModelForm):
             'trainings', 'training_details', 'lfs_ta_training', 'lfs_ta_training_details', 'ta_experience', 'ta_experience_details'
         ]
         widgets = {
-            'program_others': forms.Textarea(attrs={ 'rows':5, 'class':'form-control' }),
-            'degree_details': forms.Textarea(attrs={ 'rows':5, 'class':'form-control' }),
-            'training_details': forms.Textarea(attrs={ 'rows':5, 'class':'form-control' }),
-            'lfs_ta_training_details': forms.Textarea(attrs={ 'rows':5, 'class':'form-control' }),
-            'qualifications': forms.Textarea(attrs={ 'rows':5, 'class':'form-control' }),
-            'prior_employment': forms.Textarea(attrs={ 'rows':5, 'class':'form-control' }),
-            'special_considerations': forms.Textarea(attrs={ 'rows':5, 'class':'form-control' }),
-            'ta_experience_details': forms.Textarea(attrs={ 'rows':5, 'class':'form-control' })
+            'program_others': SummernoteWidget(),
+            'prior_employment': SummernoteWidget(),
+            'special_considerations': SummernoteWidget(),
         }
         labels = {
-            'program': 'Current Program',
             'program_others': 'Other Program',
-            'degree_details': 'Degree Details',
-            'training_details': 'Training Details',
-            'lfs_ta_training': 'LFS TA Training',
-            'lfs_ta_training_details': 'LFS TA Training Details',
-            'ta_experience': 'Previous TA Experience',
-            'ta_experience_details': 'Previous TA Experience Details',
-            'qualifications': 'Explanation of Qualifications',
             'prior_employment': 'Information on Prior Employment (if any)',
             'special_considerations': 'Special Considerations'
         }
         help_texts = {
-            'program': 'What program will you be registered in during the next Session?',
-            'program_others': 'Please indicate your program if you select Others in the Current Program above.',
-            'degree_details': 'Please indicate your degree details: most recent completed or conferred or multiple same type degrees (ex. BSc - Biochemistry - U of T, November 24, 2014).',
-            'training_details': 'If you have completed TA and/or PBL training, please provide some details (name of workshop, dates of workshop, etc) in the text box.',
-            'lfs_ta_training_details': 'Have you completed any LFS TA training sessions? If yes, please provide details (name of session/workshop, dates, etc).',
-            'ta_experience_details': 'If yes, please list course name & session (example: FHN 350 002, 2010W Term 2)',
-            'qualifications': 'List and give a 2-3 sentence justification of your qualifications for your top three preferred courses. If you list fewer than three, justfiy all of them. Qualifications might include coursework experience, TA expericne, work in the area, contact with the course\'s instructor, etc. List any special arrangements you have made with regard to TAing here.',
-            'prior_employment': 'Please let any current or previous employment history you feel is relevant to the position you are applying for as a TA. Include company name, position, length of employment, supervisor\'s name and contact information (phone or email). Please indicate if you do not wish us to contact any employer for a reference.',
-            'special_considerations': 'List any qualifications, experience, special considerations which may apply to this application. For example, you might list prior teaching experience, describe any special arrangements or requests for TAing with a particular instructor or for a particular course, or include a text copy of your current resume.'
+            'program_others': 'Please indicate the name of your program if you select "Other" in Current Program, above.',
+            'prior_employment': 'This is optional. Please let any current or previous employment history you feel is relevant to the position you are applying for as a TA. Include company name, position, length of employment, supervisor\'s name and contact information (phone or email). Please indicate if you do not wish us to contact any employer for a reference.',
+            'special_considerations': 'This is optional. List any qualifications, experience, special considerations which may apply to this application. For example, you might list prior teaching experience, describe any special arrangements or requests for TAing with a particular instructor or for a particular course, or include a text copy of your current resume.'
         }
 
     field_order = [
@@ -224,7 +264,7 @@ class EmployeeNumberForm(forms.ModelForm):
             'employee_number': 'Employee Number'
         }
         help_texts = {
-            'employee_number': 'This field is optional. Must be numeric, and 7 digits in length. If you have it, please enter your employee number.'
+            'employee_number': 'This field is optional. Must be numeric and 7 digits in length. If you have it, please enter your Employee Number.'
         }
 
 
@@ -240,7 +280,7 @@ class EmployeeNumberEditForm(forms.ModelForm):
             'employee_number': 'Employee Number'
         }
         help_texts = {
-            'employee_number': 'This field is optional. Must be numeric, and 7 digits in length. If you have it, please enter your employee number.'
+            'employee_number': 'This field is optional. Must be numeric, and 7 digits in length. If you have it, please enter your Employee Number.'
         }
 
 
@@ -264,7 +304,7 @@ class ConfidentialityDomesticForm(forms.ModelForm):
             'personal_data_form': 'Personal Data Form'
         }
         help_texts = {
-            'employee_number': 'This field is optional. Must be numeric, and 7 digits in length. If you have it, please enter your employee number.',
+            'employee_number': 'This field is optional. Must be numeric, and 7 digits in length. If you have it, please enter your Employee Number.',
             'sin': 'Valid file formats: JPG, JPEG, PNG. A filename has at most 256 characters.',
             'personal_data_form': 'Valid file formats: PDF, DOC, DOCX. A filename has at most 256 characters.'
         }
@@ -279,12 +319,14 @@ class ConfidentialityInternationalForm(forms.ModelForm):
     sin_expiry_date = forms.DateField(
         required=False,
         widget=forms.SelectDateWidget(years=range(DATE.year, DATE.year + 20)),
-        label='SIN Expiry Date'
+        label='SIN Expiry Date',
+        help_text='Format: Month-Day-Year'
     )
     study_permit_expiry_date = forms.DateField(
         required=False,
         widget=forms.SelectDateWidget(years=range(DATE.year, DATE.year + 20)),
-        label='Study Permit Expiry Date'
+        label='Study Permit Expiry Date',
+        help_text='Format: Month-Day-Year'
     )
     class Meta:
         model = Confidentiality
@@ -302,7 +344,7 @@ class ConfidentialityInternationalForm(forms.ModelForm):
             'personal_data_form': 'Personal Data Form'
         }
         help_texts = {
-            'employee_number': 'This field is optional. Must be numeric, and 7 digits in length. If you have it, please enter your employee number.',
+            'employee_number': 'This field is optional. Must be numeric and 7 digits in length. If you have it, please enter your Employee Number.',
             'sin': 'Valid file formats: JPG, JPEG, PNG. A filename has at most 256 characters.',
             'study_permit': 'Valid file formats: JPG, JPEG, PNG. A filename has at most 256 characters.',
             'personal_data_form': 'Valid file formats: PDF, DOC, DOCX. A filename has at most 256 characters.'
@@ -318,12 +360,14 @@ class ConfidentialityForm(forms.ModelForm):
     sin_expiry_date = forms.DateField(
         required=False,
         widget=forms.SelectDateWidget(years=range(DATE.year, DATE.year + 20)),
-        label='SIN Expiry Date'
+        label='SIN Expiry Date',
+        help_text='Format: Month-Day-Year'
     )
     study_permit_expiry_date = forms.DateField(
         required=False,
         widget=forms.SelectDateWidget(years=range(DATE.year, DATE.year + 20)),
-        label='Study Permit Expiry Date'
+        label='Study Permit Expiry Date',
+        help_text='Format: Month-Day-Year'
     )
     class Meta:
         model = Confidentiality
@@ -341,7 +385,7 @@ class ConfidentialityForm(forms.ModelForm):
             'personal_data_form': 'Personal Data Form'
         }
         help_texts = {
-            'employee_number': 'This field is optional. Must be numeric, and 7 digits in length. If you have it, please enter your employee number.',
+            'employee_number': 'This field is optional. Must be numeric and 7 digits in length. If you have it, please enter your Employee Number.',
             'sin': 'Valid file formats: JPG, JPEG, PNG. A filename has at most 256 characters.',
             'study_permit': 'Valid file formats: JPG, JPEG, PNG. A filename has at most 256 characters.',
             'personal_data_form': 'Valid file formats: PDF, DOC, DOCX. A filename has at most 256 characters.'
