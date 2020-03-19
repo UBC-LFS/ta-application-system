@@ -24,8 +24,11 @@
 
         {% include 'ta_app/pages/_upload_message.html' %}
 
-        <div class="field-wrapper">
-          <label for="id_nationality">Am I a domestic or international student?</label>
+        <div class="field-wrapper mb-5">
+          <label for="id_nationality">
+            Am I a domestic or international student?
+            <small class="text-danger"><i class="fa fa-asterisk" aria-hidden="true"></i></small>
+          </label>
           <input type="radio" name="nationality" id="id_nationality" {% if loggedin_user.confidentiality.nationality == '0' %} checked {% endif %} disabled> Domestic Student<br>
           <input type="radio" name="nationality" id="id_nationality" {% if loggedin_user.confidentiality.nationality == '1' %} checked {% endif %} disabled> International Student<br>
         </div>
@@ -39,11 +42,11 @@
               <div class="field-wrapper mb-5">
                 <label for="{{ field.id_for_label }}">
                   {{ field.label }}
-                  {% if field.id_for_label != 'id_emplyee_number' %}
+                  {% if field.id_for_label != 'id_employee_number' %}
                     <small class="text-danger"><i class="fa fa-asterisk" aria-hidden="true"></i></small>
                   {% endif %}
                 </label>
-                
+
                 {% if field.help_text %}
                   <div class="help">{{ field.help_text|safe }}</div>
                 {% endif %}

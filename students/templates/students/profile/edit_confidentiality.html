@@ -27,7 +27,13 @@
 
         {% for field in form.visible_fields  %}
           <div class="field-wrapper">
-            {{ field.label_tag }}
+            <label for="{{ field.id_for_label }}">
+              {{ field.label }}
+              {% if field.id_for_label != 'id_employee_number' %}
+                <small class="text-danger"><i class="fa fa-asterisk" aria-hidden="true"></i></small>
+              {% endif %}
+            </label>
+
             {% if field.help_text %}
               <div class="help">{{ field.help_text|safe }}</div>
             {% endif %}
@@ -47,7 +53,7 @@
         <div class="card-body">
           <h5 class="card-title text-info">Delete uploaded data/files</h5>
           <p class="text-danger">
-            <i class="fa fa-asterisk" aria-hidden="true"></i>
+            <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
             Your files will be deleted permanently when you click on the Delete button.
           </p>
 
