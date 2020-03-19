@@ -572,7 +572,7 @@ def delete_status(status_id):
     status.delete()
     return status if status else False
 
-def get_undergraduate_status():
+def get_undergraduate_status_id():
     status = Status.objects.filter(name__icontains='undergraduate')
     if status.exists():
         return status.first().id
