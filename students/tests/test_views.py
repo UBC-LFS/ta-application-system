@@ -239,6 +239,25 @@ class StudentTest(TestCase):
         response = self.client.get( reverse('students:show_application', args=[APP]) )
         self.assertEqual(response.status_code, 200)
 
+    def test_home_page(self):
+        print('\n- Test: Display a home page')
+        self.login()
+
+        response = self.client.get( reverse('students:index') )
+        messages = self.messages(response)
+        self.assertTrue('Important' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/students/profile/information/basic/')
+        self.assertRedirects(response, response.url)
+
+        self.submit_profile_resume(USERS[2])
+
+        response = self.client.get( reverse('students:index') )
+        messages = self.messages(response)
+        self.assertEqual(messages, [])
+        self.assertEqual(response.status_code, 200)
+
+
     def test_show_profile(self):
         print('\n- Test: Display all lists of session terms')
         self.login()
@@ -417,6 +436,37 @@ class StudentTest(TestCase):
         self.assertEqual(user.profile.lfs_ta_training_details, data['lfs_ta_training_details'])
         self.assertEqual(user.profile.ta_experience, data['ta_experience'])
         self.assertEqual(user.profile.ta_experience_details, data['ta_experience_details'])
+
+    def test_edit_profile_without_program_others(self):
+        print('\n- Test: Edit profile without program others')
+        self.login()
+
+        data = {
+            'preferred_name': 'preferred name',
+            'status': '3',
+            'program': '5',
+            'program_others': '',
+            'graduation_date': '2020-05-20',
+            'degrees': ['2', '5'],
+            'degree_details': 'degree details',
+            'trainings': ['1', '2', '3', '4'],
+            'training_details': 'training details',
+            'lfs_ta_training': '1',
+            'lfs_ta_training_details': 'Lfs ta training details',
+            'ta_experience': '2',
+            'ta_experience_details': 'Ta experience details',
+            'preferred_name': 'preferred name',
+            'prior_employment': 'prior employment',
+            'qualifications': 'qualifications',
+            'special_considerations': 'special_considerations'
+        }
+
+        self.assertEqual( len(userApi.get_programs()), 16 )
+        userApi.delete_program( userApi.get_program_others_id() )
+        self.assertEqual( len(userApi.get_programs()) , 15)
+
+        response = self.client.post( reverse('students:edit_profile'), data=urlencode(data, True), content_type=ContentType )
+        self.assertEqual(response.status_code, 403)
 
 
     def test_upload_user_resume(self):
@@ -604,6 +654,14 @@ class StudentTest(TestCase):
         self.login()
 
         response = self.client.get( reverse('students:explore_jobs') )
+        messages = self.messages(response)
+        self.assertTrue('Important' in messages[0])
+
+        self.submit_profile_resume(USERS[2])
+
+        response = self.client.get( reverse('students:explore_jobs') )
+        messages = self.messages(response)
+        self.assertEqual(messages, [])
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, USERS[2])
         self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
@@ -830,6 +888,19 @@ class StudentTest(TestCase):
 
         response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) )
         self.assertEqual(response.status_code, 403)
+
+    def test_apply_jobs_without_undergraduate(self):
+        print('\n- Test: Students apply with undergraduate')
+
+        self.login()
+
+        self.assertEqual( len(userApi.get_statuses()), 9 )
+        userApi.delete_status( userApi.get_undergraduate_status_id() )
+        self.assertEqual( len(userApi.get_statuses()) , 8)
+
+        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) )
+        self.assertEqual(response.status_code, 403)
+
 
     def test_history_jobs(self):
         print('\n- Test: Display History of Jobs applied by a student')

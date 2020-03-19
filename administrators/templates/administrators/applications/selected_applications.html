@@ -165,13 +165,13 @@
                             None
                           {% endif %}
                         </span>
-                        {% if app.is_declined_reassigned %}
-                          <div class="font-weight-bold text-chocolate">
-                            Delcined and re-assigned:
-                            {{ app.declined.assigned_hours }} hour{% if app.declined.assigned_hours > 1 %}s {% endif %}
-                          </div>
-                        {% endif %}
                       </div>
+                      {% if app.is_declined_reassigned %}
+                        <div>
+                          <h6 class="text-danger">Delcined and re-assigned:</h6>
+                          <span>{{ app.declined.assigned_hours }} hour{% if app.declined.assigned_hours > 1 %}s {% endif %}</span>
+                        </div>
+                      {% endif %}
                     </div>
                   </div>
                 </div>
