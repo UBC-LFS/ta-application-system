@@ -20,6 +20,7 @@ from administrators import api as adminApi
 
 from datetime import datetime
 
+IMPORTANT_MESSAGE = 'Important: Please update your additional information and upload your resume. No official TA offer can be sent to you unless these two sections are completed. Thanks.'
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -35,6 +36,7 @@ def index(request):
 
     can_apply = userApi.can_apply(request.user)
     if can_apply == False:
+        messages.warning(request, IMPORTANT_MESSAGE)
         return HttpResponseRedirect( reverse('students:show_profile', args=['basic']) )
 
     apps = request.user.application_set.all()
@@ -238,7 +240,11 @@ def check_confidentiality(request):
             form = ConfidentialityCheckForm(request.POST)
 
         if form.is_valid():
-            if form.save():
+            confi = form.save(commit=False)
+            confi.created_at = datetime.now()
+            confi.updated_at = datetime.now()
+            confi.save()
+            if confi:
                 messages.info(request, 'Please submit your information.')
             else:
                 messages.error(request, 'An error occurred while saving confidentiality.')
@@ -271,15 +277,12 @@ def submit_confidentiality(request):
                 form = ConfidentialityInternationalForm(request.POST, request.FILES, instance=loggedin_user.confidentiality)
 
         if form.is_valid():
-            sin_file = request.FILES.get('sin')
-            study_permit_file = request.FILES.get('study_permit')
-
             updated_confidentiality = form.save(commit=False)
             updated_confidentiality.created_at = datetime.now()
             updated_confidentiality.updated_at = datetime.now()
 
-            updated_confidentiality.sin = sin_file
-            updated_confidentiality.study_permit = study_permit_file
+            updated_confidentiality.sin = request.FILES.get('sin')
+            updated_confidentiality.study_permit = request.FILES.get('study_permit')
 
             updated_confidentiality.save()
             if updated_confidentiality:
@@ -346,7 +349,7 @@ def edit_confidentiality(request):
             updated_confidentiality = form.save(commit=False)
             updated_confidentiality.updated_at = datetime.now()
 
-            update_fields = []
+            update_fields = ['updated_at']
             if data['nationality'] is not None:
                 updated_confidentiality.nationality = data['nationality']
                 update_fields.append('nationality')
@@ -476,12 +479,16 @@ def explore_jobs(request):
         request.user.roles = request.session['loggedin_user']['roles']
     if 'Student' not in request.user.roles: raise PermissionDenied
 
+    can_apply = userApi.can_apply(request.user)
+    if can_apply == False:
+        messages.warning(request, IMPORTANT_MESSAGE)
+
     sessions = adminApi.get_sessions()
     return render(request, 'students/jobs/explore_jobs.html', {
         'loggedin_user': request.user,
         'visible_current_sessions': sessions.filter( Q(is_visible=True) & Q(is_archived=False) ),
         'favourites': adminApi.get_favourites(request.user),
-        'can_apply': userApi.can_apply(request.user)
+        'can_apply': can_apply
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -632,7 +639,7 @@ def apply_job(request, session_slug, job_slug):
     session = adminApi.get_session(session_slug, 'slug')
     job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
     can_apply = userApi.can_apply(request.user)
-    UNDERGRADUATE_STUDENT = userApi.get_undergraduate_status()
+    UNDERGRADUATE_STUDENT = userApi.get_undergraduate_status_id()
 
     if 'Student' not in request.user.roles or session.is_visible == False or session.is_archived == True or job.is_active == False or can_apply == False or UNDERGRADUATE_STUDENT == None:
         raise PermissionDenied

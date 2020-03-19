@@ -93,7 +93,7 @@ class UserProfileForm(forms.ModelForm):
         }
         help_texts = {
             'student_number': 'This field is optional. Must be numeric and 8 digits in length.',
-            'preferred_name': 'This field is optional. Maximum length is 256.'
+            'preferred_name': 'This field is optional. Maximum length is 256 characters.'
         }
 
 
@@ -117,7 +117,7 @@ class UserProfileEditForm(forms.ModelForm):
         }
         help_texts = {
             'student_number': 'This field is optional. Must be numeric and 8 digits in length.',
-            'preferred_name': 'This field is optional. Maximum length is 256.',
+            'preferred_name': 'This field is optional. Maximum length is 256 characters.',
             'is_trimmed': "This field is False by default. It would be True if administrators destroy the contents of users who haven't logged in for 3 years."
         }
 
@@ -169,7 +169,7 @@ class StudentProfileForm(forms.ModelForm):
         queryset=Training.objects.all(),
         widget=forms.CheckboxSelectMultiple(),
         label='Training',
-        help_text='I acknowledge that I have completed or will be completing these training requirement as listed below prior to the start date of any TA appointment I may receive. (You must check all fields to proceed).'
+        help_text='I acknowledge that I have completed or will be completing these training requirements as listed below prior to the start date of any TA appointment I may receive. (You must check all fields to proceed).'
     )
     training_details = forms.CharField(
         required=True,
@@ -204,7 +204,7 @@ class StudentProfileForm(forms.ModelForm):
         required=True,
         widget=SummernoteWidget(),
         label='Explanation of Qualifications',
-        help_text="List and give a 2-3 sentence description of your qualifications for your top three preferred courses. If you list fewer than three courses, describe qualifications for all of them. Qualifications might include coursework experience, TA expericne, work in the area, contact with the course's instructor, etc. List any special arrangements you have made with regard to TAing here."
+        help_text="List and give a 2-3 sentence description of your qualifications for your top three preferred courses. If you list fewer than three courses, describe qualifications for all of them. Qualifications might include coursework experience, TA experience, work in the area, contact with the course's instructor, etc. List any special arrangements you have made with regard to TAing here."
     )
 
     class Meta:
@@ -264,7 +264,7 @@ class EmployeeNumberForm(forms.ModelForm):
             'employee_number': 'Employee Number'
         }
         help_texts = {
-            'employee_number': 'This field is optional. Must be numeric and 7 digits in length. If you have it, please enter your Employee Number.'
+            'employee_number': 'Enter your UBC Employee ID number here, if you have one. Must be numeric and 7 digits in length.'
         }
 
 
@@ -280,7 +280,7 @@ class EmployeeNumberEditForm(forms.ModelForm):
             'employee_number': 'Employee Number'
         }
         help_texts = {
-            'employee_number': 'This field is optional. Must be numeric, and 7 digits in length. If you have it, please enter your Employee Number.'
+            'employee_number': 'Enter your UBC Employee ID number here, if you have one. Must be numeric and 7 digits in length.'
         }
 
 
@@ -299,12 +299,12 @@ class ConfidentialityDomesticForm(forms.ModelForm):
             'personal_data_form': forms.FileInput()
         }
         labels = {
-            'employee_number': 'Employee Number',
-            'sin': 'Social Insurance Number (SIN)',
-            'personal_data_form': 'Personal Data Form'
+            'employee_number': 'Employee Number:',
+            'sin': 'Social Insurance Number (SIN):',
+            'personal_data_form': 'Personal Data Form:'
         }
         help_texts = {
-            'employee_number': 'This field is optional. Must be numeric, and 7 digits in length. If you have it, please enter your Employee Number.',
+            'employee_number': 'Enter your UBC Employee ID number here, if you have one. Must be numeric and 7 digits in length.',
             'sin': 'Valid file formats: JPG, JPEG, PNG. A filename has at most 256 characters.',
             'personal_data_form': 'Valid file formats: PDF, DOC, DOCX. A filename has at most 256 characters.'
         }
@@ -319,13 +319,13 @@ class ConfidentialityInternationalForm(forms.ModelForm):
     sin_expiry_date = forms.DateField(
         required=False,
         widget=forms.SelectDateWidget(years=range(DATE.year, DATE.year + 20)),
-        label='SIN Expiry Date',
+        label='SIN Expiry Date:',
         help_text='Format: Month-Day-Year'
     )
     study_permit_expiry_date = forms.DateField(
         required=False,
         widget=forms.SelectDateWidget(years=range(DATE.year, DATE.year + 20)),
-        label='Study Permit Expiry Date',
+        label='Study Permit Expiry Date:',
         help_text='Format: Month-Day-Year'
     )
     class Meta:
@@ -338,13 +338,13 @@ class ConfidentialityInternationalForm(forms.ModelForm):
             'personal_data_form': forms.FileInput()
         }
         labels = {
-            'employee_number': 'Employee Number',
-            'sin': 'Social Insurance Number (SIN)',
-            'study_permit': 'Study Permit',
-            'personal_data_form': 'Personal Data Form'
+            'employee_number': 'Employee Number:',
+            'sin': 'Social Insurance Number (SIN):',
+            'study_permit': 'Study Permit:',
+            'personal_data_form': 'Personal Data Form:'
         }
         help_texts = {
-            'employee_number': 'This field is optional. Must be numeric and 7 digits in length. If you have it, please enter your Employee Number.',
+            'employee_number': 'Enter your UBC Employee ID number here, if you have one. Must be numeric and 7 digits in length.',
             'sin': 'Valid file formats: JPG, JPEG, PNG. A filename has at most 256 characters.',
             'study_permit': 'Valid file formats: JPG, JPEG, PNG. A filename has at most 256 characters.',
             'personal_data_form': 'Valid file formats: PDF, DOC, DOCX. A filename has at most 256 characters.'
@@ -360,13 +360,13 @@ class ConfidentialityForm(forms.ModelForm):
     sin_expiry_date = forms.DateField(
         required=False,
         widget=forms.SelectDateWidget(years=range(DATE.year, DATE.year + 20)),
-        label='SIN Expiry Date',
+        label='SIN Expiry Date:',
         help_text='Format: Month-Day-Year'
     )
     study_permit_expiry_date = forms.DateField(
         required=False,
         widget=forms.SelectDateWidget(years=range(DATE.year, DATE.year + 20)),
-        label='Study Permit Expiry Date',
+        label='Study Permit Expiry Date:',
         help_text='Format: Month-Day-Year'
     )
     class Meta:
@@ -379,13 +379,13 @@ class ConfidentialityForm(forms.ModelForm):
             'study_permit': forms.FileInput()
         }
         labels = {
-            'employee_number': 'Employee Number',
-            'sin': 'Social Insurance Number (SIN)',
-            'study_permit': 'Study Permit',
-            'personal_data_form': 'Personal Data Form'
+            'employee_number': 'Employee Number:',
+            'sin': 'Social Insurance Number (SIN):',
+            'study_permit': 'Study Permit:',
+            'personal_data_form': 'Personal Data Form:'
         }
         help_texts = {
-            'employee_number': 'This field is optional. Must be numeric and 7 digits in length. If you have it, please enter your Employee Number.',
+            'employee_number': 'Enter your UBC Employee ID number here, if you have one. Must be numeric and 7 digits in length.',
             'sin': 'Valid file formats: JPG, JPEG, PNG. A filename has at most 256 characters.',
             'study_permit': 'Valid file formats: JPG, JPEG, PNG. A filename has at most 256 characters.',
             'personal_data_form': 'Valid file formats: PDF, DOC, DOCX. A filename has at most 256 characters.'
