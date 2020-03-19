@@ -26,7 +26,7 @@
         {% csrf_token %}
 
         {% for field in form.visible_fields  %}
-          <div class="field-wrapper">
+          <div class="field-wrapper mt-5">
             <label for="{{ field.id_for_label }}">
               {{ field.label }}
               {% if field.id_for_label != 'id_employee_number' %}

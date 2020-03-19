@@ -240,7 +240,11 @@ def check_confidentiality(request):
             form = ConfidentialityCheckForm(request.POST)
 
         if form.is_valid():
-            if form.save():
+            confi = form.save(commit=False)
+            confi.created_at = datetime.now()
+            confi.updated_at = datetime.now()
+            confi.save()
+            if confi:
                 messages.info(request, 'Please submit your information.')
             else:
                 messages.error(request, 'An error occurred while saving confidentiality.')
@@ -273,15 +277,12 @@ def submit_confidentiality(request):
                 form = ConfidentialityInternationalForm(request.POST, request.FILES, instance=loggedin_user.confidentiality)
 
         if form.is_valid():
-            sin_file = request.FILES.get('sin')
-            study_permit_file = request.FILES.get('study_permit')
-
             updated_confidentiality = form.save(commit=False)
             updated_confidentiality.created_at = datetime.now()
             updated_confidentiality.updated_at = datetime.now()
 
-            updated_confidentiality.sin = sin_file
-            updated_confidentiality.study_permit = study_permit_file
+            updated_confidentiality.sin = request.FILES.get('sin')
+            updated_confidentiality.study_permit = request.FILES.get('study_permit')
 
             updated_confidentiality.save()
             if updated_confidentiality:
@@ -348,7 +349,7 @@ def edit_confidentiality(request):
             updated_confidentiality = form.save(commit=False)
             updated_confidentiality.updated_at = datetime.now()
 
-            update_fields = []
+            update_fields = ['updated_at']
             if data['nationality'] is not None:
                 updated_confidentiality.nationality = data['nationality']
                 update_fields.append('nationality')
