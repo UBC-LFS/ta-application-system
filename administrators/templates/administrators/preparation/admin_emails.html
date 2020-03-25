@@ -3,10 +3,10 @@
 
 {% include 'administrators/_menu.html' %}
 
-{% include 'ta_app/pages/_header.html' with title='Admin Emails' %}
-
 <div class="row">
   <div class="col-md-4">
+    {% include 'ta_app/pages/_header.html' with title='Admin Emails' %}
+
     <div class="col-11 mx-auto">
       {% include 'ta_app/pages/_email_note.html' %}
     </div>
@@ -20,7 +20,7 @@
         <small class="text-dark-gray">(Total: {{ admin_emails|length }})</small>
       </h3>
 
-      <table class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center">
+      <table class="table table-bordered table-hover table-striped table-responsive-md text-center">
         <thead>
           <tr>
             <th>ID</th>
@@ -63,7 +63,7 @@
               <td>{{ email.updated_at }}</td>
               <td>
                 <div class="btn-toolbar">
-                  <a class="btn btn-xs btn-link" href="{% url 'administrators:edit_admin_email' slug=email.slug %}">Edit</a>
+                  <a class="btn btn-xs btn-link mr-2" href="{% url 'administrators:edit_admin_email' slug=email.slug %}">Edit</a>
 
                   <form action="{% url 'administrators:delete_admin_email' %}" method="post" onsubmit="return confirm('Are you sure to delete this admin email - {{ email.type }}?')">
                     {% csrf_token %}
@@ -81,7 +81,7 @@
         </tbody>
       </table>
 
-      <h3 class="text-info mt-5">Create Admin Email</h3>
+      <h3 class="text-primary mt-5">Create Admin Email</h3>
 
       <form action="{% url 'administrators:admin_emails' %}" method="post">
         {% csrf_token %}

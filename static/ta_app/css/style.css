@@ -393,7 +393,8 @@ main {
     color: #d9534f;
 }
 
-.bd-callout p:last-child {
+.bd-callout p:last-child,
+.bd-callout ul:last-child {
     margin-bottom: 0;
 }
 

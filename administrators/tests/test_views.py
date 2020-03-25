@@ -21,6 +21,7 @@ DATA = [
     'ta_app/fixtures/course_numbers.json',
     'ta_app/fixtures/course_sections.json',
     'ta_app/fixtures/degrees.json',
+    'ta_app/fixtures/landing_pages.json',
     'ta_app/fixtures/programs.json',
     'ta_app/fixtures/roles.json',
     'ta_app/fixtures/statuses.json',
@@ -1854,7 +1855,11 @@ class PreparationTest(TestCase):
         response = self.client.get( reverse('administrators:classifications') )
         self.assertEqual(response.status_code, 200)
 
+        response = self.client.get( reverse('administrators:admin_emails') )
+        self.assertEqual(response.status_code, 200)
 
+        response = self.client.get( reverse('administrators:landing_pages') )
+        self.assertEqual(response.status_code, 200)
 
 
     def test_terms(self):
@@ -2533,4 +2538,184 @@ class PreparationTest(TestCase):
         found = False
         for c in response.context['classifications']:
             if c.id == classification.id: found = True
+        self.assertFalse(found)
+
+
+    def test_admin_emails(self):
+        print('\n- Test: Display all admin emails and create an admin email')
+        self.login()
+
+        response = self.client.get( reverse('administrators:admin_emails') )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual( len(response.context['admin_emails']), 3 )
+        self.assertFalse(response.context['form'].is_bound)
+
+        data = {
+            'title': 'Congratulations',
+            'message': 'Hello',
+            'type': 'offer'
+        }
+        response = self.client.post( reverse('administrators:admin_emails'), data=urlencode(data), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+        response = self.client.get( reverse('administrators:admin_emails') )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual( len(response.context['admin_emails']), 4 )
+        self.assertEqual(response.context['admin_emails'].latest('pk').title, data['title'])
+        self.assertEqual(response.context['admin_emails'].latest('pk').message, data['message'])
+        self.assertEqual(response.context['admin_emails'].latest('pk').type, data['type'])
+
+
+    def test_edit_admin_email(self):
+        print('\n- Test: edit admin email details')
+        self.login()
+
+        slug = 'type-1'
+        data = {
+            'title': 'Congratulations',
+            'message': 'Hello',
+            'type': 'Type 111'
+        }
+        response = self.client.post( reverse('administrators:edit_admin_email', args=[slug]), data=urlencode(data), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+        response = self.client.get( reverse('administrators:admin_emails') )
+        self.assertEqual(response.status_code, 200)
+        admin_emails = response.context['admin_emails']
+
+        found = 0
+        for email in admin_emails:
+            if email.slug == 'type-111':
+                found = 1
+                break
+        self.assertEqual(found, 1)
+
+
+    def test_delete_admin_email(self):
+        print('\n- Test: delete a admin email')
+        self.login()
+
+        data = {
+            'title': 'Congratulations',
+            'message': 'Hello',
+            'type': 'Offer 2'
+        }
+        response = self.client.post( reverse('administrators:admin_emails'), data=urlencode(data), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+        admin_email = adminApi.get_admin_email_by_slug('offer-2')
+
+        response = self.client.post( reverse('administrators:delete_admin_email'), data=urlencode({ 'admin_email': admin_email.id }), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+        response = self.client.get(reverse('administrators:admin_emails'))
+        self.assertEqual(response.status_code, 200)
+
+        found = False
+        for e in response.context['admin_emails']:
+            if e.id == admin_email.id: found = True
+        self.assertFalse(found)
+
+
+    def test_landing_pages(self):
+        print('\n- Test: Display all landin page contents and create a landing page content')
+        self.login()
+
+        response = self.client.get( reverse('administrators:landing_pages') )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual( len(response.context['landing_pages']), 1 )
+        self.assertFalse(response.context['form'].is_bound)
+
+        data = {
+            'title': 'Title',
+            'message': 'Message',
+            'notice': 'Notice',
+            'is_visible': False
+        }
+        response = self.client.post( reverse('administrators:landing_pages'), data=urlencode(data), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+        response = self.client.get( reverse('administrators:landing_pages') )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual( len(response.context['landing_pages']), 2 )
+        self.assertEqual(response.context['landing_pages'].latest('pk').title, data['title'])
+        self.assertEqual(response.context['landing_pages'].latest('pk').message, data['message'])
+        self.assertEqual(response.context['landing_pages'].latest('pk').notice, data['notice'])
+        self.assertFalse(response.context['landing_pages'].latest('pk').is_visible)
+
+
+    def test_edit_landing_page(self):
+        print('\n- Test: edit landing page details')
+        self.login()
+
+        landing_page_id = 1
+        data = {
+            'title': 'Title 2',
+            'message': 'Message 2',
+            'notice': 'Notice 2',
+            'is_visible': False
+        }
+        response = self.client.post( reverse('administrators:edit_landing_page', args=[landing_page_id]), data=urlencode(data), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+        response = self.client.get( reverse('administrators:landing_pages') )
+        self.assertEqual(response.status_code, 200)
+        admin_emails = response.context['landing_pages']
+
+        found = 0
+        for email in admin_emails:
+            if email.id == landing_page_id:
+                found = 1
+                break
+        self.assertEqual(found, 1)
+
+
+    def test_delete_landing_page(self):
+        print('\n- Test: delete a landing page')
+        self.login()
+
+        data = {
+            'title': 'Title 2',
+            'message': 'Message 2',
+            'notice': 'Notice 2',
+            'is_visible': False
+        }
+        response = self.client.post( reverse('administrators:landing_pages'), data=urlencode(data), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+        landing_page = adminApi.get_landing_page(2)
+
+        response = self.client.post( reverse('administrators:delete_landing_page'), data=urlencode({ 'landing_page': landing_page.id }), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+        response = self.client.get(reverse('administrators:landing_pages'))
+        self.assertEqual(response.status_code, 200)
+
+        found = False
+        for l in response.context['landing_pages']:
+            if l.id == landing_page.id: found = True
         self.assertFalse(found)

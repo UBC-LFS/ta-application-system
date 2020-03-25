@@ -80,29 +80,29 @@ def show_jobs(request):
     filters = None
     if bool(year_q):
         if filters:
-            filters = filters & Q(session__year__iexact=year_q)
+            filters = filters & Q(session__year__icontains=year_q)
         else:
-            filters = Q(session__year__iexact=year_q)
+            filters = Q(session__year__icontains=year_q)
     if bool(term_q):
         if filters:
-            filters = filters & Q(session__term__code__iexact=term_q)
+            filters = filters & Q(session__term__code__icontains=term_q)
         else:
-            filters = Q(session__term__code__iexact=term_q)
+            filters = Q(session__term__code__icontains=term_q)
     if bool(code_q):
         if filters:
-            filters = filters & Q(course__code__name__iexact=code_q)
+            filters = filters & Q(course__code__name__icontains=code_q)
         else:
-            filters = Q(course__code__name__iexact=code_q)
+            filters = Q(course__code__name__icontains=code_q)
     if bool(number_q):
         if filters:
-            filters = filters & Q(course__number__name__iexact=number_q)
+            filters = filters & Q(course__number__name__icontains=number_q)
         else:
-            filters = Q(course__number__name__iexact=number_q)
+            filters = Q(course__number__name__icontains=number_q)
     if bool(section_q):
         if filters:
-            filters = filters & Q(course__section__name__iexact=section_q)
+            filters = filters & Q(course__section__name__icontains=section_q)
         else:
-            filters = Q(course__section__name__iexact=section_q)
+            filters = Q(course__section__name__icontains=section_q)
 
     job_list = request.user.job_set.all()
     if filters != None:

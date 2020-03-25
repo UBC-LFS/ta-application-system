@@ -1,0 +1,122 @@
+{% extends 'ta_app/base.html' %}
+{% block content %}
+
+{% include 'administrators/_menu.html' %}
+
+<div class="row">
+  <div class="col-md-4">
+    {% include 'ta_app/pages/_header.html' with title='Landing Page' %}
+    
+    <div class="col-11 mx-auto">
+      {% include 'ta_app/pages/_note_landing_page.html' %}
+    </div>
+  </div>
+
+  <div class="col-md-8">
+    <div class="col-11 mx-auto">
+      <h3>
+        Contents
+        <small class="text-dark-gray">(Total: {{ landing_pages|length }})</small>
+      </h3>
+
+      <table class="table table-bordered table-hover table-striped table-responsive-md text-center">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Contents</th>
+            <th>Is visible</th>
+            <th>Created at</th>
+            <th>Updated at</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for page in landing_pages %}
+            <tr>
+              <td>{{ page.id }}</td>
+              <td>
+                <button class="btn btn-xs btn-info" type="button" data-toggle="modal" data-target="#landing-page-modal-{{ page.id }}">
+                  <i class="fa fa-file-text-o" aria-hidden="true"></i>
+                </button>
+                <div class="modal fade" id="landing-page-modal-{{ page.id }}" tabindex="-1" role="dialog" aria-labelledby="landing-page-modal-label-{{ page.id }}" aria-hidden="true">
+                  <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title text-info" id="landing-page-modal-label-{{ page.id }}">Contents of Landing Page</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                      </div>
+                      <div class="modal-item text-left">
+                        <div>
+                          <h6>Title:</h6>
+                          <span>{{ page.title }}</span>
+                        </div>
+                        <div>
+                          <h6>Message:</h6>
+                          <span>{{ page.message|safe }}</span>
+                        </div>
+                        <div>
+                          <h6>Notice:</h6>
+                          <span>{{ page.notice|safe }}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                {% if page.is_visible %}
+                  <span class="badge badge-success">Yes <i class="fa fa-check-circle" aria-hidden="true"></i></span>
+                {% else %}
+                  <span class="badge badge-danger">No <i class="fa fa-stop-circle" aria-hidden="true"></i></span>
+                {% endif %}
+              </td>
+              <td>{{ page.created_at }}</td>
+              <td>{{ page.updated_at }}</td>
+              <td>
+                <div class="btn-toolbar">
+                  <a class="btn btn-xs btn-link mr-2" href="{% url 'administrators:edit_landing_page' landing_page_id=page.id %}">Edit</a>
+
+                  <form action="{% url 'administrators:delete_landing_page' %}" method="post" onsubmit="return confirm('Are you sure to delete this landing page - {{ page.id }}?')">
+                    {% csrf_token %}
+                    <input type="hidden" name="landing_page" value="{{ page.id }}" />
+                    <input class="btn btn-xs btn-danger" type="submit" value="Delete" />
+                  </form>
+                </div>
+              </td>
+            </tr>
+            {% empty %}
+              <tr>
+                <td colspan="5">No contents found.</td>
+              </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+
+      <h3 class="text-primary mt-5">Create Landing Page</h3>
+
+      <form action="" method="post">
+        {% csrf_token %}
+
+        {% for field in form.visible_fields  %}
+          <div class="field-wrapper">
+            {{ field.label_tag }}
+            {% if field.help_text %}
+              <div class="help">{{ field.help_text|safe }}</div>
+            {% endif %}
+            {{ field }}
+          </div>
+        {% endfor %}
+
+        {% for field in form.hidden_fields %}
+          {{ field }}
+        {% endfor %}
+
+        <input class="btn btn-primary mt-3" type="submit" value="Create" />
+      </form>
+
+    </div>
+  </div>
+</div>
+
+{% endblock %}

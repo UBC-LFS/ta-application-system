@@ -470,3 +470,18 @@ class AdminEmailForm(forms.ModelForm):
             'message': SummernoteWidget(),
             'type': forms.TextInput(attrs={ 'class':'form-control' }),
         }
+
+class LandingPageForm(forms.ModelForm):
+    class Meta:
+        model = LandingPage
+        fields = ['title', 'message', 'notice', 'is_visible']
+        widgets = {
+            'title': forms.TextInput(attrs={ 'class':'form-control' }),
+            'message': SummernoteWidget(),
+            'notice': SummernoteWidget()
+        }
+        help_texts = {
+            'title': 'This field is optional. Maximum length is 256 characters.',
+            'message': 'This field is optional.',
+            'notice': 'This field is optional.'
+        }

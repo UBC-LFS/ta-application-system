@@ -8,22 +8,25 @@
     <div class="col-md-6">
 
       <div>
-        <h4 class="text-center">Welcome</h4>
-        <p class="text-dark-gray">Welcome to the Faculty of Land and Food Systems TA Application form.</p>
+        <h4 class="text-center">
+          {% if landing_page.title %}
+            {{ landing_page.title }}
+          {% endif %}
+        </h4>
+        <p class="text-dark-gray">
+          {% if landing_page.message %}
+            {{ landing_page.message|safe }}
+          {% endif %}
+        </p>
 
         <div class="bd-callout bd-callout-warning bg-light-gray">
           <h4 class="text-center">
             <i class="fa fa-bullhorn" aria-hidden="true"></i> Notice
           </h4>
           <p>
-            <i class="fa fa-check" aria-hidden="true"></i>
-            Did you know you must be registered in at least one course during the term you will be TA'ing?</p>
-          <p>
-            <i class="fa fa-check" aria-hidden="true"></i>
-            Be sure you are aware of all requirements for being a TA in the Faculty of Land and Food Systems (particularly the term/duration of TA appointments).</p>
-          <p>
-            <i class="fa fa-check" aria-hidden="true"></i>
-            Refer to 'Information for TA's' and other sections in the LFS TA Portal: <a href="http://blogs.ubc.ca/lfsta/">http://blogs.ubc.ca/lfsta/</a>
+            {% if landing_page.notice %}
+              {{ landing_page.notice|safe }}
+            {% endif %}
           </p>
         </div>
 

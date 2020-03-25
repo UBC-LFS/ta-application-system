@@ -5,6 +5,7 @@ from django.http import HttpResponseRedirect, Http404
 from django.urls import reverse
 from django.contrib import messages
 from .forms import LocalLoginForm
+from administrators import api as adminApi
 from users import api as userApi
 
 
@@ -27,7 +28,9 @@ def login(request):
         redirect_to = redirect_to_index_page(roles)
         return HttpResponseRedirect(redirect_to)
 
-    return render(request, 'accounts/login.html')
+    return render(request, 'accounts/login.html', {
+        'landing_page': adminApi.get_visible_landing_page()
+    })
 
 
 def local_login(request):

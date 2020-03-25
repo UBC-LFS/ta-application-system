@@ -100,5 +100,9 @@ urlpatterns = [
 
     path('preparation/admin-emails/delete/', views.delete_admin_email, name='delete_admin_email'),
     path('preparation/admin-emails/<str:slug>/edit/', views.edit_admin_email, name='edit_admin_email'),
-    path('preparation/admin-emails/', views.admin_emails, name='admin_emails')
+    path('preparation/admin-emails/', views.admin_emails, name='admin_emails'),
+
+    path('preparation/landing-pages/delete/', views.delete_landing_page, name='delete_landing_page'),
+    path('preparation/landing-pages/<int:landing_page_id>/edit/', views.edit_landing_page, name='edit_landing_page'),
+    path('preparation/landing-pages/', views.landing_pages, name='landing_pages'),
 ]
