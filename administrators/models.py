@@ -107,8 +107,6 @@ class Session(models.Model):
         super(Session, self).save(*args, **kwargs)
 
 
-
-#checked
 class Job(models.Model):
     course_overview = models.TextField(null=True, blank=True)
     description = models.TextField(null=True, blank=True)
