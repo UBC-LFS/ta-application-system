@@ -4,9 +4,9 @@ from django.contrib.auth import authenticate, login as AuthLogin
 from django.http import HttpResponseRedirect, Http404
 from django.urls import reverse
 from django.contrib import messages
-from .forms import LocalLoginForm
-from administrators import api as adminApi
+from accounts.forms import LocalLoginForm
 from users import api as userApi
+from administrators import api as adminApi
 
 
 def redirect_to_index_page(roles):
