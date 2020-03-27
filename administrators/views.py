@@ -1402,7 +1402,7 @@ def applications_send_email_confirmation(request, path):
                         assigned_hours,
                         app.classification.name
                     )
-                    
+
                     receiver = '{0} <{1}>'.format(name, app.applicant.email)
 
                     email = adminApi.send_and_create_email(app, data['sender'], receiver, data['title'], message, data['type'])
@@ -1608,10 +1608,14 @@ def edit_user(request, username):
     user = userApi.get_user(username, 'username')
     confidentiality = userApi.has_user_confidentiality_created(user)
 
+    # Create a confiential information if it's None
+    if confidentiality == None:
+        confidentiality = userApi.create_confidentiality(user)
+
     if request.method == 'POST':
         validation = userApi.validate_post(request.POST, ['first_name', 'last_name', 'email', 'username'])
         if len(validation) > 0:
-            messages.error(request, 'An error occurred while saving an User Form. {0}: This field is required.'.format( ', '.join(validation) ))
+            messages.error(request, 'An error occurred while updating an User Edit Form. {0}: This field is required.'.format( ', '.join(validation) ))
             return HttpResponseRedirect( reverse('administrators:edit_user', args=[username]) )
 
         #user_id = request.POST.get('user')
@@ -1631,10 +1635,6 @@ def edit_user(request, username):
 
             errors = []
 
-            # Create a confiential information if it's None
-            if confidentiality == None:
-                confidentiality = userApi.create_confidentiality(user)
-
             updated_employee_number = employee_number_form.save(commit=False)
             updated_employee_number.updated_at = datetime.now()
             updated_employee_number.employee_number = employee_number_form.cleaned_data['employee_number']
@@ -1648,7 +1648,7 @@ def edit_user(request, username):
             if not updated: errors.append(request, 'An error occurred while updating profile roles.')
 
             if len(errors) > 0:
-                messages.error(request, 'An error occurred while saving an User Form. {0}'.format( ' '.join(errors) ))
+                messages.error(request, 'An error occurred while updating an User Edit Form. {0}'.format( ' '.join(errors) ))
                 return HttpResponseRedirect( reverse('administrators:edit_user', args=[username]) )
 
             messages.success(request, 'Success! User information of {0} (CWL: {1}) updated'.format(user.get_full_name(), user.username))

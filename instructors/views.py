@@ -50,10 +50,15 @@ def edit_user(request, username):
     if 'Instructor' not in request.user.roles: raise PermissionDenied
 
     confidentiality = userApi.has_user_confidentiality_created(request.user)
+
+    # Create a confiential information if it's None
+    if confidentiality == None:
+        confidentiality = userApi.create_confidentiality(request.user)
+
     if request.method == 'POST':
         validation = userApi.validate_post(request.POST, ['first_name', 'last_name', 'email'])
         if len(validation) > 0:
-            messages.error(request, 'An error occurred while saving an User Form. {0}: This field is required.'.format( ', '.join(validation) ))
+            messages.error(request, 'An error occurred while updating an User Edit Form. {0}: This field is required.'.format( ', '.join(validation) ))
             return HttpResponseRedirect( reverse('instructors:edit_user', args=[username]) )
 
         user_form = UserInstructorForm(request.POST, instance=request.user)
@@ -62,10 +67,6 @@ def edit_user(request, username):
         if user_form.is_valid() and employee_number_form.is_valid():
             updated_user = user_form.save()
             updated_employee_number = employee_number_form.save(commit=False)
-
-            # Create a confiential information if it's None
-            if confidentiality == None:
-                confidentiality = userApi.create_confidentiality(request.user)
 
             updated_employee_number.updated_at = datetime.now()
             updated_employee_number.employee_number = employee_number_form.cleaned_data['employee_number']
@@ -76,7 +77,7 @@ def edit_user(request, username):
             if not updated_employee_number: errors.append('EMPLOYEE NUMBER')
 
             if len(errors) > 0:
-                messages.error(request, 'An error occurred while saving an User Form. {0}'.format( ' '.join(errors) ))
+                messages.error(request, 'An error occurred while updating an User Edit Form. {0}'.format( ' '.join(errors) ))
                 return HttpResponseRedirect( reverse('administrators:edit_user', args=[username]) )
 
             messages.success(request, 'Success! User information of {0} (CWL: {1}) updated'.format(request.user.get_full_name(), request.user.username))

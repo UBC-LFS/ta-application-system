@@ -4,7 +4,7 @@
 {% include 'administrators/_menu.html' %}
 <div class="row">
   <div class="col-md-4">
-    {% include 'ta_app/pages/_left_aside.html' with view_name='users'   title='User Details' data=user %}
+    {% include 'ta_app/pages/_left_aside.html' with view_name='users' title='Edit User' data=user %}
 
     <div class="left-aside-btn-groups">
       <a class="btn btn-outline-primary" href="{% url 'administrators:all_users' %}">Back to All Users</a>
@@ -14,7 +14,7 @@
   <div class="col-md-8">
 
     <div class="board col-11 mx-auto">
-      <h3>Edit User Form</h3>
+      <h3>User Edit Form</h3>
 
       <div class="bg-white border p-3">
         <ul class="text-dark mb-0">
