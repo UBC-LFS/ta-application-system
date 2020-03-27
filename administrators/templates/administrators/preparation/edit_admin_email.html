@@ -3,10 +3,10 @@
 
 {% include 'administrators/_menu.html' %}
 
-{% include 'ta_app/pages/_header.html' with title='Admin Emails' %}
-
 <div class="row">
   <div class="col-md-4">
+    {% include 'ta_app/pages/_header.html' with title='Admin Emails' %}
+
     <div class="col-11 mx-auto">
       {% include 'ta_app/pages/_email_note.html' %}
     </div>
@@ -14,7 +14,7 @@
 
   <div class="col-md-8">
     <div class="col-11 mx-auto">
-      <h3 class="text-info mt-5">Edit Admin Email</h3>
+      <h3 class="text-primary">Edit Admin Email</h3>
 
       <form action="" method="post">
         {% csrf_token %}

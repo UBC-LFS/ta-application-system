@@ -1,0 +1,100 @@
+{% extends 'ta_app/base.html' %}
+{% block content %}
+
+{% include 'administrators/_menu.html' %}
+<div class="row">
+  <div class="col-md-4">
+    {% include 'administrators/sessions/_left_aside.html' with title='Delete Session' current_sessions=current_sessions archived_sessions=archived_sessions %}
+  </div>
+
+  <div class="col-md-8">
+		<div class="board col-11 mx-auto">
+			<h3>Confirmation</h3>
+
+      <div class="bd-callout bd-callout-warning bg-light-gray">
+        <h4>
+          <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Notice
+        </h4>
+        <p>If a session is deleted, then jobs and applications associated with it will be removed completely.</p>
+      </div>
+
+      <h5 class="text-danger">Are you sure to delete this session?</h5>
+
+      <div>
+        <h6>Session ID:</h6>
+        <span>{{ session.id }}</span>
+      </div>
+      <div>
+        <h6>Year-Term:</h6>
+        <span>{{ session.year }} {{ session.term.name }} ({{ session.term.code }})</span>
+      </div>
+
+      <div>
+        <h6>Jobs and Applications</h6>
+        {% if session.job_set.count > 0 %}
+          <button class="btn btn-xs btn-info" type="button" data-toggle="modal" data-target="#delete-session-modal-{{ session.id }}">
+            {{ session.job_set.count }}
+          </button>
+
+          <div class="modal fade" id="delete-session-modal-{{ session.id }}" tabindex="-1" role="dialog" aria-labelledby="delete-session-modal-label-{{ session.id }}" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title text-info" id="delete-session-modal-label-{{ session.id }}">Jobs</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                </div>
+                <div class="modal-item text-left font-size-1">
+                  <table class="table table-sm table-bordered table-hover table-striped table-responsive-md">
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>ID</th>
+                        <th>Job</th>
+                        <th>Applications</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for job in session.job_set.all %}
+                        <tr>
+                          <td>{{ forloop.counter }}</td>
+                          <td>{{ job.id }}</td>
+                          <td>{{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</td>
+                          <td>
+                            {% for app in job.application_set.all %}
+                              <div>
+                                App ID: {{ app.id }}
+                                <span class="text-secondary">
+                                  {{ app.applicant.get_full_name }} ({{ app.applicant.username }})
+                                </span>
+                              </div>
+                            {% endfor %}
+                          </td>
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% else %}
+          <span>None</span>
+        {% endif %}
+      </div>
+
+      <form action="{% url 'administrators:delete_session' path='current' %}" method="post" class="mt-5">
+        {% csrf_token %}
+        <input type="hidden" name="session" value="{{ session.id }}" />
+
+        {% if path == 'current' %}
+          <a class="btn btn-outline-secondary" href="{% url 'administrators:current_sessions' %}">Cancel</a>
+        {% else %}
+          <a class="btn btn-outline-secondary" href="{% url 'administrators:archived_sessions' %}">Cancel</a>
+        {% endif %}
+        <input class="btn btn-danger" type="submit" value="Delete" />
+      </form>
+		</div>
+  </div>
+</div>
+
+{% endblock %}

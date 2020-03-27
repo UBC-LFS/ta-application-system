@@ -14,7 +14,53 @@
   <div class="col-md-8">
     <div class="board col-11 mx-auto">
       <h3>Basic Information</h3>
-      {% include 'ta_app/users/_basic_info.html' with data=loggedin_user student_number_display='False' %}
+
+      <div>
+        <h6>Email:</h6>
+        <span>
+          {% if loggedin_user.email %}
+            {{ loggedin_user.email }}
+          {% else %}
+            None
+          {% endif %}
+        </span>
+      </div>
+
+
+      <div>
+        <h6>Employee Number:</h6>
+        <span>
+          {% if loggedin_user.confidentiality.employee_number %}
+            {{ loggedin_user.confidentiality.employee_number }}
+          {% else %}
+            None
+          {% endif %}
+        </span>
+      </div>
+
+      <div>
+        <h6>Date Joined:</h6>
+        <span>
+          {% if loggedin_user.date_joined %}
+            {{ loggedin_user.date_joined }}
+          {% else %}
+            None
+          {% endif %}
+        </span>
+      </div>
+
+      <div>
+        <h6>Last Login:</h6>
+        <span>
+          {% if loggedin_user.last_login %}
+            {{ loggedin_user.last_login }}
+          {% else %}
+            None
+          {% endif %}
+        </span>
+      </div>
+
+      <a class="btn btn-primary btn-lg mt-5" href="{% url 'instructors:edit_user' username=loggedin_user.username %}">Edit</a>
     </div>
   </div>
 </div>

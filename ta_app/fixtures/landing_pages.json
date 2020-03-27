@@ -1,0 +1,14 @@
+[
+  {
+    "model": "administrators.landingpage",
+    "pk": 1,
+    "fields": {
+      "title": "Welcome",
+      "message": "<p>Welcome to the Faculty of Land and Food Systems TA Application form.</p>",
+      "notice": "<ul><li>Did you know you must be registered in at least one course during the term you will be TA'ing?</li><li>Be sure you are aware of all requirements for being a TA in the Faculty of Land and Food Systems (particularly the term/duration of TA appointments).</li><li>Refer to 'Information for TA's' and other sections in the LFS TA Portal: http://blogs.ubc.ca/lfsta/</li></ul>",
+      "is_visible": true,
+      "created_at": "2019-11-05",
+      "updated_at": "2019-11-05"
+    }
+  }
+]

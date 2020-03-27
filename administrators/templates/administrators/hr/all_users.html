@@ -81,11 +81,7 @@
           <td>
             <div class="btn-toolbar">
               <a class="btn btn-xs btn-link mr-2" href="{% url 'administrators:edit_user' username=user.username %}">Edit</a>
-              <form action="{% url 'administrators:delete_user' %}" method="post" onsubmit="return confirm('Are you sure to delete {{ user.get_full_name }} ({{ user.username }})?');">
-                {% csrf_token %}
-                <input type="hidden" name="user" value="{{ user.id }}" />
-                <input class="btn btn-xs btn-danger mr-2" type="submit" value="Delete" />
-              </form>
+              <a class="btn btn-xs btn-danger mr-2" href="{% url 'administrators:delete_user_confirmation' username=user.username %}">Delete</a>
             </div>
             <div class="mt-2">
               {% if loggedin_user.is_superuser %}

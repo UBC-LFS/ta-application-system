@@ -243,6 +243,10 @@ def get_application(data, option=None):
     if option == 'slug': return get_object_or_404(Application, slug=data)
     return get_object_or_404(Application, id=data)
 
+def get_applications_user(user):
+    ''' Get an user's applications '''
+    return Application.objects.filter(applicant__id=user.id)
+
 def create_application_status(app):
     ''' Create a status of an application '''
     app_status = ApplicationStatus.objects.create(application=app, assigned=ApplicationStatus.NONE, assigned_hours=0.0)
@@ -666,6 +670,9 @@ def delete_classification(classification_id):
     classification.delete()
     return classification if classification else False
 
+# Admin Emails
+
+
 def get_admin_emails():
     ''' Get admin emails '''
     return AdminEmail.objects.all()
@@ -683,6 +690,27 @@ def delete_admin_email(admin_email_id):
     admin_email = get_admin_email(admin_email_id)
     admin_email.delete()
     return admin_email if admin_email else False
+
+
+# Landing Page
+def get_landing_pages():
+    ''' get landing page contents '''
+    return LandingPage.objects.all()
+
+
+def get_landing_page(landing_page_id):
+    ''' Get a landing page by id '''
+    return get_object_or_404(LandingPage, id=landing_page_id)
+
+
+def delete_landing_page(landing_page_id):
+    ''' Delete a landing page '''
+    landing_page = get_landing_page(landing_page_id)
+    landing_page.delete()
+    return landing_page if landing_page else False
+
+def get_visible_landing_page():
+    return LandingPage.objects.filter(is_visible=True).order_by('created_at', 'updated_at').last()
 
 
 # utils

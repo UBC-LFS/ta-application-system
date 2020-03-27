@@ -6,14 +6,15 @@ from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
 from django.db.models import Q
 
-import shutil
-from PIL import Image
-
 from users.models import *
 from users.forms import *
+from administrators.models import *
 from administrators.forms import ROLES
-from datetime import datetime, date, timedelta
+from administrators import api as adminApi
 
+from datetime import datetime, date, timedelta
+import shutil
+from PIL import Image
 import random
 import string
 
@@ -97,6 +98,7 @@ def get_users_by_role(role):
     ''' Get users by role '''
     return User.objects.filter(profile__roles__name=role).order_by('last_name')
 
+
 def user_exists_username(username):
     ''' Check user exists '''
     if User.objects.filter(username=username).exists():
@@ -149,6 +151,7 @@ def user_exists(data):
                     confi.employee_number = data['employee_number']
                     confi.save(update_fields=['employee_number'])
 
+
         return User.objects.get(id=u.id)
 
     return None
@@ -194,8 +197,26 @@ def create_user(data):
 def delete_user(user_id):
     ''' Delete a user '''
     user = get_user(user_id)
+    apps = adminApi.get_applications_user(user)
+    for app in apps:
+        accepted = app.applicationstatus_set.filter(assigned=ApplicationStatus.ACCEPTED)
+        if accepted.exists():
+            job = adminApi.get_job_by_session_slug_job_slug(app.job.session.slug, app.job.course.slug)
+            job.accumulated_ta_hours -= accepted.last().assigned_hours
+            job.updated_at = datetime.now()
+            job.save(update_fields=['accumulated_ta_hours', 'updated_at'])
+
+    sin = delete_user_sin(user.username)
+    study_permit = delete_user_study_permit(user.username)
+    personal_data_form = delete_personal_data_form(user.username)
+    resume = delete_user_resume(user)
+
+    dirpath = os.path.join( settings.MEDIA_ROOT, 'users', user.username )
+    if os.path.exists(dirpath) and os.path.isdir(dirpath):
+        os.rmdir(dirpath)
+
     user.delete()
-    return user
+    return user if user_exists_username(user.username) == None and sin and study_permit and personal_data_form and resume else False
 
 
 # end user
@@ -281,10 +302,39 @@ def user_has_role(user, role):
 
 def trim_profile(user):
     ''' Remove user's profile except student_number '''
-    student_number = user.profile.student_number
-    user.profile.delete()
-    profile = Profile.objects.create(user_id=user.id, student_number=student_number, is_trimmed=True)
-    return profile if profile else False
+    profile = has_user_profile_created(user)
+    degrees = profile.degrees.all()
+    trainings = profile.trainings.all()
+    if profile:
+        profile.qualifications = None
+        profile.prior_employment = None
+        profile.special_considerations = None
+        profile.status = None
+        profile.program = None
+        profile.program_others = None
+        profile.graduation_date = None
+        profile.degree_details = None
+        profile.training_details = None
+        profile.lfs_ta_training = None
+        profile.lfs_ta_training_details = None
+        profile.ta_experience = None
+        profile.ta_experience_details = None
+        profile.is_trimmed = True
+
+        profile.degrees.remove( *degrees )
+        profile.trainings.remove( *trainings )
+
+        updated_fields = [
+            'qualifications', 'prior_employment', 'special_considerations',
+            'status', 'program', 'program_others', 'graduation_date',
+            'degree_details', 'training_details', 'lfs_ta_training',
+            'lfs_ta_training_details', 'ta_experience', 'ta_experience_details',
+            'is_trimmed'
+        ]
+        profile.save(update_fields=updated_fields)
+
+        return True
+    return False
 
 
 # end profile
@@ -316,8 +366,10 @@ def delete_user_resume(data):
         user.resume.uploaded.delete()
         deleted = user.resume.delete()
         if deleted and not bool(user.resume.uploaded):
-            os.rmdir( os.path.join( settings.MEDIA_ROOT, 'users', user.username, 'resume' ) )
-            return True
+            dirpath = os.path.join( settings.MEDIA_ROOT, 'users', user.username, 'resume' )
+            if os.path.exists(dirpath) and os.path.isdir(dirpath):
+                os.rmdir(dirpath)
+                return True
         else:
             return False
     return True
@@ -418,6 +470,15 @@ def delete_confidential_information(data):
     return True if len(errors) == 0 else ', '.join(errors)
 
 
+def add_personal_data_form(user):
+    ''' Add personal data form of an user '''
+    if has_user_confidentiality_created(user) and bool(user.confidentiality.personal_data_form):
+        user.personal_data_form_filename = os.path.basename(user.confidentiality.personal_data_form.name)
+    else:
+        user.personal_data_form_filename = None
+    return user
+
+
 def delete_user_sin(username, option=None):
     ''' Delete user's SIN '''
     user = get_user(username, 'username')
@@ -433,12 +494,17 @@ def delete_user_sin(username, option=None):
                     deleted = Confidentiality.objects.filter(user_id=user.id).update(sin=None)
 
                 if deleted and not bool(user.confidentiality.sin):
-                    os.rmdir( os.path.join(settings.MEDIA_ROOT, 'users', username, 'sin') )
-                    return True
+                    dirpath = os.path.join(settings.MEDIA_ROOT, 'users', username, 'sin')
+                    if os.path.exists(dirpath) and os.path.isdir(dirpath):
+                        os.rmdir(dirpath)
+                        return True
                 else:
                     return False
             except OSError:
+                print('sin OSError')
                 return False
+        else:
+            return False
     return True
 
 
@@ -458,22 +524,18 @@ def delete_user_study_permit(username, option=None):
                     deleted = Confidentiality.objects.filter(user_id=user.id).update(study_permit=None)
 
                 if deleted and not bool(user.confidentiality.study_permit):
-                    os.rmdir( os.path.join( settings.MEDIA_ROOT, 'users', username, 'study_permit' ) )
-                    return True
+                    dirpath = os.path.join(settings.MEDIA_ROOT, 'users', username, 'study_permit')
+                    if os.path.exists(dirpath) and os.path.isdir(dirpath):
+                        os.rmdir(dirpath)
+                        return True
                 else:
                     return False
             except OSError:
+                print('study permit OSError')
                 return False
+        else:
+            return False
     return True
-
-
-def add_personal_data_form(user):
-    ''' Add personal data form of an user '''
-    if has_user_confidentiality_created(user) and bool(user.confidentiality.personal_data_form):
-        user.personal_data_form_filename = os.path.basename(user.confidentiality.personal_data_form.name)
-    else:
-        user.personal_data_form_filename = None
-    return user
 
 
 def delete_personal_data_form(data):
@@ -481,12 +543,22 @@ def delete_personal_data_form(data):
     user = get_user(data, 'username')
 
     if has_user_confidentiality_created(user) and bool(user.confidentiality.personal_data_form):
-        user.confidentiality.personal_data_form.delete(save=False)
-        deleted = Confidentiality.objects.filter(user_id=user.id).update(personal_data_form=None)
+        user.confidentiality.personal_data_form.close()
+        if user.confidentiality.personal_data_form.closed:
+            try:
+                user.confidentiality.personal_data_form.delete(save=False)
+                deleted = Confidentiality.objects.filter(user_id=user.id).update(personal_data_form=None)
 
-        if deleted and not bool(user.confidentiality.personal_data_form):
-            os.rmdir( os.path.join( settings.MEDIA_ROOT, 'users', user.username, 'personal_data_form' ) )
-            return True
+                if deleted and not bool(user.confidentiality.personal_data_form):
+                    dirpath = os.path.join(settings.MEDIA_ROOT, 'users', user.username, 'personal_data_form')
+                    if os.path.exists(dirpath) and os.path.isdir(dirpath):
+                        os.rmdir(dirpath)
+                        return True
+                else:
+                    return False
+            except OSError:
+                print('pdf OSError')
+                return False
         else:
             return False
     return True
@@ -500,10 +572,18 @@ def destroy_profile_resume_confidentiality(user_id):
 
     sin = delete_user_sin(user.username)
     study_permit = delete_user_study_permit(user.username)
-    user.confidentiality.delete()
+    personal_data_form = delete_personal_data_form(user.username)
+
+    if has_user_confidentiality_created(user):
+        user.confidentiality.delete()
 
     resume = delete_user_resume(user)
     profile = trim_profile(user)
+
+    dirpath = os.path.join( settings.MEDIA_ROOT, 'users', user.username )
+    if os.path.exists(dirpath) and os.path.isdir(dirpath):
+        os.rmdir(dirpath)
+
     return True if user and resume and sin and study_permit and profile else False
 
 
@@ -652,6 +732,12 @@ def delete_training(training_id):
 
 
 # Helper methods
+def validate_post(post, list):
+    errors = []
+    for field in list:
+        if post.get(field) == None:
+            errors.append(field.upper().replace('_', ' '))
+    return errors
 
 def get_error_messages(errors):
     messages = ''

@@ -1,0 +1,62 @@
+{% extends 'ta_app/base.html' %}
+{% block content %}
+
+{% include 'instructors/_menu.html' %}
+<div class="row">
+  <div class="col-md-4">
+    {% include 'ta_app/pages/_left_aside.html' with view_name='users' title='Edit User' data=loggedin_user %}
+
+    <div class="left-aside-btn-groups mb-5">
+      <a class="btn btn-outline-primary" href="{% url 'instructors:index' %}">Back to Home</a>
+    </div>
+  </div>
+
+  <div class="col-md-8">
+      <div class="board col-11 mx-auto">
+        <h3>User Edit Form</h3>
+
+        <div class="bg-white border p-3">
+          <ul class="text-dark mb-0">
+            <li>All required fields must be filled. (<small class="text-danger"><i class="fa fa-asterisk" aria-hidden="true"></i></small>: This field is required)</li>
+          </ul>
+        </div>
+
+        <form action="" method="post">
+          {% csrf_token %}
+
+          {% for field in user_form.visible_fields  %}
+            <div class="field-wrapper">
+              <label for="{{ field.id_for_label }}">
+                {{ field.label }}:
+                <small class="text-danger"><i class="fa fa-asterisk" aria-hidden="true"></i></small>
+              </label>
+              {% if field.help_text %}
+                <div class="help">{{ field.help_text|safe }}</div>
+              {% endif %}
+              {{ field }}
+            </div>
+          {% endfor %}
+
+          {% for field in employee_number_form.visible_fields  %}
+            <div class="field-wrapper">
+              {{ field.label_tag }}
+              {% if field.help_text %}
+                <div class="help">{{ field.help_text|safe }}</div>
+              {% endif %}
+              {{ field }}
+            </div>
+          {% endfor %}
+
+          {% for field in employee_number_form.hidden_fields %}
+            {{ field }}
+          {% endfor %}
+
+          <a class="btn btn-outline-secondary" href="{% url 'instructors:index' %}">Cancel</a>
+          <input class="btn btn-primary" type="submit" value="Update" />
+        </form>
+
+      </div>
+  </div>
+</div>
+
+{% endblock %}
