@@ -1402,8 +1402,7 @@ def applications_send_email_confirmation(request, path):
                         assigned_hours,
                         app.classification.name
                     )
-
-                    # TODO: replace a receiver
+                    
                     receiver = '{0} <{1}>'.format(name, app.applicant.email)
 
                     email = adminApi.send_and_create_email(app, data['sender'], receiver, data['title'], message, data['type'])
@@ -1527,6 +1526,11 @@ def create_user(request):
     if not userApi.is_admin(request.user): raise PermissionDenied
 
     if request.method == 'POST':
+        validation = userApi.validate_post(request.POST, ['first_name', 'last_name', 'email', 'username'])
+        if len(validation) > 0:
+            messages.error(request, 'An error occurred while saving an User Form. {0}: This field is required.'.format( ', '.join(validation) ))
+            return redirect('administrators:create_user')
+
         user_form = UserForm(request.POST)
         user_profile_form = UserProfileForm(request.POST)
 
@@ -1605,8 +1609,13 @@ def edit_user(request, username):
     confidentiality = userApi.has_user_confidentiality_created(user)
 
     if request.method == 'POST':
-        user_id = request.POST.get('user')
-        employee_number = request.POST.get('employee_number')
+        validation = userApi.validate_post(request.POST, ['first_name', 'last_name', 'email', 'username'])
+        if len(validation) > 0:
+            messages.error(request, 'An error occurred while saving an User Form. {0}: This field is required.'.format( ', '.join(validation) ))
+            return HttpResponseRedirect( reverse('administrators:edit_user', args=[username]) )
+
+        #user_id = request.POST.get('user')
+        #employee_number = request.POST.get('employee_number')
         profile_roles = user.profile.roles.all()
 
         user_form = UserForm(request.POST, instance=user)
@@ -1622,6 +1631,7 @@ def edit_user(request, username):
 
             errors = []
 
+            # Create a confiential information if it's None
             if confidentiality == None:
                 confidentiality = userApi.create_confidentiality(user)
 
@@ -1630,9 +1640,9 @@ def edit_user(request, username):
             updated_employee_number.employee_number = employee_number_form.cleaned_data['employee_number']
             updated_employee_number.save(update_fields=['employee_number', 'updated_at'])
 
-            if not updated_employee_number: errors.append('An error occurred while updating an employee number.')
-            if not updated_user: errors.append('An error occurred while updating an user form.')
-            if not updated_profile: errors.append('An error occurred while updating a profile.')
+            if not updated_user: errors.append('USER')
+            if not updated_profile: errors.append('PROFILE')
+            if not updated_employee_number: errors.append('EMPLOYEE NUMBER')
 
             updated = userApi.update_user_profile_roles(updated_profile, profile_roles, user_profile_edit_form.cleaned_data)
             if not updated: errors.append(request, 'An error occurred while updating profile roles.')

@@ -14,6 +14,7 @@ from administrators.views import APP_STATUS, USER_TAB
 from administrators.models import *
 from administrators.forms import *
 from administrators import api as adminApi
+from users.forms import *
 from users import api as userApi
 
 from datetime import datetime
@@ -34,6 +35,72 @@ def index(request):
     return render(request, 'instructors/index.html', {
         'loggedin_user': request.user
     })
+
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET', 'POST'])
+def edit_user(request, username):
+    ''' Index page of an instructor's portal '''
+    if request.user.is_impersonate:
+        if not userApi.is_admin(request.session['loggedin_user'], 'dict'): raise PermissionDenied
+        request.user.roles = userApi.get_user_roles(request.user)
+    else:
+        request.user.roles = request.session['loggedin_user']['roles']
+    if 'Instructor' not in request.user.roles: raise PermissionDenied
+
+    confidentiality = userApi.has_user_confidentiality_created(request.user)
+    if request.method == 'POST':
+        validation = userApi.validate_post(request.POST, ['first_name', 'last_name', 'email'])
+        if len(validation) > 0:
+            messages.error(request, 'An error occurred while saving an User Form. {0}: This field is required.'.format( ', '.join(validation) ))
+            return HttpResponseRedirect( reverse('instructors:edit_user', args=[username]) )
+
+        user_form = UserInstructorForm(request.POST, instance=request.user)
+        employee_number_form = EmployeeNumberEditForm(request.POST, instance=confidentiality)
+
+        if user_form.is_valid() and employee_number_form.is_valid():
+            updated_user = user_form.save()
+            updated_employee_number = employee_number_form.save(commit=False)
+
+            # Create a confiential information if it's None
+            if confidentiality == None:
+                confidentiality = userApi.create_confidentiality(request.user)
+
+            updated_employee_number.updated_at = datetime.now()
+            updated_employee_number.employee_number = employee_number_form.cleaned_data['employee_number']
+            updated_employee_number.save(update_fields=['employee_number', 'updated_at'])
+
+            errors = []
+            if not updated_user: errors.append('USER')
+            if not updated_employee_number: errors.append('EMPLOYEE NUMBER')
+
+            if len(errors) > 0:
+                messages.error(request, 'An error occurred while saving an User Form. {0}'.format( ' '.join(errors) ))
+                return HttpResponseRedirect( reverse('administrators:edit_user', args=[username]) )
+
+            messages.success(request, 'Success! User information of {0} (CWL: {1}) updated'.format(request.user.get_full_name(), request.user.username))
+            return redirect('instructors:index')
+
+        else:
+            errors = []
+
+            user_errors = user_form.errors.get_json_data()
+            confid_errors = employee_number_form.errors.get_json_data()
+
+            if user_errors: errors.append( userApi.get_error_messages(user_errors) )
+            if confid_errors: errors.append( userApi.get_error_messages(confid_errors) )
+
+            messages.error(request, 'An error occurred while updating an User Form. {0}'.format( ' '.join(errors) ))
+
+        return HttpResponseRedirect( reverse('instructors:edit_user', args=[username]) )
+
+    return render(request, 'instructors/users/edit_user.html', {
+        'loggedin_user': request.user,
+        'user_form': UserInstructorForm(data=None, instance=request.user),
+        'employee_number_form': EmployeeNumberEditForm(data=None, instance=confidentiality)
+    })
+
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)

@@ -24,7 +24,7 @@
 
         {% include 'ta_app/pages/_upload_message.html' %}
 
-        <div class="field-wrapper mb-5">
+        <div class="field-wrapper">
           <label for="id_nationality">
             Am I a domestic or international student?
             <small class="text-danger"><i class="fa fa-asterisk" aria-hidden="true"></i></small>
@@ -39,10 +39,10 @@
           {% for field in form.visible_fields  %}
 
             {% if field.name != 'nationality' %}
-              <div class="field-wrapper mb-5">
+              <div class="field-wrapper">
                 <label for="{{ field.id_for_label }}">
                   {{ field.label }}
-                  {% if field.id_for_label != 'id_employee_number' %}
+                  {% if field.name != 'employee_number' %}
                     <small class="text-danger"><i class="fa fa-asterisk" aria-hidden="true"></i></small>
                   {% endif %}
                 </label>

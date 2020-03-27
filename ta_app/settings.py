@@ -47,8 +47,8 @@ MEDIA_ROOT = '/srv/www/ta_app_system/media'
 SECRET_KEY = os.environ['TA_APP_SECRET_KEY']
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-LOCAL_LOGIN = True
+DEBUG = False
+LOCAL_LOGIN = False
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 

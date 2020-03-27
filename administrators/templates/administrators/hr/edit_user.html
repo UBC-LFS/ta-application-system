@@ -16,12 +16,23 @@
     <div class="board col-11 mx-auto">
       <h3>Edit User Form</h3>
 
+      <div class="bg-white border p-3">
+        <ul class="text-dark mb-0">
+          <li>All required fields must be filled. (<small class="text-danger"><i class="fa fa-asterisk" aria-hidden="true"></i></small>: This field is required)</li>
+        </ul>
+      </div>
+
       <form action="" method="post">
         {% csrf_token %}
 
         {% for field in user_form.visible_fields  %}
           <div class="field-wrapper">
-            {{ field.label_tag }}
+            <label for="{{ field.id_for_label }}">
+              {{ field.label }}:
+              {% if field.name == 'first_name' or field.name == 'last_name' or field.name == 'email' or field.name == 'username' %}
+                <small class="text-danger"><i class="fa fa-asterisk" aria-hidden="true"></i></small>
+              {% endif %}
+            </label>
             {% if field.help_text %}
               <div class="help">{{ field.help_text|safe }}</div>
             {% endif %}
@@ -41,7 +52,12 @@
 
         {% for field in user_profile_form.visible_fields  %}
           <div class="field-wrapper">
-            {{ field.label_tag }}
+            <label for="{{ field.id_for_label }}">
+              {{ field.label }}:
+              {% if field.name == 'roles' %}
+                <small class="text-danger"><i class="fa fa-asterisk" aria-hidden="true"></i></small>
+              {% endif %}
+            </label>
             {% if field.help_text %}
               <div class="help">{{ field.help_text|safe }}</div>
             {% endif %}

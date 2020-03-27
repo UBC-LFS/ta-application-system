@@ -56,6 +56,8 @@ class UserForm(forms.ModelForm):
         model = User
         fields = ['first_name', 'last_name', 'email', 'username', 'is_superuser']
         labels = {
+            'first_name': 'First Name',
+            'last_name': 'Last Name',
             'email': 'Email',
             'username': 'CWL'
         }
@@ -63,22 +65,44 @@ class UserForm(forms.ModelForm):
             'first_name': forms.TextInput(attrs={ 'required': True, 'class': 'form-control' }),
             'last_name': forms.TextInput(attrs={ 'required': True, 'class': 'form-control' }),
             'email': forms.EmailInput(attrs={ 'required': True, 'class': 'form-control' }),
-            'username': forms.TextInput(attrs={ 'required': True, 'class': 'form-control' }),
+            'username': forms.TextInput(attrs={ 'required': True, 'class': 'form-control' })
         }
         help_texts = {
-            'first_name': 'This field is required. Maximum length is 30.',
-            'last_name': 'This field is required. Maximum length is 150.',
-            'email': 'This field is required. Maximum length is 254.',
-            'username': 'This field is required. Maximum length is 150.',
-            'is_superuser': 'This field is necessary for Masquerade. If an user\'s role is an administrator or super-administrator, please select this field.'
+            'first_name': 'Maximum length is 30 characters.',
+            'last_name': 'Maximum length is 150 characters.',
+            'email': 'Maximum length is 254 characters.',
+            'username': 'Maximum length is 150 characters.',
+            'is_superuser': "This field is necessary for Masquerade. If an user's role is an administrator or super-administrator, please select this field."
         }
+
+
+class UserInstructorForm(forms.ModelForm):
+    ''' User model form '''
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'email']
+        labels = {
+            'first_name': 'First Name',
+            'last_name': 'Last Name',
+            'email': 'Email'
+        }
+        widgets = {
+            'first_name': forms.TextInput(attrs={ 'required': True, 'class': 'form-control' }),
+            'last_name': forms.TextInput(attrs={ 'required': True, 'class': 'form-control' }),
+            'email': forms.EmailInput(attrs={ 'required': True, 'class': 'form-control' })
+        }
+        help_texts = {
+            'first_name': 'Maximum length is 30 characters.',
+            'last_name': 'Maximum length is 150 characters.',
+            'email': 'Maximum length is 254 characters.'
+        }
+
 
 class UserProfileForm(forms.ModelForm):
     roles = forms.ModelMultipleChoiceField(
         required=True,
         queryset=Role.objects.all(),
         widget=forms.CheckboxSelectMultiple(),
-        help_text='Required'
     )
     class Meta:
         model = Profile

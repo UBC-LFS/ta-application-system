@@ -212,7 +212,6 @@ def delete_user(user_id):
     resume = delete_user_resume(user)
 
     dirpath = os.path.join( settings.MEDIA_ROOT, 'users', user.username )
-    print(os.path.exists(dirpath), os.path.isdir(dirpath))
     if os.path.exists(dirpath) and os.path.isdir(dirpath):
         os.rmdir(dirpath)
 
@@ -582,7 +581,6 @@ def destroy_profile_resume_confidentiality(user_id):
     profile = trim_profile(user)
 
     dirpath = os.path.join( settings.MEDIA_ROOT, 'users', user.username )
-    print(os.path.exists(dirpath), os.path.isdir(dirpath))
     if os.path.exists(dirpath) and os.path.isdir(dirpath):
         os.rmdir(dirpath)
 
@@ -734,6 +732,12 @@ def delete_training(training_id):
 
 
 # Helper methods
+def validate_post(post, list):
+    errors = []
+    for field in list:
+        if post.get(field) == None:
+            errors.append(field.upper().replace('_', ' '))
+    return errors
 
 def get_error_messages(errors):
     messages = ''
