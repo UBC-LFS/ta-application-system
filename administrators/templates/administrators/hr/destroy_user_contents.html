@@ -6,10 +6,15 @@
   {% include 'ta_app/pages/_header.html' with title='Destroy User Contents' text=users|length %}
 
   <div class="bd-callout bd-callout-warning col-8 mx-auto">
-    <h4>Notice</h4>
+    <h4>
+      <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Notice
+    </h4>
     <p>
       Users who logged in before the date (<span class="font-weight-bold text-danger">{{ target_date }}</span>) are in the table below.
       If you would like to destroy permanently all of their contents such as profile, resume and confidential information, please click on the Destroy button below.
+    </p>
+    <p>
+      <code>Is trimmed</code> is False by default. It would be True if administrators destroy the contents of users who haven't logged in for 3 years. Only users whose <code>Is trimmed</code> is False will show up in the table below.
     </p>
   </div>
 
@@ -33,10 +38,11 @@
         <tr>
           <th>Select</th>
           <th data-sortable="true">User ID</th>
-          <th data-sortable="true">Full Name</th>
-          <th data-sortable="true">CWL</th>
-          <th data-sortable="true">Student<br /> Number</th>
-          <th data-sortable="true">Role</th>
+          <th>Full Name</th>
+          <th>Resume</th>
+          <th>Confidential<br /> Information</th>
+          <th>Student<br /> Number</th>
+          <th>Role</th>
           <th data-sortable="true">Date Joined</th>
           <th data-sortable="true">Last Login</th>
         </tr>
@@ -48,9 +54,38 @@
               <input type="checkbox" name="user" value="{{ user.id }}" checked />
             </td>
             <td>{{ user.id }}</td>
-            <td>{{ user.get_full_name }}</td>
+            <td>{% include 'ta_app/users/_modal_user_details.html' with data=user %}</td>
             <td>
-              <a href="{% url 'administrators:show_user' username=user.username path='destroy' tab='basic' %}">{{ user.username }}</a>
+              {% if user.resume_filename %}
+                <a href="{% url 'students:download_file' username=user.username item='resume' filename=user.resume_filename %}" target="_blank">
+                  {{ user.resume_filename }}
+                </a>
+              {% else %}
+                <span>None</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if user.confidentiality %}
+                <button class="btn btn-xs btn-info" type="button" data-toggle="modal" data-target="#destroy-user-confidentiality-modal-{{ user.id }}">
+                  <i class="fa fa-file-text-o" aria-hidden="true"></i>
+                </button>
+
+                <div class="modal fade" id="destroy-user-confidentiality-modal-{{ user.id }}" tabindex="-1" role="dialog" aria-labelledby="destroy-user-confidentiality-modal-label-{{ user.id }}" aria-hidden="true">
+                  <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title text-info" id="destroy-user-confidentiality-modal-label-{{ user.id }}">Confidential Information</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                      </div>
+                      <div class="modal-item text-left font-size-1">
+                        {% include 'ta_app/users/_confidentiality.html' with data=user %}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              {% else %}
+                <span>None</span>
+              {% endif %}
             </td>
             <td>{{ user.profile.student_number }}</td>
             <td>
@@ -65,8 +100,7 @@
       </tbody>
     </table>
 
-    <input class="btn btn btn-danger mt-3" type="submit" value="Destroy profile, resume and confidential information" />
-
+    <input class="btn btn btn-danger mt-3" type="submit" value="Destroy User Contents" />
   </form>
 
 </div>

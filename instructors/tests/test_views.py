@@ -58,6 +58,128 @@ class InstructorTest(TestCase):
         self.assertEqual(response.context['loggedin_user'].username, USER)
         self.assertEqual(response.context['loggedin_user'].roles, ['Instructor'])
 
+    def test_edit_user(self):
+        print('\n- Test to edit the information of an user')
+        self.login()
+
+        user = userApi.get_user(USER, 'username')
+        user_first_role = user.profile.roles.all()[0]
+        self.assertEqual(user_first_role.name, Role.INSTRUCTOR)
+
+        data = {
+            'user': user.id,
+            'first_name': 'firstname',
+            'last_name': 'lastname',
+            'email': 'new_email@example.com',
+            'employee_number': '5554444'
+        }
+        response = self.client.post(reverse('instructors:edit_user', args=[USER]), data=urlencode(data), content_type=ContentType)
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/instructors/')
+        self.assertRedirects(response, response.url)
+
+        response = self.client.get( reverse('instructors:index') )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['loggedin_user'].username, USER)
+        self.assertEqual(response.context['loggedin_user'].roles, ['Instructor'])
+        self.assertEqual(response.context['loggedin_user'].first_name, data['first_name'])
+        self.assertEqual(response.context['loggedin_user'].last_name, data['last_name'])
+        self.assertEqual(response.context['loggedin_user'].email, data['email'])
+        self.assertEqual(response.context['loggedin_user'].confidentiality.employee_number, data['employee_number'])
+
+
+    def test_edit_user_missing_values(self):
+        print('\n- Test to edit the information of an user with missing values')
+        self.login()
+
+        user = userApi.get_user(USER, 'username')
+        user_first_role = user.profile.roles.all()[0]
+        self.assertEqual(user_first_role.name, Role.INSTRUCTOR)
+
+        data1 = {
+            'user': user.id,
+            'last_name': 'lastname',
+            'email': 'new_email@example.com',
+            'employee_number': '5554444'
+        }
+        response = self.client.post(reverse('instructors:edit_user', args=[USER]), data=urlencode(data1, True), content_type=ContentType)
+        messages = self.messages(response)
+        self.assertTrue('An error occurred' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/instructors/users/{0}/edit/'.format(USER))
+        self.assertRedirects(response, response.url)
+
+        data2 = {
+            'user': user.id,
+            'first_name': 'first name',
+            'email': 'new_email@example.com',
+            'employee_number': '5554444'
+        }
+        response = self.client.post(reverse('instructors:edit_user', args=[USER]), data=urlencode(data2, True), content_type=ContentType)
+        messages = self.messages(response)
+        self.assertTrue('An error occurred' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/instructors/users/{0}/edit/'.format(USER))
+        self.assertRedirects(response, response.url)
+
+        data3 = {
+            'user': user.id,
+            'first_name': 'first name',
+            'last_name': 'last name',
+            'employee_number': '5554444'
+        }
+        response = self.client.post(reverse('instructors:edit_user', args=[USER]), data=urlencode(data3, True), content_type=ContentType)
+        messages = self.messages(response)
+        self.assertTrue('An error occurred' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/instructors/users/{0}/edit/'.format(USER))
+        self.assertRedirects(response, response.url)
+
+        data4 = {
+            'user': user.id,
+            'first_name': 'first name',
+            'last_name': 'last name',
+            'email': 'new_email',
+            'employee_number': '5554444'
+        }
+        response = self.client.post(reverse('instructors:edit_user', args=[USER]), data=urlencode(data4, True), content_type=ContentType)
+        messages = self.messages(response)
+        self.assertTrue('An error occurred' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/instructors/users/{0}/edit/'.format(USER))
+        self.assertRedirects(response, response.url)
+
+        data5 = {
+            'user': user.id,
+            'first_name': 'first name',
+            'last_name': 'last name',
+            'email': 'new_email@example.com',
+            'employee_number': '55544448'
+        }
+        response = self.client.post(reverse('instructors:edit_user', args=[USER]), data=urlencode(data5, True), content_type=ContentType)
+        messages = self.messages(response)
+        self.assertTrue('An error occurred' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/instructors/users/{0}/edit/'.format(USER))
+        self.assertRedirects(response, response.url)
+
+        data6 = {
+            'user': user.id,
+            'first_name': 'first name',
+            'last_name': 'last name',
+            'email': 'new_email@example.com',
+            'employee_number': '555'
+        }
+        response = self.client.post(reverse('instructors:edit_user', args=[USER]), data=urlencode(data6, True), content_type=ContentType)
+        messages = self.messages(response)
+        self.assertTrue('An error occurred' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/instructors/users/{0}/edit/'.format(USER))
+        self.assertRedirects(response, response.url)
+
+
     def test_show_user(self):
         print('\n- Display an user profile')
         self.login()

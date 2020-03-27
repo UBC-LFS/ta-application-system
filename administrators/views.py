@@ -185,9 +185,9 @@ def current_sessions(request):
 
     session_list = adminApi.get_sessions()
     if bool(year_q):
-        session_list = session_list.filter(year__iexact=year_q)
+        session_list = session_list.filter(year__icontains=year_q)
     if bool(term_q):
-        session_list = session_list.filter(term__code__iexact=term_q)
+        session_list = session_list.filter(term__code__icontains=term_q)
 
     session_list = session_list.filter(is_archived=False)
     session_list = adminApi.add_num_instructors(session_list)
@@ -222,9 +222,9 @@ def archived_sessions(request):
 
     session_list = adminApi.get_sessions()
     if bool(year_q):
-        session_list = session_list.filter(year__iexact=year_q)
+        session_list = session_list.filter(year__icontains=year_q)
     if bool(term_q):
-        session_list = session_list.filter(term__code__iexact=term_q)
+        session_list = session_list.filter(term__code__icontains=term_q)
 
     session_list = session_list.filter(is_archived=True)
     session_list = adminApi.add_num_instructors(session_list)
@@ -317,6 +317,26 @@ def edit_session(request, session_slug, path):
         'path': path
     })
 
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def delete_session_confirmation(request, session_slug, path):
+    ''' Confirmation to delete a Session '''
+    request.user.roles = request.session['loggedin_user']['roles']
+    if not userApi.is_admin(request.user): raise PermissionDenied
+    if path not in SESSION_PATH: raise Http404
+
+    sessions = adminApi.get_sessions()
+    return render(request, 'administrators/sessions/delete_session_confirmation.html', {
+        'loggedin_user': request.user,
+        'current_sessions': sessions.filter(is_archived=False),
+        'archived_sessions': sessions.filter(is_archived=True),
+        'session': adminApi.get_session(session_slug, 'slug'),
+        'path': path
+    })
+
+
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['POST'])
@@ -375,15 +395,15 @@ def prepare_jobs(request):
 
     job_list = adminApi.get_jobs()
     if bool(year_q):
-        job_list = job_list.filter(session__year__iexact=year_q)
+        job_list = job_list.filter(session__year__icontains=year_q)
     if bool(term_q):
-        job_list = job_list.filter(session__term__code__iexact=term_q)
+        job_list = job_list.filter(session__term__code__icontains=term_q)
     if bool(code_q):
-        job_list = job_list.filter(course__code__name__iexact=code_q)
+        job_list = job_list.filter(course__code__name__icontains=code_q)
     if bool(number_q):
-        job_list = job_list.filter(course__number__name__iexact=number_q)
+        job_list = job_list.filter(course__number__name__icontains=number_q)
     if bool(section_q):
-        job_list = job_list.filter(course__section__name__iexact=section_q)
+        job_list = job_list.filter(course__section__name__icontains=section_q)
     if bool(instructor_first_name_q):
         job_list = job_list.filter(instructors__first_name__icontains=instructor_first_name_q)
     if bool(instructor_last_name_q):
@@ -421,15 +441,15 @@ def progress_jobs(request):
 
     job_list = adminApi.get_jobs()
     if bool(year_q):
-        job_list = job_list.filter(session__year__iexact=year_q)
+        job_list = job_list.filter(session__year__icontains=year_q)
     if bool(term_q):
-        job_list = job_list.filter(session__term__code__iexact=term_q)
+        job_list = job_list.filter(session__term__code__icontains=term_q)
     if bool(code_q):
-        job_list = job_list.filter(course__code__name__iexact=code_q)
+        job_list = job_list.filter(course__code__name__icontains=code_q)
     if bool(number_q):
-        job_list = job_list.filter(course__number__name__iexact=number_q)
+        job_list = job_list.filter(course__number__name__icontains=number_q)
     if bool(section_q):
-        job_list = job_list.filter(course__section__name__iexact=section_q)
+        job_list = job_list.filter(course__section__name__icontains=section_q)
 
     page = request.GET.get('page', 1)
     paginator = Paginator(job_list, settings.PAGE_SIZE)
@@ -680,15 +700,15 @@ def applications_dashboard(request):
 
     status_list = adminApi.get_application_statuses()
     if bool(year_q):
-        status_list = status_list.filter(application__job__session__year__iexact=year_q)
+        status_list = status_list.filter(application__job__session__year__icontains=year_q)
     if bool(term_q):
-        status_list = status_list.filter(application__job__session__term__code__iexact=term_q)
+        status_list = status_list.filter(application__job__session__term__code__icontains=term_q)
     if bool(code_q):
-        status_list = status_list.filter(application__job__course__code__name__iexact=code_q)
+        status_list = status_list.filter(application__job__course__code__name__icontains=code_q)
     if bool(number_q):
-        status_list = status_list.filter(application__job__course__number__name__iexact=number_q)
+        status_list = status_list.filter(application__job__course__number__name__icontains=number_q)
     if bool(section_q):
-        status_list = status_list.filter(application__job__course__section__name__iexact=section_q)
+        status_list = status_list.filter(application__job__course__section__name__icontains=section_q)
     if bool(first_name_q):
         status_list = status_list.filter(application__applicant__first_name__icontains=first_name_q)
     if bool(last_name_q):
@@ -729,15 +749,15 @@ def all_applications(request):
 
     app_list = adminApi.get_applications()
     if bool(year_q):
-        app_list = app_list.filter(job__session__year__iexact=year_q)
+        app_list = app_list.filter(job__session__year__icontains=year_q)
     if bool(term_q):
-        app_list = app_list.filter(job__session__term__code__iexact=term_q)
+        app_list = app_list.filter(job__session__term__code__icontains=term_q)
     if bool(code_q):
-        app_list = app_list.filter(job__course__code__name__iexact=code_q)
+        app_list = app_list.filter(job__course__code__name__icontains=code_q)
     if bool(number_q):
-        app_list = app_list.filter(job__course__number__name__iexact=number_q)
+        app_list = app_list.filter(job__course__number__name__icontains=number_q)
     if bool(section_q):
-        app_list = app_list.filter(job__course__section__name__iexact=section_q)
+        app_list = app_list.filter(job__course__section__name__icontains=section_q)
     if bool(first_name_q):
         app_list = app_list.filter(applicant__first_name__icontains=first_name_q)
     if bool(last_name_q):
@@ -777,15 +797,15 @@ def selected_applications(request):
 
     app_list = adminApi.get_applications()
     if bool(year_q):
-        app_list = app_list.filter(job__session__year__iexact=year_q)
+        app_list = app_list.filter(job__session__year__icontains=year_q)
     if bool(term_q):
-        app_list = app_list.filter(job__session__term__code__iexact=term_q)
+        app_list = app_list.filter(job__session__term__code__icontains=term_q)
     if bool(code_q):
-        app_list = app_list.filter(job__course__code__name__iexact=code_q)
+        app_list = app_list.filter(job__course__code__name__icontains=code_q)
     if bool(number_q):
-        app_list = app_list.filter(job__course__number__name__iexact=number_q)
+        app_list = app_list.filter(job__course__number__name__icontains=number_q)
     if bool(section_q):
-        app_list = app_list.filter(job__course__section__name__iexact=section_q)
+        app_list = app_list.filter(job__course__section__name__icontains=section_q)
     if bool(first_name_q):
         app_list = app_list.filter(applicant__first_name__icontains=first_name_q)
     if bool(last_name_q):
@@ -904,15 +924,15 @@ def offered_applications(request):
 
     app_list = adminApi.get_applications()
     if bool(year_q):
-        app_list = app_list.filter(job__session__year__iexact=year_q)
+        app_list = app_list.filter(job__session__year__icontains=year_q)
     if bool(term_q):
-        app_list = app_list.filter(job__session__term__code__iexact=term_q)
+        app_list = app_list.filter(job__session__term__code__icontains=term_q)
     if bool(code_q):
-        app_list = app_list.filter(job__course__code__name__iexact=code_q)
+        app_list = app_list.filter(job__course__code__name__icontains=code_q)
     if bool(number_q):
-        app_list = app_list.filter(job__course__number__name__iexact=number_q)
+        app_list = app_list.filter(job__course__number__name__icontains=number_q)
     if bool(section_q):
-        app_list = app_list.filter(job__course__section__name__iexact=section_q)
+        app_list = app_list.filter(job__course__section__name__icontains=section_q)
     if bool(first_name_q):
         app_list = app_list.filter(applicant__first_name__icontains=first_name_q)
     if bool(last_name_q):
@@ -974,15 +994,15 @@ def accepted_applications(request):
 
         app_list = adminApi.get_applications()
         if bool(year_q):
-            app_list = app_list.filter(job__session__year__iexact=year_q)
+            app_list = app_list.filter(job__session__year__icontains=year_q)
         if bool(term_q):
-            app_list = app_list.filter(job__session__term__code__iexact=term_q)
+            app_list = app_list.filter(job__session__term__code__icontains=term_q)
         if bool(code_q):
-            app_list = app_list.filter(job__course__code__name__iexact=code_q)
+            app_list = app_list.filter(job__course__code__name__icontains=code_q)
         if bool(number_q):
-            app_list = app_list.filter(job__course__number__name__iexact=number_q)
+            app_list = app_list.filter(job__course__number__name__icontains=number_q)
         if bool(section_q):
-            app_list = app_list.filter(job__course__section__name__iexact=section_q)
+            app_list = app_list.filter(job__course__section__name__icontains=section_q)
         if bool(first_name_q):
             app_list = app_list.filter(applicant__first_name__icontains=first_name_q)
         if bool(last_name_q):
@@ -1027,15 +1047,15 @@ def declined_applications(request):
 
     app_list = adminApi.get_applications()
     if bool(year_q):
-        app_list = app_list.filter(job__session__year__iexact=year_q)
+        app_list = app_list.filter(job__session__year__icontains=year_q)
     if bool(term_q):
-        app_list = app_list.filter(job__session__term__code__iexact=term_q)
+        app_list = app_list.filter(job__session__term__code__icontains=term_q)
     if bool(code_q):
-        app_list = app_list.filter(job__course__code__name__iexact=code_q)
+        app_list = app_list.filter(job__course__code__name__icontains=code_q)
     if bool(number_q):
-        app_list = app_list.filter(job__course__number__name__iexact=number_q)
+        app_list = app_list.filter(job__course__number__name__icontains=number_q)
     if bool(section_q):
-        app_list = app_list.filter(job__course__section__name__iexact=section_q)
+        app_list = app_list.filter(job__course__section__name__icontains=section_q)
     if bool(first_name_q):
         app_list = app_list.filter(applicant__first_name__icontains=first_name_q)
     if bool(last_name_q):
@@ -1286,15 +1306,15 @@ def terminated_applications(request):
 
     app_list = adminApi.get_terminated_applications()
     if bool(year_q):
-        app_list = app_list.filter(job__session__year__iexact=year_q)
+        app_list = app_list.filter(job__session__year__icontains=year_q)
     if bool(term_q):
-        app_list = app_list.filter(job__session__term__code__iexact=term_q)
+        app_list = app_list.filter(job__session__term__code__icontains=term_q)
     if bool(code_q):
-        app_list = app_list.filter(job__course__code__name__iexact=code_q)
+        app_list = app_list.filter(job__course__code__name__icontains=code_q)
     if bool(number_q):
-        app_list = app_list.filter(job__course__number__name__iexact=number_q)
+        app_list = app_list.filter(job__course__number__name__icontains=number_q)
     if bool(section_q):
-        app_list = app_list.filter(job__course__section__name__iexact=section_q)
+        app_list = app_list.filter(job__course__section__name__icontains=section_q)
     if bool(first_name_q):
         app_list = app_list.filter(applicant__first_name__icontains=first_name_q)
     if bool(last_name_q):
@@ -1383,7 +1403,6 @@ def applications_send_email_confirmation(request, path):
                         app.classification.name
                     )
 
-                    # TODO: replace a receiver
                     receiver = '{0} <{1}>'.format(name, app.applicant.email)
 
                     email = adminApi.send_and_create_email(app, data['sender'], receiver, data['title'], message, data['type'])
@@ -1507,6 +1526,11 @@ def create_user(request):
     if not userApi.is_admin(request.user): raise PermissionDenied
 
     if request.method == 'POST':
+        validation = userApi.validate_post(request.POST, ['first_name', 'last_name', 'email', 'username'])
+        if len(validation) > 0:
+            messages.error(request, 'An error occurred while saving an User Form. {0}: This field is required.'.format( ', '.join(validation) ))
+            return redirect('administrators:create_user')
+
         user_form = UserForm(request.POST)
         user_profile_form = UserProfileForm(request.POST)
 
@@ -1584,9 +1608,18 @@ def edit_user(request, username):
     user = userApi.get_user(username, 'username')
     confidentiality = userApi.has_user_confidentiality_created(user)
 
+    # Create a confiential information if it's None
+    if confidentiality == None:
+        confidentiality = userApi.create_confidentiality(user)
+
     if request.method == 'POST':
-        user_id = request.POST.get('user')
-        employee_number = request.POST.get('employee_number')
+        validation = userApi.validate_post(request.POST, ['first_name', 'last_name', 'email', 'username'])
+        if len(validation) > 0:
+            messages.error(request, 'An error occurred while updating an User Edit Form. {0}: This field is required.'.format( ', '.join(validation) ))
+            return HttpResponseRedirect( reverse('administrators:edit_user', args=[username]) )
+
+        #user_id = request.POST.get('user')
+        #employee_number = request.POST.get('employee_number')
         profile_roles = user.profile.roles.all()
 
         user_form = UserForm(request.POST, instance=user)
@@ -1602,23 +1635,20 @@ def edit_user(request, username):
 
             errors = []
 
-            if confidentiality == None:
-                confidentiality = userApi.create_confidentiality(user)
-
             updated_employee_number = employee_number_form.save(commit=False)
             updated_employee_number.updated_at = datetime.now()
             updated_employee_number.employee_number = employee_number_form.cleaned_data['employee_number']
             updated_employee_number.save(update_fields=['employee_number', 'updated_at'])
 
-            if not updated_employee_number: errors.append('An error occurred while updating an employee number.')
-            if not updated_user: errors.append('An error occurred while updating an user form.')
-            if not updated_profile: errors.append('An error occurred while updating a profile.')
+            if not updated_user: errors.append('USER')
+            if not updated_profile: errors.append('PROFILE')
+            if not updated_employee_number: errors.append('EMPLOYEE NUMBER')
 
             updated = userApi.update_user_profile_roles(updated_profile, profile_roles, user_profile_edit_form.cleaned_data)
             if not updated: errors.append(request, 'An error occurred while updating profile roles.')
 
             if len(errors) > 0:
-                messages.error(request, 'An error occurred while saving an User Form. {0}'.format( ' '.join(errors) ))
+                messages.error(request, 'An error occurred while updating an User Edit Form. {0}'.format( ' '.join(errors) ))
                 return HttpResponseRedirect( reverse('administrators:edit_user', args=[username]) )
 
             messages.success(request, 'Success! User information of {0} (CWL: {1}) updated'.format(user.get_full_name(), user.username))
@@ -1652,6 +1682,35 @@ def edit_user(request, username):
         'user_form': UserForm(data=None, instance=user),
         'user_profile_form': UserProfileEditForm(data=None, instance=user.profile),
         'employee_number_form': EmployeeNumberEditForm(data=None, instance=confidentiality)
+    })
+
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def delete_user_confirmation(request, username):
+    ''' Delete a user '''
+    request.user.roles = request.session['loggedin_user']['roles']
+    if not userApi.is_admin(request.user): raise PermissionDenied
+
+    user = userApi.get_user(username, 'username')
+    user = userApi.add_confidentiality_given_list(user, ['sin','study_permit'])
+    user = userApi.add_personal_data_form(user)
+    app_list = adminApi.get_applications_user(user)
+    apps = []
+    for app in app_list:
+        app = adminApi.add_app_info_into_application(app, ['accepted'])
+        if app.accepted == None:
+            app.new_accumulated_ta_hours = app.job.accumulated_ta_hours
+        else:
+            app.new_accumulated_ta_hours = app.job.accumulated_ta_hours - app.accepted.assigned_hours
+        apps.append(app)
+
+    return render(request, 'administrators/hr/delete_user_confirmation.html', {
+        'loggedin_user': request.user,
+        'user': userApi.add_resume(user),
+        'users': userApi.get_users(),
+        'apps': apps
     })
 
 
@@ -1697,7 +1756,13 @@ def destroy_user_contents(request):
 
         return redirect('administrators:destroy_user_contents')
     else:
-        users, target_date = userApi.get_users('destroy')
+        user_list, target_date = userApi.get_users('destroy')
+        users = []
+        for user in user_list:
+            user = userApi.add_confidentiality_given_list(user, ['sin','study_permit'])
+            user = userApi.add_personal_data_form(user)
+            user = userApi.add_resume(user)
+            users.append(user)
 
     return render(request, 'administrators/hr/destroy_user_contents.html', {
         'loggedin_user': request.user,
@@ -1726,13 +1791,13 @@ def all_courses(request):
 
     course_list = adminApi.get_courses()
     if bool(term_q):
-        course_list = course_list.filter(term__code__iexact=term_q)
+        course_list = course_list.filter(term__code__icontains=term_q)
     if bool(code_q):
-        course_list = course_list.filter(code__name__iexact=code_q)
+        course_list = course_list.filter(code__name__icontains=code_q)
     if bool(number_q):
-        course_list = course_list.filter(number__name__iexact=number_q)
+        course_list = course_list.filter(number__name__icontains=number_q)
     if bool(section_q):
-        course_list = course_list.filter(section__name__iexact=section_q)
+        course_list = course_list.filter(section__name__icontains=section_q)
     if bool(course_name_q):
         course_list = course_list.filter(name__icontains=course_name_q)
 
@@ -2614,7 +2679,6 @@ def admin_emails(request):
     request.user.roles = request.session['loggedin_user']['roles']
     if not userApi.is_admin(request.user): raise PermissionDenied
 
-    admin_emails = adminApi.get_admin_emails()
     if request.method == 'POST':
         form = AdminEmailForm(request.POST)
         if form.is_valid():
@@ -2630,7 +2694,7 @@ def admin_emails(request):
 
     return render(request, 'administrators/preparation/admin_emails.html', {
         'loggedin_user': request.user,
-        'admin_emails': admin_emails,
+        'admin_emails': adminApi.get_admin_emails(),
         'form': AdminEmailForm()
     })
 
@@ -2643,11 +2707,12 @@ def edit_admin_email(request, slug):
     if not userApi.is_admin(request.user): raise PermissionDenied
 
     admin_email = adminApi.get_admin_email_by_slug(slug)
-
     if request.method == 'POST':
         form = AdminEmailForm(request.POST, instance=admin_email)
         if form.is_valid():
-            updated_admin_email = form.save()
+            updated_admin_email = form.save(commit=False)
+            updated_admin_email.updated_at = datetime.now()
+            updated_admin_email.save()
             if updated_admin_email:
                 messages.success(request, 'Success! {0} updated'.format(updated_admin_email.type))
                 return redirect("administrators:admin_emails")
@@ -2661,7 +2726,6 @@ def edit_admin_email(request, slug):
 
     return render(request, 'administrators/preparation/edit_admin_email.html', {
         'loggedin_user': request.user,
-        'admin_emails': admin_emails,
         'form': AdminEmailForm(data=None, instance=admin_email)
     })
 
@@ -2681,3 +2745,81 @@ def delete_admin_email(request):
         else:
             messages.error(request, 'An error occurred.')
     return redirect("administrators:admin_emails")
+
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET', 'POST'])
+def landing_pages(request):
+    ''' Edit a landing page '''
+    request.user.roles = request.session['loggedin_user']['roles']
+    if not userApi.is_admin(request.user): raise PermissionDenied
+
+    if request.method == 'POST':
+        form = LandingPageForm(request.POST)
+        if form.is_valid():
+            landing_page = form.save()
+            if landing_page:
+                messages.success(request, 'Success! New landing page (ID: {0}) created.'.format(landing_page.id))
+                return redirect('administrators:landing_pages')
+            else:
+                messages.error(request, 'An error occurred.')
+        else:
+            errors = form.errors.get_json_data()
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+
+    return render(request, 'administrators/preparation/landing_pages.html', {
+        'loggedin_user': request.user,
+        'landing_pages': adminApi.get_landing_pages(),
+        'form': LandingPageForm()
+    })
+
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET', 'POST'])
+def edit_landing_page(request, landing_page_id):
+    ''' Edit a admin_email '''
+    request.user.roles = request.session['loggedin_user']['roles']
+    if not userApi.is_admin(request.user): raise PermissionDenied
+
+    landing_page = adminApi.get_landing_page(landing_page_id)
+    if request.method == 'POST':
+        form = LandingPageForm(request.POST, instance=landing_page)
+        if form.is_valid():
+            updated_landing_page = form.save(commit=False)
+            updated_landing_page.updated_at = datetime.now()
+            updated_landing_page.save()
+            if updated_landing_page:
+                messages.success(request, 'Success! Landing Page (ID: {0}) updated'.format(updated_landing_page.id))
+                return redirect("administrators:landing_pages")
+            else:
+                messages.error(request, 'An error occurred.')
+        else:
+            errors = form.errors.get_json_data()
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+
+        return HttpResponseRedirect( reverse('administrators:edit_landing_page', args=[landing_page_id]) )
+
+    return render(request, 'administrators/preparation/edit_landing_page.html', {
+        'loggedin_user': request.user,
+        'form': LandingPageForm(data=None, instance=landing_page)
+    })
+
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['POST'])
+def delete_landing_page(request):
+    ''' Delete a landing page '''
+    request.user.roles = request.session['loggedin_user']['roles']
+    if not userApi.is_admin(request.user): raise PermissionDenied
+
+    if request.method == 'POST':
+        landing_page_id = request.POST.get('landing_page')
+        deleted_landing_page = adminApi.delete_landing_page(landing_page_id)
+        if deleted_landing_page:
+            messages.success(request, 'Success! Landing Page {0} deleted'.format(deleted_landing_page.title))
+        else:
+            messages.error(request, 'An error occurred.')
+    return redirect("administrators:landing_pages")

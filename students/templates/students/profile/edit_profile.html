@@ -28,10 +28,11 @@
 
         {% for field in form.visible_fields %}
 
-          <div class="field-wrapper my-5">
+          <div class="field-wrapper">
             <label for="{{ field.id_for_label }}">
               {{ field.label }}:
-              {% if field.id_for_label == 'id_preferred_name' or field.id_for_label == 'id_program_others' or field.id_for_label == 'id_special_considerations' or field.id_for_label == 'id_prior_employment' %}
+              {% if field.name == 'preferred_name' or field.name == 'program_others' or field.name == 'special_considerations' or field.name == 'prior_employment' %}
+                <small></small>
               {% else %}
                 <small class="text-danger"><i class="fa fa-asterisk" aria-hidden="true"></i></small>
               {% endif %}

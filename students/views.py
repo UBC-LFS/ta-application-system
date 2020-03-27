@@ -531,15 +531,15 @@ def favourite_jobs(request):
         favourite_list = adminApi.get_favourites(request.user)
         all_favourites = favourite_list
         if bool(year_q):
-            favourite_list = favourite_list.filter(job__session__year__iexact=year_q)
+            favourite_list = favourite_list.filter(job__session__year__icontains=year_q)
         if bool(term_q):
-            favourite_list = favourite_list.filter(job__session__term__code__iexact=term_q)
+            favourite_list = favourite_list.filter(job__session__term__code__icontains=term_q)
         if bool(code_q):
-            favourite_list = favourite_list.filter(job__course__code__name__iexact=code_q)
+            favourite_list = favourite_list.filter(job__course__code__name__icontains=code_q)
         if bool(number_q):
-            favourite_list = favourite_list.filter(job__course__number__name__iexact=number_q)
+            favourite_list = favourite_list.filter(job__course__number__name__icontains=number_q)
         if bool(section_q):
-            favourite_list = favourite_list.filter(job__course__section__name__iexact=section_q)
+            favourite_list = favourite_list.filter(job__course__section__name__icontains=section_q)
         if bool(instructor_first_name_q):
             favourite_list = favourite_list.filter(job__instructors__first_name__icontains=instructor_first_name_q)
         if bool(instructor_last_name_q):
@@ -593,11 +593,11 @@ def available_jobs(request, session_slug):
 
     job_list = adminApi.get_jobs().filter(session__slug=session_slug)
     if bool(code_q):
-        job_list = job_list.filter(course__code__name__iexact=code_q)
+        job_list = job_list.filter(course__code__name__icontains=code_q)
     if bool(number_q):
-        job_list = job_list.filter(course__number__name__iexact=number_q)
+        job_list = job_list.filter(course__number__name__icontains=number_q)
     if bool(section_q):
-        job_list = job_list.filter(course__section__name__iexact=section_q)
+        job_list = job_list.filter(course__section__name__icontains=section_q)
     if bool(instructor_first_name_q):
         job_list = job_list.filter(instructors__first_name__icontains=instructor_first_name_q)
     if bool(instructor_last_name_q):
@@ -740,15 +740,15 @@ def history_jobs(request):
 
     app_list = request.user.application_set.all()
     if bool(year_q):
-        app_list = app_list.filter(job__session__year__iexact=year_q)
+        app_list = app_list.filter(job__session__year__icontains=year_q)
     if bool(term_q):
-        app_list = app_list.filter(job__session__term__code__iexact=term_q)
+        app_list = app_list.filter(job__session__term__code__icontains=term_q)
     if bool(code_q):
-        app_list = app_list.filter(job__course__code__name__iexact=code_q)
+        app_list = app_list.filter(job__course__code__name__icontains=code_q)
     if bool(number_q):
-        app_list = app_list.filter(job__course__number__name__iexact=number_q)
+        app_list = app_list.filter(job__course__number__name__icontains=number_q)
     if bool(section_q):
-        app_list = app_list.filter(job__course__section__name__iexact=section_q)
+        app_list = app_list.filter(job__course__section__name__icontains=section_q)
 
     page = request.GET.get('page', 1)
     paginator = Paginator(app_list, settings.PAGE_SIZE)

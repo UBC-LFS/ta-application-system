@@ -75,19 +75,19 @@
           {% csrf_token %}
 
           {% for field in form.visible_fields  %}
-            <div class="field-wrapper mb-5">
+            <div class="field-wrapper">
 
               <label for="{{ field.id_for_label }}">
                 {{ field.label }}
-                {% if field.id_for_label == 'id_supervisor_approval' %}
+                {% if field.name == 'supervisor_approval' %}
                   <span class="font-weight-normal">(required for graduate students only)</span>
                 {% endif %}
-                {% if field.id_for_label == 'id_how_qualified' or field.id_for_label == 'id_how_interested' or field.id_for_label == 'id_availability' %}
+                {% if field.name == 'how_qualified' or field.name == 'how_interested' or field.name == 'availability' %}
                   <small class="text-danger"><i class="fa fa-asterisk" aria-hidden="true"></i></small>
                 {% endif %}
               </label>
 
-              {% if field.id_for_label == 'id_availability' %}
+              {% if field.name == 'availability' %}
                 <div class="help">
                   By accepting any TA appointment within LFS, you are expected to be available for the duration of the assignment:
                   <ul>
@@ -107,11 +107,11 @@
               {% endif %}
               {{ field }}
 
-              {% if field.id_for_label == 'id_supervisor_approval' %}
+              {% if field.name == 'supervisor_approval' %}
                 <span class="font-weight-bold text-dark">Yes</span>
               {% endif %}
 
-              {% if field.id_for_label == 'id_availability' %}
+              {% if field.name == 'availability' %}
                 <span class="font-weight-bold text-dark">I understand</span>
               {% endif %}
 

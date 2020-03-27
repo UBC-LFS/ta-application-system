@@ -9,6 +9,7 @@ urlpatterns = [
     path('sessions/create/confirmation/', views.create_session_confirmation, name='create_session_confirmation'),
     path('sessions/create/', views.create_session, name='create_session'),
     path('sessions/delete/p/<str:path>/', views.delete_session, name='delete_session'),
+    path('sessions/<str:session_slug>/p/<str:path>/delete/confirmation/', views.delete_session_confirmation, name='delete_session_confirmation'),
     path('sessions/<str:session_slug>/p/<str:path>/edit/', views.edit_session, name='edit_session'),
     path('sessions/<str:session_slug>/p/<str:path>/details/', views.show_session, name='show_session'),
     path('sessions/current/', views.current_sessions, name='current_sessions'),
@@ -46,6 +47,7 @@ urlpatterns = [
 
     path('hr/users/<str:username>/edit/', views.edit_user, name='edit_user'),
     path('hr/users/<str:username>/p/<str:path>/details/information/<str:tab>/', views.show_user, name='show_user'),
+    path('hr/users/<str:username>/delete/confirmation', views.delete_user_confirmation, name='delete_user_confirmation'),
     path('hr/users/all/', views.all_users, name='all_users'),
     path('hr/users/destroy/contents', views.destroy_user_contents, name='destroy_user_contents'),
     path('hr/users/create/', views.create_user, name='create_user'),
@@ -98,5 +100,9 @@ urlpatterns = [
 
     path('preparation/admin-emails/delete/', views.delete_admin_email, name='delete_admin_email'),
     path('preparation/admin-emails/<str:slug>/edit/', views.edit_admin_email, name='edit_admin_email'),
-    path('preparation/admin-emails/', views.admin_emails, name='admin_emails')
+    path('preparation/admin-emails/', views.admin_emails, name='admin_emails'),
+
+    path('preparation/landing-pages/delete/', views.delete_landing_page, name='delete_landing_page'),
+    path('preparation/landing-pages/<int:landing_page_id>/edit/', views.edit_landing_page, name='edit_landing_page'),
+    path('preparation/landing-pages/', views.landing_pages, name='landing_pages'),
 ]

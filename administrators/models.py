@@ -278,3 +278,19 @@ class AdminEmail(models.Model):
     def save(self, *args, **kwargs):
         self.slug = slugify(self.type)
         super(AdminEmail, self).save(*args, **kwargs)
+
+
+class LandingPage(models.Model):
+    ''' Landing Page contents '''
+    title = models.CharField(max_length=256, null=True, blank=True)
+    message = models.TextField(null=True, blank=True)
+    notice = models.TextField(null=True, blank=True)
+    is_visible = models.BooleanField(default=False)
+    created_at = models.DateField(default=dt.date.today)
+    updated_at = models.DateField(default=dt.date.today)
+
+    class Meta:
+        ordering = ['pk']
+
+    def __str__(self):
+        return str(self.id)

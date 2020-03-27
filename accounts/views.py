@@ -3,9 +3,10 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login as AuthLogin
 from django.http import HttpResponseRedirect, Http404
 from django.urls import reverse
-from accounts.forms import LocalLoginForm
 from django.contrib import messages
+from accounts.forms import LocalLoginForm
 from users import api as userApi
+from administrators import api as adminApi
 
 
 def redirect_to_index_page(roles):
@@ -27,7 +28,9 @@ def login(request):
         redirect_to = redirect_to_index_page(roles)
         return HttpResponseRedirect(redirect_to)
 
-    return render(request, 'accounts/login.html')
+    return render(request, 'accounts/login.html', {
+        'landing_page': adminApi.get_visible_landing_page()
+    })
 
 
 def local_login(request):
