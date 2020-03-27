@@ -420,6 +420,7 @@ class JobTest(TestCase):
             'description': 'new description',
             'note': 'new note',
             'assigned_ta_hours': '180.00',
+            'accumulated_ta_hours': '35.0',
             'is_active': False,
             'instructors': ['10', '11', '12']
         }
@@ -435,6 +436,7 @@ class JobTest(TestCase):
         self.assertEqual(updated_job.description, data['description'])
         self.assertEqual(updated_job.note, data['note'])
         self.assertEqual(updated_job.assigned_ta_hours, float(data['assigned_ta_hours']))
+        self.assertEqual(updated_job.accumulated_ta_hours, float(data['accumulated_ta_hours']))
         self.assertEqual(updated_job.is_active, data['is_active'])
         self.assertEqual(len(updated_job.instructors.all()), len(data['instructors']))
 
@@ -451,6 +453,7 @@ class JobTest(TestCase):
             'description': 'new description',
             'note': 'new note',
             'assigned_ta_hours': '185.00',
+            'accumulated_ta_hours': '30.0',
             'is_active': False,
             'instructors': []
         }
@@ -466,6 +469,7 @@ class JobTest(TestCase):
         self.assertEqual(updated_job.description, data['description'])
         self.assertEqual(updated_job.note, data['note'])
         self.assertEqual(updated_job.assigned_ta_hours, float(data['assigned_ta_hours']))
+        self.assertEqual(updated_job.accumulated_ta_hours, float(data['accumulated_ta_hours']))
         self.assertEqual(updated_job.is_active, data['is_active'])
         self.assertEqual(len(updated_job.instructors.all()), len(data['instructors']))
 
@@ -480,6 +484,7 @@ class JobTest(TestCase):
             'quallification': 'new quallification',
             'note': 'new note',
             'assigned_ta_hours': '180.00',
+            'accumulated_ta_hours': '30.0',
             'is_active': False,
             'instructors': ['4', '5', '6']
         }

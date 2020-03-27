@@ -217,11 +217,15 @@ class MyModelMultipleChoiceField(ModelMultipleChoiceField):
 
 
 class AdminJobForm(forms.ModelForm):
-    ''' '''
+    ''' Jobs can be updated '''
     assigned_ta_hours = forms.FloatField(
         label='Total Assigned TA Hours',
         widget=forms.TextInput(attrs={ 'class': 'form-control' }),
-        help_text='This field is required. Valid range is 0 to 4000.'
+        help_text='Valid range is 0 to 4000.'
+    )
+    accumulated_ta_hours = forms.FloatField(
+        label='Accumulated TA Hours',
+        widget=forms.TextInput(attrs={ 'class': 'form-control' })
     )
     instructors = MyModelMultipleChoiceField(
         queryset=User.objects.filter(profile__roles=ROLES['Instructor']).order_by('first_name'),
@@ -230,7 +234,7 @@ class AdminJobForm(forms.ModelForm):
     )
     class Meta:
         model = Job
-        fields = ['course_overview', 'description', 'note', 'instructors', 'assigned_ta_hours', 'is_active']
+        fields = ['course_overview', 'description', 'note', 'assigned_ta_hours', 'accumulated_ta_hours', 'is_active', 'instructors']
         widgets = {
             'course_overview': SummernoteWidget(),
             'description': SummernoteWidget(),
@@ -244,19 +248,22 @@ class AdminJobForm(forms.ModelForm):
             'description': 'This field is optional.',
             'note': 'This field is optional.'
         }
-    field_order = ['course_overview', 'description', 'note', 'assigned_ta_hours', 'is_active', 'instructors']
+    field_order = ['course_overview', 'description', 'note', 'assigned_ta_hours', 'accumulated_ta_hours', 'is_active', 'instructors']
 
 class AdminJobEditForm(forms.ModelForm):
     ''' '''
     assigned_ta_hours = forms.FloatField(
         label='Total Assigned TA Hours',
         widget=forms.TextInput(attrs={ 'class': 'form-control' }),
-        help_text='This field is required. Valid range is 0 to 4000.'
+        help_text='Valid range is 0 to 4000.'
     )
-
+    accumulated_ta_hours = forms.FloatField(
+        label='Accumulated TA Hours',
+        widget=forms.TextInput(attrs={ 'class': 'form-control' })
+    )
     class Meta:
         model = Job
-        fields = ['course_overview', 'description', 'note', 'assigned_ta_hours', 'is_active']
+        fields = ['course_overview', 'description', 'note', 'assigned_ta_hours', 'accumulated_ta_hours', 'is_active']
         widgets = {
             'course_overview': SummernoteWidget(),
             'description': SummernoteWidget(),
@@ -270,7 +277,7 @@ class AdminJobEditForm(forms.ModelForm):
             'description': 'This field is optional.',
             'note': 'This field is optional.'
         }
-    field_order = ['course_overview', 'description', 'note', 'assigned_ta_hours', 'is_active']
+    field_order = ['course_overview', 'description', 'note', 'assigned_ta_hours', 'accumulated_ta_hours', 'is_active']
 
 
 class InstructorJobForm(forms.ModelForm):
