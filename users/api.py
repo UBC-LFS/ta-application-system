@@ -72,6 +72,28 @@ def loggedin_user(user):
 
     return user
 
+def has_admin_access(request, role=None):
+    ''' Check if an admin has access '''
+    request.user.roles = request.session['loggedin_user']['roles']
+    if is_admin(request.user) == False and role not in request.user.roles:
+        raise PermissionDenied
+
+    return request
+
+def has_user_access(request, role):
+    ''' Check if an user has access '''
+    if request.user.is_impersonate:
+        if is_admin(request.session['loggedin_user'], 'dict') == False:
+            raise PermissionDenied
+        request.user.roles = get_user_roles(request.user)
+    else:
+        request.user.roles = request.session['loggedin_user']['roles']
+
+    if role not in request.user.roles:
+        raise PermissionDenied
+
+    return request
+
 
 # User
 
@@ -92,11 +114,11 @@ def get_users(option=None):
 
 def get_instructors():
     ''' Get instructors '''
-    return User.objects.filter(profile__roles__name=Role.INSTRUCTOR).order_by('last_name')
+    return User.objects.filter(profile__roles__name=Role.INSTRUCTOR).order_by('last_name', 'first_name')
 
 def get_users_by_role(role):
     ''' Get users by role '''
-    return User.objects.filter(profile__roles__name=role).order_by('last_name')
+    return User.objects.filter(profile__roles__name=role).order_by('last_name', 'first_name')
 
 
 def user_exists_username(username):

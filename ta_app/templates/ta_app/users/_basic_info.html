@@ -1,3 +1,28 @@
+{% if type == 'full' %}
+  <div>
+    <h6>First Name:</h6>
+    <span>
+      {% if data.first_name %}
+        {{ data.first_name }}
+      {% else %}
+        None
+      {% endif %}
+    </span>
+  </div>
+
+  <div>
+    <h6>Last Name:</h6>
+    <span>
+      {% if data.last_name %}
+        {{ data.last_name }}
+      {% else %}
+        None
+      {% endif %}
+    </span>
+  </div>
+
+{% endif %}
+
 <div>
   <h6>CWL:</h6>
   <span>

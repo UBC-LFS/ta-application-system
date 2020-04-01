@@ -9,7 +9,7 @@ from users.models import *
 from administrators import api as adminApi
 from users import api as userApi
 
-from administrators.tests.test_views import LOGIN_URL, ContentType, DATA, SESSION, PASSWORD
+from administrators.tests.test_views import LOGIN_URL, ContentType, DATA, SESSION, PASSWORD, USERS
 from django.core.files.uploadedfile import SimpleUploadedFile
 import datetime
 
@@ -35,6 +35,49 @@ class InstructorTest(TestCase):
 
     def test_view_url_exists_at_desired_location(self):
         print('\n- Test: view url exists at desired location')
+
+        self.login(USERS[0], '12')
+
+        response = self.client.get( reverse('instructors:index') )
+        self.assertEqual(response.status_code, 403)
+
+        response = self.client.get( reverse('instructors:show_jobs') )
+        self.assertEqual(response.status_code, 403)
+
+        response = self.client.get( reverse('instructors:edit_job', args=[SESSION, JOB]) )
+        self.assertEqual(response.status_code, 403)
+
+        response = self.client.get( reverse('instructors:show_applications', args=[SESSION, JOB]) )
+        self.assertEqual(response.status_code, 403)
+
+        self.login(USERS[2], '12')
+
+        response = self.client.get( reverse('instructors:index') )
+        self.assertEqual(response.status_code, 403)
+
+        response = self.client.get( reverse('instructors:show_jobs') )
+        self.assertEqual(response.status_code, 403)
+
+        response = self.client.get( reverse('instructors:edit_job', args=[SESSION, JOB]) )
+        self.assertEqual(response.status_code, 403)
+
+        response = self.client.get( reverse('instructors:show_applications', args=[SESSION, JOB]) )
+        self.assertEqual(response.status_code, 403)
+
+        self.login('user3.admin', '12')
+
+        response = self.client.get( reverse('instructors:index') )
+        self.assertEqual(response.status_code, 403)
+
+        response = self.client.get( reverse('instructors:show_jobs') )
+        self.assertEqual(response.status_code, 403)
+
+        response = self.client.get( reverse('instructors:edit_job', args=[SESSION, JOB]) )
+        self.assertEqual(response.status_code, 403)
+
+        response = self.client.get( reverse('instructors:show_applications', args=[SESSION, JOB]) )
+        self.assertEqual(response.status_code, 403)
+
         self.login()
 
         response = self.client.get( reverse('instructors:index') )
