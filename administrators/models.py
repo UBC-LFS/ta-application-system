@@ -122,7 +122,10 @@ class Job(models.Model):
     )
 
     # Add up all student's TA hours
-    accumulated_ta_hours = models.FloatField(default=0.0)
+    accumulated_ta_hours = models.FloatField(
+        default=0.0,
+        validators=[MinValueValidator(0), MaxValueValidator(4000)]
+    )
 
     is_active = models.BooleanField(default=True)
     created_at = models.DateField(default=dt.date.today)

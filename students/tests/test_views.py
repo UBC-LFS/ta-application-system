@@ -179,6 +179,40 @@ class StudentTest(TestCase):
 
     def test_view_url_exists_at_desired_location(self):
         print('\n- Test: view url exists at desired location')
+
+        self.login(USERS[0], '12')
+
+        response = self.client.get( reverse('students:index') )
+        self.assertEqual(response.status_code, 403)
+
+        response = self.client.get( reverse('students:available_jobs', args=[SESSION]) )
+        self.assertEqual(response.status_code, 403)
+
+        response = self.client.get( reverse('students:apply_job', args=[SESSION, JOB]) )
+        self.assertEqual(response.status_code, 403)
+
+        self.login(USERS[1], '12')
+
+        response = self.client.get( reverse('students:index') )
+        self.assertEqual(response.status_code, 403)
+
+        response = self.client.get( reverse('students:available_jobs', args=[SESSION]) )
+        self.assertEqual(response.status_code, 403)
+
+        response = self.client.get( reverse('students:apply_job', args=[SESSION, JOB]) )
+        self.assertEqual(response.status_code, 403)
+
+        self.login('user3.admin', '12')
+
+        response = self.client.get( reverse('students:index') )
+        self.assertEqual(response.status_code, 403)
+
+        response = self.client.get( reverse('students:available_jobs', args=[SESSION]) )
+        self.assertEqual(response.status_code, 403)
+
+        response = self.client.get( reverse('students:apply_job', args=[SESSION, JOB]) )
+        self.assertEqual(response.status_code, 403)
+
         self.login()
 
         response = self.client.get( reverse('students:index') )

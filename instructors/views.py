@@ -25,12 +25,7 @@ from datetime import datetime
 @require_http_methods(['GET'])
 def index(request):
     ''' Index page of an instructor's portal '''
-    if request.user.is_impersonate:
-        if not userApi.is_admin(request.session['loggedin_user'], 'dict'): raise PermissionDenied
-        request.user.roles = userApi.get_user_roles(request.user)
-    else:
-        request.user.roles = request.session['loggedin_user']['roles']
-    if 'Instructor' not in request.user.roles: raise PermissionDenied
+    request = userApi.has_user_access(request, 'Instructor')
 
     return render(request, 'instructors/index.html', {
         'loggedin_user': request.user
@@ -42,12 +37,7 @@ def index(request):
 @require_http_methods(['GET', 'POST'])
 def edit_user(request, username):
     ''' Index page of an instructor's portal '''
-    if request.user.is_impersonate:
-        if not userApi.is_admin(request.session['loggedin_user'], 'dict'): raise PermissionDenied
-        request.user.roles = userApi.get_user_roles(request.user)
-    else:
-        request.user.roles = request.session['loggedin_user']['roles']
-    if 'Instructor' not in request.user.roles: raise PermissionDenied
+    request = userApi.has_user_access(request, 'Instructor')
 
     confidentiality = userApi.has_user_confidentiality_created(request.user)
 
@@ -108,12 +98,7 @@ def edit_user(request, username):
 @require_http_methods(['GET'])
 def show_user(request, session_slug, job_slug, username, tab):
     ''' Display an user's details '''
-    if request.user.is_impersonate:
-        if not userApi.is_admin(request.session['loggedin_user'], 'dict'): raise PermissionDenied
-        request.user.roles = userApi.get_user_roles(request.user)
-    else:
-        request.user.roles = request.session['loggedin_user']['roles']
-    if 'Instructor' not in request.user.roles: raise PermissionDenied
+    request = userApi.has_user_access(request, 'Instructor')
 
     if tab not in USER_TAB: raise Http404
 
@@ -132,12 +117,7 @@ def show_user(request, session_slug, job_slug, username, tab):
 @require_http_methods(['GET'])
 def show_jobs(request):
     ''' Display jobs by instructors '''
-    if request.user.is_impersonate:
-        if not userApi.is_admin(request.session['loggedin_user'], 'dict'): raise PermissionDenied
-        request.user.roles = userApi.get_user_roles(request.user)
-    else:
-        request.user.roles = request.session['loggedin_user']['roles']
-    if 'Instructor' not in request.user.roles: raise PermissionDenied
+    request = userApi.has_user_access(request, 'Instructor')
 
     year_q = request.GET.get('year')
     term_q = request.GET.get('term')
@@ -197,12 +177,7 @@ def show_jobs(request):
 @require_http_methods(['GET', 'POST'])
 def edit_job(request, session_slug, job_slug):
     ''' Update job details of instructors '''
-    if request.user.is_impersonate:
-        if not userApi.is_admin(request.session['loggedin_user'], 'dict'): raise PermissionDenied
-        request.user.roles = userApi.get_user_roles(request.user)
-    else:
-        request.user.roles = request.session['loggedin_user']['roles']
-    if 'Instructor' not in request.user.roles: raise PermissionDenied
+    request = userApi.has_user_access(request, 'Instructor')
 
     job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
     if request.method == 'POST':
@@ -234,12 +209,7 @@ def edit_job(request, session_slug, job_slug):
 @require_http_methods(['GET', 'POST'])
 def show_job(request, session_slug, job_slug):
     ''' Display job details '''
-    if request.user.is_impersonate:
-        if not userApi.is_admin(request.session['loggedin_user'], 'dict'): raise PermissionDenied
-        request.user.roles = userApi.get_user_roles(request.user)
-    else:
-        request.user.roles = request.session['loggedin_user']['roles']
-    if 'Instructor' not in request.user.roles: raise PermissionDenied
+    request = userApi.has_user_access(request, 'Instructor')
 
     return render(request, 'instructors/jobs/show_job.html', {
         'loggedin_user': request.user,
@@ -251,12 +221,7 @@ def show_job(request, session_slug, job_slug):
 @require_http_methods(['GET', 'POST'])
 def show_applications(request, session_slug, job_slug):
     ''' Display applications applied by students '''
-    if request.user.is_impersonate:
-        if not userApi.is_admin(request.session['loggedin_user'], 'dict'): raise PermissionDenied
-        request.user.roles = userApi.get_user_roles(request.user)
-    else:
-        request.user.roles = request.session['loggedin_user']['roles']
-    if 'Instructor' not in request.user.roles: raise PermissionDenied
+    request = userApi.has_user_access(request, 'Instructor')
 
     job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
     if request.method == 'POST':
@@ -288,7 +253,6 @@ def show_applications(request, session_slug, job_slug):
         if assigned_hours == 0.0 and instructor_preference != Application.NO_PREFERENCE:
             messages.error(request, 'An error occurred. Please assign TA hours, then try again.')
             return HttpResponseRedirect( reverse('instructors:show_applications', args=[session_slug, job_slug]) )
-
 
         instructor_app_form = InstructorApplicationForm(request.POST)
         if instructor_app_form.is_valid():
@@ -329,12 +293,7 @@ def show_applications(request, session_slug, job_slug):
 @require_http_methods(['GET', 'POST'])
 def write_note(request, app_slug):
     ''' Write a note to administraotors '''
-    if request.user.is_impersonate:
-        if not userApi.is_admin(request.session['loggedin_user'], 'dict'): raise PermissionDenied
-        request.user.roles = userApi.get_user_roles(request.user)
-    else:
-        request.user.roles = request.session['loggedin_user']['roles']
-    if 'Instructor' not in request.user.roles: raise PermissionDenied
+    request = userApi.has_user_access(request, 'Instructor')
 
     app = adminApi.get_application(app_slug, 'slug')
 

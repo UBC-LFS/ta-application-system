@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.core.mail import EmailMultiAlternatives
 from django.db import IntegrityError
+from django.core.exceptions import PermissionDenied
 
 from administrators.models import *
 from users.models import *
@@ -52,6 +53,11 @@ def get_session(data, by=None):
     if by == 'slug':
         return get_object_or_404(Session, slug=data)
     return get_object_or_404(Session, id=data)
+
+def available_session(session_slug):
+    session = get_session(session_slug, 'slug')
+    if session.is_visible == False or session.is_archived == True:
+        raise PermissionDenied
 
 def get_sessions_by_year(year):
     """ Get sessions by year """
@@ -130,7 +136,6 @@ def create_jobs(session, courses):
     jobs = Job.objects.bulk_create(objs)
     return True if jobs else False
 
-
 def get_favourites(user):
     ''' Get user's favourite jobs '''
     #return Favourite.objects.filter( Q(applicant_id=user.id) & Q(job__is_active=True) )
@@ -206,8 +211,13 @@ def remove_job_instructors(job, instructors):
     job.instructors.remove( *instructors )
     return True if job else None
 
+def add_job_instructors(job, new_instructors):
+    ''' Add instructors into a job '''
+    job.instructors.add( *list(new_instructors) )
+    return True if job else None
+
 def update_job_instructors(job, old_instructors, new_instructors):
-    ''' Update instructors in a job '''
+    ''' Update instructors into a job '''
     job.instructors.remove( *old_instructors )
     job.instructors.add( *list(new_instructors) )
     return True if job else None

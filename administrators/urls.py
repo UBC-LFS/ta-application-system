@@ -19,12 +19,14 @@ urlpatterns = [
     path('jobs/progress/', views.progress_jobs, name='progress_jobs'),
     path('jobs/student/', views.student_jobs, name='student_jobs'),
     path('jobs/instructor/', views.instructor_jobs, name='instructor_jobs'),
-
-    path('instructor/<str:username>/jobs/', views.instructor_jobs_details, name='instructor_jobs_details'),
-    path('student/<str:username>/jobs/<str:tab>/', views.student_jobs_details, name='student_jobs_details'),
+    path('instructors/search/', views.search_instructors, name='search_instructors'),
+    path('instructors/<str:username>/jobs/', views.instructor_jobs_details, name='instructor_jobs_details'),
+    path('students/<str:username>/jobs/<str:tab>/', views.student_jobs_details, name='student_jobs_details'),
     path('sessions/<str:session_slug>/jobs/<str:job_slug>/edit/', views.edit_job, name='edit_job'),
     path('sessions/<str:session_slug>/jobs/<str:job_slug>/applications/', views.show_job_applications, name='show_job_applications'),
     path('sessions/<str:session_slug>/jobs/<str:job_slug>/p/<str:path>/details/', views.show_job, name='show_job'),
+    path('sessions/<str:session_slug>/jobs/<str:job_slug>/instructors/add/', views.add_job_instructors, name='add_job_instructors'),
+    path('sessions/<str:session_slug>/jobs/<str:job_slug>/instructors/delete/', views.delete_job_instructors, name='delete_job_instructors'),
 
     path('applications/send_email/confirmation/p/<str:path>/', views.applications_send_email_confirmation, name='applications_send_email_confirmation'),
     path('applications/send_email/p/<str:path>/', views.applications_send_email, name='applications_send_email'),
