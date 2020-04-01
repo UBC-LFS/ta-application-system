@@ -89,6 +89,47 @@ main {
   margin-left: -20px;
 }
 
+.field-wrapper .instructor {
+  width: 220px;
+  margin-bottom: 5px;
+  padding: 3px 0px 3px 10px;
+  border: 1px solid #bbb;
+  border-radius: 4px;
+  background-color: #fff;
+}
+
+.field-wrapper .search-result {
+  position: absolute;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  max-width: 300px;
+  max-height: 300px;
+  overflow: auto;
+  z-index: 10;
+}
+
+.field-wrapper .search-result > p {
+  padding: 10px;
+  margin-bottom: 0;
+}
+
+.field-wrapper ul.instructors {
+  list-style-type: none;
+}
+
+.field-wrapper ul.instructors > li {
+  cursor: pointer;
+  margin-left: -30px;
+  margin-right: 10px;
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.field-wrapper ul.instructors > li:hover {
+  font-weight: 600;
+}
+
 .help {
   color: #474d52;
   font-size: 0.8rem;
@@ -499,10 +540,9 @@ hr.dotted {
 /* Extra small devices (portrait phones, less than 576px) */
 @media (max-width: 575.98px) {
   .board {
-    padding: 0;
+    padding: 1.5rem;
   }
   .board h3 {
-    margin-top: 50px;
     text-align: center;
   }
   .visible-current-sessions {
@@ -512,7 +552,8 @@ hr.dotted {
     display: block;
     margin: 0 !important;
   }
-  .col-md-8 {
+  .col-md-8,
+  .col-md-9 {
     margin-top: 50px;
   }
   .nav-tabs > a {
@@ -538,7 +579,6 @@ hr.dotted {
   footer .footer-item:last-child {
     line-height: 10px;
   }
-
   .local-login .card {
     padding: 1rem 0.5rem !important;
     margin: 2rem 0 !important;

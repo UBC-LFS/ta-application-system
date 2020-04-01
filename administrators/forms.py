@@ -215,7 +215,7 @@ class MyModelMultipleChoiceField(ModelMultipleChoiceField):
     def label_from_instance(self, obj):
         return obj.get_full_name()
 
-
+"""
 class AdminJobForm(forms.ModelForm):
     ''' Jobs can be updated '''
     assigned_ta_hours = forms.FloatField(
@@ -225,20 +225,22 @@ class AdminJobForm(forms.ModelForm):
     )
     accumulated_ta_hours = forms.FloatField(
         label='Accumulated TA Hours',
-        widget=forms.TextInput(attrs={ 'class': 'form-control' })
+        widget=forms.TextInput(attrs={ 'class': 'form-control' }),
+        help_text='Valid range is 0 to 4000.'
     )
-    instructors = MyModelMultipleChoiceField(
-        queryset=User.objects.filter(profile__roles=ROLES['Instructor']).order_by('first_name'),
+    '''instructors = MyModelMultipleChoiceField(
+        queryset=User.objects.filter(profile__roles=ROLES['Instructor']).order_by('last_name', 'first_name'),
         widget=forms.CheckboxSelectMultiple(),
         help_text='This field is optional.'
-    )
+    )'''
     class Meta:
         model = Job
         fields = ['course_overview', 'description', 'note', 'assigned_ta_hours', 'accumulated_ta_hours', 'is_active', 'instructors']
         widgets = {
             'course_overview': SummernoteWidget(),
             'description': SummernoteWidget(),
-            'note': SummernoteWidget()
+            'note': SummernoteWidget(),
+            'instructors': forms.HiddenInput()
         }
         labels = {
             'course_overview': 'Course Overview'
@@ -249,6 +251,7 @@ class AdminJobForm(forms.ModelForm):
             'note': 'This field is optional.'
         }
     field_order = ['course_overview', 'description', 'note', 'assigned_ta_hours', 'accumulated_ta_hours', 'is_active', 'instructors']
+"""
 
 class AdminJobEditForm(forms.ModelForm):
     ''' '''
@@ -278,6 +281,12 @@ class AdminJobEditForm(forms.ModelForm):
             'note': 'This field is optional.'
         }
     field_order = ['course_overview', 'description', 'note', 'assigned_ta_hours', 'accumulated_ta_hours', 'is_active']
+
+class InstructorUpdateForm(forms.ModelForm):
+    ''' To delete job instructors '''
+    class Meta:
+        model = Job
+        fields = ['instructors']
 
 
 class InstructorJobForm(forms.ModelForm):
