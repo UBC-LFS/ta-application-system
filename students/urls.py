@@ -31,6 +31,6 @@ urlpatterns = [
 
     path('applications/<str:app_slug>/re-accept/', views.reaccept_application, name='reaccept_application'),
     path('applications/<str:app_slug>/', views.show_application, name='show_application'),
-    
+
     path('download/users/<str:username>/i/<str:item>/files/<str:filename>/', views.download_file, name='download_file')
 ]

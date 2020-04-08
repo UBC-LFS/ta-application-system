@@ -280,6 +280,75 @@ class Profile(models.Model):
     def __str__(self):
         return self.user.username
 
+def create_avatar_path(instance, filename):
+    return os.path.join('users', str(instance.user.username), 'avatar', filename)
+
+class Avatar(models.Model):
+    ''' This is a user profile picture '''
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    uploaded = models.ImageField(
+        max_length=256,
+        upload_to=create_avatar_path,
+        validators=[FileSizeValidator],
+        null=True,
+        blank=True
+    )
+    created_at = models.DateField(default=dt.date.today)
+
+    def save(self, *args, **kwargs):
+        ''' Reduce a size and quality of the image '''
+        #print('save', self.uploaded, bool(self.uploaded))
+        if bool(self.uploaded):
+            file_split = os.path.splitext(self.uploaded.name)
+            file_name = file_split[0]
+            file_extension = file_split[1]
+
+            if self.uploaded and file_extension.lower() in ['.jpg', '.jpeg', '.png']:
+                img = PILImage.open( self.uploaded )
+                #print('img mode', img.mode)
+                if img.mode == 'P':
+                    img = img.convert('RGB')
+
+                if img.mode in ['RGBA']:
+                    background = PILImage.new( img.mode[:-1], img.size, (255,255,255) )
+                    background.paste(img, img.split()[-1])
+                    img = background
+
+                #print(img.size)
+                width, height = compress_image(img)
+                #print('compress_image', width, height)
+
+                img.thumbnail( (width, height), PILImage.ANTIALIAS )
+                output = BytesIO()
+                img.save(output, format='JPEG', quality=70) # Reduce a quality by 70%
+                output.seek(0)
+
+                img.close()
+
+                self.uploaded = InMemoryUploadedFile(output,'ImageField', "%s.jpg" % file_name, 'image/jpeg', sys.getsizeof(output), None)
+                #print('Avatar save closed', output.closed)
+                #if output.closed == False: output.close()
+                #print('Avatar save closed', output.closed)
+        super(Avatar, self).save(*args, **kwargs)
+
+
+
+
+def compress_image(img):
+    ''' Compress an image '''
+    # Check image's width and height
+    width, height = img.size
+    if width > 4000 or height > 3000:
+        width, height = width/3.0, height/3.0
+    elif width > 3000 or height > 2000:
+        width, height = width/2.5, height/2.5
+    elif width > 2000 or height > 1000:
+        width, height = width/2.0, height/2.0
+    elif width > 1000 or height > 500:
+        width, height = width/1.5, height/1.5
+
+    return width, height
+
 """
 cryptography
 https://github.com/pyca/cryptography
@@ -307,16 +376,9 @@ def encrypt_image(obj):
         background.paste(img, img.split()[-1])
         img = background
 
-    # Check image's width and height
-    width, height = img.size
-    if width > 4000 or height > 3000:
-        width, height = width/3.0, height/3.0
-    elif width > 3000 or height > 2000:
-        width, height = width/2.5, height/2.5
-    elif width > 2000 or height > 1000:
-        width, height = width/2.0, height/2.0
-    elif width > 1000 or height > 500:
-        width, height = width/1.5, height/1.5
+    #print(img.size)
+    width, height = compress_image(img)
+    #print('compress_image', width, height)
 
     img.thumbnail( (width, height), PILImage.ANTIALIAS )
     output = BytesIO()
@@ -331,7 +393,7 @@ def encrypt_image(obj):
     content.close()
     output.close()
 
-    return InMemoryUploadedFile(content,'ImageField', '{0}.jpg'.format(file_name), 'image/jpeg', sys.getsizeof(content), None)
+    return InMemoryUploadedFile(content, 'ImageField', '{0}.jpg'.format(file_name), 'image/jpeg', sys.getsizeof(content), None)
 
 def decrypt_image(obj):
     fernet = encrypt_algorithm()

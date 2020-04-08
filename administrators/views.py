@@ -14,17 +14,17 @@ from django.db.models import Q
 from django.views.static import serve
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
+from django.contrib.auth.models import User
+
 from administrators.models import Session, Job, Application, ApplicationStatus, Course
 from administrators.forms import *
 from administrators import api as adminApi
 
-from django.contrib.auth.models import User
+from users.models import *
 from users.forms import *
 from users import api as userApi
 
 from datetime import datetime
-
-from django.contrib.auth.models import User
 
 
 APP_MENU = ['dashboard', 'all', 'selected', 'offered', 'accepted', 'declined', 'terminated']
@@ -49,10 +49,12 @@ APP_STATUS = {
 @require_http_methods(['GET'])
 def index(request):
     ''' Index page of Administrator's portal '''
-    request = userApi.has_admin_access(request, 'HR')
-
-    context = { 'loggedin_user': request.user }
-    if 'Admin' in request.user.roles or 'Superadmin' in request.user.roles:
+    request = userApi.has_admin_access(request, Role.HR)
+    print(request.user.roles)
+    context = {
+        'loggedin_user': userApi.add_avatar(request.user)
+    }
+    if Role.ADMIN in request.user.roles or Role.SUPERADMIN in request.user.roles:
         sessions = adminApi.get_sessions()
         context['current_sessions'] = sessions.filter(is_archived=False)
         context['archived_sessions'] = sessions.filter(is_archived=True)
@@ -61,7 +63,7 @@ def index(request):
         context['students'] = userApi.get_users_by_role(Role.STUDENT)
         context['users'] = userApi.get_users()
 
-    elif 'HR' in request.user.roles:
+    elif Role.HR in request.user.roles:
         apps = adminApi.get_applications()
         context['accepted_apps'] = apps.filter(applicationstatus__assigned=ApplicationStatus.ACCEPTED).order_by('-id').distinct()
 
@@ -361,7 +363,7 @@ def delete_session(request, path):
 @require_http_methods(['GET', 'POST'])
 def show_job(request, session_slug, job_slug, path):
     ''' Display job details '''
-    request = userApi.has_admin_access(request, 'HR')
+    request = userApi.has_admin_access(request, Role.HR)
 
     if path not in JOB_PATH: raise Http404
 
@@ -566,7 +568,7 @@ def instructor_jobs_details(request, username):
     user.total_applicants = adminApi.add_total_applicants(user)
     return render(request, 'administrators/jobs/instructor_jobs_details.html', {
         'loggedin_user': request.user,
-        'user': user
+        'user': userApi.add_avatar(user)
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -590,7 +592,7 @@ def student_jobs_details(request, username, tab):
 
     return render(request, 'administrators/jobs/student_jobs_details.html', {
         'loggedin_user': request.user,
-        'user': user,
+        'user': userApi.add_avatar(user),
         'total_assigned_hours': adminApi.get_total_assigned_hours(apps, ['offered', 'accepted']),
         'apps': apps,
         'offered_apps': offered_apps,
@@ -745,7 +747,7 @@ def delete_job_instructors(request, session_slug, job_slug):
 @require_http_methods(['GET'])
 def show_application(request, app_slug, path):
     ''' Display an application details '''
-    request = userApi.has_admin_access(request, 'HR')
+    request = userApi.has_admin_access(request, Role.HR)
 
     if path not in APP_PATH: raise Http404
 
@@ -1032,7 +1034,7 @@ def offered_applications(request):
 @require_http_methods(['GET', 'POST'])
 def accepted_applications(request):
     ''' Display applications accepted by students '''
-    request = userApi.has_admin_access(request, 'HR')
+    request = userApi.has_admin_access(request, Role.HR)
 
     if request.method == 'POST':
         admin_docs = adminApi.get_admin_docs(request.POST.get('application'))
@@ -1552,7 +1554,7 @@ def all_users(request):
 @require_http_methods(['GET'])
 def show_user(request, username, path, tab):
     ''' Display an user's details '''
-    request = userApi.has_admin_access(request, 'HR')
+    request = userApi.has_admin_access(request, Role.HR)
 
     if path not in USER_PATH or tab not in USER_TAB:
         raise Http404
@@ -1567,7 +1569,7 @@ def show_user(request, username, path, tab):
     user.is_student = userApi.user_has_role(user ,'Student')
     return render(request, 'administrators/hr/show_user.html', {
         'loggedin_user': request.user,
-        'user': user,
+        'user': userApi.add_avatar(user),
         'path': path,
         'current_tab': tab
     })
@@ -1731,7 +1733,7 @@ def edit_user(request, username):
 
     return render(request, 'administrators/hr/edit_user.html', {
         'loggedin_user': request.user,
-        'user': user,
+        'user': userApi.add_avatar(user),
         'roles': userApi.get_roles(),
         'user_form': UserForm(data=None, instance=user),
         'user_profile_form': UserProfileEditForm(data=None, instance=user.profile),
@@ -2826,3 +2828,55 @@ def delete_landing_page(request):
         else:
             messages.error(request, 'An error occurred.')
     return redirect("administrators:landing_pages")
+
+
+"""
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET', 'POST'])
+def upload_avatar(request):
+    ''' Upload an Avatar '''
+    request = userApi.has_admin_access(request)
+
+    if request.method == 'POST':
+        if len(request.FILES) == 0:
+            messages.error(request, 'An error occurred. Please select your profile photo, then try again.')
+            return redirect('administrators:upload_avatar')
+
+        form = AvatarForm(request.POST, request.FILES)
+        if form.is_valid():
+            avatar = form.save(commit=False)
+            avatar.uploaded = request.FILES.get('uploaded')
+            avatar.save()
+            if avatar:
+                messages.success(request, 'Success! Profile Photo uploaded.')
+            else:
+                messages.error(request, 'An error occurred while uploading an avatar.')
+        else:
+            errors = form.errors.get_json_data()
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+
+        return redirect('administrators:upload_avatar')
+
+    return render(request, 'administrators/hr/upload_avatar.html', {
+        'loggedin_user': userApi.add_avatar(request.user),
+        'form': AvatarForm(initial={ 'user': request.user })
+    })
+
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['POST'])
+def delete_avatar(request):
+    ''' delete an avatar '''
+    request = userApi.has_admin_access(request)
+
+    if request.method == 'POST':
+        username = request.POST.get('user')
+        if userApi.delete_user_avatar(username):
+            messages.success(request, 'Success! Profile Photo deleted.')
+        else:
+            messages.error(request, 'An error occurred.')
+
+    return redirect('administrators:upload_avatar')
+"""

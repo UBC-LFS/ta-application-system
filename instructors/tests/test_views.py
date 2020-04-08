@@ -116,7 +116,7 @@ class InstructorTest(TestCase):
             'email': 'new_email@example.com',
             'employee_number': '5554444'
         }
-        response = self.client.post(reverse('instructors:edit_user', args=[USER]), data=urlencode(data), content_type=ContentType)
+        response = self.client.post(reverse('instructors:edit_user'), data=urlencode(data), content_type=ContentType)
         messages = self.messages(response)
         self.assertTrue('Success' in messages[0])
         self.assertEqual(response.status_code, 302)
@@ -147,11 +147,11 @@ class InstructorTest(TestCase):
             'email': 'new_email@example.com',
             'employee_number': '5554444'
         }
-        response = self.client.post(reverse('instructors:edit_user', args=[USER]), data=urlencode(data1, True), content_type=ContentType)
+        response = self.client.post(reverse('instructors:edit_user'), data=urlencode(data1, True), content_type=ContentType)
         messages = self.messages(response)
         self.assertTrue('An error occurred' in messages[0])
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, '/instructors/users/{0}/edit/'.format(USER))
+        self.assertEqual(response.url, '/instructors/users/edit/')
         self.assertRedirects(response, response.url)
 
         data2 = {
@@ -160,11 +160,11 @@ class InstructorTest(TestCase):
             'email': 'new_email@example.com',
             'employee_number': '5554444'
         }
-        response = self.client.post(reverse('instructors:edit_user', args=[USER]), data=urlencode(data2, True), content_type=ContentType)
+        response = self.client.post(reverse('instructors:edit_user'), data=urlencode(data2, True), content_type=ContentType)
         messages = self.messages(response)
         self.assertTrue('An error occurred' in messages[0])
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, '/instructors/users/{0}/edit/'.format(USER))
+        self.assertEqual(response.url, '/instructors/users/edit/')
         self.assertRedirects(response, response.url)
 
         data3 = {
@@ -173,11 +173,11 @@ class InstructorTest(TestCase):
             'last_name': 'last name',
             'employee_number': '5554444'
         }
-        response = self.client.post(reverse('instructors:edit_user', args=[USER]), data=urlencode(data3, True), content_type=ContentType)
+        response = self.client.post(reverse('instructors:edit_user'), data=urlencode(data3, True), content_type=ContentType)
         messages = self.messages(response)
         self.assertTrue('An error occurred' in messages[0])
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, '/instructors/users/{0}/edit/'.format(USER))
+        self.assertEqual(response.url, '/instructors/users/edit/')
         self.assertRedirects(response, response.url)
 
         data4 = {
@@ -187,11 +187,11 @@ class InstructorTest(TestCase):
             'email': 'new_email',
             'employee_number': '5554444'
         }
-        response = self.client.post(reverse('instructors:edit_user', args=[USER]), data=urlencode(data4, True), content_type=ContentType)
+        response = self.client.post(reverse('instructors:edit_user'), data=urlencode(data4, True), content_type=ContentType)
         messages = self.messages(response)
         self.assertTrue('An error occurred' in messages[0])
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, '/instructors/users/{0}/edit/'.format(USER))
+        self.assertEqual(response.url, '/instructors/users/edit/')
         self.assertRedirects(response, response.url)
 
         data5 = {
@@ -201,11 +201,11 @@ class InstructorTest(TestCase):
             'email': 'new_email@example.com',
             'employee_number': '55544448'
         }
-        response = self.client.post(reverse('instructors:edit_user', args=[USER]), data=urlencode(data5, True), content_type=ContentType)
+        response = self.client.post(reverse('instructors:edit_user'), data=urlencode(data5, True), content_type=ContentType)
         messages = self.messages(response)
         self.assertTrue('An error occurred' in messages[0])
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, '/instructors/users/{0}/edit/'.format(USER))
+        self.assertEqual(response.url, '/instructors/users/edit/')
         self.assertRedirects(response, response.url)
 
         data6 = {
@@ -215,11 +215,11 @@ class InstructorTest(TestCase):
             'email': 'new_email@example.com',
             'employee_number': '555'
         }
-        response = self.client.post(reverse('instructors:edit_user', args=[USER]), data=urlencode(data6, True), content_type=ContentType)
+        response = self.client.post(reverse('instructors:edit_user'), data=urlencode(data6, True), content_type=ContentType)
         messages = self.messages(response)
         self.assertTrue('An error occurred' in messages[0])
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, '/instructors/users/{0}/edit/'.format(USER))
+        self.assertEqual(response.url, '/instructors/users/edit/')
         self.assertRedirects(response, response.url)
 
 

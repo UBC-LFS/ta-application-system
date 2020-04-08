@@ -106,5 +106,8 @@ urlpatterns = [
 
     path('preparation/landing-pages/delete/', views.delete_landing_page, name='delete_landing_page'),
     path('preparation/landing-pages/<int:landing_page_id>/edit/', views.edit_landing_page, name='edit_landing_page'),
-    path('preparation/landing-pages/', views.landing_pages, name='landing_pages'),
+    path('preparation/landing-pages/', views.landing_pages, name='landing_pages')
+
+    #path('hr/users/avatar/upload/', views.upload_avatar, name='upload_avatar'),
+    #path('hr/users/avatar/delete/', views.delete_avatar, name='delete_avatar'),
 ]

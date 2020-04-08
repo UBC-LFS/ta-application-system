@@ -165,14 +165,14 @@ main {
 
 .img-profile,
 .img-document {
-  width: 30%;
-  height: auto;
-  border-radius: 50%;
+  width: 115px;
+  height: 115px;
+  border-radius: 10%;
   margin-bottom: 10px;
 }
 
 .img-profile {
-  border: 10px solid #fff;
+  border: 5px solid #fff;
 }
 
 .left-aside-btn-groups {
@@ -351,6 +351,10 @@ main {
   font-weight: 650;
 }
 
+.board > div > div {
+  color: #474d52;
+}
+
 .board > h4,
 .board > form > div > h5 {
   font-weight: 400;
@@ -406,6 +410,10 @@ main {
     background-color: #fff;
 }
 
+.bd-callout-info {
+    border-left-color: #17a2b8;
+}
+
 .bd-callout-warning {
     border-left-color: #f0ad4e;
 }
@@ -423,6 +431,11 @@ main {
 .bd-callout p,
 .bd-callout ul {
   color: #343a40 !important;
+}
+
+.bd-callout-info h4,
+.bd-callout-info h5 {
+    color: #17a2b8;
 }
 
 .bd-callout-warning h4,

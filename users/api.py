@@ -54,7 +54,8 @@ def get_user_roles(user):
 
 def loggedin_user(user):
     ''' Get a logged in user '''
-    if not is_valid_user(user): PermissionDenied
+    if is_valid_user(user) == False:
+        raise PermissionDenied
 
     roles = []
     for role in user.profile.roles.all():
@@ -81,7 +82,7 @@ def has_admin_access(request, role=None):
     return request
 
 def has_user_access(request, role):
-    ''' Check if an user has access '''
+    ''' Check if an user has access with a given role '''
     if request.user.is_impersonate:
         if is_admin(request.session['loggedin_user'], 'dict') == False:
             raise PermissionDenied
@@ -93,6 +94,38 @@ def has_user_access(request, role):
         raise PermissionDenied
 
     return request
+
+def has_users_view_access(request, role):
+    ''' Check if users have access to the view of users '''
+    request.user.roles = request.session['loggedin_user']['roles']
+
+    custom_roles = []
+    for r in request.session['loggedin_user']['roles']:
+        if r == Role.SUPERADMIN:
+            custom_roles.append('administrators')
+        elif r == Role.ADMIN:
+            custom_roles.append('administrators')
+        elif r == Role.HR:
+            custom_roles.append('administrators')
+        elif r == Role.INSTRUCTOR:
+            custom_roles.append('instructors')
+        elif r == Role.STUDENT:
+            custom_roles.append('students')
+
+    if is_valid_user(request.user) == False or role not in custom_roles:
+        raise PermissionDenied
+
+    return request
+
+
+"""
+def has_loggedin_user_valid_request_username(request, username):
+    ''' Check logged in user is the same as a request user '''
+    if is_valid_user(request.user) == False or request.user.username != username:
+        raise PermissionDenied
+    request.user.roles = request.session['loggedin_user']['roles']
+    return request
+"""
 
 
 # User
@@ -404,10 +437,54 @@ def resume_exists(user):
     return False
 
 
-# end resume
+# Avatar
+
+def has_user_avatar_created(user):
+    ''' Check an user has an avatar '''
+    try:
+        return user.avatar
+    except Avatar.DoesNotExist:
+        return None
+
+
+def add_avatar(user):
+    ''' Add avatar of an user '''
+    if has_user_avatar_created(user) and bool(user.avatar.uploaded):
+        user.avatar_filename = os.path.basename(user.avatar.uploaded.name)
+        content = None
+        with user.avatar.uploaded.open() as f:
+            content = f.read()
+        url = 'data:image/jpg;base64,' + base64.b64encode(content).decode('utf-8')
+
+        user.avatar_file = {
+            'filename': os.path.basename(user.avatar.uploaded.name),
+            'url': url,
+            'created_at': user.avatar.created_at
+        }
+    else:
+        user.avatar_file = None
+    return user
+
+
+def delete_user_avatar(data):
+    ''' Delete user's resume '''
+    user = get_user(data, 'username')
+
+    if has_user_avatar_created(user) and bool(user.avatar.uploaded):
+        user.avatar.uploaded.delete()
+        deleted = user.avatar.delete()
+        if deleted and not bool(user.avatar.uploaded):
+            dirpath = os.path.join( settings.MEDIA_ROOT, 'users', user.username, 'avatar' )
+            if os.path.exists(dirpath) and os.path.isdir(dirpath):
+                os.rmdir(dirpath)
+                return True
+        else:
+            return False
+    return True
 
 
 # Confidentiality
+
 
 def create_confidentiality(user):
     return Confidentiality.objects.create(user_id=user.id, created_at=datetime.now(), updated_at=datetime.now())

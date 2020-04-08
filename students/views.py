@@ -37,7 +37,7 @@ def index(request):
 
     apps = request.user.application_set.all()
     return render(request, 'students/index.html', {
-        'loggedin_user': request.user,
+        'loggedin_user': userApi.add_avatar(request.user),
         'apps': apps,
         'total_assigned_hours': adminApi.get_total_assigned_hours(apps, ['accepted']),
         'recent_apps': apps.filter( Q(created_at__year__gte=datetime.now().year) ).order_by('-created_at'),
@@ -56,7 +56,7 @@ def show_profile(request, tab):
 
     loggedin_user = userApi.add_resume(request.user)
     return render(request, 'students/profile/show_profile.html', {
-        'loggedin_user': loggedin_user,
+        'loggedin_user': userApi.add_avatar(loggedin_user),
         'form': ResumeForm(initial={ 'user': loggedin_user }),
         'current_tab': tab,
         'can_apply': userApi.can_apply(request.user)
@@ -115,7 +115,7 @@ def edit_profile(request):
         return redirect('students:edit_profile')
 
     return render(request, 'students/profile/edit_profile.html', {
-        'loggedin_user': loggedin_user,
+        'loggedin_user': userApi.add_avatar(loggedin_user),
         'form': StudentProfileForm(data=None, instance=loggedin_user.profile, initial={
             'degrees': profile_degrees,
             'trainings': profile_trainings
@@ -187,6 +187,7 @@ def show_confidentiality(request):
         template = 'detail'
 
     user = userApi.add_confidentiality_given_list(request.user, ['sin', 'study_permit'])
+    user = userApi.add_avatar(user)
     return render(request, 'students/profile/show_confidentiality.html', {
         'loggedin_user': userApi.add_personal_data_form(user),
         'template': template
@@ -266,7 +267,7 @@ def submit_confidentiality(request):
                 form = ConfidentialityInternationalForm(data=None, instance=loggedin_user.confidentiality, initial={ 'user': loggedin_user })
 
     return render(request, 'students/profile/submit_confidentiality.html', {
-        'loggedin_user': loggedin_user,
+        'loggedin_user': userApi.add_avatar(loggedin_user),
         'form': form
     })
 
@@ -363,7 +364,7 @@ def edit_confidentiality(request):
                 form = ConfidentialityInternationalForm(data=None, instance=confidentiality, initial={ 'user': loggedin_user })
 
     return render(request, 'students/profile/edit_confidentiality.html', {
-        'loggedin_user': loggedin_user,
+        'loggedin_user': userApi.add_avatar(loggedin_user),
         'sin_file': sin_file,
         'study_permit_file': study_permit_file,
         'personal_data_form_file': personal_data_form_file,
@@ -433,7 +434,7 @@ def explore_jobs(request):
 
     sessions = adminApi.get_sessions()
     return render(request, 'students/jobs/explore_jobs.html', {
-        'loggedin_user': request.user,
+        'loggedin_user': userApi.add_avatar(request.user),
         'visible_current_sessions': sessions.filter( Q(is_visible=True) & Q(is_archived=False) ),
         'favourites': adminApi.get_favourites(request.user),
         'can_apply': can_apply
@@ -503,7 +504,7 @@ def favourite_jobs(request):
             favourites = paginator.page(paginator.num_pages)
 
     return render(request, 'students/jobs/favourite_jobs.html', {
-        'loggedin_user': request.user,
+        'loggedin_user': userApi.add_avatar(request.user),
         'all_favourites': all_favourites,
         'favourites': adminApi.add_applied_jobs_to_favourites(request.user, favourites),
         'total_favourites': len(favourite_list),
@@ -559,7 +560,7 @@ def available_jobs(request, session_slug):
         jobs = paginator.page(paginator.num_pages)
 
     return render(request, 'students/jobs/available_jobs.html', {
-        'loggedin_user': request.user,
+        'loggedin_user': userApi.add_avatar(request.user),
         'session_slug': session_slug,
         'jobs': adminApi.add_applied_favourite_jobs(request.user, jobs),
         'total_jobs': len(job_list),

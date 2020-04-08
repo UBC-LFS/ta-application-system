@@ -418,9 +418,21 @@ class ConfidentialityForm(forms.ModelForm):
 
 
 class ResumeForm(forms.ModelForm):
-    ''' '''
+    ''' Resume form '''
     class Meta:
         model = Resume
+        fields = ['user', 'uploaded']
+        labels = {
+            'uploaded': ''
+        }
+        widgets = {
+            'user': forms.HiddenInput()
+        }
+
+class AvatarForm(forms.ModelForm):
+    ''' Avatar form '''
+    class Meta:
+        model = Avatar
         fields = ['user', 'uploaded']
         labels = {
             'uploaded': ''
