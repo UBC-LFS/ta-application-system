@@ -11,7 +11,7 @@
     {% endif %}
 
     <div class="col-10 mx-auto mt-5">
-      {% include 'ta_app/users/_note_upload_avatar.html' with role='administrators' %}
+      {% include 'ta_app/users/_note_upload_avatar.html' with next=request.get_full_path %}
 
       <div class="bd-callout bd-callout-warning">
         <h4>

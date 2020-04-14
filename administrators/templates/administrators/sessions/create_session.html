@@ -4,7 +4,23 @@
 {% include 'administrators/_menu.html' %}
 <div class="row">
   <div class="col-md-4">
-    {% include 'administrators/sessions/_left_aside.html' with title='Create Session' current_sessions=current_sessions archived_sessions=archived_sessions %}
+    <aside class="col-10 mx-auto">
+      {% include 'ta_app/pages/_header.html' with title=title %}
+
+      <div class="bg-prompt text-center">
+        <div class="prompt p-4 mb-4">
+          <h5>Current Sessions</h5>
+          <p>There are <span class="font-weight-bold text-chocolate">{{ current_sessions|length }}</span> current sessions.</p>
+          <a class="btn btn-outline-primary" href="{% url 'administrators:current_sessions' %}">Back to Current Sessions</a>
+
+          <hr class="mt-4" />
+
+          <h5>Archived Sessions</h5>
+          <p>There are <span class="font-weight-bold text-chocolate">{{ archived_sessions|length }}</span> archived sessions.</p>
+          <a class="btn btn-outline-primary" href="{% url 'administrators:current_sessions' %}">Back to Archived Sessions</a>
+        </div>
+      </div>
+    </aside>
   </div>
 
   <div class="col-md-8">

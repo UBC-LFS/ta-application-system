@@ -8,10 +8,9 @@ urlpatterns = [
 
     path('sessions/create/confirmation/', views.create_session_confirmation, name='create_session_confirmation'),
     path('sessions/create/', views.create_session, name='create_session'),
-    path('sessions/delete/p/<str:path>/', views.delete_session, name='delete_session'),
-    path('sessions/<str:session_slug>/p/<str:path>/delete/confirmation/', views.delete_session_confirmation, name='delete_session_confirmation'),
-    path('sessions/<str:session_slug>/p/<str:path>/edit/', views.edit_session, name='edit_session'),
-    path('sessions/<str:session_slug>/p/<str:path>/details/', views.show_session, name='show_session'),
+    path('sessions/<str:session_slug>/delete/confirmation/', views.delete_session_confirmation, name='delete_session_confirmation'),
+    path('sessions/<str:session_slug>/edit/', views.edit_session, name='edit_session'),
+    path('sessions/<str:session_slug>/details/', views.show_session, name='show_session'),
     path('sessions/current/', views.current_sessions, name='current_sessions'),
     path('sessions/archived/', views.archived_sessions, name='archived_sessions'),
 
@@ -21,15 +20,15 @@ urlpatterns = [
     path('jobs/instructor/', views.instructor_jobs, name='instructor_jobs'),
     path('instructors/search/', views.search_instructors, name='search_instructors'),
     path('instructors/<str:username>/jobs/', views.instructor_jobs_details, name='instructor_jobs_details'),
-    path('students/<str:username>/jobs/<str:tab>/', views.student_jobs_details, name='student_jobs_details'),
+    path('students/<str:username>/jobs/', views.student_jobs_details, name='student_jobs_details'),
     path('sessions/<str:session_slug>/jobs/<str:job_slug>/edit/', views.edit_job, name='edit_job'),
     path('sessions/<str:session_slug>/jobs/<str:job_slug>/applications/', views.show_job_applications, name='show_job_applications'),
-    path('sessions/<str:session_slug>/jobs/<str:job_slug>/p/<str:path>/details/', views.show_job, name='show_job'),
+    path('sessions/<str:session_slug>/jobs/<str:job_slug>/details/', views.show_job, name='show_job'),
     path('sessions/<str:session_slug>/jobs/<str:job_slug>/instructors/add/', views.add_job_instructors, name='add_job_instructors'),
     path('sessions/<str:session_slug>/jobs/<str:job_slug>/instructors/delete/', views.delete_job_instructors, name='delete_job_instructors'),
 
-    path('applications/send_email/confirmation/p/<str:path>/', views.applications_send_email_confirmation, name='applications_send_email_confirmation'),
-    path('applications/send_email/p/<str:path>/', views.applications_send_email, name='applications_send_email'),
+    path('applications/send_email/confirmation/', views.applications_send_email_confirmation, name='applications_send_email_confirmation'),
+    path('applications/send_email/', views.applications_send_email, name='applications_send_email'),
 
     path('sessions/<str:session_slug>/jobs/<str:job_slug>/offer/', views.offer_job, name='offer_job'),
     path('applications/offered/email_history/', views.email_history, name='email_history'),
@@ -45,10 +44,9 @@ urlpatterns = [
     path('applications/accepted/', views.accepted_applications, name='accepted_applications'),
     path('applications/declined/', views.declined_applications, name='declined_applications'),
     path('applications/terminated/', views.terminated_applications, name='terminated_applications'),
-    path('applications/<str:app_slug>/p/<str:path>/details/', views.show_application, name='show_application'),
+    path('applications/<str:app_slug>/details/', views.show_application, name='show_application'),
 
     path('hr/users/<str:username>/edit/', views.edit_user, name='edit_user'),
-    path('hr/users/<str:username>/p/<str:path>/details/information/<str:tab>/', views.show_user, name='show_user'),
     path('hr/users/<str:username>/delete/confirmation', views.delete_user_confirmation, name='delete_user_confirmation'),
     path('hr/users/all/', views.all_users, name='all_users'),
     path('hr/users/destroy/contents', views.destroy_user_contents, name='destroy_user_contents'),
@@ -110,4 +108,6 @@ urlpatterns = [
 
     #path('hr/users/avatar/upload/', views.upload_avatar, name='upload_avatar'),
     #path('hr/users/avatar/delete/', views.delete_avatar, name='delete_avatar'),
+    #path('hr/users/<str:username>/p/<str:path>/details/information/<str:tab>/', views.show_user, name='show_user'),
+    #path('sessions/delete/', views.delete_session, name='delete_session'),
 ]

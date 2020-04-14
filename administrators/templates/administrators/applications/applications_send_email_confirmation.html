@@ -14,7 +14,7 @@
           </h4>
           <p>There are <span class="font-weight-bold">{{ applications|length }}</span> receiver(s) selected.</p>
 
-          {% include 'administrators/applications/_go_back.html' with data=path %}
+          <a class="btn btn-outline-primary" href="{{ request.GET.next }}">Back to {{ request.GET.p }} Applications</a>
         </div>
       </div>
 
@@ -34,7 +34,7 @@
       {% else %}
 
         <h3>Receivers</h3>
-        <table class="table text-center">
+        <table class="table text-center font-size-1">
           <thead>
             <tr>
               <th>#</th>
@@ -106,6 +106,8 @@
           {% for field in form.hidden_fields %}
             {{ field }}
           {% endfor %}
+
+          <input type="hidden" name="next" value="{{ request.GET.next }}" />
 
           <input class="btn btn-primary" type="submit" value="Confirm to send an email by {{ admin_email.type }}" />
         </form>

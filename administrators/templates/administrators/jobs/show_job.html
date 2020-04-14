@@ -26,7 +26,7 @@
     </div>
 
     <div class="left-aside-btn-groups">
-      {% include 'administrators/jobs/_go_back.html' with data=path %}
+      <a class="btn btn-outline-primary" href="{{ request.GET.next }}">Back to {{ request.GET.p }}</a>
     </div>
 
   </div>

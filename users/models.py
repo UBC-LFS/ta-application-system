@@ -332,8 +332,6 @@ class Avatar(models.Model):
         super(Avatar, self).save(*args, **kwargs)
 
 
-
-
 def compress_image(img):
     ''' Compress an image '''
     # Check image's width and height

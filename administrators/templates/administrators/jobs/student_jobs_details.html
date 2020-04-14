@@ -73,13 +73,13 @@
 
   <nav>
     <div class="nav nav-tabs">
-      <a class="nav-item nav-link {% if current_tab == 'all' %} active {% endif %}" href="{% url 'administrators:student_jobs_details' username=user.username tab='all' %}">
+      <a class="nav-item nav-link {% if current_tab == 'all' %} active {% endif %}" href="{{ tab_urls.all }}">
         All Jobs ({{ apps|length }})
       </a>
-      <a class="nav-item nav-link {% if current_tab == 'offered' %} active {% endif %}" href="{% url 'administrators:student_jobs_details' username=user.username tab='offered' %}">
+      <a class="nav-item nav-link {% if current_tab == 'offered' %} active {% endif %}" href="{{ tab_urls.offered }}">
         Offered Jobs ({{ offered_apps|length }})
       </a>
-      <a class="nav-item nav-link {% if current_tab == 'accepted' %} active {% endif %}" href="{% url 'administrators:student_jobs_details' username=user.username tab='accepted' %}">
+      <a class="nav-item nav-link {% if current_tab == 'accepted' %} active {% endif %}" href="{{ tab_urls.accepted }}">
         Accepted Jobs ({{ accepted_apps|length }})
       </a>
     </div>

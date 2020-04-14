@@ -41,20 +41,20 @@
       {% for app in apps %}
         <tr>
           <td>
-            <a class="btn btn-xs btn-info" href="{% url 'administrators:show_application' app_slug=app.slug path='accepted' %}">{{ app.id }}</a>
+            <a class="btn btn-xs btn-info" href="{% url 'administrators:show_application' app_slug=app.slug %}?next={{ request.get_full_path }}&p=Accepted Applications">{{ app.id }}</a>
           </td>
           <td>{{ app.job.session.year }}</td>
           <td>{{ app.job.session.term.code }}</td>
           <td>
-            <a href="{% url 'administrators:show_job' session_slug=app.job.session.slug job_slug=app.job.course.slug path='accepted' %}">
+            <a href="{% url 'administrators:show_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}?next={{ request.get_full_path }}&p=Accepted Applications">
               {{ app.job.course.code.name }}<br /> {{ app.job.course.number.name }}<br /> {{ app.job.course.section.name }}
             </a>
           </td>
           <td>
-            <a href="{% url 'administrators:show_user' username=app.applicant.username path='accepted' tab='basic' %}">
+            <a href="{% url 'users:show_user' username=app.applicant.username %}?next={{ request.get_full_path }}&p=Accepted Applications&t=basic">
               {{ app.applicant.first_name }} <br />{{ app.applicant.last_name }}
-            </a><br />
-            <small>({{ app.applicant.username }})</small><br />
+            </a>
+            <div class="text-dark-gray">{{ app.applicant.username }}</div>
             {% include 'ta_app/applications/_modal_app_status.html' with data=app display='name' %}
           </td>
           <td>{{ app.applicant.profile.student_number }}</td>
@@ -67,7 +67,7 @@
           </td>
           <td>
             {% include 'ta_app/applications/_app_classification.html' with data=app %}<br />
-            <small>(${{ app.classification.wage|floatformat:2 }})</small><br />
+            <div class="text-dark-gray">(${{ app.classification.wage|floatformat:2 }})</div>
             {% include 'ta_app/applications/_modal_note.html' with data=app display='name' %}
           </td>
           <td>${{ app.salary|floatformat:2 }}</td>

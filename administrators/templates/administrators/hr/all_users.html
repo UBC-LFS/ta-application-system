@@ -43,7 +43,7 @@
       {% for user in users %}
         <tr>
           <td>
-            <a class="btn btn-xs btn-info" href="{% url 'administrators:show_user' username=user.username path='users' tab='basic' %}">{{ user.id }}</a>
+            <a class="btn btn-xs btn-info" href="{% url 'users:show_user' username=user.username %}?next={{ request.get_full_path }}&p='All Users'&t='basic'">{{ user.id }}</a>
           </td>
           <td>{{ user.first_name }}</td>
           <td>{{ user.last_name }}</td>

@@ -48,7 +48,7 @@
           <tr>
             <td>{{ app.applicant.get_full_name }}</td>
             <td>
-              <a href="{% url 'instructors:show_user' session_slug=job.session.slug job_slug=job.course.slug username=app.applicant.username tab='basic' %}">{{ app.applicant.username }}</a>
+              <a href="{% url 'users:show_user' username=app.applicant.username %}?next={{ request.get_full_path }}&p=Applications&t=basic">{{ app.applicant.username }}</a>
             </td>
             <td>{% include 'ta_app/applications/_modal_app_details.html' with data=app pin_display='False' %}</td>
             <td>{{ app.created_at }}</td>

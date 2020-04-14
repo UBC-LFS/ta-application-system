@@ -2,19 +2,25 @@ $(document).ready(function() {
 
   // Make a navigation header active
   const roles = window.location.pathname.split('/');
-  console.log(roles);
   if (roles[1] === 'administrators') {
     $('#nav-administrator').addClass('active');
+
   } else if (roles[1] === 'instructors') {
     $('#nav-instructor').addClass('active');
+
   } else if (roles[1] === 'students') {
     $('#nav-student').addClass('active');
+
   } else if (roles[1] === 'users') {
-    if (roles[3] === 'administrators') {
+
+    const parameters = window.location.href.split('?');
+    if ( parameters[1].includes('administrators') ) {
       $('#nav-administrator').addClass('active');
-    } else if (roles[3] === 'instructors') {
+
+    } else if ( parameters[1].includes('instructors') ) {
       $('#nav-instructor').addClass('active');
-    } else if (roles[3] === 'students') {
+
+    } else if ( parameters[1].includes('students') ) {
       $('#nav-student').addClass('active');
     }
   }

@@ -2,6 +2,7 @@ import os
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import PermissionDenied
+from django.http import Http404
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
 from django.db.models import Q
@@ -10,6 +11,7 @@ from users.models import *
 from users.forms import *
 from administrators.models import *
 from administrators.forms import ROLES
+from administrators.views import USER_TAB
 from administrators import api as adminApi
 
 from datetime import datetime, date, timedelta
@@ -73,6 +75,13 @@ def loggedin_user(user):
 
     return user
 
+def has_auth_user_access(request):
+    ''' Check if an authenticated user has access '''
+    request.user.roles = request.session['loggedin_user']['roles']
+    if is_valid_user(request.user) == False:
+        raise PermissionDenied
+    return request
+
 def has_admin_access(request, role=None):
     ''' Check if an admin has access '''
     request.user.roles = request.session['loggedin_user']['roles']
@@ -116,16 +125,6 @@ def has_users_view_access(request, role):
         raise PermissionDenied
 
     return request
-
-
-"""
-def has_loggedin_user_valid_request_username(request, username):
-    ''' Check logged in user is the same as a request user '''
-    if is_valid_user(request.user) == False or request.user.username != username:
-        raise PermissionDenied
-    request.user.roles = request.session['loggedin_user']['roles']
-    return request
-"""
 
 
 # User
@@ -847,3 +846,36 @@ def get_error_messages(errors):
 
 def password_generator():
     return ''.join(random.choices(string.ascii_lowercase + string.digits, k=50))
+
+
+
+"""
+def has_loggedin_user_valid_request_username(request, username):
+    ''' Check logged in user is the same as a request user '''
+    if is_valid_user(request.user) == False or request.user.username != username:
+        raise PermissionDenied
+    request.user.roles = request.session['loggedin_user']['roles']
+    return request
+"""
+
+"""
+def validate_parameters(request, list):
+    for parameter in list:
+        if request.GET.get(parameter) == None:
+            raise Http404
+
+
+def get_available_tabs_by_role(role):
+    available_tabs = []
+    if role == 'administrators':
+        available_tabs = ['basic', 'additional', 'confidential']
+    elif role == 'instructors':
+        available_tabs = ['basic', 'additional', 'resume']
+
+    return available_tabs
+
+
+def check_infomation_tab(role, tab):
+    if tab not in get_available_tabs_by_role(role):
+        raise Http404
+"""

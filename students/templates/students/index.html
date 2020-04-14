@@ -36,8 +36,8 @@
           </ul>
         </div>
       </div>
-
-      {% include 'ta_app/users/_note_upload_avatar.html' with role='students' %}
+      
+      {% include 'ta_app/users/_note_upload_avatar.html' with next=request.get_full_path %}
 
       {% include 'ta_app/jobs/_job_inactive_note.html' %}
     </div>

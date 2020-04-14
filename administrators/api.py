@@ -8,12 +8,73 @@ from django.core.mail import send_mail
 from django.core.mail import EmailMultiAlternatives
 from django.db import IntegrityError
 from django.core.exceptions import PermissionDenied
+from django.urls import resolve
+from urllib.parse import urlparse
 
 from administrators.models import *
 from users.models import *
 from users import api as userApi
 
 from datetime import datetime
+
+USER_TAB = ['basic', 'additional', 'confidential', 'resume']
+
+# Request parameter validation
+
+def validate_parameters(request, params):
+    for param in params:
+        if request.GET.get(param) == None:
+            raise Http404
+    return True
+
+def validate_url_page(request, path):
+    ''' Validate a page name in url '''
+    if request.GET.get('p') not in path:
+        raise Http404
+
+def validate_url_tab(request, path):
+    ''' Validate a tab name in url '''
+    if request.GET.get('t') not in path:
+        raise Http404
+
+def can_req_parameters_access(request, domain, params):
+    ''' Check whether request parameters are valid or not '''
+
+    SESSION_PATH = ['Current Sessions', 'Archived Sessions']
+    JOB_PATH = ['Prepare Jobs', 'Jobs in Progress', 'Jobs by Instructor', 'Jobs by Student']
+    APP_PATH = ['Dashboard', 'All Applications', 'Selected Applications',
+                'Offered Applications', 'Accepted Applications',
+                'Declined Applications', 'Terminated Applications']
+    USER_PATH = ['All Users', 'Jobs by Instructor', 'Jobs by Student', 'Applications'] + APP_PATH
+
+    # True if parameters are in the params list
+    if validate_parameters(request, params):
+        next = urlparse(request.GET.get('next'))
+        res = resolve(next.path)
+
+        if domain == 'session':
+            validate_url_page(request, SESSION_PATH)
+        elif domain == 'job':
+            validate_url_page(request, JOB_PATH)
+        elif domain == 'job-tab':
+            validate_url_page(request, JOB_PATH)
+            validate_url_tab(request, ['all', 'offered', 'accepted'])
+        elif domain == 'app':
+            validate_url_page(request, APP_PATH)
+        elif domain == 'user-tab':
+            validate_url_page(request, USER_PATH)
+            role = res.app_name
+            tabs = []
+            if role == 'administrators':
+                tabs = ['basic', 'additional', 'confidential']
+            elif role == 'instructors':
+                tabs = ['basic', 'additional', 'resume']
+            validate_url_tab(request, tabs)
+
+
+def build_url(path, next_path, page, tab):
+    return "{0}?next={1}&p={2}&t={3}".format(path, next_path, page, tab)
+
 
 
 # Courses

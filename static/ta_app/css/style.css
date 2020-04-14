@@ -368,9 +368,9 @@ main {
 }
 
 .board .job-desc {
-  background-color: #f8f8f8;
+  background-color: #fff;
   padding: 1rem 1.3rem;
-  border: 1px solid #6c757d;
+  border: 1px solid #dee2e6;
   border-radius: 4px;
 }
 
