@@ -10,7 +10,7 @@ from django.views.decorators.cache import cache_control
 from django.db.models import Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
-from administrators.views import APP_STATUS, USER_TAB
+from administrators.views import APP_STATUS
 from administrators.models import *
 from administrators.forms import *
 from administrators import api as adminApi
@@ -28,14 +28,14 @@ def index(request):
     request = userApi.has_user_access(request, 'Instructor')
 
     return render(request, 'instructors/index.html', {
-        'loggedin_user': request.user
+        'loggedin_user': userApi.add_avatar(request.user)
     })
 
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET', 'POST'])
-def edit_user(request, username):
+def edit_user(request):
     ''' Index page of an instructor's portal '''
     request = userApi.has_user_access(request, 'Instructor')
 
@@ -49,7 +49,7 @@ def edit_user(request, username):
         validation = userApi.validate_post(request.POST, ['first_name', 'last_name', 'email'])
         if len(validation) > 0:
             messages.error(request, 'An error occurred while updating an User Edit Form. {0}: This field is required.'.format( ', '.join(validation) ))
-            return HttpResponseRedirect( reverse('instructors:edit_user', args=[username]) )
+            return redirect('instructors:edit_user')
 
         user_form = UserInstructorForm(request.POST, instance=request.user)
         employee_number_form = EmployeeNumberEditForm(request.POST, instance=confidentiality)
@@ -68,7 +68,7 @@ def edit_user(request, username):
 
             if len(errors) > 0:
                 messages.error(request, 'An error occurred while updating an User Edit Form. {0}'.format( ' '.join(errors) ))
-                return HttpResponseRedirect( reverse('administrators:edit_user', args=[username]) )
+                return redirect('instructors:edit_user')
 
             messages.success(request, 'Success! User information of {0} (CWL: {1}) updated'.format(request.user.get_full_name(), request.user.username))
             return redirect('instructors:index')
@@ -84,33 +84,14 @@ def edit_user(request, username):
 
             messages.error(request, 'An error occurred while updating an User Form. {0}'.format( ' '.join(errors) ))
 
-        return HttpResponseRedirect( reverse('instructors:edit_user', args=[username]) )
+        return redirect('instructors:edit_user')
 
     return render(request, 'instructors/users/edit_user.html', {
-        'loggedin_user': request.user,
+        'loggedin_user': userApi.add_avatar(request.user),
         'user_form': UserInstructorForm(data=None, instance=request.user),
         'employee_number_form': EmployeeNumberEditForm(data=None, instance=confidentiality)
     })
 
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
-def show_user(request, session_slug, job_slug, username, tab):
-    ''' Display an user's details '''
-    request = userApi.has_user_access(request, 'Instructor')
-
-    if tab not in USER_TAB: raise Http404
-
-    user = userApi.get_user(username, 'username')
-    user.is_student = userApi.user_has_role(user ,'Student')
-    return render(request, 'instructors/users/show_user.html', {
-        'loggedin_user': request.user,
-        'selected_user': userApi.add_resume(user),
-        'session_slug': session_slug,
-        'job_slug': job_slug,
-        'current_tab': tab
-    })
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)

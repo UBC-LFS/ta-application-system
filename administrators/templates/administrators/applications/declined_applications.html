@@ -11,7 +11,7 @@
     This icon <i class="fa fa-asterisk text-danger" aria-hidden="true"></i> means administrators did decline accepted applications for re-assign.
   </p>
 
-  <form action="{% url 'administrators:applications_send_email' path='declined' %}" method="post">
+  <form action="{% url 'administrators:applications_send_email' %}?next={{ request.get_full_path }}&p=Declined Applications" method="post">
     {% csrf_token %}
     <table
       class="table table-bordered table-hover table-striped table-responsive-md text-center"
@@ -49,17 +49,19 @@
               {% endif %}
             </td>
             <td>
-              <a class="btn btn-xs btn-info" href="{% url 'administrators:show_application' app_slug=app.slug path='declined' %}">{{ app.id }}</a>
+              <a class="btn btn-xs btn-info" href="{% url 'administrators:show_application' app_slug=app.slug %}?next={{ request.get_full_path }}&p=Declined Applications">{{ app.id }}</a>
             </td>
             <td>{{ app.job.session.year }}</td>
             <td>{{ app.job.session.term.code }}</td>
             <td>
-              <a href="{% url 'administrators:show_job' session_slug=app.job.session.slug job_slug=app.job.course.slug path='declined' %}">
+              <a href="{% url 'administrators:show_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}?next={{ request.get_full_path }}&p=Declined Applications">
                 {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}
               </a>
             </td>
             <td>
-              <a href="{% url 'administrators:show_user' username=app.applicant.username path='declined' tab='basic' %}">{{ app.applicant.get_full_name }}</a>
+              <a href="{% url 'users:show_user' username=app.applicant.username %}?next={{ request.get_full_path }}&p=Declined Applications&t=basic">
+                {{ app.applicant.get_full_name }}
+              </a>
             </td>
             <td>
               {% include 'ta_app/applications/_modal_app_status.html' with data=app %}

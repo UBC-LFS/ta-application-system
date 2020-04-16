@@ -32,7 +32,7 @@
       {% for instructor in users %}
         <tr>
           <td>
-            <a class="btn btn-xs btn-info" href="{% url 'administrators:show_user' username=instructor.username path='instructor' tab='basic' %}">{{ instructor.id }}</a>
+            <a class="btn btn-xs btn-info" href="{% url 'users:show_user' username=instructor.username %}?next={{ request.get_full_path }}&p=Jobs by Instructor&t=basic">{{ instructor.id }}</a>
           </td>
           <td>{{ instructor.first_name }}</td>
           <td>{{ instructor.last_name }}</td>
@@ -41,7 +41,7 @@
           <td>{{ instructor.email }}</td>
           <td>
             {% if instructor.job_set.count > 0 %}
-              <a class="btn btn-xs btn-info" href="{% url 'administrators:instructor_jobs_details' instructor.username %}">{{ instructor.job_set.count }}</a>
+              <a class="btn btn-xs btn-info" href="{% url 'administrators:instructor_jobs_details' instructor.username %}?next={{ request.get_full_path }}&p=Jobs by Instructor">{{ instructor.job_set.count }}</a>
             {% else %}
               {{ instructor.job_set.count }}
             {% endif %}

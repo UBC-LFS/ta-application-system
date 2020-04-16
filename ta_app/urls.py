@@ -21,6 +21,7 @@ from ta_app import views, saml_views
 urlpatterns = [
     path('', views.index, name='index'),
     path('accounts/', include('accounts.urls')),
+    path('users/', include('users.urls')),
     path('administrators/', include('administrators.urls')),
     path('instructors/', include('instructors.urls')),
     path('students/', include('students.urls')),

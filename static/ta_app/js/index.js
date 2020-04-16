@@ -1,27 +1,30 @@
-$(document).ready(function () {
-  if (window.location.href.indexOf("administrators") > -1) {
-    document.getElementById('admin').classList.add("active");
-  } else {
-    if (document.getElementById('admin')) {
-      document.getElementById('admin').classList.remove("active");
+$(document).ready(function() {
+
+  // Make a navigation header active
+  const roles = window.location.pathname.split('/');
+  if (roles[1] === 'administrators') {
+    $('#nav-administrator').addClass('active');
+
+  } else if (roles[1] === 'instructors') {
+    $('#nav-instructor').addClass('active');
+
+  } else if (roles[1] === 'students') {
+    $('#nav-student').addClass('active');
+
+  } else if (roles[1] === 'users') {
+
+    const parameters = window.location.href.split('?');
+    if ( parameters[1].includes('administrators') ) {
+      $('#nav-administrator').addClass('active');
+
+    } else if ( parameters[1].includes('instructors') ) {
+      $('#nav-instructor').addClass('active');
+
+    } else if ( parameters[1].includes('students') ) {
+      $('#nav-student').addClass('active');
     }
   }
 
-  if (window.location.href.indexOf("instructors") > -1) {
-    document.getElementById('instructor').classList.add("active");
-  } else {
-    if (document.getElementById('instructor')) {
-      document.getElementById('instructor').classList.remove("active");
-    }
-  }
-
-  if (window.location.href.indexOf("students") > -1) {
-    document.getElementById('student').classList.add("active");
-  } else {
-    if (document.getElementById('student')) {
-      document.getElementById('student').classList.remove("active");
-    }
-  }
 
   // Select instructors
   $("#edit-job-form #input-instructor").on("input", function() {

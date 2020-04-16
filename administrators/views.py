@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.shortcuts import render, redirect
-from django.urls import reverse
+from django.urls import reverse, resolve
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect, Http404, JsonResponse
@@ -9,30 +9,25 @@ from django.views.decorators.http import require_http_methods
 from django.views.decorators.cache import cache_control
 from django.forms.models import model_to_dict
 from django.core import serializers
+from urllib.parse import urlparse
 
 from django.db.models import Q
 from django.views.static import serve
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
+from django.contrib.auth.models import User
+
 from administrators.models import Session, Job, Application, ApplicationStatus, Course
 from administrators.forms import *
 from administrators import api as adminApi
 
-from django.contrib.auth.models import User
+from users.models import *
 from users.forms import *
 from users import api as userApi
 
 from datetime import datetime
 
-from django.contrib.auth.models import User
 
-
-APP_MENU = ['dashboard', 'all', 'selected', 'offered', 'accepted', 'declined', 'terminated']
-SESSION_PATH = ['current', 'archived']
-JOB_PATH = ['prepare', 'progress'] + APP_MENU
-APP_PATH = APP_MENU + ['emails']
-USER_PATH = ['instructor', 'student', 'users', 'destroy'] + APP_MENU
-USER_TAB = ['basic', 'additional', 'confidential', 'resume']
 APP_STATUS = {
     'none': ApplicationStatus.NONE,
     'applied': ApplicationStatus.NONE,
@@ -49,10 +44,10 @@ APP_STATUS = {
 @require_http_methods(['GET'])
 def index(request):
     ''' Index page of Administrator's portal '''
-    request = userApi.has_admin_access(request, 'HR')
+    request = userApi.has_admin_access(request, Role.HR)
 
-    context = { 'loggedin_user': request.user }
-    if 'Admin' in request.user.roles or 'Superadmin' in request.user.roles:
+    context = { 'loggedin_user': userApi.add_avatar(request.user) }
+    if Role.ADMIN in request.user.roles or Role.SUPERADMIN in request.user.roles:
         sessions = adminApi.get_sessions()
         context['current_sessions'] = sessions.filter(is_archived=False)
         context['archived_sessions'] = sessions.filter(is_archived=True)
@@ -61,13 +56,14 @@ def index(request):
         context['students'] = userApi.get_users_by_role(Role.STUDENT)
         context['users'] = userApi.get_users()
 
-    elif 'HR' in request.user.roles:
+    elif Role.HR in request.user.roles:
         apps = adminApi.get_applications()
         context['accepted_apps'] = apps.filter(applicationstatus__assigned=ApplicationStatus.ACCEPTED).order_by('-id').distinct()
 
     return render(request, 'administrators/index.html', context)
 
-# ------------- Sessions -------------
+
+# Sessions
 
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -202,8 +198,7 @@ def current_sessions(request):
     return render(request, 'administrators/sessions/current_sessions.html', {
         'loggedin_user': request.user,
         'sessions': sessions,
-        'total_sessions': len(session_list),
-        'form': SessionForm()
+        'total_sessions': len(session_list)
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -238,33 +233,29 @@ def archived_sessions(request):
     return render(request, 'administrators/sessions/archived_sessions.html', {
         'loggedin_user': request.user,
         'sessions': sessions,
-        'total_sessions': len(session_list),
-        'form': SessionForm()
+        'total_sessions': len(session_list)
     })
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
-def show_session(request, session_slug, path):
+def show_session(request, session_slug):
     ''' Display session details '''
     request = userApi.has_admin_access(request)
-
-    if path not in SESSION_PATH: raise Http404
+    adminApi.can_req_parameters_access(request, 'session', ['next', 'p'])
 
     return render(request, 'administrators/sessions/show_session.html', {
         'loggedin_user': request.user,
-        'session': adminApi.get_session(session_slug, 'slug'),
-        'path': path
+        'session': adminApi.get_session(session_slug, 'slug')
     })
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET', 'POST'])
-def edit_session(request, session_slug, path):
+def edit_session(request, session_slug):
     ''' Edit a session '''
     request = userApi.has_admin_access(request)
-
-    if path not in SESSION_PATH: raise Http404
+    adminApi.can_req_parameters_access(request, 'session', ['next', 'p'])
 
     session = adminApi.get_session(session_slug, 'slug')
     if request.method == 'POST':
@@ -275,7 +266,7 @@ def edit_session(request, session_slug, path):
 
             if len(courses) == 0:
                 messages.error(request, 'An error occurred. Please select courses in this session.')
-                return HttpResponseRedirect( reverse('administrators:edit_session', args=[session_slug, path]) )
+                return HttpResponseRedirect(request.get_full_path())
 
             updated_session = form.save(commit=False)
             updated_session.updated_at = datetime.now()
@@ -289,10 +280,7 @@ def edit_session(request, session_slug, path):
                 updated_jobs = adminApi.update_session_jobs(session, courses)
                 if updated_jobs:
                     messages.success(request, 'Success! {0} {1} {2} updated'.format(session.year, session.term.code, session.title))
-                    if data['is_archived']:
-                        return redirect('administrators:archived_sessions')
-                    else:
-                        return redirect('administrators:current_sessions')
+                    return HttpResponseRedirect(request.POST.get('next'))
                 else:
                     messages.error(request, 'An error occurred while updating courses in a session.')
             else:
@@ -301,7 +289,7 @@ def edit_session(request, session_slug, path):
             errors = form.errors.get_json_data()
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
-        return HttpResponseRedirect( reverse('administrators:edit_session', args=[session_slug, path]) )
+        return HttpResponseRedirect(request.get_full_path())
 
     return render(request, 'administrators/sessions/edit_session.html', {
         'loggedin_user': request.user,
@@ -309,66 +297,51 @@ def edit_session(request, session_slug, path):
         'form': SessionConfirmationForm(data=None, instance=session, initial={
             'courses': [ job.course for job in session.job_set.all() ],
             'term': session.term
-        }),
-        'path': path
+        })
     })
-
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
-def delete_session_confirmation(request, session_slug, path):
-    ''' Confirmation to delete a Session '''
-    request = userApi.has_admin_access(request)
-
-    if path not in SESSION_PATH: raise Http404
-
-    sessions = adminApi.get_sessions()
-    return render(request, 'administrators/sessions/delete_session_confirmation.html', {
-        'loggedin_user': request.user,
-        'current_sessions': sessions.filter(is_archived=False),
-        'archived_sessions': sessions.filter(is_archived=True),
-        'session': adminApi.get_session(session_slug, 'slug'),
-        'path': path
-    })
-
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['POST'])
-def delete_session(request, path):
-    ''' Delete a Session '''
-    request = userApi.has_admin_access(request)
-
-    if path not in SESSION_PATH: raise Http404
-
-    if request.method == 'POST':
-        session_id = request.POST.get('session')
-        deleted_session = adminApi.delete_session(session_id)
-        if deleted_session:
-            messages.success(request, 'Success! {0} {1} {2} deleted'.format(deleted_session.year, deleted_session.term.code, deleted_session.title))
-        else:
-            messages.error(request, 'An error occurred. Failed to delete {0} {1} {2}'.format(deleted_session.year, deleted_session.term.code, deleted_session.title))
-
-    return redirect('administrators:{0}_sessions'.format(path))
-
-
-# ------------- Jobs -------------
 
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET', 'POST'])
-def show_job(request, session_slug, job_slug, path):
-    ''' Display job details '''
-    request = userApi.has_admin_access(request, 'HR')
+def delete_session_confirmation(request, session_slug):
+    ''' Confirmation to delete a Session '''
+    request = userApi.has_admin_access(request)
+    adminApi.can_req_parameters_access(request, 'session', ['next', 'p'])
 
-    if path not in JOB_PATH: raise Http404
+    sessions = adminApi.get_sessions()
+    if request.method == 'POST':
+        session_id = request.POST.get('session')
+        deleted_session = adminApi.delete_session(session_id)
+        if deleted_session:
+            messages.success(request, 'Success! {0} {1} {2} deleted'.format(deleted_session.year, deleted_session.term.code, deleted_session.title))
+            return HttpResponseRedirect(request.POST.get('next'))
+        else:
+            messages.error(request, 'An error occurred. Failed to delete {0} {1} {2}'.format(deleted_session.year, deleted_session.term.code, deleted_session.title))
+        return HttpResponseRedirect(request.get_full_path())
+
+    return render(request, 'administrators/sessions/delete_session_confirmation.html', {
+        'loggedin_user': request.user,
+        'current_sessions': sessions.filter(is_archived=False),
+        'archived_sessions': sessions.filter(is_archived=True),
+        'session': adminApi.get_session(session_slug, 'slug')
+    })
+
+
+# Jobs
+
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET', 'POST'])
+def show_job(request, session_slug, job_slug):
+    ''' Display job details '''
+    request = userApi.has_admin_access(request, Role.HR)
+    adminApi.can_req_parameters_access(request, 'job', ['next', 'p'])
 
     return render(request, 'administrators/jobs/show_job.html', {
         'loggedin_user': request.user,
-        'job': adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug),
-        'path': path
+        'job': adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -561,22 +534,31 @@ def show_job_applications(request, session_slug, job_slug):
 def instructor_jobs_details(request, username):
     ''' Display jobs that an instructor has '''
     request = userApi.has_admin_access(request)
+    adminApi.can_req_parameters_access(request, 'job', ['next', 'p'])
 
     user = userApi.get_user(username, 'username')
     user.total_applicants = adminApi.add_total_applicants(user)
     return render(request, 'administrators/jobs/instructor_jobs_details.html', {
         'loggedin_user': request.user,
-        'user': user
+        'user': userApi.add_avatar(user)
     })
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
-def student_jobs_details(request, username, tab):
+def student_jobs_details(request, username):
     ''' Display jobs that an student has '''
     request = userApi.has_admin_access(request)
+    adminApi.can_req_parameters_access(request, 'job-tab', ['next', 'p', 't'])
 
-    if tab not in APP_MENU: raise Http404
+    next = urlparse(request.GET.get('next'))
+    page = request.GET.get('p')
+    tab = request.GET.get('t')
+    role = resolve(next.path).app_name
+
+    next_full_path = next.path
+    if len(next.query) > 0:
+        next_full_path += '?' + next.query
 
     user = userApi.get_user(username, 'username')
     apps = user.application_set.all()
@@ -590,11 +572,16 @@ def student_jobs_details(request, username, tab):
 
     return render(request, 'administrators/jobs/student_jobs_details.html', {
         'loggedin_user': request.user,
-        'user': user,
+        'user': userApi.add_avatar(user),
         'total_assigned_hours': adminApi.get_total_assigned_hours(apps, ['offered', 'accepted']),
         'apps': apps,
         'offered_apps': offered_apps,
         'accepted_apps': accepted_apps,
+        'tab_urls': {
+            'all': adminApi.build_url(request.path, next_full_path, page, 'all'),
+            'offered': adminApi.build_url(request.path, next_full_path, page, 'offered'),
+            'accepted': adminApi.build_url(request.path, next_full_path, page, 'accepted')
+        },
         'current_tab': tab,
         'app_status': APP_STATUS
     })
@@ -618,14 +605,14 @@ def edit_job(request, session_slug, job_slug):
 
             if updated_job:
                 messages.success(request, 'Success! {0} {1} {2} {3} {4} updated'.format(updated_job.session.year, updated_job.session.term.code, updated_job.course.code.name, updated_job.course.number.name, updated_job.course.section.name))
-                return redirect('administrators:prepare_jobs')
+                return HttpResponseRedirect(request.POST.get('next'))
             else:
                 messages.error(request, 'An error occurred while updating a job.')
         else:
             errors = form.errors.get_json_data()
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
-        return HttpResponseRedirect(reverse('administrators:edit_job', args=[session_slug, job_slug]))
+        return HttpResponseRedirect(request.GET.get_full_path())
 
     return render(request, 'administrators/jobs/edit_job.html', {
         'loggedin_user': request.user,
@@ -743,16 +730,14 @@ def delete_job_instructors(request, session_slug, job_slug):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
-def show_application(request, app_slug, path):
+def show_application(request, app_slug):
     ''' Display an application details '''
-    request = userApi.has_admin_access(request, 'HR')
-
-    if path not in APP_PATH: raise Http404
+    request = userApi.has_admin_access(request, Role.HR)
+    adminApi.can_req_parameters_access(request, 'app', ['next', 'p'])
 
     return render(request, 'administrators/applications/show_application.html', {
         'loggedin_user': request.user,
-        'app': adminApi.get_application(app_slug, 'slug'),
-        'path': path
+        'app': adminApi.get_application(app_slug, 'slug')
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -1032,7 +1017,7 @@ def offered_applications(request):
 @require_http_methods(['GET', 'POST'])
 def accepted_applications(request):
     ''' Display applications accepted by students '''
-    request = userApi.has_admin_access(request, 'HR')
+    request = userApi.has_admin_access(request, Role.HR)
 
     if request.method == 'POST':
         admin_docs = adminApi.get_admin_docs(request.POST.get('application'))
@@ -1399,32 +1384,36 @@ def terminated_applications(request):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['POST'])
-def applications_send_email(request, path):
+def applications_send_email(request):
     ''' Send an email for applications '''
     request = userApi.has_admin_access(request)
-
-    if path not in APP_MENU: raise Http404
+    adminApi.can_req_parameters_access(request, 'app', ['next', 'p'])
 
     if request.method == 'POST':
         applications = request.POST.getlist('application')
         if len(applications) > 0:
             type = request.POST.get('type')
-            request.session['applications_form_data'] = { 'applications': applications, 'type': type }
-            return HttpResponseRedirect( reverse('administrators:applications_send_email_confirmation', args=[path]) )
+            request.session['applications_form_data'] = {
+                'applications': applications,
+                'type': type
+            }
+            return HttpResponseRedirect(reverse('administrators:applications_send_email_confirmation') + '?next=' + request.GET.get('next') + '&p=' + request.GET.get('p'))
         else:
             messages.error(request, 'An error occurred. Please select applications, then try again.')
 
-    return redirect('administrators:{0}_applications'.format(path))
+    return HttpResponseRedirect(request.GET.get('next'))
 
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET', 'POST'])
-def applications_send_email_confirmation(request, path):
+def applications_send_email_confirmation(request):
     ''' Display a list of email for offered applications '''
     request = userApi.has_admin_access(request)
+    adminApi.can_req_parameters_access(request, 'app', ['next', 'p'])
 
-    if path not in APP_MENU: raise Http404
+    next = request.GET.get('next')
+    path = request.GET.get('p')
 
     applications = []
     receiver_list = []
@@ -1443,14 +1432,15 @@ def applications_send_email_confirmation(request, path):
             if form.is_valid():
                 data = form.cleaned_data
 
+                receivers = []
                 count = 0
                 for app in applications:
                     assigned_hours = None
-                    if path == 'offered':
+                    if path == 'Offered Applications':
                         assigned_hours = app.offered.assigned_hours
-                    elif path == 'declined':
+                    elif path == 'Declined Applications':
                         assigned_hours = app.declined.assigned_hours
-                    elif path == 'terminated':
+                    elif path == 'Terminated Applications':
                         assigned_hours = app.accepted.assigned_hours
 
                     name = app.applicant.first_name + ' ' + app.applicant.last_name
@@ -1465,20 +1455,25 @@ def applications_send_email_confirmation(request, path):
                     receiver = '{0} <{1}>'.format(name, app.applicant.email)
 
                     email = adminApi.send_and_create_email(app, data['sender'], receiver, data['title'], message, data['type'])
-                    if email: count += 1
+                    if email:
+                        receivers.append(app.applicant.email)
+                        count += 1
 
                 if count == len(applications):
-                    messages.success(request, 'Success! Email has sent to {0}'.format( data['receiver'] ))
+                    messages.success(request, 'Success! Email has been sent to {0}'.format( data['receiver'] ))
                 else:
-                    messages.error(request, 'An error occurred.')
+                    if len(receivers) > 0:
+                        messages.error( request, 'An error occurred. Email has been sent to {0}, but not all receivers. Please check a list of receivers.'.format(', '.join(receivers)) )
+                    else:
+                        messages.error(request, 'An error occurred. Failed to send emails')
 
                 del request.session['applications_form_data']
-                return redirect('administrators:{0}_applications'.format(path))
+                return HttpResponseRedirect(request.POST.get('next'))
             else:
                 errors = form.errors.get_json_data()
                 messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
-            return redirect('administrators:applications_send_email_confirmation')
+            return HttpResponseRedirect(request.get_full_path())
 
         else:
             type = form_data['type']
@@ -1544,32 +1539,6 @@ def all_users(request):
         'loggedin_user': request.user,
         'users': users,
         'total_users': len(user_list)
-    })
-
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
-def show_user(request, username, path, tab):
-    ''' Display an user's details '''
-    request = userApi.has_admin_access(request, 'HR')
-
-    if path not in USER_PATH or tab not in USER_TAB:
-        raise Http404
-
-    user = userApi.get_user(username, 'username')
-    user = userApi.add_resume(user)
-
-    if tab == 'confidential':
-        user = userApi.add_confidentiality_given_list(user, ['sin','study_permit'])
-        user = userApi.add_personal_data_form(user)
-
-    user.is_student = userApi.user_has_role(user ,'Student')
-    return render(request, 'administrators/hr/show_user.html', {
-        'loggedin_user': request.user,
-        'user': user,
-        'path': path,
-        'current_tab': tab
     })
 
 
@@ -1658,6 +1627,7 @@ def create_user(request):
 def edit_user(request, username):
     ''' Edit a user '''
     request = userApi.has_admin_access(request)
+    adminApi.can_req_parameters_access(request, 'user', ['next', 'p'])
 
     user = userApi.get_user(username, 'username')
     confidentiality = userApi.has_user_confidentiality_created(user)
@@ -1670,7 +1640,7 @@ def edit_user(request, username):
         validation = userApi.validate_post(request.POST, ['first_name', 'last_name', 'email', 'username'])
         if len(validation) > 0:
             messages.error(request, 'An error occurred while updating an User Edit Form. {0}: This field is required.'.format( ', '.join(validation) ))
-            return HttpResponseRedirect( reverse('administrators:edit_user', args=[username]) )
+            return HttpResponseRedirect(request.get_full_path())
 
         #user_id = request.POST.get('user')
         #employee_number = request.POST.get('employee_number')
@@ -1703,10 +1673,10 @@ def edit_user(request, username):
 
             if len(errors) > 0:
                 messages.error(request, 'An error occurred while updating an User Edit Form. {0}'.format( ' '.join(errors) ))
-                return HttpResponseRedirect( reverse('administrators:edit_user', args=[username]) )
+                return HttpResponseRedirect(request.get_full_path())
 
             messages.success(request, 'Success! User information of {0} (CWL: {1}) updated'.format(user.get_full_name(), user.username))
-            return redirect('administrators:all_users')
+            return HttpResponseRedirect(request.POST.get('next'))
         else:
             errors = []
 
@@ -1720,7 +1690,7 @@ def edit_user(request, username):
 
             messages.error(request, 'An error occurred while updating an User Form. {0}'.format( ' '.join(errors) ))
 
-        return HttpResponseRedirect( reverse('administrators:edit_user', args=[username]) )
+        return HttpResponseRedirect(request.get_full_path())
 
     else:
         profile = userApi.has_user_profile_created(user)
@@ -1731,7 +1701,7 @@ def edit_user(request, username):
 
     return render(request, 'administrators/hr/edit_user.html', {
         'loggedin_user': request.user,
-        'user': user,
+        'user': userApi.add_avatar(user),
         'roles': userApi.get_roles(),
         'user_form': UserForm(data=None, instance=user),
         'user_profile_form': UserProfileEditForm(data=None, instance=user.profile),
@@ -1741,39 +1711,14 @@ def edit_user(request, username):
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
+@require_http_methods(['GET','POST'])
 def delete_user_confirmation(request, username):
     ''' Delete a user '''
     request = userApi.has_admin_access(request)
+    adminApi.can_req_parameters_access(request, 'user', ['next', 'p'])
 
     user = userApi.get_user(username, 'username')
-    user = userApi.add_confidentiality_given_list(user, ['sin','study_permit'])
-    user = userApi.add_personal_data_form(user)
-    app_list = adminApi.get_applications_user(user)
     apps = []
-    for app in app_list:
-        app = adminApi.add_app_info_into_application(app, ['accepted'])
-        if app.accepted == None:
-            app.new_accumulated_ta_hours = app.job.accumulated_ta_hours
-        else:
-            app.new_accumulated_ta_hours = app.job.accumulated_ta_hours - app.accepted.assigned_hours
-        apps.append(app)
-
-    return render(request, 'administrators/hr/delete_user_confirmation.html', {
-        'loggedin_user': request.user,
-        'user': userApi.add_resume(user),
-        'users': userApi.get_users(),
-        'apps': apps
-    })
-
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['POST'])
-def delete_user(request):
-    ''' Delete a user '''
-    request = userApi.has_admin_access(request)
-
     if request.method == 'POST':
         user_id = request.POST.get('user')
         deleted_user = userApi.delete_user(user_id)
@@ -1782,7 +1727,27 @@ def delete_user(request):
         else:
             messages.error(request, 'An error occurred while deleting a user.')
 
-    return redirect('administrators:all_users')
+        return HttpResponseRedirect(request.POST.get('next'))
+
+    else:
+        user = userApi.add_confidentiality_given_list(user, ['sin','study_permit'])
+        user = userApi.add_personal_data_form(user)
+        app_list = adminApi.get_applications_user(user)
+        for app in app_list:
+            app = adminApi.add_app_info_into_application(app, ['accepted'])
+            if app.accepted == None:
+                app.new_accumulated_ta_hours = app.job.accumulated_ta_hours
+            else:
+                app.new_accumulated_ta_hours = app.job.accumulated_ta_hours - app.accepted.assigned_hours
+            apps.append(app)
+
+    return render(request, 'administrators/hr/delete_user_confirmation.html', {
+        'loggedin_user': request.user,
+        'user': userApi.add_resume(user),
+        'users': userApi.get_users(),
+        'apps': apps
+    })
+
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)

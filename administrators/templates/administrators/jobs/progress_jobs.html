@@ -34,14 +34,14 @@
       {% for job in jobs %}
         <tr>
           <td>
-            <a class="btn btn-xs btn-info" href="{% url 'administrators:show_job' session_slug=job.session.slug job_slug=job.course.slug path='progress' %}">{{ job.id }}</a>
+            <a class="btn btn-xs btn-info" href="{% url 'administrators:show_job' session_slug=job.session.slug job_slug=job.course.slug %}?next={{ request.get_full_path }}&p=Jobs in Progress">{{ job.id }}</a>
           </td>
           <td>{{ job.session.year }}</td>
           <td>{{ job.session.term.code }}</td>
           <td>{{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</td>
           <td>
             {% if job.application_set.count > 0 %}
-              <a class="btn btn-xs btn-info" href="{% url 'administrators:show_job_applications' session_slug=job.session.slug job_slug=job.course.slug %}">{{ job.application_set.count }}</a>
+              <a class="btn btn-xs btn-info" href="{% url 'administrators:show_job_applications' session_slug=job.session.slug job_slug=job.course.slug %}?next={{ request.get_full_path }}&p=Jobs in Progress">{{ job.application_set.count }}</a>
             {% else %}
               {{ job.application_set.count }}
             {% endif %}
