@@ -22,8 +22,6 @@ def show_user(request, username):
     ''' Display an user's details '''
     request = userApi.has_auth_user_access(request)
     adminApi.can_req_parameters_access(request, 'user-tab', ['next', 'p', 't'])
-    # Check parameters
-    #userApi.validate_parameters(request, ['next', 't', 'p'])
 
     next = urlparse(request.GET.get('next'))
     page = request.GET.get('p')
@@ -33,9 +31,6 @@ def show_user(request, username):
     next_full_path = next.path
     if len(next.query) > 0:
         next_full_path += '?' + next.query
-
-    # Check valid tabs
-    #userApi.check_infomation_tab(role, tab)
 
     user = userApi.get_user(username, 'username')
     user = userApi.add_avatar(user)
@@ -77,7 +72,7 @@ def upload_avatar(request):
     if request.method == 'POST':
         if len(request.FILES) == 0:
             messages.error(request, 'An error occurred. Please select your profile photo, then try again.')
-            return redirect('users:upload_avatar')
+            return HttpResponseRedirect(request.get_full_path())
 
         form = AvatarForm(request.POST, request.FILES)
         if form.is_valid():
@@ -92,13 +87,11 @@ def upload_avatar(request):
             errors = form.errors.get_json_data()
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
-        return HttpResponseRedirect(request.POST.get('next'))
+        return HttpResponseRedirect(request.get_full_path())
 
     return render(request, 'users/upload_avatar.html', {
         'loggedin_user': userApi.add_avatar(request.user),
         'role': role,
-        'next': request.GET.get('next', '/'),
-        'path': request.get_full_path(),
         'form': AvatarForm(initial={ 'user': request.user })
     })
 
@@ -119,4 +112,4 @@ def delete_avatar(request):
         else:
             messages.error(request, 'An error occurred.')
 
-    return HttpResponseRedirect(request.POST.get('next'))
+    return HttpResponseRedirect(reverse('users:upload_avatar') + '?next=' + request.GET.get('next'))

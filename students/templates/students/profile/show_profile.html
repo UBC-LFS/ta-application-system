@@ -7,7 +7,11 @@
     {% include 'ta_app/pages/_left_aside.html' with view_name='users' title='View Profile' data=loggedin_user %}
 
     <div class="left-aside-btn-groups">
-      <a class="btn btn-outline-primary" href="{% url 'students:edit_profile' %}">Edit Additional Info.</a>
+      <a class="btn btn-primary" href="{% url 'students:edit_profile' %}">Edit Additional Info.</a>
+      <br />
+      {% if request.GET.p != 'Edit Profile' %}
+        <a class="btn btn-outline-primary mt-4" href="{{ request.GET.next }}">Back to {{ request.GET.p }}</a>
+      {% endif %}
     </div>
   </div>
 
@@ -15,17 +19,17 @@
 
     <nav class="mb-4">
       <div class="nav nav-tabs">
-        <a class="nav-item nav-link {% if current_tab == 'basic' %} active {% endif %}" href="{% url 'students:show_profile' tab='basic' %}">
+        <a class="nav-item nav-link {% if current_tab == 'basic' %} active {% endif %}" href="{% url 'students:show_profile' %}?next={{ request.GET.next }}&p={{ request.GET.p }}&t=basic">
           <span class="mobile-hide-xs"><i class="fa fa-user-circle-o" aria-hidden="true"></i></span>
           Basic
           <span class="mobile-hide">Information</span>
         </a>
-        <a class="nav-item nav-link {% if current_tab == 'additional' %} active {% endif %}" href="{% url 'students:show_profile' tab='additional' %}">
+        <a class="nav-item nav-link {% if current_tab == 'additional' %} active {% endif %}" href="{% url 'students:show_profile' %}?next={{ request.GET.next }}&p={{ request.GET.p }}&t=additional">
           <span class="mobile-hide-xs"><i class="fa fa-id-card-o" aria-hidden="true"></i></span>
           Additional
           <span class="mobile-hide">Information</span>
         </a>
-        <a class="nav-item nav-link {% if current_tab == 'resume' %} active {% endif %}" href="{% url 'students:show_profile' tab='resume' %}">
+        <a class="nav-item nav-link {% if current_tab == 'resume' %} active {% endif %}" href="{% url 'students:show_profile' %}?next={{ request.GET.next }}&p={{ request.GET.p }}&t=resume">
           <span class="mobile-hide-xs"><i class="fa fa-file-text-o" aria-hidden="true"></i></span>
           Resume
         </a>
@@ -54,7 +58,7 @@
         </div>
 
         <div>
-          <form action="{% url 'students:delete_resume' %}" method="post" onsubmit="return confirm('Are you sure to delete this resume?')">
+          <form action="{% url 'students:delete_resume' %}?next={{ request.GET.next }}&p={{ request.GET.p }}&t=resume" method="post" onsubmit="return confirm('Are you sure to delete this resume?')">
             {% csrf_token %}
             <input type="hidden" name="user" value="{{ loggedin_user.username }}">
             <input class="btn btn-sm btn-danger" type="submit" value="Delete" />
@@ -84,7 +88,7 @@
                 </small>
               </div>
 
-              <form action="{% url 'students:upload_resume' %}" method="post" enctype="multipart/form-data">
+              <form action="{% url 'students:upload_resume' %}?next={{ request.GET.next }}&p={{ request.GET.p }}&t=resume" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 <table>{{ form.as_table }}</table>
                 <input class="btn btn-primary mt-4" type="submit" value="Upload" />

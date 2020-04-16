@@ -14,6 +14,11 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 import datetime
 
 
+ADMINISTRATOR_NEXT = '?next=/administrators/'
+INSTRUCTOR_NEXT = '?next=/instructors/'
+STUDENT_NEXT = '?next=/students/'
+
+
 class UserTest(TestCase):
     fixtures = DATA
 
@@ -33,81 +38,176 @@ class UserTest(TestCase):
     def test_view_url_exists_at_desired_location(self):
         print('\n- Test: view url exists at desired location')
 
-        self.login(USERS[2], '12')
+        self.login(USERS[2], 'password')
 
-        response = self.client.get( reverse('users:upload_avatar', args=['students']) )
+        response = self.client.get( reverse('users:upload_avatar') + STUDENT_NEXT )
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get( reverse('users:upload_avatar', args=['instructors']) )
+        response = self.client.get( reverse('users:upload_avatar') + INSTRUCTOR_NEXT )
         self.assertEqual(response.status_code, 403)
 
-        response = self.client.get( reverse('users:upload_avatar', args=['administrators']) )
+        response = self.client.get( reverse('users:upload_avatar') + ADMINISTRATOR_NEXT )
         self.assertEqual(response.status_code, 403)
 
-        self.login(USERS[1], '12')
+        self.login(USERS[1], 'password')
 
-        response = self.client.get( reverse('users:upload_avatar', args=['students']) )
+        response = self.client.get( reverse('users:upload_avatar') + STUDENT_NEXT )
         self.assertEqual(response.status_code, 403)
 
-        response = self.client.get( reverse('users:upload_avatar', args=['instructors']) )
+        response = self.client.get( reverse('users:upload_avatar') + INSTRUCTOR_NEXT )
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get( reverse('users:upload_avatar', args=['administrators']) )
+        response = self.client.get( reverse('users:upload_avatar') + ADMINISTRATOR_NEXT )
         self.assertEqual(response.status_code, 403)
 
-        self.login(USERS[0], '12')
+        self.login(USERS[0], 'password')
 
-        response = self.client.get( reverse('users:upload_avatar', args=['students']) )
+        response = self.client.get( reverse('users:upload_avatar') + STUDENT_NEXT )
         self.assertEqual(response.status_code, 403)
 
-        response = self.client.get( reverse('users:upload_avatar', args=['instructors']) )
+        response = self.client.get( reverse('users:upload_avatar') + INSTRUCTOR_NEXT )
         self.assertEqual(response.status_code, 403)
 
-        response = self.client.get( reverse('users:upload_avatar', args=['administrators']) )
+        response = self.client.get( reverse('users:upload_avatar') + ADMINISTRATOR_NEXT )
         self.assertEqual(response.status_code, 200)
 
-    def test_upload_avatar(self):
-        print('\n- Test: upload user avatar')
-        self.login(USERS[1], '12')
+    def test_upload_avatar_administrator(self):
+        print('\n- Test: upload user avatar in an administrator view')
+        self.login(USERS[0], 'password')
+        user = userApi.get_user(USERS[0], 'username')
+
+        self.assertIsNone(userApi.has_user_resume_created(user))
+        data = {
+            'user': user.id,
+            'avatar': SimpleUploadedFile('avatar.jpg', b'file_content', content_type='image/jpeg'),
+        }
+        response = self.client.post( reverse('users:upload_avatar') + ADMINISTRATOR_NEXT, data=data, format='multipart')
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse('users:upload_avatar') + ADMINISTRATOR_NEXT)
+        self.assertRedirects(response, response.url)
+
+        avatar = userApi.has_user_avatar_created(userApi.get_user(USERS[0], 'username'))
+        self.assertIsNotNone(avatar)
+
+    def test_upload_avatar_instructor(self):
+        print('\n- Test: upload user avatar in an instructor view')
+        self.login(USERS[1], 'password')
         user = userApi.get_user(USERS[1], 'username')
 
         self.assertIsNone(userApi.has_user_resume_created(user))
         data = {
             'user': user.id,
-            'avatar': SimpleUploadedFile('avatar.jpg', b'file_content', content_type='image/jpeg')
+            'avatar': SimpleUploadedFile('avatar.jpg', b'file_content', content_type='image/jpeg'),
         }
-        response = self.client.post( reverse('users:upload_avatar', args=['instructors']), data=data, format='multipart')
+        response = self.client.post( reverse('users:upload_avatar') + INSTRUCTOR_NEXT, data=data, format='multipart')
         messages = self.messages(response)
         self.assertTrue('Success' in messages[0])
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, '/users/r/instructors/profile/photo/upload/')
+        self.assertEqual(response.url, reverse('users:upload_avatar') + INSTRUCTOR_NEXT)
         self.assertRedirects(response, response.url)
 
         avatar = userApi.has_user_avatar_created(userApi.get_user(USERS[1], 'username'))
         self.assertIsNotNone(avatar)
 
-    def test_delete_avatar(self):
-        print('\n- Test: delete user avatar')
-        self.login(USERS[1], '12')
+    def test_upload_avatar_student(self):
+        print('\n- Test: upload user avatar in a student view')
+        self.login(USERS[2], 'password')
+        user = userApi.get_user(USERS[2], 'username')
+
+        self.assertIsNone(userApi.has_user_resume_created(user))
+        data = {
+            'user': user.id,
+            'avatar': SimpleUploadedFile('avatar.jpg', b'file_content', content_type='image/jpeg'),
+        }
+        response = self.client.post( reverse('users:upload_avatar') + STUDENT_NEXT, data=data, format='multipart')
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse('users:upload_avatar') + STUDENT_NEXT)
+        self.assertRedirects(response, response.url)
+
+        avatar = userApi.has_user_avatar_created(userApi.get_user(USERS[2], 'username'))
+        self.assertIsNotNone(avatar)
+
+
+    def test_delete_avatar_administrator(self):
+        print('\n- Test: delete user avatar in an administrator view')
+        self.login(USERS[0], 'password')
+        user = userApi.get_user(USERS[0], 'username')
+
+        data = {
+            'user': user.id,
+            'avatar': SimpleUploadedFile('avatar.jpg', b'file_content', content_type='image/jpeg')
+        }
+        response = self.client.post( reverse('users:upload_avatar') + ADMINISTRATOR_NEXT, data=data, format='multipart' )
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse('users:upload_avatar') + ADMINISTRATOR_NEXT)
+        self.assertRedirects(response, response.url)
+
+        avatar = userApi.has_user_avatar_created(userApi.get_user(USERS[0], 'username'))
+        self.assertIsNotNone(avatar)
+
+        response = self.client.post( reverse('users:delete_avatar') + ADMINISTRATOR_NEXT, data=urlencode({ 'user': USERS[0] }), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse('users:upload_avatar') + ADMINISTRATOR_NEXT)
+        self.assertRedirects(response, response.url)
+
+
+    def test_delete_avatar_instructor(self):
+        print('\n- Test: delete user avatar in an instructor view')
+        self.login(USERS[1], 'password')
         user = userApi.get_user(USERS[1], 'username')
 
         data = {
             'user': user.id,
             'avatar': SimpleUploadedFile('avatar.jpg', b'file_content', content_type='image/jpeg')
         }
-        response = self.client.post( reverse('users:upload_avatar', args=['instructors']), data=data, format='multipart' )
+        response = self.client.post( reverse('users:upload_avatar') + INSTRUCTOR_NEXT, data=data, format='multipart' )
         messages = self.messages(response)
         self.assertTrue('Success' in messages[0])
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, '/users/r/instructors/profile/photo/upload/')
+        self.assertEqual(response.url, reverse('users:upload_avatar') + INSTRUCTOR_NEXT)
         self.assertRedirects(response, response.url)
 
         avatar = userApi.has_user_avatar_created(userApi.get_user(USERS[1], 'username'))
         self.assertIsNotNone(avatar)
 
-        response = self.client.post( reverse('users:delete_avatar', args=['instructors']), data=urlencode({ 'user': USERS[1] }), content_type=ContentType )
+        response = self.client.post( reverse('users:delete_avatar') + INSTRUCTOR_NEXT, data=urlencode({ 'user': USERS[1] }), content_type=ContentType )
         messages = self.messages(response)
         self.assertTrue('Success' in messages[0])
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, '/users/r/instructors/profile/photo/upload/')
+        self.assertEqual(response.url, reverse('users:upload_avatar') + INSTRUCTOR_NEXT)
+        self.assertRedirects(response, response.url)
+
+
+    def test_delete_avatar_student(self):
+        print('\n- Test: delete user avatar in a student view')
+        self.login(USERS[2], 'password')
+        user = userApi.get_user(USERS[2], 'username')
+
+        data = {
+            'user': user.id,
+            'avatar': SimpleUploadedFile('avatar.jpg', b'file_content', content_type='image/jpeg')
+        }
+        response = self.client.post( reverse('users:upload_avatar') + STUDENT_NEXT, data=data, format='multipart' )
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse('users:upload_avatar') + STUDENT_NEXT)
+        self.assertRedirects(response, response.url)
+
+        avatar = userApi.has_user_avatar_created(userApi.get_user(USERS[2], 'username'))
+        self.assertIsNotNone(avatar)
+
+        response = self.client.post( reverse('users:delete_avatar') + STUDENT_NEXT, data=urlencode({ 'user': USERS[2] }), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse('users:upload_avatar') + STUDENT_NEXT)
         self.assertRedirects(response, response.url)

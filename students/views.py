@@ -32,7 +32,7 @@ def index(request):
     can_apply = userApi.can_apply(request.user)
     if can_apply == False:
         messages.warning(request, IMPORTANT_MESSAGE)
-        return HttpResponseRedirect( reverse('students:show_profile', args=['basic']) )
+        return HttpResponseRedirect( reverse('students:show_profile') + '?next=' + reverse('students:index') + '&p=Home&t=basic' )
 
     apps = request.user.application_set.all()
     return render(request, 'students/index.html', {
@@ -47,17 +47,16 @@ def index(request):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
-def show_profile(request, tab):
+def show_profile(request):
     ''' Display user profile '''
     request = userApi.has_user_access(request, 'Student')
-    if tab not in ['basic', 'additional', 'resume']:
-        raise Http404
+    adminApi.can_req_parameters_access(request, 'student', ['next', 'p','t'])
 
     loggedin_user = userApi.add_resume(request.user)
     return render(request, 'students/profile/show_profile.html', {
         'loggedin_user': userApi.add_avatar(loggedin_user),
         'form': ResumeForm(initial={ 'user': loggedin_user }),
-        'current_tab': tab,
+        'current_tab': request.GET.get('t'),
         'can_apply': userApi.can_apply(request.user)
     })
 
@@ -102,7 +101,7 @@ def edit_profile(request):
                 updated = userApi.update_student_profile_degrees_trainings(updated_profile, profile_degrees, profile_trainings, data)
                 if updated:
                     messages.success(request, 'Success! {0} - additional information updated'.format(loggedin_user.username))
-                    return HttpResponseRedirect( reverse('students:show_profile', args=['basic']) )
+                    return HttpResponseRedirect( reverse('students:show_profile') + '?next=' + reverse('students:edit_profile') + '&p=Edit Profile&t=additional' )
                 else:
                     messages.error(request, 'An error occurred while degrees and trainings of a profile.')
             else:
@@ -132,11 +131,11 @@ def upload_resume(request):
     if request.method == 'POST':
         if len(request.FILES) == 0:
             messages.error(request, 'An error occurred. Please select your resume, then try again.')
-            return HttpResponseRedirect( reverse('students:show_profile', args=['resume']) )
+            return HttpResponseRedirect( reverse('students:show_profile') + '?next=' + request.GET.get('next') + '&p=' + request.GET.get('p') + '&t=resume' )
 
         if loggedin_user.resume_filename:
             messages.error(request, 'An error occurred. Please remove your previous resume, then try again.')
-            return HttpResponseRedirect( reverse('students:show_profile', args=['resume']) )
+            return HttpResponseRedirect( reverse('students:show_profile') + '?next=' + request.GET.get('next') + '&p=' + request.GET.get('p') + '&t=resume' )
 
         form = ResumeForm(request.POST, request.FILES)
         if form.is_valid():
@@ -151,7 +150,7 @@ def upload_resume(request):
             errors = form.errors.get_json_data()
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
-    return HttpResponseRedirect( reverse('students:show_profile', args=['resume']) )
+    return HttpResponseRedirect( reverse('students:show_profile') + '?next=' + request.GET.get('next') + '&p=' + request.GET.get('p') + '&t=resume' )
 
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -171,7 +170,7 @@ def delete_resume(request):
     else:
         messages.error(request, 'An error occurred. Request is not POST.')
 
-    return HttpResponseRedirect( reverse('students:show_profile', args=['resume']) )
+    return HttpResponseRedirect( reverse('students:show_profile') + '?next=' + request.GET.get('next') + '&p=' + request.GET.get('p') + '&t=resume' )
 
 
 @login_required(login_url=settings.LOGIN_URL)

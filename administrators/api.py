@@ -45,6 +45,7 @@ def can_req_parameters_access(request, domain, params):
                 'Declined Applications', 'Terminated Applications',
                 'Email History']
     USER_PATH = ['All Users', 'Jobs by Instructor', 'Jobs by Student', 'Applications'] + APP_PATH
+    STUDENT_PATH = ['Home', 'Edit Profile','Confidential Information']
 
     # True if parameters are in the params list
     if validate_parameters(request, params):
@@ -80,6 +81,10 @@ def can_req_parameters_access(request, domain, params):
                 get_job_by_session_slug_job_slug(res.kwargs['session_slug'], res.kwargs['job_slug'])
 
             validate_url_tab(request, tabs)
+        elif domain == 'student':
+            validate_url_page(request, STUDENT_PATH)
+            validate_url_tab(request, ['basic', 'additional', 'resume'])
+
 
 
 def build_url(path, next_path, page, tab):

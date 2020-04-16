@@ -120,7 +120,7 @@ class InstructorTest(TestCase):
         messages = self.messages(response)
         self.assertTrue('Success' in messages[0])
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, '/instructors/')
+        self.assertEqual(response.url, reverse('instructors:index'))
         self.assertRedirects(response, response.url)
 
         response = self.client.get( reverse('instructors:index') )
@@ -151,7 +151,7 @@ class InstructorTest(TestCase):
         messages = self.messages(response)
         self.assertTrue('An error occurred' in messages[0])
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, '/instructors/users/edit/')
+        self.assertEqual(response.url, reverse('instructors:edit_user'))
         self.assertRedirects(response, response.url)
 
         data2 = {
@@ -164,7 +164,7 @@ class InstructorTest(TestCase):
         messages = self.messages(response)
         self.assertTrue('An error occurred' in messages[0])
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, '/instructors/users/edit/')
+        self.assertEqual(response.url, reverse('instructors:edit_user'))
         self.assertRedirects(response, response.url)
 
         data3 = {
@@ -177,7 +177,7 @@ class InstructorTest(TestCase):
         messages = self.messages(response)
         self.assertTrue('An error occurred' in messages[0])
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, '/instructors/users/edit/')
+        self.assertEqual(response.url, reverse('instructors:edit_user'))
         self.assertRedirects(response, response.url)
 
         data4 = {
@@ -191,7 +191,7 @@ class InstructorTest(TestCase):
         messages = self.messages(response)
         self.assertTrue('An error occurred' in messages[0])
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, '/instructors/users/edit/')
+        self.assertEqual(response.url, reverse('instructors:edit_user'))
         self.assertRedirects(response, response.url)
 
         data5 = {
@@ -205,7 +205,7 @@ class InstructorTest(TestCase):
         messages = self.messages(response)
         self.assertTrue('An error occurred' in messages[0])
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, '/instructors/users/edit/')
+        self.assertEqual(response.url, reverse('instructors:edit_user'))
         self.assertRedirects(response, response.url)
 
         data6 = {
@@ -219,7 +219,7 @@ class InstructorTest(TestCase):
         messages = self.messages(response)
         self.assertTrue('An error occurred' in messages[0])
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, '/instructors/users/edit/')
+        self.assertEqual(response.url, reverse('instructors:edit_user'))
         self.assertRedirects(response, response.url)
 
 
@@ -228,7 +228,7 @@ class InstructorTest(TestCase):
         self.login()
 
         SESSION = '2019-w1'
-        
+
         next = '?next=/instructors/sessions/{0}/jobs/{1}/applications/&p={2}&t={3}'
         next_wrong = '?nex=/instructors/sessions/{0}/jobs/{1}/applications/&p={2}&t={3}'
         next_page_wrong = '?next=/instructors/sessions/{0}/jobs/{1}/applications/&a={2}&t={3}'
@@ -302,7 +302,7 @@ class InstructorTest(TestCase):
         messages = self.messages(response)
         self.assertTrue('Success' in messages[0])
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, '/instructors/jobs/')
+        self.assertEqual(response.url, reverse('instructors:show_jobs'))
         self.assertRedirects(response, response.url)
 
         response = self.client.get( reverse('instructors:edit_job', args=[SESSION, JOB]) )
@@ -351,7 +351,7 @@ class InstructorTest(TestCase):
         messages = self.messages(response)
         self.assertTrue('An error occurred' in messages[0])
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, '/instructors/sessions/{0}/jobs/{1}/applications/'.format(SESSION, JOB))
+        self.assertEqual(response.url, reverse('instructors:show_applications', args=[SESSION, JOB]))
         self.assertRedirects(response, response.url)
 
         # Minus assigned hours
@@ -365,7 +365,7 @@ class InstructorTest(TestCase):
         messages = self.messages(response)
         self.assertTrue('An error occurred' in messages[0])
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, '/instructors/sessions/{0}/jobs/{1}/applications/'.format(SESSION, JOB))
+        self.assertEqual(response.url, reverse('instructors:show_applications', args=[SESSION, JOB]))
         self.assertRedirects(response, response.url)
 
         data = {
@@ -378,7 +378,7 @@ class InstructorTest(TestCase):
         messages = self.messages(response)
         self.assertTrue('An error occurred' in messages[0])
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, '/instructors/sessions/{0}/jobs/{1}/applications/'.format(SESSION, JOB))
+        self.assertEqual(response.url, reverse('instructors:show_applications', args=[SESSION, JOB]))
         self.assertRedirects(response, response.url)
 
         data['instructor_preference'] = Application.NO_PREFERENCE
@@ -387,7 +387,7 @@ class InstructorTest(TestCase):
         messages = self.messages(response)
         self.assertTrue('An error occurred' in messages[0])
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, '/instructors/sessions/{0}/jobs/{1}/applications/'.format(SESSION, JOB))
+        self.assertEqual(response.url, reverse('instructors:show_applications', args=[SESSION, JOB]))
         self.assertRedirects(response, response.url)
 
         data['instructor_preference'] = Application.ACCEPTABLE
@@ -396,7 +396,7 @@ class InstructorTest(TestCase):
         messages = self.messages(response)
         self.assertTrue('An error occurred' in messages[0])
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, '/instructors/sessions/{0}/jobs/{1}/applications/'.format(SESSION, JOB))
+        self.assertEqual(response.url, reverse('instructors:show_applications', args=[SESSION, JOB]))
         self.assertRedirects(response, response.url)
 
         data['instructor_preference'] = Application.ACCEPTABLE
@@ -405,7 +405,7 @@ class InstructorTest(TestCase):
         messages = self.messages(response)
         self.assertTrue('An error occurred' in messages[0])
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, '/instructors/sessions/{0}/jobs/{1}/applications/'.format(SESSION, JOB))
+        self.assertEqual(response.url, reverse('instructors:show_applications', args=[SESSION, JOB]))
         self.assertRedirects(response, response.url)
 
         data['instructor_preference'] = Application.REQUESTED
