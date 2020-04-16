@@ -7,7 +7,7 @@
     {% include 'ta_app/pages/_left_aside.html' with view_name='users' title='Confidential Information' data=loggedin_user %}
 
     <div class="left-aside-btn-groups">
-      <a class="btn btn-outline-primary" href="{% url 'students:show_profile' tab='basic' %}">View Profile</a>
+      <a class="btn btn-outline-primary" href="{% url 'students:show_profile' %}?next={{ request.get_full_path }}&p=Confidential Information&t=basic">View Profile</a>
     </div>
 
     {% if template == 'detail' %}

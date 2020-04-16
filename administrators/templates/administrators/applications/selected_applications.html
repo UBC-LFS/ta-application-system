@@ -37,17 +37,19 @@
       {% for app in apps %}
         <tr>
           <td>
-            <a class="btn btn-xs btn-info" href="{% url 'administrators:show_application' app_slug=app.slug path='selected' %}">{{ app.id }}</a>
+            <a class="btn btn-xs btn-info" href="{% url 'administrators:show_application' app_slug=app.slug %}?next={{ request.get_full_path }}&p=Selected Applications">{{ app.id }}</a>
           </td>
           <td>{{ app.job.session.year }}</td>
           <td>{{ app.job.session.term.code }}</td>
           <td>
-            <a href="{% url 'administrators:show_job' session_slug=app.job.session.slug job_slug=app.job.course.slug path='selected' %}">
+            <a href="{% url 'administrators:show_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}?next={{ request.get_full_path }}&p=Selected Applications">
               {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}
             </a>
           </td>
           <td>
-            <a href="{% url 'administrators:show_user' username=app.applicant.username path='selected' tab='basic' %}">{{ app.applicant.get_full_name }}</a>
+            <a href="{% url 'users:show_user' username=app.applicant.username %}?next={{ request.get_full_path }}&p=Selected Applications&t=basic">
+              {{ app.applicant.get_full_name }}
+            </a>
             <br />
             {% if 'MFRE' in app.applicant.profile.program.name %}
               <span class="badge badge-warning">MFRE</span>

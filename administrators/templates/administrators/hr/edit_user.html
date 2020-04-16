@@ -7,7 +7,7 @@
     {% include 'ta_app/pages/_left_aside.html' with view_name='users' title='Edit User' data=user %}
 
     <div class="left-aside-btn-groups">
-      <a class="btn btn-outline-primary" href="{% url 'administrators:all_users' %}">Back to All Users</a>
+      <a class="btn btn-outline-primary" href="{{ request.GET.next }}">Back to {{ request.GET.p }}</a>
     </div>
   </div>
 
@@ -69,7 +69,9 @@
           {{ field }}
         {% endfor %}
 
-        <a class="btn btn-outline-secondary" href="{% url 'administrators:all_users' %}">Cancel</a>
+        <input type="hidden" name="next" value="{{ request.GET.next }}" />
+
+        <a class="btn btn-outline-secondary" href="{{ request.GET.next }}">Cancel</a>
         <input class="btn btn-primary" type="submit" value="Update" />
       </form>
 

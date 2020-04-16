@@ -1,0 +1,79 @@
+{% extends 'ta_app/base.html' %}
+{% block content %}
+
+{% if role == 'administrators' %}
+  {% include 'administrators/_menu.html' %}
+{% elif role == 'instructors' %}
+  {% include 'instructors/_menu.html' %}
+{% elif role == 'students' %}
+  {% include 'students/_menu.html' %}
+{% endif %}
+
+<div class="row">
+  <div class="col-md-4">
+    {% include 'ta_app/pages/_left_aside.html' with view_name='users' title='Upload Profile Photo' data=loggedin_user %}
+
+    <div class="left-aside-btn-groups mt-5">
+      <a class="btn btn-outline-primary" href="{{ request.GET.next }}">Back to Home</a>
+    </div>
+  </div>
+
+  <div class="col-md-8">
+    <div class="board col-11 mx-auto">
+      <h3>Upload Profile Photo Form</h3>
+
+      <div class="bg-white border p-3">
+        <ul class="text-dark mb-0">
+          <li>Valid file formats: jpg, jpeg, png</li>
+          <li>The maximum file size that can be uploaded is 1.5 MB.</li>
+          <li>Ensure a filename has at most 256 characters.</li>
+        </ul>
+      </div>
+
+      <form action="{% url 'users:upload_avatar' %}?next={{ request.GET.next }}" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        {% for field in form.visible_fields  %}
+          <div class="field-wrapper">
+            {{ field.label_tag }}
+            {% if field.help_text %}
+              <div class="help">{{ field.help_text|safe }}</div>
+            {% endif %}
+            {{ field }}
+          </div>
+        {% endfor %}
+
+        {% for field in form.hidden_fields %}
+          {{ field }}
+        {% endfor %}
+
+        <a class="btn btn-outline-secondary" href="{{ request.GET.next }}">Cancel</a>
+        <input class="btn btn-primary" type="submit" value="Upload" />
+      </form>
+
+      <hr class="mt-5" />
+
+      <div>
+        <h5>Profile Photo:</h5>
+        {% if loggedin_user.avatar_filename %}
+
+          <img class="img-fluid my-3" src="{{ loggedin_user.avatar_file.url }}" width="350" alt="avatar" />
+          <div>Filename: {{ loggedin_user.avatar_file.filename }}</div>
+          <div class="mb-3">Created at: {{ loggedin_user.avatar_file.created_at }}</div>
+
+          <form action="{% url 'users:delete_avatar' %}?next={{ request.GET.next }}" method="post">
+            {% csrf_token %}
+
+            <input type="hidden" name="user" value="{{ loggedin_user.username }}" />
+            <input class="btn btn-danger" type="submit" value="Delete" />
+          </form>
+
+        {% else %}
+          <span>None</span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

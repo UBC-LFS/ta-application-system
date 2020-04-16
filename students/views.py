@@ -14,7 +14,6 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from users.forms import *
 from users import api as userApi
-from administrators.views import USER_TAB
 from administrators.forms import *
 from administrators import api as adminApi
 
@@ -33,11 +32,11 @@ def index(request):
     can_apply = userApi.can_apply(request.user)
     if can_apply == False:
         messages.warning(request, IMPORTANT_MESSAGE)
-        return HttpResponseRedirect( reverse('students:show_profile', args=['basic']) )
+        return HttpResponseRedirect( reverse('students:show_profile') + '?next=' + reverse('students:index') + '&p=Home&t=basic' )
 
     apps = request.user.application_set.all()
     return render(request, 'students/index.html', {
-        'loggedin_user': request.user,
+        'loggedin_user': userApi.add_avatar(request.user),
         'apps': apps,
         'total_assigned_hours': adminApi.get_total_assigned_hours(apps, ['accepted']),
         'recent_apps': apps.filter( Q(created_at__year__gte=datetime.now().year) ).order_by('-created_at'),
@@ -48,17 +47,16 @@ def index(request):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
-def show_profile(request, tab):
+def show_profile(request):
     ''' Display user profile '''
     request = userApi.has_user_access(request, 'Student')
-
-    if tab not in USER_TAB: raise Http404
+    adminApi.can_req_parameters_access(request, 'student', ['next', 'p','t'])
 
     loggedin_user = userApi.add_resume(request.user)
     return render(request, 'students/profile/show_profile.html', {
-        'loggedin_user': loggedin_user,
+        'loggedin_user': userApi.add_avatar(loggedin_user),
         'form': ResumeForm(initial={ 'user': loggedin_user }),
-        'current_tab': tab,
+        'current_tab': request.GET.get('t'),
         'can_apply': userApi.can_apply(request.user)
     })
 
@@ -103,7 +101,7 @@ def edit_profile(request):
                 updated = userApi.update_student_profile_degrees_trainings(updated_profile, profile_degrees, profile_trainings, data)
                 if updated:
                     messages.success(request, 'Success! {0} - additional information updated'.format(loggedin_user.username))
-                    return HttpResponseRedirect( reverse('students:show_profile', args=['basic']) )
+                    return HttpResponseRedirect( reverse('students:show_profile') + '?next=' + reverse('students:edit_profile') + '&p=Edit Profile&t=additional' )
                 else:
                     messages.error(request, 'An error occurred while degrees and trainings of a profile.')
             else:
@@ -115,7 +113,7 @@ def edit_profile(request):
         return redirect('students:edit_profile')
 
     return render(request, 'students/profile/edit_profile.html', {
-        'loggedin_user': loggedin_user,
+        'loggedin_user': userApi.add_avatar(loggedin_user),
         'form': StudentProfileForm(data=None, instance=loggedin_user.profile, initial={
             'degrees': profile_degrees,
             'trainings': profile_trainings
@@ -133,11 +131,11 @@ def upload_resume(request):
     if request.method == 'POST':
         if len(request.FILES) == 0:
             messages.error(request, 'An error occurred. Please select your resume, then try again.')
-            return HttpResponseRedirect( reverse('students:show_profile', args=['resume']) )
+            return HttpResponseRedirect( reverse('students:show_profile') + '?next=' + request.GET.get('next') + '&p=' + request.GET.get('p') + '&t=resume' )
 
         if loggedin_user.resume_filename:
             messages.error(request, 'An error occurred. Please remove your previous resume, then try again.')
-            return HttpResponseRedirect( reverse('students:show_profile', args=['resume']) )
+            return HttpResponseRedirect( reverse('students:show_profile') + '?next=' + request.GET.get('next') + '&p=' + request.GET.get('p') + '&t=resume' )
 
         form = ResumeForm(request.POST, request.FILES)
         if form.is_valid():
@@ -152,7 +150,7 @@ def upload_resume(request):
             errors = form.errors.get_json_data()
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
-    return HttpResponseRedirect( reverse('students:show_profile', args=['resume']) )
+    return HttpResponseRedirect( reverse('students:show_profile') + '?next=' + request.GET.get('next') + '&p=' + request.GET.get('p') + '&t=resume' )
 
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -172,7 +170,7 @@ def delete_resume(request):
     else:
         messages.error(request, 'An error occurred. Request is not POST.')
 
-    return HttpResponseRedirect( reverse('students:show_profile', args=['resume']) )
+    return HttpResponseRedirect( reverse('students:show_profile') + '?next=' + request.GET.get('next') + '&p=' + request.GET.get('p') + '&t=resume' )
 
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -187,6 +185,7 @@ def show_confidentiality(request):
         template = 'detail'
 
     user = userApi.add_confidentiality_given_list(request.user, ['sin', 'study_permit'])
+    user = userApi.add_avatar(user)
     return render(request, 'students/profile/show_confidentiality.html', {
         'loggedin_user': userApi.add_personal_data_form(user),
         'template': template
@@ -266,7 +265,7 @@ def submit_confidentiality(request):
                 form = ConfidentialityInternationalForm(data=None, instance=loggedin_user.confidentiality, initial={ 'user': loggedin_user })
 
     return render(request, 'students/profile/submit_confidentiality.html', {
-        'loggedin_user': loggedin_user,
+        'loggedin_user': userApi.add_avatar(loggedin_user),
         'form': form
     })
 
@@ -363,7 +362,7 @@ def edit_confidentiality(request):
                 form = ConfidentialityInternationalForm(data=None, instance=confidentiality, initial={ 'user': loggedin_user })
 
     return render(request, 'students/profile/edit_confidentiality.html', {
-        'loggedin_user': loggedin_user,
+        'loggedin_user': userApi.add_avatar(loggedin_user),
         'sin_file': sin_file,
         'study_permit_file': study_permit_file,
         'personal_data_form_file': personal_data_form_file,
@@ -433,7 +432,7 @@ def explore_jobs(request):
 
     sessions = adminApi.get_sessions()
     return render(request, 'students/jobs/explore_jobs.html', {
-        'loggedin_user': request.user,
+        'loggedin_user': userApi.add_avatar(request.user),
         'visible_current_sessions': sessions.filter( Q(is_visible=True) & Q(is_archived=False) ),
         'favourites': adminApi.get_favourites(request.user),
         'can_apply': can_apply
@@ -503,7 +502,7 @@ def favourite_jobs(request):
             favourites = paginator.page(paginator.num_pages)
 
     return render(request, 'students/jobs/favourite_jobs.html', {
-        'loggedin_user': request.user,
+        'loggedin_user': userApi.add_avatar(request.user),
         'all_favourites': all_favourites,
         'favourites': adminApi.add_applied_jobs_to_favourites(request.user, favourites),
         'total_favourites': len(favourite_list),
@@ -559,7 +558,7 @@ def available_jobs(request, session_slug):
         jobs = paginator.page(paginator.num_pages)
 
     return render(request, 'students/jobs/available_jobs.html', {
-        'loggedin_user': request.user,
+        'loggedin_user': userApi.add_avatar(request.user),
         'session_slug': session_slug,
         'jobs': adminApi.add_applied_favourite_jobs(request.user, jobs),
         'total_jobs': len(job_list),

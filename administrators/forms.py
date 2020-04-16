@@ -8,7 +8,6 @@ from users.models import Role
 
 import datetime as dt
 
-
 ROLES = {
     'Superadmin': 1,
     'Admin': 2,
@@ -19,6 +18,7 @@ ROLES = {
 
 def current_year():
     return dt.date.today().year
+
 
 class CourseCodeForm(forms.ModelForm):
     class Meta:

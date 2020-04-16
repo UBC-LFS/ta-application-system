@@ -7,7 +7,7 @@ urlpatterns = [
     path('', views.index, name='index'),
 
     path('profile/edit/', views.edit_profile, name='edit_profile'),
-    path('profile/information/<str:tab>/', views.show_profile, name='show_profile'),
+    path('profile/information/', views.show_profile, name='show_profile'),
     path('profile/resume/upload/', views.upload_resume, name='upload_resume'),
     path('profile/resume/delete/', views.delete_resume, name='delete_resume'),
 
@@ -31,6 +31,6 @@ urlpatterns = [
 
     path('applications/<str:app_slug>/re-accept/', views.reaccept_application, name='reaccept_application'),
     path('applications/<str:app_slug>/', views.show_application, name='show_application'),
-    
+
     path('download/users/<str:username>/i/<str:item>/files/<str:filename>/', views.download_file, name='download_file')
 ]

@@ -1,0 +1,12 @@
+<div class="bd-callout bd-callout-info">
+  <h4>
+    <i class="fa fa-user-circle" aria-hidden="true"></i>
+    <a href="{% url 'users:upload_avatar' %}?next={{ next }}">Upload a Profile Photo</a>
+  </h4>
+  <p>
+    Your uploaded photo is visible to Instructors hiring TAs through the LFS TA Application, and to Application Administrators.
+  </p>
+  <p>
+    This is not a required field. If you would like to upload, please click <a href="{% url 'users:upload_avatar' %}?next={{ next }}">here</a>.
+  </p>
+</div>

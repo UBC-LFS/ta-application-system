@@ -8,12 +8,88 @@ from django.core.mail import send_mail
 from django.core.mail import EmailMultiAlternatives
 from django.db import IntegrityError
 from django.core.exceptions import PermissionDenied
+from django.urls import resolve
+from urllib.parse import urlparse
 
 from administrators.models import *
 from users.models import *
 from users import api as userApi
 
 from datetime import datetime
+
+# Request parameter validation
+
+def validate_parameters(request, params):
+    for param in params:
+        if request.GET.get(param) == None:
+            raise Http404
+    return True
+
+def validate_url_page(request, path):
+    ''' Validate a page name in url '''
+    if request.GET.get('p') not in path:
+        raise Http404
+
+def validate_url_tab(request, path):
+    ''' Validate a tab name in url '''
+    if request.GET.get('t') not in path:
+        raise Http404
+
+def can_req_parameters_access(request, domain, params):
+    ''' Check whether request parameters are valid or not '''
+
+    SESSION_PATH = ['Current Sessions', 'Archived Sessions']
+    JOB_PATH = ['Prepare Jobs', 'Jobs in Progress', 'Jobs by Instructor', 'Jobs by Student']
+    APP_PATH = ['Dashboard', 'All Applications', 'Selected Applications',
+                'Offered Applications', 'Accepted Applications',
+                'Declined Applications', 'Terminated Applications',
+                'Email History']
+    USER_PATH = ['All Users', 'Jobs by Instructor', 'Jobs by Student', 'Applications'] + APP_PATH
+    STUDENT_PATH = ['Home', 'Edit Profile','Confidential Information']
+
+    # True if parameters are in the params list
+    if validate_parameters(request, params):
+        next = urlparse(request.GET.get('next'))
+        res = resolve(next.path)
+
+        if domain == 'session':
+            validate_url_page(request, SESSION_PATH)
+
+        elif domain == 'job':
+            validate_url_page(request, JOB_PATH)
+
+        elif domain == 'job-tab':
+            validate_url_page(request, JOB_PATH)
+            validate_url_tab(request, ['all', 'offered', 'accepted'])
+
+        elif domain == 'app':
+            validate_url_page(request, APP_PATH)
+
+        elif domain == 'user':
+            validate_url_page(request, USER_PATH)
+
+        elif domain == 'user-tab':
+            validate_url_page(request, USER_PATH)
+            role = res.app_name
+            tabs = []
+            if role == 'administrators':
+                tabs = ['basic', 'additional', 'confidential']
+            elif role == 'instructors':
+                tabs = ['basic', 'additional', 'resume']
+
+                # Check a session and a job
+                get_job_by_session_slug_job_slug(res.kwargs['session_slug'], res.kwargs['job_slug'])
+
+            validate_url_tab(request, tabs)
+        elif domain == 'student':
+            validate_url_page(request, STUDENT_PATH)
+            validate_url_tab(request, ['basic', 'additional', 'resume'])
+
+
+
+def build_url(path, next_path, page, tab):
+    return "{0}?next={1}&p={2}&t={3}".format(path, next_path, page, tab)
+
 
 
 # Courses
@@ -471,13 +547,13 @@ def get_applications_with_multiple_ids_by_path(ids, path):
     ''' Get offered applications with multiple ids'''
     apps = get_applications_with_multiple_ids(ids)
     for app in apps:
-        if path == 'offered':
+        if path == 'Offered Applications':
             offered = app.applicationstatus_set.filter(assigned=ApplicationStatus.OFFERED)
             if offered.exists(): app.offered = offered.last()
-        elif path == 'declined':
+        elif path == 'Declined Applications':
             declined = app.applicationstatus_set.filter(assigned=ApplicationStatus.DECLINED)
             if declined.exists(): app.declined = declined.last()
-        elif path == 'terminated':
+        elif path == 'Terminated Applications':
             accepted = app.applicationstatus_set.filter(assigned=ApplicationStatus.ACCEPTED)
             if accepted.exists(): app.accepted = accepted.last()
 

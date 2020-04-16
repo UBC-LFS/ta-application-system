@@ -7,7 +7,7 @@
     {% include 'ta_app/pages/_left_aside.html' with view_name='applications' title='Application Details' data=app %}
 
     <div class="left-aside-btn-groups">
-      {% include 'administrators/applications/_go_back.html' with data=path %}
+      <a class="btn btn-outline-primary" href="{{ request.GET.next }}">Back to {{ request.GET.p }}</a>
     </div>
   </div>
 

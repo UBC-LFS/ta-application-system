@@ -34,7 +34,7 @@
       {% for job in jobs %}
         <tr>
           <td>
-            <a class="btn btn-xs btn-info" href="{% url 'administrators:show_job' session_slug=job.session.slug job_slug=job.course.slug path='prepare' %}">{{ job.id }}</a>
+            <a class="btn btn-xs btn-info" href="{% url 'administrators:show_job' session_slug=job.session.slug job_slug=job.course.slug %}?next={{ request.get_full_path }}&p=Prepare Jobs">{{ job.id }}</a>
           </td>
           <td>{{ job.session.year }}</td>
           <td>{{ job.session.term.code }}</td>
@@ -51,7 +51,7 @@
           <td>{{ job.created_at }}</td>
           <td>{{ job.updated_at }}</td>
           <td>
-            <a class="btn btn-sm btn-link" href="{% url 'administrators:edit_job' session_slug=job.session.slug job_slug=job.course.slug %}">Edit</a>
+            <a class="btn btn-sm btn-link" href="{% url 'administrators:edit_job' session_slug=job.session.slug job_slug=job.course.slug %}?next={{ request.get_full_path }}&p=Prepare Jobs">Edit</a>
           </td>
         </tr>
       {% endfor %}

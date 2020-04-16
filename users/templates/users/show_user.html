@@ -1,0 +1,118 @@
+{% extends 'ta_app/base.html' %}
+{% block content %}
+
+{% if role == 'administrators' %}
+  {% include 'administrators/_menu.html' %}
+{% elif role == 'instructors' %}
+  {% include 'instructors/_menu.html' %}
+{% elif role == 'students' %}
+  {% include 'students/_menu.html' %}
+{% endif %}
+
+<div class="row">
+  <div class="col-md-4">
+    {% include 'ta_app/pages/_left_aside.html' with view_name='users' title='User Details' data=selected_user %}
+
+    {% if role == 'administrators' and selected_user.is_student %}
+      <div class="col-10 mx-auto mt-5 text-center">
+        <h5 class="text-info">
+          <i class="fa fa-cloud-download" aria-hidden="true"></i> Resume
+        </h5>
+          {% if selected_user.resume_filename %}
+            <a href="{% url 'students:download_file' username=selected_user.username item='resume' filename=selected_user.resume_filename %}" target="_blank">
+              {{ selected_user.resume_filename }}
+            </a><br />
+            <small class="text-dark-gray">Uploaded at {{ selected_user.resume.created_at }}</small>
+          {% else %}
+            None
+          {% endif %}
+        </div>
+    {% endif %}
+
+    <div class="left-aside-btn-groups mb-5">
+      <a class="btn btn-outline-primary" href="{{ go_back.url }}">Back to {{ go_back.page }}</a>
+    </div>
+  </div>
+
+  <div class="col-md-8">
+
+    <nav class="mb-4">
+      <div class="nav nav-tabs">
+
+        <a class="nav-item nav-link {% if current_tab == 'basic' %} active {% endif %}" href="{{ tab_urls.basic }}">
+          <span class="mobile-hide-xs"><i class="fa fa-user-circle-o" aria-hidden="true"></i></span>
+          Basic
+          <span class="mobile-hide">Information</span>
+        </a>
+
+        {% if selected_user.is_student %}
+          <a class="nav-item nav-link {% if current_tab == 'additional' %} active {% endif %}" href="{{ tab_urls.additional }}">
+            <span class="mobile-hide-xs"><i class="fa fa-id-card-o" aria-hidden="true"></i></span>
+            Additional
+            <span class="mobile-hide">Information</span>
+          </a>
+        {% endif %}
+
+        {% if role == 'administrators' and selected_user.is_student %}
+          <a class="nav-item nav-link {% if current_tab == 'confidential' %} active {% endif %}" href="{{ tab_urls.confidential }}">
+            <span class="mobile-hide-xs"><i class="fa fa-file-text-o" aria-hidden="true"></i></span>
+            Confidential
+            <span class="mobile-hide">Information</span>
+          </a>
+        {% endif %}
+
+        {% if role == 'instructors' and selected_user.is_student %}
+          <a class="nav-item nav-link {% if current_tab == 'resume' %} active {% endif %}" href="{{ tab_urls.resume }}">
+            <span class="mobile-hide-xs"><i class="fa fa-file-text-o" aria-hidden="true"></i></span>
+            Resume
+          </a>
+        {% endif %}
+
+      </div>
+    </nav>
+
+    {% if current_tab == 'additional' and selected_user.is_student %}
+
+      <div class="board col-11 mx-auto">
+        <h3>Additional Information</h3>
+        {% include 'ta_app/users/_profile.html' with data=selected_user %}
+      </div>
+
+    {% elif current_tab == 'confidential' and role == 'administrators' and selected_user.is_student %}
+
+      <div class="board col-11 mx-auto">
+        <h3>Confidential Information</h3>
+        {% include 'ta_app/users/_confidentiality.html' with data=selected_user %}
+      </div>
+
+    {% elif current_tab == 'resume' and role == 'instructors' and selected_user.is_student %}
+
+      <div class="board col-11 mx-auto">
+        <h3>Resume</h3>
+
+        {% if selected_user.resume_filename %}
+          <div>
+            File:
+            <a href="{% url 'students:download_file' username=selected_user.username item='resume' filename=selected_user.resume_filename %}" target="_blank">
+              {{ selected_user.resume_filename }}
+            </a><br />
+          </div>
+          <div>Uploaded at {{ selected_user.resume.created_at }}</div>
+        {% else %}
+          None
+        {% endif %}
+      </div>
+
+    {% else %}
+
+      <div class="board col-11 mx-auto">
+        <h3>Basic Information</h3>
+        {% include 'ta_app/users/_basic_info.html' with data=selected_user student_number_display='True' %}
+      </div>
+
+    {% endif %}
+
+  </div>
+</div>
+
+{% endblock %}
