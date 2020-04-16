@@ -10,7 +10,7 @@
       <div class="prompt p-4 mb-4">
         <h4>Current Users</h4>
 				<p>There are <span class="font-weight-bold">{{ users|length }}</span> users.</p>
-				<a class="btn btn-outline-primary" href="{% url 'administrators:all_users' %}">Back to All Users</a>
+				<a class="btn btn-outline-primary" href="{{ request.GET.next }}">Back to {{ request.GET.p }}</a>
       </div>
     </div>
   </div>
@@ -173,11 +173,13 @@
         {% endif %}
       </div>
 
-      <form action="{% url 'administrators:delete_user' %}" method="post" class="mt-5">
+      <form action="" method="post" class="mt-5">
         {% csrf_token %}
-        <input type="hidden" name="user" value="{{ user.id }}" />
 
-        <a class="btn btn-outline-secondary" href="{% url 'administrators:all_users' %}">Cancel</a>
+        <input type="hidden" name="user" value="{{ user.id }}" />
+        <input type="hidden" name="next" value="{{ request.GET.next }}" />
+
+        <a class="btn btn-outline-secondary" href="{{ request.GET.next }}">Cancel</a>
         <input class="btn btn-danger" type="submit" value="Delete" />
       </form>
 		</div>

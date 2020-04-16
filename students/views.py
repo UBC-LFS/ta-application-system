@@ -14,7 +14,6 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from users.forms import *
 from users import api as userApi
-from administrators.views import USER_TAB
 from administrators.forms import *
 from administrators import api as adminApi
 
@@ -51,8 +50,8 @@ def index(request):
 def show_profile(request, tab):
     ''' Display user profile '''
     request = userApi.has_user_access(request, 'Student')
-
-    if tab not in USER_TAB: raise Http404
+    if tab not in ['basic', 'additional', 'resume']:
+        raise Http404
 
     loggedin_user = userApi.add_resume(request.user)
     return render(request, 'students/profile/show_profile.html', {

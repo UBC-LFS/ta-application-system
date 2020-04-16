@@ -297,7 +297,7 @@ class Avatar(models.Model):
 
     def save(self, *args, **kwargs):
         ''' Reduce a size and quality of the image '''
-        #print('save', self.uploaded, bool(self.uploaded))
+        
         if bool(self.uploaded):
             file_split = os.path.splitext(self.uploaded.name)
             file_name = file_split[0]
@@ -305,7 +305,6 @@ class Avatar(models.Model):
 
             if self.uploaded and file_extension.lower() in ['.jpg', '.jpeg', '.png']:
                 img = PILImage.open( self.uploaded )
-                #print('img mode', img.mode)
                 if img.mode == 'P':
                     img = img.convert('RGB')
 
@@ -314,9 +313,7 @@ class Avatar(models.Model):
                     background.paste(img, img.split()[-1])
                     img = background
 
-                #print(img.size)
                 width, height = compress_image(img)
-                #print('compress_image', width, height)
 
                 img.thumbnail( (width, height), PILImage.ANTIALIAS )
                 output = BytesIO()
@@ -326,9 +323,7 @@ class Avatar(models.Model):
                 img.close()
 
                 self.uploaded = InMemoryUploadedFile(output,'ImageField', "%s.jpg" % file_name, 'image/jpeg', sys.getsizeof(output), None)
-                #print('Avatar save closed', output.closed)
-                #if output.closed == False: output.close()
-                #print('Avatar save closed', output.closed)
+
         super(Avatar, self).save(*args, **kwargs)
 
 
@@ -374,9 +369,7 @@ def encrypt_image(obj):
         background.paste(img, img.split()[-1])
         img = background
 
-    #print(img.size)
     width, height = compress_image(img)
-    #print('compress_image', width, height)
 
     img.thumbnail( (width, height), PILImage.ANTIALIAS )
     output = BytesIO()

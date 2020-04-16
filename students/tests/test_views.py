@@ -180,7 +180,7 @@ class StudentTest(TestCase):
     def test_view_url_exists_at_desired_location(self):
         print('\n- Test: view url exists at desired location')
 
-        self.login(USERS[0], '12')
+        self.login(USERS[0], 'password')
 
         response = self.client.get( reverse('students:index') )
         self.assertEqual(response.status_code, 403)
@@ -191,7 +191,7 @@ class StudentTest(TestCase):
         response = self.client.get( reverse('students:apply_job', args=[SESSION, JOB]) )
         self.assertEqual(response.status_code, 403)
 
-        self.login(USERS[1], '12')
+        self.login(USERS[1], 'password')
 
         response = self.client.get( reverse('students:index') )
         self.assertEqual(response.status_code, 403)
@@ -202,7 +202,7 @@ class StudentTest(TestCase):
         response = self.client.get( reverse('students:apply_job', args=[SESSION, JOB]) )
         self.assertEqual(response.status_code, 403)
 
-        self.login('user3.admin', '12')
+        self.login('user3.admin', 'password')
 
         response = self.client.get( reverse('students:index') )
         self.assertEqual(response.status_code, 403)
@@ -948,7 +948,7 @@ class StudentTest(TestCase):
 
     def test_accept_decline_job(self):
         print('\n- Test: Display a job to select accept or decline a job offer')
-        self.login(STUDENT, '12')
+        self.login(STUDENT, 'password')
 
         response = self.client.get( reverse('students:accept_decline_job', args=[SESSION, STUDENT_JOB]) )
         self.assertEqual(response.status_code, 200)
@@ -965,7 +965,7 @@ class StudentTest(TestCase):
 
     def test_accept_offer(self):
         print('\n- Test: Students accept a job offer')
-        self.login(STUDENT, '12')
+        self.login(STUDENT, 'password')
 
         response = self.client.get( reverse('students:accept_decline_job', args=[SESSION, STUDENT_JOB]) )
         self.assertEqual(response.status_code, 200)
@@ -1012,7 +1012,7 @@ class StudentTest(TestCase):
 
     def test_decline_offer(self):
         print('\n- Test: Students decline job offers')
-        self.login(STUDENT, '12')
+        self.login(STUDENT, 'password')
 
         response = self.client.get( reverse('students:accept_decline_job', args=[SESSION, STUDENT_JOB]) )
         self.assertEqual(response.status_code, 200)
@@ -1063,14 +1063,14 @@ class StudentTest(TestCase):
         print('\n- Test: Students re-accept new job offers')
 
         STUDENT = 'user65.test'
-        self.login(STUDENT, '12')
+        self.login(STUDENT, 'password')
 
         APP_SLUG = SESSION + '-' + STUDENT_JOB + '-application-by-' + 'user65test'
         app = adminApi.get_application(APP_SLUG, 'slug')
         self.assertFalse(app.is_declined_reassigned)
 
         STUDENT = 'user66.test'
-        self.login(STUDENT, '12')
+        self.login(STUDENT, 'password')
 
         response = self.client.get( reverse('students:index') )
         self.assertEqual(response.status_code, 302)

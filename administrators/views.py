@@ -28,12 +28,6 @@ from users import api as userApi
 from datetime import datetime
 
 
-APP_MENU = ['dashboard', 'all', 'selected', 'offered', 'accepted', 'declined', 'terminated']
-SESSION_PATH = ['Current Sessions', 'Archived Sessions']
-JOB_PATH = ['prepare', 'progress'] + APP_MENU
-APP_PATH = APP_MENU + ['emails']
-USER_PATH = ['instructor', 'student', 'users', 'destroy'] + APP_MENU
-USER_TAB = ['basic', 'additional', 'confidential', 'resume']
 APP_STATUS = {
     'none': ApplicationStatus.NONE,
     'applied': ApplicationStatus.NONE,
@@ -740,7 +734,6 @@ def show_application(request, app_slug):
     ''' Display an application details '''
     request = userApi.has_admin_access(request, Role.HR)
     adminApi.can_req_parameters_access(request, 'app', ['next', 'p'])
-    #if path not in APP_PATH: raise Http404
 
     return render(request, 'administrators/applications/show_application.html', {
         'loggedin_user': request.user,
@@ -1394,19 +1387,21 @@ def terminated_applications(request):
 def applications_send_email(request):
     ''' Send an email for applications '''
     request = userApi.has_admin_access(request)
-    path = request.GET.get('p').lower()
-    #if path not in APP_MENU: raise Http404
+    adminApi.can_req_parameters_access(request, 'app', ['next', 'p'])
 
     if request.method == 'POST':
         applications = request.POST.getlist('application')
         if len(applications) > 0:
             type = request.POST.get('type')
-            request.session['applications_form_data'] = { 'applications': applications, 'type': type }
+            request.session['applications_form_data'] = {
+                'applications': applications,
+                'type': type
+            }
             return HttpResponseRedirect(reverse('administrators:applications_send_email_confirmation') + '?next=' + request.GET.get('next') + '&p=' + request.GET.get('p'))
         else:
             messages.error(request, 'An error occurred. Please select applications, then try again.')
 
-    return redirect('administrators:{0}_applications'.format(path))
+    return HttpResponseRedirect(request.GET.get('next'))
 
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -1415,10 +1410,10 @@ def applications_send_email(request):
 def applications_send_email_confirmation(request):
     ''' Display a list of email for offered applications '''
     request = userApi.has_admin_access(request)
+    adminApi.can_req_parameters_access(request, 'app', ['next', 'p'])
+
     next = request.GET.get('next')
-    path = request.GET.get('p').lower()
-    print('applications_send_email_confirmation', path)
-    #if path not in APP_MENU: raise Http404
+    path = request.GET.get('p')
 
     applications = []
     receiver_list = []
@@ -1437,14 +1432,15 @@ def applications_send_email_confirmation(request):
             if form.is_valid():
                 data = form.cleaned_data
 
+                receivers = []
                 count = 0
                 for app in applications:
                     assigned_hours = None
-                    if path == 'offered':
+                    if path == 'Offered Applications':
                         assigned_hours = app.offered.assigned_hours
-                    elif path == 'declined':
+                    elif path == 'Declined Applications':
                         assigned_hours = app.declined.assigned_hours
-                    elif path == 'terminated':
+                    elif path == 'Terminated Applications':
                         assigned_hours = app.accepted.assigned_hours
 
                     name = app.applicant.first_name + ' ' + app.applicant.last_name
@@ -1459,12 +1455,17 @@ def applications_send_email_confirmation(request):
                     receiver = '{0} <{1}>'.format(name, app.applicant.email)
 
                     email = adminApi.send_and_create_email(app, data['sender'], receiver, data['title'], message, data['type'])
-                    if email: count += 1
+                    if email:
+                        receivers.append(app.applicant.email)
+                        count += 1
 
                 if count == len(applications):
-                    messages.success(request, 'Success! Email has sent to {0}'.format( data['receiver'] ))
+                    messages.success(request, 'Success! Email has been sent to {0}'.format( data['receiver'] ))
                 else:
-                    messages.error(request, 'An error occurred.')
+                    if len(receivers) > 0:
+                        messages.error( request, 'An error occurred. Email has been sent to {0}, but not all receivers. Please check a list of receivers.'.format(', '.join(receivers)) )
+                    else:
+                        messages.error(request, 'An error occurred. Failed to send emails')
 
                 del request.session['applications_form_data']
                 return HttpResponseRedirect(request.POST.get('next'))
@@ -1626,6 +1627,7 @@ def create_user(request):
 def edit_user(request, username):
     ''' Edit a user '''
     request = userApi.has_admin_access(request)
+    adminApi.can_req_parameters_access(request, 'user', ['next', 'p'])
 
     user = userApi.get_user(username, 'username')
     confidentiality = userApi.has_user_confidentiality_created(user)
@@ -1638,7 +1640,7 @@ def edit_user(request, username):
         validation = userApi.validate_post(request.POST, ['first_name', 'last_name', 'email', 'username'])
         if len(validation) > 0:
             messages.error(request, 'An error occurred while updating an User Edit Form. {0}: This field is required.'.format( ', '.join(validation) ))
-            return HttpResponseRedirect( reverse('administrators:edit_user', args=[username]) )
+            return HttpResponseRedirect(request.get_full_path())
 
         #user_id = request.POST.get('user')
         #employee_number = request.POST.get('employee_number')
@@ -1671,10 +1673,10 @@ def edit_user(request, username):
 
             if len(errors) > 0:
                 messages.error(request, 'An error occurred while updating an User Edit Form. {0}'.format( ' '.join(errors) ))
-                return HttpResponseRedirect( reverse('administrators:edit_user', args=[username]) )
+                return HttpResponseRedirect(request.get_full_path())
 
             messages.success(request, 'Success! User information of {0} (CWL: {1}) updated'.format(user.get_full_name(), user.username))
-            return redirect('administrators:all_users')
+            return HttpResponseRedirect(request.POST.get('next'))
         else:
             errors = []
 
@@ -1688,7 +1690,7 @@ def edit_user(request, username):
 
             messages.error(request, 'An error occurred while updating an User Form. {0}'.format( ' '.join(errors) ))
 
-        return HttpResponseRedirect( reverse('administrators:edit_user', args=[username]) )
+        return HttpResponseRedirect(request.get_full_path())
 
     else:
         profile = userApi.has_user_profile_created(user)
@@ -1709,39 +1711,14 @@ def edit_user(request, username):
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
+@require_http_methods(['GET','POST'])
 def delete_user_confirmation(request, username):
     ''' Delete a user '''
     request = userApi.has_admin_access(request)
+    adminApi.can_req_parameters_access(request, 'user', ['next', 'p'])
 
     user = userApi.get_user(username, 'username')
-    user = userApi.add_confidentiality_given_list(user, ['sin','study_permit'])
-    user = userApi.add_personal_data_form(user)
-    app_list = adminApi.get_applications_user(user)
     apps = []
-    for app in app_list:
-        app = adminApi.add_app_info_into_application(app, ['accepted'])
-        if app.accepted == None:
-            app.new_accumulated_ta_hours = app.job.accumulated_ta_hours
-        else:
-            app.new_accumulated_ta_hours = app.job.accumulated_ta_hours - app.accepted.assigned_hours
-        apps.append(app)
-
-    return render(request, 'administrators/hr/delete_user_confirmation.html', {
-        'loggedin_user': request.user,
-        'user': userApi.add_resume(user),
-        'users': userApi.get_users(),
-        'apps': apps
-    })
-
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['POST'])
-def delete_user(request):
-    ''' Delete a user '''
-    request = userApi.has_admin_access(request)
-
     if request.method == 'POST':
         user_id = request.POST.get('user')
         deleted_user = userApi.delete_user(user_id)
@@ -1750,7 +1727,27 @@ def delete_user(request):
         else:
             messages.error(request, 'An error occurred while deleting a user.')
 
-    return redirect('administrators:all_users')
+        return HttpResponseRedirect(request.POST.get('next'))
+
+    else:
+        user = userApi.add_confidentiality_given_list(user, ['sin','study_permit'])
+        user = userApi.add_personal_data_form(user)
+        app_list = adminApi.get_applications_user(user)
+        for app in app_list:
+            app = adminApi.add_app_info_into_application(app, ['accepted'])
+            if app.accepted == None:
+                app.new_accumulated_ta_hours = app.job.accumulated_ta_hours
+            else:
+                app.new_accumulated_ta_hours = app.job.accumulated_ta_hours - app.accepted.assigned_hours
+            apps.append(app)
+
+    return render(request, 'administrators/hr/delete_user_confirmation.html', {
+        'loggedin_user': request.user,
+        'user': userApi.add_resume(user),
+        'users': userApi.get_users(),
+        'apps': apps
+    })
+
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -2794,103 +2791,3 @@ def delete_landing_page(request):
         else:
             messages.error(request, 'An error occurred.')
     return redirect("administrators:landing_pages")
-
-
-"""
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET', 'POST'])
-def upload_avatar(request):
-    ''' Upload an Avatar '''
-    request = userApi.has_admin_access(request)
-
-    if request.method == 'POST':
-        if len(request.FILES) == 0:
-            messages.error(request, 'An error occurred. Please select your profile photo, then try again.')
-            return redirect('administrators:upload_avatar')
-
-        form = AvatarForm(request.POST, request.FILES)
-        if form.is_valid():
-            avatar = form.save(commit=False)
-            avatar.uploaded = request.FILES.get('uploaded')
-            avatar.save()
-            if avatar:
-                messages.success(request, 'Success! Profile Photo uploaded.')
-            else:
-                messages.error(request, 'An error occurred while uploading an avatar.')
-        else:
-            errors = form.errors.get_json_data()
-            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
-
-        return redirect('administrators:upload_avatar')
-
-    return render(request, 'administrators/hr/upload_avatar.html', {
-        'loggedin_user': userApi.add_avatar(request.user),
-        'form': AvatarForm(initial={ 'user': request.user })
-    })
-
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['POST'])
-def delete_avatar(request):
-    ''' delete an avatar '''
-    request = userApi.has_admin_access(request)
-
-    if request.method == 'POST':
-        username = request.POST.get('user')
-        if userApi.delete_user_avatar(username):
-            messages.success(request, 'Success! Profile Photo deleted.')
-        else:
-            messages.error(request, 'An error occurred.')
-
-    return redirect('administrators:upload_avatar')
-"""
-
-"""
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
-def show_user(request, username, path, tab):
-    ''' Display an user's details '''
-    request = userApi.has_admin_access(request, Role.HR)
-
-    if path not in USER_PATH or tab not in USER_TAB:
-        raise Http404
-
-    user = userApi.get_user(username, 'username')
-    user = userApi.add_resume(user)
-
-    if tab == 'confidential':
-        user = userApi.add_confidentiality_given_list(user, ['sin','study_permit'])
-        user = userApi.add_personal_data_form(user)
-
-    user.is_student = userApi.user_has_role(user ,'Student')
-
-    return render(request, 'administrators/hr/show_user.html', {
-        'loggedin_user': request.user,
-        'user': userApi.add_avatar(user),
-        'path': path,
-        'current_tab': tab
-    })
-"""
-
-"""
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['POST'])
-def delete_session(request):
-    ''' Delete a Session '''
-    request = userApi.has_admin_access(request)
-    #if path not in SESSION_PATH: raise Http404
-
-    if request.method == 'POST':
-        session_id = request.POST.get('session')
-        deleted_session = adminApi.delete_session(session_id)
-        if deleted_session:
-            messages.success(request, 'Success! {0} {1} {2} deleted'.format(deleted_session.year, deleted_session.term.code, deleted_session.title))
-        else:
-            messages.error(request, 'An error occurred. Failed to delete {0} {1} {2}'.format(deleted_session.year, deleted_session.term.code, deleted_session.title))
-
-    return HttpResponseRedirect(request.get_full_path())
-"""

@@ -10,7 +10,7 @@ from django.views.decorators.cache import cache_control
 from django.db.models import Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
-from administrators.views import APP_STATUS, USER_TAB
+from administrators.views import APP_STATUS
 from administrators.models import *
 from administrators.forms import *
 from administrators import api as adminApi
@@ -301,26 +301,3 @@ def write_note(request, app_slug):
         'form': ApplicationNoteForm(data=None, instance=app),
         'app_status': APP_STATUS
     })
-
-
-"""
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
-def show_user(request, session_slug, job_slug, username, tab):
-    ''' Display an user's details '''
-    request = userApi.has_user_access(request, 'Instructor')
-
-    if tab not in USER_TAB: raise Http404
-
-    user = userApi.get_user(username, 'username')
-    user = userApi.add_avatar(user)
-    user.is_student = userApi.user_has_role(user , 'Student')
-    return render(request, 'instructors/users/show_user.html', {
-        'loggedin_user': request.user,
-        'selected_user': userApi.add_resume(user),
-        'session_slug': session_slug,
-        'job_slug': job_slug,
-        'current_tab': tab
-    })
-"""

@@ -17,8 +17,6 @@ from users import api as userApi
 
 from datetime import datetime
 
-USER_TAB = ['basic', 'additional', 'confidential', 'resume']
-
 # Request parameter validation
 
 def validate_parameters(request, params):
@@ -44,7 +42,8 @@ def can_req_parameters_access(request, domain, params):
     JOB_PATH = ['Prepare Jobs', 'Jobs in Progress', 'Jobs by Instructor', 'Jobs by Student']
     APP_PATH = ['Dashboard', 'All Applications', 'Selected Applications',
                 'Offered Applications', 'Accepted Applications',
-                'Declined Applications', 'Terminated Applications']
+                'Declined Applications', 'Terminated Applications',
+                'Email History']
     USER_PATH = ['All Users', 'Jobs by Instructor', 'Jobs by Student', 'Applications'] + APP_PATH
 
     # True if parameters are in the params list
@@ -54,13 +53,20 @@ def can_req_parameters_access(request, domain, params):
 
         if domain == 'session':
             validate_url_page(request, SESSION_PATH)
+
         elif domain == 'job':
             validate_url_page(request, JOB_PATH)
+
         elif domain == 'job-tab':
             validate_url_page(request, JOB_PATH)
             validate_url_tab(request, ['all', 'offered', 'accepted'])
+
         elif domain == 'app':
             validate_url_page(request, APP_PATH)
+
+        elif domain == 'user':
+            validate_url_page(request, USER_PATH)
+
         elif domain == 'user-tab':
             validate_url_page(request, USER_PATH)
             role = res.app_name
@@ -69,6 +75,10 @@ def can_req_parameters_access(request, domain, params):
                 tabs = ['basic', 'additional', 'confidential']
             elif role == 'instructors':
                 tabs = ['basic', 'additional', 'resume']
+
+                # Check a session and a job
+                get_job_by_session_slug_job_slug(res.kwargs['session_slug'], res.kwargs['job_slug'])
+
             validate_url_tab(request, tabs)
 
 
@@ -532,13 +542,13 @@ def get_applications_with_multiple_ids_by_path(ids, path):
     ''' Get offered applications with multiple ids'''
     apps = get_applications_with_multiple_ids(ids)
     for app in apps:
-        if path == 'offered':
+        if path == 'Offered Applications':
             offered = app.applicationstatus_set.filter(assigned=ApplicationStatus.OFFERED)
             if offered.exists(): app.offered = offered.last()
-        elif path == 'declined':
+        elif path == 'Declined Applications':
             declined = app.applicationstatus_set.filter(assigned=ApplicationStatus.DECLINED)
             if declined.exists(): app.declined = declined.last()
-        elif path == 'terminated':
+        elif path == 'Terminated Applications':
             accepted = app.applicationstatus_set.filter(assigned=ApplicationStatus.ACCEPTED)
             if accepted.exists(): app.accepted = accepted.last()
 

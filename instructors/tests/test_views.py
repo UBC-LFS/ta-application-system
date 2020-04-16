@@ -36,7 +36,7 @@ class InstructorTest(TestCase):
     def test_view_url_exists_at_desired_location(self):
         print('\n- Test: view url exists at desired location')
 
-        self.login(USERS[0], '12')
+        self.login(USERS[0], 'password')
 
         response = self.client.get( reverse('instructors:index') )
         self.assertEqual(response.status_code, 403)
@@ -50,7 +50,7 @@ class InstructorTest(TestCase):
         response = self.client.get( reverse('instructors:show_applications', args=[SESSION, JOB]) )
         self.assertEqual(response.status_code, 403)
 
-        self.login(USERS[2], '12')
+        self.login(USERS[2], 'password')
 
         response = self.client.get( reverse('instructors:index') )
         self.assertEqual(response.status_code, 403)
@@ -64,7 +64,7 @@ class InstructorTest(TestCase):
         response = self.client.get( reverse('instructors:show_applications', args=[SESSION, JOB]) )
         self.assertEqual(response.status_code, 403)
 
-        self.login('user3.admin', '12')
+        self.login('user3.admin', 'password')
 
         response = self.client.get( reverse('instructors:index') )
         self.assertEqual(response.status_code, 403)
@@ -224,10 +224,41 @@ class InstructorTest(TestCase):
 
 
     def test_show_user(self):
-        print('\n- Display an user profile')
+        print('\n- Display an user details')
         self.login()
 
-        response = self.client.get( reverse('instructors:show_user', args=[SESSION, JOB, STUDENT, 'basic']) )
+        SESSION = '2019-w1'
+        
+        next = '?next=/instructors/sessions/{0}/jobs/{1}/applications/&p={2}&t={3}'
+        next_wrong = '?nex=/instructors/sessions/{0}/jobs/{1}/applications/&p={2}&t={3}'
+        next_page_wrong = '?next=/instructors/sessions/{0}/jobs/{1}/applications/&a={2}&t={3}'
+        next_tab_wrong = '?next=/instructors/sessions/{0}/jobs/{1}/applications/&p={2}&j={3}'
+
+        response = self.client.get( reverse('users:show_user', args=[STUDENT]) + next_wrong.format(SESSION, JOB, 'Applications', 'basic') )
+        self.assertEqual(response.status_code, 404)
+
+        response = self.client.get( reverse('users:show_user', args=[STUDENT]) + next_page_wrong.format(SESSION, JOB, 'Applications', 'basic') )
+        self.assertEqual(response.status_code, 404)
+
+        response = self.client.get( reverse('users:show_user', args=[STUDENT]) + next_tab_wrong.format(SESSION, JOB, 'Applications', 'basic') )
+        self.assertEqual(response.status_code, 404)
+
+        response = self.client.get( reverse('users:show_user', args=[STUDENT]) + next.format('2019-w11', JOB, 'Applications', 'basic') )
+        self.assertEqual(response.status_code, 404)
+
+        response = self.client.get( reverse('users:show_user', args=[STUDENT]) + next.format(SESSION, 'apbi-200-002-introduction-to-soil-science-w', 'Applications', 'basic') )
+        self.assertEqual(response.status_code, 404)
+
+        response = self.client.get( reverse('users:show_user', args=[STUDENT]) + next.format(SESSION, JOB, 'Application', 'basic') )
+        self.assertEqual(response.status_code, 404)
+
+        response = self.client.get( reverse('users:show_user', args=[STUDENT]) + next.format(SESSION, JOB, 'Applications', 'basid') )
+        self.assertEqual(response.status_code, 404)
+
+        response = self.client.get( reverse('users:show_user', args=[STUDENT]) + next.format(SESSION, JOB, 'Applications', 'basic') )
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get( reverse('users:show_user', args=[STUDENT]) + next.format(SESSION, JOB, 'Applications', 'basic') )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, USER)
         self.assertEqual(response.context['loggedin_user'].roles, ['Instructor'])

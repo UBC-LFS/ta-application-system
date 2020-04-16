@@ -7,7 +7,7 @@
 
   {% include 'administrators/applications/_search_fields.html' with data=apps total=total_apps path='terminated' %}
 
-  <form action="{% url 'administrators:applications_send_email' %}?next={{ request.get_full_path }}&p=Terminated" method="post">
+  <form action="{% url 'administrators:applications_send_email' %}?next={{ request.get_full_path }}&p=Terminated Applications" method="post">
     {% csrf_token %}
 
     <table

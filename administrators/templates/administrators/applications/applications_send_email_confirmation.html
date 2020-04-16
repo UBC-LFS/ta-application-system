@@ -14,7 +14,7 @@
           </h4>
           <p>There are <span class="font-weight-bold">{{ applications|length }}</span> receiver(s) selected.</p>
 
-          <a class="btn btn-outline-primary" href="{{ request.GET.next }}">Back to {{ request.GET.p }} Applications</a>
+          <a class="btn btn-outline-primary" href="{{ request.GET.next }}">Back to {{ request.GET.p }}</a>
         </div>
       </div>
 
@@ -57,11 +57,11 @@
                 <td>{{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</td>
                 <td>{{ app.classification.name }}</td>
                 <td>
-                  {% if path == 'offered' %}
+                  {% if path == 'Offered Applications' %}
                     {{ app.offered.assigned_hours }}
-                  {% elif path == 'declined' %}
+                  {% elif path == 'Declined Applications' %}
                     {{ app.declined.assigned_hours }}
-                  {% elif path == 'terminated' %}
+                  {% elif path == 'Terminated Applications' %}
                     {{ app.accepted.assigned_hours }}
                   {% else %}
                     Oops! Something went wrong

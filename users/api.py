@@ -11,7 +11,6 @@ from users.models import *
 from users.forms import *
 from administrators.models import *
 from administrators.forms import ROLES
-from administrators.views import USER_TAB
 from administrators import api as adminApi
 
 from datetime import datetime, date, timedelta

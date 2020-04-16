@@ -31,7 +31,7 @@ urlpatterns = [
     path('applications/send_email/', views.applications_send_email, name='applications_send_email'),
 
     path('sessions/<str:session_slug>/jobs/<str:job_slug>/offer/', views.offer_job, name='offer_job'),
-    path('applications/offered/email_history/', views.email_history, name='email_history'),
+    path('applications/email_history/', views.email_history, name='email_history'),
     path('emails/<str:email_id>/reminder/', views.send_reminder, name='send_reminder'),
     path('applications/decline_reassign/confirmation/', views.decline_reassign_confirmation, name='decline_reassign_confirmation'),
     path('applications/decline_reassign/', views.decline_reassign, name='decline_reassign'),
@@ -47,11 +47,10 @@ urlpatterns = [
     path('applications/<str:app_slug>/details/', views.show_application, name='show_application'),
 
     path('hr/users/<str:username>/edit/', views.edit_user, name='edit_user'),
-    path('hr/users/<str:username>/delete/confirmation', views.delete_user_confirmation, name='delete_user_confirmation'),
+    path('hr/users/<str:username>/delete/confirmation/', views.delete_user_confirmation, name='delete_user_confirmation'),
     path('hr/users/all/', views.all_users, name='all_users'),
-    path('hr/users/destroy/contents', views.destroy_user_contents, name='destroy_user_contents'),
+    path('hr/users/destroy/contents/', views.destroy_user_contents, name='destroy_user_contents'),
     path('hr/users/create/', views.create_user, name='create_user'),
-    path('hr/users/delete/', views.delete_user, name='delete_user'),
 
     path('hr/roles/<str:slug>/edit/', views.edit_role, name='edit_role'),
     path('hr/roles/delete/', views.delete_role, name='delete_role'),
@@ -105,9 +104,4 @@ urlpatterns = [
     path('preparation/landing-pages/delete/', views.delete_landing_page, name='delete_landing_page'),
     path('preparation/landing-pages/<int:landing_page_id>/edit/', views.edit_landing_page, name='edit_landing_page'),
     path('preparation/landing-pages/', views.landing_pages, name='landing_pages')
-
-    #path('hr/users/avatar/upload/', views.upload_avatar, name='upload_avatar'),
-    #path('hr/users/avatar/delete/', views.delete_avatar, name='delete_avatar'),
-    #path('hr/users/<str:username>/p/<str:path>/details/information/<str:tab>/', views.show_user, name='show_user'),
-    #path('sessions/delete/', views.delete_session, name='delete_session'),
 ]
