@@ -30,7 +30,7 @@ urlpatterns = [
     path('saml/', saml_views.saml, name='saml'),
     path('attrs/', saml_views.attrs, name='attrs'),
     path('metadata/', saml_views.metadata, name='metadata'),
-    path('admin/', admin.site.urls)
+    #path('admin/', admin.site.urls)
 ]
 
 handler403 = views.permission_denied
