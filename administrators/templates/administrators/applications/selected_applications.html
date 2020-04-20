@@ -230,7 +230,7 @@
                       </h4>
                       <h6 class="text-dark-gray mb-3">for {{ app.job.session.year }} {{ app.job.session.term.code }} - {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</h6>
 
-                      <form action="{% url 'administrators:offer_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}" method="post">
+                      <form action="{% url 'administrators:offer_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}?next={{ request.get_full_path }}" method="post">
                         {% csrf_token %}
 
                         <div class="field-wrapper">

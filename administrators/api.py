@@ -39,7 +39,8 @@ def can_req_parameters_access(request, domain, params):
     ''' Check whether request parameters are valid or not '''
 
     SESSION_PATH = ['Current Sessions', 'Archived Sessions']
-    JOB_PATH = ['Prepare Jobs', 'Jobs in Progress', 'Jobs by Instructor', 'Jobs by Student']
+    JOB_PATH = ['Prepare Jobs', 'Jobs in Progress', 'Jobs by Instructor', 'Jobs by Student',
+                'Jobs']
     APP_PATH = ['Dashboard', 'All Applications', 'Selected Applications',
                 'Offered Applications', 'Accepted Applications',
                 'Declined Applications', 'Terminated Applications',
@@ -76,15 +77,23 @@ def can_req_parameters_access(request, domain, params):
                 tabs = ['basic', 'additional', 'confidential']
             elif role == 'instructors':
                 tabs = ['basic', 'additional', 'resume']
-
-                # Check a session and a job
                 get_job_by_session_slug_job_slug(res.kwargs['session_slug'], res.kwargs['job_slug'])
 
             validate_url_tab(request, tabs)
+        
         elif domain == 'student':
             validate_url_page(request, STUDENT_PATH)
             validate_url_tab(request, ['basic', 'additional', 'resume'])
+        elif domain == 'instructor-note':
+            get_job_by_session_slug_job_slug(res.kwargs['session_slug'], res.kwargs['job_slug'])
 
+
+def validate_next(next, list):
+    ''' Validate next values'''
+    parse = urlparse(next)
+    res = resolve(parse.path)
+    if 'session' in list:
+        get_session(res.kwargs['session_slug'], 'slug')
 
 
 def build_url(path, next_path, page, tab):

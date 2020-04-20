@@ -169,14 +169,16 @@ def edit_job(request, session_slug, job_slug):
             job.save()
             if job:
                 messages.success(request, 'Success! {0} {1} - {2} {3} {4}: job details updated'.format(job.session.year, job.session.term.code, job.course.code.name, job.course.number.name, job.course.section.name))
-                return redirect('instructors:show_jobs')
+                return HttpResponseRedirect(request.POST.get('next'))
             else:
                 messages.error(request, 'An error occurred while updating job details.')
         else:
             errors = form.errors.get_json_data()
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
-        return HttpResponseRedirect( reverse('instructors:edit_job', args=[session_slug, job_slug]) )
+        return HttpResponseRedirect(request.get_full_path())
+    else:
+        adminApi.can_req_parameters_access(request, 'none', ['next'])
 
     return render(request, 'instructors/jobs/edit_job.html', {
         'loggedin_user': request.user,
@@ -187,10 +189,11 @@ def edit_job(request, session_slug, job_slug):
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET', 'POST'])
+@require_http_methods(['GET'])
 def show_job(request, session_slug, job_slug):
     ''' Display job details '''
     request = userApi.has_user_access(request, 'Instructor')
+    adminApi.can_req_parameters_access(request, 'none', ['next'])
 
     return render(request, 'instructors/jobs/show_job.html', {
         'loggedin_user': request.user,
@@ -203,6 +206,7 @@ def show_job(request, session_slug, job_slug):
 def show_applications(request, session_slug, job_slug):
     ''' Display applications applied by students '''
     request = userApi.has_user_access(request, 'Instructor')
+    adminApi.can_req_parameters_access(request, 'none', ['next'])
 
     job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
     if request.method == 'POST':
@@ -211,29 +215,29 @@ def show_applications(request, session_slug, job_slug):
 
         if adminApi.is_valid_float(assigned_hours) == False:
             messages.error(request, 'An error occurred. Please check assigned hours. Assign TA Hours must be numerival value only or be greater than 0.0.')
-            return HttpResponseRedirect( reverse('instructors:show_applications', args=[session_slug, job_slug]) )
+            return HttpResponseRedirect(request.get_full_path())
 
         assigned_hours = float(assigned_hours)
 
         if assigned_hours < 0.0:
             messages.error(request, 'An error occurred. Please check assigned hours. Assign TA Hours must be greater than 0.')
-            return HttpResponseRedirect( reverse('instructors:show_applications', args=[session_slug, job_slug]) )
+            return HttpResponseRedirect(request.get_full_path())
 
         if instructor_preference == Application.NONE:
             messages.error(request, 'An error occurred. Please select your preference, then try again.')
-            return HttpResponseRedirect( reverse('instructors:show_applications', args=[session_slug, job_slug]) )
+            return HttpResponseRedirect(request.get_full_path())
 
         if instructor_preference == Application.NO_PREFERENCE and assigned_hours > 0.0:
             messages.error(request, 'An error occurred. Please leave 0.0 for Assign TA Hours if you would to select No Preference, then try again.')
-            return HttpResponseRedirect( reverse('instructors:show_applications', args=[session_slug, job_slug]) )
+            return HttpResponseRedirect(request.get_full_path())
 
         if assigned_hours > float(job.assigned_ta_hours):
             messages.error( request, 'An error occurred. You cannot assign {0} hours because Total Assigned TA Hours is {1}. then try again.'.format(request.POST.get('assigned_hours'), job.assigned_ta_hours) )
-            return HttpResponseRedirect( reverse('instructors:show_applications', args=[session_slug, job_slug]) )
+            return HttpResponseRedirect(request.get_full_path())
 
         if assigned_hours == 0.0 and instructor_preference != Application.NO_PREFERENCE:
             messages.error(request, 'An error occurred. Please assign TA hours, then try again.')
-            return HttpResponseRedirect( reverse('instructors:show_applications', args=[session_slug, job_slug]) )
+            return HttpResponseRedirect(request.get_full_path())
 
         instructor_app_form = InstructorApplicationForm(request.POST)
         if instructor_app_form.is_valid():
@@ -257,7 +261,7 @@ def show_applications(request, session_slug, job_slug):
             errors = instructor_app_form.errors.get_json_data()
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
-        return HttpResponseRedirect( reverse('instructors:show_applications', args=[session_slug, job_slug]) )
+        return HttpResponseRedirect(request.get_full_path())
 
 
     return render(request, 'instructors/jobs/show_applications.html', {
@@ -277,7 +281,6 @@ def write_note(request, app_slug):
     request = userApi.has_user_access(request, 'Instructor')
 
     app = adminApi.get_application(app_slug, 'slug')
-
     if request.method == 'POST':
         form = ApplicationNoteForm(request.POST, instance=app)
         if form.is_valid():
@@ -286,14 +289,16 @@ def write_note(request, app_slug):
             appl.save()
             if appl:
                 messages.success(request, 'Success! {0} {1} - {2} {3} {4}: Note for {5}(CWL: {6}) updated.'.format(appl.job.session.year, appl.job.session.term.code, appl.job.course.code.name, appl.job.course.number.name, appl.job.course.section.name, appl.applicant.get_full_name(), appl.applicant.username))
-                return HttpResponseRedirect( reverse('instructors:show_applications', args=[app.job.session.slug, app.job.course.slug]) )
+                return HttpResponseRedirect(request.POST.get('next'))
             else:
                 messages.error(request, 'An error occurred while writing a note.')
         else:
             errors = form.errors.get_json_data()
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
-        return HttpResponseRedirect( reverse('instructors:write_note', args=[app_slug]) )
+        return HttpResponseRedirect( reverse('instructors:write_note', args=[app_slug]) + '?next=' + request.POST.get('next'))
+    else:
+        adminApi.can_req_parameters_access(request, 'instructor-note', ['next'])
 
     return render(request, 'instructors/jobs/write_note.html', {
         'loggedin_user': request.user,

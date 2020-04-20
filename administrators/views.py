@@ -333,7 +333,7 @@ def delete_session_confirmation(request, session_slug):
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET', 'POST'])
+@require_http_methods(['GET'])
 def show_job(request, session_slug, job_slug):
     ''' Display job details '''
     request = userApi.has_admin_access(request, Role.HR)
@@ -906,28 +906,30 @@ def selected_applications(request):
 def offer_job(request, session_slug, job_slug):
     ''' Admin can offer a job to each job '''
     request = userApi.has_admin_access(request)
+    adminApi.can_req_parameters_access(request, 'none', ['next'])
 
     if request.method == 'POST':
+
         if 'classification' not in request.POST.keys() or len(request.POST.get('classification')) == 0:
             messages.error(request, 'An error occurred. Please select classification, then try again.')
-            return redirect('administrators:selected_applications')
+            return HttpResponseRedirect(request.GET.get('next'))
 
         assigned_hours = request.POST.get('assigned_hours')
 
         if adminApi.is_valid_float(assigned_hours) == False:
             messages.error(request, 'An error occurred. Please check assigned hours. Assigned hours must be numerival value only.')
-            return redirect('administrators:selected_applications')
+            return HttpResponseRedirect(request.GET.get('next'))
 
         assigned_hours = float(assigned_hours)
 
         if assigned_hours < 0.0:
             messages.error(request, 'An error occurred. Please check assigned hours. Assigned hours must be greater than 0.')
-            return redirect('administrators:selected_applications')
+            return HttpResponseRedirect(request.GET.get('next'))
 
         job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
         if assigned_hours > float(job.assigned_ta_hours):
             messages.error(request, 'An error occurred. Please you cannot assign {0} hours Total Assigned TA Hours is {1}, then try again.'.format(assigned_hours, job.assigned_ta_hours))
-            return redirect('administrators:selected_applications')
+            return HttpResponseRedirect(request.GET.get('next'))
 
         admin_app_form = AdminApplicationForm(request.POST)
         app_status_form = ApplicationStatusForm(request.POST)
@@ -942,7 +944,7 @@ def offer_job(request, session_slug, job_slug):
 
             if len(errors) > 0:
                 messages.error(request, 'An error occurred while sending a job offer. {0}'.format( ' '.join(errors) ))
-                return HttpResponseRedirect( reverse('administrators:edit_user', args=[username]) )
+                return HttpResponseRedirect(request.GET.get('next'))
 
             applicant = userApi.get_user(request.POST.get('applicant'))
             messages.success(request, 'Success! You offered this user ({0} {1}) {2} hours for this job ({3} {4} - {5} {6} {7})'.format(applicant.first_name, applicant.last_name, assigned_hours, job.session.year, job.session.term.code, job.course.code.name, job.course.number.name, job.course.section.name))
@@ -957,7 +959,7 @@ def offer_job(request, session_slug, job_slug):
 
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
-    return redirect('administrators:selected_applications')
+    return HttpResponseRedirect(request.GET.get('next'))
 
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -1020,6 +1022,11 @@ def accepted_applications(request):
     request = userApi.has_admin_access(request, Role.HR)
 
     if request.method == 'POST':
+
+        # Check whether a next url is valid or not
+        next = urlparse(request.POST.get('next'))
+        res = resolve(next.path)
+
         admin_docs = adminApi.get_admin_docs(request.POST.get('application'))
         form = AdminDocumentsForm(request.POST, instance=admin_docs)
         if form.is_valid():
@@ -1032,7 +1039,7 @@ def accepted_applications(request):
             errors = form.errors.get_json_data()
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
-        return redirect('administrators:accepted_applications')
+        return HttpResponseRedirect(request.POST.get('next'))
 
     else:
         year_q = request.GET.get('year')
@@ -1138,9 +1145,35 @@ def email_history(request):
     ''' Display all of email sent by admins to let them know job offers '''
     request = userApi.has_admin_access(request)
 
+    receiver_q = request.GET.get('receiver')
+    title_q = request.GET.get('title')
+    message_q = request.GET.get('message')
+    type_q = request.GET.get('type')
+
+    email_list = adminApi.get_emails()
+    if bool(receiver_q):
+        email_list = email_list.filter(receiver__icontains=receiver_q)
+    if bool(title_q):
+        email_list = email_list.filter(title__icontains=title_q)
+    if bool(message_q):
+        email_list = email_list.filter(message__icontains=message_q)
+    if bool(type_q):
+        email_list = email_list.filter(type__icontains=type_q)
+
+    page = request.GET.get('page', 1)
+    paginator = Paginator(email_list, settings.PAGE_SIZE)
+
+    try:
+        emails = paginator.page(page)
+    except PageNotAnInteger:
+        emails = paginator.page(1)
+    except EmptyPage:
+        emails = paginator.page(paginator.num_pages)
+
     return render(request, 'administrators/applications/email_history.html', {
         'loggedin_user': request.user,
-        'emails': adminApi.get_emails()
+        'emails': emails,
+        'total': len(email_list)
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -1152,19 +1185,28 @@ def send_reminder(request, email_id):
 
     email = None
     if request.method == 'POST':
+
+        # Check whether a next url is valid or not
+        next = urlparse(request.POST.get('next'))
+        res = resolve(next.path)
+
         form = ReminderForm(request.POST)
         if form.is_valid():
             data = form.cleaned_data
             sent_email = adminApi.send_and_create_email(data['application'], data['sender'], data['receiver'], data['title'], data['message'], data['type'])
             if sent_email:
                 messages.success(request, 'Success! Email has sent to {0}'.format(data['receiver']))
-                return redirect('administrators:email_history')
+                return HttpResponseRedirect(request.POST.get('next'))
             else:
                 messages.error(request, 'An error occurred.')
         else:
             errors = form.errors.get_json_data()
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+
+        return HttpResponseRedirect(request.get_full_path())
+
     else:
+        adminApi.can_req_parameters_access(request, 'app', ['next', 'p'])
         email = adminApi.get_email(email_id)
 
     return render(request, 'administrators/applications/send_reminder.html', {
@@ -1182,42 +1224,43 @@ def send_reminder(request, email_id):
 def decline_reassign(request):
     ''' Decline and reassign a job offer with new assigned hours '''
     request = userApi.has_admin_access(request)
+    adminApi.can_req_parameters_access(request, 'none', ['next'])
 
     if request.method == 'POST':
         app = adminApi.get_application( request.POST.get('application') )
 
-        if app.is_declined_reassigned: raise Http404
+        #if app.is_declined_reassigned: raise Http404
 
         old_assigned_hours = request.POST.get('old_assigned_hours')
         new_assigned_hours = request.POST.get('new_assigned_hours')
 
         if adminApi.is_valid_float(old_assigned_hours) == False:
             messages.error(request, 'An error occurred. Please contact administrators. Your old assigned hours must be numerival value only.')
-            return redirect('administrators:accepted_applications')
+            return HttpResponseRedirect(request.GET.get('next'))
 
         if adminApi.is_valid_float(new_assigned_hours) == False:
             messages.error(request, 'An error occurred. Please check assigned hours. Your new assigned hours must be numerival value only.')
-            return redirect('administrators:accepted_applications')
+            return HttpResponseRedirect(request.GET.get('next'))
 
         old_assigned_hours = float(old_assigned_hours)
         new_assigned_hours = float(new_assigned_hours)
 
         if new_assigned_hours < 0.0:
             messages.error(request, 'An error occurred. Please check assigned hours. Your new assigned hours must be greater than 0.')
-            return redirect('administrators:accepted_applications')
+            return HttpResponseRedirect(request.GET.get('next'))
 
-        if old_assigned_hours == new_assigned_hours:
-            messages.error(request, 'An error occurred. Please check assigned hours. Your new assigned hours are same as current assigned hours.')
-            return redirect('administrators:accepted_applications')
+        #if old_assigned_hours == new_assigned_hours:
+        #    messages.error(request, 'An error occurred. Please check assigned hours. Your new assigned hours are same as current assigned hours.')
+        #    return redirect('administrators:accepted_applications')
 
         if new_assigned_hours == 0.0 or new_assigned_hours > float(app.job.assigned_ta_hours):
             messages.error(request, 'An error occurred. Please check assigned hours. Valid assigned hours are between 0.0 and {0}'.format(app.job.assigned_ta_hours))
-            return redirect('administrators:accepted_applications')
+            return HttpResponseRedirect(request.GET.get('next'))
 
         request.session['decline_reassign_form_data'] = request.POST
-        return redirect('administrators:decline_reassign_confirmation')
+        return HttpResponseRedirect( reverse('administrators:decline_reassign_confirmation') + '?next=' + request.GET.get('next') )
 
-    return redirect('administrators:accepted_applications')
+    return HttpResponseRedirect(request.GET.get('next'))
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -1225,15 +1268,17 @@ def decline_reassign(request):
 def decline_reassign_confirmation(request):
     ''' Display currnt status and new status for reassigning confirmation '''
     request = userApi.has_admin_access(request)
+    adminApi.can_req_parameters_access(request, 'none', ['next'])
 
     app = None
     old_assigned_hours = None
     new_assigned_hours = None
     new_ta_hours = None
     if request.method == 'POST':
+
         if request.POST.get('is_declined_reassigned') == None:
             messages.error(request, 'An error occurred. Please click on the checkbox to decline and re-assign.')
-            return redirect('administrators:decline_reassign_confirmation')
+            return HttpResponseRedirect(request.get_full_path())
 
         app_id = request.POST.get('application')
         old_assigned_hours = request.POST.get('old_assigned_hours')
@@ -1263,10 +1308,10 @@ def decline_reassign_confirmation(request):
 
             if len(errors) > 0:
                 messages.error(request, 'An error occurred while sending a job offer. {0}'.format( ' '.join(errors) ))
-                return redirect('administrators:decline_reassign_confirmation')
+                return HttpResponseRedirect(request.get_full_path())
 
             messages.success(request, 'Success! The status of Application (ID: {0}) updated'.format(app_id))
-            return redirect('administrators:accepted_applications')
+            return HttpResponseRedirect(request.POST.get('next'))
         else:
             errors = form.errors.get_json_data()
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
@@ -1274,7 +1319,7 @@ def decline_reassign_confirmation(request):
             errors = form.errors.get_json_data()
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
-        return redirect('administrators:decline_reassign_confirmation')
+        return HttpResponseRedirect(request.get_full_path())
 
     else:
         data = request.session.get('decline_reassign_form_data')
@@ -1302,6 +1347,7 @@ def decline_reassign_confirmation(request):
 def terminate(request, app_slug):
     ''' Terminate an application, then students can can their accepted jobs '''
     request = userApi.has_admin_access(request)
+    adminApi.can_req_parameters_access(request, 'none', ['next'])
 
     app = adminApi.get_application(app_slug, 'slug')
     if app.is_terminated: raise Http404
@@ -1309,7 +1355,7 @@ def terminate(request, app_slug):
     if request.method == 'POST':
         if request.POST.get('is_terminated') == None:
             messages.error(request, 'An error occurred. Please click on the checkbox to terminate.')
-            return HttpResponseRedirect( reverse('administrators:terminate', args=[app_slug]) )
+            return HttpResponseRedirect(request.get_full_path())
 
         form = TerminateApplicationForm(request.POST, instance=app)
         if form.is_valid():
@@ -1318,14 +1364,14 @@ def terminate(request, app_slug):
             terminated_app.save()
             if terminated_app:
                 messages.success(request, 'Success! Application (ID: {0}) terminated.'.format(terminated_app.id))
-                return redirect('administrators:accepted_applications')
+                return HttpResponseRedirect(request.POST.get('next'))
             else:
                 messages.error(request, 'An error occurred while termniating an application.')
         else:
             errors = form.errors.get_json_data()
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
-        return HttpResponseRedirect( reverse('administrators:terminate_application', args=[app_slug]) )
+        return HttpResponseRedirect(request.get_full_path())
 
     return render(request, 'administrators/applications/terminate.html', {
         'loggedin_user': request.user,

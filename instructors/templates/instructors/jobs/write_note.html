@@ -7,7 +7,7 @@
     {% include 'ta_app/pages/_left_aside.html' with view_name='applications' title='Write Note' data=app %}
 
     <div class="left-aside-btn-groups">
-      <a class="btn btn-outline-primary" href="{% url 'instructors:show_applications' session_slug=app.job.session.slug job_slug=app.job.course.slug %}">Back to Applications</a>
+      <a class="btn btn-outline-primary" href="{{ request.GET.next }}">Back to Applications</a>
     </div>
   </div>
 
@@ -75,7 +75,8 @@
           {{ field }}
         {% endfor %}
 
-        <a class="btn btn-outline-secondary" href="{% url 'instructors:show_applications' session_slug=app.job.session.slug job_slug=app.job.course.slug %}">Cancel</a>
+        <input type="hidden" name="next" value="{{ request.GET.next }}" />
+        <a class="btn btn-outline-secondary" href="{{ request.GET.next }}">Cancel</a>
         <input class="btn btn-primary" type="submit" value="Write" />
       </form>
     </div>
