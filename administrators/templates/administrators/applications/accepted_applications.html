@@ -54,7 +54,7 @@
             <a href="{% url 'users:show_user' username=app.applicant.username %}?next={{ request.get_full_path }}&p=Accepted Applications&t=basic">
               {{ app.applicant.first_name }} <br />{{ app.applicant.last_name }}
             </a>
-            <div class="text-dark-gray">{{ app.applicant.username }}</div>
+            <div class="text-dark-gray">({{ app.applicant.username }})</div>
             {% include 'ta_app/applications/_modal_app_status.html' with data=app display='name' %}
           </td>
           <td>{{ app.applicant.profile.student_number }}</td>
@@ -97,13 +97,13 @@
             <div>
               <span class="font-weight-bold text-chocolate">{{ app.accepted.assigned_hours }}</span> hours
             </div>
-            <small class="text-dark-gray">{{ app.accepted.created_at }}</small>
+            <div class="text-dark-gray">({{ app.accepted.created_at }})</div>
           </td>
           <td>
             {% if 'Admin' in loggedin_user.roles or 'Superadmin' in loggedin_user.roles %}
 
               {% if app.is_declined_reassigned %}
-                <button class="btn btn-xs btn-secondary mb-2" type="button" data-toggle="modal" data-target="#job-application-modal-{{ app.id }}" disabled>
+                <button class="btn btn-xs btn-info mb-2" type="button" data-toggle="modal" data-target="#job-application-modal-{{ app.id }}">
                   Declined &<br /> Re-assigned
                 </button><br />
               {% else %}
@@ -127,7 +127,7 @@
                         </h5>
                         <h6 class="mb-3">for {{ app.job.session.year }} {{ app.job.session.term.code }} - {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</h6>
 
-                        <form action="{% url 'administrators:decline_reassign' %}" method="post">
+                        <form action="{% url 'administrators:decline_reassign' %}?next={{ request.get_full_path }}" method="post">
                           {% csrf_token %}
 
                           <div class="field-wrapper">
@@ -149,7 +149,7 @@
               {% if app.is_terminated %}
                 <button class="btn btn-xs btn-secondary" type="button" disabled>Terminated</button><br />
               {% else %}
-                <a class="btn btn-xs btn-success" href="{% url 'administrators:terminate' app_slug=app.slug %}">Terminate</a><br />
+                <a class="btn btn-xs btn-success" href="{% url 'administrators:terminate' app_slug=app.slug %}?next={{ request.get_full_path }}">Terminate</a><br />
               {% endif %}
             {% endif %}
 
@@ -225,6 +225,7 @@
                           <textarea id="id_processing_note_{{ app.id }}" name="processing_note" rows="5" class="form-control">{{ app.admindocuments.processing_note }}</textarea>
                         </div>
 
+                        <input type="hidden" name="next" value="{{ request.get_full_path }}" />
                         <input type="hidden" name="application" value="{{ app.id }}" />
                         <input class="btn btn-primary" type="submit" value="Update" />
                       </form>

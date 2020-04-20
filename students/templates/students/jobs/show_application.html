@@ -7,7 +7,7 @@
     {% include 'ta_app/pages/_left_aside.html' with view_name='applications' title='Application Details' data=app %}
 
     <div class="left-aside-btn-groups">
-      <a class="btn btn-outline-primary" href="{% url 'students:history_jobs' %}">Back to History of Jobs</a>
+      <a class="btn btn-outline-primary" href="{{ request.GET.next }}">Back to History of Jobs</a>
     </div>
   </div>
 

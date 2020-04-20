@@ -25,6 +25,15 @@ EDIT_PROFILE_BASIC = '&p=Edit%20Profile&t=basic'
 EDIT_PROFILE_ADDITIONAL = '&p=Edit%20Profile&t=additional'
 EDIT_PROFILE_RESUME = '&p=Edit%20Profile&t=resume'
 
+AVAILABLE_PATH = reverse('students:available_jobs', args=[SESSION]) + '?page=2'
+AVAILABLE_NEXT = '?next=' + AVAILABLE_PATH
+
+HISTORY_NEXT = '?next=' + reverse('students:history_jobs') + '?page=2'
+HISTORY_WRONG_1 = '?nex=/students/jobs/history/'
+HISTORY_WRONG_2 = '?next=/student/jobs/history/'
+HISTORY_WRONG_3 = '?next=/students/jobs/histor/'
+
+
 class StudentTest(TestCase):
     fixtures = DATA
 
@@ -195,7 +204,7 @@ class StudentTest(TestCase):
         response = self.client.get( reverse('students:available_jobs', args=[SESSION]) )
         self.assertEqual(response.status_code, 403)
 
-        response = self.client.get( reverse('students:apply_job', args=[SESSION, JOB]) )
+        response = self.client.get( reverse('students:apply_job', args=[SESSION, JOB]) + AVAILABLE_NEXT )
         self.assertEqual(response.status_code, 403)
 
         self.login(USERS[1], 'password')
@@ -206,7 +215,7 @@ class StudentTest(TestCase):
         response = self.client.get( reverse('students:available_jobs', args=[SESSION]) )
         self.assertEqual(response.status_code, 403)
 
-        response = self.client.get( reverse('students:apply_job', args=[SESSION, JOB]) )
+        response = self.client.get( reverse('students:apply_job', args=[SESSION, JOB]) + AVAILABLE_NEXT )
         self.assertEqual(response.status_code, 403)
 
         self.login('user3.admin', 'password')
@@ -217,7 +226,7 @@ class StudentTest(TestCase):
         response = self.client.get( reverse('students:available_jobs', args=[SESSION]) )
         self.assertEqual(response.status_code, 403)
 
-        response = self.client.get( reverse('students:apply_job', args=[SESSION, JOB]) )
+        response = self.client.get( reverse('students:apply_job', args=[SESSION, JOB]) + AVAILABLE_NEXT )
         self.assertEqual(response.status_code, 403)
 
         self.login()
@@ -230,7 +239,7 @@ class StudentTest(TestCase):
         response = self.client.get( reverse('students:available_jobs', args=[SESSION]) )
         self.assertEqual(response.status_code, 403)
 
-        response = self.client.get( reverse('students:apply_job', args=[SESSION, JOB]) )
+        response = self.client.get( reverse('students:apply_job', args=[SESSION, JOB]) + AVAILABLE_NEXT )
         self.assertEqual(response.status_code, 403)
 
         self.submit_profile_resume(USERS[2])
@@ -265,19 +274,19 @@ class StudentTest(TestCase):
         response = self.client.get(reverse('students:history_jobs'))
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get(reverse('students:cancel_job', args=[SESSION, 'apbi-260-001-agroecology-i-introduction-to-principles-and-techniques-w1']))
+        response = self.client.get(reverse('students:cancel_job', args=[SESSION, 'apbi-260-001-agroecology-i-introduction-to-principles-and-techniques-w1']) + HISTORY_NEXT)
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get( reverse('students:apply_job', args=[SESSION, JOB]) )
+        response = self.client.get( reverse('students:apply_job', args=[SESSION, JOB]) + AVAILABLE_NEXT )
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get( reverse('students:accept_decline_job', args=[SESSION, JOB]) )
+        response = self.client.get( reverse('students:accept_decline_job', args=[SESSION, JOB]) + HISTORY_NEXT )
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get( reverse('students:show_job', args=[SESSION, JOB]) )
+        response = self.client.get( reverse('students:show_job', args=[SESSION, JOB]) + HISTORY_NEXT )
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get( reverse('students:show_application', args=[APP]) )
+        response = self.client.get( reverse('students:show_application', args=[APP]) + HISTORY_NEXT )
         self.assertEqual(response.status_code, 200)
 
     def test_home_page(self):
@@ -775,24 +784,25 @@ class StudentTest(TestCase):
         print('\n- Test: Select favourite job')
         self.login()
 
-        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) )
+        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) + AVAILABLE_NEXT )
         self.assertEqual(response.status_code, 403)
 
         self.submit_profile_resume(USERS[2])
 
-        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) )
+        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) + AVAILABLE_NEXT )
         self.assertEqual(response.status_code, 200)
 
         data = {
             'applicant': response.context['loggedin_user'].id,
             'job': 109,
-            'is_selected': True
+            'is_selected': True,
+            'next': AVAILABLE_PATH
         }
-        response = self.client.post( reverse('students:select_favourite_job', args=[SESSION, STUDENT_JOB]), data=urlencode(data), content_type=ContentType )
+        response = self.client.post( reverse('students:select_favourite_job', args=[SESSION, STUDENT_JOB]) + AVAILABLE_NEXT, data=urlencode(data), content_type=ContentType )
         messages = self.messages(response)
         self.assertTrue('Success' in messages[0])
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, '/students/sessions/{0}/jobs/{1}/apply/'.format(SESSION, STUDENT_JOB))
+        self.assertEqual(response.url, reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) + AVAILABLE_NEXT)
         self.assertRedirects(response, response.url)
 
         response = self.client.get( reverse('students:favourite_jobs') )
@@ -823,12 +833,12 @@ class StudentTest(TestCase):
         print('\n- Test: Undergraduate students can apply for each job')
         self.login()
 
-        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) )
+        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) + AVAILABLE_NEXT )
         self.assertEqual(response.status_code, 403)
 
         self.submit_profile_resume_undergraduate(USERS[2])
 
-        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) )
+        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) + AVAILABLE_NEXT )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, USERS[2])
         self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
@@ -842,17 +852,18 @@ class StudentTest(TestCase):
             'how_qualified': '4',
             'how_interested': '3',
             'availability': True,
-            'availability_note': 'nothing'
+            'availability_note': 'nothing',
+            'next': AVAILABLE_PATH
         }
 
-        response = self.client.post( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]), data=urlencode(data), content_type=ContentType )
+        response = self.client.post( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) + AVAILABLE_NEXT, data=urlencode(data), content_type=ContentType )
         messages = self.messages(response)
         self.assertTrue('Success' in messages[0])
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, '/students/sessions/{0}/jobs/available/'.format(SESSION))
+        self.assertEqual(response.url, AVAILABLE_PATH)
         self.assertRedirects(response, response.url)
 
-        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) )
+        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) + AVAILABLE_NEXT )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, USERS[2])
         self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
@@ -866,7 +877,7 @@ class StudentTest(TestCase):
 
         self.submit_profile_resume(USERS[2])
 
-        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) )
+        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) + AVAILABLE_NEXT )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, USERS[2])
         self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
@@ -883,14 +894,14 @@ class StudentTest(TestCase):
             'availability_note': 'nothing'
         }
 
-        response = self.client.post( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]), data=urlencode(data), content_type=ContentType )
+        response = self.client.post( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) + AVAILABLE_NEXT, data=urlencode(data), content_type=ContentType )
         messages = self.messages(response)
         self.assertTrue('An error occurred. You must check "Yes" in the box under "Supervisor Approval" if you are a graduate student. Undergraduate students should leave this box blank.' in messages[0])
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, '/students/sessions/{0}/jobs/{1}/apply/'.format(SESSION, STUDENT_JOB))
+        self.assertEqual(response.url, reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) + AVAILABLE_NEXT)
         self.assertRedirects(response, response.url)
 
-        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) )
+        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) + AVAILABLE_NEXT )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, USERS[2])
         self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
@@ -904,7 +915,27 @@ class StudentTest(TestCase):
 
         self.submit_profile_resume(USERS[2])
 
-        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) )
+        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) + '?nex=' + reverse('students:favourite_jobs') + '?page=2' )
+        self.assertEqual(response.status_code, 404)
+        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) + '?next=/Students/jobs/favourite/?page=2' )
+        self.assertEqual(response.status_code, 404)
+        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) + '?next=/student/jobs/favourite/?page=2' )
+        self.assertEqual(response.status_code, 404)
+        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) + '?next=/student/Jobs/favourite/?page=2' )
+        self.assertEqual(response.status_code, 404)
+        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) + '?next=/students/jobs/favorite/?page=2' )
+        self.assertEqual(response.status_code, 404)
+        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) + '?next=' + reverse('students:favourite_jobs') + '?page=2' )
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) + '?nex=' + AVAILABLE_NEXT )
+        self.assertEqual(response.status_code, 404)
+        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) + '?next=/students/session/2019-w1/jobs/available/' )
+        self.assertEqual(response.status_code, 404)
+        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) + '?next=/students/sessions/2019-w11/jobs/available/' )
+        self.assertEqual(response.status_code, 404)
+
+        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) + AVAILABLE_NEXT )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, USERS[2])
         self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
@@ -919,17 +950,18 @@ class StudentTest(TestCase):
             'how_qualified': '4',
             'how_interested': '3',
             'availability': True,
-            'availability_note': 'nothing'
+            'availability_note': 'nothing',
+            'next': AVAILABLE_PATH
         }
 
-        response = self.client.post( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]), data=urlencode(data), content_type=ContentType )
+        response = self.client.post( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) + AVAILABLE_NEXT, data=urlencode(data), content_type=ContentType )
         messages = self.messages(response)
         self.assertTrue('Success' in messages[0])
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, '/students/sessions/{0}/jobs/available/'.format(SESSION))
+        self.assertEqual(response.url, AVAILABLE_PATH)
         self.assertRedirects(response, response.url)
 
-        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) )
+        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) + AVAILABLE_NEXT )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, USERS[2])
         self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
@@ -942,17 +974,17 @@ class StudentTest(TestCase):
 
         # not student role
         self.login(USERS[0], PASSWORD)
-        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) )
+        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) + AVAILABLE_NEXT )
         self.assertEqual(response.status_code, 403)
 
         self.login(USERS[1], PASSWORD)
-        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) )
+        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) + AVAILABLE_NEXT )
         self.assertEqual(response.status_code, 403)
 
         self.login()
 
         # didn't complete profile and resume
-        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) )
+        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) + AVAILABLE_NEXT )
         self.assertEqual(response.status_code, 403)
 
         self.submit_profile_resume(USERS[2])
@@ -962,7 +994,7 @@ class StudentTest(TestCase):
         session.is_archived = True
         session.save(update_fields=['is_visible', 'is_archived'])
 
-        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) )
+        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) + AVAILABLE_NEXT )
         self.assertEqual(response.status_code, 403)
 
         session = adminApi.get_session(SESSION, 'slug')
@@ -970,14 +1002,14 @@ class StudentTest(TestCase):
         session.is_archived = True
         session.save(update_fields=['is_visible', 'is_archived'])
 
-        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) )
+        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) + AVAILABLE_NEXT )
         self.assertEqual(response.status_code, 403)
 
         job = adminApi.get_job_by_session_slug_job_slug(SESSION, STUDENT_JOB)
         job.is_active = False
         job.save(update_fields=['is_active'])
 
-        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) )
+        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) + AVAILABLE_NEXT )
         self.assertEqual(response.status_code, 403)
 
     def test_apply_jobs_without_undergraduate(self):
@@ -989,7 +1021,7 @@ class StudentTest(TestCase):
         userApi.delete_status( userApi.get_undergraduate_status_id() )
         self.assertEqual( len(userApi.get_statuses()) , 8)
 
-        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) )
+        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) + AVAILABLE_NEXT )
         self.assertEqual(response.status_code, 403)
 
 
@@ -1007,7 +1039,14 @@ class StudentTest(TestCase):
         print('\n- Test: Display a job to select accept or decline a job offer')
         self.login(STUDENT, 'password')
 
-        response = self.client.get( reverse('students:accept_decline_job', args=[SESSION, STUDENT_JOB]) )
+        response = self.client.get( reverse('students:accept_decline_job', args=[SESSION, STUDENT_JOB]) + HISTORY_WRONG_1 )
+        self.assertEqual(response.status_code, 404)
+        response = self.client.get( reverse('students:accept_decline_job', args=[SESSION, STUDENT_JOB]) + HISTORY_WRONG_2 )
+        self.assertEqual(response.status_code, 404)
+        response = self.client.get( reverse('students:accept_decline_job', args=[SESSION, STUDENT_JOB]) + HISTORY_WRONG_3 )
+        self.assertEqual(response.status_code, 404)
+
+        response = self.client.get( reverse('students:accept_decline_job', args=[SESSION, STUDENT_JOB]) + HISTORY_NEXT )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, STUDENT)
         self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
@@ -1024,7 +1063,7 @@ class StudentTest(TestCase):
         print('\n- Test: Students accept a job offer')
         self.login(STUDENT, 'password')
 
-        response = self.client.get( reverse('students:accept_decline_job', args=[SESSION, STUDENT_JOB]) )
+        response = self.client.get( reverse('students:accept_decline_job', args=[SESSION, STUDENT_JOB]) + HISTORY_NEXT )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, STUDENT)
         self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
@@ -1035,7 +1074,8 @@ class StudentTest(TestCase):
 
         data = {
             'application': app.id,
-            'assigned_hours': app.offered.assigned_hours
+            'assigned_hours': app.offered.assigned_hours,
+            'next': reverse('students:history_jobs') + '?page=2'
         }
 
         response = self.client.post( reverse('students:accept_offer', args=[SESSION, STUDENT_JOB]), data=urlencode(data), content_type=ContentType )
@@ -1071,7 +1111,7 @@ class StudentTest(TestCase):
         print('\n- Test: Students decline job offers')
         self.login(STUDENT, 'password')
 
-        response = self.client.get( reverse('students:accept_decline_job', args=[SESSION, STUDENT_JOB]) )
+        response = self.client.get( reverse('students:accept_decline_job', args=[SESSION, STUDENT_JOB]) + HISTORY_NEXT )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, STUDENT)
         self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
@@ -1083,7 +1123,8 @@ class StudentTest(TestCase):
 
         data = {
             'application': app.id,
-            'assigned_hours': app.offered.assigned_hours
+            'assigned_hours': app.offered.assigned_hours,
+            'next': reverse('students:history_jobs') + '?page=2'
         }
 
         response = self.client.post( reverse('students:decline_offer', args=[SESSION, STUDENT_JOB]), data=urlencode(data), content_type=ContentType )
@@ -1142,8 +1183,18 @@ class StudentTest(TestCase):
 
         JOB = 'apbi-260-001-agroecology-i-introduction-to-principles-and-techniques-w1'
         SLUG = '2019-w1-apbi-260-001-agroecology-i-introduction-to-principles-and-techniques-w1-application-by-user66test'
-        response = self.client.get( reverse('students:reaccept_application', args=[SLUG]) )
+
+        response = self.client.get( reverse('students:reaccept_application', args=[SLUG]) + HISTORY_WRONG_1 )
+        self.assertEqual(response.status_code, 404)
+        response = self.client.get( reverse('students:reaccept_application', args=[SLUG]) + HISTORY_WRONG_1 )
+        self.assertEqual(response.status_code, 404)
+        response = self.client.get( reverse('students:reaccept_application', args=[SLUG]) + HISTORY_WRONG_1 )
+        self.assertEqual(response.status_code, 404)
+
+
+        response = self.client.get( reverse('students:reaccept_application', args=[SLUG]) + HISTORY_NEXT )
         self.assertEqual(response.status_code, 200)
+
         self.assertEqual(response.context['loggedin_user'].username, STUDENT)
         self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
 
@@ -1155,10 +1206,11 @@ class StudentTest(TestCase):
         new_hours = 70.5
         data = {
             'application': app.id,
-            'assigned_hours': new_hours
+            'assigned_hours': new_hours,
+            'next': reverse('students:history_jobs') + '?page=2'
         }
 
-        response = self.client.post( reverse('students:reaccept_application', args=[SLUG]), data=urlencode(data), content_type=ContentType )
+        response = self.client.post( reverse('students:reaccept_application', args=[SLUG]) + HISTORY_NEXT, data=urlencode(data), content_type=ContentType )
         messages = self.messages(response)
         self.assertTrue('Success' in messages[0])
         self.assertEqual(response.status_code, 302)
@@ -1197,7 +1249,15 @@ class StudentTest(TestCase):
         self.assertEqual(response.status_code, 404)
 
         STUDENT_JOB = 'apbi-260-001-agroecology-i-introduction-to-principles-and-techniques-w1'
-        response = self.client.get( reverse('students:cancel_job', args=[SESSION, STUDENT_JOB]) )
+
+        response = self.client.get( reverse('students:cancel_job', args=[SESSION, STUDENT_JOB]) + HISTORY_WRONG_1 )
+        self.assertEqual(response.status_code, 404)
+        response = self.client.get( reverse('students:cancel_job', args=[SESSION, STUDENT_JOB]) + HISTORY_WRONG_2 )
+        self.assertEqual(response.status_code, 404)
+        response = self.client.get( reverse('students:cancel_job', args=[SESSION, STUDENT_JOB]) + HISTORY_WRONG_3 )
+        self.assertEqual(response.status_code, 404)
+
+        response = self.client.get( reverse('students:cancel_job', args=[SESSION, STUDENT_JOB]) + HISTORY_NEXT )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, USERS[2])
         self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
@@ -1210,14 +1270,15 @@ class StudentTest(TestCase):
             'application': app.id,
             'assigned_hours': app.accepted.assigned_hours,
             'assigned': ApplicationStatus.CANCELLED,
-            'parent_id': app.accepted.id
+            'parent_id': app.accepted.id,
+            'next': reverse('students:history_jobs') + '?page=2'
         }
 
-        response = self.client.post( reverse('students:cancel_job', args=[SESSION, STUDENT_JOB]), data=urlencode(data), content_type=ContentType )
+        response = self.client.post( reverse('students:cancel_job', args=[SESSION, STUDENT_JOB]) + HISTORY_NEXT, data=urlencode(data), content_type=ContentType )
         messages = self.messages(response)
         self.assertTrue('Application of 2019 W1 - APBI 260 001 terminated.' in messages[0])
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, '/students/jobs/history/')
+        self.assertEqual(response.url, reverse('students:history_jobs') + '?page=2')
         self.assertRedirects(response, response.url)
 
         job = adminApi.get_job_by_session_slug_job_slug(SESSION, STUDENT_JOB)
@@ -1229,7 +1290,14 @@ class StudentTest(TestCase):
         print('\n- Test: display a job')
         self.login()
 
-        response = self.client.get( reverse('students:show_job', args=[SESSION, JOB]) )
+        response = self.client.get( reverse('students:show_job', args=[SESSION, JOB]) + HISTORY_WRONG_1)
+        self.assertEqual(response.status_code, 404)
+        response = self.client.get( reverse('students:show_job', args=[SESSION, JOB]) + HISTORY_WRONG_2)
+        self.assertEqual(response.status_code, 404)
+        response = self.client.get( reverse('students:show_job', args=[SESSION, JOB]) + HISTORY_WRONG_3)
+        self.assertEqual(response.status_code, 404)
+
+        response = self.client.get( reverse('students:show_job', args=[SESSION, JOB]) + HISTORY_NEXT )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, USERS[2])
         self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
@@ -1244,7 +1312,14 @@ class StudentTest(TestCase):
         print('\n- Test: Display an application details')
         self.login()
 
-        response = self.client.get( reverse('students:show_application', args=[APP]) )
+        response = self.client.get( reverse('students:show_application', args=[APP]) + HISTORY_WRONG_1)
+        self.assertEqual(response.status_code, 404)
+        response = self.client.get( reverse('students:show_application', args=[APP]) + HISTORY_WRONG_2)
+        self.assertEqual(response.status_code, 404)
+        response = self.client.get( reverse('students:show_application', args=[APP]) + HISTORY_WRONG_3)
+        self.assertEqual(response.status_code, 404)
+
+        response = self.client.get( reverse('students:show_application', args=[APP]) + HISTORY_NEXT )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, USERS[2])
         self.assertEqual(response.context['loggedin_user'].roles, ['Student'])

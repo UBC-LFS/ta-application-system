@@ -79,7 +79,7 @@
 									{% if fav.job.is_active %}
 
 										{% if can_apply %}
-											<a class="btn btn-xs btn-link" href="{% url 'students:apply_job' session_slug=fav.job.session.slug job_slug=fav.job.course.slug %}">Apply</a>
+											<a class="btn btn-xs btn-link" href="{% url 'students:apply_job' session_slug=fav.job.session.slug job_slug=fav.job.course.slug %}?next={{ request.get_full_path }}">Apply</a>
 										{% else %}
 											<span class="text-dark-gray">
 												<i class="fa fa-lock" aria-hidden="true"></i> Apply

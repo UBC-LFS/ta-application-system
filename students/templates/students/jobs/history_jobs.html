@@ -56,7 +56,7 @@
             <td>{{ app.job.session.year }}</td>
             <td>{{ app.job.session.term.code }}</td>
             <td>
-              <a href="{% url 'students:show_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}">
+              <a href="{% url 'students:show_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}?next={{ request.get_full_path }}">
                 {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}
               </a>
 
@@ -66,7 +66,7 @@
               {% endif %}
             </td>
             <td>
-              <a href="{% url 'students:show_application' app_slug=app.slug %}">View</a>
+              <a href="{% url 'students:show_application' app_slug=app.slug %}?next={{ request.get_full_path }}">View</a>
             </td>
             <td>{{ app.applied.created_at }}</td>
             <td>
@@ -79,8 +79,10 @@
                 </div>
 
                 {% if app.job.is_active %}
-                <hr />
-                <a href="{% url 'students:accept_decline_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}">Accept / Decline</a>
+                  <hr />
+                  <a href="{% url 'students:accept_decline_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}?next={{ request.get_full_path }}">
+                    Accept / Decline
+                  </a>
                 {% endif %}
 
               {% elif app.accepted %}
@@ -97,7 +99,7 @@
 
                 {% if app.job.is_active and app.is_terminated %}
                   <hr />
-                  <a href="{% url 'students:cancel_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}">
+                  <a href="{% url 'students:cancel_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}?next={{ request.get_full_path }}">
                     Contract<br /> Termination
                   </a>
                 {% endif %}
@@ -109,7 +111,7 @@
 
                 {% if app.is_declined_reassigned %}
                   <hr />
-                  <a href="{% url 'students:reaccept_application' app_slug=app.slug %}">Re-accept</a>
+                  <a href="{% url 'students:reaccept_application' app_slug=app.slug %}?next={{ request.get_full_path }}">Re-accept</a>
                 {% endif %}
 
               {% elif app.cancelled %}
