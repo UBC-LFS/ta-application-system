@@ -18,7 +18,7 @@
     </div>
 
     <div class="left-aside-btn-groups">
-      <a class="btn btn-outline-primary" href="{% url 'students:history_jobs' %}">Back to History of Jobs</a>
+      <a class="btn btn-outline-primary" href="{{ request.GET.next }}">Back to History of Jobs</a>
     </div>
   </div>
 
@@ -31,14 +31,15 @@
       <div class="card border-secondary bg-white mt-4 p-4">
         <p>I have been in contact with the TA administrator regarding the termination of this contract.</p>
         <p>Please click on the "Confirm" button to terminate this contract.</p>
-        
+
         <form action="" method="post">
           {% csrf_token %}
 
           <input type="hidden" name="assigned_hours" value="{{ app.accepted.assigned_hours }}" />
           <input type="hidden" name="application" value="{{ app.id }}" />
+          <input type="hidden" name="next" value="{{ request.GET.next }}" />
 
-          <a class="btn btn-outline-secondary" href="{% url 'students:history_jobs' %}">Cancel</a>
+          <a class="btn btn-outline-secondary" href="{{ request.GET.next }}">Cancel</a>
           <input class="btn btn-danger" type="submit" value="Confirm" />
         </form>
       </div>

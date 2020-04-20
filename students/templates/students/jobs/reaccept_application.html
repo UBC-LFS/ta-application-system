@@ -20,7 +20,7 @@
 
 
     <div class="left-aside-btn-groups">
-      <a class="btn btn-outline-primary" href="{% url 'students:history_jobs' %}">Back to History of Jobs</a>
+      <a class="btn btn-outline-primary" href="{{ request.GET.next }}">Back to History of Jobs</a>
     </div>
   </div>
 
@@ -36,8 +36,9 @@
         </h4>
         <p>
           You've accepted an offer with
-          <span class="text-danger font-weight-bold">{{ app.accepted.assigned_hours }}</span> assigned TA hours before for this course,
-          and you have newly assigned
+          <span class="text-chocolate font-weight-bold">{{ app.accepted.assigned_hours }}</span> assigned TA hours
+          as a <span class="text-chocolate font-weight-bold">{{ app.classification.name }}</span>
+          before for this course, and you have newly assigned
           <span class="text-danger font-weight-bold">{{ app.declined.assigned_hours }}</span> hours.
         </p>
       </div>
@@ -47,7 +48,7 @@
         <p>
           <i class="fa fa-check text-success" aria-hidden="true"></i>
           New assigned hours:
-          <span class="font-weight-bold">{{ app.declined.assigned_hours }}</span> hours
+          <span class="text-danger font-weight-bold">{{ app.declined.assigned_hours }}</span> hours
         </p>
         <p class="text-dark-gray">Please click on the Confirm button below if you would like to accept your new offer.</p>
 
@@ -56,8 +57,9 @@
 
           <input type="hidden" name="assigned_hours" value="{{ app.declined.assigned_hours }}" />
           <input type="hidden" name="application" value="{{ app.id }}" />
+          <input type="hidden" name="next" value="{{ request.GET.next }}" />
 
-          <a class="btn btn-outline-secondary" href="{% url 'students:history_jobs' %}">Cancel</a>
+          <a class="btn btn-outline-secondary" href="{{ request.GET.next }}">Cancel</a>
           <input class="btn btn-primary" type="submit" value="Confirm to accept" />
         </form>
       </div>

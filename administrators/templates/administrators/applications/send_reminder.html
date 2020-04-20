@@ -7,7 +7,7 @@
     {% include 'ta_app/pages/_left_aside.html' with view_name='emails' title='Send Reminder' data=email %}
 
     <div class="left-aside-btn-groups">
-      <a class="btn btn-outline-primary" href="{% url 'administrators:email_history' %}">Back to Email History</a>
+      <a class="btn btn-outline-primary" href="{{ request.GET.next }}">Back to {{ request.GET.p }}</a>
     </div>
   </div>
 
@@ -33,7 +33,9 @@
           {{ field }}
         {% endfor %}
 
-        <a class="btn btn-outline-secondary" href="{% url 'administrators:email_history' %}">Cancel</a>
+        <input type="hidden" name="next" value="{{ request.GET.next }}" />
+        
+        <a class="btn btn-outline-secondary" href="{{ request.GET.next }}">Cancel</a>
         <input class="btn btn-primary" type="submit" value="Send Reminder" />
       </form>
     </div>

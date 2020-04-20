@@ -5,15 +5,26 @@
 <div>
   {% include 'ta_app/pages/_header.html' with title='Email History' text=emails|length %}
 
+  <div class="search-field bg-light-gray p-4">
+    <form method="GET">
+      <input type="text" name="receiver" value="{{ request.GET.receiver }}" placeholder="Receiver" /> and
+      <input type="text" name="title" value="{{ request.GET.title }}" placeholder="Title" /> and
+      <input type="text" name="message" value="{{ request.GET.message }}" placeholder="Message" /> and
+      <input type="text" name="type" value="{{ request.GET.type }}" placeholder="Type" />
+
+      <div class="mt-1">
+        <button class="btn btn-sm btn-secondary" type="submit">Search</button>
+        <a class="btn btn-sm btn-light" href="{% url 'administrators:email_history' %}">Clear</a>
+      </div>
+    </form>
+  </div>
+  <div>{{ total }} result{% if total > 1 %}s {% endif %} found. {{ emails|length }} row{% if emails|length > 1 %}s {% endif %} in this page.</div>
+
   <table
     class="table table-bordered table-hover table-striped table-responsive-md text-center"
     data-toggle="table"
     data-sortable="true"
     data-classes=""
-    data-pagination="true"
-    data-search="true"
-    data-page-size="50"
-    data-page-list="[50, 100, 200, all]"
     data-show-export="true"
     data-show-columns="true"
     data-export-types="['csv']"
@@ -78,12 +89,95 @@
           </td>
           <td>{{ email.created_at }}</td>
           <td>
-            <a href="{% url 'administrators:send_reminder' email.id %}">Remind</a>
+            <a href="{% url 'administrators:send_reminder' email.id %}?next={{ request.get_full_path }}&p=Email History">Remind</a>
           </td>
         </tr>
       {% endfor %}
     </tbody>
   </table>
+
+
+  {% if emails.has_other_pages %}
+    <nav class="table-paginator" aria-label="Page navigation Search results pages">
+      <ul class="pagination justify-content-center">
+
+        {% if emails.has_previous %}
+          <li class="page-item">
+            <a class="page-link" href="?page=1
+{% if request.GET.receiver %}&receiver={{ request.GET.receiver }}{% endif %}
+{% if request.GET.title %}&title={{ request.GET.title }}{% endif %}
+{% if request.GET.message %}&message={{ request.GET.message }}{% endif %}
+{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}"
+            ><i class="fa fa-angle-double-left" aria-hidden="true"></i></a>
+          </li>
+          <li class="page-item">
+            <a class="page-link" href="?page={{ emails.previous_page_number }}
+{% if request.GET.receiver %}&receiver={{ request.GET.receiver }}{% endif %}
+{% if request.GET.title %}&title={{ request.GET.title }}{% endif %}
+{% if request.GET.message %}&message={{ request.GET.message }}{% endif %}
+{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}"
+            ><i class="fa fa-angle-left" aria-hidden="true"></i></a>
+          </li>
+        {% else %}
+          <li class="page-item disabled">
+            <span class="page-link"><i class="fa fa-angle-double-left" aria-hidden="true"></i></span>
+          </li>
+          <li class="page-item disabled">
+            <span class="page-link"><i class="fa fa-angle-left" aria-hidden="true"></i></span>
+          </li>
+        {% endif %}
+
+        {% for i in emails.paginator.page_range %}
+          {% if emails.number == i %}
+            <li class="page-item active">
+              <span class="page-link" >{{ i }} <span class="sr-only">(current)</span></span>
+            </li>
+          {% else %}
+            <li class="page-item">
+
+              {% if i|add:"-3" <= emails.number and emails.number <= i|add:"3" %}
+                <a class="page-link" href="?page={{ i }}
+{% if request.GET.receiver %}&receiver={{ request.GET.receiver }}{% endif %}
+{% if request.GET.title %}&title={{ request.GET.title }}{% endif %}
+{% if request.GET.message %}&message={{ request.GET.message }}{% endif %}
+{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}"
+                >{{ i }}</a>
+              {% endif %}
+
+            </li>
+          {% endif %}
+        {% endfor %}
+
+        {% if emails.has_next %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ emails.next_page_number }}
+{% if request.GET.receiver %}&receiver={{ request.GET.receiver }}{% endif %}
+{% if request.GET.title %}&title={{ request.GET.title }}{% endif %}
+{% if request.GET.message %}&message={{ request.GET.message }}{% endif %}
+{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}"
+            ><i class="fa fa-angle-right" aria-hidden="true"></i></a>
+          </li>
+          <li class="page-item">
+            <a class="page-link" href="?page={{ emails.paginator.num_pages }}
+{% if request.GET.receiver %}&receiver={{ request.GET.receiver }}{% endif %}
+{% if request.GET.title %}&title={{ request.GET.title }}{% endif %}
+{% if request.GET.message %}&message={{ request.GET.message }}{% endif %}
+{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}"
+            ><i class="fa fa-angle-double-right" aria-hidden="true"></i></a>
+          </li>
+        {% else %}
+          <li class="page-item disabled">
+            <span class="page-link"><i class="fa fa-angle-right" aria-hidden="true"></i></span>
+          </li>
+          <li class="page-item disabled">
+            <span class="page-link"><i class="fa fa-angle-double-right" aria-hidden="true"></i></span>
+          </li>
+        {% endif %}
+
+      </ul>
+    </nav>
+
+  {% endif %}
 
 </div>
 

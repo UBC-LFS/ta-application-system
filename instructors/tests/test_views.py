@@ -17,6 +17,13 @@ USER = 'User42.Ins'
 JOB = 'apbi-200-002-introduction-to-soil-science-w1'
 STUDENT = 'user66.test'
 
+JOBS_NEXT = '?next=' + reverse('instructors:show_jobs') + '?page=2'
+JOBS_WRONG_1 = '?nex=/instructors/jobs/?page=2'
+JOBS_WRONG_2 = '?next=/Instructors/jobs/?page=2'
+JOBS_WRONG_3 = '?next=/instructors/Jobs/?page=2'
+
+APP_PATH = reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT
+
 class InstructorTest(TestCase):
     fixtures = DATA
 
@@ -41,13 +48,13 @@ class InstructorTest(TestCase):
         response = self.client.get( reverse('instructors:index') )
         self.assertEqual(response.status_code, 403)
 
-        response = self.client.get( reverse('instructors:show_jobs') )
+        response = self.client.get( reverse('instructors:show_jobs') + JOBS_NEXT )
         self.assertEqual(response.status_code, 403)
 
-        response = self.client.get( reverse('instructors:edit_job', args=[SESSION, JOB]) )
+        response = self.client.get( reverse('instructors:edit_job', args=[SESSION, JOB]) + JOBS_NEXT )
         self.assertEqual(response.status_code, 403)
 
-        response = self.client.get( reverse('instructors:show_applications', args=[SESSION, JOB]) )
+        response = self.client.get( reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT )
         self.assertEqual(response.status_code, 403)
 
         self.login(USERS[2], 'password')
@@ -55,13 +62,13 @@ class InstructorTest(TestCase):
         response = self.client.get( reverse('instructors:index') )
         self.assertEqual(response.status_code, 403)
 
-        response = self.client.get( reverse('instructors:show_jobs') )
+        response = self.client.get( reverse('instructors:show_jobs') + JOBS_NEXT )
         self.assertEqual(response.status_code, 403)
 
-        response = self.client.get( reverse('instructors:edit_job', args=[SESSION, JOB]) )
+        response = self.client.get( reverse('instructors:edit_job', args=[SESSION, JOB]) + JOBS_NEXT )
         self.assertEqual(response.status_code, 403)
 
-        response = self.client.get( reverse('instructors:show_applications', args=[SESSION, JOB]) )
+        response = self.client.get( reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT )
         self.assertEqual(response.status_code, 403)
 
         self.login('user3.admin', 'password')
@@ -69,13 +76,13 @@ class InstructorTest(TestCase):
         response = self.client.get( reverse('instructors:index') )
         self.assertEqual(response.status_code, 403)
 
-        response = self.client.get( reverse('instructors:show_jobs') )
+        response = self.client.get( reverse('instructors:show_jobs') + JOBS_NEXT )
         self.assertEqual(response.status_code, 403)
 
-        response = self.client.get( reverse('instructors:edit_job', args=[SESSION, JOB]) )
+        response = self.client.get( reverse('instructors:edit_job', args=[SESSION, JOB]) + JOBS_NEXT )
         self.assertEqual(response.status_code, 403)
 
-        response = self.client.get( reverse('instructors:show_applications', args=[SESSION, JOB]) )
+        response = self.client.get( reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT )
         self.assertEqual(response.status_code, 403)
 
         self.login()
@@ -83,13 +90,13 @@ class InstructorTest(TestCase):
         response = self.client.get( reverse('instructors:index') )
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get( reverse('instructors:show_jobs') )
+        response = self.client.get( reverse('instructors:show_jobs') + JOBS_NEXT )
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get( reverse('instructors:edit_job', args=[SESSION, JOB]) )
+        response = self.client.get( reverse('instructors:edit_job', args=[SESSION, JOB]) + JOBS_NEXT )
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get( reverse('instructors:show_applications', args=[SESSION, JOB]) )
+        response = self.client.get( reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT )
         self.assertEqual(response.status_code, 200)
 
     def test_index(self):
@@ -283,7 +290,14 @@ class InstructorTest(TestCase):
         print('\n- Display jobs by instructors')
         self.login()
 
-        response = self.client.get( reverse('instructors:edit_job', args=[SESSION, JOB]) )
+        response = self.client.get( reverse('instructors:edit_job', args=[SESSION, JOB]) + JOBS_WRONG_1 )
+        self.assertEqual(response.status_code, 404)
+        response = self.client.get( reverse('instructors:edit_job', args=[SESSION, JOB]) + JOBS_WRONG_2 )
+        self.assertEqual(response.status_code, 404)
+        response = self.client.get( reverse('instructors:edit_job', args=[SESSION, JOB]) + JOBS_WRONG_2 )
+        self.assertEqual(response.status_code, 404)
+
+        response = self.client.get( reverse('instructors:edit_job', args=[SESSION, JOB]) + JOBS_NEXT )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, USER)
         self.assertEqual(response.context['loggedin_user'].roles, ['Instructor'])
@@ -295,17 +309,18 @@ class InstructorTest(TestCase):
         data = {
             'course_overview': 'course overview',
             'description': 'job description',
-            'note': 'job note'
+            'note': 'job note',
+            'next': reverse('instructors:show_jobs') + '?page=2'
         }
 
         response = self.client.post( reverse('instructors:edit_job', args=[SESSION, JOB]), data=urlencode(data), content_type=ContentType )
         messages = self.messages(response)
         self.assertTrue('Success' in messages[0])
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse('instructors:show_jobs'))
+        self.assertEqual(response.url, reverse('instructors:show_jobs') + '?page=2')
         self.assertRedirects(response, response.url)
 
-        response = self.client.get( reverse('instructors:edit_job', args=[SESSION, JOB]) )
+        response = self.client.get( reverse('instructors:edit_job', args=[SESSION, JOB]) + JOBS_NEXT )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['job'].course_overview, data['course_overview'])
         self.assertEqual(response.context['job'].description, data['description'])
@@ -315,7 +330,14 @@ class InstructorTest(TestCase):
         print('\n- Test: display a job')
         self.login()
 
-        response = self.client.get( reverse('instructors:show_job', args=[SESSION, JOB]) )
+        response = self.client.get( reverse('instructors:show_job', args=[SESSION, JOB]) + JOBS_WRONG_1 )
+        self.assertEqual(response.status_code, 404)
+        response = self.client.get( reverse('instructors:show_job', args=[SESSION, JOB]) + JOBS_WRONG_2 )
+        self.assertEqual(response.status_code, 404)
+        response = self.client.get( reverse('instructors:show_job', args=[SESSION, JOB]) + JOBS_WRONG_2 )
+        self.assertEqual(response.status_code, 404)
+
+        response = self.client.get( reverse('instructors:show_job', args=[SESSION, JOB]) + JOBS_NEXT )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, USER)
         self.assertEqual(response.context['loggedin_user'].roles, ['Instructor'])
@@ -331,7 +353,14 @@ class InstructorTest(TestCase):
 
         job = adminApi.get_job_by_session_slug_job_slug(SESSION, JOB)
 
-        response = self.client.get( reverse('instructors:show_applications', args=[SESSION, JOB]) )
+        response = self.client.get( reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_WRONG_1 )
+        self.assertEqual(response.status_code, 404)
+        response = self.client.get( reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_WRONG_2 )
+        self.assertEqual(response.status_code, 404)
+        response = self.client.get( reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_WRONG_2 )
+        self.assertEqual(response.status_code, 404)
+
+        response = self.client.get( reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, USER)
         self.assertEqual(response.context['loggedin_user'].roles, ['Instructor'])
@@ -341,82 +370,99 @@ class InstructorTest(TestCase):
         self.assertEqual( len(response.context['instructor_preference_choices']), 5 )
 
         # Invalid assigned hours
-        data = {
+        data1 = {
             'assigned': ApplicationStatus.OFFERED,
             'application': '6',
             'instructor_preference': Application.NONE,
             'assigned_hours': 'abcde'
         }
-        response = self.client.post( reverse('instructors:show_applications', args=[SESSION, JOB]), data=urlencode(data), content_type=ContentType )
+        response = self.client.post( reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT, data=urlencode(data1), content_type=ContentType )
         messages = self.messages(response)
         self.assertTrue('An error occurred' in messages[0])
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse('instructors:show_applications', args=[SESSION, JOB]))
+        self.assertEqual(response.url, reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT)
         self.assertRedirects(response, response.url)
 
         # Minus assigned hours
-        data = {
+        data2 = {
             'assigned': ApplicationStatus.OFFERED,
             'application': '6',
             'instructor_preference': Application.NONE,
             'assigned_hours': '-20.2'
         }
-        response = self.client.post( reverse('instructors:show_applications', args=[SESSION, JOB]), data=urlencode(data), content_type=ContentType )
+        response = self.client.post( reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT, data=urlencode(data2), content_type=ContentType )
         messages = self.messages(response)
         self.assertTrue('An error occurred' in messages[0])
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse('instructors:show_applications', args=[SESSION, JOB]))
+        self.assertEqual(response.url, reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT)
         self.assertRedirects(response, response.url)
 
-        data = {
+        data3 = {
             'assigned': ApplicationStatus.OFFERED,
             'application': '6',
             'instructor_preference': Application.NONE,
             'assigned_hours': '0.0'
         }
-        response = self.client.post( reverse('instructors:show_applications', args=[SESSION, JOB]), data=urlencode(data), content_type=ContentType )
+        response = self.client.post( reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT, data=urlencode(data3), content_type=ContentType )
         messages = self.messages(response)
         self.assertTrue('An error occurred' in messages[0])
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse('instructors:show_applications', args=[SESSION, JOB]))
+        self.assertEqual(response.url, reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT)
         self.assertRedirects(response, response.url)
 
-        data['instructor_preference'] = Application.NO_PREFERENCE
-        data['assigned_hours'] = '10.0'
-        response = self.client.post( reverse('instructors:show_applications', args=[SESSION, JOB]), data=urlencode(data), content_type=ContentType )
+        data4 = {
+            'assigned': ApplicationStatus.OFFERED,
+            'application': '6',
+            'instructor_preference': Application.NO_PREFERENCE,
+            'assigned_hours': '10.0'
+        }
+        response = self.client.post( reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT, data=urlencode(data4), content_type=ContentType )
         messages = self.messages(response)
         self.assertTrue('An error occurred' in messages[0])
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse('instructors:show_applications', args=[SESSION, JOB]))
+        self.assertEqual(response.url, reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT)
         self.assertRedirects(response, response.url)
 
-        data['instructor_preference'] = Application.ACCEPTABLE
-        data['assigned_hours'] = '0.0'
-        response = self.client.post( reverse('instructors:show_applications', args=[SESSION, JOB]), data=urlencode(data), content_type=ContentType )
+        data5 = {
+            'assigned': ApplicationStatus.OFFERED,
+            'application': '6',
+            'instructor_preference': Application.ACCEPTABLE,
+            'assigned_hours': '0.0'
+        }
+        response = self.client.post( reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT, data=urlencode(data5), content_type=ContentType )
         messages = self.messages(response)
         self.assertTrue('An error occurred' in messages[0])
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse('instructors:show_applications', args=[SESSION, JOB]))
+        self.assertEqual(response.url, reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT)
         self.assertRedirects(response, response.url)
 
-        data['instructor_preference'] = Application.ACCEPTABLE
-        data['assigned_hours'] = '201.0'
-        response = self.client.post( reverse('instructors:show_applications', args=[SESSION, JOB]), data=urlencode(data), content_type=ContentType )
+        data6 = {
+            'assigned': ApplicationStatus.OFFERED,
+            'application': '6',
+            'instructor_preference': Application.ACCEPTABLE,
+            'assigned_hours': '201.0'
+        }
+        response = self.client.post( reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT, data=urlencode(data6), content_type=ContentType )
         messages = self.messages(response)
         self.assertTrue('An error occurred' in messages[0])
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse('instructors:show_applications', args=[SESSION, JOB]))
+        self.assertEqual(response.url, reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT)
         self.assertRedirects(response, response.url)
 
-        data['instructor_preference'] = Application.REQUESTED
-        data['assigned_hours'] = '20.0'
-        response = self.client.post( reverse('instructors:show_applications', args=[SESSION, JOB]), data=urlencode(data), content_type=ContentType )
+        data7 = {
+            'assigned': ApplicationStatus.OFFERED,
+            'application': '6',
+            'instructor_preference': Application.REQUESTED,
+            'assigned_hours': '20.0'
+        }
+        response = self.client.post( reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT, data=urlencode(data7), content_type=ContentType )
         messages = self.messages(response)
         self.assertTrue('Success' in messages[0])
         self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT)
         self.assertRedirects(response, response.url)
 
-        response = self.client.get( reverse('instructors:show_applications', args=[SESSION, JOB]) )
+        response = self.client.get( reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['job'].application_set.first().instructor_preference, Application.REQUESTED)
 
@@ -444,14 +490,25 @@ class InstructorTest(TestCase):
         app = adminApi.get_application(APP, 'slug')
         self.assertIsNone(app.note)
 
-        data = { 'note': 'new note' }
-        response = self.client.post( reverse('instructors:write_note', args=[APP]), data=urlencode(data), content_type=ContentType )
+        response = self.client.get( reverse('instructors:write_note', args=[APP]) + '?nex=' + reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT)
+        self.assertEqual(response.status_code, 404)
+        response = self.client.get( reverse('instructors:write_note', args=[APP]) + '?next=' + reverse('instructors:show_applications', args=['2019-w11', JOB]) + JOBS_NEXT)
+        self.assertEqual(response.status_code, 404)
+        response = self.client.get( reverse('instructors:write_note', args=[APP]) + '?next=' + reverse('instructors:show_applications', args=[SESSION, 'apbi-200-002-introduct']) + JOBS_NEXT)
+        self.assertEqual(response.status_code, 404)
+
+        data = {
+            'note': 'new note',
+            'next': APP_PATH
+        }
+        response = self.client.post( reverse('instructors:write_note', args=[APP]) + '?next=' + reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT, data=urlencode(data), content_type=ContentType )
         messages = self.messages(response)
         self.assertTrue('Success' in messages[0])
         self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, response.url)
 
-        response = self.client.get( reverse('instructors:show_applications', args=[SESSION, JOB]) )
+        response = self.client.get( reverse('instructors:show_applications', args=[SESSION, JOB]) + '?next=' + APP_PATH)
         self.assertEqual(response.status_code, 200)
         apps = response.context['apps']
 
