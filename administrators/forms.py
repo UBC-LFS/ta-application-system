@@ -215,43 +215,6 @@ class MyModelMultipleChoiceField(ModelMultipleChoiceField):
     def label_from_instance(self, obj):
         return obj.get_full_name()
 
-"""
-class AdminJobForm(forms.ModelForm):
-    ''' Jobs can be updated '''
-    assigned_ta_hours = forms.FloatField(
-        label='Total Assigned TA Hours',
-        widget=forms.TextInput(attrs={ 'class': 'form-control' }),
-        help_text='Valid range is 0 to 4000.'
-    )
-    accumulated_ta_hours = forms.FloatField(
-        label='Accumulated TA Hours',
-        widget=forms.TextInput(attrs={ 'class': 'form-control' }),
-        help_text='Valid range is 0 to 4000.'
-    )
-    '''instructors = MyModelMultipleChoiceField(
-        queryset=User.objects.filter(profile__roles=ROLES['Instructor']).order_by('last_name', 'first_name'),
-        widget=forms.CheckboxSelectMultiple(),
-        help_text='This field is optional.'
-    )'''
-    class Meta:
-        model = Job
-        fields = ['course_overview', 'description', 'note', 'assigned_ta_hours', 'accumulated_ta_hours', 'is_active', 'instructors']
-        widgets = {
-            'course_overview': SummernoteWidget(),
-            'description': SummernoteWidget(),
-            'note': SummernoteWidget(),
-            'instructors': forms.HiddenInput()
-        }
-        labels = {
-            'course_overview': 'Course Overview'
-        }
-        help_texts = {
-            'course_overview': 'This field is optional.',
-            'description': 'This field is optional.',
-            'note': 'This field is optional.'
-        }
-    field_order = ['course_overview', 'description', 'note', 'assigned_ta_hours', 'accumulated_ta_hours', 'is_active', 'instructors']
-"""
 
 class AdminJobEditForm(forms.ModelForm):
     ''' '''
@@ -350,7 +313,7 @@ class TerminateApplicationForm(forms.ModelForm):
 class ApplicationStatusForm(forms.ModelForm):
     class Meta:
         model = ApplicationStatus
-        fields = ['application', 'assigned', 'assigned_hours']
+        fields = ['application', 'assigned', 'assigned_hours', 'has_contract_read']
         widgets = {
             'assigned': forms.HiddenInput()
         }

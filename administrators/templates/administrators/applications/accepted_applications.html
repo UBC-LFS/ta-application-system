@@ -7,6 +7,7 @@
 
   {% include 'administrators/applications/_search_fields.html' with data=apps total=total_apps path='accepted' %}
 
+  {% include 'ta_app/applications/_contract_read_note.html' %}
   <table
     class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center"
     data-toggle="table"
@@ -98,6 +99,9 @@
               <span class="font-weight-bold text-chocolate">{{ app.accepted.assigned_hours }}</span> hours
             </div>
             <div class="text-dark-gray">({{ app.accepted.created_at }})</div>
+            {% if app.accepted.has_contract_read %}
+              <span class="badge badge-success">READ</span>
+            {% endif %}
           </td>
           <td>
             {% if 'Admin' in loggedin_user.roles or 'Superadmin' in loggedin_user.roles %}

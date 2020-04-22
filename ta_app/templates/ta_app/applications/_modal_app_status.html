@@ -23,6 +23,7 @@
               <th>Parent ID</th>
               <th>Created at</th>
               <th>Application ID</th>
+              <th>Read Contract</th>
             </tr>
           </thead>
           <tbody>
@@ -36,6 +37,11 @@
                 <td>{% if st.parent_id %} {{ st.parent_id }} {% endif %}</td>
                 <td>{{ st.created_at }}</td>
                 <td>{{ st.application_id }}</td>
+                <td>
+                  {% if st.has_contract_read %}
+                    <span class="badge badge-success">READ</span>
+                  {% endif %}
+                </td>
               </tr>
             {% empty %}
               <tr>

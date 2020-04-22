@@ -19,10 +19,13 @@ from datetime import datetime
 
 # Request parameter validation
 
-def validate_parameters(request, params):
+def validate_parameters(request, params, option=None):
+    ''' Validate request parameters '''
     for param in params:
-        if request.GET.get(param) == None:
-            raise Http404
+        if option == 'POST':
+            if request.POST.get(param) == None: raise Http404
+        else:
+            if request.GET.get(param) == None: raise Http404
     return True
 
 def validate_url_page(request, path):
@@ -35,7 +38,7 @@ def validate_url_tab(request, path):
     if request.GET.get('t') not in path:
         raise Http404
 
-def can_req_parameters_access(request, domain, params):
+def can_req_parameters_access(request, domain, params, option=None):
     ''' Check whether request parameters are valid or not '''
 
     SESSION_PATH = ['Current Sessions', 'Archived Sessions']
@@ -49,9 +52,19 @@ def can_req_parameters_access(request, domain, params):
     STUDENT_PATH = ['Home', 'Edit Profile','Confidential Information']
 
     # True if parameters are in the params list
-    if validate_parameters(request, params):
-        next = urlparse(request.GET.get('next'))
-        res = resolve(next.path)
+    if validate_parameters(request, params, option):
+        next = None
+        res = None
+        if option == 'POST':
+            next = urlparse(request.POST.get('next'))
+            res = resolve(next.path)
+            if 'session_slug' in res.kwargs.keys() and len(res.kwargs['session_slug']) > 0:
+                validate_next(request.POST.get('next'), ['session'])
+                if 'job_slug' in res.kwargs.keys() and len(res.kwargs['job_slug']) > 0:
+                    validate_next(request.POST.get('next'), ['session', 'job'])
+        else:
+            next = urlparse(request.GET.get('next'))
+            res = resolve(next.path)
 
         if domain == 'session':
             validate_url_page(request, SESSION_PATH)
@@ -80,10 +93,11 @@ def can_req_parameters_access(request, domain, params):
                 get_job_by_session_slug_job_slug(res.kwargs['session_slug'], res.kwargs['job_slug'])
 
             validate_url_tab(request, tabs)
-        
+
         elif domain == 'student':
             validate_url_page(request, STUDENT_PATH)
             validate_url_tab(request, ['basic', 'additional', 'resume'])
+
         elif domain == 'instructor-note':
             get_job_by_session_slug_job_slug(res.kwargs['session_slug'], res.kwargs['job_slug'])
 
@@ -94,7 +108,8 @@ def validate_next(next, list):
     res = resolve(parse.path)
     if 'session' in list:
         get_session(res.kwargs['session_slug'], 'slug')
-
+        if 'job' in list:
+            get_job_by_session_slug_job_slug(res.kwargs['session_slug'], res.kwargs['job_slug'])
 
 def build_url(path, next_path, page, tab):
     return "{0}?next={1}&p={2}&t={3}".format(path, next_path, page, tab)
@@ -314,8 +329,8 @@ def update_job_accumulated_ta_hours(session_slug, job_slug, ta_hours):
     new_hours = job.accumulated_ta_hours + ta_hours
     job.accumulated_ta_hours = new_hours
     job.updated_at = datetime.now()
+    job.save(update_fields=['accumulated_ta_hours', 'updated_at'])
 
-    saved = job.save(update_fields=['accumulated_ta_hours', 'updated_at'])
     return True if job else False
 
 def get_recent_ten_job_details(course, year):

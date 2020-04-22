@@ -20,6 +20,8 @@
     <div class="left-aside-btn-groups">
       <a class="btn btn-outline-primary" href="{{ request.GET.next }}">Back to History of Jobs</a>
     </div>
+
+    {% include 'ta_app/pages/_accept_decline_notice.html' %}
   </div>
 
   <div class="col-md-8">
@@ -50,43 +52,36 @@
             </div>
           </div>
 
-          <div class="bd-callout bd-callout-warning bg-white font-size-sm">
-            <h5>
-              <i class="fa fa-bullhorn" aria-hidden="true"></i> Notice
-            </h5>
-            <p>By accepting any TA appointment within LFS, you are expected to be available for the duration of the assignment:</p>
-            <ul>
-              <li>Winter Session: Term 1 - September 1 to December 31; Term 2 - January 1 to April 30</li>
-              <li>Summer Session: Term 1 - May 1 to June 30; Term 2 - July 1 to August 31</li>
-            </ul>
-            <p>
-              Keep in mind that final exams are not controlled by LFS and may be scheduled up to the final day of the exam period and that final exam marking could take place after the end of the examination period. If you need to be absend for any period of time, you are expected to contact the course instructor and arrange for a proper replacement. If you already have plans to be absent at any time during the duration of the assignment, you should describe these plans in the additional comments box below AND inform your course instructor as soon as you are assigned.
-            </p>
-          </div>
+          {% include 'ta_app/applications/_job_offer_contract.html' with employee=loggedin_user data=app %}
 
           <div class="text-center">
             {% include 'ta_app/pages/_submit_note.html' %}
 
-            <div class="d-inline-block">
-              <form action="{% url 'students:decline_offer' session_slug=app.job.session.slug job_slug=app.job.course.slug %}" method="post">
-                {% csrf_token %}
+            <form action="{% url 'students:make_decision' session_slug=app.job.session.slug job_slug=app.job.course.slug %}" method="post">
+              {% csrf_token %}
 
-                <input type="hidden" name="next" value="{{ request.GET.next }}" />
-                <input type="hidden" name="application" value="{{ app.id }}" />
-                <input class="btn btn-outline-danger" type="submit" value="Decline" />
-              </form>
-            </div>
+              <div>
+                <input type="checkbox" name="has_contract_read" value="true" />
+                <span class="font-weight-bold">I read and understood my Offer contract</span>
+              </div>
 
-            <div class="d-inline-block">
-              <form action="{% url 'students:accept_offer' session_slug=app.job.session.slug job_slug=app.job.course.slug %}" method="post">
-                {% csrf_token %}
+              <div class="field-wrapper">
+                <div class="d-inline-block mx-3">
+                  <input id="id_accept" type="radio" name="decision" value="accept">
+                  <label class="font-weight-bold" for="id_accept">Accept</label>
+                </div>
+                <div class="d-inline-block mx-3">
+                  <input id="id_decline" type="radio" name="decision" value="decline">
+                  <label class="font-weight-bold" for="id_decline">Decline</label>
+                </div>
+              </div>
 
-                <input type="hidden" name="next" value="{{ request.GET.next }}" />
-                <input type="hidden" name="application" value="{{ app.id }}" />
-                <input type="hidden" name="assigned_hours" value="{{ app.offered.assigned_hours }}" />
-                <input class="btn btn-primary" type="submit" value="Accept" />
-              </form>
-            </div>
+              <input type="hidden" name="next" value="{{ request.GET.next }}" />
+              <input type="hidden" name="application" value="{{ app.id }}" />
+              <input type="hidden" name="assigned_hours" value="{{ app.offered.assigned_hours }}" />
+              <input class="btn btn-primary" type="submit" value="Submit" />
+            </form>
+
           </div>
 
         {% else %}
