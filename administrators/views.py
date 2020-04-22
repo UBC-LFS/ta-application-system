@@ -259,6 +259,10 @@ def edit_session(request, session_slug):
 
     session = adminApi.get_session(session_slug, 'slug')
     if request.method == 'POST':
+
+        # Check whether a next url is valid or not
+        adminApi.can_req_parameters_access(request, 'none', ['next'], 'POST')
+
         form = SessionConfirmationForm(request.POST, instance=session)
         if form.is_valid():
             data = form.cleaned_data
@@ -311,6 +315,8 @@ def delete_session_confirmation(request, session_slug):
 
     sessions = adminApi.get_sessions()
     if request.method == 'POST':
+        adminApi.can_req_parameters_access(request, 'session', ['next'], 'POST')
+
         session_id = request.POST.get('session')
         deleted_session = adminApi.delete_session(session_id)
         if deleted_session:
@@ -593,11 +599,15 @@ def student_jobs_details(request, username):
 def edit_job(request, session_slug, job_slug):
     ''' Edit a job '''
     request = userApi.has_admin_access(request)
+    adminApi.can_req_parameters_access(request, 'job', ['next', 'p'])
 
     job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
     if request.method == 'POST':
-        form = AdminJobEditForm(request.POST, instance=job)
 
+        # Check whether a next url is valid or not
+        adminApi.can_req_parameters_access(request, 'none', ['next'], 'POST')
+
+        form = AdminJobEditForm(request.POST, instance=job)
         if form.is_valid():
             updated_job = form.save(commit=False)
             updated_job.updated_at = datetime.now()
@@ -612,7 +622,7 @@ def edit_job(request, session_slug, job_slug):
             errors = form.errors.get_json_data()
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
-        return HttpResponseRedirect(request.GET.get_full_path())
+        return HttpResponseRedirect(request.get_full_path())
 
     return render(request, 'administrators/jobs/edit_job.html', {
         'loggedin_user': request.user,
@@ -906,30 +916,32 @@ def selected_applications(request):
 def offer_job(request, session_slug, job_slug):
     ''' Admin can offer a job to each job '''
     request = userApi.has_admin_access(request)
-    adminApi.can_req_parameters_access(request, 'none', ['next'])
 
     if request.method == 'POST':
 
+        # Check whether a next url is valid or not
+        adminApi.can_req_parameters_access(request, 'none', ['next'], 'POST')
+
         if 'classification' not in request.POST.keys() or len(request.POST.get('classification')) == 0:
             messages.error(request, 'An error occurred. Please select classification, then try again.')
-            return HttpResponseRedirect(request.GET.get('next'))
+            return HttpResponseRedirect(request.POST.get('next'))
 
         assigned_hours = request.POST.get('assigned_hours')
 
         if adminApi.is_valid_float(assigned_hours) == False:
             messages.error(request, 'An error occurred. Please check assigned hours. Assigned hours must be numerival value only.')
-            return HttpResponseRedirect(request.GET.get('next'))
+            return HttpResponseRedirect(request.POST.get('next'))
 
         assigned_hours = float(assigned_hours)
 
         if assigned_hours < 0.0:
             messages.error(request, 'An error occurred. Please check assigned hours. Assigned hours must be greater than 0.')
-            return HttpResponseRedirect(request.GET.get('next'))
+            return HttpResponseRedirect(request.POST.get('next'))
 
         job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
         if assigned_hours > float(job.assigned_ta_hours):
             messages.error(request, 'An error occurred. Please you cannot assign {0} hours Total Assigned TA Hours is {1}, then try again.'.format(assigned_hours, job.assigned_ta_hours))
-            return HttpResponseRedirect(request.GET.get('next'))
+            return HttpResponseRedirect(request.POST.get('next'))
 
         admin_app_form = AdminApplicationForm(request.POST)
         app_status_form = ApplicationStatusForm(request.POST)
@@ -944,7 +956,7 @@ def offer_job(request, session_slug, job_slug):
 
             if len(errors) > 0:
                 messages.error(request, 'An error occurred while sending a job offer. {0}'.format( ' '.join(errors) ))
-                return HttpResponseRedirect(request.GET.get('next'))
+                return HttpResponseRedirect(request.POST.get('next'))
 
             applicant = userApi.get_user(request.POST.get('applicant'))
             messages.success(request, 'Success! You offered this user ({0} {1}) {2} hours for this job ({3} {4} - {5} {6} {7})'.format(applicant.first_name, applicant.last_name, assigned_hours, job.session.year, job.session.term.code, job.course.code.name, job.course.number.name, job.course.section.name))
@@ -959,7 +971,7 @@ def offer_job(request, session_slug, job_slug):
 
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
-    return HttpResponseRedirect(request.GET.get('next'))
+    return HttpResponseRedirect(request.POST.get('next'))
 
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -1024,8 +1036,7 @@ def accepted_applications(request):
     if request.method == 'POST':
 
         # Check whether a next url is valid or not
-        next = urlparse(request.POST.get('next'))
-        res = resolve(next.path)
+        adminApi.can_req_parameters_access(request, 'none', ['next'], 'POST')
 
         admin_docs = adminApi.get_admin_docs(request.POST.get('application'))
         form = AdminDocumentsForm(request.POST, instance=admin_docs)
@@ -1182,13 +1193,13 @@ def email_history(request):
 def send_reminder(request, email_id):
     ''' Send a reminder email '''
     request = userApi.has_admin_access(request)
+    adminApi.can_req_parameters_access(request, 'app', ['next', 'p'])
 
     email = None
     if request.method == 'POST':
 
         # Check whether a next url is valid or not
-        next = urlparse(request.POST.get('next'))
-        res = resolve(next.path)
+        adminApi.can_req_parameters_access(request, 'none', ['next'], 'POST')
 
         form = ReminderForm(request.POST)
         if form.is_valid():
@@ -1206,7 +1217,6 @@ def send_reminder(request, email_id):
         return HttpResponseRedirect(request.get_full_path())
 
     else:
-        adminApi.can_req_parameters_access(request, 'app', ['next', 'p'])
         email = adminApi.get_email(email_id)
 
     return render(request, 'administrators/applications/send_reminder.html', {
@@ -1275,6 +1285,9 @@ def decline_reassign_confirmation(request):
     new_assigned_hours = None
     new_ta_hours = None
     if request.method == 'POST':
+
+        # Check whether a next url is valid or not
+        adminApi.can_req_parameters_access(request, 'none', ['next'], 'POST')
 
         if request.POST.get('is_declined_reassigned') == None:
             messages.error(request, 'An error occurred. Please click on the checkbox to decline and re-assign.')
@@ -1353,6 +1366,10 @@ def terminate(request, app_slug):
     if app.is_terminated: raise Http404
 
     if request.method == 'POST':
+
+        # Check whether a next url is valid or not
+        adminApi.can_req_parameters_access(request, 'none', ['next'], 'POST')
+
         if request.POST.get('is_terminated') == None:
             messages.error(request, 'An error occurred. Please click on the checkbox to terminate.')
             return HttpResponseRedirect(request.get_full_path())
@@ -1474,6 +1491,10 @@ def applications_send_email_confirmation(request):
         receiver_list = [ app.applicant.email for app in applications ]
 
         if request.method == 'POST':
+
+            # Check whether a next url is valid or not
+            adminApi.can_req_parameters_access(request, 'none', ['next'], 'POST')
+
             form = EmailForm(request.POST)
             if form.is_valid():
                 data = form.cleaned_data
@@ -1489,11 +1510,17 @@ def applications_send_email_confirmation(request):
                     elif path == 'Terminated Applications':
                         assigned_hours = app.accepted.assigned_hours
 
+                    instructors = []
+                    for instructor in app.job.instructors.all():
+                        instructors.append(instructor.get_full_name())
+
                     name = app.applicant.first_name + ' ' + app.applicant.last_name
                     message = data['message'].format(
                         name,
+                        app.applicant.profile.student_number,
                         app.job.session.year + ' ' + app.job.session.term.code,
                         app.job.course.code.name + ' ' + app.job.course.number.name + ' ' + app.job.course.section.name,
+                        ', '.join(instructors),
                         assigned_hours,
                         app.classification.name
                     )
@@ -1683,6 +1710,9 @@ def edit_user(request, username):
         confidentiality = userApi.create_confidentiality(user)
 
     if request.method == 'POST':
+        # Check whether a next url is valid or not
+        adminApi.can_req_parameters_access(request, 'none', ['next'], 'POST')
+
         validation = userApi.validate_post(request.POST, ['first_name', 'last_name', 'email', 'username'])
         if len(validation) > 0:
             messages.error(request, 'An error occurred while updating an User Edit Form. {0}: This field is required.'.format( ', '.join(validation) ))
@@ -1912,22 +1942,27 @@ def create_course(request):
 def edit_course(request, course_slug):
     ''' Edit a course '''
     request = userApi.has_admin_access(request)
+    adminApi.can_req_parameters_access(request, 'none', ['next'])
 
     course = adminApi.get_course(course_slug, 'slug')
     if request.method == 'POST':
+
+        # Check whether a next url is valid or not
+        adminApi.can_req_parameters_access(request, 'none', ['next'], 'POST')
+
         form = CourseEditForm(request.POST, instance=course)
         if form.is_valid():
             updated_course = form.save()
             if updated_course:
                 messages.success(request, 'Success! {0} {1} {2} {3} updated'.format(updated_course.code.name, updated_course.number.name, updated_course.section.name, updated_course.term.code))
-                return redirect('administrators:all_courses')
+                return HttpResponseRedirect(request.POST.get('next'))
             else:
                 messages.error(request, 'An error occurred while editing a course. Please contact administrators or try it again.')
         else:
             errors = form.errors.get_json_data()
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
-        return HttpResponseRedirect( reverse('administrators:edit_course', args=[course_slug]) )
+        return HttpResponseRedirect(request.get_full_path())
 
     return render(request, 'administrators/courses/edit_course.html', {
         'loggedin_user': request.user,
@@ -1943,12 +1978,17 @@ def delete_course(request):
     request = userApi.has_admin_access(request)
 
     if request.method == 'POST':
+        # Check whether a next url is valid or not
+        adminApi.can_req_parameters_access(request, 'none', ['next'], 'POST')
+
         course_id = request.POST.get('course')
         deleted_course = adminApi.delete_course(course_id)
         if deleted_course:
             messages.success(request, 'Success! {0} {1} {2} {3} deleted'.format(deleted_course.code.name, deleted_course.number.name, deleted_course.section.name, deleted_course.term.code))
         else:
             messages.error(request, 'An error occurred while deleting a course. Please contact administrators or try it again.')
+
+        return HttpResponseRedirect(request.POST.get('next'))
 
     return redirect("administrators:all_courses")
 

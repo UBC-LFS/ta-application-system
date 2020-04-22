@@ -31,6 +31,7 @@
               <th>Assigned TA Hours</th>
               <th>Parent ID</th>
               <th>Created at</th>
+              <th>Read Contract</th>
             </tr>
           </thead>
           <tbody>
@@ -43,6 +44,11 @@
                 <td>{{ st.assigned_hours }}</td>
                 <td>{{ st.parent_id }}</td>
                 <td>{{ st.created_at }}</td>
+                <td>
+                  {% if st.has_contract_read %}
+                    <span class="badge badge-success">READ</span>
+                  {% endif %}
+                </td>
               </tr>
             {% empty %}
               <tr>

@@ -62,6 +62,7 @@
           {{ field }}
         {% endfor %}
 
+        <input type="hidden" name="next" value="{{ request.GET.next }}" />
         <a class="btn btn-outline-secondary" href="{% url 'administrators:all_courses' %}">Cancel</a>
         <input class="btn btn-primary" value="Update" type="submit" />
       </form>

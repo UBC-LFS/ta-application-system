@@ -8,8 +8,10 @@
   {% include 'administrators/applications/_search_fields.html' with data=apps total=total_apps path='declined' %}
 
   <p class="text-dark-gray text-right">
-    This icon <i class="fa fa-asterisk text-danger" aria-hidden="true"></i> means administrators did decline accepted applications for re-assign.
+    This icon <i class="fa fa-asterisk text-danger" aria-hidden="true"></i> means that administrators did decline accepted applications for re-assign.
   </p>
+
+  {% include 'ta_app/applications/_contract_read_note.html' %}
 
   <form action="{% url 'administrators:applications_send_email' %}?next={{ request.get_full_path }}&p=Declined Applications" method="post">
     {% csrf_token %}
@@ -74,7 +76,12 @@
             <td>{% include 'ta_app/applications/_modal_note.html' with data=app %}</td>
             <td>{{ app.created_at }}</td>
             <td>{{ app.updated_at }}</td>
-            <td>{{ app.declined.created_at }}</td>
+            <td>
+              <div>{{ app.declined.created_at }}</div>
+              {% if app.declined.has_contract_read %}
+                <span class="badge badge-success">READ</span>
+              {% endif %}
+            </td>
           </tr>
         {% endfor %}
       </tbody>

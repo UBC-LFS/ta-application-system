@@ -75,26 +75,20 @@
 
       {% endif %}
 
-        <div class="card border-secondary mt-3">
-          <div class="card-body">
-            <div class="card-text">
-              <h5 class="card-title">Upload your resume</h5>
-
-              <div class="mb-3">
-                <small class="text-dark-gray">
-                  - Valid file formats: jpg, jpeg, png, pdf, doc, docx <br />
-                  - The maximum file size that can be uploaded is 1.5 MB. <br />
-                  - Ensure a filename has at most 256 characters.
-                </small>
-              </div>
-
-              <form action="{% url 'students:upload_resume' %}?next={{ request.GET.next }}&p={{ request.GET.p }}&t=resume" method="post" enctype="multipart/form-data">
-                {% csrf_token %}
-                <table>{{ form.as_table }}</table>
-                <input class="btn btn-primary mt-4" type="submit" value="Upload" />
-              </form>
-            </div>
+        <div class="bg-white border-grayish-blue p-4 mt-3">
+          <h5 class="card-title">Upload your resume</h5>
+          <div class="mb-3">
+            <small class="text-dark-gray">
+              - Valid file formats: jpg, jpeg, png, pdf, doc, docx <br />
+              - The maximum file size that can be uploaded is 1.5 MB. <br />
+              - Ensure a filename has at most 256 characters.
+            </small>
           </div>
+          <form action="{% url 'students:upload_resume' %}?next={{ request.GET.next }}&p={{ request.GET.p }}&t=resume" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <table>{{ form.as_table }}</table>
+            <input class="btn btn-primary mt-4" type="submit" value="Upload" />
+          </form>
         </div>
       </div>
 
