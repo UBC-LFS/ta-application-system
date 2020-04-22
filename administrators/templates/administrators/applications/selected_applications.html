@@ -203,7 +203,7 @@
           <td>
             {% if app.offered %}
               <button class="btn btn-xs btn-info" type="button" data-toggle="modal" data-target="#job-application-offer-modal-{{ app.id }}">Offered</button><br />
-              <small class="text-dark-gray">{{ app.offered.created_at }}</small>
+              <div class="text-dark-gray">{{ app.offered.created_at }}</div>
             {% else %}
               <button class="btn btn-xs btn-primary" type="button" data-toggle="modal" data-target="#job-application-offer-modal-{{ app.id }}">Offer</button>
             {% endif %}
@@ -230,7 +230,7 @@
                       </h4>
                       <h6 class="text-dark-gray mb-3">for {{ app.job.session.year }} {{ app.job.session.term.code }} - {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</h6>
 
-                      <form action="{% url 'administrators:offer_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}?next={{ request.get_full_path }}" method="post">
+                      <form action="{% url 'administrators:offer_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}" method="post">
                         {% csrf_token %}
 
                         <div class="field-wrapper">
@@ -268,6 +268,8 @@
                         <input type="hidden" name="application" value="{{ app.id }}" />
                         <input type="hidden" name="assigned" value="{{ app_status.offered }}" />
                         <input type="hidden" name="applicant" value="{{ app.applicant.id }}" />
+                        <input type="hidden" name="has_contract_read" value="false" />
+                        <input type="hidden" name="next" value="{{ request.get_full_path }}" />
 
                         <input class="btn btn-primary" type="submit" value="Offer" />
                       </form>

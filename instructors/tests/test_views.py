@@ -306,14 +306,22 @@ class InstructorTest(TestCase):
         self.assertEqual(response.context['form'].instance, response.context['job'])
         self.assertEqual( len(response.context['jobs']), 6 )
 
-        data = {
+        data1 = {
+            'course_overview': 'course overview',
+            'description': 'job description',
+            'note': 'job note',
+            'next': '/instructors/jobS/?page=2'
+        }
+        response = self.client.post( reverse('instructors:edit_job', args=[SESSION, JOB]), data=urlencode(data1), content_type=ContentType )
+        self.assertEqual(response.status_code, 404)
+
+        data2 = {
             'course_overview': 'course overview',
             'description': 'job description',
             'note': 'job note',
             'next': reverse('instructors:show_jobs') + '?page=2'
         }
-
-        response = self.client.post( reverse('instructors:edit_job', args=[SESSION, JOB]), data=urlencode(data), content_type=ContentType )
+        response = self.client.post( reverse('instructors:edit_job', args=[SESSION, JOB]), data=urlencode(data2), content_type=ContentType )
         messages = self.messages(response)
         self.assertTrue('Success' in messages[0])
         self.assertEqual(response.status_code, 302)
@@ -322,9 +330,9 @@ class InstructorTest(TestCase):
 
         response = self.client.get( reverse('instructors:edit_job', args=[SESSION, JOB]) + JOBS_NEXT )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context['job'].course_overview, data['course_overview'])
-        self.assertEqual(response.context['job'].description, data['description'])
-        self.assertEqual(response.context['job'].note, data['note'])
+        self.assertEqual(response.context['job'].course_overview, data2['course_overview'])
+        self.assertEqual(response.context['job'].description, data2['description'])
+        self.assertEqual(response.context['job'].note, data2['note'])
 
     def test_show_job(self):
         print('\n- Test: display a job')
@@ -373,6 +381,7 @@ class InstructorTest(TestCase):
         data1 = {
             'assigned': ApplicationStatus.OFFERED,
             'application': '6',
+            'has_contract_read': False,
             'instructor_preference': Application.NONE,
             'assigned_hours': 'abcde'
         }
@@ -387,6 +396,7 @@ class InstructorTest(TestCase):
         data2 = {
             'assigned': ApplicationStatus.OFFERED,
             'application': '6',
+            'has_contract_read': False,
             'instructor_preference': Application.NONE,
             'assigned_hours': '-20.2'
         }
@@ -400,6 +410,7 @@ class InstructorTest(TestCase):
         data3 = {
             'assigned': ApplicationStatus.OFFERED,
             'application': '6',
+            'has_contract_read': False,
             'instructor_preference': Application.NONE,
             'assigned_hours': '0.0'
         }
@@ -413,6 +424,7 @@ class InstructorTest(TestCase):
         data4 = {
             'assigned': ApplicationStatus.OFFERED,
             'application': '6',
+            'has_contract_read': False,
             'instructor_preference': Application.NO_PREFERENCE,
             'assigned_hours': '10.0'
         }
@@ -426,6 +438,7 @@ class InstructorTest(TestCase):
         data5 = {
             'assigned': ApplicationStatus.OFFERED,
             'application': '6',
+            'has_contract_read': False,
             'instructor_preference': Application.ACCEPTABLE,
             'assigned_hours': '0.0'
         }
@@ -439,6 +452,7 @@ class InstructorTest(TestCase):
         data6 = {
             'assigned': ApplicationStatus.OFFERED,
             'application': '6',
+            'has_contract_read': False,
             'instructor_preference': Application.ACCEPTABLE,
             'assigned_hours': '201.0'
         }
@@ -452,6 +466,7 @@ class InstructorTest(TestCase):
         data7 = {
             'assigned': ApplicationStatus.OFFERED,
             'application': '6',
+            'has_contract_read': False,
             'instructor_preference': Application.REQUESTED,
             'assigned_hours': '20.0'
         }
@@ -497,15 +512,51 @@ class InstructorTest(TestCase):
         response = self.client.get( reverse('instructors:write_note', args=[APP]) + '?next=' + reverse('instructors:show_applications', args=[SESSION, 'apbi-200-002-introduct']) + JOBS_NEXT)
         self.assertEqual(response.status_code, 404)
 
-        data = {
+
+        data1 = {
+            'note': 'new note',
+            'next': '?nex=/instructors/sessions/2019-w1/jobs/apbi-200-002-introduction-to-soil-science-w1/applications/?next=/instructors/jobs/'
+        }
+        response = self.client.post( reverse('instructors:write_note', args=[APP]) + '?next=' + reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT, data=urlencode(data1), content_type=ContentType )
+        self.assertEqual(response.status_code, 404)
+
+        data2 = {
+            'note': 'new note',
+            'next': '?next=/instructor/sessions/2019-w1/jobs/apbi-200-002-introduction-to-soil-science-w1/applications/?next=/instructors/jobs/'
+        }
+        response = self.client.post( reverse('instructors:write_note', args=[APP]) + '?next=' + reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT, data=urlencode(data2), content_type=ContentType )
+        self.assertEqual(response.status_code, 404)
+
+        data3 = {
+            'note': 'new note',
+            'next': '?next=/instructors/seSsions/2019-w1/jobs/apbi-200-002-introduction-to-soil-science-w1/applications/?next=/instructors/jobs/'
+        }
+        response = self.client.post( reverse('instructors:write_note', args=[APP]) + '?next=' + reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT, data=urlencode(data3), content_type=ContentType )
+        self.assertEqual(response.status_code, 404)
+
+        data4 = {
+            'note': 'new note',
+            'next': '?next=/instructors/seSsions/2019-w3/jobs/apbi-200-002-introduction-to-soil-science-w1/applications/?next=/instructors/jobs/'
+        }
+        response = self.client.post( reverse('instructors:write_note', args=[APP]) + '?next=' + reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT, data=urlencode(data4), content_type=ContentType )
+        self.assertEqual(response.status_code, 404)
+
+        data5 = {
+            'note': 'new note',
+            'next': '?next=/instructors/sessions/2019-w1/jobs/apbi-200-002-introduction-to-soil-science-w3/applications/?next=/instructors/jobs/'
+        }
+        response = self.client.post( reverse('instructors:write_note', args=[APP]) + '?next=' + reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT, data=urlencode(data5), content_type=ContentType )
+        self.assertEqual(response.status_code, 404)
+
+        data6 = {
             'note': 'new note',
             'next': APP_PATH
         }
-        response = self.client.post( reverse('instructors:write_note', args=[APP]) + '?next=' + reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT, data=urlencode(data), content_type=ContentType )
+        response = self.client.post( reverse('instructors:write_note', args=[APP]) + '?next=' + reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT, data=urlencode(data6), content_type=ContentType )
         messages = self.messages(response)
         self.assertTrue('Success' in messages[0])
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, APP_PATH)
         self.assertRedirects(response, response.url)
 
         response = self.client.get( reverse('instructors:show_applications', args=[SESSION, JOB]) + '?next=' + APP_PATH)
@@ -530,4 +581,4 @@ class InstructorTest(TestCase):
         self.assertEqual(app.is_declined_reassigned, appl.is_declined_reassigned)
         self.assertEqual(app.is_terminated, appl.is_terminated)
         self.assertIsNotNone(appl.note)
-        self.assertEqual(appl.note, data['note'])
+        self.assertEqual(appl.note, data6['note'])

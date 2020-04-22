@@ -205,7 +205,6 @@ class Application(models.Model):
         self.slug = slugify(self.job.session.slug + ' ' + self.job.course.slug + ' application by ' + self.applicant.username)
         super(Application, self).save(*args, **kwargs)
 
-
 class ApplicationStatus(models.Model):
     ''' Application Status '''
     NONE = '0'
@@ -223,6 +222,8 @@ class ApplicationStatus(models.Model):
         validators=[MaxValueValidator(4000)]
     )
     parent_id = models.CharField(max_length=256, null=True, blank=True)
+    has_contract_read = models.BooleanField(default=False)
+
     created_at = models.DateField(default=dt.date.today)
 
     class Meta:

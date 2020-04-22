@@ -162,6 +162,10 @@ def edit_job(request, session_slug, job_slug):
 
     job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
     if request.method == 'POST':
+
+        # Check whether a next url is valid or not
+        adminApi.can_req_parameters_access(request, 'none', ['next'], 'POST')
+
         form = InstructorJobForm(request.POST, instance=job)
         if form.is_valid():
             job = form.save(commit=False)
@@ -282,6 +286,10 @@ def write_note(request, app_slug):
 
     app = adminApi.get_application(app_slug, 'slug')
     if request.method == 'POST':
+
+        # Check whether a next url is valid or not
+        adminApi.can_req_parameters_access(request, 'none', ['next'], 'POST')
+
         form = ApplicationNoteForm(request.POST, instance=app)
         if form.is_valid():
             appl = form.save(commit=False)

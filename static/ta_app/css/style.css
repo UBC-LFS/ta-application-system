@@ -96,7 +96,7 @@ main {
   border: 1px solid #bbb;
   border-radius: 4px;
   background-color: #fff;
-  color: #17a2b8;
+  color: #007bff;
 }
 
 .field-wrapper .search-result {
@@ -329,6 +329,10 @@ main {
   font-size: 0.9rem;
 }
 
+.job-offer-contract {
+  max-height: 600px;
+  overflow: auto;
+}
 
 .board {
   background-color: #f3f7f7;
@@ -365,6 +369,11 @@ main {
 .board > div > ul {
   color: #474d52;
   font-size: 1rem;
+}
+
+.border-grayish-blue {
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
 }
 
 .board .job-desc {
