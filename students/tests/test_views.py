@@ -29,9 +29,9 @@ AVAILABLE_PATH = reverse('students:available_jobs', args=[SESSION]) + '?page=2'
 AVAILABLE_NEXT = '?next=' + AVAILABLE_PATH
 
 HISTORY_NEXT = '?next=' + reverse('students:history_jobs') + '?page=2'
-HISTORY_WRONG_1 = '?nex=/students/jobs/history/'
-HISTORY_WRONG_2 = '?next=/student/jobs/history/'
-HISTORY_WRONG_3 = '?next=/students/jobs/histor/'
+HISTORY_WRONG_1 = '?nex=/students/jobs/history/?page=2'
+HISTORY_WRONG_2 = '?next=/student/jobs/history/?page=2'
+HISTORY_WRONG_3 = '?next=/students/jobs/histor/?page=2'
 
 
 class StudentTest(TestCase):
@@ -311,7 +311,7 @@ class StudentTest(TestCase):
         response = self.client.get( reverse('students:accept_decline_job', args=[SESSION, JOB]) + HISTORY_NEXT )
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get( reverse('students:show_job', args=[SESSION, JOB]) + HISTORY_NEXT )
+        response = self.client.get( reverse('students:show_job', args=[SESSION, JOB]) + HISTORY_NEXT + '&p=History%20of%20Jobs' )
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get( reverse('students:show_application', args=[APP]) + HISTORY_NEXT )
@@ -1553,6 +1553,7 @@ class StudentTest(TestCase):
 
         data1 = {
             'application': app.id,
+            'assigned_hours': 35.5,
             'has_contract_read': True,
             'next': reverse('students:history_jobs') + '?page=2'
         }
@@ -1565,6 +1566,7 @@ class StudentTest(TestCase):
 
         data2 = {
             'application': app.id,
+            'assigned_hours': 35.5,
             'decision': 'decline',
             'next': reverse('students:history_jobs') + '?page=2'
         }
@@ -1577,6 +1579,7 @@ class StudentTest(TestCase):
 
         data3 = {
             'application': app.id,
+            'assigned_hours': 35.5,
             'decision': 'decline',
             'has_contract_read': True,
             'next': reverse('students:history_jobs') + '?page=2'
@@ -1607,7 +1610,7 @@ class StudentTest(TestCase):
         self.assertEqual(appl.declined.assigned_hours, 0.0)
 
         self.assertEqual(appl.job.assigned_ta_hours, app.job.assigned_ta_hours)
-        self.assertEqual(appl.job.accumulated_ta_hours, app.job.accumulated_ta_hours + appl.declined.assigned_hours)
+        self.assertEqual(appl.job.accumulated_ta_hours, app.job.accumulated_ta_hours - 45.5) # accepted hours was 45.5
 
 
     def test_terminate_job(self):
@@ -1668,14 +1671,19 @@ class StudentTest(TestCase):
         print('\n- Test: display a job')
         self.login()
 
-        response = self.client.get( reverse('students:show_job', args=[SESSION, JOB]) + HISTORY_WRONG_1)
+        response = self.client.get( reverse('students:show_job', args=[SESSION, JOB]) + HISTORY_WRONG_1 + '&p=History%20of%20Jobs')
         self.assertEqual(response.status_code, 404)
-        response = self.client.get( reverse('students:show_job', args=[SESSION, JOB]) + HISTORY_WRONG_2)
+        response = self.client.get( reverse('students:show_job', args=[SESSION, JOB]) + HISTORY_WRONG_2 + '&p=History%20of%20Jobs')
         self.assertEqual(response.status_code, 404)
-        response = self.client.get( reverse('students:show_job', args=[SESSION, JOB]) + HISTORY_WRONG_3)
+        response = self.client.get( reverse('students:show_job', args=[SESSION, JOB]) + HISTORY_WRONG_3 + '&p=History%20of%20Jobs')
         self.assertEqual(response.status_code, 404)
 
-        response = self.client.get( reverse('students:show_job', args=[SESSION, JOB]) + HISTORY_NEXT )
+        response = self.client.get( reverse('students:show_job', args=[SESSION, JOB]) + HISTORY_NEXT + '&a=History%20of%20Jobs')
+        self.assertEqual(response.status_code, 404)
+        response = self.client.get( reverse('students:show_job', args=[SESSION, JOB]) + HISTORY_NEXT + '&p=History%20of%20jobs')
+        self.assertEqual(response.status_code, 404)
+
+        response = self.client.get( reverse('students:show_job', args=[SESSION, JOB]) + HISTORY_NEXT + '&p=History%20of%20Jobs')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, USERS[2])
         self.assertEqual(response.context['loggedin_user'].roles, ['Student'])

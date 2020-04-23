@@ -343,7 +343,7 @@ def delete_session_confirmation(request, session_slug):
 def show_job(request, session_slug, job_slug):
     ''' Display job details '''
     request = userApi.has_admin_access(request, Role.HR)
-    adminApi.can_req_parameters_access(request, 'job', ['next', 'p'])
+    adminApi.can_req_parameters_access(request, 'job-app', ['next', 'p'])
 
     return render(request, 'administrators/jobs/show_job.html', {
         'loggedin_user': request.user,

@@ -299,7 +299,7 @@ class SessionTest(TestCase):
         messages = self.messages(response)
         self.assertTrue('Success' in messages[0])
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response.url, reverse('administrators:current_sessions') + '?page=2')
+        self.assertEqual(response.url, reverse('administrators:current_sessions') + '?page=2')
         self.assertRedirects(response, response.url)
 
         updated_session = adminApi.get_session(session_id)
@@ -481,7 +481,7 @@ class JobTest(TestCase):
         response = self.client.get( reverse('administrators:student_jobs_details', args=[USERS[2]]) + '?next=/administrators/jobs/student/?page=2&p=Jobs%20by%20Student&t=alll' )
         self.assertEqual(response.status_code, 404)
 
-        response = self.client.get( reverse('administrators:edit_job', args=[SESSION, JOB]) )
+        response = self.client.get( reverse('administrators:edit_job', args=[SESSION, JOB]) + PREPARE_JOB )
         self.assertEqual(response.status_code, 200)
 
     def test_show_job(self):
@@ -531,7 +531,7 @@ class JobTest(TestCase):
 
         job = adminApi.get_job_by_session_slug_job_slug(SESSION, JOB)
 
-        response = self.client.get( reverse('administrators:edit_job', args=[SESSION, JOB]) )
+        response = self.client.get( reverse('administrators:edit_job', args=[SESSION, JOB]) + PREPARE_JOB)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, self.user.username)
         self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
@@ -548,7 +548,7 @@ class JobTest(TestCase):
             'is_active': False,
             'next': '/administrators/Jobs/prepare/?page=2'
         }
-        response = self.client.post( reverse('administrators:edit_job', args=[SESSION, JOB]), data=urlencode(data1, True), content_type=ContentType )
+        response = self.client.post( reverse('administrators:edit_job', args=[SESSION, JOB]) + PREPARE_JOB, data=urlencode(data1, True), content_type=ContentType )
         self.assertEqual(response.status_code, 404)
 
         data2 = {
@@ -560,7 +560,7 @@ class JobTest(TestCase):
             'is_active': False,
             'next': reverse('administrators:prepare_jobs') + '?page=2'
         }
-        response = self.client.post( reverse('administrators:edit_job', args=[SESSION, JOB]), data=urlencode(data2, True), content_type=ContentType )
+        response = self.client.post( reverse('administrators:edit_job', args=[SESSION, JOB]) + PREPARE_JOB, data=urlencode(data2, True), content_type=ContentType )
         messages = self.messages(response)
         self.assertTrue('Success' in messages[0])
         self.assertEqual(response.status_code, 302)
@@ -3790,37 +3790,53 @@ class AdminHRTest(TestCase):
         print('\n- Test: Admin or HR can have update admin docs')
         self.login('user3.admin', 'password')
         app_id = 1
-        data = {
-            'application': app_id,
-            'pin': '12377',
-            'tasm': True,
-            'eform': 'af3343',
-            'speed_chart': 'adsf',
-            'processing_note': 'this is a processing note'
-        }
-        response = self.client.post(reverse('administrators:accepted_applications'), data=urlencode(data), content_type=ContentType)
-        messages = self.messages(response)
-        self.assertTrue('An error occurred' in messages[0])
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse('administrators:accepted_applications'))
-        self.assertRedirects(response, response.url)
 
-        data = {
+        data1 = {
             'application': app_id,
             'pin': '1237',
             'tasm': True,
             'eform': 'af3343',
             'speed_chart': 'adsf',
-            'processing_note': 'this is a processing note'
+            'processing_note': 'this is a processing note',
+            'next': '/administrators/applications/Accepted/?page=2'
         }
-        response = self.client.post(reverse('administrators:accepted_applications'), data=urlencode(data), content_type=ContentType)
+        response = self.client.post(reverse('administrators:accepted_applications') + '?page=2', data=urlencode(data1), content_type=ContentType)
+        self.assertEqual(response.status_code, 404)
+
+        # pin is an error
+        data2 = {
+            'application': app_id,
+            'pin': '12377',
+            'tasm': True,
+            'eform': 'af3343',
+            'speed_chart': 'adsf',
+            'processing_note': 'this is a processing note',
+            'next': reverse('administrators:accepted_applications') + '?page=2'
+        }
+        response = self.client.post(reverse('administrators:accepted_applications') + '?page=2', data=urlencode(data2), content_type=ContentType)
+        messages = self.messages(response)
+        self.assertTrue('An error occurred' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse('administrators:accepted_applications') + '?page=2')
+        self.assertRedirects(response, response.url)
+
+        data3 = {
+            'application': app_id,
+            'pin': '1237',
+            'tasm': True,
+            'eform': 'af3343',
+            'speed_chart': 'adsf',
+            'processing_note': 'this is a processing note',
+            'next': reverse('administrators:accepted_applications') + '?page=2'
+        }
+        response = self.client.post(reverse('administrators:accepted_applications') + '?page=2', data=urlencode(data3), content_type=ContentType)
         messages = self.messages(response)
         self.assertTrue('Success' in messages[0])
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse('administrators:accepted_applications'))
+        self.assertEqual(response.url, reverse('administrators:accepted_applications') + '?page=2')
         self.assertRedirects(response, response.url)
 
-        response = self.client.get(reverse('administrators:accepted_applications'))
+        response = self.client.get(reverse('administrators:accepted_applications') + '?page=2')
         self.assertEqual(response.status_code, 200)
         accepted_applications = response.context['apps']
 
@@ -3830,7 +3846,7 @@ class AdminHRTest(TestCase):
                 app = appl
 
         self.assertTrue(app.id, app_id)
-        self.assertTrue(app.admindocuments.pin, data['pin'])
-        self.assertTrue(app.admindocuments.tasm, data['tasm'])
-        self.assertTrue(app.admindocuments.eform, data['eform'])
-        self.assertTrue(app.admindocuments.speed_chart, data['speed_chart'])
+        self.assertTrue(app.admindocuments.pin, data3['pin'])
+        self.assertTrue(app.admindocuments.tasm, data3['tasm'])
+        self.assertTrue(app.admindocuments.eform, data3['eform'])
+        self.assertTrue(app.admindocuments.speed_chart, data3['speed_chart'])

@@ -12,4 +12,3 @@ saml/
 ta_app/settings.py
 Thumbs.db
 accounts/fixtures
-ta_app/templates/ta_app/applications/_job_offer_contract.html
