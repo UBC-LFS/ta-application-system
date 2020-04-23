@@ -892,8 +892,8 @@ def reaccept_application(request, app_slug):
                     appl.updated_at = datetime.now()
                     appl.save(update_fields=['updated_at'])
 
+                    # Update new hours
                     new_hours = float(assigned_hours) - float(app.accepted.assigned_hours )
-
                     if adminApi.update_job_accumulated_ta_hours(appl.job.session.slug, appl.job.course.slug, new_hours):
                         messages.success(request, 'Success! You accepted the job offer - {0} {1}: {2} {3} {4} '.format(appl.job.session.year, appl.job.session.term.code, appl.job.course.code.name, appl.job.course.number.name, appl.job.course.section.name))
                         return HttpResponseRedirect(request.POST.get('next'))
@@ -914,13 +914,18 @@ def reaccept_application(request, app_slug):
                 'has_contract_read': True
             })
             if form.is_valid():
-                app = form.cleaned_data['application']
+                appl = form.cleaned_data['application']
                 if form.save():
-                    app.updated_at = datetime.now()
-                    app.save(update_fields=['updated_at'])
+                    appl.updated_at = datetime.now()
+                    appl.save(update_fields=['updated_at'])
 
-                    messages.success(request, 'You declined the job offer - {0} {1}: {2} {3} {4}.'.format(app.job.session.year, app.job.session.term.code, app.job.course.code.name, app.job.course.number.name, app.job.course.section.name))
-                    return HttpResponseRedirect(request.POST.get('next'))
+                    # Update new hours
+                    new_hours = 0.0 - float(app.accepted.assigned_hours )
+                    if adminApi.update_job_accumulated_ta_hours(appl.job.session.slug, appl.job.course.slug, new_hours):
+                        messages.success(request, 'You declined the job offer - {0} {1}: {2} {3} {4}.'.format(appl.job.session.year, appl.job.session.term.code, appl.job.course.code.name, appl.job.course.number.name, appl.job.course.section.name))
+                        return HttpResponseRedirect(request.POST.get('next'))
+                    else:
+                        messages.error(request, 'An error occurred while updating ta hours.')
                 else:
                     messages.error(request, 'An error occurred while saving an status of an application.')
             else:
@@ -943,7 +948,7 @@ def reaccept_application(request, app_slug):
 def show_job(request, session_slug, job_slug):
     ''' Display job details '''
     request = userApi.has_user_access(request, 'Student')
-    adminApi.can_req_parameters_access(request, 'none', ['next'])
+    adminApi.can_req_parameters_access(request, 'student-job', ['next', 'p'])
 
     return render(request, 'students/jobs/show_job.html', {
         'loggedin_user': request.user,

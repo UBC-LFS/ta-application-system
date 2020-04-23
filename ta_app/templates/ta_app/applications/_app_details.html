@@ -34,7 +34,7 @@
   <h6>Availability Notes:</h6>
   <span>
     {% if data.availability_note %}
-      {{ data.availability_note }}
+      {{ data.availability_note|safe }}
     {% else %}
       None
     {% endif %}
