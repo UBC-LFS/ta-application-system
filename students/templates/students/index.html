@@ -25,7 +25,7 @@
                     {{ app.job.session.year }} {{ app.job.session.term.code }} - {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}
                   </span>
                 {% else %}
-                  <a href="{% url 'students:show_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}">{{ app.job.session.year }} {{ app.job.session.term.code }} - {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</a>
+                  <a href="{% url 'students:show_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}?next={{ request.get_full_path }}&p=Home">{{ app.job.session.year }} {{ app.job.session.term.code }} - {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</a>
                 {% endif %}
                 <br />
                 <small class="text-dark-gray">Created at {{ app.created_at }}</small>
@@ -36,7 +36,7 @@
           </ul>
         </div>
       </div>
-      
+
       {% include 'ta_app/users/_note_upload_avatar.html' with next=request.get_full_path %}
 
       {% include 'ta_app/jobs/_job_inactive_note.html' %}

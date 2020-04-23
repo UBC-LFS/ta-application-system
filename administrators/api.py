@@ -72,6 +72,12 @@ def can_req_parameters_access(request, domain, params, option=None):
         elif domain == 'job':
             validate_url_page(request, JOB_PATH)
 
+        elif domain == 'job-app':
+            if 'jobs' in res.url_name:
+                validate_url_page(request, JOB_PATH)
+            elif 'applications' in res.url_name:
+                validate_url_page(request, APP_PATH)
+
         elif domain == 'job-tab':
             validate_url_page(request, JOB_PATH)
             validate_url_tab(request, ['all', 'offered', 'accepted'])
@@ -97,6 +103,9 @@ def can_req_parameters_access(request, domain, params, option=None):
         elif domain == 'student':
             validate_url_page(request, STUDENT_PATH)
             validate_url_tab(request, ['basic', 'additional', 'resume'])
+
+        elif domain == 'student-job':
+            validate_url_page(request, ['Home', 'History of Jobs'])
 
         elif domain == 'instructor-note':
             get_job_by_session_slug_job_slug(res.kwargs['session_slug'], res.kwargs['job_slug'])
@@ -325,7 +334,7 @@ def update_job_instructors(job, old_instructors, new_instructors):
 def update_job_accumulated_ta_hours(session_slug, job_slug, ta_hours):
     ''' Update ta hours in a job '''
     job = get_job_by_session_slug_job_slug(session_slug, job_slug)
-
+    
     new_hours = job.accumulated_ta_hours + ta_hours
     job.accumulated_ta_hours = new_hours
     job.updated_at = datetime.now()
@@ -459,9 +468,18 @@ def get_total_assigned_hours(apps, list):
 
         if 'accepted' in list:
             accepted = app.applicationstatus_set.filter(assigned=ApplicationStatus.ACCEPTED)
-            cancelled = app.applicationstatus_set.filter(assigned=ApplicationStatus.CANCELLED)
-            if app.is_terminated == False or cancelled.exists() == False:
-                if accepted.exists():
+            if accepted.exists():
+                can_add = True
+
+                cancelled = app.applicationstatus_set.filter(assigned=ApplicationStatus.CANCELLED)
+                if app.is_terminated == True and cancelled.exists() == True:
+                    can_add = False
+
+                declined = app.applicationstatus_set.filter(assigned=ApplicationStatus.DECLINED)
+                if declined.exists() and declined.last().parent_id == None:
+                    can_add = False
+
+                if can_add == True:
                     year_term = '{0}-{1}'.format(app.job.session.year, app.job.session.term.code)
                     if year_term in total_hours['accepted'].keys():
                         total_hours['accepted'][year_term] += accepted.last().assigned_hours
