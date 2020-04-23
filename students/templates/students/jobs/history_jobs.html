@@ -30,7 +30,7 @@
           <th data-sortable="true">Year</th>
           <th data-sortable="true">Term</th>
           <th data-sortable="true">Job</th>
-          <th data-sortable="true">Application</th>
+          <th>Application</th>
           <th data-sortable="true">Applied at</th>
           <th data-sortable="true">Status</th>
         </tr>
@@ -45,7 +45,7 @@
                   <i class="fa fa-envelope fa-lg text-chocolate" aria-hidden="true"></i>
                 {% elif app.accepted and app.is_terminated %}
                     <i class="fa fa-envelope fa-lg text-chocolate" aria-hidden="true"></i>
-                {% elif app.declined and app.is_declined_reassigned %}
+                {% elif app.declined and app.is_declined_reassigned and app.declined.parent_id %}
                   <i class="fa fa-envelope fa-lg text-chocolate" aria-hidden="true"></i>
                 {% endif %}
 
@@ -107,7 +107,7 @@
                 {% include 'ta_app/applications/_app_status.html' with data=app.declined.get_assigned_display %}<br />
                 <div><small class="text-dark-gray">{{ app.declined.created_at }}</small></div>
 
-                {% if app.job.is_active and app.is_declined_reassigned %}
+                {% if app.job.is_active and app.is_declined_reassigned and app.declined.parent_id %}
                   <hr />
                   <a href="{% url 'students:reaccept_application' app_slug=app.slug %}?next={{ request.get_full_path }}">Re-accept</a>
                 {% endif %}
