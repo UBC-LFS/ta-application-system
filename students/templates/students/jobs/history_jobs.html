@@ -109,7 +109,7 @@
 
                 {% if app.job.is_active and app.is_declined_reassigned and app.declined.parent_id %}
                   <hr />
-                  <a href="{% url 'students:reaccept_application' app_slug=app.slug %}?next={{ request.get_full_path }}">Re-accept</a>
+                  <a href="{% url 'students:reaccept_application' app_slug=app.slug %}?next={{ request.get_full_path }}">Re-accept/decline</a>
                 {% endif %}
 
               {% elif app.cancelled %}
