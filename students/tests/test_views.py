@@ -1023,6 +1023,33 @@ class StudentTest(TestCase):
         response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) + '?next=/students/sessions/2019-w11/jobs/available/' )
         self.assertEqual(response.status_code, 404)
 
+        session = adminApi.get_session(SESSION, 'slug')
+        session.is_visible = False
+        session.save(update_fields=['is_visible'])
+
+        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) + AVAILABLE_NEXT )
+        self.assertEqual(response.status_code, 403)
+
+        session.is_visible = True
+        session.is_archived = True
+        session.save(update_fields=['is_visible', 'is_archived'])
+
+        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) + AVAILABLE_NEXT )
+        self.assertEqual(response.status_code, 403)
+
+        session.is_archived = False
+        session.save(update_fields=['is_archived'])
+
+        j = adminApi.get_job_by_session_slug_job_slug(SESSION, STUDENT_JOB)
+        j.is_active = False
+        j.save(update_fields=['is_active'])
+
+        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) + AVAILABLE_NEXT )
+        self.assertEqual(response.status_code, 403)
+
+        j.is_active = True
+        j.save(update_fields=['is_active'])
+
         response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) + AVAILABLE_NEXT )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, USERS[2])
@@ -1201,6 +1228,16 @@ class StudentTest(TestCase):
         self.assertEqual(response.status_code, 404)
         response = self.client.get( reverse('students:accept_decline_job', args=[SESSION, STUDENT_JOB]) + HISTORY_WRONG_3 )
         self.assertEqual(response.status_code, 404)
+
+        session = adminApi.get_session(SESSION, 'slug')
+        session.is_archived = True
+        session.save(update_fields=['is_archived'])
+
+        response = self.client.get( reverse('students:accept_decline_job', args=[SESSION, STUDENT_JOB]) + HISTORY_NEXT )
+        self.assertEqual(response.status_code, 403)
+
+        session.is_archived = False
+        session.save(update_fields=['is_archived'])
 
         response = self.client.get( reverse('students:accept_decline_job', args=[SESSION, STUDENT_JOB]) + HISTORY_NEXT )
         self.assertEqual(response.status_code, 200)
@@ -1415,6 +1452,15 @@ class StudentTest(TestCase):
         response = self.client.get( reverse('students:reaccept_application', args=[SLUG]) + HISTORY_WRONG_1 )
         self.assertEqual(response.status_code, 404)
 
+        appl = adminApi.get_application(SLUG, 'slug')
+        appl.job.session.is_archived = True
+        appl.job.session.save(update_fields=['is_archived'])
+
+        response = self.client.get( reverse('students:reaccept_application', args=[SLUG]) + HISTORY_NEXT )
+        self.assertEqual(response.status_code, 403)
+
+        appl.job.session.is_archived = False
+        appl.job.session.save(update_fields=['is_archived'])
 
         response = self.client.get( reverse('students:reaccept_application', args=[SLUG]) + HISTORY_NEXT )
         self.assertEqual(response.status_code, 200)
