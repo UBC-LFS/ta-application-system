@@ -179,8 +179,8 @@ class StudentProfileForm(forms.ModelForm):
         required=True,
         queryset=Degree.objects.all(),
         widget=forms.CheckboxSelectMultiple(),
-        label='Most Recent Degrees',
-        help_text='Please select your most recent degrees.'
+        label='Most Recent Completed Degrees',
+        help_text='Please select your most recent completed degrees.'
     )
     degree_details = forms.CharField(
         required=True,
