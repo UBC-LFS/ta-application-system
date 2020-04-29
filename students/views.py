@@ -766,11 +766,10 @@ def accept_decline_job(request, session_slug, job_slug):
 
     apps = request.user.application_set.all()
     apps = apps.filter( Q(job__session__slug=session_slug) & Q(job__course__slug=job_slug) )
-    if len(apps) == 0:
-        raise Http404
+    if len(apps) == 0: raise Http404
 
     app = adminApi.add_app_info_into_application(apps.first(), ['offered', 'accepted', 'declined'])
-    if not app.job.is_active or app.offered is None:
+    if app.job.session.is_archived == True or app.offered is None:
         raise PermissionDenied
 
     return render(request, 'students/jobs/accept_decline_job.html', {
@@ -860,8 +859,8 @@ def reaccept_application(request, app_slug):
 
     app = adminApi.get_application(app_slug, 'slug')
     app = adminApi.add_app_info_into_application(app, ['accepted','declined'])
-    if not app.is_declined_reassigned:
-        raise Http404
+    if app.job.session.is_archived == True or app.is_declined_reassigned != True:
+        raise PermissionDenied
 
     if request.method == 'POST':
 

@@ -9,6 +9,8 @@
     <div class="left-aside-btn-groups">
       <a class="btn btn-outline-primary" href="{% url 'students:explore_jobs' %}">Back to Explore Jobs</a>
     </div>
+
+    {% include 'ta_app/sessions/_note_session_archived.html' %}
   </div>
 
   <div class="col-md-9">
@@ -39,7 +41,11 @@
         {% for app in apps %}
           <tr>
             <td>
-              {% if app.job.is_active %}
+              {% if app.job.session.is_archived %}
+
+                <i class="fa fa-lock fa-lg text-secondary" aria-hidden="true"></i>
+
+              {% else %}
 
                 {% if app.offered %}
                   <i class="fa fa-envelope fa-lg text-chocolate" aria-hidden="true"></i>
@@ -76,7 +82,7 @@
                   <span class="font-weight-bold">{{ app.offered.assigned_hours }}</span> hours
                 </div>
 
-                {% if app.job.is_active %}
+                {% if not app.job.session.is_archived %}
                   <hr />
                   <a href="{% url 'students:accept_decline_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}?next={{ request.get_full_path }}">
                     Accept / Decline
@@ -95,7 +101,7 @@
                   <span class="font-weight-bold">{{ app.accepted.assigned_hours }}</span> hours
                 </div>
 
-                {% if app.job.is_active and app.is_terminated %}
+                {% if app.is_terminated %}
                   <hr />
                   <a href="{% url 'students:terminate_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}?next={{ request.get_full_path }}">
                     Contract<br /> Termination
@@ -106,10 +112,12 @@
 
                 {% include 'ta_app/applications/_app_status.html' with data=app.declined.get_assigned_display %}<br />
                 <div><small class="text-dark-gray">{{ app.declined.created_at }}</small></div>
-
-                {% if app.job.is_active and app.is_declined_reassigned and app.declined.parent_id %}
+                
+                {% if not app.job.session.is_archived and app.is_declined_reassigned and app.declined.parent_id %}
                   <hr />
-                  <a href="{% url 'students:reaccept_application' app_slug=app.slug %}?next={{ request.get_full_path }}">Re-accept/decline</a>
+                  <a href="{% url 'students:reaccept_application' app_slug=app.slug %}?next={{ request.get_full_path }}">
+                    Re accept/decline
+                  </a>
                 {% endif %}
 
               {% elif app.cancelled %}

@@ -154,3 +154,4 @@ Open a new window with an URL ``` http://localhost:8000/accounts/local_login/ ``
 
 
 Happy coding!
+Thank you.
