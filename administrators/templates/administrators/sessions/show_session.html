@@ -8,7 +8,7 @@
     {% include 'ta_app/pages/_left_aside.html' with view_name='sessions' title='Session Details' data=session %}
 
     <div class="left-aside-btn-groups">
-      <a class="btn btn-outline-primary" href="{{ request.GET.next }}">Back to {{ request.GET.p }}</a>
+      <a class="btn btn-outline-primary" href="{{ next }}">Back to {{ request.GET.p }}</a>
     </div>
   </div>
 

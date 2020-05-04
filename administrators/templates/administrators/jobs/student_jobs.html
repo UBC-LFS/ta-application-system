@@ -31,7 +31,7 @@
       {% for student in users %}
         <tr>
           <td>
-            <a class="btn btn-xs btn-info" href="{% url 'users:show_user' username=student.username %}?next={{ request.get_full_path }}&p=Jobs by Student&t=basic">{{ student.id }}</a>
+            <a class="btn btn-xs btn-info" href="{% url 'users:show_user' username=student.username %}?next={{ new_next }}&p=Jobs by Student&t=basic">{{ student.id }}</a>
           </td>
           <td>{{ student.first_name }}</td>
           <td>{{ student.last_name }}</td>
@@ -40,7 +40,7 @@
           <td>{{ student.email }}</td>
           <td>
             {% if student.application_set.count > 0 %}
-              <a class="btn btn-xs btn-info" href="{% url 'administrators:student_jobs_details' username=student.username %}?next={{ request.get_full_path }}&p=Jobs by Student&t=all">{{ student.application_set.count }}</a>
+              <a class="btn btn-xs btn-info" href="{% url 'administrators:student_jobs_details' username=student.username %}?next={{ new_next }}&p=Jobs by Student&t=all">{{ student.application_set.count }}</a>
             {% else %}
               {{ student.application_set.count }}
             {% endif %}
