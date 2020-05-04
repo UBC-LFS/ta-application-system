@@ -17,9 +17,9 @@
         </div>
       </div>
     </aside>
-    
+
     <div class="left-aside-btn-groups">
-      <a class="btn btn-outline-primary" href="{{ request.GET.next }}">Back to {{ request.GET.p }}</a>
+      <a class="btn btn-outline-primary" href="{{ next }}">Back to {{ request.GET.p }}</a>
     </div>
   </div>
 
@@ -102,9 +102,9 @@
         {% csrf_token %}
 
         <input type="hidden" name="session" value="{{ session.id }}" />
-        <input type="hidden" name="next" value="{{ request.GET.next }}" />
+        <input type="hidden" name="next" value="{{ next }}" />
 
-        <a class="btn btn-outline-secondary" href="{{ request.GET.next }}">Cancel</a>
+        <a class="btn btn-outline-secondary" href="{{ next }}">Cancel</a>
         <input class="btn btn-danger" type="submit" value="Delete" />
       </form>
 		</div>

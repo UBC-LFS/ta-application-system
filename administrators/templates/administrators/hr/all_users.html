@@ -43,7 +43,7 @@
       {% for user in users %}
         <tr>
           <td>
-            <a class="btn btn-xs btn-info" href="{% url 'users:show_user' username=user.username %}?next={{ request.get_full_path }}&p=All Users&t=basic">{{ user.id }}</a>
+            <a class="btn btn-xs btn-info" href="{% url 'users:show_user' username=user.username %}?next={{ new_next }}&p=All Users&t=basic">{{ user.id }}</a>
           </td>
           <td>{{ user.first_name }}</td>
           <td>{{ user.last_name }}</td>
@@ -80,19 +80,19 @@
           </td>
           <td>
             <div class="btn-toolbar">
-              <a class="btn btn-xs btn-link mr-2" href="{% url 'administrators:edit_user' username=user.username %}?next={{ request.get_full_path }}&p=All Users">Edit</a>
-              <a class="btn btn-xs btn-danger mr-2" href="{% url 'administrators:delete_user_confirmation' username=user.username %}?next={{ request.get_full_path }}&p=All Users">Delete</a>
+              <a class="btn btn-xs btn-link mr-2" href="{% url 'administrators:edit_user' username=user.username %}?next={{ new_next }}&p=All Users">Edit</a>
+              <a class="btn btn-xs btn-danger mr-2" href="{% url 'administrators:delete_user_confirmation' username=user.username %}?next={{ new_next }}&p=All Users">Delete</a>
             </div>
             <div class="mt-2">
               {% if loggedin_user.is_superuser %}
 
                 {% for role in user.profile.roles.all %}
                   {% if role.name == "Student" %}
-                    <a class="btn btn-xs btn-info" href="/impersonate/{{ user.id }}/?next=/students/">Masquerade</a>
+                    <a class="btn btn-xs btn-info" href="/impersonate/{{ user.id }}/?next={% url 'students:index' %}">Masquerade</a>
                   {% endif %}
 
                   {% if role.name == "Instructor" %}
-                    <a class="btn btn-xs btn-info" href="/impersonate/{{ user.id }}/?next=/instructors/">Masquerade</a>
+                    <a class="btn btn-xs btn-info" href="/impersonate/{{ user.id }}/?next={% url 'instructors:index' %}">Masquerade</a>
                   {% endif %}
                 {% endfor %}
 

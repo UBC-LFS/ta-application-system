@@ -10,7 +10,7 @@
       <div class="prompt p-4 mb-4">
         <h4>Current Users</h4>
 				<p>There are <span class="font-weight-bold">{{ users|length }}</span> users.</p>
-				<a class="btn btn-outline-primary" href="{{ request.GET.next }}">Back to {{ request.GET.p }}</a>
+				<a class="btn btn-outline-primary" href="{{ next }}">Back to {{ request.GET.p }}</a>
       </div>
     </div>
   </div>
@@ -19,7 +19,7 @@
 		<div class="board col-11 mx-auto">
 			<h3>Confirmation</h3>
 
-      <div class="bd-callout bd-callout-warning bg-light-gray">
+      <div class="bd-callout bd-callout-warning bg-white">
         <h4>
           <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Notice
         </h4>
@@ -177,9 +177,9 @@
         {% csrf_token %}
 
         <input type="hidden" name="user" value="{{ user.id }}" />
-        <input type="hidden" name="next" value="{{ request.GET.next }}" />
+        <input type="hidden" name="next" value="{{ next }}" />
 
-        <a class="btn btn-outline-secondary" href="{{ request.GET.next }}">Cancel</a>
+        <a class="btn btn-outline-secondary" href="{{ next }}">Cancel</a>
         <input class="btn btn-danger" type="submit" value="Delete" />
       </form>
 		</div>

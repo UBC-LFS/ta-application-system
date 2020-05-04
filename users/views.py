@@ -23,14 +23,10 @@ def show_user(request, username):
     request = userApi.has_auth_user_access(request)
     adminApi.can_req_parameters_access(request, 'user-tab', ['next', 'p', 't'])
 
-    next = urlparse(request.GET.get('next'))
+    next = adminApi.get_next(request)
+    urlparse_next = urlparse(next)
     page = request.GET.get('p')
     tab = request.GET.get('t')
-    role = resolve(next.path).app_name
-
-    next_full_path = next.path
-    if len(next.query) > 0:
-        next_full_path += '?' + next.query
 
     user = userApi.get_user(username, 'username')
     user = userApi.add_avatar(user)
@@ -46,16 +42,16 @@ def show_user(request, username):
         'loggedin_user': request.user,
         'selected_user': user,
         'go_back': {
-            'url': request.GET.get('next', '/'),
+            'url': adminApi.get_next(request),
             'page': page
         },
         'tab_urls': {
-            'basic': adminApi.build_url(request.path, next_full_path, page, 'basic'),
-            'additional': adminApi.build_url(request.path, next_full_path, page, 'additional') if user.is_student else None,
-            'confidential': adminApi.build_url(request.path, next_full_path, page, 'confidential') if user.is_student else None,
-            'resume': adminApi.build_url(request.path, next_full_path, page, 'resume') if user.is_student else None
+            'basic': adminApi.build_url(request.path, next, page, 'basic'),
+            'additional': adminApi.build_url(request.path, next, page, 'additional') if user.is_student else None,
+            'confidential': adminApi.build_url(request.path, next, page, 'confidential') if user.is_student else None,
+            'resume': adminApi.build_url(request.path, next, page, 'resume') if user.is_student else None
         },
-        'role': role,
+        'role': resolve(urlparse_next.path).app_name,
         'current_tab': tab
     })
 

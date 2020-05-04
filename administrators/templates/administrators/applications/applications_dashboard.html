@@ -63,19 +63,19 @@
           </td>
           <td>{{ st.application.applicant.first_name }} {{ st.application.applicant.last_name }}</td>
           <td>
-            <a href="{% url 'users:show_user' username=st.application.applicant.username %}?next={{ request.get_full_path }}&p=Dashboard&t=basic">
+            <a href="{% url 'users:show_user' username=st.application.applicant.username %}?next={{ new_next }}&p=Dashboard&t=basic">
               {{ st.application.applicant.username }}
             </a>
           </td>
           <td>{{ st.application.job.session.year }}</td>
           <td>{{ st.application.job.session.term.code }}</td>
           <td>
-            <a href="{% url 'administrators:show_job' session_slug=st.application.job.session.slug job_slug=st.application.job.course.slug %}?next={{ request.get_full_path }}&p=Dashboard">
+            <a href="{% url 'administrators:show_job' session_slug=st.application.job.session.slug job_slug=st.application.job.course.slug %}?next={{ new_next }}&p=Dashboard">
               {{ st.application.job.course.code.name }} {{ st.application.job.course.number.name }} {{ st.application.job.course.section.name }}
             </a>
           </td>
           <td>
-            <a class="btn btn-xs btn-info" href="{% url 'administrators:show_application' app_slug=st.application.slug %}?next={{ request.get_full_path }}&p=Dashboard">
+            <a class="btn btn-xs btn-info" href="{% url 'administrators:show_application' app_slug=st.application.slug %}?next={{ new_next }}&p=Dashboard">
               {{ st.application.id }}
             </a>
 

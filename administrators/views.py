@@ -198,7 +198,8 @@ def current_sessions(request):
     return render(request, 'administrators/sessions/current_sessions.html', {
         'loggedin_user': request.user,
         'sessions': sessions,
-        'total_sessions': len(session_list)
+        'total_sessions': len(session_list),
+        'new_next': adminApi.build_new_next(request)
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -233,7 +234,8 @@ def archived_sessions(request):
     return render(request, 'administrators/sessions/archived_sessions.html', {
         'loggedin_user': request.user,
         'sessions': sessions,
-        'total_sessions': len(session_list)
+        'total_sessions': len(session_list),
+        'new_next': adminApi.build_new_next(request)
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -246,7 +248,8 @@ def show_session(request, session_slug):
 
     return render(request, 'administrators/sessions/show_session.html', {
         'loggedin_user': request.user,
-        'session': adminApi.get_session(session_slug, 'slug')
+        'session': adminApi.get_session(session_slug, 'slug'),
+        'next': adminApi.get_next(request)
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -301,7 +304,8 @@ def edit_session(request, session_slug):
         'form': SessionConfirmationForm(data=None, instance=session, initial={
             'courses': [ job.course for job in session.job_set.all() ],
             'term': session.term
-        })
+        }),
+        'next': adminApi.get_next(request)
     })
 
 
@@ -330,7 +334,8 @@ def delete_session_confirmation(request, session_slug):
         'loggedin_user': request.user,
         'current_sessions': sessions.filter(is_archived=False),
         'archived_sessions': sessions.filter(is_archived=True),
-        'session': adminApi.get_session(session_slug, 'slug')
+        'session': adminApi.get_session(session_slug, 'slug'),
+        'next': adminApi.get_next(request)
     })
 
 
@@ -347,7 +352,8 @@ def show_job(request, session_slug, job_slug):
 
     return render(request, 'administrators/jobs/show_job.html', {
         'loggedin_user': request.user,
-        'job': adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
+        'job': adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug),
+        'next': adminApi.get_next(request)
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -394,7 +400,8 @@ def prepare_jobs(request):
     return render(request, 'administrators/jobs/prepare_jobs.html', {
         'loggedin_user': request.user,
         'jobs': jobs,
-        'total_jobs': len(job_list)
+        'total_jobs': len(job_list),
+        'new_next': adminApi.build_new_next(request)
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -435,7 +442,8 @@ def progress_jobs(request):
     return render(request, 'administrators/jobs/progress_jobs.html', {
         'loggedin_user': request.user,
         'jobs': jobs,
-        'total_jobs': len(job_list)
+        'total_jobs': len(job_list),
+        'new_next': adminApi.build_new_next(request)
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -476,7 +484,8 @@ def instructor_jobs(request):
     return render(request, 'administrators/jobs/instructor_jobs.html', {
         'loggedin_user': request.user,
         'users': users,
-        'total_users': len(user_list)
+        'total_users': len(user_list),
+        'new_next': adminApi.build_new_next(request)
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -516,7 +525,8 @@ def student_jobs(request):
     return render(request, 'administrators/jobs/student_jobs.html', {
         'loggedin_user': request.user,
         'users': users,
-        'total_users': len(user_list)
+        'total_users': len(user_list),
+        'new_next': adminApi.build_new_next(request)
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -530,7 +540,8 @@ def show_job_applications(request, session_slug, job_slug):
     return render(request, 'administrators/jobs/show_job_applications.html', {
         'loggedin_user': request.user,
         'job': adminApi.add_job_with_applications_statistics(job),
-        'app_status': APP_STATUS
+        'app_status': APP_STATUS,
+        'next': adminApi.get_next(request)
     })
 
 
@@ -546,7 +557,8 @@ def instructor_jobs_details(request, username):
     user.total_applicants = adminApi.add_total_applicants(user)
     return render(request, 'administrators/jobs/instructor_jobs_details.html', {
         'loggedin_user': request.user,
-        'user': userApi.add_avatar(user)
+        'user': userApi.add_avatar(user),
+        'next': adminApi.get_next(request)
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -557,14 +569,8 @@ def student_jobs_details(request, username):
     request = userApi.has_admin_access(request)
     adminApi.can_req_parameters_access(request, 'job-tab', ['next', 'p', 't'])
 
-    next = urlparse(request.GET.get('next'))
+    next = adminApi.get_next(request)
     page = request.GET.get('p')
-    tab = request.GET.get('t')
-    role = resolve(next.path).app_name
-
-    next_full_path = next.path
-    if len(next.query) > 0:
-        next_full_path += '?' + next.query
 
     user = userApi.get_user(username, 'username')
     apps = user.application_set.all()
@@ -584,12 +590,13 @@ def student_jobs_details(request, username):
         'offered_apps': offered_apps,
         'accepted_apps': accepted_apps,
         'tab_urls': {
-            'all': adminApi.build_url(request.path, next_full_path, page, 'all'),
-            'offered': adminApi.build_url(request.path, next_full_path, page, 'offered'),
-            'accepted': adminApi.build_url(request.path, next_full_path, page, 'accepted')
+            'all': adminApi.build_url(request.path, next, page, 'all'),
+            'offered': adminApi.build_url(request.path, next, page, 'offered'),
+            'accepted': adminApi.build_url(request.path, next, page, 'accepted')
         },
-        'current_tab': tab,
-        'app_status': APP_STATUS
+        'current_tab': request.GET.get('t'),
+        'app_status': APP_STATUS,
+        'next': next
     })
 
 
@@ -628,7 +635,8 @@ def edit_job(request, session_slug, job_slug):
         'loggedin_user': request.user,
         'job': job,
         'instructors': job.instructors.all(),
-        'form': AdminJobEditForm(data=None, instance=job)
+        'form': AdminJobEditForm(data=None, instance=job),
+        'next': adminApi.get_next(request)
     })
 
 
@@ -747,7 +755,8 @@ def show_application(request, app_slug):
 
     return render(request, 'administrators/applications/show_application.html', {
         'loggedin_user': request.user,
-        'app': adminApi.get_application(app_slug, 'slug')
+        'app': adminApi.get_application(app_slug, 'slug'),
+        'next': adminApi.get_next(request)
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -795,7 +804,8 @@ def applications_dashboard(request):
         'loggedin_user': request.user,
         'statuses': statuses,
         'total_statuses': len(status_list),
-        'app_status': APP_STATUS
+        'app_status': APP_STATUS,
+        'new_next': adminApi.build_new_next(request)
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -842,7 +852,8 @@ def all_applications(request):
     return render(request, 'administrators/applications/all_applications.html', {
         'loggedin_user': request.user,
         'apps': apps,
-        'total_apps': len(app_list)
+        'total_apps': len(app_list),
+        'new_next': adminApi.build_new_next(request)
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -907,7 +918,8 @@ def selected_applications(request):
         'apps': apps,
         'total_apps': len(app_list),
         'classification_choices': adminApi.get_classifications(),
-        'app_status': APP_STATUS
+        'app_status': APP_STATUS,
+        'new_next': adminApi.build_new_next(request)
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -1022,7 +1034,8 @@ def offered_applications(request):
         'loggedin_user': request.user,
         'apps': apps,
         'total_apps': len(app_list),
-        'admin_emails': adminApi.get_admin_emails()
+        'admin_emails': adminApi.get_admin_emails(),
+        'new_next': adminApi.build_new_next(request)
     })
 
 
@@ -1094,7 +1107,8 @@ def accepted_applications(request):
     return render(request, 'administrators/applications/accepted_applications.html', {
         'loggedin_user': request.user,
         'apps': adminApi.add_salary(apps),
-        'total_apps': len(app_list)
+        'total_apps': len(app_list),
+        'new_next': adminApi.build_new_next(request)
     })
 
 
@@ -1146,7 +1160,8 @@ def declined_applications(request):
         'loggedin_user': request.user,
         'apps': apps,
         'total_apps': len(app_list),
-        'admin_emails': adminApi.get_admin_emails()
+        'admin_emails': adminApi.get_admin_emails(),
+        'new_next': adminApi.build_new_next(request)
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -1184,7 +1199,8 @@ def email_history(request):
     return render(request, 'administrators/applications/email_history.html', {
         'loggedin_user': request.user,
         'emails': emails,
-        'total': len(email_list)
+        'total': len(email_list),
+        'new_next': adminApi.build_new_next(request)
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -1224,7 +1240,8 @@ def send_reminder(request, email_id):
         'email': email,
         'form': ReminderForm(data=None, instance=email, initial={
             'title': 'REMINDER: ' + email.title
-        })
+        }),
+        'next': adminApi.get_next(request)
     })
 
 
@@ -1235,7 +1252,7 @@ def decline_reassign(request):
     ''' Decline and reassign a job offer with new assigned hours '''
     request = userApi.has_admin_access(request)
     adminApi.can_req_parameters_access(request, 'none', ['next'])
-
+    next = adminApi.get_next(request)
     if request.method == 'POST':
         app = adminApi.get_application( request.POST.get('application') )
 
@@ -1246,18 +1263,18 @@ def decline_reassign(request):
 
         if adminApi.is_valid_float(old_assigned_hours) == False:
             messages.error(request, 'An error occurred. Please contact administrators. Your old assigned hours must be numerival value only.')
-            return HttpResponseRedirect(request.GET.get('next'))
+            return HttpResponseRedirect(next)
 
         if adminApi.is_valid_float(new_assigned_hours) == False:
             messages.error(request, 'An error occurred. Please check assigned hours. Your new assigned hours must be numerival value only.')
-            return HttpResponseRedirect(request.GET.get('next'))
+            return HttpResponseRedirect(next)
 
         old_assigned_hours = float(old_assigned_hours)
         new_assigned_hours = float(new_assigned_hours)
 
         if new_assigned_hours < 0.0:
             messages.error(request, 'An error occurred. Please check assigned hours. Your new assigned hours must be greater than 0.')
-            return HttpResponseRedirect(request.GET.get('next'))
+            return HttpResponseRedirect(next)
 
         #if old_assigned_hours == new_assigned_hours:
         #    messages.error(request, 'An error occurred. Please check assigned hours. Your new assigned hours are same as current assigned hours.')
@@ -1265,12 +1282,12 @@ def decline_reassign(request):
 
         if new_assigned_hours == 0.0 or new_assigned_hours > float(app.job.assigned_ta_hours):
             messages.error(request, 'An error occurred. Please check assigned hours. Valid assigned hours are between 0.0 and {0}'.format(app.job.assigned_ta_hours))
-            return HttpResponseRedirect(request.GET.get('next'))
+            return HttpResponseRedirect(next)
 
         request.session['decline_reassign_form_data'] = request.POST
-        return HttpResponseRedirect( reverse('administrators:decline_reassign_confirmation') + '?next=' + request.GET.get('next') )
+        return HttpResponseRedirect( reverse('administrators:decline_reassign_confirmation') + '?next=' + next )
 
-    return HttpResponseRedirect(request.GET.get('next'))
+    return HttpResponseRedirect(next)
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -1351,7 +1368,8 @@ def decline_reassign_confirmation(request):
         'old_assigned_hours': old_assigned_hours,
         'new_assigned_hours': new_assigned_hours,
         'new_ta_hours': new_ta_hours,
-        'form': ReassignApplicationForm(data=None, instance=app)
+        'form': ReassignApplicationForm(data=None, instance=app),
+        'next': adminApi.get_next(request)
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -1393,7 +1411,8 @@ def terminate(request, app_slug):
     return render(request, 'administrators/applications/terminate.html', {
         'loggedin_user': request.user,
         'app': app,
-        'form': TerminateApplicationForm(data=None, instance=app)
+        'form': TerminateApplicationForm(data=None, instance=app),
+        'next': adminApi.get_next(request)
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -1441,7 +1460,8 @@ def terminated_applications(request):
         'loggedin_user': request.user,
         'apps': apps,
         'total_apps': len(app_list),
-        'admin_emails': adminApi.get_admin_emails()
+        'admin_emails': adminApi.get_admin_emails(),
+        'new_next': adminApi.build_new_next(request)
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -1460,11 +1480,11 @@ def applications_send_email(request):
                 'applications': applications,
                 'type': type
             }
-            return HttpResponseRedirect(reverse('administrators:applications_send_email_confirmation') + '?next=' + request.GET.get('next') + '&p=' + request.GET.get('p'))
+            return HttpResponseRedirect(reverse('administrators:applications_send_email_confirmation') + '?next=' + adminApi.get_next(request) + '&p=' + request.GET.get('p'))
         else:
             messages.error(request, 'An error occurred. Please select applications, then try again.')
 
-    return HttpResponseRedirect(request.GET.get('next'))
+    return HttpResponseRedirect(adminApi.get_next(request))
 
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -1475,7 +1495,6 @@ def applications_send_email_confirmation(request):
     request = userApi.has_admin_access(request)
     adminApi.can_req_parameters_access(request, 'app', ['next', 'p'])
 
-    next = request.GET.get('next')
     path = request.GET.get('p')
 
     applications = []
@@ -1569,7 +1588,8 @@ def applications_send_email_confirmation(request):
         'receiver': receiver_list,
         'form': form,
         'admin_email': admin_email if admin_email else None,
-        'path': path
+        'path': path,
+        'next': adminApi.get_next(request)
     })
 
 
@@ -1611,7 +1631,8 @@ def all_users(request):
     return render(request, 'administrators/hr/all_users.html', {
         'loggedin_user': request.user,
         'users': users,
-        'total_users': len(user_list)
+        'total_users': len(user_list),
+        'new_next': adminApi.build_new_next(request)
     })
 
 
@@ -1781,7 +1802,8 @@ def edit_user(request, username):
         'roles': userApi.get_roles(),
         'user_form': UserForm(data=None, instance=user),
         'user_profile_form': UserProfileEditForm(data=None, instance=user.profile),
-        'employee_number_form': EmployeeNumberEditForm(data=None, instance=confidentiality)
+        'employee_number_form': EmployeeNumberEditForm(data=None, instance=confidentiality),
+        'next': adminApi.get_next(request)
     })
 
 
@@ -1821,7 +1843,8 @@ def delete_user_confirmation(request, username):
         'loggedin_user': request.user,
         'user': userApi.add_resume(user),
         'users': userApi.get_users(),
-        'apps': apps
+        'apps': apps,
+        'next': adminApi.get_next(request)
     })
 
 

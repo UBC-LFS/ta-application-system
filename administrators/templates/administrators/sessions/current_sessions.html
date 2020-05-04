@@ -42,7 +42,7 @@
       {% for session in sessions %}
         <tr>
           <td>
-            <a class="btn btn-xs btn-info" href="{% url 'administrators:show_session' session_slug=session.slug %}?next={{ request.get_full_path }}&p=Current Sessions"">{{ session.id }}</a>
+            <a class="btn btn-xs btn-info" href="{% url 'administrators:show_session' session_slug=session.slug %}?next={{ new_next }}&p=Current Sessions"">{{ session.id }}</a>
           </td>
           <td>{{ session.year }}</td>
           <td>{{ session.term.code }}</td>
@@ -54,8 +54,8 @@
           <td>{{ session.updated_at }}</td>
           <td>
             <div class="btn-toolbar">
-              <a class="btn btn-xs btn-link mr-2" href="{% url 'administrators:edit_session' session_slug=session.slug %}?next={{ request.get_full_path }}&p=Current Sessions">Edit</a>
-              <a class="btn btn-xs btn-danger" href="{% url 'administrators:delete_session_confirmation' session_slug=session.slug %}?next={{ request.get_full_path }}&p=Current Sessions">Delete</a>
+              <a class="btn btn-xs btn-link mr-2" href="{% url 'administrators:edit_session' session_slug=session.slug %}?next={{ new_next }}&p=Current Sessions">Edit</a>
+              <a class="btn btn-xs btn-danger" href="{% url 'administrators:delete_session_confirmation' session_slug=session.slug %}?next={{ new_next }}&p=Current Sessions">Delete</a>
             </div>
           </td>
         </tr>

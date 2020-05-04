@@ -13,7 +13,7 @@
 
   {% include 'ta_app/applications/_contract_read_note.html' %}
 
-  <form action="{% url 'administrators:applications_send_email' %}?next={{ request.get_full_path }}&p=Declined Applications" method="post">
+  <form action="{% url 'administrators:applications_send_email' %}?next={{ new_next }}&p=Declined Applications" method="post">
     {% csrf_token %}
     <table
       class="table table-bordered table-hover table-striped table-responsive-md text-center"
@@ -51,17 +51,17 @@
               {% endif %}
             </td>
             <td>
-              <a class="btn btn-xs btn-info" href="{% url 'administrators:show_application' app_slug=app.slug %}?next={{ request.get_full_path }}&p=Declined Applications">{{ app.id }}</a>
+              <a class="btn btn-xs btn-info" href="{% url 'administrators:show_application' app_slug=app.slug %}?next={{ new_next }}&p=Declined Applications">{{ app.id }}</a>
             </td>
             <td>{{ app.job.session.year }}</td>
             <td>{{ app.job.session.term.code }}</td>
             <td>
-              <a href="{% url 'administrators:show_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}?next={{ request.get_full_path }}&p=Declined Applications">
+              <a href="{% url 'administrators:show_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}?next={{ new_next }}&p=Declined Applications">
                 {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}
               </a>
             </td>
             <td>
-              <a href="{% url 'users:show_user' username=app.applicant.username %}?next={{ request.get_full_path }}&p=Declined Applications&t=basic">
+              <a href="{% url 'users:show_user' username=app.applicant.username %}?next={{ new_next }}&p=Declined Applications&t=basic">
                 {{ app.applicant.get_full_name }}
               </a>
             </td>
