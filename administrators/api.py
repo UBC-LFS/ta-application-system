@@ -124,6 +124,28 @@ def build_url(path, next_path, page, tab):
     return "{0}?next={1}&p={2}&t={3}".format(path, next_path, page, tab)
 
 
+def build_new_next(request):
+    full_path = request.get_full_path()
+    next = urlparse(full_path)
+    query = ''
+    if len(next.query) > 0:
+        for q in next.query.split('&'):
+            arr = q.split('=')
+            if len(arr[1]) > 0:
+                if len(query) > 0:
+                    query += '&'
+                query += arr[0] + '=' + arr[1]
+
+    new_next = next.path
+    if len(query) > 0: new_next += '?' + query
+    return new_next
+
+def get_next(request):
+    full_path = request.get_full_path()
+    next = urlparse(full_path)
+    return next.query.split('&p=')[0][5:]
+
+
 
 # Courses
 
@@ -334,7 +356,7 @@ def update_job_instructors(job, old_instructors, new_instructors):
 def update_job_accumulated_ta_hours(session_slug, job_slug, ta_hours):
     ''' Update ta hours in a job '''
     job = get_job_by_session_slug_job_slug(session_slug, job_slug)
-    
+
     new_hours = job.accumulated_ta_hours + ta_hours
     job.accumulated_ta_hours = new_hours
     job.updated_at = datetime.now()

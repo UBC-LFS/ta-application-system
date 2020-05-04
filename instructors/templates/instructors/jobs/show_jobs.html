@@ -36,7 +36,7 @@
             <td>{{ job.session.year }}</td>
             <td>{{ job.session.term.code }}</td>
             <td>
-              <a href="{% url 'instructors:show_job' session_slug=job.session.slug job_slug=job.course.slug %}?next={{ request.get_full_path }}">
+              <a href="{% url 'instructors:show_job' session_slug=job.session.slug job_slug=job.course.slug %}?next={{ new_next }}">
                 {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}
               </a>
             </td>
@@ -44,7 +44,7 @@
             <td>{{ job.accumulated_ta_hours }}</td>
             <td>
               {% if job.application_set.count > 0 %}
-                <a class="btn btn-xs btn-info" href="{% url 'instructors:show_applications' session_slug=job.session.slug job_slug=job.course.slug %}?next={{ request.get_full_path }}">
+                <a class="btn btn-xs btn-info" href="{% url 'instructors:show_applications' session_slug=job.session.slug job_slug=job.course.slug %}?next={{ new_next }}">
                   {{ job.application_set.count }}
                 </a>
               {% else %}
@@ -55,7 +55,7 @@
             <td>{{ job.created_at }}</td>
             <td>{{ job.updated_at }}</td>
             <td>
-              <a class="btn btn-link btn-xs" href="{% url 'instructors:edit_job' session_slug=job.session.slug job_slug=job.course.slug %}?next={{ request.get_full_path }}">Edit Job</a>
+              <a class="btn btn-link btn-xs" href="{% url 'instructors:edit_job' session_slug=job.session.slug job_slug=job.course.slug %}?next={{ new_next }}">Edit Job</a>
             </td>
           </tr>
         {% endfor %}

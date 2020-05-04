@@ -51,7 +51,7 @@
         {% for user in users %}
           <tr>
             <td>
-              <input type="checkbox" name="user" value="{{ user.id }}" checked />
+              <input type="checkbox" name="user" value="{{ user.id }}" />
             </td>
             <td>{{ user.id }}</td>
             <td>{% include 'ta_app/users/_modal_user_details.html' with data=user %}</td>

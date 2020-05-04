@@ -509,7 +509,8 @@ def favourite_jobs(request):
         'all_favourites': all_favourites,
         'favourites': adminApi.add_applied_jobs_to_favourites(request.user, favourites),
         'total_favourites': len(favourite_list),
-        'can_apply': userApi.can_apply(request.user)
+        'can_apply': userApi.can_apply(request.user),
+        'new_next': adminApi.build_new_next(request)
     })
 
 
@@ -565,7 +566,8 @@ def available_jobs(request, session_slug):
         'session_slug': session_slug,
         'jobs': adminApi.add_applied_favourite_jobs(request.user, jobs),
         'total_jobs': len(job_list),
-        'can_apply': can_apply
+        'can_apply': can_apply,
+        'new_next': adminApi.build_new_next(request)
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -575,11 +577,12 @@ def apply_job(request, session_slug, job_slug):
     ''' Students can apply for each job '''
     request = userApi.has_user_access(request, 'Student')
     adminApi.can_req_parameters_access(request, 'none', ['next'])
-
+    next = adminApi.get_next(request)
+    
     # There are two paths to apply a job
     # If the path doesn't contian favourite, then check session in the path
-    if 'favourite' not in request.GET.get('next'):
-        adminApi.validate_next(request.GET.get('next'), ['session'])
+    if 'favourite' not in next:
+        adminApi.validate_next(next, ['session'])
 
     session = adminApi.get_session(session_slug, 'slug')
     job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
@@ -628,7 +631,8 @@ def apply_job(request, session_slug, job_slug):
         'loggedin_user': request.user,
         'job': adminApi.add_favourite_job(request.user, job),
         'has_applied_job': job.application_set.filter(applicant__id=request.user.id).exists(),
-        'form': ApplicationForm(initial={ 'applicant': request.user.id, 'job': job.id })
+        'form': ApplicationForm(initial={ 'applicant': request.user.id, 'job': job.id }),
+        'next':next
     })
 
 @login_required(login_url=settings.LOGIN_URL)

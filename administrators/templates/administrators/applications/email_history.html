@@ -83,13 +83,13 @@
           </td>
           <td>{{ email.type }}</td>
           <td>
-            <a class="btn btn-xs btn-info" href="{% url 'administrators:show_application' app_slug=email.application.slug %}?next={{ request.get_full_path }}&p=Email History">
+            <a class="btn btn-xs btn-info" href="{% url 'administrators:show_application' app_slug=email.application.slug %}?next={{ new_next }}&p=Email History">
               {{ email.application.id }}
             </a>
           </td>
           <td>{{ email.created_at }}</td>
           <td>
-            <a href="{% url 'administrators:send_reminder' email.id %}?next={{ request.get_full_path }}&p=Email History">Remind</a>
+            <a href="{% url 'administrators:send_reminder' email.id %}?next={{ new_next }}&p=Email History">Remind</a>
           </td>
         </tr>
       {% endfor %}

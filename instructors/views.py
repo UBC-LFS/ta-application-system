@@ -150,7 +150,8 @@ def show_jobs(request):
     return render(request, 'instructors/jobs/show_jobs.html', {
         'loggedin_user': request.user,
         'jobs': jobs,
-        'total_jobs': len(job_list)
+        'total_jobs': len(job_list),
+        'new_next': adminApi.build_new_next(request)
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -188,7 +189,8 @@ def edit_job(request, session_slug, job_slug):
         'loggedin_user': request.user,
         'job': job,
         'form': InstructorJobForm(data=None, instance=job),
-        'jobs': adminApi.get_recent_ten_job_details(job.course, job.session.year)
+        'jobs': adminApi.get_recent_ten_job_details(job.course, job.session.year),
+        'next': adminApi.get_next(request)
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -201,7 +203,8 @@ def show_job(request, session_slug, job_slug):
 
     return render(request, 'instructors/jobs/show_job.html', {
         'loggedin_user': request.user,
-        'job': adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
+        'job': adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug),
+        'next': adminApi.get_next(request)
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -273,7 +276,8 @@ def show_applications(request, session_slug, job_slug):
         'job': job,
         'apps': adminApi.get_applications_with_status_by_session_slug_job_slug(session_slug, job_slug),
         'instructor_preference_choices': Application.INSTRUCTOR_PREFERENCE_CHOICES,
-        'app_status': APP_STATUS
+        'app_status': APP_STATUS,
+        'next': adminApi.get_next(request)
     })
 
 
@@ -312,5 +316,6 @@ def write_note(request, app_slug):
         'loggedin_user': request.user,
         'app': adminApi.add_app_info_into_application(app, ['selected']),
         'form': ApplicationNoteForm(data=None, instance=app),
-        'app_status': APP_STATUS
+        'app_status': APP_STATUS,
+        'next': adminApi.get_next(request)
     })

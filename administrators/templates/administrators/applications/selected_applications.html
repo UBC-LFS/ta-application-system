@@ -37,17 +37,17 @@
       {% for app in apps %}
         <tr>
           <td>
-            <a class="btn btn-xs btn-info" href="{% url 'administrators:show_application' app_slug=app.slug %}?next={{ request.get_full_path }}&p=Selected Applications">{{ app.id }}</a>
+            <a class="btn btn-xs btn-info" href="{% url 'administrators:show_application' app_slug=app.slug %}?next={{ new_next }}&p=Selected Applications">{{ app.id }}</a>
           </td>
           <td>{{ app.job.session.year }}</td>
           <td>{{ app.job.session.term.code }}</td>
           <td>
-            <a href="{% url 'administrators:show_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}?next={{ request.get_full_path }}&p=Selected Applications">
+            <a href="{% url 'administrators:show_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}?next={{ new_next }}&p=Selected Applications">
               {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}
             </a>
           </td>
           <td>
-            <a href="{% url 'users:show_user' username=app.applicant.username %}?next={{ request.get_full_path }}&p=Selected Applications&t=basic">
+            <a href="{% url 'users:show_user' username=app.applicant.username %}?next={{ new_next }}&p=Selected Applications&t=basic">
               {{ app.applicant.get_full_name }}
             </a>
             <br />
@@ -269,7 +269,7 @@
                         <input type="hidden" name="assigned" value="{{ app_status.offered }}" />
                         <input type="hidden" name="applicant" value="{{ app.applicant.id }}" />
                         <input type="hidden" name="has_contract_read" value="false" />
-                        <input type="hidden" name="next" value="{{ request.get_full_path }}" />
+                        <input type="hidden" name="next" value="{{ new_next }}" />
 
                         <input class="btn btn-primary" type="submit" value="Offer" />
                       </form>
