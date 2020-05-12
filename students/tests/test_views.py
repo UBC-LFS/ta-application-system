@@ -1,8 +1,15 @@
-from django.test import TestCase
+import os
+from django.conf import settings
+from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.contrib.auth.models import User
 from django.contrib.messages import get_messages
 from urllib.parse import urlencode
+from django.core.files.uploadedfile import SimpleUploadedFile
+import datetime
+from random import randint
+import tempfile
+from PIL import Image
 
 from administrators.models import *
 from users.models import *
@@ -10,8 +17,6 @@ from administrators import api as adminApi
 from users import api as userApi
 
 from administrators.tests.test_views import LOGIN_URL, ContentType, DATA, USERS, SESSION, JOB, APP, COURSE, PASSWORD
-from django.core.files.uploadedfile import SimpleUploadedFile
-import datetime
 
 
 STUDENT = 'user65.test'
@@ -34,6 +39,12 @@ HISTORY_WRONG_2 = '?next=/student/jobs/history/?page=2'
 HISTORY_WRONG_3 = '?next=/students/jobs/histor/?page=2'
 
 
+def random_with_N_digits(n):
+    range_start = 10**(n-1)
+    range_end = (10**n)-1
+    return randint(range_start, range_end)
+
+
 class StudentTest(TestCase):
     fixtures = DATA
 
@@ -50,8 +61,14 @@ class StudentTest(TestCase):
     def messages(self, res):
         return [m.message for m in get_messages(res.wsgi_request)]
 
+    def get_resume(self, username):
+        return os.path.join(settings.MEDIA_ROOT, 'users', username, 'resume', 'resume.pdf')
+
     def submit_profile_resume(self, username):
         ''' Submit profile and resume '''
+
+        RESUME = self.get_resume(username)
+
         data = {
             'preferred_name': 'preferred name',
             'qualifications': 'qualifications',
@@ -106,38 +123,37 @@ class StudentTest(TestCase):
 
         user = userApi.get_user(username, 'username')
 
-
         data0 = {
             'user': user.id,
-            'resume': SimpleUploadedFile('resume.pdf', b'file_content', content_type='application/pdf')
+            'resume': SimpleUploadedFile('resume.pdf', open(RESUME, 'rb').read(), content_type='application/pdf')
         }
         response = self.client.post(reverse('students:upload_resume') + '?nex=/students/&p=Home&t=resume', data=data0, format='multipart')
         self.assertEqual(response.status_code, 404)
 
         data1 = {
             'user': user.id,
-            'resume': SimpleUploadedFile('resume.pdf', b'file_content', content_type='application/pdf')
+            'resume': SimpleUploadedFile('resume.pdf', open(RESUME, 'rb').read(), content_type='application/pdf')
         }
         response = self.client.post(reverse('students:upload_resume') + '?next=/studens/&p=Home&t=resume', data=data1, format='multipart')
         self.assertEqual(response.status_code, 404)
 
         data2 = {
             'user': user.id,
-            'resume': SimpleUploadedFile('resume.pdf', b'file_content', content_type='application/pdf')
+            'resume': SimpleUploadedFile('resume.pdf', open(RESUME, 'rb').read(), content_type='application/pdf')
         }
         response = self.client.post(reverse('students:upload_resume') + '?next=/students/&p=Hom&t=resume', data=data2, format='multipart')
         self.assertEqual(response.status_code, 404)
 
         data3 = {
             'user': user.id,
-            'resume': SimpleUploadedFile('resume.pdf', b'file_content', content_type='application/pdf')
+            'resume': SimpleUploadedFile('resume.pdf', open(RESUME, 'rb').read(), content_type='application/pdf')
         }
         response = self.client.post(reverse('students:upload_resume') + '?next=/students/&p=Hom&t=resumE', data=data3, format='multipart')
         self.assertEqual(response.status_code, 404)
 
         data4 = {
             'user': user.id,
-            'resume': SimpleUploadedFile('resume.pdf', b'file_content', content_type='application/pdf')
+            'resume': SimpleUploadedFile('resume.pdf', open(RESUME, 'rb').read(), content_type='application/pdf')
         }
         response = self.client.post( reverse('students:upload_resume') + NEXT + HOME_RESUME, data=data4, format='multipart')
         messages = self.messages(response)
@@ -152,6 +168,9 @@ class StudentTest(TestCase):
 
     def submit_profile_resume_undergraduate(self, username):
         ''' Submit profile and resume '''
+
+        RESUME = self.get_resume(username)
+
         data = {
             'preferred_name': 'preferred name',
             'qualifications': 'qualifications',
@@ -205,10 +224,9 @@ class StudentTest(TestCase):
         self.assertEqual(user.profile.ta_experience_details, data['ta_experience_details'])
 
         user = userApi.get_user(username, 'username')
-        resume_name = 'resume.pdf'
         data = {
             'user': user.id,
-            'resume': SimpleUploadedFile('resume.pdf', b'file_content', content_type='application/pdf')
+            'resume': SimpleUploadedFile('resume.pdf', open(RESUME, 'rb').read(), content_type='application/pdf')
         }
         response = self.client.post( reverse('students:upload_resume') + NEXT + HOME_RESUME, data=data, format='multipart')
         messages = self.messages(response)
@@ -219,6 +237,108 @@ class StudentTest(TestCase):
 
         resume = userApi.has_user_resume_created(user)
         self.assertIsNotNone(resume)
+
+    def get_required_documents(self, username):
+        ''' Required documents '''
+        SIN = os.path.join(settings.MEDIA_ROOT, 'users', username, 'sin', 'sin.jpg')
+        STUDY_PERMIT = os.path.join(settings.MEDIA_ROOT, 'users', username, 'study_permit', 'study_permit.jpg')
+        PERSONAL_DATA_FORM = os.path.join(settings.MEDIA_ROOT, 'users', username, 'personal_data_form', 'personal_data_form.doc')
+
+        return SIN, STUDY_PERMIT, PERSONAL_DATA_FORM
+
+    def get_temp_files(self):
+        sin = get_temporary_image(tempfile.NamedTemporaryFile())
+        study_permit = get_temporary_image(tempfile.NamedTemporaryFile())
+        return sin, study_permit
+
+    def submit_confiential_information_international_complete(self, username):
+        ''' Submit confidential information '''
+
+        SIN, STUDY_PERMIT, PERSONAL_DATA_FORM = self.get_required_documents(username)
+
+        user = userApi.get_user(username, 'username')
+        data = {
+            'user': user.id,
+            'nationality': '1'
+        }
+        response = self.client.post( reverse('students:check_confidentiality'), data=urlencode(data), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue('Please submit your information' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+        data = {
+            'user': user.id,
+            'nationality': data['nationality'],
+            'employee_number': random_with_N_digits(7),
+            'sin': SimpleUploadedFile('sin.jpg', open(SIN, 'rb').read(), content_type='image/jpeg'),
+            'sin_expiry_date': '2021-01-01',
+            'study_permit': SimpleUploadedFile('study_permit.jpg', open(STUDY_PERMIT, 'rb').read(), content_type='image/jpeg'),
+            'study_permit_expiry_date': '2021-01-01',
+            'personal_data_form': SimpleUploadedFile('personal_data_form.doc', open(PERSONAL_DATA_FORM, 'rb').read(), content_type='application/msword')
+        }
+        response = self.client.post( reverse('students:submit_confidentiality'), data=data, format='multipart' )
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+    def submit_confiential_information_domestic_incomplete(self, username):
+        ''' Submit confidential information '''
+
+        SIN, STUDY_PERMIT, PERSONAL_DATA_FORM = self.get_required_documents(username)
+
+        user = userApi.get_user(username, 'username')
+        data = {
+            'user': user.id,
+            'nationality': '0'
+        }
+        response = self.client.post( reverse('students:check_confidentiality'), data=urlencode(data), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue('Please submit your information' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+        data = {
+            'user': user.id,
+            'nationality': data['nationality'],
+            'employee_number': random_with_N_digits(7),
+            'personal_data_form': SimpleUploadedFile('personal_data_form.doc', open(PERSONAL_DATA_FORM, 'rb').read(), content_type='application/msword'),
+        }
+        response = self.client.post( reverse('students:submit_confidentiality'), data=data, format='multipart' )
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+    def submit_confiential_information_international_incomplete(self, username):
+        ''' Submit confidential information '''
+
+        SIN, STUDY_PERMIT, PERSONAL_DATA_FORM = self.get_required_documents(username)
+
+        user = userApi.get_user(username, 'username')
+        data = {
+            'user': user.id,
+            'nationality': '1'
+        }
+        response = self.client.post( reverse('students:check_confidentiality'), data=urlencode(data), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue('Please submit your information' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+        data = {
+            'user': user.id,
+            'nationality': data['nationality'],
+            'employee_number': random_with_N_digits(7),
+            'sin': SimpleUploadedFile('sin.jpg', open(SIN, 'rb').read(), content_type='image/jpeg'),
+            'sin_expiry_date': '2021-01-01',
+            'study_permit': SimpleUploadedFile('study_permit.jpg', open(STUDY_PERMIT, 'rb').read(), content_type='image/jpeg'),
+            'study_permit_expiry_date': '2019-05-05'
+        }
+
+        response = self.client.post( reverse('students:submit_confidentiality'), data=data, format='multipart' )
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
 
 
     def test_view_url_exists_at_desired_location(self):
@@ -309,13 +429,21 @@ class StudentTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get( reverse('students:accept_decline_job', args=[SESSION, JOB]) + HISTORY_NEXT )
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 403)
 
         response = self.client.get( reverse('students:show_job', args=[SESSION, JOB]) + HISTORY_NEXT + '&p=History%20of%20Jobs' )
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get( reverse('students:show_application', args=[APP]) + HISTORY_NEXT )
         self.assertEqual(response.status_code, 200)
+
+        self.login(STUDENT, 'password')
+        self.submit_confiential_information_international_complete(STUDENT)
+
+        response = self.client.get( reverse('students:accept_decline_job', args=[SESSION, STUDENT_JOB]) + HISTORY_NEXT )
+        self.assertEqual(response.status_code, 200)
+
+
 
     def test_home_page(self):
         print('\n- Test: Display a home page')
@@ -601,12 +729,13 @@ class StudentTest(TestCase):
         print('\n- Test: upload user resume')
         self.login()
         user = userApi.get_user(USERS[2], 'username')
+        RESUME = self.get_resume(USERS[2])
 
         self.assertIsNone(userApi.has_user_resume_created(user))
-        resume_name = 'resume.pdf'
+
         data = {
             'user': user.id,
-            'resume': SimpleUploadedFile('resume.pdf', b'file_content', content_type='application/pdf')
+            'resume': SimpleUploadedFile('resume.pdf', open(RESUME, 'rb').read(), content_type='application/pdf')
         }
         response = self.client.post( reverse('students:upload_resume') + NEXT + HOME_RESUME, data=data, format='multipart')
         messages = self.messages(response)
@@ -628,11 +757,13 @@ class StudentTest(TestCase):
     def test_delete_user_resume(self):
         print('\n- Test: delete user resume')
         self.login()
+
         user = userApi.get_user(USERS[2], 'username')
+        RESUME = self.get_resume(USERS[2])
 
         data = {
             'user': user.id,
-            'resume': SimpleUploadedFile('resume.pdf', b'file_content', content_type='application/pdf')
+            'resume': SimpleUploadedFile('resume.pdf', open(RESUME, 'rb').read(), content_type='application/pdf')
         }
         response = self.client.post( reverse('students:upload_resume') + NEXT + HOME_RESUME, data=data, format='multipart' )
         messages = self.messages(response)
@@ -1217,6 +1348,52 @@ class StudentTest(TestCase):
         self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
         self.assertEqual( len(response.context['apps']), 7 )
 
+
+    def test_accept_decline_job_domestic_incomplete(self):
+        print('\n- Test: Display a job to select accept or decline a job offer with domestic students')
+        self.login(STUDENT, 'password')
+
+        user = userApi.get_user(STUDENT, 'username')
+
+        # if students don't complete required documents, they cannot accept or decline their job offer.
+        available1 = userApi.add_confidentiality_validation(user)
+        self.assertEqual(available1['status'], False)
+        self.assertEqual(available1['message'], "You haven't completed it yet. Please upload required documents.")
+
+        response = self.client.get( reverse('students:accept_decline_job', args=[SESSION, STUDENT_JOB]) + HISTORY_NEXT )
+        self.assertEqual(response.status_code, 403)
+
+        self.submit_confiential_information_domestic_incomplete(user.username)
+
+        user = userApi.get_user(STUDENT, 'username')
+        available2 = userApi.add_confidentiality_validation(user)
+        self.assertEqual(available2['status'], False)
+        self.assertEqual(available2['message'], 'Please check the following information, and update required documents. <ul><li>SIN</li></ul>')
+
+
+    def test_accept_decline_job_international_incomplete(self):
+        print('\n- Test: Display a job to select accept or decline a job offer with international students')
+        self.login(STUDENT, 'password')
+
+        user = userApi.get_user(STUDENT, 'username')
+
+        # if students don't complete required documents, they cannot accept or decline their job offer.
+        available1 = userApi.add_confidentiality_validation(user)
+        self.assertEqual(available1['status'], False)
+        self.assertEqual(available1['message'], "You haven't completed it yet. Please upload required documents.")
+
+        response = self.client.get( reverse('students:accept_decline_job', args=[SESSION, STUDENT_JOB]) + HISTORY_NEXT )
+        self.assertEqual(response.status_code, 403)
+
+        self.submit_confiential_information_international_incomplete(user.username)
+
+        user = userApi.get_user(STUDENT, 'username')
+        available2 = userApi.add_confidentiality_validation(user)
+        self.assertEqual(available2['status'], False)
+        self.assertEqual(available2['message'], 'Please check the following information, and update required documents. <ul><li>Personal Data Form</li><li>Study Permit Expiry Date</li></ul>')
+
+
+
     def test_accept_decline_job(self):
         print('\n- Test: Display a job to select accept or decline a job offer')
         self.login(STUDENT, 'password')
@@ -1238,6 +1415,23 @@ class StudentTest(TestCase):
         session.is_archived = False
         session.save(update_fields=['is_archived'])
 
+        user = userApi.get_user(STUDENT, 'username')
+
+        # if students don't complete required documents, they cannot accept or decline their job offer.
+        available1 = userApi.add_confidentiality_validation(user)
+        self.assertEqual(available1['status'], False)
+        self.assertEqual(available1['message'], "You haven't completed it yet. Please upload required documents.")
+
+        response = self.client.get( reverse('students:accept_decline_job', args=[SESSION, STUDENT_JOB]) + HISTORY_NEXT )
+        self.assertEqual(response.status_code, 403)
+
+        self.submit_confiential_information_international_complete(user.username)
+
+        user = userApi.get_user(STUDENT, 'username')
+        available2 = userApi.add_confidentiality_validation(user)
+        self.assertEqual(available2['status'], True)
+        self.assertEqual(available2['message'], '')
+
         response = self.client.get( reverse('students:accept_decline_job', args=[SESSION, STUDENT_JOB]) + HISTORY_NEXT )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, STUDENT)
@@ -1254,6 +1448,8 @@ class StudentTest(TestCase):
     def test_accept_offer(self):
         print('\n- Test: Students accept a job offer')
         self.login(STUDENT, 'password')
+
+        self.submit_confiential_information_international_complete(STUDENT)
 
         response = self.client.get( reverse('students:accept_decline_job', args=[SESSION, STUDENT_JOB]) + HISTORY_NEXT )
         self.assertEqual(response.status_code, 200)
@@ -1342,6 +1538,8 @@ class StudentTest(TestCase):
         print('\n- Test: Students decline job offers')
         self.login(STUDENT, 'password')
 
+        self.submit_confiential_information_international_complete(STUDENT)
+
         response = self.client.get( reverse('students:accept_decline_job', args=[SESSION, STUDENT_JOB]) + HISTORY_NEXT )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, STUDENT)
@@ -1423,6 +1621,8 @@ class StudentTest(TestCase):
         STUDENT = 'user65.test'
         self.login(STUDENT, 'password')
 
+        self.submit_confiential_information_international_complete(STUDENT)
+
         APP_SLUG = SESSION + '-' + STUDENT_JOB + '-application-by-' + 'user65test'
         app = adminApi.get_application(APP_SLUG, 'slug')
         self.assertFalse(app.is_declined_reassigned)
@@ -1436,6 +1636,7 @@ class StudentTest(TestCase):
         self.assertRedirects(response, response.url)
 
         self.submit_profile_resume(STUDENT)
+        self.submit_confiential_information_international_complete(STUDENT)
 
         response = self.client.get( reverse('students:index') )
         self.assertEqual(response.status_code, 200)
@@ -1556,12 +1757,16 @@ class StudentTest(TestCase):
         STUDENT = 'user65.test'
         self.login(STUDENT, 'password')
 
+        self.submit_confiential_information_international_complete(STUDENT)
+
         APP_SLUG = SESSION + '-' + STUDENT_JOB + '-application-by-' + 'user65test'
         app = adminApi.get_application(APP_SLUG, 'slug')
         self.assertFalse(app.is_declined_reassigned)
 
         STUDENT = 'user66.test'
         self.login(STUDENT, 'password')
+
+        self.submit_confiential_information_international_complete(STUDENT)
 
         response = self.client.get( reverse('students:index') )
         self.assertEqual(response.status_code, 302)

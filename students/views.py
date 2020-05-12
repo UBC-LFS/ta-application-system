@@ -284,6 +284,7 @@ def edit_confidentiality(request):
     sin_file = None
     study_permit_file = None
     personal_data_form_file = None
+    can_delete = False
 
     confidentiality = userApi.has_user_confidentiality_created(loggedin_user)
     if request.method == 'POST':
@@ -347,29 +348,41 @@ def edit_confidentiality(request):
         else:
             errors = form.errors.get_json_data()
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+
+        return redirect('students:edit_confidentiality')
+
     else:
-        if userApi.has_user_confidentiality_created(loggedin_user) and bool(loggedin_user.confidentiality.sin):
-            sin_file = os.path.basename(loggedin_user.confidentiality.sin.name)
+        if confidentiality:
+            if bool(confidentiality.employee_number):
+                can_delete = True
+            if bool(confidentiality.sin):
+                sin_file = os.path.basename(confidentiality.sin.name)
+                can_delete = True
 
-        if userApi.has_user_confidentiality_created(loggedin_user) and bool(loggedin_user.confidentiality.study_permit):
-            study_permit_file = os.path.basename(loggedin_user.confidentiality.study_permit.name)
+            if bool(confidentiality.study_permit):
+                study_permit_file = os.path.basename(confidentiality.study_permit.name)
+                can_delete = True
 
-        if userApi.has_user_confidentiality_created(loggedin_user) and bool(loggedin_user.confidentiality.personal_data_form):
-            personal_data_form_file = os.path.basename(loggedin_user.confidentiality.personal_data_form.name)
+            if bool(confidentiality.personal_data_form):
+                personal_data_form_file = os.path.basename(confidentiality.personal_data_form.name)
+                can_delete = True
 
-        if userApi.has_user_confidentiality_created(loggedin_user):
-
-            if loggedin_user.confidentiality.nationality == '0':
+            if confidentiality.nationality == '0':
                 form = ConfidentialityDomesticForm(data=None, instance=confidentiality, initial={ 'user': loggedin_user })
             else:
                 form = ConfidentialityInternationalForm(data=None, instance=confidentiality, initial={ 'user': loggedin_user })
+                if bool(confidentiality.sin_expiry_date):
+                    can_delete = True
+                if bool(confidentiality.study_permit_expiry_date):
+                    can_delete = True
 
     return render(request, 'students/profile/edit_confidentiality.html', {
         'loggedin_user': userApi.add_avatar(loggedin_user),
         'sin_file': sin_file,
         'study_permit_file': study_permit_file,
         'personal_data_form_file': personal_data_form_file,
-        'form': form
+        'form': form,
+        'can_delete': can_delete
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -380,6 +393,18 @@ def delete_confidential_information(request):
     request = userApi.has_user_access(request, 'Student')
 
     if request.method == 'POST':
+        data = []
+        if request.POST.get('employee_number') != None: data.append('employee_number')
+        if request.POST.get('sin') != None: data.append('sin')
+        if request.POST.get('sin_expiry_date') != None: data.append('sin_expiry_date')
+        if request.POST.get('study_permit') != None: data.append('study_permit')
+        if request.POST.get('study_permit_expiry_date') != None: data.append('study_permit_expiry_date')
+        if request.POST.get('personal_data_form') != None: data.append('personal_data_form')
+
+        if len(data) == 0:
+            messages.error(request, 'An error occurred while deleting. Please select any information that you want to delete.')
+            return redirect('students:edit_confidentiality')
+
         result = userApi.delete_confidential_information(request.POST)
         if result == True:
             messages.success(request, 'Success! Confidential Information of {0} deleted'.format(request.POST.get('user')))
@@ -578,7 +603,7 @@ def apply_job(request, session_slug, job_slug):
     request = userApi.has_user_access(request, 'Student')
     adminApi.can_req_parameters_access(request, 'none', ['next'])
     next = adminApi.get_next(request)
-    
+
     # There are two paths to apply a job
     # If the path doesn't contian favourite, then check session in the path
     if 'favourite' not in next:
@@ -709,7 +734,8 @@ def history_jobs(request):
     return render(request, 'students/jobs/history_jobs.html', {
         'loggedin_user': request.user,
         'apps': adminApi.add_applications_with_latest_status(apps),
-        'total_apps': len(app_list)
+        'total_apps': len(app_list),
+        'can_accept_or_decline': userApi.add_confidentiality_validation(request.user)
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -774,6 +800,10 @@ def accept_decline_job(request, session_slug, job_slug):
 
     app = adminApi.add_app_info_into_application(apps.first(), ['offered', 'accepted', 'declined'])
     if app.job.session.is_archived == True or app.offered is None:
+        raise PermissionDenied
+
+    can_accept_or_decline = userApi.add_confidentiality_validation(request.user)
+    if can_accept_or_decline['status'] == False:
         raise PermissionDenied
 
     return render(request, 'students/jobs/accept_decline_job.html', {
@@ -864,6 +894,10 @@ def reaccept_application(request, app_slug):
     app = adminApi.get_application(app_slug, 'slug')
     app = adminApi.add_app_info_into_application(app, ['accepted','declined'])
     if app.job.session.is_archived == True or app.is_declined_reassigned != True:
+        raise PermissionDenied
+
+    can_accept_or_decline = userApi.add_confidentiality_validation(request.user)
+    if can_accept_or_decline['status'] == False:
         raise PermissionDenied
 
     if request.method == 'POST':

@@ -60,59 +60,82 @@
         <form action="{% url 'students:delete_confidential_information' %}" method="post" onsubmit="return confirm('Are you sure to delete your confidential information?')">
           {% csrf_token %}
 
-          {% if loggedin_user.confidentiality.employee_number %}
-            <div class="field-wrapper">
-              <i class="fa fa-file-text-o text-dark-gray" aria-hidden="true"></i> Employee Number:
-              <input id="id_employee_number"type="checkbox" name="employee_number" /><br />
-              <small class="text-dark-gray">{{ loggedin_user.confidentiality.employee_number }}</small>
-            </div>
-          {% endif %}
+          <table class="table font-size-1">
+            <tbody>
+              {% if loggedin_user.confidentiality.employee_number %}
+                <tr>
+                  <td style="width:5%"><input id="id_employee_number"type="checkbox" name="employee_number" /></td>
+                  <td>
+                    Employee Number <br />
+                    <small class="text-dark-gray">{{ loggedin_user.confidentiality.employee_number }}</small>
+                  </td>
+                </tr>
+              {% endif %}
 
-          {% if loggedin_user.confidentiality.sin %}
-            <div class="field-wrapper">
-              <i class="fa fa-file-image-o text-success" aria-hidden="true"></i> SIN:
-              <input id="id_sin" type="checkbox" name="sin" /><br />
-              <small class="text-dark-gray">{{ sin_file }}</small>
-            </div>
-          {% endif %}
+              {% if loggedin_user.confidentiality.sin %}
+                <tr>
+                  <td style="width:5%"><input id="id_sin" type="checkbox" name="sin" /></td>
+                  <td>
+                    SIN <br />
+                    <small class="text-dark-gray">{{ sin_file }}</small>
+                  </td>
+                </tr>
+              {% endif %}
 
-          {% if loggedin_user.confidentiality.nationality == '1' %}
+              {% if loggedin_user.confidentiality.nationality == '1' %}
 
-            {% if loggedin_user.confidentiality.sin_expiry_date %}
-              <div class="field-wrapper">
-                <i class="fa fa-file-text-o text-dark-gray" aria-hidden="true"></i> SIN Expiry Date:
-                <input id="id_sin_expiry_date" type="checkbox" name="sin_expiry_date" /><br />
-                <small class="text-dark-gray">{{ loggedin_user.confidentiality.sin_expiry_date }}</small>
-              </div>
-            {% endif %}
+                {% if loggedin_user.confidentiality.sin_expiry_date %}
+                  <tr>
+                    <td style="width:5%"><input id="id_sin_expiry_date" type="checkbox" name="sin_expiry_date" /></td>
+                    <td>
+                      SIN Expiry Date <br />
+                      <small class="text-dark-gray">{{ loggedin_user.confidentiality.sin_expiry_date }}</small>
+                    </td>
+                  </tr>
+                {% endif %}
 
-            {% if loggedin_user.confidentiality.study_permit %}
-              <div class="field-wrapper">
-                <i class="fa fa-file-image-o text-success" aria-hidden="true"></i> Study Permit:
-                <input id="id_study_permit" type="checkbox" name="study_permit" /><br />
-                <small class="text-dark-gray">{{ study_permit_file }}</small>
-              </div>
-            {% endif %}
+                {% if loggedin_user.confidentiality.study_permit %}
+                  <tr>
+                    <td style="width:5%"><input id="id_study_permit" type="checkbox" name="study_permit" /></td>
+                    <td>
+                      Study Permit <br />
+                      <small class="text-dark-gray">{{ study_permit_file }}</small>
+                    </td>
+                  </tr>
+                {% endif %}
 
-            {% if loggedin_user.confidentiality.study_permit_expiry_date %}
-              <div class="field-wrapper">
-                <i class="fa fa-file-text-o text-dark-gray" aria-hidden="true"></i> Study Permit Expiry Date:
-                <input id="id_study_permit_expiry_date" type="checkbox" name="study_permit_expiry_date" /><br />
-                <small class="text-dark-gray">{{ loggedin_user.confidentiality.study_permit_expiry_date }}</small>
-              </div>
-            {% endif %}
-          {% endif %}
+                {% if loggedin_user.confidentiality.study_permit_expiry_date %}
+                  <tr>
+                    <td style="width:5%"><input id="id_study_permit_expiry_date" type="checkbox" name="study_permit_expiry_date" /></td>
+                    <td>
+                      Study Permit Expiry Date <br />
+                      <small class="text-dark-gray">{{ loggedin_user.confidentiality.study_permit_expiry_date }}</small>
+                    </td>
+                  </tr>
+                {% endif %}
+              {% endif %}
 
-          {% if loggedin_user.confidentiality.personal_data_form %}
-            <div class="field-wrapper">
-              <i class="fa fa-file-word-o text-primary" aria-hidden="true"></i> Personal Data Form:
-              <input id="personal_data_form" type="checkbox" name="personal_data_form" /><br />
-              <small class="text-dark-gray">{{ personal_data_form_file }}</small>
-            </div>
-          {% endif %}
+              {% if loggedin_user.confidentiality.personal_data_form %}
+                <tr>
+                  <td style="width:5%"><input id="personal_data_form" type="checkbox" name="personal_data_form" /></td>
+                  <td>
+                    Personal Data Form <br />
+                    <small class="text-dark-gray">{{ personal_data_form_file }}</small>
+                  </td>
+                </tr>
+              {% endif %}
+
+            </tbody>
+          </table>
 
           <input type="hidden" name="user" value="{{ loggedin_user.username }}" />
-          <input class="btn btn-outline-danger btn-sm mt-1" type="submit" value="Delete Confidential Information" />
+
+          {% if can_delete %}
+            <input class="btn btn-outline-danger btn-sm mt-1" type="submit" value="Delete Confidential Information" />
+          {% else %}
+            <input class="btn btn-outline-secondary btn-sm mt-1" type="button" value="Delete Confidential Information" disabled />
+          {% endif %}
+
         </form>
 
       </div>
