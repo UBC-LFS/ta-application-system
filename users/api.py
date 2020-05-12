@@ -517,6 +517,42 @@ def confidentiality_exists(user):
         return True
     return False
 
+
+def add_confidentiality_validation(user):
+    ''' Add confidentiality validation into apps '''
+    confidentiality = has_user_confidentiality_created(user)
+    message = ''
+    if confidentiality != None:
+        errors = ''
+
+        if bool(confidentiality.employee_number) == False:
+            errors += '<li>Employee Number</li>'
+        if bool(confidentiality.personal_data_form) == False:
+            errors += '<li>Personal Data Form</li>'
+        if bool(confidentiality.sin) == False:
+            errors += '<li>SIN</li>'
+
+        # if international students are 1; otherwise, 0
+        if confidentiality.nationality == '1':
+            today = datetime.now()
+            if bool(confidentiality.sin_expiry_date) == False or confidentiality.sin_expiry_date < today.date():
+                errors += '<li>SIN Expiry Date</li>'
+            if bool(confidentiality.study_permit) == False:
+                errors += '<li>Study Permit</li>'
+            if bool(confidentiality.study_permit_expiry_date) == False or confidentiality.study_permit_expiry_date < today.date():
+                errors += '<li>Study Permit Expiry Date</li>'
+
+        if len(errors) > 0:
+            message = 'Please check the following information, and update required documents. <ul>{0}</ul>'.format(errors)
+    else:
+        message = "You haven't completed it yet. Please upload required documents."
+
+    return {
+        'status': True if len(message) == 0 else False,
+        'message': message
+    }
+
+
 def delete_confidential_information(data):
     ''' Delete your confidential information '''
 

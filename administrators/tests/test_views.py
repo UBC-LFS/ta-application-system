@@ -1248,7 +1248,7 @@ class ApplicationTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, USERS[0])
         self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
-        self.assertEqual( len(response.context['apps']), 6)
+        self.assertEqual( len(response.context['apps']), 5)
 
     def test_admin_docs(self):
         print('\n- Test: Admin or HR can have update admin docs')
@@ -1578,6 +1578,8 @@ class ApplicationTest(TestCase):
 
         response = self.client.get(FULL_PATH)
         self.assertEqual(response.status_code, 200)
+
+        response = self.client.get(reverse('administrators:terminated_applications'))
         apps = response.context['apps']
 
         application = None
@@ -3784,7 +3786,7 @@ class AdminHRTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, 'user3.admin')
         self.assertEqual(response.context['loggedin_user'].roles, ['HR'])
-        self.assertEqual( len(response.context['apps']), 6)
+        self.assertEqual( len(response.context['apps']), 5)
 
     def test_admin_docs(self):
         print('\n- Test: Admin or HR can have update admin docs')

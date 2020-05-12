@@ -26,6 +26,9 @@ from users.forms import *
 from users import api as userApi
 
 from datetime import datetime
+from django_summernote.widgets import SummernoteWidget
+from django_summernote.fields import SummernoteTextFormField, SummernoteTextField
+
 
 
 APP_STATUS = {
@@ -1090,7 +1093,7 @@ def accepted_applications(request):
         if bool(last_name_q):
             app_list = app_list.filter(applicant__last_name__icontains=last_name_q)
 
-        app_list = app_list.filter(applicationstatus__assigned=ApplicationStatus.ACCEPTED).order_by('-id').distinct()
+        app_list = app_list.filter( Q(applicationstatus__assigned=ApplicationStatus.ACCEPTED) & Q(is_terminated=False) ).order_by('-id').distinct()
 
         page = request.GET.get('page', 1)
         paginator = Paginator(app_list, settings.PAGE_SIZE)
