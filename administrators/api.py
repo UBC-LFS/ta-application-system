@@ -649,7 +649,7 @@ def update_application_instructor_preference(app_id, instructor_preference):
 
 def get_terminated_applications():
     ''' Update an application for the termination of an application '''
-    return Application.objects.filter(is_terminated=True)
+    return Application.objects.filter(is_terminated=True).order_by('-id')
 
 
 # end applications
