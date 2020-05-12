@@ -26,9 +26,6 @@ from users.forms import *
 from users import api as userApi
 
 from datetime import datetime
-from django_summernote.widgets import SummernoteWidget
-from django_summernote.fields import SummernoteTextFormField, SummernoteTextField
-
 
 
 APP_STATUS = {
