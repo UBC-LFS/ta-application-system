@@ -251,7 +251,7 @@
                         <div class="field-wrapper">
                           <label for="id_note_{{ app.id }}">Note:</label>
                           <div class="help">Administrators and instructors can see this note.</div>
-                          <textarea id="id_note_{{ app.id }}" name="note" class="summernote">{{ app.note }}</textarea>
+                          <textarea id="id_note_{{ app.id }}" name="note" class="summernote">{{ app.note|default_if_none:"" }}</textarea>
                         </div>
 
                         <div class="field-wrapper">
