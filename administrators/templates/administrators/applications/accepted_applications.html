@@ -226,7 +226,7 @@
                         <div class="field-wrapper">
                           <label for="id_processing_note_{{ app.id }}">Processing Note:</label>
                           <div class="help">This field is optional. Only administrators can see this processing note.</div>
-                          <textarea id="id_processing_note_{{ app.id }}" name="processing_note" class="summernote">{{ app.admindocuments.processing_note }}</textarea>
+                          <textarea id="id_processing_note_{{ app.id }}" name="processing_note" class="summernote">{{ app.admindocuments.processing_note|default_if_none:"" }}</textarea>
                         </div>
 
                         <input type="hidden" name="next" value="{{ new_next }}" />
