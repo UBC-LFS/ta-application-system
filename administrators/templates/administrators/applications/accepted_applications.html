@@ -167,72 +167,82 @@
                   </div>
                   <div class="modal-body text-left">
 
-                    <div class="modal-item">
-                      <h5>
-                        {{ app.applicant.get_full_name }}
-                        <small class="text-dark-gray">(CWL: {{ app.applicant.username }})</small>
-                      </h5>
-                      <h6 class="mb-3">for {{ app.job.session.year }} {{ app.job.session.term.code }} - {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</h6>
+                    <div class="row p-3">
+                      <div class="col-md-7">
+                        <h5>
+                          {{ app.applicant.get_full_name }}
+                          <small class="text-dark-gray">(CWL: {{ app.applicant.username }})</small>
+                        </h5>
+                        <h6 class="mb-3">for {{ app.job.session.year }} {{ app.job.session.term.code }} - {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</h6>
 
-                      <form action="" method="post">
-                        {% csrf_token %}
+                        <form action="" method="post">
+                          {% csrf_token %}
 
-                        <div class="field-wrapper">
-                          <label for="id_pin_{{ app.id }}">PIN:</label>
-                          <div class="help">This field is optional. Maximum 4 characters allowed.</div>
-                          <input id="id_pin_{{ app.id }}" type="text" name="pin" class="form-control" maxlength="4"
-                            {% if app.admindocuments.pin %}
-                              value="{{ app.admindocuments.pin }}"
-                            {% else %}
-                              value=""
-                            {% endif %}
-                          />
-                        </div>
+                          <div class="field-wrapper">
+                            <label for="id_pin_{{ app.id }}">PIN:</label>
+                            <div class="help">This field is optional. Maximum 4 characters allowed.</div>
+                            <input id="id_pin_{{ app.id }}" type="text" name="pin" class="form-control" maxlength="4"
+                              {% if app.admindocuments.pin %}
+                                value="{{ app.admindocuments.pin }}"
+                              {% else %}
+                                value=""
+                              {% endif %}
+                            />
+                          </div>
 
-                        <div class="field-wrapper">
-                          <label for="id_tasm_{{ app.id }}">TASM:</label>
-                          <div class="help">This field is optional.</div>
-                          <input id="id_tasm_{{ app.id }}" type="checkbox" name="tasm"
-                            {% if app.admindocuments.tasm %}
-                              checked
-                            {% endif %}
-                          />
-                        </div>
+                          <div class="field-wrapper">
+                            <label for="id_tasm_{{ app.id }}">TASM:</label>
+                            <div class="help">This field is optional.</div>
+                            <input id="id_tasm_{{ app.id }}" type="checkbox" name="tasm"
+                              {% if app.admindocuments.tasm %}
+                                checked
+                              {% endif %}
+                            />
+                          </div>
 
-                        <div class="field-wrapper">
-                          <label for="id_eform_{{ app.id }}">eForm:</label>
-                          <div class="help">This field is optional. Maximum 6 characters allowed.</div>
-                          <input id="id_eform_{{ app.id }}" type="text" name="eform" class="form-control" maxlength="6"
-                            {% if app.admindocuments.eform %}
-                              value="{{ app.admindocuments.eform }}"
-                            {% else %}
-                              value=""
-                            {% endif %}
-                          />
-                        </div>
+                          <div class="field-wrapper">
+                            <label for="id_eform_{{ app.id }}">eForm:</label>
+                            <div class="help">This field is optional. Maximum 6 characters allowed.</div>
+                            <input id="id_eform_{{ app.id }}" type="text" name="eform" class="form-control" maxlength="6"
+                              {% if app.admindocuments.eform %}
+                                value="{{ app.admindocuments.eform }}"
+                              {% else %}
+                                value=""
+                              {% endif %}
+                            />
+                          </div>
 
-                        <div class="field-wrapper">
-                          <label for="id_speed_chart_{{ app.id }}">Speed Chart:</label>
-                          <div class="help">This field is optional. Maximum 4 characters allowed.</div>
-                          <input id="id_speed_chart_{{ app.id }}" type="text" name="speed_chart" class="form-control" maxlength="4"
-                            {% if app.admindocuments.speed_chart %}
-                              value="{{ app.admindocuments.speed_chart }}"
-                            {% else %}
-                              value=""
-                            {% endif %}
-                          />
-                        </div>
+                          <div class="field-wrapper">
+                            <label for="id_speed_chart_{{ app.id }}">Speed Chart:</label>
+                            <div class="help">This field is optional. Maximum 4 characters allowed.</div>
+                            <input id="id_speed_chart_{{ app.id }}" type="text" name="speed_chart" class="form-control" maxlength="4"
+                              {% if app.admindocuments.speed_chart %}
+                                value="{{ app.admindocuments.speed_chart }}"
+                              {% else %}
+                                value=""
+                              {% endif %}
+                            />
+                          </div>
 
-                        <div class="field-wrapper">
-                          <label for="id_processing_note_{{ app.id }}">Processing Note:</label>
-                          <div class="help">This field is optional. Only administrators can see this processing note.</div>
-                          <textarea id="id_processing_note_{{ app.id }}" name="processing_note" class="summernote">{{ app.admindocuments.processing_note|default_if_none:"" }}</textarea>
-                        </div>
+                          <div class="field-wrapper">
+                            <label for="id_processing_note_{{ app.id }}">Processing Note:</label>
+                            <div class="help">This field is optional. Only administrators can see this processing note.</div>
+                            <textarea id="id_processing_note_{{ app.id }}" name="processing_note" class="summernote">{{ app.admindocuments.processing_note|default_if_none:"" }}</textarea>
+                          </div>
 
-                        <input type="hidden" name="next" value="{{ new_next }}" />
-                        <input type="hidden" name="application" value="{{ app.id }}" />
-                        <input class="btn btn-primary" type="submit" value="Update" />
-                      </form>
+                          <input type="hidden" name="next" value="{{ new_next }}" />
+                          <input type="hidden" name="application" value="{{ app.id }}" />
+                          <input class="btn btn-primary" type="submit" value="Update" />
+                        </form>
+                      </div>
+                      <div class="col-md-5">
+                        <h6>Update History</h6>
+                        {% for adminuser in app.admindocuments.admindocumentsuser_set.all %}
+                          <div>- Updated at <span class="text-chocolate">{{ adminuser.created_at }}</span> by <span class="text-info">{{ adminuser.user.get_full_name }}</span></div>
+                        {% empty %}
+                          <div>No records found</div>
+                        {% endfor %}
+                      </div>
                     </div>
 
                   </div>

@@ -658,11 +658,16 @@ def get_terminated_applications():
 # admin documents
 
 def get_admin_docs(app_id):
-    ''' Get am admin docs '''
+    ''' Get an admin docs '''
     admin_docs = AdminDocuments.objects.filter(application_id=app_id)
     if admin_docs.exists():
         return admin_docs.first()
     return None
+
+def add_admin_docs_user(admin_docs, user):
+    ''' Insert an user into admin docs '''
+    admin_docs_user = AdminDocumentsUser.objects.create(document=admin_docs, user=user)
+    return admin_docs_user if admin_docs_user else False
 
 
 # end admin documents

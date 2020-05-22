@@ -239,8 +239,15 @@ class AdminDocuments(models.Model):
     speed_chart = models.CharField(max_length=4, null=True, blank=True)
     processing_note = models.TextField(null=True, blank=True)
 
+
+class AdminDocumentsUser(models.Model):
+    ''' Admin Docs by Users '''
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
+    document = models.ForeignKey(AdminDocuments, on_delete=models.CASCADE)
     created_at = models.DateField(default=dt.date.today)
-    updated_at = models.DateField(default=dt.date.today)
+
+    class Meta:
+        ordering = ['-pk']
 
 
 class Favourite(models.Model):

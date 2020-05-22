@@ -12,6 +12,8 @@ from users.models import *
 from administrators import api as adminApi
 from users import api as userApi
 
+from datetime import datetime
+
 LOGIN_URL = '/accounts/local_login/'
 ContentType='application/x-www-form-urlencoded'
 
@@ -69,7 +71,7 @@ TERMINATED_APP = '?next=' + reverse('administrators:terminated_applications') + 
 ALL_USER = '?next=' + reverse('administrators:all_users') + '?page=2&p=All%20Users&t=basic'
 DASHBOARD_USER = '?next=' + reverse('administrators:applications_dashboard') + '?page=2&p=Dashboard&t=basic'
 
-
+"""
 class SessionTest(TestCase):
     fixtures = DATA
 
@@ -3704,7 +3706,7 @@ class PreparationTest(TestCase):
         for l in response.context['landing_pages']:
             if l.id == landing_page.id: found = True
         self.assertFalse(found)
-
+"""
 
 class AdminHRTest(TestCase):
     fixtures = DATA
@@ -3852,3 +3854,86 @@ class AdminHRTest(TestCase):
         self.assertTrue(app.admindocuments.tasm, data3['tasm'])
         self.assertTrue(app.admindocuments.eform, data3['eform'])
         self.assertTrue(app.admindocuments.speed_chart, data3['speed_chart'])
+        self.assertEqual( len(app.admindocuments.admindocumentsuser_set.all()), 1 )
+
+        admin_user = app.admindocuments.admindocumentsuser_set.first()
+        self.assertEqual(admin_user.user.username, 'user3.admin')
+        self.assertEqual(admin_user.document.application.id, app_id)
+        self.assertEqual(admin_user.created_at.strftime('%Y-%m-%d'), datetime.now().strftime('%Y-%m-%d'))
+
+    def test_admin_docs_update_history(self):
+        print('\n- Test: Admin or HR can have update admin docs with history')
+        self.login('user3.admin', 'password')
+        app_id = 1
+        data1 = {
+            'application': app_id,
+            'pin': '1237',
+            'tasm': True,
+            'eform': '',
+            'speed_chart': 'adsf',
+            'processing_note': '',
+            'next': reverse('administrators:accepted_applications') + '?page=2'
+        }
+        response = self.client.post(reverse('administrators:accepted_applications') + '?page=2', data=urlencode(data1), content_type=ContentType)
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse('administrators:accepted_applications') + '?page=2')
+        self.assertRedirects(response, response.url)
+
+        data2 = {
+            'application': app_id,
+            'pin': '1237',
+            'tasm': True,
+            'eform': 'af3343',
+            'speed_chart': 'adsf',
+            'processing_note': 'this is a processing note',
+            'next': reverse('administrators:accepted_applications') + '?page=2'
+        }
+        response = self.client.post(reverse('administrators:accepted_applications') + '?page=2', data=urlencode(data2), content_type=ContentType)
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse('administrators:accepted_applications') + '?page=2')
+        self.assertRedirects(response, response.url)
+
+        self.login('user2.admin', 'password')
+
+        data3 = {
+            'application': app_id,
+            'pin': '1255',
+            'tasm': False,
+            'eform': 'af3343',
+            'speed_chart': 'adsf',
+            'processing_note': 'this is a processing note',
+            'next': reverse('administrators:accepted_applications') + '?page=2'
+        }
+        response = self.client.post(reverse('administrators:accepted_applications') + '?page=2', data=urlencode(data3), content_type=ContentType)
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse('administrators:accepted_applications') + '?page=2')
+        self.assertRedirects(response, response.url)
+
+        response = self.client.get(reverse('administrators:accepted_applications') + '?page=2')
+        self.assertEqual(response.status_code, 200)
+        accepted_applications = response.context['apps']
+
+        app = None
+        for appl in accepted_applications:
+            if appl.id == app_id:
+                app = appl
+
+        self.assertTrue(app.id, app_id)
+        self.assertTrue(app.admindocuments.pin, data3['pin'])
+        self.assertFalse(app.admindocuments.tasm, data3['tasm'])
+        self.assertTrue(app.admindocuments.eform, data3['eform'])
+        self.assertTrue(app.admindocuments.speed_chart, data3['speed_chart'])
+        self.assertEqual( len(app.admindocuments.admindocumentsuser_set.all()), 3 )
+
+        admin_users = []
+        for admin_user in app.admindocuments.admindocumentsuser_set.all():
+            admin_users.append(admin_user.user.username)
+            self.assertEqual(admin_user.created_at.strftime('%Y-%m-%d'), datetime.now().strftime('%Y-%m-%d'))
+
+        self.assertEqual(admin_users, ['user2.admin', 'user3.admin', 'user3.admin'])
