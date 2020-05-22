@@ -666,7 +666,7 @@ def get_admin_docs(app_id):
 
 def add_admin_docs_user(admin_docs, user):
     ''' Insert an user into admin docs '''
-    admin_docs_user = AdminDocumentsUser.objects.create(document=admin_docs, user=user)
+    admin_docs_user = AdminDocumentsUser.objects.create(document=admin_docs, user=user.get_full_name())
     return admin_docs_user if admin_docs_user else False
 
 
