@@ -242,7 +242,7 @@ class AdminDocuments(models.Model):
 
 class AdminDocumentsUser(models.Model):
     ''' Admin Docs by Users '''
-    user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
+    user = models.CharField(max_length=256)
     document = models.ForeignKey(AdminDocuments, on_delete=models.CASCADE)
     created_at = models.DateField(default=dt.date.today)
 
