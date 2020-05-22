@@ -71,7 +71,7 @@ TERMINATED_APP = '?next=' + reverse('administrators:terminated_applications') + 
 ALL_USER = '?next=' + reverse('administrators:all_users') + '?page=2&p=All%20Users&t=basic'
 DASHBOARD_USER = '?next=' + reverse('administrators:applications_dashboard') + '?page=2&p=Dashboard&t=basic'
 
-"""
+
 class SessionTest(TestCase):
     fixtures = DATA
 
@@ -3706,7 +3706,7 @@ class PreparationTest(TestCase):
         for l in response.context['landing_pages']:
             if l.id == landing_page.id: found = True
         self.assertFalse(found)
-"""
+
 
 class AdminHRTest(TestCase):
     fixtures = DATA
@@ -3857,7 +3857,7 @@ class AdminHRTest(TestCase):
         self.assertEqual( len(app.admindocuments.admindocumentsuser_set.all()), 1 )
 
         admin_user = app.admindocuments.admindocumentsuser_set.first()
-        self.assertEqual(admin_user.user.username, 'user3.admin')
+        self.assertEqual(admin_user.user, 'User3 Admin')
         self.assertEqual(admin_user.document.application.id, app_id)
         self.assertEqual(admin_user.created_at.strftime('%Y-%m-%d'), datetime.now().strftime('%Y-%m-%d'))
 
@@ -3933,7 +3933,7 @@ class AdminHRTest(TestCase):
 
         admin_users = []
         for admin_user in app.admindocuments.admindocumentsuser_set.all():
-            admin_users.append(admin_user.user.username)
+            admin_users.append(admin_user.user)
             self.assertEqual(admin_user.created_at.strftime('%Y-%m-%d'), datetime.now().strftime('%Y-%m-%d'))
 
-        self.assertEqual(admin_users, ['user2.admin', 'user3.admin', 'user3.admin'])
+        self.assertEqual(admin_users, ['User2 Admin', 'User3 Admin', 'User3 Admin'])
