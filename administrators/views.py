@@ -1056,7 +1056,10 @@ def accepted_applications(request):
         if form.is_valid():
             saved_admin_docs = form.save()
             if saved_admin_docs:
-                messages.success(request, 'Success! Admin Documents of {0} updated (Application ID: {1})'.format( saved_admin_docs.application.applicant.get_full_name(), saved_admin_docs.application.id ))
+                if adminApi.add_admin_docs_user(saved_admin_docs, request.user):
+                    messages.success(request, 'Success! Admin Documents of {0} updated (Application ID: {1})'.format( saved_admin_docs.application.applicant.get_full_name(), saved_admin_docs.application.id ))
+                else:
+                    messages.error(request, 'An error occurred while saving admin docs user.')
             else:
                 messages.error(request, 'An error occurred while saving admin docs.')
         else:
@@ -1103,7 +1106,7 @@ def accepted_applications(request):
             apps = paginator.page(paginator.num_pages)
 
         apps = adminApi.add_app_info_into_applications(apps, ['accepted'])
-
+        
     return render(request, 'administrators/applications/accepted_applications.html', {
         'loggedin_user': request.user,
         'apps': adminApi.add_salary(apps),
