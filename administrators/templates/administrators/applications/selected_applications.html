@@ -149,7 +149,7 @@
                         </span>
                       </div>
                       <div>
-                        <h6>Assigned TA Hours by Instructor:</h6>
+                        <h6>Assigned TA Hours by <span class="text-success">Instructor</span>:</h6>
                         <span>
                           {% if app.selected.assigned_hours %}
                             {{ app.selected.assigned_hours }} hour{% if app.selected.assigned_hours > 1 %}s {% endif %}
@@ -159,7 +159,7 @@
                         </span>
                       </div>
                       <div>
-                        <h6>Assigned TA Hours by Administrator:</h6>
+                        <h6>Assigned TA Hours by <span class="text-primary">Administrator</span>:</h6>
                         <span>
                           {% if app.offered.assigned_hours %}
                             {{ app.offered.assigned_hours }} hour{% if app.offered.assigned_hours > 1 %}s {% endif %}
@@ -202,7 +202,7 @@
           <td>{{ app.updated_at }}</td>
           <td>
             {% if app.offered %}
-              <button class="btn btn-xs btn-info" type="button" data-toggle="modal" data-target="#job-application-offer-modal-{{ app.id }}">Offered</button><br />
+              <div class="badge badge-light">OFFERED</div>
               <div class="text-dark-gray">{{ app.offered.created_at }}</div>
             {% else %}
               <button class="btn btn-xs btn-primary" type="button" data-toggle="modal" data-target="#job-application-offer-modal-{{ app.id }}">Offer</button>
