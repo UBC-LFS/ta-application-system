@@ -86,12 +86,22 @@
 
                   <hr />
                   {% if can_accept_or_decline.status == True %}
-                    <a href="{% url 'students:accept_decline_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}?next={{ request.get_full_path }}">
-                      Accept / Decline
-                    </a>
+
+                    {% if app.is_terminated %}
+                      <a href="{% url 'students:terminate_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}?next={{ request.get_full_path }}">
+                        Contract<br /> Termination
+                      </a>
+                    {% else %}
+                      <a href="{% url 'students:accept_decline_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}?next={{ request.get_full_path }}">
+                        Accept / Decline
+                      </a>
+                    {% endif %}
+
                   {% else %}
+
                     <div class="text-secondary">Accept / Decline</div>
                     {% include 'ta_app/users/_modal_confidentiality_warning.html' with data=app can_accept_or_decline=can_accept_or_decline %}
+
                   {% endif %}
 
                 {% endif %}
