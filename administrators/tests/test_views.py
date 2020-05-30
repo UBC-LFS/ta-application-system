@@ -2164,7 +2164,7 @@ class HRTest(TestCase):
         self.assertEqual(response.url, reverse('administrators:edit_user', args=[ USERS[2] ]) + ALL_USER)
         self.assertRedirects(response, response.url)
 
-        data9 = {
+        data10 = {
             'user': user.id,
             'first_name': 'change first name',
             'last_name': 'change last name',
@@ -2177,7 +2177,7 @@ class HRTest(TestCase):
             'roles': ['4'],
             'next': reverse('administrators:all_users') + '?page=2'
         }
-        response = self.client.post(reverse('administrators:edit_user', args=[ USERS[2] ]) + ALL_USER, data=urlencode(data9, True), content_type=ContentType)
+        response = self.client.post(reverse('administrators:edit_user', args=[ USERS[2] ]) + ALL_USER, data=urlencode(data10, True), content_type=ContentType)
         messages = self.messages(response)
         self.assertTrue('Success' in messages[0])
         self.assertEqual(response.status_code, 302)
