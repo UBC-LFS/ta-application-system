@@ -858,60 +858,93 @@ def all_applications(request):
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
+@require_http_methods(['GET', 'POST'])
 def selected_applications(request):
     ''' Display applications selected by instructors '''
     request = userApi.has_admin_access(request)
 
-    year_q = request.GET.get('year')
-    term_q = request.GET.get('term')
-    code_q = request.GET.get('code')
-    number_q = request.GET.get('number')
-    section_q = request.GET.get('section')
-    first_name_q = request.GET.get('first_name')
-    last_name_q = request.GET.get('last_name')
+    if request.method == 'POST':
 
-    app_list = adminApi.get_applications()
-    if bool(year_q):
-        app_list = app_list.filter(job__session__year__icontains=year_q)
-    if bool(term_q):
-        app_list = app_list.filter(job__session__term__code__icontains=term_q)
-    if bool(code_q):
-        app_list = app_list.filter(job__course__code__name__icontains=code_q)
-    if bool(number_q):
-        app_list = app_list.filter(job__course__number__name__icontains=number_q)
-    if bool(section_q):
-        app_list = app_list.filter(job__course__section__name__icontains=section_q)
-    if bool(first_name_q):
-        app_list = app_list.filter(applicant__first_name__icontains=first_name_q)
-    if bool(last_name_q):
-        app_list = app_list.filter(applicant__last_name__icontains=last_name_q)
+        # Check whether a next url is valid or not
+        adminApi.can_req_parameters_access(request, 'none', ['next'], 'POST')
 
-    app_list = app_list.filter(applicationstatus__assigned=ApplicationStatus.SELECTED).order_by('-id').distinct()
-    app_list = adminApi.add_app_info_into_applications(app_list, ['resume', 'selected', 'offered', 'declined'])
+        if 'classification' not in request.POST.keys() or len(request.POST.get('classification')) == 0:
+            messages.error(request, 'An error occurred. Please select classification, then try again.')
+            return HttpResponseRedirect(request.POST.get('next'))
 
-    page = request.GET.get('page', 1)
-    paginator = Paginator(app_list, settings.PAGE_SIZE)
+        assigned_hours = request.POST.get('assigned_hours')
 
-    try:
-        apps = paginator.page(page)
-    except PageNotAnInteger:
-        apps = paginator.page(1)
-    except EmptyPage:
-        apps = paginator.page(paginator.num_pages)
+        if adminApi.is_valid_float(assigned_hours) == False:
+            messages.error(request, 'An error occurred. Please check assigned hours. Assigned hours must be numerival value only.')
+            return HttpResponseRedirect(request.POST.get('next'))
 
-    for app in apps:
-        if app.job.assigned_ta_hours == app.job.accumulated_ta_hours:
-            app.ta_hour_progress = 'done'
-        elif app.job.assigned_ta_hours < app.job.accumulated_ta_hours:
-            app.ta_hour_progress = 'over'
+        assigned_hours = float(assigned_hours)
+
+        if assigned_hours < 0.0:
+            messages.error(request, 'An error occurred. Please check assigned hours. Assigned hours must be greater than 0.')
+            return HttpResponseRedirect(request.POST.get('next'))
+
+        app = adminApi.get_application(request.POST.get('application'))
+        if assigned_hours > float(app.job.assigned_ta_hours):
+            messages.error(request, 'An error occurred. Please you cannot assign {0} hours Total Assigned TA Hours is {1}, then try again.'.format(assigned_hours, app.job.assigned_ta_hours))
+            return HttpResponseRedirect(request.POST.get('next'))
+
+        if adminApi.update_job_offer(request.POST):
+            messages.success(request, 'Success! Updated this application (ID: {0})'.format(app.id))
         else:
-            if (app.job.assigned_ta_hours * 3.0/4.0) < app.job.accumulated_ta_hours:
-                app.ta_hour_progress = 'under_three_quarters'
-            elif (app.job.assigned_ta_hours * 2.0/4.0) < app.job.accumulated_ta_hours:
-                app.ta_hour_progress = 'under_half'
-            elif (app.job.assigned_ta_hours * 1.0/4.0) < app.job.accumulated_ta_hours:
-                app.ta_hour_progress = 'under_one_quarter'
+            messages.error(request, 'An error occurred. Failed to update this application (ID: {0}).'.format(app.id))
+
+        return HttpResponseRedirect(request.POST.get('next'))
+    else:
+        year_q = request.GET.get('year')
+        term_q = request.GET.get('term')
+        code_q = request.GET.get('code')
+        number_q = request.GET.get('number')
+        section_q = request.GET.get('section')
+        first_name_q = request.GET.get('first_name')
+        last_name_q = request.GET.get('last_name')
+
+        app_list = adminApi.get_applications()
+        if bool(year_q):
+            app_list = app_list.filter(job__session__year__icontains=year_q)
+        if bool(term_q):
+            app_list = app_list.filter(job__session__term__code__icontains=term_q)
+        if bool(code_q):
+            app_list = app_list.filter(job__course__code__name__icontains=code_q)
+        if bool(number_q):
+            app_list = app_list.filter(job__course__number__name__icontains=number_q)
+        if bool(section_q):
+            app_list = app_list.filter(job__course__section__name__icontains=section_q)
+        if bool(first_name_q):
+            app_list = app_list.filter(applicant__first_name__icontains=first_name_q)
+        if bool(last_name_q):
+            app_list = app_list.filter(applicant__last_name__icontains=last_name_q)
+
+        app_list = app_list.filter(applicationstatus__assigned=ApplicationStatus.SELECTED).order_by('-id').distinct()
+        app_list = adminApi.add_app_info_into_applications(app_list, ['resume', 'selected', 'offered', 'declined'])
+
+        page = request.GET.get('page', 1)
+        paginator = Paginator(app_list, settings.PAGE_SIZE)
+
+        try:
+            apps = paginator.page(page)
+        except PageNotAnInteger:
+            apps = paginator.page(1)
+        except EmptyPage:
+            apps = paginator.page(paginator.num_pages)
+
+        for app in apps:
+            if app.job.assigned_ta_hours == app.job.accumulated_ta_hours:
+                app.ta_hour_progress = 'done'
+            elif app.job.assigned_ta_hours < app.job.accumulated_ta_hours:
+                app.ta_hour_progress = 'over'
+            else:
+                if (app.job.assigned_ta_hours * 3.0/4.0) < app.job.accumulated_ta_hours:
+                    app.ta_hour_progress = 'under_three_quarters'
+                elif (app.job.assigned_ta_hours * 2.0/4.0) < app.job.accumulated_ta_hours:
+                    app.ta_hour_progress = 'under_half'
+                elif (app.job.assigned_ta_hours * 1.0/4.0) < app.job.accumulated_ta_hours:
+                    app.ta_hour_progress = 'under_one_quarter'
 
     return render(request, 'administrators/applications/selected_applications.html', {
         'loggedin_user': request.user,
@@ -1106,7 +1139,7 @@ def accepted_applications(request):
             apps = paginator.page(paginator.num_pages)
 
         apps = adminApi.add_app_info_into_applications(apps, ['accepted'])
-        
+
     return render(request, 'administrators/applications/accepted_applications.html', {
         'loggedin_user': request.user,
         'apps': adminApi.add_salary(apps),

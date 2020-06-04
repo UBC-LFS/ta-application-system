@@ -204,80 +204,136 @@
             {% if app.offered %}
               <div class="badge badge-light">OFFERED</div>
               <div class="text-dark-gray">{{ app.offered.created_at }}</div>
-            {% else %}
-              <button class="btn btn-xs btn-primary" type="button" data-toggle="modal" data-target="#job-application-offer-modal-{{ app.id }}">Offer</button>
-            {% endif %}
-
-            <div class="modal fade" id="job-application-offer-modal-{{ app.id }}" tabindex="-1" role="dialog" aria-labelledby="job-application-offer-modal-label-{{ app.id }}" aria-hidden="true">
-              <div class="modal-dialog modal-lg" role="document">
-                <div class="modal-content">
-                  <div class="modal-header">
-                    <h5 class="modal-title text-info" id="job-application-offer-modal-label-{{ app.id }}">Offer</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                  </div>
-                  <div class="modal-body text-left">
-                    <div class="modal-item">
-                      <h4>
-                        To {{ app.applicant.get_full_name }}
-                        <small class="text-dark-gray">({{ app.applicant.username }})</small>
-                        {% if 'MFRE' in app.applicant.profile.program.name %}
-                          <span class="badge badge-warning">MFRE</span>
-                        {% elif 'MLWS' in app.applicant.profile.program.name %}
-                          <span class="badge badge-warning">MLWS</span>
-                        {% elif 'MFS' in app.applicant.profile.program.name %}
-                          <span class="badge badge-warning">MFS</span>
-                        {% endif %}
-                      </h4>
-                      <h6 class="text-dark-gray mb-3">for {{ app.job.session.year }} {{ app.job.session.term.code }} - {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</h6>
-
-                      <form action="{% url 'administrators:offer_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}" method="post">
-                        {% csrf_token %}
-
-                        <div class="field-wrapper">
-                          <label for="id_classification_{{ app.id }}">Classification:</label>
-                          <div class="help">This field is required.</div>
-                          <select id="id_classification_{{ app.id }}" name="classification" class="form-control">
-                            <option value="">Select</option>
-                            {% for choice in classification_choices %}
-                              {% if choice.id == app.classification.id %}
-                                <option value="{{ choice.id }}" selected>{{ choice.year }} {{ choice.name }}</option>
-                              {% else %}
-                                <option value="{{ choice.id }}">{{ choice.year }} {{ choice.name }}</option>
-                              {% endif %}
-                            {% endfor %}
-                          </select>
-                        </div>
-
-                        <div class="field-wrapper">
-                          <label for="id_note_{{ app.id }}">Note:</label>
-                          <div class="help">Administrators and instructors can see this note.</div>
-                          <textarea id="id_note_{{ app.id }}" name="note" class="summernote">{{ app.note|default_if_none:"" }}</textarea>
-                        </div>
-
-                        <div class="field-wrapper">
-                          <label for="id_assigned_hours_{{ app.id }}">Assigned Hours:</label>
-                          <div class="help">Only numerical value allowed.</div>
-
-                          {% if app.offered %}
-                            <input id="id_assigned_hours_{{ app.id }}" type="number" step="0.01" name="assigned_hours" value="{{ app.offered.assigned_hours }}" class="form-control" />
-                          {% else %}
-                            <input id="id_assigned_hours_{{ app.id }}" type="number" step="0.01" name="assigned_hours" value="{{ app.selected.assigned_hours }}" class="form-control" />
+              
+              <button class="btn btn-xs btn-warning" type="button" data-toggle="modal" data-target="#job-application-edit-modal-{{ app.id }}">Edit</button>
+              <div class="modal fade" id="job-application-edit-modal-{{ app.id }}" tabindex="-1" role="dialog" aria-labelledby="job-application-edit-modal-label-{{ app.id }}" aria-hidden="true">
+                <div class="modal-dialog modal-lg" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title text-info" id="job-application-edit-modal-label-{{ app.id }}">Edit Job Offer</h5>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    </div>
+                    <div class="modal-body text-left">
+                      <div class="modal-item">
+                        <h4>
+                          To {{ app.applicant.get_full_name }}
+                          <small class="text-dark-gray">({{ app.applicant.username }})</small>
+                          {% if 'MFRE' in app.applicant.profile.program.name %}
+                            <span class="badge badge-warning">MFRE</span>
+                          {% elif 'MLWS' in app.applicant.profile.program.name %}
+                            <span class="badge badge-warning">MLWS</span>
+                          {% elif 'MFS' in app.applicant.profile.program.name %}
+                            <span class="badge badge-warning">MFS</span>
                           {% endif %}
-                        </div>
+                        </h4>
+                        <h6 class="text-dark-gray mb-3">for {{ app.job.session.year }} {{ app.job.session.term.code }} - {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</h6>
 
-                        <input type="hidden" name="application" value="{{ app.id }}" />
-                        <input type="hidden" name="assigned" value="{{ app_status.offered }}" />
-                        <input type="hidden" name="applicant" value="{{ app.applicant.id }}" />
-                        <input type="hidden" name="has_contract_read" value="false" />
-                        <input type="hidden" name="next" value="{{ new_next }}" />
+                        <form action="" method="post">
+                          {% csrf_token %}
 
-                        <input class="btn btn-primary" type="submit" value="Offer" />
-                      </form>
+                          <div class="field-wrapper">
+                            <label for="id_classification_{{ app.id }}">Classification:</label>
+                            <div class="help">This field is required.</div>
+                            <select id="id_classification_{{ app.id }}" name="classification" class="form-control">
+                              <option value="">Select</option>
+                              {% for choice in classification_choices %}
+                                {% if choice.id == app.classification.id %}
+                                  <option value="{{ choice.id }}" selected>{{ choice.year }} {{ choice.name }}</option>
+                                {% else %}
+                                  <option value="{{ choice.id }}">{{ choice.year }} {{ choice.name }}</option>
+                                {% endif %}
+                              {% endfor %}
+                            </select>
+                          </div>
+
+                          <div class="field-wrapper">
+                            <label for="id_note_{{ app.id }}">Note:</label>
+                            <div class="help">Administrators and instructors can see this note.</div>
+                            <textarea id="id_note_{{ app.id }}" name="note" class="summernote">{{ app.note|default_if_none:"" }}</textarea>
+                          </div>
+
+                          <div class="field-wrapper">
+                            <label for="id_assigned_hours_{{ app.id }}">Assigned Hours:</label>
+                            <div class="help">Only numerical value allowed.</div>
+                            <input id="id_assigned_hours_{{ app.id }}" type="number" step="0.01" name="assigned_hours" value="{{ app.offered.assigned_hours }}" class="form-control" />
+                          </div>
+
+                          <input type="hidden" name="application" value="{{ app.id }}" />
+                          <input type="hidden" name="applicationstatus" value="{{ app.offered.id }}" />
+                          <input type="hidden" name="applicant" value="{{ app.applicant.id }}" />
+                          <input type="hidden" name="next" value="{{ new_next }}" />
+
+                          <input class="btn btn-warning" type="submit" value="Update" />
+                        </form>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
+            {% else %}
+              <button class="btn btn-xs btn-primary" type="button" data-toggle="modal" data-target="#job-application-offer-modal-{{ app.id }}">Offer</button>
+              <div class="modal fade" id="job-application-offer-modal-{{ app.id }}" tabindex="-1" role="dialog" aria-labelledby="job-application-offer-modal-label-{{ app.id }}" aria-hidden="true">
+                <div class="modal-dialog modal-lg" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title text-info" id="job-application-offer-modal-label-{{ app.id }}">Offer</h5>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    </div>
+                    <div class="modal-body text-left">
+                      <div class="modal-item">
+                        <h4>
+                          To {{ app.applicant.get_full_name }}
+                          <small class="text-dark-gray">({{ app.applicant.username }})</small>
+                          {% if 'MFRE' in app.applicant.profile.program.name %}
+                            <span class="badge badge-warning">MFRE</span>
+                          {% elif 'MLWS' in app.applicant.profile.program.name %}
+                            <span class="badge badge-warning">MLWS</span>
+                          {% elif 'MFS' in app.applicant.profile.program.name %}
+                            <span class="badge badge-warning">MFS</span>
+                          {% endif %}
+                        </h4>
+                        <h6 class="text-dark-gray mb-3">for {{ app.job.session.year }} {{ app.job.session.term.code }} - {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</h6>
+
+                        <form action="{% url 'administrators:offer_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}" method="post">
+                          {% csrf_token %}
+
+                          <div class="field-wrapper">
+                            <label for="id_classification_{{ app.id }}">Classification:</label>
+                            <div class="help">This field is required.</div>
+                            <select id="id_classification_{{ app.id }}" name="classification" class="form-control">
+                              <option value="">Select</option>
+                              {% for choice in classification_choices %}
+                                <option value="{{ choice.id }}">{{ choice.year }} {{ choice.name }}</option>
+                              {% endfor %}
+                            </select>
+                          </div>
+
+                          <div class="field-wrapper">
+                            <label for="id_note_{{ app.id }}">Note:</label>
+                            <div class="help">Administrators and instructors can see this note.</div>
+                            <textarea id="id_note_{{ app.id }}" name="note" class="summernote">{{ app.note|default_if_none:"" }}</textarea>
+                          </div>
+
+                          <div class="field-wrapper">
+                            <label for="id_assigned_hours_{{ app.id }}">Assigned Hours:</label>
+                            <div class="help">Only numerical value allowed.</div>
+                            <input id="id_assigned_hours_{{ app.id }}" type="number" step="0.01" name="assigned_hours" value="{{ app.selected.assigned_hours }}" class="form-control" />
+                          </div>
+
+                          <input type="hidden" name="application" value="{{ app.id }}" />
+                          <input type="hidden" name="assigned" value="{{ app_status.offered }}" />
+                          <input type="hidden" name="applicant" value="{{ app.applicant.id }}" />
+                          <input type="hidden" name="has_contract_read" value="false" />
+                          <input type="hidden" name="next" value="{{ new_next }}" />
+
+                          <input class="btn btn-primary" type="submit" value="Offer" />
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {% endif %}
           </td>
         </tr>
       {% endfor %}
