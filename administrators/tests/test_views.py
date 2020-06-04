@@ -1103,8 +1103,53 @@ class ApplicationTest(TestCase):
 
         app = adminApi.get_application(app_id)
         offered_app = adminApi.get_offered(app)[0]
+        self.assertEqual(app.classification.id, int(data7['classification']))
+        self.assertEqual(app.note, data7['note'])
+        self.assertFalse(offered_app.has_contract_read)
         self.assertTrue(offered_app.assigned, ApplicationStatus.OFFERED)
         self.assertEqual(offered_app.assigned_hours, float(data7['assigned_hours']))
+
+        # edit the offer job
+        app = adminApi.add_app_info_into_application(app, ['offered'])
+
+        # very large assigned hours
+        data8 = {
+            'classification': '2',
+            'note': 'this is a note',
+            'assigned_hours': '2000.0',
+            'application': app_id,
+            'applicationstatus': app.offered.id,
+            'applicant': '65',
+            'next': FULL_PATH
+        }
+        response = self.client.post(reverse('administrators:selected_applications'), data=urlencode(data8), content_type=ContentType)
+        messages = self.messages(response)
+        self.assertTrue('An error occurred' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, FULL_PATH)
+        self.assertRedirects(response, response.url)
+
+        data9 = {
+            'classification': '3',
+            'note': 'this is a note edited',
+            'assigned_hours': '45.0',
+            'application': app_id,
+            'applicationstatus': app.offered.id,
+            'applicant': '65',
+            'next': FULL_PATH
+        }
+        response = self.client.post(reverse('administrators:selected_applications'), data=urlencode(data9), content_type=ContentType)
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, FULL_PATH)
+        self.assertRedirects(response, response.url)
+
+        edited_app = adminApi.get_application(app_id)
+        edited_app = adminApi.add_app_info_into_application(edited_app, ['offered'])
+        self.assertEqual(edited_app.classification.id, int(data9['classification']))
+        self.assertEqual(edited_app.note, data9['note'])
+        self.assertEqual(edited_app.offered.assigned_hours, float(data9['assigned_hours']))
 
 
     def test_offered_applications(self):
