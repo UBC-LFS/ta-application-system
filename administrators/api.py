@@ -625,14 +625,12 @@ def get_applications_with_multiple_ids_by_path(ids, path):
 
 def update_application_classification_note(app_id, data):
     ''' Update classification and note in an application '''
-    classification = data.get('classification')
-    note = data.get('note')
-
-    app = get_application(app_id)
-    app.classification = classification
-    app.note = note
-    app.save(update_fields=['classification', 'note'])
-    return app
+    app = Application.objects.filter(id=app_id).update(
+        classification = data.get('classification'),
+        note = data.get('note'),
+        updated_at = datetime.now()
+    )
+    return True if app else False
 
 
 def get_accepted_status(app):
@@ -641,15 +639,28 @@ def get_accepted_status(app):
 
 def update_application_instructor_preference(app_id, instructor_preference):
     ''' Update an instructor preference in an application '''
-    app = get_object_or_404(Application, id=app_id)
-    app.instructor_preference = instructor_preference
-    app.updated_at = datetime.now()
-    app.save(update_fields=['instructor_preference', 'updated_at'])
-    return app
+    app = Application.objects.filter(id=app_id).update(
+        instructor_preference = instructor_preference,
+        updated_at = datetime.now()
+    )
+    return get_object_or_404(Application, id=app_id) if app else False
 
 def get_terminated_applications():
     ''' Update an application for the termination of an application '''
     return Application.objects.filter(is_terminated=True).order_by('-id')
+
+def update_job_offer(post):
+    ''' Update a classification and assigned hours in Selected Apps '''
+    cls = get_classification( post.get('classification') )
+    app = Application.objects.filter(id=post.get('application')).update(
+        classification = cls,
+        note = post.get('note'),
+        updated_at = datetime.now()
+    )
+    status = ApplicationStatus.objects.filter(id=post.get('applicationstatus')).update(
+        assigned_hours = post.get('assigned_hours')
+    )
+    return True if app and status else False
 
 
 # end applications
