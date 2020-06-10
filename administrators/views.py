@@ -878,15 +878,20 @@ def selected_applications(request):
             messages.error(request, 'An error occurred. Please check assigned hours. Assigned hours must be numerival value only.')
             return HttpResponseRedirect(request.POST.get('next'))
 
-        assigned_hours = float(assigned_hours)
+        if adminApi.is_valid_integer(assigned_hours) == False:
+            messages.error(request, 'An error occurred. Please check assigned hours. Assign TA Hours must be non-negative integers.')
+            return HttpResponseRedirect(request.POST.get('next'))
 
-        if assigned_hours < 0.0:
+
+        assigned_hours = int( float(assigned_hours) )
+
+        if assigned_hours < 0:
             messages.error(request, 'An error occurred. Please check assigned hours. Assigned hours must be greater than 0.')
             return HttpResponseRedirect(request.POST.get('next'))
 
         app = adminApi.get_application(request.POST.get('application'))
-        if assigned_hours > float(app.job.assigned_ta_hours):
-            messages.error(request, 'An error occurred. Please you cannot assign {0} hours Total Assigned TA Hours is {1}, then try again.'.format(assigned_hours, app.job.assigned_ta_hours))
+        if assigned_hours > int(app.job.assigned_ta_hours):
+            messages.error(request, 'An error occurred. Please you cannot assign {0} hours Total Assigned TA Hours is {1}, then try again.'.format( assigned_hours, int(app.job.assigned_ta_hours) ))
             return HttpResponseRedirect(request.POST.get('next'))
 
         if adminApi.update_job_offer(request.POST):
@@ -977,15 +982,19 @@ def offer_job(request, session_slug, job_slug):
             messages.error(request, 'An error occurred. Please check assigned hours. Assigned hours must be numerival value only.')
             return HttpResponseRedirect(request.POST.get('next'))
 
-        assigned_hours = float(assigned_hours)
+        if adminApi.is_valid_integer(assigned_hours) == False:
+            messages.error(request, 'An error occurred. Please check assigned hours. Assign TA Hours must be non-negative integers.')
+            return HttpResponseRedirect(request.POST.get('next'))
 
-        if assigned_hours < 0.0:
+        assigned_hours = int( float(assigned_hours) )
+
+        if assigned_hours < 0:
             messages.error(request, 'An error occurred. Please check assigned hours. Assigned hours must be greater than 0.')
             return HttpResponseRedirect(request.POST.get('next'))
 
         job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
-        if assigned_hours > float(job.assigned_ta_hours):
-            messages.error(request, 'An error occurred. Please you cannot assign {0} hours Total Assigned TA Hours is {1}, then try again.'.format(assigned_hours, job.assigned_ta_hours))
+        if assigned_hours > int(job.assigned_ta_hours):
+            messages.error(request, 'An error occurred. Please you cannot assign {0} hours Total Assigned TA Hours is {1}, then try again.'.format( assigned_hours, int(job.assigned_ta_hours) ))
             return HttpResponseRedirect(request.POST.get('next'))
 
         admin_app_form = AdminApplicationForm(request.POST)
@@ -1301,14 +1310,22 @@ def decline_reassign(request):
             messages.error(request, 'An error occurred. Please contact administrators. Your old assigned hours must be numerival value only.')
             return HttpResponseRedirect(next)
 
+        if adminApi.is_valid_integer(old_assigned_hours) == False:
+            messages.error(request, 'An error occurred. Please check assigned hours. Assign TA Hours must be non-negative integers.')
+            return HttpResponseRedirect(next)
+
         if adminApi.is_valid_float(new_assigned_hours) == False:
             messages.error(request, 'An error occurred. Please check assigned hours. Your new assigned hours must be numerival value only.')
             return HttpResponseRedirect(next)
 
-        old_assigned_hours = float(old_assigned_hours)
-        new_assigned_hours = float(new_assigned_hours)
+        if adminApi.is_valid_integer(new_assigned_hours) == False:
+            messages.error(request, 'An error occurred. Please check assigned hours. Assign TA Hours must be non-negative integers.')
+            return HttpResponseRedirect(next)
 
-        if new_assigned_hours < 0.0:
+        old_assigned_hours = int( float(old_assigned_hours) )
+        new_assigned_hours = int( float(new_assigned_hours) )
+
+        if new_assigned_hours < 0:
             messages.error(request, 'An error occurred. Please check assigned hours. Your new assigned hours must be greater than 0.')
             return HttpResponseRedirect(next)
 
@@ -1316,8 +1333,8 @@ def decline_reassign(request):
         #    messages.error(request, 'An error occurred. Please check assigned hours. Your new assigned hours are same as current assigned hours.')
         #    return redirect('administrators:accepted_applications')
 
-        if new_assigned_hours == 0.0 or new_assigned_hours > float(app.job.assigned_ta_hours):
-            messages.error(request, 'An error occurred. Please check assigned hours. Valid assigned hours are between 0.0 and {0}'.format(app.job.assigned_ta_hours))
+        if new_assigned_hours == 0 or new_assigned_hours > int(app.job.assigned_ta_hours):
+            messages.error(request, 'An error occurred. Please check assigned hours. Valid assigned hours are between 0 and {0}'.format( int(app.job.assigned_ta_hours) ))
             return HttpResponseRedirect(next)
 
         request.session['decline_reassign_form_data'] = request.POST
@@ -1707,6 +1724,7 @@ def create_user(request):
 
             data = {
                 'user': user.id,
+                'is_new_employee': False if request.POST.get('is_new_employee') == None else True,
                 'employee_number': request.POST.get('employee_number')
             }
             employee_number_form = EmployeeNumberEditForm(data, instance=confidentiality)
@@ -1794,8 +1812,9 @@ def edit_user(request, username):
 
             updated_employee_number = employee_number_form.save(commit=False)
             updated_employee_number.updated_at = datetime.now()
+            updated_employee_number.is_new_employee = employee_number_form.cleaned_data['is_new_employee']
             updated_employee_number.employee_number = employee_number_form.cleaned_data['employee_number']
-            updated_employee_number.save(update_fields=['employee_number', 'updated_at'])
+            updated_employee_number.save(update_fields=['is_new_employee', 'employee_number', 'updated_at'])
 
             if not updated_user: errors.append('USER')
             if not updated_profile: errors.append('PROFILE')

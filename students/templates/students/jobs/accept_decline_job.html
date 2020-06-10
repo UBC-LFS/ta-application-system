@@ -67,14 +67,24 @@
 
               <div class="field-wrapper">
                 <div class="d-inline-block mx-3">
-                  <input id="id_accept" type="radio" name="decision" value="accept">
-                  <label class="font-weight-bold" for="id_accept">Accept</label>
+                  {% if can_accept.status == True %}
+                    <input id="id_accept" type="radio" name="decision" value="accept" />
+                    <label class="font-weight-bold" for="id_accept">Accept</label>
+                  {% else %}
+                    <input id="id_accept" type="radio" value="accept" disabled />
+                    <label class="font-weight-bold text-secondary" for="id_accept">Accept</label>
+                  {% endif %}
                 </div>
                 <div class="d-inline-block mx-3">
-                  <input id="id_decline" type="radio" name="decision" value="decline">
+                  <input id="id_decline" type="radio" name="decision" value="decline" />
                   <label class="font-weight-bold" for="id_decline">Decline</label>
                 </div>
               </div>
+
+              {% if can_accept.status == False %}
+                {% include 'ta_app/users/_modal_confidentiality_warning.html' with data=app can_accept=can_accept %}
+                <br />
+              {% endif %}
 
               <input type="hidden" name="next" value="{{ request.GET.next }}" />
               <input type="hidden" name="application" value="{{ app.id }}" />

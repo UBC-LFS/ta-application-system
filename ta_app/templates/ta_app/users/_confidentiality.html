@@ -10,6 +10,17 @@
 </div>
 
 <div>
+  <h6>I am a new employee:</h6>
+  <span>
+    {% if data.confidentiality.is_new_employee %}
+      Yes
+    {% else %}
+      No
+    {% endif %}
+  </span>
+</div>
+
+<div>
   <h6>Employee Number:</h6>
   <span>
     {% if data.confidentiality.employee_number %}

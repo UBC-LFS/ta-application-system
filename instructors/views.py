@@ -221,12 +221,16 @@ def show_applications(request, session_slug, job_slug):
         assigned_hours = request.POST.get('assigned_hours')
 
         if adminApi.is_valid_float(assigned_hours) == False:
-            messages.error(request, 'An error occurred. Please check assigned hours. Assign TA Hours must be numerival value only or be greater than 0.0.')
+            messages.error(request, 'An error occurred. Please check assigned hours. Assign TA Hours must be numerival value only.')
             return HttpResponseRedirect(request.get_full_path())
 
-        assigned_hours = float(assigned_hours)
+        if adminApi.is_valid_integer(assigned_hours) == False:
+            messages.error(request, 'An error occurred. Please check assigned hours. Assign TA Hours must be non-negative integers.')
+            return HttpResponseRedirect(request.get_full_path())
 
-        if assigned_hours < 0.0:
+        assigned_hours = int( float(assigned_hours) )
+
+        if assigned_hours < 0:
             messages.error(request, 'An error occurred. Please check assigned hours. Assign TA Hours must be greater than 0.')
             return HttpResponseRedirect(request.get_full_path())
 
@@ -234,17 +238,18 @@ def show_applications(request, session_slug, job_slug):
             messages.error(request, 'An error occurred. Please select your preference, then try again.')
             return HttpResponseRedirect(request.get_full_path())
 
-        if instructor_preference == Application.NO_PREFERENCE and assigned_hours > 0.0:
-            messages.error(request, 'An error occurred. Please leave 0.0 for Assign TA Hours if you would to select No Preference, then try again.')
+        if instructor_preference == Application.NO_PREFERENCE and assigned_hours > 0:
+            messages.error(request, 'An error occurred. Please leave 0 for Assign TA Hours if you would like to select No Preference, then try again.')
             return HttpResponseRedirect(request.get_full_path())
 
-        if assigned_hours > float(job.assigned_ta_hours):
-            messages.error( request, 'An error occurred. You cannot assign {0} hours because Total Assigned TA Hours is {1}. then try again.'.format(request.POST.get('assigned_hours'), job.assigned_ta_hours) )
+        if assigned_hours > int(job.assigned_ta_hours):
+            messages.error( request, 'An error occurred. You cannot assign {0} hours because Total Assigned TA Hours is {1}. then try again.'.format( assigned_hours, int(job.assigned_ta_hours) ) )
             return HttpResponseRedirect(request.get_full_path())
 
-        if assigned_hours == 0.0 and instructor_preference != Application.NO_PREFERENCE:
+        if assigned_hours == 0 and instructor_preference != Application.NO_PREFERENCE:
             messages.error(request, 'An error occurred. Please assign TA hours, then try again.')
             return HttpResponseRedirect(request.get_full_path())
+
 
         instructor_app_form = InstructorApplicationForm(request.POST)
         if instructor_app_form.is_valid():
