@@ -15,6 +15,11 @@
 
   {% include 'ta_app/users/_search_fields.html' with data=users total=total_users path='all_users' %}
 
+  <p class="text-right">
+    This icon <span class="badge badge-success"><i class="fa fa-check-square-o" aria-hidden="true"></i></span>
+    represents that <code>I am a new employee</code> field is checked.
+  </p>
+
   <table
     class="table table-bordered table-hover table-striped table-responsive-md text-center"
     data-toggle="table"
@@ -63,6 +68,11 @@
               {{ user.confidentiality.employee_number }}
             {% else %}
               <span class="badge badge-danger">NEW</span>
+            {% endif %}
+
+            {% if user.confidentiality.is_new_employee == True %}
+              <br />
+              <span class="badge badge-success"><i class="fa fa-check-square-o" aria-hidden="true"></i></span>
             {% endif %}
           </td>
           <td>{{ user.email }}</td>

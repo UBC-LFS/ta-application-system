@@ -387,7 +387,7 @@ class InstructorTest(TestCase):
         }
         response = self.client.post( reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT, data=urlencode(data1), content_type=ContentType )
         messages = self.messages(response)
-        self.assertTrue('An error occurred' in messages[0])
+        self.assertTrue('An error occurred. Please check assigned hours. Assign TA Hours must be numerival value only' in messages[0])
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT)
         self.assertRedirects(response, response.url)
@@ -398,79 +398,99 @@ class InstructorTest(TestCase):
             'application': '6',
             'has_contract_read': False,
             'instructor_preference': Application.NONE,
-            'assigned_hours': '-20.2'
+            'assigned_hours': '-20'
         }
         response = self.client.post( reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT, data=urlencode(data2), content_type=ContentType )
         messages = self.messages(response)
-        self.assertTrue('An error occurred' in messages[0])
+        self.assertTrue('An error occurred. Please check assigned hours. Assign TA Hours must be greater than 0' in messages[0])
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT)
         self.assertRedirects(response, response.url)
 
+        # no select for a preference
         data3 = {
             'assigned': ApplicationStatus.OFFERED,
             'application': '6',
             'has_contract_read': False,
             'instructor_preference': Application.NONE,
-            'assigned_hours': '0.0'
+            'assigned_hours': '0'
         }
         response = self.client.post( reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT, data=urlencode(data3), content_type=ContentType )
         messages = self.messages(response)
-        self.assertTrue('An error occurred' in messages[0])
+        self.assertTrue('An error occurred. Please select your preference, then try again' in messages[0])
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT)
         self.assertRedirects(response, response.url)
 
+        # no preference
         data4 = {
             'assigned': ApplicationStatus.OFFERED,
             'application': '6',
             'has_contract_read': False,
             'instructor_preference': Application.NO_PREFERENCE,
-            'assigned_hours': '10.0'
+            'assigned_hours': '10'
         }
         response = self.client.post( reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT, data=urlencode(data4), content_type=ContentType )
         messages = self.messages(response)
-        self.assertTrue('An error occurred' in messages[0])
+        self.assertTrue('Please leave 0 for Assign TA Hours if you would like to select No Preference, then try again' in messages[0])
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT)
         self.assertRedirects(response, response.url)
 
+        # yes selection, 0 hours
         data5 = {
             'assigned': ApplicationStatus.OFFERED,
             'application': '6',
             'has_contract_read': False,
             'instructor_preference': Application.ACCEPTABLE,
-            'assigned_hours': '0.0'
+            'assigned_hours': '0'
         }
         response = self.client.post( reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT, data=urlencode(data5), content_type=ContentType )
         messages = self.messages(response)
-        self.assertTrue('An error occurred' in messages[0])
+        self.assertTrue('Please assign TA hours, then try again' in messages[0])
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT)
         self.assertRedirects(response, response.url)
 
+        # big assigned hours
         data6 = {
             'assigned': ApplicationStatus.OFFERED,
             'application': '6',
             'has_contract_read': False,
             'instructor_preference': Application.ACCEPTABLE,
-            'assigned_hours': '201.0'
+            'assigned_hours': '201'
         }
         response = self.client.post( reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT, data=urlencode(data6), content_type=ContentType )
         messages = self.messages(response)
-        self.assertTrue('An error occurred' in messages[0])
+        self.assertTrue('You cannot assign 201 hours because Total Assigned TA Hours is 200. then try again' in messages[0])
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT)
         self.assertRedirects(response, response.url)
 
+        # floating point hours
         data7 = {
             'assigned': ApplicationStatus.OFFERED,
             'application': '6',
             'has_contract_read': False,
-            'instructor_preference': Application.REQUESTED,
-            'assigned_hours': '20.0'
+            'instructor_preference': Application.ACCEPTABLE,
+            'assigned_hours': '66.66'
         }
         response = self.client.post( reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT, data=urlencode(data7), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue('An error occurred. Please check assigned hours. Assign TA Hours must be non-negative integers' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT)
+        self.assertRedirects(response, response.url)
+
+        # ok
+        data8 = {
+            'assigned': ApplicationStatus.OFFERED,
+            'application': '6',
+            'has_contract_read': False,
+            'instructor_preference': Application.REQUESTED,
+            'assigned_hours': '20'
+        }
+        response = self.client.post( reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT, data=urlencode(data8), content_type=ContentType )
         messages = self.messages(response)
         self.assertTrue('Success' in messages[0])
         self.assertEqual(response.status_code, 302)

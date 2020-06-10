@@ -119,7 +119,7 @@
                               <label for="id_assigned_hours_{{ app.id }}">Assign TA Hours:</label>
                               <div class="help">Numerical value only</div>
 
-                              <input class="form-control" type="number" step="0.01" name="assigned_hours" id="id_assigned_hours_{{ app.id }}" value="0.0" />
+                              <input class="form-control" type="number" step="1" name="assigned_hours" id="id_assigned_hours_{{ app.id }}" value="0" />
                             </div>
 
                             <input type="hidden" name="assigned" value="{{ app_status.selected }}" />

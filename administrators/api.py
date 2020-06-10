@@ -16,6 +16,7 @@ from users.models import *
 from users import api as userApi
 
 from datetime import datetime
+import math
 
 # Request parameter validation
 
@@ -887,3 +888,7 @@ def is_valid_float(num):
         return True
     except ValueError:
         return False
+
+def is_valid_integer(num):
+    n = float(num)
+    return int(n) == math.ceil(n)

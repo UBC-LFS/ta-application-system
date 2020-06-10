@@ -282,6 +282,35 @@ class StudentTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, response.url)
 
+    def submit_confiential_information_domestic_incomplete_employee_number(self, username):
+        ''' Submit confidential information with an employee number '''
+
+        SIN, STUDY_PERMIT, PERSONAL_DATA_FORM = self.get_required_documents(username)
+
+        user = userApi.get_user(username, 'username')
+        data = {
+            'user': user.id,
+            'nationality': '0'
+        }
+        response = self.client.post( reverse('students:check_confidentiality'), data=urlencode(data), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue('Please submit your information' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+        data = {
+            'user': user.id,
+            'nationality': data['nationality'],
+            'is_new_employee': True,
+            'employee_number': '',
+            'sin': SimpleUploadedFile('sin.jpg', open(SIN, 'rb').read(), content_type='image/jpeg'),
+            'personal_data_form': SimpleUploadedFile('personal_data_form.doc', open(PERSONAL_DATA_FORM, 'rb').read(), content_type='application/msword'),
+        }
+        response = self.client.post( reverse('students:submit_confidentiality'), data=data, format='multipart' )
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
     def submit_confiential_information_domestic_incomplete(self, username):
         ''' Submit confidential information '''
 
@@ -429,7 +458,7 @@ class StudentTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get( reverse('students:accept_decline_job', args=[SESSION, JOB]) + HISTORY_NEXT )
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 200)
 
         response = self.client.get( reverse('students:show_job', args=[SESSION, JOB]) + HISTORY_NEXT + '&p=History%20of%20Jobs' )
         self.assertEqual(response.status_code, 200)
@@ -442,7 +471,6 @@ class StudentTest(TestCase):
 
         response = self.client.get( reverse('students:accept_decline_job', args=[SESSION, STUDENT_JOB]) + HISTORY_NEXT )
         self.assertEqual(response.status_code, 200)
-
 
 
     def test_home_page(self):
@@ -817,7 +845,7 @@ class StudentTest(TestCase):
 
 
     def test_check_submit_confidentiality(self):
-        print('\n- Test: Check and submit confidential information ')
+        print('\n- Test: Check and submit confidential information')
         self.login()
 
         user = userApi.get_user(USERS[2], 'username')
@@ -832,17 +860,71 @@ class StudentTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, response.url)
 
-        data = {
+        data1 = {
             'user': user.id,
-            'nationality': data['nationality'],
-            'employee_number': '1234567',
+            'nationality': '1',
+            'employee_number': '',
             #'sin': SimpleUploadedFile('sin.png', b'\x00\x01\x02\x03', content_type='image/png'),
             'sin_expiry_date': '2020-01-01',
             #'study_permit': SimpleUploadedFile('study_permit.png', b'\x00\x01\x02\x03', content_type='image/png'),
             'study_permit_expiry_date': '2020-05-05'
         }
+        response = self.client.post( reverse('students:submit_confidentiality'), data=data1, format='multipart')
+        messages = self.messages(response)
+        self.assertTrue('An error occurred. New employees must check this <strong>I am a new employee</strong> field.' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
 
-        response = self.client.post( reverse('students:submit_confidentiality'), data=data, format='multipart' )
+        data2 = {
+            'user': user.id,
+            'nationality': '1',
+            'is_new_employee': True,
+            'employee_number': '0000000',
+            #'sin': SimpleUploadedFile('sin.png', b'\x00\x01\x02\x03', content_type='image/png'),
+            'sin_expiry_date': '2020-01-01',
+            #'study_permit': SimpleUploadedFile('study_permit.png', b'\x00\x01\x02\x03', content_type='image/png'),
+            'study_permit_expiry_date': '2020-05-05'
+        }
+        response = self.client.post( reverse('students:submit_confidentiality'), data=data2, format='multipart')
+        messages = self.messages(response)
+        self.assertTrue('An error occurred. Please uncheck this <strong>I am a new employee</strong> field if you are not a new employee.' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+        user3 = userApi.get_user(user.id)
+        user3.confidentiality.is_new_employee = False
+        user3.confidentiality.employee_number = '0000000'
+        user3.confidentiality.save(update_fields=['is_new_employee', 'employee_number'])
+        data3 = {
+            'user': user3.id,
+            'nationality': '1',
+            'is_new_employee': True,
+            'employee_number': '0000000',
+            #'sin': SimpleUploadedFile('sin.png', b'\x00\x01\x02\x03', content_type='image/png'),
+            'sin_expiry_date': '2020-01-01',
+            #'study_permit': SimpleUploadedFile('study_permit.png', b'\x00\x01\x02\x03', content_type='image/png'),
+            'study_permit_expiry_date': '2020-05-05'
+        }
+        response = self.client.post( reverse('students:submit_confidentiality'), data=data3, format='multipart')
+        messages = self.messages(response)
+        self.assertTrue('An error occurred. Your Employee Number is 0000000. Only new employees can check this <strong>I am a new employee</strong> field.' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+        user4 = userApi.get_user(user.id)
+        user4.confidentiality.is_new_employee = True
+        user4.confidentiality.save(update_fields=['is_new_employee'])
+        data4 = {
+            'user': user4.id,
+            'nationality': '1',
+            'is_new_employee': True,
+            'employee_number': '',
+            #'sin': SimpleUploadedFile('sin.png', b'\x00\x01\x02\x03', content_type='image/png'),
+            'sin_expiry_date': '2020-01-01',
+            #'study_permit': SimpleUploadedFile('study_permit.png', b'\x00\x01\x02\x03', content_type='image/png'),
+            'study_permit_expiry_date': '2020-05-05'
+        }
+        response = self.client.post( reverse('students:submit_confidentiality'), data=data4, format='multipart' )
         messages = self.messages(response)
         self.assertTrue('Success' in messages[0])
         self.assertEqual(response.status_code, 302)
@@ -852,7 +934,32 @@ class StudentTest(TestCase):
         self.assertEqual(response.status_code, 200)
         loggedin_user = response.context['loggedin_user']
         self.assertEqual(loggedin_user.confidentiality.nationality, data['nationality'])
-        self.assertEqual(loggedin_user.confidentiality.employee_number, data['employee_number'])
+        self.assertTrue(loggedin_user.confidentiality.is_new_employee)
+        self.assertIsNone(loggedin_user.confidentiality.employee_number)
+        self.assertEqual(loggedin_user.confidentiality.sin_expiry_date, datetime.date(2020, 1, 1))
+        self.assertEqual(loggedin_user.confidentiality.study_permit_expiry_date, datetime.date(2020, 5, 5))
+
+        data5 = {
+            'user': user.id,
+            'nationality': data['nationality'],
+            'employee_number': '0000009',
+            #'sin': SimpleUploadedFile('sin.png', b'\x00\x01\x02\x03', content_type='image/png'),
+            'sin_expiry_date': '2020-01-01',
+            #'study_permit': SimpleUploadedFile('study_permit.png', b'\x00\x01\x02\x03', content_type='image/png'),
+            'study_permit_expiry_date': '2020-05-05'
+        }
+        response = self.client.post( reverse('students:submit_confidentiality'), data=data5, format='multipart' )
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+        response = self.client.get( reverse('students:show_confidentiality') )
+        self.assertEqual(response.status_code, 200)
+        loggedin_user = response.context['loggedin_user']
+        self.assertEqual(loggedin_user.confidentiality.nationality, data['nationality'])
+        self.assertFalse(loggedin_user.confidentiality.is_new_employee)
+        self.assertEqual(loggedin_user.confidentiality.employee_number, data5['employee_number'])
         self.assertEqual(loggedin_user.confidentiality.sin_expiry_date, datetime.date(2020, 1, 1))
         self.assertEqual(loggedin_user.confidentiality.study_permit_expiry_date, datetime.date(2020, 5, 5))
 
@@ -883,14 +990,14 @@ class StudentTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, response.url)
 
-        data = {
+        data2 = {
             'user': user.id,
             'nationality': '1',
             'employee_number': '1234568',
             'sin_expiry_date': '2020-01-11',
             'study_permit_expiry_date': '2020-05-22'
         }
-        response = self.client.post( reverse('students:edit_confidentiality'), data=data, format='multipart' )
+        response = self.client.post( reverse('students:edit_confidentiality'), data=data2, format='multipart' )
         messages = self.messages(response)
         self.assertTrue('Success' in messages[0])
         self.assertEqual(response.status_code, 302)
@@ -899,16 +1006,17 @@ class StudentTest(TestCase):
         response = self.client.get( reverse('students:show_confidentiality') )
         self.assertEqual(response.status_code, 200)
         loggedin_user = response.context['loggedin_user']
-        self.assertEqual(loggedin_user.confidentiality.nationality, data['nationality'])
-        self.assertEqual(loggedin_user.confidentiality.employee_number, data['employee_number'])
+        self.assertEqual(loggedin_user.confidentiality.nationality, data2['nationality'])
+        self.assertFalse(loggedin_user.confidentiality.is_new_employee)
+        self.assertEqual(loggedin_user.confidentiality.employee_number, data2['employee_number'])
         self.assertEqual(loggedin_user.confidentiality.sin_expiry_date, datetime.date(2020, 1, 11))
         self.assertEqual(loggedin_user.confidentiality.study_permit_expiry_date, datetime.date(2020, 5, 22))
 
-        data = {
+        data3 = {
             'user': user.id,
             'nationality': '0',
         }
-        response = self.client.post( reverse('students:edit_confidentiality'), data=data, format='multipart' )
+        response = self.client.post( reverse('students:edit_confidentiality'), data=data3, format='multipart' )
         messages = self.messages(response)
         self.assertTrue('Success' in messages[0])
         self.assertEqual(response.status_code, 302)
@@ -917,7 +1025,91 @@ class StudentTest(TestCase):
         response = self.client.get( reverse('students:show_confidentiality') )
         self.assertEqual(response.status_code, 200)
         loggedin_user = response.context['loggedin_user']
-        self.assertEqual(loggedin_user.confidentiality.nationality, data['nationality'])
+        self.assertEqual(loggedin_user.confidentiality.nationality, data3['nationality'])
+
+
+    def test_edit_confidentiality_checking(self):
+        print('\n- Test: Edit confidentional information with checking conditions')
+        self.login()
+
+        user = userApi.get_user(USERS[2], 'username')
+        data = {
+            'user': user.id,
+            'nationality': '1'
+        }
+        response = self.client.post( reverse('students:check_confidentiality'), data=urlencode(data), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue('Please submit your information' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+        data = {
+            'user': user.id,
+            'nationality': '1',
+            'employee_number': '0000000',
+            'sin_expiry_date': '2020-01-01',
+            'study_permit_expiry_date': '2020-05-05'
+        }
+        response = self.client.post( reverse('students:submit_confidentiality'), data=data, format='multipart' )
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+        user1 = userApi.get_user(user.id)
+        user1.confidentiality.is_new_employee = True
+        user1.confidentiality.employee_number = None
+        user1.confidentiality.save(update_fields=['is_new_employee', 'employee_number'])
+
+        data1 = {
+            'user': user1.id,
+            'nationality': '1',
+            'employee_number': '',
+            #'sin': SimpleUploadedFile('sin.png', b'\x00\x01\x02\x03', content_type='image/png'),
+            'sin_expiry_date': '2020-01-01',
+            #'study_permit': SimpleUploadedFile('study_permit.png', b'\x00\x01\x02\x03', content_type='image/png'),
+            'study_permit_expiry_date': '2020-05-05'
+        }
+        response = self.client.post( reverse('students:edit_confidentiality'), data=data1, format='multipart')
+        messages = self.messages(response)
+        self.assertTrue('An error occurred. New employees must check this <strong>I am a new employee</strong> field.' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+        data2 = {
+            'user': user1.id,
+            'nationality': '1',
+            'is_new_employee': True,
+            'employee_number': '0000000',
+            #'sin': SimpleUploadedFile('sin.png', b'\x00\x01\x02\x03', content_type='image/png'),
+            'sin_expiry_date': '2020-01-01',
+            #'study_permit': SimpleUploadedFile('study_permit.png', b'\x00\x01\x02\x03', content_type='image/png'),
+            'study_permit_expiry_date': '2020-05-05'
+        }
+        response = self.client.post( reverse('students:edit_confidentiality'), data=data2, format='multipart')
+        messages = self.messages(response)
+        self.assertTrue('An error occurred. Please uncheck this <strong>I am a new employee</strong> field if you are not a new employee.' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+        user3 = userApi.get_user(user.id)
+        user3.confidentiality.is_new_employee = False
+        user3.confidentiality.employee_number = '0000000'
+        user3.confidentiality.save(update_fields=['is_new_employee', 'employee_number'])
+        data3 = {
+            'user': user3.id,
+            'nationality': '1',
+            'is_new_employee': True,
+            'employee_number': '0000000',
+            #'sin': SimpleUploadedFile('sin.png', b'\x00\x01\x02\x03', content_type='image/png'),
+            'sin_expiry_date': '2020-01-01',
+            #'study_permit': SimpleUploadedFile('study_permit.png', b'\x00\x01\x02\x03', content_type='image/png'),
+            'study_permit_expiry_date': '2020-05-05'
+        }
+        response = self.client.post( reverse('students:edit_confidentiality'), data=data3, format='multipart')
+        messages = self.messages(response)
+        self.assertTrue('An error occurred. Your Employee Number is 0000000. Only new employees can check this <strong>I am a new employee</strong> field.' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
 
 
     def test_explore_jobs(self):
@@ -1350,7 +1542,7 @@ class StudentTest(TestCase):
 
 
     def test_accept_decline_job_domestic_incomplete(self):
-        print('\n- Test: Display a job to select accept or decline a job offer with domestic students')
+        print('\n- Test: Display a job to select accept a job offer with domestic students')
         self.login(STUDENT, 'password')
 
         user = userApi.get_user(STUDENT, 'username')
@@ -1361,7 +1553,7 @@ class StudentTest(TestCase):
         self.assertEqual(available1['message'], "You haven't completed it yet. Please upload required documents.")
 
         response = self.client.get( reverse('students:accept_decline_job', args=[SESSION, STUDENT_JOB]) + HISTORY_NEXT )
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 200)
 
         self.submit_confiential_information_domestic_incomplete(user.username)
 
@@ -1370,6 +1562,33 @@ class StudentTest(TestCase):
         self.assertEqual(available2['status'], False)
         self.assertEqual(available2['message'], 'Please check the following information, and update required documents. <ul><li>SIN</li></ul>')
 
+
+    def test_accept_decline_job_domestic_incomplete_employee_number(self):
+        print('\n- Test: Display a job to select accept a job offer with domestic students without an employee number')
+        self.login(STUDENT, 'password')
+
+        user = userApi.get_user(STUDENT, 'username')
+
+        # if students don't complete required documents, they cannot accept or decline their job offer.
+        available1 = userApi.add_confidentiality_validation(user)
+        self.assertFalse(available1['status'])
+        self.assertEqual(available1['message'], "You haven't completed it yet. Please upload required documents.")
+
+        response = self.client.get( reverse('students:accept_decline_job', args=[SESSION, STUDENT_JOB]) + HISTORY_NEXT )
+        self.assertEqual(response.status_code, 200)
+
+        self.submit_confiential_information_domestic_incomplete_employee_number(user.username)
+
+        user2 = userApi.get_user(STUDENT, 'username')
+        available2 = userApi.add_confidentiality_validation(user2)
+        self.assertTrue(available2['status'])
+        self.assertEqual(available2['message'], '')
+
+        user2.confidentiality.is_new_employee = False
+        user2.confidentiality.save(update_fields=['is_new_employee'])
+        available3 = userApi.add_confidentiality_validation(user2)
+        self.assertFalse(available3['status'])
+        self.assertEqual(available3['message'], 'Please check the following information, and update required documents. <ul><li>Employee Number</li></ul>')
 
     def test_accept_decline_job_international_incomplete(self):
         print('\n- Test: Display a job to select accept or decline a job offer with international students')
@@ -1383,15 +1602,26 @@ class StudentTest(TestCase):
         self.assertEqual(available1['message'], "You haven't completed it yet. Please upload required documents.")
 
         response = self.client.get( reverse('students:accept_decline_job', args=[SESSION, STUDENT_JOB]) + HISTORY_NEXT )
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 200)
 
         self.submit_confiential_information_international_incomplete(user.username)
 
-        user = userApi.get_user(STUDENT, 'username')
-        available2 = userApi.add_confidentiality_validation(user)
+        user2 = userApi.get_user(STUDENT, 'username')
+        available2 = userApi.add_confidentiality_validation(user2)
         self.assertEqual(available2['status'], False)
         self.assertEqual(available2['message'], 'Please check the following information, and update required documents. <ul><li>Personal Data Form</li><li>Study Permit Expiry Date</li></ul>')
 
+        user2.confidentiality.is_new_employee = False
+        user2.confidentiality.save(update_fields=['is_new_employee'])
+        available3 = userApi.add_confidentiality_validation(user2)
+        self.assertFalse(available3['status'])
+        self.assertEqual(available3['message'], 'Please check the following information, and update required documents. <ul><li>Personal Data Form</li><li>Study Permit Expiry Date</li></ul>')
+
+        user2.confidentiality.employee_number = None
+        user2.confidentiality.save(update_fields=['employee_number'])
+        available4 = userApi.add_confidentiality_validation(user2)
+        self.assertFalse(available4['status'])
+        self.assertEqual(available4['message'], 'Please check the following information, and update required documents. <ul><li>Employee Number</li><li>Personal Data Form</li><li>Study Permit Expiry Date</li></ul>')
 
 
     def test_accept_decline_job(self):
@@ -1417,13 +1647,13 @@ class StudentTest(TestCase):
 
         user = userApi.get_user(STUDENT, 'username')
 
-        # if students don't complete required documents, they cannot accept or decline their job offer.
+        # if students don't complete required documents, they cannot accept their job offer.
         available1 = userApi.add_confidentiality_validation(user)
         self.assertEqual(available1['status'], False)
         self.assertEqual(available1['message'], "You haven't completed it yet. Please upload required documents.")
 
         response = self.client.get( reverse('students:accept_decline_job', args=[SESSION, STUDENT_JOB]) + HISTORY_NEXT )
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 200)
 
         self.submit_confiential_information_international_complete(user.username)
 
@@ -1533,6 +1763,34 @@ class StudentTest(TestCase):
         total_hours = adminApi.get_total_assigned_hours(apps, ['accepted'])
         self.assertEqual(total_hours['accepted'], {'2019-W1': appl.accepted.assigned_hours})
 
+    def test_cannot_accept_offer(self):
+        print('\n- Test: Students cannot accept a job offer')
+        self.login(STUDENT, 'password')
+
+        self.submit_confiential_information_international_incomplete(STUDENT)
+        response = self.client.get( reverse('students:accept_decline_job', args=[SESSION, STUDENT_JOB]) + HISTORY_NEXT )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['loggedin_user'].username, STUDENT)
+        self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
+
+        app = response.context['app']
+        self.assertEqual(app.job.course.slug, STUDENT_JOB)
+        self.assertEqual(app.applicant.username, STUDENT)
+
+        data1 = {
+            'application': app.id,
+            'assigned_hours': app.offered.assigned_hours,
+            'decision': 'accept',
+            'has_contract_read': True,
+            'next': reverse('students:history_jobs') + '?page=2'
+        }
+        response = self.client.post( reverse('students:make_decision', args=[SESSION, STUDENT_JOB]), data=urlencode(data1), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue('An error occurred. Please check the following information, and update required documents. <ul><li>Personal Data Form</li><li>Study Permit Expiry Date</li></ul>' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse('students:accept_decline_job', args=[SESSION, STUDENT_JOB]) + HISTORY_NEXT)
+        self.assertRedirects(response, response.url)
+
 
     def test_decline_offer(self):
         print('\n- Test: Students decline job offers')
@@ -1613,6 +1871,36 @@ class StudentTest(TestCase):
 
         total_hours = adminApi.get_total_assigned_hours(apps, ['accepted'])
         self.assertEqual(total_hours['accepted'], {})
+
+    def test_decline_offer_with_incomplete_confidentiality(self):
+        print('\n- Test: Students decline job offers with incomplete confidentiality')
+        self.login(STUDENT, 'password')
+
+        self.submit_confiential_information_international_incomplete(STUDENT)
+
+        response = self.client.get( reverse('students:accept_decline_job', args=[SESSION, STUDENT_JOB]) + HISTORY_NEXT )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['loggedin_user'].username, STUDENT)
+        self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
+
+        app = response.context['app']
+        self.assertEqual(app.job.session.slug, SESSION)
+        self.assertEqual(app.job.course.slug, STUDENT_JOB)
+        self.assertEqual(app.applicant.username, STUDENT)
+
+        data1 = {
+            'application': app.id,
+            'assigned_hours': app.offered.assigned_hours,
+            'decision': 'decline',
+            'has_contract_read': True,
+            'next': reverse('students:history_jobs') + '?page=2'
+        }
+        response = self.client.post( reverse('students:make_decision', args=[SESSION, STUDENT_JOB]), data=urlencode(data1), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue('You declined the job offer - 2019 W1: APBI 265 001' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse('students:history_jobs') + '?page=2')
+        self.assertRedirects(response, response.url)
 
 
     def test_reaccept_application(self):
@@ -1750,6 +2038,45 @@ class StudentTest(TestCase):
         total_hours = adminApi.get_total_assigned_hours(apps, ['accepted'])
         self.assertEqual(total_hours['accepted'], {'2019-W1': 45.5 + diff, '2019-W2': 30.0})
 
+    def test_reaccept_application_with_incomplete_confidentiality(self):
+        print('\n- Test: Students cannot re-accept new job offers')
+
+        STUDENT = 'user65.test'
+        self.login(STUDENT, 'password')
+
+        self.submit_confiential_information_international_complete(STUDENT)
+
+        APP_SLUG = SESSION + '-' + STUDENT_JOB + '-application-by-' + 'user65test'
+        app = adminApi.get_application(APP_SLUG, 'slug')
+        self.assertFalse(app.is_declined_reassigned)
+
+        STUDENT = 'user66.test'
+        self.login(STUDENT, 'password')
+
+        response = self.client.get( reverse('students:index') )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse('students:show_profile') + NEXT + HOME_BASIC)
+        self.assertRedirects(response, response.url)
+
+        self.submit_profile_resume(STUDENT)
+        self.submit_confiential_information_international_incomplete(STUDENT)
+
+        SLUG = '2019-w1-apbi-260-001-agroecology-i-introduction-to-principles-and-techniques-w1-application-by-user66test'
+
+        data1 = {
+            'application': app.id,
+            'assigned_hours': 70.5,
+            'decision': 'accept',
+            'has_contract_read': True,
+            'next': reverse('students:history_jobs') + '?page=2'
+        }
+        response = self.client.post( reverse('students:reaccept_application', args=[SLUG]) + HISTORY_NEXT, data=urlencode(data1), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue('An error occurred. Please check the following information, and update required documents. <ul><li>Personal Data Form</li><li>Study Permit Expiry Date</li></ul>' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse('students:reaccept_application', args=[SLUG]) + HISTORY_NEXT)
+        self.assertRedirects(response, response.url)
+
 
     def test_redecline_application(self):
         print('\n- Test: Students re-decline new job offers')
@@ -1861,6 +2188,66 @@ class StudentTest(TestCase):
 
         self.assertEqual(appl.job.assigned_ta_hours, app.job.assigned_ta_hours)
         self.assertEqual(appl.job.accumulated_ta_hours, app.job.accumulated_ta_hours - 45.5) # accepted hours was 45.5
+
+    def test_redecline_application_with_incomplete_confidentiality(self):
+        print('\n- Test: Students re-decline new job offers with incomplete confidentiality')
+
+        STUDENT = 'user66.test'
+        self.login(STUDENT, 'password')
+
+        self.submit_profile_resume(STUDENT)
+        self.submit_confiential_information_international_incomplete(STUDENT)
+
+        JOB = 'apbi-260-001-agroecology-i-introduction-to-principles-and-techniques-w1'
+        SLUG = '2019-w1-apbi-260-001-agroecology-i-introduction-to-principles-and-techniques-w1-application-by-user66test'
+
+        response = self.client.get( reverse('students:reaccept_application', args=[SLUG]) + HISTORY_NEXT )
+        self.assertEqual(response.status_code, 200)
+
+        self.assertEqual(response.context['loggedin_user'].username, STUDENT)
+        self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
+
+        app = response.context['app']
+        self.assertEqual(app.job.session.slug, SESSION)
+        self.assertEqual(app.job.course.slug, JOB)
+        self.assertTrue(app.is_declined_reassigned)
+
+        data1 = {
+            'application': app.id,
+            'assigned_hours': 35.5,
+            'decision': 'decline',
+            'has_contract_read': True,
+            'next': reverse('students:history_jobs') + '?page=2'
+        }
+        response = self.client.post( reverse('students:reaccept_application', args=[SLUG]) + HISTORY_NEXT, data=urlencode(data1), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue('You declined the job offer - 2019 W1: APBI 260 001' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse('students:history_jobs') + '?page=2')
+        self.assertRedirects(response, response.url)
+
+        response = self.client.get( reverse('students:history_jobs') )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['loggedin_user'].username, STUDENT)
+        self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
+
+        apps = response.context['apps']
+        self.assertEqual( len(apps), 5 )
+
+        appl = None
+        for a in apps:
+            if a.id == app.id: appl = a
+
+        self.assertEqual(appl.job.session.slug, SESSION)
+        self.assertEqual(appl.job.course.slug, JOB)
+        self.assertEqual(appl.declined.get_assigned_display(), 'Declined')
+        self.assertTrue(appl.declined.has_contract_read)
+        self.assertEqual(appl.declined.assigned_hours, 0.0)
+
+        self.assertEqual(appl.job.assigned_ta_hours, app.job.assigned_ta_hours)
+        self.assertEqual(appl.job.accumulated_ta_hours, app.job.accumulated_ta_hours - 45.5) # accepted hours was 45.5
+
+
 
 
     def test_terminate_job(self):

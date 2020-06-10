@@ -119,6 +119,7 @@ class Confidentiality(models.Model):
     ]
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
     nationality = models.CharField(max_length=1, choices=NATIONALITY_CHOICES, null=True, blank=True)
+    is_new_employee = models.BooleanField(default=True)
     employee_number = models.CharField(
         max_length=7,
         unique=True,
@@ -297,7 +298,7 @@ class Avatar(models.Model):
 
     def save(self, *args, **kwargs):
         ''' Reduce a size and quality of the image '''
-        
+
         if bool(self.uploaded):
             file_split = os.path.splitext(self.uploaded.name)
             file_name = file_split[0]

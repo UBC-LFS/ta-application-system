@@ -198,13 +198,22 @@ def user_exists(data):
         else:
             if confi.employee_number == None:
                 if data['employee_number'] is not None:
-                    confi.employee_number = data['employee_number']
-                    confi.save(update_fields=['employee_number'])
+                    Confidentiality.objects.filter(user_id=u.id).update(
+                        is_new_employee = False,
+                        employee_number = data['employee_number']
+                    )
             else:
-                if data['employee_number'] is not None and confi.employee_number != data['employee_number']:
-                    confi.employee_number = data['employee_number']
-                    confi.save(update_fields=['employee_number'])
+                if data['employee_number'] is not None:
+                    update_fields = []
+                    if confi.employee_number != data['employee_number']:
+                        confi.employee_number = data['employee_number']
+                        update_fields.append('employee_number')
+                    if confi.is_new_employee == True:
+                        confi.is_new_employee = False
+                        update_fields.append('is_new_employee')
 
+                    if len(update_fields) > 0:
+                        confi.save(update_fields=update_fields)
 
         return User.objects.get(id=u.id)
 
@@ -228,19 +237,19 @@ def create_user(data):
         password=make_password( password_generator() )
     )
     if user:
+        is_new_employee = True if employee_number == None else False
         confidentiality = Confidentiality.objects.create(
             user_id=user.id,
+            is_new_employee=is_new_employee,
             employee_number=employee_number,
             created_at=datetime.now(),
             updated_at=datetime.now()
         )
-
         user_profile_form = UserProfileForm({
             'student_number': student_number,
             'preferred_name': None,
             'roles': [ ROLES['Student'] ]
         })
-
         if user_profile_form.is_valid():
             profile = create_profile(user, user_profile_form.cleaned_data)
             if profile and confidentiality:
@@ -522,11 +531,12 @@ def confidentiality_exists(user):
 def add_confidentiality_validation(user):
     ''' Add confidentiality validation into apps '''
     confidentiality = has_user_confidentiality_created(user)
+
     message = ''
     if confidentiality != None:
         errors = ''
 
-        if bool(confidentiality.employee_number) == False:
+        if bool(confidentiality.employee_number) == False and confidentiality.is_new_employee == False:
             errors += '<li>Employee Number</li>'
         if bool(confidentiality.personal_data_form) == False:
             errors += '<li>Personal Data Form</li>'
@@ -547,7 +557,7 @@ def add_confidentiality_validation(user):
             message = 'Please check the following information, and update required documents. <ul>{0}</ul>'.format(errors)
     else:
         message = "You haven't completed it yet. Please upload required documents."
-
+    
     return {
         'status': True if len(message) == 0 else False,
         'message': message

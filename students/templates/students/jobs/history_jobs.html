@@ -85,23 +85,14 @@
                 {% if not app.job.session.is_archived %}
 
                   <hr />
-                  {% if can_accept_or_decline.status == True %}
-
-                    {% if app.is_terminated %}
-                      <a href="{% url 'students:terminate_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}?next={{ request.get_full_path }}">
-                        Contract<br /> Termination
-                      </a>
-                    {% else %}
-                      <a href="{% url 'students:accept_decline_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}?next={{ request.get_full_path }}">
-                        Accept / Decline
-                      </a>
-                    {% endif %}
-
+                  {% if app.is_terminated %}
+                    <a href="{% url 'students:terminate_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}?next={{ request.get_full_path }}">
+                      Contract<br /> Termination
+                    </a>
                   {% else %}
-
-                    <div class="text-secondary">Accept / Decline</div>
-                    {% include 'ta_app/users/_modal_confidentiality_warning.html' with data=app can_accept_or_decline=can_accept_or_decline %}
-
+                    <a href="{% url 'students:accept_decline_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}?next={{ request.get_full_path }}">
+                      Accept / Decline
+                    </a>
                   {% endif %}
 
                 {% endif %}
@@ -133,14 +124,9 @@
                 {% if not app.job.session.is_archived and app.is_declined_reassigned and app.declined.parent_id %}
 
                   <hr />
-                  {% if can_accept_or_decline.status == True %}
-                    <a href="{% url 'students:reaccept_application' app_slug=app.slug %}?next={{ request.get_full_path }}">
-                      Re accept/decline
-                    </a>
-                  {% else %}
-                    <div class="text-secondary">Re accept/decline</div>
-                    {% include 'ta_app/users/_modal_confidentiality_warning.html' with data=app can_accept_or_decline=can_accept_or_decline %}
-                  {% endif %}
+                  <a href="{% url 'students:reaccept_application' app_slug=app.slug %}?next={{ request.get_full_path }}">
+                    Re accept/decline
+                  </a>
 
                 {% endif %}
 
