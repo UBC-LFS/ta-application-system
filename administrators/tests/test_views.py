@@ -71,7 +71,7 @@ TERMINATED_APP = '?next=' + reverse('administrators:terminated_applications') + 
 ALL_USER = '?next=' + reverse('administrators:all_users') + '?page=2&p=All%20Users&t=basic'
 DASHBOARD_USER = '?next=' + reverse('administrators:applications_dashboard') + '?page=2&p=Dashboard&t=basic'
 
-
+"""
 class SessionTest(TestCase):
     fixtures = DATA
 
@@ -2027,6 +2027,7 @@ class HRTest(TestCase):
         user_first_role = user.profile.roles.all()[0]
         self.assertEqual(user_first_role.name, Role.STUDENT)
 
+        # Missing first name, last name, email, username
         data0 = {
             'user': user.id,
             'student_number': '12222222',
@@ -2039,6 +2040,7 @@ class HRTest(TestCase):
         response = self.client.post(reverse('administrators:edit_user', args=[ USERS[2] ]) + ALL_USER, data=urlencode(data0, True), content_type=ContentType)
         self.assertEqual(response.status_code, 404)
 
+        # Missing first name, last name, email, username
         data1 = {
             'user': user.id,
             'student_number': '12222222',
@@ -2055,10 +2057,12 @@ class HRTest(TestCase):
         self.assertEqual(response.url, reverse('administrators:edit_user', args=[ USERS[2] ]) + ALL_USER)
         self.assertRedirects(response, response.url)
 
+        # Missing last name, username, email
         data2 = {
             'user': user.id,
             'first_name': 'change first name',
             'student_number': '12222222',
+            'is_new_employee': True,
             'employee_number': '12345678',
             'is_superuser': False,
             'preferred_name': 'new name',
@@ -2072,11 +2076,13 @@ class HRTest(TestCase):
         self.assertEqual(response.url, reverse('administrators:edit_user', args=[ USERS[2] ]) + ALL_USER)
         self.assertRedirects(response, response.url)
 
+        # Missing email and username
         data3 = {
             'user': user.id,
             'first_name': 'change first name',
             'last_name': 'change last name',
             'student_number': '12222222',
+            'is_new_employee': True,
             'employee_number': '12345678',
             'is_superuser': False,
             'preferred_name': 'new name',
@@ -2090,12 +2096,14 @@ class HRTest(TestCase):
         self.assertEqual(response.url, reverse('administrators:edit_user', args=[ USERS[2] ]) + ALL_USER)
         self.assertRedirects(response, response.url)
 
+        # Missing username
         data4 = {
             'user': user.id,
             'first_name': 'change first name',
             'last_name': 'change last name',
             'email': 'new.email@example.com',
             'student_number': '12222222',
+            'is_new_employee': True,
             'employee_number': '12345678',
             'is_superuser': False,
             'preferred_name': 'new name',
@@ -2109,6 +2117,7 @@ class HRTest(TestCase):
         self.assertEqual(response.url, reverse('administrators:edit_user', args=[ USERS[2] ]) + ALL_USER)
         self.assertRedirects(response, response.url)
 
+        # Wrong employee number
         data5 = {
             'user': user.id,
             'first_name': 'change first name',
@@ -2116,6 +2125,7 @@ class HRTest(TestCase):
             'email': 'new.email@example.com',
             'username': 'new.username',
             'student_number': '12222222',
+            'is_new_employee': True,
             'employee_number': '12345678',
             'is_superuser': False,
             'preferred_name': 'new name',
@@ -2129,6 +2139,7 @@ class HRTest(TestCase):
         self.assertEqual(response.url, reverse('administrators:edit_user', args=[ USERS[2] ]) + ALL_USER)
         self.assertRedirects(response, response.url)
 
+        # Wrong employee number
         data6 = {
             'user': user.id,
             'first_name': 'change first name',
@@ -2136,6 +2147,7 @@ class HRTest(TestCase):
             'email': 'new.email@example.com',
             'username': 'new.username',
             'student_number': '12222222',
+            'is_new_employee': True,
             'employee_number': 'new.employee',
             'is_superuser': False,
             'preferred_name': 'new name',
@@ -2149,6 +2161,7 @@ class HRTest(TestCase):
         self.assertEqual(response.url, reverse('administrators:edit_user', args=[ USERS[2] ]) + ALL_USER)
         self.assertRedirects(response, response.url)
 
+        # Wrong employee number
         data7 = {
             'user': user.id,
             'first_name': 'change first name',
@@ -2156,6 +2169,7 @@ class HRTest(TestCase):
             'email': 'new.email@example.com',
             'username': 'new.username',
             'student_number': '12222222',
+            'is_new_employee': True,
             'employee_number': '123',
             'is_superuser': False,
             'preferred_name': 'new name',
@@ -2169,6 +2183,7 @@ class HRTest(TestCase):
         self.assertEqual(response.url, reverse('administrators:edit_user', args=[ USERS[2] ]) + ALL_USER)
         self.assertRedirects(response, response.url)
 
+        # Wrong student number
         data8 = {
             'user': user.id,
             'first_name': 'change first name',
@@ -2176,6 +2191,7 @@ class HRTest(TestCase):
             'email': 'new.email@example.com',
             'username': 'new.username',
             'student_number': 'new.student',
+            'is_new_employee': True,
             'employee_number': '1234777',
             'is_superuser': False,
             'preferred_name': 'new name',
@@ -2189,6 +2205,7 @@ class HRTest(TestCase):
         self.assertEqual(response.url, reverse('administrators:edit_user', args=[ USERS[2] ]) + ALL_USER)
         self.assertRedirects(response, response.url)
 
+        # Wrong student number
         data9 = {
             'user': user.id,
             'first_name': 'change first name',
@@ -2196,6 +2213,7 @@ class HRTest(TestCase):
             'email': 'new.email@example.com',
             'username': 'new.username',
             'student_number': '123',
+            'is_new_employee': True,
             'employee_number': '1234777',
             'is_superuser': False,
             'preferred_name': 'new name',
@@ -2216,6 +2234,7 @@ class HRTest(TestCase):
             'email': 'new.email@example.com',
             'username': 'new.username',
             'student_number': '12345670',
+            'is_new_employee': False,
             'employee_number': '1234567',
             'is_superuser': False,
             'preferred_name': 'new name',
@@ -2228,6 +2247,20 @@ class HRTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse('administrators:all_users') + '?page=2')
         self.assertRedirects(response, response.url)
+
+        u = userApi.get_user(user.id)
+        self.assertEqual(u.id, data10['user'])
+        self.assertEqual(u.first_name, data10['first_name'])
+        self.assertEqual(u.last_name, data10['last_name'])
+        self.assertEqual(u.email, data10['email'])
+        self.assertEqual(u.username, data10['username'])
+        self.assertEqual(u.profile.student_number, data10['student_number'])
+        self.assertFalse(u.confidentiality.is_new_employee)
+        self.assertEqual(u.confidentiality.employee_number, data10['employee_number'])
+        self.assertFalse(u.is_superuser)
+        self.assertEqual(u.profile.preferred_name, data10['preferred_name'])
+        self.assertEqual(u.profile.roles.all()[0].name, Role.INSTRUCTOR)
+        self.assertIsNotNone( userApi.has_user_confidentiality_created(u) )
 
 
     def test_delete_user(self):
@@ -2286,9 +2319,9 @@ class HRTest(TestCase):
                 training_found = True
         self.assertFalse(degree_found)
 
-        self.assertFalse( userApi.has_user_profile_created(user) )
-        self.assertFalse( userApi.has_user_resume_created(user) )
-        self.assertFalse( userApi.has_user_confidentiality_created(user) )
+        self.assertIsNone( userApi.has_user_profile_created(user) )
+        self.assertIsNone( userApi.has_user_resume_created(user) )
+        self.assertIsNone( userApi.has_user_confidentiality_created(user) )
 
 
     def test_create_user(self):
@@ -2300,8 +2333,10 @@ class HRTest(TestCase):
             'last_name': 'lastname',
             'email': 'email@example.com',
             'username': 'firstname_lastname',
-            'employee_numer': '1233344',
+            'is_new_employee': True,
+            'employee_number': '1233344',
             'student_number': '12345667',
+            'is_superuser': False,
             'preferred_name': 'preferredname',
             'roles': ['5']
         }
@@ -2312,9 +2347,20 @@ class HRTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, response.url)
 
-        user = userApi.get_user(data['username'], 'username')
-        self.assertEqual(user.username, data['username'])
-        self.assertTrue(userApi.profile_exists_by_username(user.username))
+        u = userApi.get_user(data['username'], 'username')
+        self.assertEqual(u.username, data['username'])
+        self.assertTrue(userApi.profile_exists_by_username(u.username))
+        self.assertEqual(u.first_name, data['first_name'])
+        self.assertEqual(u.last_name, data['last_name'])
+        self.assertEqual(u.email, data['email'])
+        self.assertEqual(u.username, data['username'])
+        self.assertEqual(u.profile.student_number, data['student_number'])
+        self.assertTrue(u.confidentiality.is_new_employee)
+        self.assertEqual(u.confidentiality.employee_number, data['employee_number'])
+        self.assertFalse(u.is_superuser)
+        self.assertEqual(u.profile.preferred_name, data['preferred_name'])
+        self.assertEqual(u.profile.roles.all()[0].name, Role.STUDENT)
+        self.assertIsNotNone( userApi.has_user_confidentiality_created(u) )
 
 
     def test_create_user_missing_values(self):
@@ -2420,7 +2466,8 @@ class HRTest(TestCase):
             'last_name': 'new last name',
             'email': 'new.email@example.com',
             'roles': ['5'],
-            'employee_number': 'gdsddfds'
+            'employee_number': 'gdsddfds',
+            'is_new_employee': True
         }
         response = self.client.post(reverse('administrators:create_user'), data=urlencode(data8, True), content_type=ContentType)
         messages = self.messages(response)
@@ -2440,7 +2487,8 @@ class HRTest(TestCase):
             'username': 'user100.test',
             'roles': ['5'],
             'student_number': None,
-            'employee_number': None
+            'employee_number': None,
+            'is_new_employee': True
         }
 
         # Check username
@@ -2462,6 +2510,7 @@ class HRTest(TestCase):
             'preferred_name': None,
             'student_number': 'AJWUGNUE',
             'employee_number': '1234567',
+            'is_new_employee': True,
             'roles': ['5']
         }
         self.assertIsNone(userApi.user_exists_username(data['username']))
@@ -2490,9 +2539,53 @@ class HRTest(TestCase):
         self.assertIsNone(userApi.user_exists_username(data['username']))
         self.assertFalse(userApi.profile_exists_by_username(data['username']))
 
-        user = userApi.create_user(data)
-        self.assertIsNotNone(userApi.user_exists_username(user.username))
-        self.assertTrue(userApi.profile_exists_by_username(user.username))
+        u = userApi.create_user(data)
+        self.assertIsNotNone(userApi.user_exists_username(u.username))
+        self.assertTrue(userApi.profile_exists_by_username(u.username))
+        self.assertEqual(u.username, data['username'])
+        self.assertEqual(u.first_name, data['first_name'])
+        self.assertEqual(u.last_name, data['last_name'])
+        self.assertEqual(u.email, data['email'])
+        self.assertEqual(u.username, data['username'])
+        self.assertEqual(u.profile.student_number, data['student_number'])
+        self.assertFalse(u.confidentiality.is_new_employee)
+        self.assertEqual(u.confidentiality.employee_number, data['employee_number'])
+        self.assertFalse(u.is_superuser)
+        self.assertEqual(u.profile.preferred_name, data['preferred_name'])
+        self.assertEqual(u.profile.roles.all()[0].name, Role.STUDENT)
+        self.assertIsNotNone( userApi.has_user_confidentiality_created(u) )
+
+        # if employee number is none, is_new_employee = false
+        data2 = {
+            'first_name': 'test6',
+            'last_name': 'user66',
+            'email': 'test.user66@example.com',
+            'username': 'test.user66',
+            'password': 'password',
+            'preferred_name': None,
+            'student_number': '12345655',
+            'employee_number': None,
+            'roles': ['5']
+        }
+        self.assertIsNone(userApi.user_exists_username(data2['username']))
+        self.assertFalse(userApi.profile_exists_by_username(data2['username']))
+
+        u2 = userApi.create_user(data2)
+        self.assertIsNotNone(userApi.user_exists_username(u2.username))
+        self.assertTrue(userApi.profile_exists_by_username(u2.username))
+        self.assertEqual(u2.username, data2['username'])
+        self.assertEqual(u2.first_name, data2['first_name'])
+        self.assertEqual(u2.last_name, data2['last_name'])
+        self.assertEqual(u2.email, data2['email'])
+        self.assertEqual(u2.username, data2['username'])
+        self.assertEqual(u2.profile.student_number, data2['student_number'])
+        self.assertTrue(u2.confidentiality.is_new_employee)
+        self.assertEqual(u2.confidentiality.employee_number, data2['employee_number'])
+        self.assertFalse(u2.is_superuser)
+        self.assertEqual(u2.profile.preferred_name, data2['preferred_name'])
+        self.assertEqual(u2.profile.roles.all()[0].name, Role.STUDENT)
+        self.assertIsNotNone( userApi.has_user_confidentiality_created(u) )
+
 
     def test_user_exists_via_saml(self):
         print('\n- Test: user exists via SAML')
@@ -2504,13 +2597,14 @@ class HRTest(TestCase):
             'email': 'test.user5050@example.com',
             'username': 'test.user5050',
             'student_number': None,
-            'employee_number': None,
-            'next': reverse('administrators:all_users') + '?page=2'
+            'employee_number': None
         }
 
+        # user is not present
         user = userApi.user_exists(data)
         self.assertIsNone(user)
 
+        # user is created
         user = userApi.create_user(data)
         self.assertIsNotNone(user)
         self.assertEqual(user.username, data['username'])
@@ -2523,34 +2617,111 @@ class HRTest(TestCase):
         self.assertEqual(roles, ['Student'])
         self.assertIsNotNone(user.confidentiality)
         self.assertIsNone(user.confidentiality.employee_number)
+        self.assertTrue(user.confidentiality.is_new_employee)
 
-        data['student_number'] = '88888886'
-        data['employee_number'] = '8888886'
-        user = userApi.user_exists(data)
-        self.assertEqual(user.username, data['username'])
-        self.assertEqual(user.email, data['email'])
-        self.assertEqual(user.first_name, data['first_name'])
-        self.assertEqual(user.last_name, data['last_name'])
-        self.assertIsNotNone(user.profile)
-        self.assertIsNotNone(user.profile.student_number)
-        roles = userApi.get_user_roles(user)
+        # no exising employee number
+        data2 = {
+            'first_name': 'test',
+            'last_name': 'user5050',
+            'email': 'test.user5050@example.com',
+            'username': 'test.user5050',
+            'student_number': '09988776',
+            'employee_number': '9998888'
+        }
+        user2 = userApi.user_exists(data2)
+        self.assertEqual(user2.profile.student_number, data2['student_number'])
+        self.assertFalse(user2.confidentiality.is_new_employee)
+        self.assertEqual(user2.confidentiality.employee_number, data2['employee_number'])
+
+        # different employee number and is_new_employee = false
+        data3 = {
+            'first_name': 'test',
+            'last_name': 'user5050',
+            'email': 'test.user5050@example.com',
+            'username': 'test.user5050',
+            'student_number': '88888886',
+            'employee_number': '8888888'
+        }
+        user3 = userApi.user_exists(data3)
+        self.assertEqual(user3.username, data3['username'])
+        self.assertEqual(user3.email, data3['email'])
+        self.assertEqual(user3.first_name, data3['first_name'])
+        self.assertEqual(user3.last_name, data3['last_name'])
+        self.assertIsNotNone(user3.profile)
+        self.assertEqual(user3.profile.student_number, data3['student_number'])
+        roles = userApi.get_user_roles(user3)
         self.assertEqual(roles, ['Student'])
-        self.assertIsNotNone(user.confidentiality)
-        self.assertIsNotNone(user.confidentiality.employee_number)
+        self.assertIsNotNone(user3.confidentiality)
+        self.assertEqual(user3.confidentiality.employee_number, data3['employee_number'])
+        self.assertFalse(user3.confidentiality.is_new_employee)
 
-        data['user'] = user.id
-        data['roles'] = ['4']
-        response = self.client.post(reverse('administrators:edit_user', args=[ data['username'] ]) + ALL_USER, data=urlencode(data, True), content_type=ContentType)
+        data4 = {
+            'user': user.id,
+            'first_name': 'test',
+            'last_name': 'user5050',
+            'email': 'test.user5050@example.com',
+            'username': 'test.user5050',
+            'student_number': '88888886',
+            'employee_number': '8888888',
+            'roles': ['4'],
+            'is_new_employee': True,
+            'next': reverse('administrators:all_users') + '?page=2'
+        }
+        response = self.client.post(reverse('administrators:edit_user', args=[ data4['username'] ]) + ALL_USER, data=urlencode(data4, True), content_type=ContentType)
         messages = self.messages(response)
         self.assertTrue('Success' in messages[0])
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse('administrators:all_users') + '?page=2')
         self.assertRedirects(response, response.url)
 
-        user = userApi.get_user(data['username'], 'username')
-        roles = userApi.get_user_roles(user)
+        user4 = userApi.get_user(data4['username'], 'username')
+        roles = userApi.get_user_roles(user4)
         self.assertEqual(roles, ['Instructor'])
+        self.assertTrue(user4.confidentiality.is_new_employee)
 
+        # different employee number and is_new_employee = true
+        data5 = {
+            'first_name': 'test',
+            'last_name': 'user5050',
+            'email': 'test.user5050@example.com',
+            'username': 'test.user5050',
+            'student_number': '88888886',
+            'employee_number': '8888881'
+        }
+        user5 = userApi.user_exists(data5)
+        self.assertEqual(user5.username, data5['username'])
+        self.assertEqual(user5.email, data5['email'])
+        self.assertEqual(user5.first_name, data5['first_name'])
+        self.assertEqual(user5.last_name, data5['last_name'])
+        self.assertIsNotNone(user5.profile)
+        self.assertEqual(user5.profile.student_number, data5['student_number'])
+        roles = userApi.get_user_roles(user5)
+        self.assertEqual(roles, ['Instructor'])
+        self.assertIsNotNone(user5.confidentiality)
+        self.assertEqual(user5.confidentiality.employee_number, data5['employee_number'])
+        self.assertFalse(user5.confidentiality.is_new_employee)
+
+        # same as above
+        data6 = {
+            'first_name': 'test',
+            'last_name': 'user5050',
+            'email': 'test.user5050@example.com',
+            'username': 'test.user5050',
+            'student_number': '88888886',
+            'employee_number': '8888881'
+        }
+        user6 = userApi.user_exists(data6)
+        self.assertEqual(user6.username, data6['username'])
+        self.assertEqual(user6.email, data6['email'])
+        self.assertEqual(user6.first_name, data6['first_name'])
+        self.assertEqual(user6.last_name, data6['last_name'])
+        self.assertIsNotNone(user6.profile)
+        self.assertEqual(user6.profile.student_number, data6['student_number'])
+        roles = userApi.get_user_roles(user6)
+        self.assertEqual(roles, ['Instructor'])
+        self.assertIsNotNone(user6.confidentiality)
+        self.assertEqual(user6.confidentiality.employee_number, data6['employee_number'])
+        self.assertFalse(user6.confidentiality.is_new_employee)
 
     def test_roles(self):
         print('\n- Test: Display all roles and create a role')
@@ -2620,7 +2791,7 @@ class HRTest(TestCase):
             if role.id == role_id: found = True
         self.assertFalse(found)
 
-
+"""
 class CourseTest(TestCase):
     fixtures = DATA
 

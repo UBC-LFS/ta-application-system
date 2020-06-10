@@ -232,13 +232,33 @@ def submit_confidentiality(request):
 
     loggedin_user = request.user
     form = None
+    confidentiality = userApi.has_user_confidentiality_created(loggedin_user)
     if request.method == 'POST':
-
-        if userApi.has_user_confidentiality_created(loggedin_user):
+        if confidentiality is not None:
             if loggedin_user.confidentiality.nationality == '0':
                 form = ConfidentialityDomesticForm(request.POST, request.FILES, instance=loggedin_user.confidentiality)
             else:
                 form = ConfidentialityInternationalForm(request.POST, request.FILES, instance=loggedin_user.confidentiality)
+
+            is_new_employee = request.POST.get('is_new_employee')
+            employee_number = request.POST.get('employee_number')
+
+            if confidentiality.is_new_employee == True:
+                if bool(is_new_employee) == False:
+                    # New employees (no employee number) must check is_new_employee
+                    if bool(employee_number) == False:
+                        messages.error(request, 'An error occurred. New employees must check this <strong>I am a new employee</strong> field.')
+                        return redirect('students:show_confidentiality')
+                else:
+                    # Not a new employee
+                    if bool(employee_number) == True:
+                        messages.error(request, 'An error occurred. Please uncheck this <strong>I am a new employee</strong> field if you are not a new employee.')
+                        return redirect('students:show_confidentiality')
+            else:
+                # Only new employees (no employee number) can check is_new_employee
+                if bool(employee_number) == True and bool(is_new_employee) == True:
+                    messages.error(request, 'An error occurred. Your Employee Number is {0}. Only new employees can check this <strong>I am a new employee</strong> field.'.format(confidentiality.employee_number))
+                    return redirect('students:show_confidentiality')
 
         if form.is_valid():
             updated_confidentiality = form.save(commit=False)
@@ -250,7 +270,7 @@ def submit_confidentiality(request):
 
             updated_confidentiality.save()
             if updated_confidentiality:
-                messages.success(request, 'Success! {0} - confidential information submitted'.format(loggedin_user.get_full_name()))
+                messages.success(request, 'Success! {0} - Confidential information submitted'.format(loggedin_user.get_full_name()))
                 return redirect('students:show_confidentiality')
             else:
                 messages.error(request, 'An error occurred while saving confidentiality.')
@@ -261,7 +281,7 @@ def submit_confidentiality(request):
         return redirect('students:submit_confidentiality')
 
     else:
-        if userApi.has_user_confidentiality_created(loggedin_user):
+        if confidentiality:
             if loggedin_user.confidentiality.nationality == '0':
                 form = ConfidentialityDomesticForm(data=None, instance=loggedin_user.confidentiality, initial={ 'user': loggedin_user })
             else:
@@ -269,7 +289,8 @@ def submit_confidentiality(request):
 
     return render(request, 'students/profile/submit_confidentiality.html', {
         'loggedin_user': userApi.add_avatar(loggedin_user),
-        'form': form
+        'form': form,
+        'confidentiality': confidentiality
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -288,6 +309,25 @@ def edit_confidentiality(request):
 
     confidentiality = userApi.has_user_confidentiality_created(loggedin_user)
     if request.method == 'POST':
+        is_new_employee = request.POST.get('is_new_employee')
+        employee_number = request.POST.get('employee_number')
+
+        if confidentiality.is_new_employee == True:
+            if bool(is_new_employee) == False:
+                # New employees (no employee number) must check is_new_employee
+                if bool(employee_number) == False:
+                    messages.error(request, 'An error occurred. New employees must check this <strong>I am a new employee</strong> field.')
+                    return redirect('students:edit_confidentiality')
+            else:
+                # Not a new employee
+                if bool(employee_number) == True:
+                    messages.error(request, 'An error occurred. Please uncheck this <strong>I am a new employee</strong> field if you are not a new employee.')
+                    return redirect('students:edit_confidentiality')
+        else:
+            # Only new employees (no employee number) can check is_new_employee
+            if bool(is_new_employee) == True:
+                messages.error(request, 'An error occurred. Your Employee Number is {0}. Only new employees can check this <strong>I am a new employee</strong> field.'.format(confidentiality.employee_number))
+                return redirect('students:edit_confidentiality')
 
         # Check SIN and Study Permit
         sin_study_permit_errors = []
@@ -313,6 +353,10 @@ def edit_confidentiality(request):
             if data['nationality'] is not None:
                 updated_confidentiality.nationality = data['nationality']
                 update_fields.append('nationality')
+
+            if data['is_new_employee'] is not None:
+                updated_confidentiality.is_new_employee = data['is_new_employee']
+                update_fields.append('is_new_employee')
 
             if data['employee_number'] is not None:
                 updated_confidentiality.employee_number = data['employee_number']
@@ -382,7 +426,8 @@ def edit_confidentiality(request):
         'study_permit_file': study_permit_file,
         'personal_data_form_file': personal_data_form_file,
         'form': form,
-        'can_delete': can_delete
+        'can_delete': can_delete,
+        'confidentiality': confidentiality
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -734,8 +779,7 @@ def history_jobs(request):
     return render(request, 'students/jobs/history_jobs.html', {
         'loggedin_user': request.user,
         'apps': adminApi.add_applications_with_latest_status(apps),
-        'total_apps': len(app_list),
-        'can_accept_or_decline': userApi.add_confidentiality_validation(request.user)
+        'total_apps': len(app_list)
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -802,13 +846,14 @@ def accept_decline_job(request, session_slug, job_slug):
     if app.job.session.is_archived == True or app.offered is None:
         raise PermissionDenied
 
-    can_accept_or_decline = userApi.add_confidentiality_validation(request.user)
-    if can_accept_or_decline['status'] == False:
-        raise PermissionDenied
+    #can_accept_or_decline = userApi.add_confidentiality_validation(request.user)
+    #if can_accept_or_decline['status'] == False:
+    #    raise PermissionDenied
 
     return render(request, 'students/jobs/accept_decline_job.html', {
         'loggedin_user': request.user,
-        'app': app
+        'app': app,
+        'can_accept': userApi.add_confidentiality_validation(request.user)
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -831,9 +876,15 @@ def make_decision(request, session_slug, job_slug):
             messages.error(request, 'An error occurred. {0}.'.format( '. '.join(errors) ))
             return HttpResponseRedirect( reverse('students:accept_decline_job', args=[session_slug, job_slug]) + '?next=' + request.POST.get('next') )
 
-
         # Accept a job offer
         if request.POST.get('decision') == 'accept':
+
+            # Check required documents
+            can_accept = userApi.add_confidentiality_validation(request.user)
+            if can_accept['status'] == False:
+                messages.error(request, 'An error occurred. {0}'.format(can_accept['message']))
+                return HttpResponseRedirect( reverse('students:accept_decline_job', args=[session_slug, job_slug]) + '?next=' + request.POST.get('next') )
+
             assigned_hours = request.POST.get('assigned_hours')
             form = ApplicationStatusForm({
                 'application': request.POST.get('application'),
@@ -896,9 +947,9 @@ def reaccept_application(request, app_slug):
     if app.job.session.is_archived == True or app.is_declined_reassigned != True:
         raise PermissionDenied
 
-    can_accept_or_decline = userApi.add_confidentiality_validation(request.user)
-    if can_accept_or_decline['status'] == False:
-        raise PermissionDenied
+    #can_accept_or_decline = userApi.add_confidentiality_validation(request.user)
+    #if can_accept_or_decline['status'] == False:
+    #    raise PermissionDenied
 
     if request.method == 'POST':
 
@@ -916,6 +967,13 @@ def reaccept_application(request, app_slug):
 
         # Accept a job offer
         if request.POST.get('decision') == 'accept':
+
+            # Check required documents
+            can_accept = userApi.add_confidentiality_validation(request.user)
+            if can_accept['status'] == False:
+                messages.error(request, 'An error occurred. {0}'.format(can_accept['message']))
+                return HttpResponseRedirect(request.get_full_path())
+
             assigned_hours = request.POST.get('assigned_hours')
             form = ApplicationStatusForm({
                 'application': request.POST.get('application'),
@@ -975,7 +1033,8 @@ def reaccept_application(request, app_slug):
 
     return render(request, 'students/jobs/reaccept_application.html', {
         'loggedin_user': request.user,
-        'app': app
+        'app': app,
+        'can_accept': userApi.add_confidentiality_validation(request.user)
     })
 
 

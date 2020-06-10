@@ -39,19 +39,31 @@
           {% for field in form.visible_fields  %}
 
             {% if field.name != 'nationality' %}
-              <div class="field-wrapper">
-                <label for="{{ field.id_for_label }}">
-                  {{ field.label }}
-                  {% if field.name != 'employee_number' %}
-                    <small class="text-danger"><i class="fa fa-asterisk" aria-hidden="true"></i></small>
-                  {% endif %}
-                </label>
-
-                {% if field.help_text %}
-                  <div class="help">{{ field.help_text|safe }}</div>
+              {% if field.name == 'is_new_employee' %}
+                {% if confidentiality.employee_number == None and confidentiality.is_new_employee == True %}
+                  <div class="field-wrapper">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {% if field.help_text %}
+                      <div class="help">{{ field.help_text|safe }}</div>
+                    {% endif %}
+                    {{ field }}
+                  </div>
                 {% endif %}
-                {{ field }}
-              </div>
+              {% else  %}
+                <div class="field-wrapper">
+                  <label for="{{ field.id_for_label }}">
+                    {{ field.label }}
+                    {% if field.name != 'employee_number' %}
+                      <small class="text-danger"><i class="fa fa-asterisk" aria-hidden="true"></i></small>
+                    {% endif %}
+                  </label>
+
+                  {% if field.help_text %}
+                    <div class="help">{{ field.help_text|safe }}</div>
+                  {% endif %}
+                  {{ field }}
+                </div>
+              {% endif %}
             {% endif %}
 
           {% endfor %}
