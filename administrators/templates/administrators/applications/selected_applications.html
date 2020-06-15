@@ -255,7 +255,7 @@
                           <div class="field-wrapper">
                             <label for="id_assigned_hours_{{ app.id }}">Assigned Hours:</label>
                             <div class="help">Only numerical value allowed.</div>
-                            <input id="id_assigned_hours_{{ app.id }}" type="number" step="1" name="assigned_hours" value="{{ app.offered.assigned_hours }}" class="form-control" />
+                            <input id="id_assigned_hours_{{ app.id }}" type="number" step="1" name="assigned_hours" value="{{ app.offered.assigned_hours|floatformat:'0' }}" class="form-control" />
                           </div>
 
                           <input type="hidden" name="application" value="{{ app.id }}" />
@@ -317,7 +317,7 @@
                           <div class="field-wrapper">
                             <label for="id_assigned_hours_{{ app.id }}">Assigned Hours:</label>
                             <div class="help">Only numerical value allowed.</div>
-                            <input id="id_assigned_hours_{{ app.id }}" type="number" step="1" name="assigned_hours" value="{{ app.selected.assigned_hours }}" class="form-control" />
+                            <input id="id_assigned_hours_{{ app.id }}" type="number" step="1" name="assigned_hours" value="{{ app.selected.assigned_hours|floatformat:'0' }}" class="form-control" />
                           </div>
 
                           <input type="hidden" name="application" value="{{ app.id }}" />
