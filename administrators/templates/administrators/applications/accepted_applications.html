@@ -137,7 +137,7 @@
                           <div class="field-wrapper">
                             <label for="id_new_assigned_hours_{{ app.id }}">New Assigned Hours:</label>
                             <div class="help">Numerical value only</div>
-                            <input id="id_new_assigned_hours_{{ app.id }}" type="number" step="1" name="new_assigned_hours" id="id_new_assigned_hours" value="{{ app.accepted.assigned_hours }}" class="form-control" />
+                            <input id="id_new_assigned_hours_{{ app.id }}" type="number" step="1" name="new_assigned_hours" id="id_new_assigned_hours" value="{{ app.accepted.assigned_hours|floatformat:'0' }}" class="form-control" />
                           </div>
 
                           <input type="hidden" name="old_assigned_hours" value="{{ app.accepted.assigned_hours }}" />
