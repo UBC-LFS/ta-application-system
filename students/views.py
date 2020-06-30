@@ -87,7 +87,7 @@ def edit_profile(request):
             if data['graduation_date'] == None:
                 errors.append('Anticipated Graduation Date: This field is required.')
 
-            if len(data['trainings']) != 4:
+            if len(data['trainings']) != len(userApi.get_trainings()):
                 errors.append('Training: You must check all fields to proceed.')
 
             if len(errors) > 0:
