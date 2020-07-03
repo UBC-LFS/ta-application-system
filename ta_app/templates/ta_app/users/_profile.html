@@ -78,7 +78,7 @@
 <div>
   <h6>Training:</h6>
   <ul>
-    {% for training in user.profile.trainings.all %}
+    {% for training in data.profile.trainings.all %}
       <li>{{ training.name }}</li>
     {% empty %}
       <li>None</li>

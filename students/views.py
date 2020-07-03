@@ -31,7 +31,6 @@ def index(request):
 
     can_apply = userApi.can_apply(request.user)
     if can_apply == False:
-        messages.warning(request, IMPORTANT_MESSAGE)
         return HttpResponseRedirect( reverse('students:show_profile') + '?next=' + reverse('students:index') + '&p=Home&t=basic' )
 
     apps = request.user.application_set.all()
@@ -53,11 +52,16 @@ def show_profile(request):
     adminApi.can_req_parameters_access(request, 'student', ['next', 'p','t'])
 
     loggedin_user = userApi.add_resume(request.user)
+
+    can_apply = userApi.can_apply(request.user)
+    if can_apply == False:
+        messages.warning(request, IMPORTANT_MESSAGE)
+
     return render(request, 'students/profile/show_profile.html', {
         'loggedin_user': userApi.add_avatar(loggedin_user),
         'form': ResumeForm(initial={ 'user': loggedin_user }),
         'current_tab': request.GET.get('t'),
-        'can_apply': userApi.can_apply(request.user)
+        'can_apply': can_apply
     })
 
 

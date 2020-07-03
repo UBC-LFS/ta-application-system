@@ -1,6 +1,5 @@
-Django==2.2.13
+django==2.2.13
 pillow>=5.4
-requests>=2.20
 psycopg2-binary>=2.7
 whitenoise==4.1.3
 django-summernote==0.8.11.4
