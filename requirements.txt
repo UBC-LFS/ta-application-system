@@ -6,3 +6,4 @@ django-summernote==0.8.11.4
 python3-saml==1.7.0
 cryptography>=2.7
 django-impersonate==1.4.1
+onelogin==1.5.3

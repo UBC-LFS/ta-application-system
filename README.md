@@ -132,6 +132,12 @@ https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
 TIME_ZONE = 'America/Vancouver'
 ```
 
+15. Test
+```
+$ python manage.py test instructors
+$ python manage.py test students
+$ python manage.py test administrators
+```
 
 ## Login locally
 1. Create a superuser
