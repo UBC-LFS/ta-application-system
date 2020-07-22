@@ -71,7 +71,7 @@ TERMINATED_APP = '?next=' + reverse('administrators:terminated_applications') + 
 ALL_USER = '?next=' + reverse('administrators:all_users') + '?page=2&p=All%20Users&t=basic'
 DASHBOARD_USER = '?next=' + reverse('administrators:applications_dashboard') + '?page=2&p=Dashboard&t=basic'
 
-"""
+
 class SessionTest(TestCase):
     fixtures = DATA
 
@@ -2791,7 +2791,7 @@ class HRTest(TestCase):
             if role.id == role_id: found = True
         self.assertFalse(found)
 
-"""
+
 class CourseTest(TestCase):
     fixtures = DATA
 
