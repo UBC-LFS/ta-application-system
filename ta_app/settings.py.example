@@ -72,7 +72,8 @@ INSTALLED_APPS = [
     'instructors',
     'students',
     'django_summernote',
-    'impersonate'
+    'impersonate',
+    'django_jenkins'
 ]
 
 MIDDLEWARE = [
