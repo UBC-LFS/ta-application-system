@@ -289,7 +289,7 @@ class EmployeeNumberForm(forms.ModelForm):
             'employee_number': 'Employee Number'
         }
         help_texts = {
-            'is_new_employee': "You are a new employee if you don't have an Employee Number. ",
+            'is_new_employee': "You are a new UBC employee if you have never had a UBC Employee Number or been paid by UBC.",
             'employee_number': 'Enter your UBC Employee ID number here, if you have one. Must be numeric and 7 digits in length.'
         }
 
@@ -307,7 +307,7 @@ class EmployeeNumberEditForm(forms.ModelForm):
             'employee_number': 'Employee Number'
         }
         help_texts = {
-            'is_new_employee': "You are a new employee if you don't have an Employee Number. ",
+            'is_new_employee': "You are a new UBC employee if you have never had a UBC Employee Number or been paid by UBC. ",
             'employee_number': 'Enter your UBC Employee ID number here, if you have one. Must be numeric and 7 digits in length.'
         }
 
@@ -333,7 +333,7 @@ class ConfidentialityDomesticForm(forms.ModelForm):
             'personal_data_form': 'Personal Data Form:'
         }
         help_texts = {
-            'is_new_employee': "You are a new employee if you don't have an Employee Number. ",
+            'is_new_employee': "You are a new UBC employee if you have never had a UBC Employee Number or been paid by UBC. ",
             'employee_number': 'Enter your UBC Employee ID number here, if you have one. Must be numeric and 7 digits in length.',
             'sin': 'Valid file formats: JPG, JPEG, PNG. A filename has at most 256 characters.',
             'personal_data_form': 'Valid file formats: PDF, DOC, DOCX. A filename has at most 256 characters.'
@@ -375,7 +375,7 @@ class ConfidentialityInternationalForm(forms.ModelForm):
             'personal_data_form': 'Personal Data Form:'
         }
         help_texts = {
-            'is_new_employee': "You are a new employee if you don't have an Employee Number. ",
+            'is_new_employee': "You are a new UBC employee if you have never had a UBC Employee Number or been paid by UBC. ",
             'employee_number': 'Enter your UBC Employee ID number here, if you have one. Must be numeric and 7 digits in length.',
             'sin': 'Valid file formats: JPG, JPEG, PNG. A filename has at most 256 characters.',
             'study_permit': 'Valid file formats: JPG, JPEG, PNG. A filename has at most 256 characters.',
@@ -418,7 +418,7 @@ class ConfidentialityForm(forms.ModelForm):
             'personal_data_form': 'Personal Data Form:'
         }
         help_texts = {
-            'is_new_employee': "You are a new employee if you don't have an Employee Number. ",
+            'is_new_employee': "You are a new UBC employee if you have never had a UBC Employee Number or been paid by UBC. ",
             'employee_number': 'Enter your UBC Employee ID number here, if you have one. Must be numeric and 7 digits in length.',
             'sin': 'Valid file formats: JPG, JPEG, PNG. A filename has at most 256 characters.',
             'study_permit': 'Valid file formats: JPG, JPEG, PNG. A filename has at most 256 characters.',

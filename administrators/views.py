@@ -45,8 +45,11 @@ APP_STATUS = {
 def index(request):
     ''' Index page of Administrator's portal '''
     request = userApi.has_admin_access(request, Role.HR)
-
-    context = { 'loggedin_user': userApi.add_avatar(request.user) }
+    apps = adminApi.get_applications()
+    context = {
+        'loggedin_user': userApi.add_avatar(request.user),
+        'accepted_apps': apps.filter(applicationstatus__assigned=ApplicationStatus.ACCEPTED).order_by('-id').distinct()
+    }
     if Role.ADMIN in request.user.roles or Role.SUPERADMIN in request.user.roles:
         sessions = adminApi.get_sessions()
         context['current_sessions'] = sessions.filter(is_archived=False)
@@ -55,10 +58,6 @@ def index(request):
         context['instructors'] = userApi.get_users_by_role(Role.INSTRUCTOR)
         context['students'] = userApi.get_users_by_role(Role.STUDENT)
         context['users'] = userApi.get_users()
-
-    elif Role.HR in request.user.roles:
-        apps = adminApi.get_applications()
-        context['accepted_apps'] = apps.filter(applicationstatus__assigned=ApplicationStatus.ACCEPTED).order_by('-id').distinct()
 
     return render(request, 'administrators/index.html', context)
 
