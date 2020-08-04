@@ -48,7 +48,7 @@ def index(request):
     apps = adminApi.get_applications()
     context = {
         'loggedin_user': userApi.add_avatar(request.user),
-        'accepted_apps': apps.filter(applicationstatus__assigned=ApplicationStatus.ACCEPTED).order_by('-id').distinct()
+        'accepted_apps': apps.filter(applicationstatus__assigned=ApplicationStatus.ACCEPTED).exclude(applicationstatus__assigned=ApplicationStatus.CANCELLED).order_by('-id').distinct()
     }
     if Role.ADMIN in request.user.roles or Role.SUPERADMIN in request.user.roles:
         sessions = adminApi.get_sessions()
