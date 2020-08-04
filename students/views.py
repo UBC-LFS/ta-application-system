@@ -19,7 +19,7 @@ from administrators import api as adminApi
 
 from datetime import datetime
 
-IMPORTANT_MESSAGE = '<strong>Important:</strong> Please complete all items in your Additional Information tab. If you have not already done so, also upload your Resume. <br />No official TA offer can be sent to you unless these two sections are completed.  Thanks.'
+IMPORTANT_MESSAGE = '<strong>Important:</strong> Please complete all items in your Additional Information tab. If you have not already done so, also upload your Resume. <br />When these tabs are complete, you will be able to Explore Jobs when the TA Application is open.<br />No official TA offer can be sent to you unless these two sections are completed.  Thanks.'
 
 
 @login_required(login_url=settings.LOGIN_URL)
