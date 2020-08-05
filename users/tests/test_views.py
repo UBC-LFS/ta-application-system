@@ -36,7 +36,7 @@ class UserTest(TestCase):
         return [m.message for m in get_messages(res.wsgi_request)]
 
     def test_view_url_exists_at_desired_location(self):
-        print('\n- Test: view url exists at desired location')
+        print('- Test: view url exists at desired location')
 
         self.login(USERS[2], 'password')
 
@@ -72,7 +72,7 @@ class UserTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_upload_avatar_administrator(self):
-        print('\n- Test: upload user avatar in an administrator view')
+        print('- Test: upload user avatar in an administrator view')
         self.login(USERS[0], 'password')
         user = userApi.get_user(USERS[0], 'username')
 
@@ -92,7 +92,7 @@ class UserTest(TestCase):
         self.assertIsNotNone(avatar)
 
     def test_upload_avatar_instructor(self):
-        print('\n- Test: upload user avatar in an instructor view')
+        print('- Test: upload user avatar in an instructor view')
         self.login(USERS[1], 'password')
         user = userApi.get_user(USERS[1], 'username')
 
@@ -112,7 +112,7 @@ class UserTest(TestCase):
         self.assertIsNotNone(avatar)
 
     def test_upload_avatar_student(self):
-        print('\n- Test: upload user avatar in a student view')
+        print('- Test: upload user avatar in a student view')
         self.login(USERS[2], 'password')
         user = userApi.get_user(USERS[2], 'username')
 
@@ -133,7 +133,7 @@ class UserTest(TestCase):
 
 
     def test_delete_avatar_administrator(self):
-        print('\n- Test: delete user avatar in an administrator view')
+        print('- Test: delete user avatar in an administrator view')
         self.login(USERS[0], 'password')
         user = userApi.get_user(USERS[0], 'username')
 
@@ -160,7 +160,7 @@ class UserTest(TestCase):
 
 
     def test_delete_avatar_instructor(self):
-        print('\n- Test: delete user avatar in an instructor view')
+        print('- Test: delete user avatar in an instructor view')
         self.login(USERS[1], 'password')
         user = userApi.get_user(USERS[1], 'username')
 
@@ -187,7 +187,7 @@ class UserTest(TestCase):
 
 
     def test_delete_avatar_student(self):
-        print('\n- Test: delete user avatar in a student view')
+        print('- Test: delete user avatar in a student view')
         self.login(USERS[2], 'password')
         user = userApi.get_user(USERS[2], 'username')
 
