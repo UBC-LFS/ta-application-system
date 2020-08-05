@@ -147,7 +147,7 @@ class SessionTest(TestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_show_session(self):
-        print('\n- Test: show a session')
+        print('- Test: show a session')
         self.login()
         session = adminApi.get_session(SESSION, 'slug')
         response = self.client.get(reverse('administrators:show_session', args=[session.slug]))
@@ -173,7 +173,7 @@ class SessionTest(TestCase):
 
 
     def test_create_session(self):
-        print('\n- Test: create a session')
+        print('- Test: create a session')
         self.login()
         data = {
             'year': '2020',
@@ -219,7 +219,7 @@ class SessionTest(TestCase):
 
 
     def test_create_existing_session(self):
-        print('\n- Test: create an existing session for checking duplicates')
+        print('- Test: create an existing session for checking duplicates')
         self.login()
 
         data = {
@@ -237,7 +237,7 @@ class SessionTest(TestCase):
         self.assertEqual(response.context['error_messages'], ['Session with this Year and Term already exists.'])
 
     def test_delete_session(self):
-        print('\n- Test: delete a session')
+        print('- Test: delete a session')
         self.login()
         session_id = '6'
         session = adminApi.get_session(session_id)
@@ -254,7 +254,7 @@ class SessionTest(TestCase):
 
 
     def test_delete_not_existing_sessinon(self):
-        print('\n- Test: delete a not existing session')
+        print('- Test: delete a not existing session')
         self.login()
 
         data = {
@@ -266,7 +266,7 @@ class SessionTest(TestCase):
 
 
     def test_edit_session(self):
-        print('\n- Test: edit a session')
+        print('- Test: edit a session')
         self.login()
         session_id = '6'
         session = adminApi.get_session(session_id)
@@ -314,7 +314,7 @@ class SessionTest(TestCase):
         self.assertEqual( updated_session.job_set.count(), len(data2['courses']) )
 
     def test_edit_not_existing_session(self):
-        print('\n- Test: edit a not existing session')
+        print('- Test: edit a not existing session')
         self.login()
 
         session_id = '1116'
@@ -334,7 +334,7 @@ class SessionTest(TestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_remove_courses_in_session(self):
-        print('\n- Test: remove courses in a session')
+        print('- Test: remove courses in a session')
         self.login()
 
         session_id = '5'
@@ -406,7 +406,7 @@ class SessionTest(TestCase):
         self.assertEqual( updated_session.job_set.count(), num_courses)
 
     def test_add_empty_courses_in_session(self):
-        print('\n- Test: add empty courses in a session')
+        print('- Test: add empty courses in a session')
         self.login()
 
         session_id = '5'
@@ -450,7 +450,7 @@ class JobTest(TestCase):
         return [m.message for m in get_messages(res.wsgi_request)]
 
     def test_view_url_exists_at_desired_location(self):
-        print('\n- Test: view url exists at desired location')
+        print('- Test: view url exists at desired location')
         self.login()
 
         response = self.client.get( reverse('administrators:show_job', args=[SESSION, JOB]) + PREPARE_JOB )
@@ -487,7 +487,7 @@ class JobTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_show_job(self):
-        print('\n- Test: display a job')
+        print('- Test: display a job')
         self.login()
         job = adminApi.get_job_by_session_slug_job_slug(SESSION, JOB)
 
@@ -517,7 +517,7 @@ class JobTest(TestCase):
 
 
     def test_prepare_jobs(self):
-        print('\n- Test: display all prepare jobs')
+        print('- Test: display all prepare jobs')
         self.login()
 
         response = self.client.get( reverse('administrators:prepare_jobs') )
@@ -528,7 +528,7 @@ class JobTest(TestCase):
         self.assertEqual( len(adminApi.get_jobs()), 450 )
 
     def test_edit_job(self):
-        print('\n- Test: edit a job')
+        print('- Test: edit a job')
         self.login()
 
         job = adminApi.get_job_by_session_slug_job_slug(SESSION, JOB)
@@ -579,7 +579,7 @@ class JobTest(TestCase):
 
 
     def test_add_instructors(self):
-        print('\n- Test: add instructors')
+        print('- Test: add instructors')
         self.login()
 
         job = adminApi.get_job_by_session_slug_job_slug(SESSION, JOB)
@@ -623,7 +623,7 @@ class JobTest(TestCase):
 
 
     def test_delete_instructors(self):
-        print('\n- Test: delete instructors')
+        print('- Test: delete instructors')
         self.login()
         job = adminApi.get_job_by_session_slug_job_slug(SESSION, JOB)
         self.assertEqual( len(job.instructors.all()), 1 )
@@ -659,7 +659,7 @@ class JobTest(TestCase):
         self.assertTrue('An error occurred' in content['message'])
 
     def test_edit_not_existing_job(self):
-        print('\n- Test: display all progress jobs')
+        print('- Test: display all progress jobs')
         self.login()
 
         data = {
@@ -678,7 +678,7 @@ class JobTest(TestCase):
 
 
     def test_progress_jobs(self):
-        print('\n- Test: display all progress jobs')
+        print('- Test: display all progress jobs')
         self.login()
 
         response = self.client.get( reverse('administrators:progress_jobs') )
@@ -689,7 +689,7 @@ class JobTest(TestCase):
         self.assertEqual( len(adminApi.get_jobs()), 450 )
 
     def test_instructor_jobs(self):
-        print('\n- Test: display all instructor jobs')
+        print('- Test: display all instructor jobs')
         self.login()
 
         response = self.client.get( reverse('administrators:instructor_jobs') )
@@ -701,7 +701,7 @@ class JobTest(TestCase):
 
 
     def test_student_jobs(self):
-        print('\n- Test: display all student jobs')
+        print('- Test: display all student jobs')
         self.login()
 
         response = self.client.get( reverse('administrators:student_jobs') )
@@ -712,7 +712,7 @@ class JobTest(TestCase):
         self.assertEqual( len(userApi.get_users_by_role('Student')), 100 )
 
     def test_show_job_applications(self):
-        print('\n- Test: display a job applications')
+        print('- Test: display a job applications')
         self.login()
 
         response = self.client.get( reverse('administrators:show_job_applications', args=[SESSION, JOB]) )
@@ -726,7 +726,7 @@ class JobTest(TestCase):
         self.assertEqual(job.course.slug, JOB)
 
     def test_instructor_jobs_details(self):
-        print('\n- Test: display jobs that an instructor has')
+        print('- Test: display jobs that an instructor has')
         self.login()
 
         response = self.client.get( reverse('administrators:instructor_jobs_details', args=[ USERS[1] ]) + '?next=/administrators/jobs/instructor/?page=2' )
@@ -751,7 +751,7 @@ class JobTest(TestCase):
         self.assertEqual(response.context['user'].username, USERS[1])
 
     def test_student_jobs_details(self):
-        print('\n- Test: display jobs that a student has')
+        print('- Test: display jobs that a student has')
         self.login()
 
         response = self.client.get( reverse('administrators:student_jobs_details', args=[ USERS[2] ]) + '?next=/administrators/jobs/student/?page=2' )
@@ -820,7 +820,7 @@ class ApplicationTest(TestCase):
         return [m.message for m in get_messages(res.wsgi_request)]
 
     def test_view_url_exists_at_desired_location(self):
-        print('\n- Test: view url exists at desired location')
+        print('- Test: view url exists at desired location')
         self.login()
 
         response = self.client.get( reverse('administrators:show_application', args=[APP]) + ALL_APP )
@@ -860,7 +860,7 @@ class ApplicationTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_show_application(self):
-        print('\n- Test: Display an application details')
+        print('- Test: Display an application details')
         self.login()
 
         next = '?next=/administrators/applications/{0}/?page=2&p={1}'
@@ -952,11 +952,11 @@ class ApplicationTest(TestCase):
 
 
     def test_applications_dashboard(self):
-        print('\n- Test: Display a dashboard to take a look at updates')
+        print('- Test: Display a dashboard to take a look at updates')
         self.login()
 
     def test_all_applications(self):
-        print('\n- Test: Display all applications')
+        print('- Test: Display all applications')
         self.login()
 
         response = self.client.get( reverse('administrators:all_applications') )
@@ -966,7 +966,7 @@ class ApplicationTest(TestCase):
         self.assertEqual( len(response.context['apps']), 26)
 
     def test_selected_applications(self):
-        print('\n- Test: Display applications selected by instructors')
+        print('- Test: Display applications selected by instructors')
         self.login()
 
         response = self.client.get( reverse('administrators:selected_applications') )
@@ -978,7 +978,7 @@ class ApplicationTest(TestCase):
         self.assertEqual(response.context['app_status']['offered'], ApplicationStatus.OFFERED)
 
     def test_offer_job(self):
-        print('\n- Test: Admin can offer a job to each job')
+        print('- Test: Admin can offer a job to each job')
         self.login()
 
         app_id = '2'
@@ -1153,7 +1153,7 @@ class ApplicationTest(TestCase):
 
 
     def test_offered_applications(self):
-        print('\n- Test: Display applications offered by admins')
+        print('- Test: Display applications offered by admins')
         self.login()
 
         response = self.client.get( reverse('administrators:offered_applications') )
@@ -1164,7 +1164,7 @@ class ApplicationTest(TestCase):
         self.assertEqual( len(response.context['admin_emails']), 3)
 
     def test_offered_applications_send_email(self):
-        print('\n- Test: Send an email to offered applications')
+        print('- Test: Send an email to offered applications')
         self.login()
 
         curr_emails = adminApi.get_emails()
@@ -1226,7 +1226,7 @@ class ApplicationTest(TestCase):
 
 
     def test_email_history(self):
-        print('\n- Test: Display all of email sent by admins to let them know job offers')
+        print('- Test: Display all of email sent by admins to let them know job offers')
         self.login()
 
         response = self.client.get(reverse('administrators:email_history') + '?page=2')
@@ -1236,7 +1236,7 @@ class ApplicationTest(TestCase):
         self.assertEqual( len(response.context['emails']), 5 )
 
     def test_send_reminder(self):
-        print('\n- Test: Send a reminder email')
+        print('- Test: Send a reminder email')
         self.login()
 
         total_emails = len(adminApi.get_emails())
@@ -1288,7 +1288,7 @@ class ApplicationTest(TestCase):
         self.assertEqual(len(mail.outbox), 1)
 
     def test_accepted_applications(self):
-        print('\n- Test: Display applications accepted by students')
+        print('- Test: Display applications accepted by students')
         self.login()
 
         response = self.client.get( reverse('administrators:accepted_applications') )
@@ -1298,7 +1298,7 @@ class ApplicationTest(TestCase):
         self.assertEqual( len(response.context['apps']), 5)
 
     def test_admin_docs(self):
-        print('\n- Test: Admin or HR can have update admin docs')
+        print('- Test: Admin or HR can have update admin docs')
         self.login()
 
         FULL_PATH = reverse('administrators:accepted_applications') + '?page=2'
@@ -1368,7 +1368,7 @@ class ApplicationTest(TestCase):
 
 
     def test_declined_applications(self):
-        print('\n- Test: Display applications declined by students')
+        print('- Test: Display applications declined by students')
         self.login()
 
         response = self.client.get( reverse('administrators:declined_applications') )
@@ -1378,7 +1378,7 @@ class ApplicationTest(TestCase):
         self.assertEqual( len(response.context['apps']), 4)
 
     def test_declined_applications_send_email(self):
-        print('\n- Test: Send an email to declined applications')
+        print('- Test: Send an email to declined applications')
         self.login()
 
         curr_emails = adminApi.get_emails()
@@ -1440,7 +1440,7 @@ class ApplicationTest(TestCase):
 
 
     def test_decline_reassign(self):
-        print('\n- Test: Decline and reassign a job offer with new assigned hours')
+        print('- Test: Decline and reassign a job offer with new assigned hours')
         self.login()
 
         FULL_PATH = reverse('administrators:accepted_applications') + '?page=2'
@@ -1571,7 +1571,7 @@ class ApplicationTest(TestCase):
 
 
     def test_terminate(self):
-        print('\n- Test: terminate an application')
+        print('- Test: terminate an application')
         self.login()
 
         app_id = '22'
@@ -1638,7 +1638,7 @@ class ApplicationTest(TestCase):
         self.assertTrue(application.is_terminated)
 
     def test_terminated_applications(self):
-        print('\n- Test: Display applications terminated by students')
+        print('- Test: Display applications terminated by students')
         self.login()
 
         response = self.client.get( reverse('administrators:terminated_applications') )
@@ -1648,7 +1648,7 @@ class ApplicationTest(TestCase):
         self.assertEqual( len(response.context['apps']), 1)
 
     def test_terminated_applications_send_email(self):
-        print('\n- Test: Send an email to terminated applications')
+        print('- Test: Send an email to terminated applications')
         self.login()
 
         curr_emails = adminApi.get_emails()
@@ -1739,7 +1739,7 @@ class HRTest(TestCase):
         return [m.message for m in get_messages(res.wsgi_request)]
 
     def test_view_url_exists_at_desired_location(self):
-        print('\n- Test: view url exists at desired location')
+        print('- Test: view url exists at desired location')
 
         response = self.client.get( reverse('administrators:all_users') )
         self.assertEqual(response.status_code, 302)
@@ -1777,7 +1777,7 @@ class HRTest(TestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_all_users(self):
-        print('\n- Test: get all users')
+        print('- Test: get all users')
         self.login()
         response = self.client.get(reverse('administrators:all_users'))
         self.assertEqual(response.status_code, 200)
@@ -1785,7 +1785,7 @@ class HRTest(TestCase):
         self.assertEqual( len(userApi.get_users()), 164 )
 
     def test_show_user(self):
-        print('\n- Test: show a user')
+        print('- Test: show a user')
         self.login()
 
         next = '?next=/administrators/{0}/&p={1}&t={2}'
@@ -1971,7 +1971,7 @@ class HRTest(TestCase):
         self.assertEqual(response.context['selected_user'].username, USERS[2])
 
     def test_show_user_not_exists(self):
-        print('\n- Test: show no existing user ')
+        print('- Test: show no existing user ')
         self.login()
 
         response = self.client.get(reverse('users:show_user', args=['user10000.test']) + ALL_USER)
@@ -1979,7 +1979,7 @@ class HRTest(TestCase):
 
 
     def test_edit_user_role_change(self):
-        print('\n- Test: edit a user with role change')
+        print('- Test: edit a user with role change')
         self.login()
 
         user = userApi.get_user(USERS[2], 'username')
@@ -2020,7 +2020,7 @@ class HRTest(TestCase):
         self.assertRedirects(response, response.url)
 
     def test_edit_user(self):
-        print('\n- Test: edit an user')
+        print('- Test: edit an user')
         self.login()
 
         user = userApi.get_user(USERS[2], 'username')
@@ -2264,7 +2264,7 @@ class HRTest(TestCase):
 
 
     def test_delete_user(self):
-        print('\n- Test: delete an user')
+        print('- Test: delete an user')
         self.login()
 
         user = userApi.get_user(USERS[2], 'username')
@@ -2325,7 +2325,7 @@ class HRTest(TestCase):
 
 
     def test_create_user(self):
-        print('\n- Test: create an user')
+        print('- Test: create an user')
         self.login()
 
         data = {
@@ -2364,7 +2364,7 @@ class HRTest(TestCase):
 
 
     def test_create_user_missing_values(self):
-        print('\n- Test: create an user with missing values')
+        print('- Test: create an user with missing values')
         self.login()
 
         data = {
@@ -2478,7 +2478,7 @@ class HRTest(TestCase):
 
 
     def test_create_user_with_duplicates(self):
-        print('\n- Test: create a user with duplicates')
+        print('- Test: create a user with duplicates')
         self.login()
         data = {
             'first_name': 'user101',
@@ -2523,7 +2523,7 @@ class HRTest(TestCase):
         self.assertRedirects(response, response.url)
 
     def test_create_user_via_api(self):
-        print('\n- Test: create a user via api when the function added in SAML')
+        print('- Test: create a user via api when the function added in SAML')
 
         data = {
             'first_name': 'test5',
@@ -2588,7 +2588,7 @@ class HRTest(TestCase):
 
 
     def test_user_exists_via_saml(self):
-        print('\n- Test: user exists via SAML')
+        print('- Test: user exists via SAML')
         self.login()
 
         data = {
@@ -2724,7 +2724,7 @@ class HRTest(TestCase):
         self.assertFalse(user6.confidentiality.is_new_employee)
 
     def test_roles(self):
-        print('\n- Test: Display all roles and create a role')
+        print('- Test: Display all roles and create a role')
         self.login()
 
         response = self.client.get( reverse('administrators:roles') )
@@ -2745,7 +2745,7 @@ class HRTest(TestCase):
         self.assertEqual(response.context['roles'].last().name, data['name'])
 
     def test_edit_role(self):
-        print('\n- Test: edit role details')
+        print('- Test: edit role details')
         self.login()
 
         slug = 'student'
@@ -2770,7 +2770,7 @@ class HRTest(TestCase):
 
 
     def test_delete_role(self):
-        print('\n- Test: delete a role')
+        print('- Test: delete a role')
         self.login()
 
         total_roles = len(userApi.get_roles())
@@ -2810,7 +2810,7 @@ class CourseTest(TestCase):
         return [m.message for m in get_messages(res.wsgi_request)]
 
     def test_view_url_exists_at_desired_location(self):
-        print('\n- Test: view url exists at desired location')
+        print('- Test: view url exists at desired location')
         self.login()
 
         response = self.client.get( reverse('administrators:all_courses') )
@@ -2824,7 +2824,7 @@ class CourseTest(TestCase):
 
 
     def test_all_courses(self):
-        print('\n- Test: Display all courses and edit/delete a course')
+        print('- Test: Display all courses and edit/delete a course')
         self.login()
 
         response = self.client.get(reverse('administrators:all_courses'))
@@ -2835,7 +2835,7 @@ class CourseTest(TestCase):
         self.assertEqual( len(adminApi.get_courses()), 709 )
 
     def test_create_course(self):
-        print('\n- Test: Create a course')
+        print('- Test: Create a course')
         self.login()
 
         total_courses = len(adminApi.get_courses())
@@ -2873,7 +2873,7 @@ class CourseTest(TestCase):
         self.assertEqual(response.url, reverse('administrators:create_course'))
 
     def test_edit_course(self):
-        print('\n- Test: Edit a course')
+        print('- Test: Edit a course')
         self.login()
 
         FULL_PATH = reverse('administrators:all_users') + '?page=2'
@@ -2926,7 +2926,7 @@ class CourseTest(TestCase):
         self.assertEqual(new_course.job_note, data2['job_note'])
 
     def test_delete_course(self):
-        print('\n- Test: delete a course')
+        print('- Test: delete a course')
         self.login()
 
         total_courses = len(adminApi.get_courses())
@@ -2957,14 +2957,14 @@ class CourseTest(TestCase):
         self.assertEqual( len(adminApi.get_courses()), total_courses - 1 )
 
     def test_delete_not_existing_course(self):
-        print('\n- Test: delete a not existing course')
+        print('- Test: delete a not existing course')
         self.login()
 
         response = self.client.post( reverse('administrators:delete_course'), data=urlencode({ 'course': 1000 }), content_type=ContentType )
         self.assertEqual(response.status_code, 404)
 
     def test_create_new_course_with_zero_base(self):
-        print('\n- Test: create a new course with zero base')
+        print('- Test: create a new course with zero base')
         self.login()
 
         response = self.client.post( reverse('administrators:course_codes'), data=urlencode({ 'name': 'ABC' }), content_type=ContentType )
@@ -3028,7 +3028,7 @@ class PreparationTest(TestCase):
         return [m.message for m in get_messages(res.wsgi_request)]
 
     def test_view_url_exists_at_desired_location(self):
-        print('\n- Test: view url exists at desired location')
+        print('- Test: view url exists at desired location')
         self.login()
 
         response = self.client.get( reverse('administrators:terms') )
@@ -3066,7 +3066,7 @@ class PreparationTest(TestCase):
 
 
     def test_terms(self):
-        print('\n- Test: Display all terms and create a term')
+        print('- Test: Display all terms and create a term')
         self.login()
 
         response = self.client.get( reverse('administrators:terms') )
@@ -3095,7 +3095,7 @@ class PreparationTest(TestCase):
         self.assertEqual(response.context['terms'].last().max_hours, data['max_hours'])
 
     def test_edit_term(self):
-        print('\n- Test: edit term details')
+        print('- Test: edit term details')
         self.login()
 
         term_id = 1
@@ -3125,7 +3125,7 @@ class PreparationTest(TestCase):
 
 
     def test_delete_term(self):
-        print('\n- Test: delete a term')
+        print('- Test: delete a term')
         self.login()
 
         total_terms = len(adminApi.get_terms())
@@ -3164,7 +3164,7 @@ class PreparationTest(TestCase):
 
 
     def test_degrees(self):
-        print('\n- Test: Display all degrees and create a degree')
+        print('- Test: Display all degrees and create a degree')
         self.login()
 
         response = self.client.get( reverse('administrators:degrees') )
@@ -3185,7 +3185,7 @@ class PreparationTest(TestCase):
         self.assertEqual(response.context['degrees'].last().name, data['name'])
 
     def test_edit_degree(self):
-        print('\n- Test: edit degree details')
+        print('- Test: edit degree details')
         self.login()
 
         slug = 'bachelor-of-arts'
@@ -3210,7 +3210,7 @@ class PreparationTest(TestCase):
 
 
     def test_delete_degree(self):
-        print('\n- Test: delete a degree')
+        print('- Test: delete a degree')
         self.login()
 
         total_degrees = len(userApi.get_degrees())
@@ -3232,7 +3232,7 @@ class PreparationTest(TestCase):
         self.assertFalse(found)
 
     def test_programs(self):
-        print('\n- Test: Display all programs and create a program')
+        print('- Test: Display all programs and create a program')
         self.login()
 
         response = self.client.get( reverse('administrators:programs') )
@@ -3253,7 +3253,7 @@ class PreparationTest(TestCase):
         self.assertEqual(response.context['programs'].last().name, data['name'])
 
     def test_edit_program(self):
-        print('\n- Test: edit program details')
+        print('- Test: edit program details')
         self.login()
 
         slug = 'master-of-science-in-applied-animal-biology-msc'
@@ -3278,7 +3278,7 @@ class PreparationTest(TestCase):
 
 
     def test_delete_program(self):
-        print('\n- Test: delete a program')
+        print('- Test: delete a program')
         self.login()
 
         total_programs = len(userApi.get_programs())
@@ -3300,7 +3300,7 @@ class PreparationTest(TestCase):
         self.assertFalse(found)
 
     def test_trainings(self):
-        print('\n- Test: Display all trainings and create a training')
+        print('- Test: Display all trainings and create a training')
         self.login()
 
         response = self.client.get( reverse('administrators:trainings') )
@@ -3321,7 +3321,7 @@ class PreparationTest(TestCase):
         self.assertEqual(response.context['trainings'].last().name, data['name'])
 
     def test_edit_training(self):
-        print('\n- Test: edit training details')
+        print('- Test: edit training details')
         self.login()
 
         slug = 'workplace-violence-prevention-training'
@@ -3346,7 +3346,7 @@ class PreparationTest(TestCase):
 
 
     def test_delete_training(self):
-        print('\n- Test: delete a training')
+        print('- Test: delete a training')
         self.login()
 
         total_trainings = len(userApi.get_trainings())
@@ -3368,7 +3368,7 @@ class PreparationTest(TestCase):
         self.assertFalse(found)
 
     def test_statuses(self):
-        print('\n- Test: Display all statuss and create a status')
+        print('- Test: Display all statuss and create a status')
         self.login()
 
         response = self.client.get( reverse('administrators:statuses') )
@@ -3389,7 +3389,7 @@ class PreparationTest(TestCase):
         self.assertEqual(response.context['statuses'].last().name, data['name'])
 
     def test_edit_status(self):
-        print('\n- Test: edit status details')
+        print('- Test: edit status details')
         self.login()
 
         slug = 'undergraduate-student'
@@ -3414,7 +3414,7 @@ class PreparationTest(TestCase):
 
 
     def test_delete_status(self):
-        print('\n- Test: delete a status')
+        print('- Test: delete a status')
         self.login()
 
         total_statuses = len(userApi.get_statuses())
@@ -3436,7 +3436,7 @@ class PreparationTest(TestCase):
         self.assertFalse(found)
 
     def test_course_codes(self):
-        print('\n- Test: Display all course_codes and create a course_code')
+        print('- Test: Display all course_codes and create a course_code')
         self.login()
 
         response = self.client.get( reverse('administrators:course_codes') )
@@ -3457,7 +3457,7 @@ class PreparationTest(TestCase):
         self.assertEqual(response.context['course_codes'].last().name, data['name'])
 
     def test_edit_course_code(self):
-        print('\n- Test: edit course_code details')
+        print('- Test: edit course_code details')
         self.login()
 
         course_code_id = 1
@@ -3482,7 +3482,7 @@ class PreparationTest(TestCase):
 
 
     def test_delete_course_code(self):
-        print('\n- Test: delete a course_code')
+        print('- Test: delete a course_code')
         self.login()
 
         data = { 'name': 'ZBC' }
@@ -3508,7 +3508,7 @@ class PreparationTest(TestCase):
         self.assertFalse(found)
 
     def test_course_numbers(self):
-        print('\n- Test: Display all course_numbers and create a course_number')
+        print('- Test: Display all course_numbers and create a course_number')
         self.login()
 
         response = self.client.get( reverse('administrators:course_numbers') )
@@ -3529,7 +3529,7 @@ class PreparationTest(TestCase):
         self.assertEqual(response.context['course_numbers'].last().name, data['name'])
 
     def test_edit_course_number(self):
-        print('\n- Test: edit course_number details')
+        print('- Test: edit course_number details')
         self.login()
 
         course_number_id = 1
@@ -3554,7 +3554,7 @@ class PreparationTest(TestCase):
 
 
     def test_delete_course_number(self):
-        print('\n- Test: delete a course_number')
+        print('- Test: delete a course_number')
         self.login()
 
 
@@ -3582,7 +3582,7 @@ class PreparationTest(TestCase):
         self.assertFalse(found)
 
     def test_course_sections(self):
-        print('\n- Test: Display all course_sections and create a course_section')
+        print('- Test: Display all course_sections and create a course_section')
         self.login()
 
         response = self.client.get( reverse('administrators:course_sections') )
@@ -3603,7 +3603,7 @@ class PreparationTest(TestCase):
         self.assertEqual(response.context['course_sections'].last().name, data['name'])
 
     def test_edit_course_section(self):
-        print('\n- Test: edit course_section details')
+        print('- Test: edit course_section details')
         self.login()
 
         course_section_id = 1
@@ -3628,7 +3628,7 @@ class PreparationTest(TestCase):
 
 
     def test_delete_course_section(self):
-        print('\n- Test: delete a course_section')
+        print('- Test: delete a course_section')
         self.login()
 
         data = { 'name': '99Z' }
@@ -3655,7 +3655,7 @@ class PreparationTest(TestCase):
         self.assertFalse(found)
 
     def test_classifications(self):
-        print('\n- Test: Display all classifications and create a classification')
+        print('- Test: Display all classifications and create a classification')
         self.login()
 
         response = self.client.get( reverse('administrators:classifications') )
@@ -3682,7 +3682,7 @@ class PreparationTest(TestCase):
 
 
     def test_edit_classification(self):
-        print('\n- Test: edit classification details')
+        print('- Test: edit classification details')
         self.login()
 
         slug = '2019-marker'
@@ -3712,7 +3712,7 @@ class PreparationTest(TestCase):
 
 
     def test_delete_classification(self):
-        print('\n- Test: delete a classification')
+        print('- Test: delete a classification')
         self.login()
 
         data = {
@@ -3745,7 +3745,7 @@ class PreparationTest(TestCase):
 
 
     def test_admin_emails(self):
-        print('\n- Test: Display all admin emails and create an admin email')
+        print('- Test: Display all admin emails and create an admin email')
         self.login()
 
         response = self.client.get( reverse('administrators:admin_emails') )
@@ -3773,7 +3773,7 @@ class PreparationTest(TestCase):
 
 
     def test_edit_admin_email(self):
-        print('\n- Test: edit admin email details')
+        print('- Test: edit admin email details')
         self.login()
 
         slug = 'type-1'
@@ -3801,7 +3801,7 @@ class PreparationTest(TestCase):
 
 
     def test_delete_admin_email(self):
-        print('\n- Test: delete a admin email')
+        print('- Test: delete a admin email')
         self.login()
 
         data = {
@@ -3833,7 +3833,7 @@ class PreparationTest(TestCase):
 
 
     def test_landing_pages(self):
-        print('\n- Test: Display all landin page contents and create a landing page content')
+        print('- Test: Display all landin page contents and create a landing page content')
         self.login()
 
         response = self.client.get( reverse('administrators:landing_pages') )
@@ -3863,7 +3863,7 @@ class PreparationTest(TestCase):
 
 
     def test_edit_landing_page(self):
-        print('\n- Test: edit landing page details')
+        print('- Test: edit landing page details')
         self.login()
 
         landing_page_id = 1
@@ -3892,7 +3892,7 @@ class PreparationTest(TestCase):
 
 
     def test_delete_landing_page(self):
-        print('\n- Test: delete a landing page')
+        print('- Test: delete a landing page')
         self.login()
 
         data = {
@@ -3987,7 +3987,7 @@ class AdminHRTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_index(self):
-        print('\n- Test: index')
+        print('- Test: index')
         self.login('user3.admin', 'password')
 
         response = self.client.get( reverse('administrators:index') )
@@ -3997,7 +3997,7 @@ class AdminHRTest(TestCase):
         self.assertEqual(response.context['accepted_apps'].count(), 6)
 
     def test_accepted_applications(self):
-        print('\n- Test: Display applications accepted by students')
+        print('- Test: Display applications accepted by students')
         self.login('user3.admin', 'password')
 
         response = self.client.get( reverse('administrators:accepted_applications') )
@@ -4007,7 +4007,7 @@ class AdminHRTest(TestCase):
         self.assertEqual( len(response.context['apps']), 5)
 
     def test_admin_docs(self):
-        print('\n- Test: Admin or HR can have update admin docs')
+        print('- Test: Admin or HR can have update admin docs')
         self.login('user3.admin', 'password')
         app_id = 1
 
@@ -4078,7 +4078,7 @@ class AdminHRTest(TestCase):
         self.assertEqual(admin_user.created_at.strftime('%Y-%m-%d'), datetime.now().strftime('%Y-%m-%d'))
 
     def test_admin_docs_update_history(self):
-        print('\n- Test: Admin or HR can have update admin docs with history')
+        print('- Test: Admin or HR can have update admin docs with history')
         self.login('user3.admin', 'password')
         app_id = 1
         data1 = {

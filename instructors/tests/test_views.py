@@ -41,7 +41,7 @@ class InstructorTest(TestCase):
         return [m.message for m in get_messages(res.wsgi_request)]
 
     def test_view_url_exists_at_desired_location(self):
-        print('\n- Test: view url exists at desired location')
+        print('- Test: view url exists at desired location')
 
         self.login(USERS[0], 'password')
 
@@ -100,7 +100,7 @@ class InstructorTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_index(self):
-        print('\n- Display an index page')
+        print('- Display an index page')
         self.login()
 
         response = self.client.get( reverse('instructors:index') )
@@ -109,7 +109,7 @@ class InstructorTest(TestCase):
         self.assertEqual(response.context['loggedin_user'].roles, ['Instructor'])
 
     def test_edit_user(self):
-        print('\n- Test to edit the information of an user')
+        print('- Test to edit the information of an user')
         self.login()
 
         user = userApi.get_user(USER, 'username')
@@ -141,7 +141,7 @@ class InstructorTest(TestCase):
 
 
     def test_edit_user_missing_values(self):
-        print('\n- Test to edit the information of an user with missing values')
+        print('- Test to edit the information of an user with missing values')
         self.login()
 
         user = userApi.get_user(USER, 'username')
@@ -231,7 +231,7 @@ class InstructorTest(TestCase):
 
 
     def test_show_user(self):
-        print('\n- Display an user details')
+        print('- Display an user details')
         self.login()
 
         SESSION = '2019-w1'
@@ -272,7 +272,7 @@ class InstructorTest(TestCase):
         self.assertEqual(response.context['selected_user'].username, STUDENT)
 
     def test_show_jobs(self):
-        print('\n- Display jobs by instructors')
+        print('- Display jobs by instructors')
         self.login()
 
         response = self.client.get( reverse('instructors:show_jobs') )
@@ -287,7 +287,7 @@ class InstructorTest(TestCase):
 
 
     def test_edit_job(self):
-        print('\n- Display jobs by instructors')
+        print('- Display jobs by instructors')
         self.login()
 
         response = self.client.get( reverse('instructors:edit_job', args=[SESSION, JOB]) + JOBS_WRONG_1 )
@@ -335,7 +335,7 @@ class InstructorTest(TestCase):
         self.assertEqual(response.context['job'].note, data2['note'])
 
     def test_show_job(self):
-        print('\n- Test: display a job')
+        print('- Test: display a job')
         self.login()
 
         response = self.client.get( reverse('instructors:show_job', args=[SESSION, JOB]) + JOBS_WRONG_1 )
@@ -356,7 +356,7 @@ class InstructorTest(TestCase):
         self.assertEqual(job.course.slug, JOB)
 
     def test_show_applications(self):
-        print('\n- Display applications applied by students')
+        print('- Display applications applied by students')
         self.login()
 
         job = adminApi.get_job_by_session_slug_job_slug(SESSION, JOB)
@@ -518,7 +518,7 @@ class InstructorTest(TestCase):
 
 
     def test_write_note(self):
-        print('\n- Write a note')
+        print('- Write a note')
         self.login()
 
         APP = SESSION + '-' + JOB + '-application-by-user66test'
