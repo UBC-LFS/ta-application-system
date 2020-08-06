@@ -69,6 +69,7 @@ So, os.environ['TA_APP_ENCRYPT_SALT'] would be **23fva4-09234ndsfas=sdf0-8973u2r
 4. Switch *DEBUG* to **False** in a *settings.py* file
 ```
 DEBUG = False
+LOCAL_LOGIN = False
 ```
 
 5. Add a Media root directory to store certificate files
