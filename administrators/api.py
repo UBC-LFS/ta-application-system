@@ -12,11 +12,13 @@ from django.urls import resolve
 from urllib.parse import urlparse
 
 from administrators.models import *
+from administrators.forms import AdminDocumentsForm
 from users.models import *
 from users import api as userApi
 
 from datetime import datetime
 import math
+import csv
 
 # Request parameter validation
 
@@ -664,6 +666,105 @@ def update_job_offer(post):
     return True if app and status else False
 
 
+def bulk_update_admin_docs(data, user):
+    ''' bulk update admin docs '''
+
+    csv_reader = csv.reader(data, quotechar='"', delimiter=',')
+    next(csv_reader)
+
+    docs = []
+    updates = set()
+    for row in csv_reader:
+        id = row[0].strip()
+        pin = row[10].strip()
+        tasm = True if row[11].lower().strip() == 'yes' else False
+        eform = row[12].strip()
+        speed_chart = row[13].strip()
+        processing_note = row[14].strip()
+
+        admin_docs = get_admin_docs(id)
+        form = AdminDocumentsForm({ 'application': id, 'pin': pin, 'tasm': tasm, 'eform': eform, 'speed_chart': speed_chart, 'processing_note': processing_note }, instance=admin_docs)
+        if form.is_valid() == False:
+            errors = form.errors.get_json_data()
+            return False, 'ID ' + id + ' ' + userApi.get_error_messages(errors)
+
+        can_save = False
+        obj = AdminDocuments.objects.filter(application_id=row[0])
+        if obj.exists():
+            admin_docs = obj.first()
+            fields = []
+            if admin_docs.pin.strip() != pin:
+                admin_docs.pin = pin
+                updates.add('pin')
+                fields.append('PIN')
+
+            if admin_docs.tasm != tasm:
+                admin_docs.tasm = tasm
+                updates.add('tasm')
+                fields.append('TASM')
+
+            if admin_docs.eform.strip() != eform:
+                admin_docs.eform = eform
+                updates.add('eform')
+                fields.append('eForm')
+
+            if admin_docs.speed_chart.strip() != speed_chart:
+                admin_docs.speed_chart = speed_chart
+                updates.add('speed_chart')
+                fields.append('Speed Chart')
+
+            if admin_docs.processing_note.strip() != processing_note:
+                admin_docs.processing_note = processing_note
+                updates.add('processing_note')
+                fields.append('Processing Note')
+
+            if len(fields) > 0:
+                docs.append({ 'id': id, 'fields': fields, 'obj': admin_docs })
+                can_save = True
+
+        else:
+            fields = []
+            if bool(pin):
+                updates.add('pin')
+                fields.append('PIN')
+            if tasm == True:
+                updates.add('tasm')
+                fields.append('TASM')
+            if bool(eform):
+                updates.add('eform')
+                fields.append('eForm')
+            if bool(speed_chart):
+                updates.add('speed_chart')
+                fields.append('Speed Chart')
+            if bool(processing_note):
+                updates.add('processing_note')
+                fields.append('Processing Note')
+
+            if len(fields) > 0:
+                docs.append({ 'id': id, 'fields': fields, 'obj': admin_docs })
+                can_save = True
+
+        # Update
+        if can_save:
+            saved_admin_docs = form.save()
+            if saved_admin_docs:
+                saved_admin_docs_user = add_admin_docs_user(saved_admin_docs, user)
+                if saved_admin_docs_user == False:
+                    return False, 'An error occurred while saving admin docs user.'
+            else:
+                return False, 'An error occurred while saving admin docs.'
+
+    if len(docs) > 0:
+        msg = '<ul>'
+        for doc in docs:
+            msg += '<li><strong>ID ' + doc['id'] + ' (Employee Number: ' + doc['obj'].application.applicant.confidentiality.employee_number + '):</strong> ' + ','.join(doc['fields']) + '</li>'
+        msg += '</ul>'
+        return True, msg
+
+    return True, ''
+
+
+
 # end applications
 
 
@@ -679,6 +780,7 @@ def get_admin_docs(app_id):
 def add_admin_docs_user(admin_docs, user):
     ''' Insert an user into admin docs '''
     admin_docs_user = AdminDocumentsUser.objects.create(document=admin_docs, user=user.get_full_name())
+    print('add_admin_docs_user', admin_docs, user)
     return admin_docs_user if admin_docs_user else False
 
 
@@ -892,3 +994,6 @@ def is_valid_float(num):
 def is_valid_integer(num):
     n = float(num)
     return int(n) == math.ceil(n)
+
+def float_format(str):
+    return '{:.2f}'.format(float(str))

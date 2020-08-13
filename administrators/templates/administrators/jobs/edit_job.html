@@ -71,3 +71,9 @@
 </div>
 
 {% endblock %}
+
+
+{% block js %}
+  {% load static %}
+  <script type="text/javascript" src="{% static 'ta_app/js/edit_job.js' %}"></script>
+{% endblock %}

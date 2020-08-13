@@ -230,8 +230,13 @@ main {
 .btn-toolbar {
   justify-content: center !important;
 }
+
 .line-height-2 {
   line-height: 2.0;
+}
+
+.font-sm {
+  font-size: 0.85rem;
 }
 
 .text-underline {
@@ -525,7 +530,9 @@ hr.dotted {
 }
 
 /* colors */
-
+.text-gray {
+  color: #aba9a9;
+}
 .text-dark-blue {
   color: 	#002145;
 }
@@ -558,6 +565,29 @@ hr.dotted {
   height: auto;
   text-align: center;
   z-index: 100;
+}
+
+table thead th,
+table tbody td {
+  vertical-align: middle !important;
+}
+
+.sortable-table thead .sortable {
+  cursor: pointer;
+}
+
+.sortable-table thead .sortable .fa {
+  color: #aba9a9;
+}
+
+.sortable-table thead .sortable .fa-sort-numeric-asc,
+.sortable-table thead .sortable .fa-sort-alpha-asc {
+  color: #dc3545;
+}
+
+.sortable-table thead .sortable .fa-sort-numeric-desc,
+.sortable-table thead .sortable .fa-sort-alpha-desc {
+  color: #007bff;
 }
 
 /* Extra small devices (portrait phones, less than 576px) */
