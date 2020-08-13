@@ -12,6 +12,7 @@ from accounts import views as accountView
 def init_saml_auth(req):
     return OneLogin_Saml2_Auth(req, custom_base_path=settings.SAML_FOLDER)
 
+
 def prepare_django_request(request):
     # If server is behind proxys or balancers use the HTTP_X_FORWARDED fields
     result = {
