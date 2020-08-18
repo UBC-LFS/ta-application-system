@@ -92,7 +92,7 @@ main {
 .field-wrapper .instructor {
   display: table;
   margin-bottom: 5px;
-  padding: 3px;
+  padding: 7px 5px 3px 10px;
   border: 1px solid #bbb;
   border-radius: 4px;
   background-color: #fff;
@@ -230,6 +230,7 @@ main {
 .btn-toolbar {
   justify-content: center !important;
 }
+
 .line-height-2 {
   line-height: 2.0;
 }
@@ -525,7 +526,9 @@ hr.dotted {
 }
 
 /* colors */
-
+.text-gray {
+  color: #aba9a9;
+}
 .text-dark-blue {
   color: 	#002145;
 }
@@ -558,6 +561,34 @@ hr.dotted {
   height: auto;
   text-align: center;
   z-index: 100;
+}
+
+table thead th,
+table tbody td {
+  vertical-align: middle !important;
+}
+
+.sortable-table thead .sortable {
+  cursor: pointer;
+}
+
+.sortable-table thead .sortable .fa {
+  color: #aba9a9;
+}
+
+.sortable-table thead .sortable .fa-sort-numeric-asc,
+.sortable-table thead .sortable .fa-sort-alpha-asc {
+  color: #dc3545;
+}
+
+.sortable-table thead .sortable .fa-sort-numeric-desc,
+.sortable-table thead .sortable .fa-sort-alpha-desc {
+  color: #007bff;
+}
+
+.recent-applied-jobs {
+  max-height: 400px;
+  overflow-y: auto;
 }
 
 /* Extra small devices (portrait phones, less than 576px) */

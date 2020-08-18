@@ -30,6 +30,7 @@ DATA = [
     'ta_app/fixtures/statuses.json',
     'ta_app/fixtures/terms.json',
     'ta_app/fixtures/trainings.json',
+    'administrators/fixtures/admindocuments.json',
     'administrators/fixtures/applications.json',
     'administrators/fixtures/applicationstatus.json',
     'administrators/fixtures/courses.json',
@@ -819,6 +820,9 @@ class ApplicationTest(TestCase):
     def messages(self, res):
         return [m.message for m in get_messages(res.wsgi_request)]
 
+    def json_messages(self, res):
+        return json.loads( res.content.decode('utf-8') )
+
     def test_view_url_exists_at_desired_location(self):
         print('- Test: view url exists at desired location')
         self.login()
@@ -1306,49 +1310,35 @@ class ApplicationTest(TestCase):
 
         app_id = 1
 
-        data0 = {
-            'application': app_id,
-            'pin': '12377',
-            'tasm': True,
-            'eform': 'af3343',
-            'speed_chart': 'adsf',
-            'processing_note': 'this is a processing note',
-            'next': '/administrators/applications/Accepted/?page=2'
-        }
-        response = self.client.post(reverse('administrators:accepted_applications'), data=urlencode(data0), content_type=ContentType)
-        self.assertEqual(response.status_code, 404)
-
+        # Pin is invalid
         data1 = {
             'application': app_id,
             'pin': '12377',
             'tasm': True,
             'eform': 'af3343',
             'speed_chart': 'adsf',
-            'processing_note': 'this is a processing note',
-            'next': FULL_PATH
+            'processing_note': 'this is a processing note'
         }
-        response = self.client.post(reverse('administrators:accepted_applications'), data=urlencode(data1), content_type=ContentType)
-        messages = self.messages(response)
-        self.assertTrue('An error occurred' in messages[0])
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, FULL_PATH)
-        self.assertRedirects(response, response.url)
+        response = self.client.post(reverse('administrators:update_admin_docs'), data=urlencode(data1), content_type=ContentType)
+        messages = self.json_messages(response)
+        self.assertTrue('error', messages['status'])
+        self.assertTrue('An error occurred' in messages['message'])
+        self.assertEqual(response.status_code, 400)
 
+        # success
         data2 = {
             'application': app_id,
             'pin': '1237',
             'tasm': True,
             'eform': 'af3343',
             'speed_chart': 'adsf',
-            'processing_note': 'this is a processing note',
-            'next': FULL_PATH
+            'processing_note': 'this is a processing note'
         }
-        response = self.client.post(reverse('administrators:accepted_applications'), data=urlencode(data2), content_type=ContentType)
-        messages = self.messages(response)
-        self.assertTrue('Success' in messages[0])
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, FULL_PATH)
-        self.assertRedirects(response, response.url)
+        response = self.client.post(reverse('administrators:update_admin_docs'), data=urlencode(data2), content_type=ContentType)
+        messages = self.json_messages(response)
+        self.assertTrue('success', messages['status'])
+        self.assertTrue('Success' in messages['message'])
+        self.assertEqual(response.status_code, 200)
 
         response = self.client.get(FULL_PATH)
         self.assertEqual(response.status_code, 200)
@@ -2888,8 +2878,6 @@ class CourseTest(TestCase):
 
         course = response.context['course']
 
-
-
         data1 = {
             'name': 'edit course',
             'overview': 'new overview',
@@ -3941,6 +3929,51 @@ class AdminHRTest(TestCase):
     def messages(self, res):
         return [m.message for m in get_messages(res.wsgi_request)]
 
+    def json_messages(self, res):
+        return json.loads( res.content.decode('utf-8') )
+
+    def build_csv_file(self, apps, options, id_included=False):
+        ''' Build a csv file '''
+        csv_file = 'ID,Year,Term,Job,Applicant,Student Number,Employee Number,Classification,Monthly Salary (CAD),P/T (%),PIN,TASM,eForm,Speed Chart,Processing Note,Accepted at\n'
+        objs = []
+        c = 1
+        for app in apps:
+            if hasattr(app, 'admindocuments'):
+                csv_file += '"' + str(app.id) + '","2019","W2","APBI 260 001","Michael Jordan (user100.test)","45345555","1111112","2019 STA ($35.42)","$442.75","26.04",'
+                pin = app.admindocuments.pin
+                tasm = app.admindocuments.tasm
+                eform = app.admindocuments.eform
+                speed_chart = app.admindocuments.speed_chart
+                processing_note = app.admindocuments.processing_note
+
+                if 'pin' in options: pin = '998'+ str(c)
+                if 'tasm' in options:
+                    tasm = False if tasm else True
+                if 'eform' in options: eform = 'LLGG6' + str(c)
+                if 'speed_chart' in options: speed_chart = 'la1' + str(c)
+                if 'processing_note' in options: processing_note = 'Very good. Updated ' + str(c)
+
+                objs.append({ 'id': app.id, 'pin': pin, 'tasm': tasm, 'eform': eform, 'speed_chart': speed_chart, 'processing_note': processing_note })
+
+                csv_file += '"' + str(pin) + '",' if pin != None else '"",'
+                csv_file += '"' + "YES" + '",' if tasm else '"",'
+                csv_file += '"' + str(eform) + '",' if eform != None else '"",'
+                csv_file += '"' + str(speed_chart) + '",' if speed_chart != None else '"",'
+                csv_file += '"' + str(processing_note) + '",' if processing_note != None else '"",'
+                csv_file += '"Sept. 20, 2019 (50.0 hours)"\n'
+            else:
+                if id_included:
+                    pin = '9977'
+                    tasm = 'YES'
+                    eform = 'vASE12'
+                    speed_chart = 'll1a'
+                    processing_note = 'Yay good'
+                    csv_file += '"' + str(app.id) + '","2019","W2","APBI 260 001","Michael Jordan (user100.test)","45345555","1111112","2019 STA ($35.42)","$442.75","26.04","{0}",{1},"{2}","{3}","{4}","Sept. 20, 2019 (50.0 hours)"\n'.format(pin, tasm, eform, speed_chart, processing_note)
+                    objs.append({ 'id': app.id, 'pin': pin, 'tasm': tasm, 'eform': eform, 'speed_chart': speed_chart, 'processing_note': processing_note })
+            c += 1
+
+        return csv_file, objs
+
     def test_view_url_exists_at_desired_location(self):
         self.login('user3.admin', 'password')
 
@@ -4004,24 +4037,26 @@ class AdminHRTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, 'user3.admin')
         self.assertEqual(response.context['loggedin_user'].roles, ['HR'])
-        self.assertEqual( len(response.context['apps']), 5)
+        self.assertEqual( len(response.context['apps']), 5 )
 
     def test_admin_docs(self):
-        print('- Test: Admin or HR can have update admin docs')
+        print('- Test: Admin or HR can update admin docs')
         self.login('user3.admin', 'password')
         app_id = 1
 
+        # error
         data1 = {
-            'application': app_id,
             'pin': '1237',
             'tasm': True,
             'eform': 'af3343',
             'speed_chart': 'adsf',
-            'processing_note': 'this is a processing note',
-            'next': '/administrators/applications/Accepted/?page=2'
+            'processing_note': 'this is a processing note'
         }
-        response = self.client.post(reverse('administrators:accepted_applications') + '?page=2', data=urlencode(data1), content_type=ContentType)
-        self.assertEqual(response.status_code, 404)
+        response = self.client.post(reverse('administrators:update_admin_docs'), data=urlencode(data1), content_type=ContentType)
+        messages = self.json_messages(response)
+        self.assertTrue('error', messages['status'])
+        self.assertTrue('An error occurred' in messages['message'])
+        self.assertEqual(response.status_code, 400)
 
         # pin is an error
         data2 = {
@@ -4030,15 +4065,14 @@ class AdminHRTest(TestCase):
             'tasm': True,
             'eform': 'af3343',
             'speed_chart': 'adsf',
-            'processing_note': 'this is a processing note',
-            'next': reverse('administrators:accepted_applications') + '?page=2'
+            'processing_note': 'this is a processing note'
         }
-        response = self.client.post(reverse('administrators:accepted_applications') + '?page=2', data=urlencode(data2), content_type=ContentType)
-        messages = self.messages(response)
-        self.assertTrue('An error occurred' in messages[0])
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse('administrators:accepted_applications') + '?page=2')
-        self.assertRedirects(response, response.url)
+        response = self.client.post(reverse('administrators:update_admin_docs'), data=urlencode(data2), content_type=ContentType)
+        messages = self.json_messages(response)
+        self.assertTrue('error', messages['status'])
+        self.assertTrue('An error occurred' in messages['message'])
+        self.assertEqual(response.status_code, 400)
+
 
         data3 = {
             'application': app_id,
@@ -4047,14 +4081,12 @@ class AdminHRTest(TestCase):
             'eform': 'af3343',
             'speed_chart': 'adsf',
             'processing_note': 'this is a processing note',
-            'next': reverse('administrators:accepted_applications') + '?page=2'
         }
-        response = self.client.post(reverse('administrators:accepted_applications') + '?page=2', data=urlencode(data3), content_type=ContentType)
-        messages = self.messages(response)
-        self.assertTrue('Success' in messages[0])
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse('administrators:accepted_applications') + '?page=2')
-        self.assertRedirects(response, response.url)
+        response = self.client.post(reverse('administrators:update_admin_docs'), data=urlencode(data3), content_type=ContentType)
+        messages = self.json_messages(response)
+        self.assertTrue('success', messages['status'])
+        self.assertTrue('Success' in messages['message'])
+        self.assertEqual(response.status_code, 200)
 
         response = self.client.get(reverse('administrators:accepted_applications') + '?page=2')
         self.assertEqual(response.status_code, 200)
@@ -4087,15 +4119,13 @@ class AdminHRTest(TestCase):
             'tasm': True,
             'eform': '',
             'speed_chart': 'adsf',
-            'processing_note': '',
-            'next': reverse('administrators:accepted_applications') + '?page=2'
+            'processing_note': ''
         }
-        response = self.client.post(reverse('administrators:accepted_applications') + '?page=2', data=urlencode(data1), content_type=ContentType)
-        messages = self.messages(response)
-        self.assertTrue('Success' in messages[0])
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse('administrators:accepted_applications') + '?page=2')
-        self.assertRedirects(response, response.url)
+        response = self.client.post(reverse('administrators:update_admin_docs'), data=urlencode(data1), content_type=ContentType)
+        messages = self.json_messages(response)
+        self.assertTrue('success', messages['status'])
+        self.assertTrue('Success' in messages['message'])
+        self.assertEqual(response.status_code, 200)
 
         data2 = {
             'application': app_id,
@@ -4104,14 +4134,12 @@ class AdminHRTest(TestCase):
             'eform': 'af3343',
             'speed_chart': 'adsf',
             'processing_note': 'this is a processing note',
-            'next': reverse('administrators:accepted_applications') + '?page=2'
         }
-        response = self.client.post(reverse('administrators:accepted_applications') + '?page=2', data=urlencode(data2), content_type=ContentType)
-        messages = self.messages(response)
-        self.assertTrue('Success' in messages[0])
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse('administrators:accepted_applications') + '?page=2')
-        self.assertRedirects(response, response.url)
+        response = self.client.post(reverse('administrators:update_admin_docs'), data=urlencode(data2), content_type=ContentType)
+        messages = self.json_messages(response)
+        self.assertTrue('success', messages['status'])
+        self.assertTrue('Success' in messages['message'])
+        self.assertEqual(response.status_code, 200)
 
         self.login('user2.admin', 'password')
 
@@ -4121,15 +4149,13 @@ class AdminHRTest(TestCase):
             'tasm': False,
             'eform': 'af3343',
             'speed_chart': 'adsf',
-            'processing_note': 'this is a processing note',
-            'next': reverse('administrators:accepted_applications') + '?page=2'
+            'processing_note': 'this is a processing note'
         }
-        response = self.client.post(reverse('administrators:accepted_applications') + '?page=2', data=urlencode(data3), content_type=ContentType)
-        messages = self.messages(response)
-        self.assertTrue('Success' in messages[0])
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse('administrators:accepted_applications') + '?page=2')
-        self.assertRedirects(response, response.url)
+        response = self.client.post(reverse('administrators:update_admin_docs'), data=urlencode(data3), content_type=ContentType)
+        messages = self.json_messages(response)
+        self.assertTrue('success', messages['status'])
+        self.assertTrue('Success' in messages['message'])
+        self.assertEqual(response.status_code, 200)
 
         response = self.client.get(reverse('administrators:accepted_applications') + '?page=2')
         self.assertEqual(response.status_code, 200)
@@ -4153,3 +4179,198 @@ class AdminHRTest(TestCase):
             self.assertEqual(admin_user.created_at.strftime('%Y-%m-%d'), datetime.now().strftime('%Y-%m-%d'))
 
         self.assertEqual(admin_users, ['User2 Admin', 'User3 Admin', 'User3 Admin'])
+
+
+    def test_admin_docs_update_via_csv_empty(self):
+        print('- Test: Admin or HR can have update admin docs via CSV - empty data')
+        self.login()
+
+        data = {
+            'file': SimpleUploadedFile('ta_app.csv', ''.encode(), content_type='text/csv'),
+            'next': reverse('administrators:accepted_applications')
+        }
+        response = self.client.post(reverse('administrators:import_accepted_apps'), data=data, format='multipart')
+        messages = self.messages(response)
+        self.assertEqual('An error occurred while iterating table rows. Please check your data. Note that 1st row is a header.', messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+    def test_admin_docs_update_via_csv_no_header(self):
+        print('- Test: Admin or HR can have update admin docs via CSV - no header')
+        self.login()
+
+        csv = '"24","2019","W2","APBI 260 001","Michael Jordan (user100.test)","45345555","1111112","2019 STA ($35.42)","$442.75","26.04","2222","","444444","5555","6666","Sept. 20, 2019 (50.0 hours)"'
+        data = {
+            'file': SimpleUploadedFile('ta_app.csv', csv.encode(), content_type='text/csv'),
+            'next': reverse('administrators:accepted_applications')
+        }
+        response = self.client.post(reverse('administrators:import_accepted_apps'), data=data, format='multipart')
+        messages = self.messages(response)
+        self.assertEqual('An error occurred while iterating table rows. Please check your header or data fields. Note that 1st row is a header.', messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+    def test_admin_docs_update_via_csv_no_data(self):
+        print('- Test: Admin or HR can have update admin docs via CSV - no data fields')
+        self.login()
+
+        csv = 'ID,Year,Term,Job,Applicant,Student Number,Employee Number,Classification,Monthly Salary (CAD),P/T (%),PIN,TASM,eForm,Speed Chart,Processing Note,Accepted at\n'
+        data = {
+            'file': SimpleUploadedFile('ta_app.csv', csv.encode(), content_type='text/csv'),
+            'next': reverse('administrators:accepted_applications')
+        }
+        response = self.client.post(reverse('administrators:import_accepted_apps'), data=data, format='multipart')
+        messages = self.messages(response)
+        self.assertEqual('An error occurred while iterating table rows. Please check your header or data fields. Note that 1st row is a header.', messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+
+    def test_admin_docs_update_via_csv_columns_missing(self):
+        print('- Test: Admin or HR can have update admin docs via CSV - some columns are missing')
+        self.login()
+
+        csv3 = 'ID,Year,Term,Job,Applicant,Student Number,Employee Number,Classification,Monthly Salary (CAD),P/T (%),PIN,TASM,eForm,Speed Chart,Processing Note,Accepted at\n"24","2019","W2","APBI 260 001","Michael Jordan (user100.test)","45345555","1111112","2019 STA ($35.42)","$442.75","26.04","2222","","444444","5555","6666"\n'
+        data3 = {
+            'file': SimpleUploadedFile('ta_app.csv', csv3.encode(), content_type='text/csv'),
+            'next': reverse('administrators:accepted_applications')
+        }
+        response = self.client.post(reverse('administrators:import_accepted_apps'), data=data3, format='multipart')
+        messages = self.messages(response)
+        self.assertEqual('An error occurred while reading table rows. Some columns are missing.', messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+
+    def test_admin_docs_update_via_csv_wrong_file_type(self):
+        print('- Test: Admin or HR can have update admin docs via CSV - wrong file type')
+        self.login()
+
+        response = self.client.get(reverse('administrators:accepted_applications'))
+        self.assertEqual(response.status_code, 200)
+        apps = response.context['apps']
+
+        csv, objs = self.build_csv_file(apps, [])
+        data = {
+            'file': SimpleUploadedFile('ta_app.xls', csv.encode(), content_type='application/vnd.ms-excel'),
+            'next': reverse('administrators:accepted_applications')
+        }
+        response = self.client.post(reverse('administrators:import_accepted_apps'), data=data, format='multipart')
+        messages = self.messages(response)
+        self.assertEqual('An error occurred. Only CSV files are allowed to update. Please check your file.', messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+    def test_admin_docs_update_via_csv_same(self):
+        print('- Test: Admin or HR can have update admin docs via CSV - same file')
+        self.login()
+
+        response = self.client.get(reverse('administrators:accepted_applications'))
+        self.assertEqual(response.status_code, 200)
+        apps = response.context['apps']
+
+        csv, objs = self.build_csv_file(apps, [])
+        data = {
+            'file': SimpleUploadedFile('ta_app.csv', csv.encode(), content_type='text/csv'),
+            'next': reverse('administrators:accepted_applications')
+        }
+        response = self.client.post(reverse('administrators:import_accepted_apps'), data=data, format='multipart')
+        messages = self.messages(response)
+        self.assertEqual('Warning! No data was updated in the database. Please check your data inputs.', messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+    def test_admin_docs_update_via_csv_update(self):
+        print('- Test: Admin or HR can have update admin docs via CSV - update file')
+        self.login()
+
+        response = self.client.get(reverse('administrators:accepted_applications'))
+        self.assertEqual(response.status_code, 200)
+        apps = response.context['apps']
+
+        csv, objs = self.build_csv_file(apps, ['pin', 'tasm', 'eform', 'speed_chart', 'processing_note'])
+        data = {
+            'file': SimpleUploadedFile('ta_app.csv', csv.encode(), content_type='text/csv'),
+            'next': reverse('administrators:accepted_applications')
+        }
+        response = self.client.post(reverse('administrators:import_accepted_apps'), data=data, format='multipart')
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertTrue('<ul><li><strong>ID: 24 (CWL: user100.test)</strong> - PIN,TASM,eForm,Speed Chart,Processing Note</li><li><strong>ID: 11 (CWL: user70.test)</strong> - PIN,TASM,eForm,Speed Chart,Processing Note</li><li><strong>ID: 8 (CWL: user66.test)</strong> - PIN,TASM,eForm,Speed Chart,Processing Note</li><li><strong>ID: 7 (CWL: user66.test)</strong> - PIN,TASM,eForm,Speed Chart,Processing Note</li></ul>' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+    def test_admin_docs_update_via_csv_create_id(self):
+        print('- Test: Admin or HR can have update admin docs via CSV - create id')
+        self.login()
+
+        response = self.client.get(reverse('administrators:accepted_applications'))
+        self.assertEqual(response.status_code, 200)
+        apps = response.context['apps']
+
+        csv, objs = self.build_csv_file(apps, ['pin', 'tasm', 'eform', 'speed_chart', 'processing_note'], True)
+        data = {
+            'file': SimpleUploadedFile('ta_app.csv', csv.encode(), content_type='text/csv'),
+            'next': reverse('administrators:accepted_applications')
+        }
+        response = self.client.post(reverse('administrators:import_accepted_apps'), data=data, format='multipart')
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertTrue(' <ul><li><strong>ID: 24 (CWL: user100.test)</strong> - PIN,TASM,eForm,Speed Chart,Processing Note</li><li><strong>ID: 11 (CWL: user70.test)</strong> - PIN,TASM,eForm,Speed Chart,Processing Note</li><li><strong>ID: 8 (CWL: user66.test)</strong> - PIN,TASM,eForm,Speed Chart,Processing Note</li><li><strong>ID: 7 (CWL: user66.test)</strong> - PIN,TASM,eForm,Speed Chart,Processing Note</li><li><strong>ID: 1 (CWL: user100.test)</strong> - PIN,TASM,eForm,Speed Chart,Processing Note</li></ul>' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+        app = adminApi.get_application('1')
+        found = {}
+        for obj in objs:
+            if obj['id'] == app.id:
+                found = obj
+
+        found['tasm'] = True if found['tasm'].lower() == 'yes' else False
+
+        self.assertTrue(hasattr(app, 'admindocuments'))
+        self.assertEqual(app.admindocuments.pin, found['pin'])
+        self.assertEqual(app.admindocuments.tasm, found['tasm'])
+        self.assertEqual(app.admindocuments.eform, found['eform'])
+        self.assertEqual(app.admindocuments.speed_chart, found['speed_chart'])
+        self.assertEqual(app.admindocuments.processing_note, found['processing_note'])
+
+    def test_admin_docs_update_via_csv_no_id_found(self):
+        print('- Test: Admin or HR can have update admin docs via CSV - no id found')
+        self.login()
+
+        response = self.client.get(reverse('administrators:accepted_applications'))
+        self.assertEqual(response.status_code, 200)
+        apps = response.context['apps']
+
+        csv, objs = self.build_csv_file(apps, ['pin', 'tasm', 'eform', 'speed_chart', 'processing_note'], True)
+        csv += '"111111","2019","W2","APBI 260 001","Michael Jordan (user100.test)","45345555","1111112","2019 STA ($35.42)","$442.75","26.04","1277","YES","JJSVV1","jj1b","Extra","Sept. 20, 2019 (50.0 hours)"\n'
+        data = {
+            'file': SimpleUploadedFile('ta_app.csv', csv.encode(), content_type='text/csv'),
+            'next': reverse('administrators:accepted_applications')
+        }
+        response = self.client.post(reverse('administrators:import_accepted_apps'), data=data, format='multipart')
+        messages = self.messages(response)
+        self.assertEqual('An error occurred while reading table rows. No application ID: 111111 found in Accepted Applications.', messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+    def test_admin_docs_update_via_csv_not_in_accepted_apps(self):
+        print('- Test: Admin or HR can have update admin docs via CSV - not in accepted apps')
+        self.login()
+
+        response = self.client.get(reverse('administrators:accepted_applications'))
+        self.assertEqual(response.status_code, 200)
+        apps = response.context['apps']
+
+        csv, objs = self.build_csv_file(apps, ['pin', 'tasm', 'eform', 'speed_chart', 'processing_note'], True)
+        csv += '"25","2019","W2","APBI 260 001","Michael Jordan (user100.test)","45345555","1111112","2019 STA ($35.42)","$442.75","26.04","1277","YES","JJSVV1","jj2b","Extra","Sept. 20, 2019 (50.0 hours)"\n'
+        data = {
+            'file': SimpleUploadedFile('ta_app.csv', csv.encode(), content_type='text/csv'),
+            'next': reverse('administrators:accepted_applications')
+        }
+        response = self.client.post(reverse('administrators:import_accepted_apps'), data=data, format='multipart')
+        messages = self.messages(response)
+        self.assertEqual('An error occurred while reading table rows. No application ID: 25 found in Accepted Applications.', messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)

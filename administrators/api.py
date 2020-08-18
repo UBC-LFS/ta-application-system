@@ -12,11 +12,13 @@ from django.urls import resolve
 from urllib.parse import urlparse
 
 from administrators.models import *
+from administrators.forms import AdminDocumentsForm
 from users.models import *
 from users import api as userApi
 
 from datetime import datetime
 import math
+import csv
 
 # Request parameter validation
 
@@ -664,6 +666,137 @@ def update_job_offer(post):
     return True if app and status else False
 
 
+def bulk_update_admin_docs(data, user):
+    ''' bulk update admin docs '''
+    csv_reader = csv.reader(data, quotechar='"', delimiter=',')
+
+    apps = get_applications()
+    apps = apps.filter( Q(applicationstatus__assigned=ApplicationStatus.ACCEPTED) & Q(is_terminated=False) ).order_by('-id').distinct()
+    accepted_ids = [ app.id for app in apps ]
+
+    rows = []
+    c = 0
+    for row in csv_reader:
+        # Check a number of rows
+        if len(row) != 16:
+            return False, 'An error occurred while reading table rows. Some columns are missing.'
+
+        if c > 0:
+            # check id if it's not in accepted apps
+            id = int(row[0])
+            if id not in accepted_ids:
+                return False, 'An error occurred while reading table rows. No application ID: {0} found in Accepted Applications.'.format(id)
+
+            # check if it has an application
+            try:
+                Application.objects.get(id=id)
+            except Application.DoesNotExist:
+                return False, 'An error occurred while reading table rows. No application ID: {0} found.'.format(id)
+
+        rows.append(row)
+        c += 1
+
+    if len(rows) == 0:
+        return False, 'An error occurred while iterating table rows. Please check your data. Note that 1st row is a header.'
+    elif len(rows) == 1:
+        return False, 'An error occurred while iterating table rows. Please check your header or data fields. Note that 1st row is a header.'
+
+    docs = []
+    updates = set()
+    for i in range(1, len(rows)):
+        row = rows[i]
+        id = trim(row[0])
+        pin = trim(row[10])
+        tasm = True if trim(row[11].lower()) == 'yes' else False
+        eform = trim(row[12])
+        speed_chart = trim(row[13])
+        processing_note = trim(row[14])
+
+        admin_docs = get_admin_docs(id)
+        form = AdminDocumentsForm({ 'application': id, 'pin': pin, 'tasm': tasm, 'eform': eform, 'speed_chart': speed_chart, 'processing_note': processing_note }, instance=admin_docs)
+        if form.is_valid() == False:
+            errors = form.errors.get_json_data()
+            return False, 'ID: ' + id + ' - ' + userApi.get_error_messages(errors)
+
+        can_save = False
+        obj = AdminDocuments.objects.filter(application_id=id)
+
+        if obj.exists():
+            admin_docs = obj.first()
+            fields = []
+            if trim(admin_docs.pin) != pin:
+                admin_docs.pin = pin
+                updates.add('pin')
+                fields.append('PIN')
+
+            if admin_docs.tasm != tasm:
+                admin_docs.tasm = tasm
+                updates.add('tasm')
+                fields.append('TASM')
+
+            if trim(admin_docs.eform) != eform:
+                admin_docs.eform = eform
+                updates.add('eform')
+                fields.append('eForm')
+
+            if trim(admin_docs.speed_chart) != speed_chart:
+                admin_docs.speed_chart = speed_chart
+                updates.add('speed_chart')
+                fields.append('Speed Chart')
+
+            if trim(admin_docs.processing_note) != processing_note:
+                admin_docs.processing_note = processing_note
+                updates.add('processing_note')
+                fields.append('Processing Note')
+
+            if len(fields) > 0:
+                docs.append({ 'id': id, 'fields': fields, 'username': admin_docs.application.applicant.username })
+                can_save = True
+
+        else:
+            fields = []
+            if bool(pin):
+                updates.add('pin')
+                fields.append('PIN')
+            if tasm == True:
+                updates.add('tasm')
+                fields.append('TASM')
+            if bool(eform):
+                updates.add('eform')
+                fields.append('eForm')
+            if bool(speed_chart):
+                updates.add('speed_chart')
+                fields.append('Speed Chart')
+            if bool(processing_note):
+                updates.add('processing_note')
+                fields.append('Processing Note')
+
+            app = get_application(id)
+            if len(fields) > 0:
+                docs.append({ 'id': id, 'fields': fields, 'username': app.applicant.username })
+                can_save = True
+
+        # Update
+        if can_save:
+            saved_admin_docs = form.save()
+            if saved_admin_docs:
+                saved_admin_docs_user = add_admin_docs_user(saved_admin_docs, user)
+                if saved_admin_docs_user == False:
+                    return False, 'An error occurred while saving admin docs user.'
+            else:
+                return False, 'An error occurred while saving admin docs.'
+
+    if len(docs) > 0:
+        msg = '<ul>'
+        for doc in docs:
+            msg += '<li><strong>ID: ' + doc['id'] + ' (CWL: ' + doc['username'] + ')</strong> - ' + ','.join(doc['fields']) + '</li>'
+        msg += '</ul>'
+        return True, msg
+
+    return True, ''
+
+
+
 # end applications
 
 
@@ -892,3 +1025,7 @@ def is_valid_float(num):
 def is_valid_integer(num):
     n = float(num)
     return int(n) == math.ceil(n)
+
+def trim(str):
+    ''' Remove whitespaces '''
+    return str.strip() if str != None and len(str) > 0 else ''
