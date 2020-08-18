@@ -44,6 +44,8 @@ urlpatterns = [
     path('applications/accepted/', views.accepted_applications, name='accepted_applications'),
     path('applications/declined/', views.declined_applications, name='declined_applications'),
     path('applications/terminated/', views.terminated_applications, name='terminated_applications'),
+    path('applications/admin_docs/update/', views.update_admin_docs, name='update_admin_docs'),
+    path('applications/accepted/import/', views.import_accepted_apps, name='import_accepted_apps'),
     path('applications/<str:app_slug>/details/', views.show_application, name='show_application'),
 
     path('hr/users/<str:username>/edit/', views.edit_user, name='edit_user'),
