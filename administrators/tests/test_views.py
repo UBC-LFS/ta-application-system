@@ -4191,7 +4191,7 @@ class AdminHRTest(TestCase):
         }
         response = self.client.post(reverse('administrators:import_accepted_apps'), data=data, format='multipart')
         messages = self.messages(response)
-        self.assertEqual('An error occurred while iterating table rows. Please check your data. Note that 1st row is a header.', messages[0])
+        self.assertEqual(messages[0], 'An error occurred while iterating table rows. Please check your data. Note that 1st row is a header.')
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, response.url)
 
@@ -4206,7 +4206,7 @@ class AdminHRTest(TestCase):
         }
         response = self.client.post(reverse('administrators:import_accepted_apps'), data=data, format='multipart')
         messages = self.messages(response)
-        self.assertEqual('An error occurred while iterating table rows. Please check your header or data fields. Note that 1st row is a header.', messages[0])
+        self.assertEqual(messages[0], 'An error occurred while iterating table rows. Please check your header or data fields. Note that 1st row is a header.')
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, response.url)
 
@@ -4221,7 +4221,7 @@ class AdminHRTest(TestCase):
         }
         response = self.client.post(reverse('administrators:import_accepted_apps'), data=data, format='multipart')
         messages = self.messages(response)
-        self.assertEqual('An error occurred while iterating table rows. Please check your header or data fields. Note that 1st row is a header.', messages[0])
+        self.assertEqual(messages[0], 'An error occurred while iterating table rows. Please check your header or data fields. Note that 1st row is a header.')
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, response.url)
 
@@ -4237,7 +4237,7 @@ class AdminHRTest(TestCase):
         }
         response = self.client.post(reverse('administrators:import_accepted_apps'), data=data3, format='multipart')
         messages = self.messages(response)
-        self.assertEqual('An error occurred while reading table rows. Some columns are missing.', messages[0])
+        self.assertEqual(messages[0], 'An error occurred while reading table rows. Some columns are missing.')
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, response.url)
 
@@ -4257,7 +4257,7 @@ class AdminHRTest(TestCase):
         }
         response = self.client.post(reverse('administrators:import_accepted_apps'), data=data, format='multipart')
         messages = self.messages(response)
-        self.assertEqual('An error occurred. Only CSV files are allowed to update. Please check your file.', messages[0])
+        self.assertEqual(messages[0], 'An error occurred. Only CSV files are allowed to update. Please check your file.')
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, response.url)
 
@@ -4276,7 +4276,7 @@ class AdminHRTest(TestCase):
         }
         response = self.client.post(reverse('administrators:import_accepted_apps'), data=data, format='multipart')
         messages = self.messages(response)
-        self.assertEqual('Warning! No data was updated in the database. Please check your data inputs.', messages[0])
+        self.assertEqual(messages[0], 'Warning! No data was updated in the database. Please check your data inputs.')
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, response.url)
 
@@ -4351,7 +4351,7 @@ class AdminHRTest(TestCase):
         }
         response = self.client.post(reverse('administrators:import_accepted_apps'), data=data, format='multipart')
         messages = self.messages(response)
-        self.assertEqual('An error occurred while reading table rows. No application ID: 111111 found in Accepted Applications.', messages[0])
+        self.assertEqual(messages[0], 'An error occurred while reading table rows. No application ID: 111111 found in Accepted Applications.')
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, response.url)
 
@@ -4371,6 +4371,47 @@ class AdminHRTest(TestCase):
         }
         response = self.client.post(reverse('administrators:import_accepted_apps'), data=data, format='multipart')
         messages = self.messages(response)
-        self.assertEqual('An error occurred while reading table rows. No application ID: 25 found in Accepted Applications.', messages[0])
+        self.assertEqual(messages[0], 'An error occurred while reading table rows. No application ID: 25 found in Accepted Applications.')
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+    def test_admin_docs_update_via_csv_empty_row(self):
+        print('- Test: Admin or HR can have update admin docs via CSV - empty row')
+        self.login()
+
+        response = self.client.get(reverse('administrators:accepted_applications'))
+        self.assertEqual(response.status_code, 200)
+        apps = response.context['apps']
+
+        csv, objs = self.build_csv_file(apps, ['pin', 'tasm', 'eform', 'speed_chart', 'processing_note'])
+        csv += ',,,,,,,,,,,,,,,\n'
+        data = {
+            'file': SimpleUploadedFile('ta_app.csv', csv.encode(), content_type='text/csv'),
+            'next': reverse('administrators:accepted_applications')
+        }
+        response = self.client.post(reverse('administrators:import_accepted_apps'), data=data, format='multipart')
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertTrue('<ul><li><strong>ID: 24 (CWL: user100.test)</strong> - PIN,TASM,eForm,Speed Chart,Processing Note</li><li><strong>ID: 11 (CWL: user70.test)</strong> - PIN,TASM,eForm,Speed Chart,Processing Note</li><li><strong>ID: 8 (CWL: user66.test)</strong> - PIN,TASM,eForm,Speed Chart,Processing Note</li><li><strong>ID: 7 (CWL: user66.test)</strong> - PIN,TASM,eForm,Speed Chart,Processing Note</li></ul>' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+    def test_admin_docs_update_via_csv_empty_id(self):
+        print('- Test: Admin or HR can have update admin docs via CSV - empty id')
+        self.login()
+
+        response = self.client.get(reverse('administrators:accepted_applications'))
+        self.assertEqual(response.status_code, 200)
+        apps = response.context['apps']
+
+        csv, objs = self.build_csv_file(apps, ['pin', 'tasm', 'eform', 'speed_chart', 'processing_note'])
+        csv_modified = csv.replace('"8"', '""')
+        data = {
+            'file': SimpleUploadedFile('ta_app.csv', csv_modified.encode(), content_type='text/csv'),
+            'next': reverse('administrators:accepted_applications')
+        }
+        response = self.client.post(reverse('administrators:import_accepted_apps'), data=data, format='multipart')
+        messages = self.messages(response)
+        self.assertEqual(messages[0], 'An error occurred while reading table rows. Something went wrong in the 3rd row. (e.g., ID is empty)')
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, response.url)

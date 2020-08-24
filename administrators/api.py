@@ -681,21 +681,34 @@ def bulk_update_admin_docs(data, user):
         if len(row) != 16:
             return False, 'An error occurred while reading table rows. Some columns are missing.'
 
-        if c > 0:
-            # check id if it's not in accepted apps
-            id = int(row[0])
-            if id not in accepted_ids:
-                return False, 'An error occurred while reading table rows. No application ID: {0} found in Accepted Applications.'.format(id)
+        # header
+        if c == 0:
+            rows.append(row)
+        else:
+            if len(row[0]) == 0:
+                for col in row:
+                    if len(col) > 0:
+                        msg = str(c) + 'th'
+                        if c == 1: msg = '1st'
+                        elif c == 2: msg = '2nd'
+                        elif c == 3: msg = '3rd'
+                        return False, 'An error occurred while reading table rows. Something went wrong in the {0} row. (e.g., ID is empty)'.format(msg)
+            else:
+                # check id if it's not in accepted apps
+                id = int(row[0])
+                if id not in accepted_ids:
+                    return False, 'An error occurred while reading table rows. No application ID: {0} found in Accepted Applications.'.format(id)
 
-            # check if it has an application
-            try:
-                Application.objects.get(id=id)
-            except Application.DoesNotExist:
-                return False, 'An error occurred while reading table rows. No application ID: {0} found.'.format(id)
+                # check if it has an application
+                try:
+                    Application.objects.get(id=id)
+                except Application.DoesNotExist:
+                    return False, 'An error occurred while reading table rows. No application ID: {0} found.'.format(id)
 
-        rows.append(row)
+                rows.append(row)
         c += 1
 
+    #print(rows)
     if len(rows) == 0:
         return False, 'An error occurred while iterating table rows. Please check your data. Note that 1st row is a header.'
     elif len(rows) == 1:
