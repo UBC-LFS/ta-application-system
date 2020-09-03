@@ -708,7 +708,6 @@ def bulk_update_admin_docs(data, user):
                 rows.append(row)
         c += 1
 
-    #print(rows)
     if len(rows) == 0:
         return False, 'An error occurred while iterating table rows. Please check your data. Note that 1st row is a header.'
     elif len(rows) == 1:

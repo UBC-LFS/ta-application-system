@@ -76,7 +76,9 @@ function getToday() {
   const d = new Date();
   let month = d.getMonth();
   if (month < 10) month = '0' + d.getMonth();
-  return d.getFullYear() + '-' + month + '-' + d.getDate();
+  let date = d.getDate();
+  if (date < 10) date = '0' + d.getDate();
+  return d.getFullYear() + '-' + month + '-' + date;
 }
 
 // Export data to a csv file
