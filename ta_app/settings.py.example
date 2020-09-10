@@ -72,8 +72,7 @@ INSTALLED_APPS = [
     'instructors',
     'students',
     'django_summernote',
-    'impersonate',
-    'django_jenkins'
+    'impersonate'
 ]
 
 MIDDLEWARE = [
@@ -206,9 +205,3 @@ SUMMERNOTE_CONFIG = {
 MAX_UPLOAD_SIZE = '2097152'
 
 PAGE_SIZE = 50
-
-
-JENKINS_TASKS = (
-    'django_jenkins.tasks.run_pep8',
-    'django_jenkins.tasks.run_pyflakes'
-)

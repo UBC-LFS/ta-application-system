@@ -568,8 +568,20 @@ table tbody td {
   vertical-align: middle !important;
 }
 
+.sortable-table thead tr {
+  height: 90px;
+}
+
 .sortable-table thead .sortable {
+  position: relative;
   cursor: pointer;
+}
+
+.sortable-table thead .sortable > .sort-icon {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 7px;
 }
 
 .sortable-table thead .sortable .fa {

@@ -127,8 +127,11 @@ function sortRow(col, type='alpha', order='asc') {
 
   // Find an existing icon
   for (let j = 0; j < rows[0].children.length; j++) {
-    if (rows[0].children[j].children[1] !== undefined) {
-      let icon = rows[0].children[j].children[1].children[0];
+    let headerRow = rows[0].children[j];
+
+    if (headerRow.className === 'sortable') {
+      let icon = headerRow.children[1].children[0];
+
       if (icon.classList.contains('fa-sort-numeric-asc')) {
         icon.classList.remove('fa-sort-numeric-asc');
         icon.classList.add('fa-sort');

@@ -10,6 +10,9 @@
 
   {% include 'administrators/applications/_search_fields.html' with data=apps total=total_apps path='accepted' %}
 
+  {% include 'ta_app/applications/_contract_read_note.html' %}
+  <p class="text-dark-gray text-right font-size-sm"><code>Monthly Salary</code> is paid in Canadian dollars (CAD).</p>
+
   <div class="my-3">
     <div class="float-right">
       CSV:
@@ -53,53 +56,59 @@
     <thead>
       <tr>
         <th class="sortable" onclick="sortRow(0, 'numeric')">
-          <div>ID</div>
-          <div><i class="fa fa-sort" aria-hidden="true"></i></div>
+          <div class="sort-field">ID</div>
+          <div class="sort-icon"><i class="fa fa-sort" aria-hidden="true"></i></div>
         </th>
         <th class="sortable" onclick="sortRow(1, 'numeric')">
-          <div>Year</div>
-          <div><i class="fa fa-sort" aria-hidden="true"></i></div>
+          <div class="sort-field">Year</div>
+          <div class="sort-icon"><i class="fa fa-sort" aria-hidden="true"></i></div>
         </th>
         <th class="sortable" onclick="sortRow(2)">
-          <div>Term</div>
-          <div><i class="fa fa-sort" aria-hidden="true"></i></div>
+          <div class="sort-field">Term</div>
+          <div class="sort-icon"><i class="fa fa-sort" aria-hidden="true"></i></div>
         </th>
         <th class="sortable" onclick="sortRow(3)">
-          <div>Job</div>
-          <div><i class="fa fa-sort" aria-hidden="true"></i></div>
+          <div class="sort-field">Job</div>
+          <div class="sort-icon"><i class="fa fa-sort" aria-hidden="true"></i></div>
         </th>
         <th class="sortable" onclick="sortRow(4)">
-          <div>Applicant</div>
-          <div><i class="fa fa-sort" aria-hidden="true"></i></div>
+          <div class="sort-field">Applicant</div>
+          <div class="sort-icon"><i class="fa fa-sort" aria-hidden="true"></i></div>
         </th>
         <th class="sortable" onclick="sortRow(5, 'numeric')">
-          <div>Student<br /> Number</div>
-          <div><i class="fa fa-sort" aria-hidden="true"></i></div>
+          <div class="sort-field">Student<br /> Number</div>
+          <div class="sort-icon"><i class="fa fa-sort" aria-hidden="true"></i></div>
         </th>
         <th class="sortable" onclick="sortRow(6, 'numeric')">
-          <div>Employee<br /> Number</div>
-          <div><i class="fa fa-sort" aria-hidden="true"></i></div>
+          <div class="sort-field">Employee<br /> Number</div>
+          <div class="sort-icon"><i class="fa fa-sort" aria-hidden="true"></i></div>
         </th>
         <th class="sortable" onclick="sortRow(7)">
-          <div>Classification</div>
-          <div><i class="fa fa-sort" aria-hidden="true"></i></div>
+          <div class="sort-field">Classification</div>
+          <div class="sort-icon"><i class="fa fa-sort" aria-hidden="true"></i></div>
         </th>
         <th class="sortable" onclick="sortRow(8, 'dollar')">
-          <div> Monthly<br /> Salary<br /> (CAD)</div>
-          <div><i class="fa fa-sort" aria-hidden="true"></i></div>
+          <div class="sort-field"> Monthly<br /> Salary</div>
+          <div class="sort-icon"><i class="fa fa-sort" aria-hidden="true"></i></div>
         </th>
         <th class="sortable" onclick="sortRow(9, 'numeric')">
-          <div>P/T (%)</div>
-          <div><i class="fa fa-sort" aria-hidden="true"></i></div>
+          <div class="sort-field">P/T (%)</div>
+          <div class="sort-icon"><i class="fa fa-sort" aria-hidden="true"></i></div>
         </th>
         <th>PIN</th>
         <th>TASM</th>
-        <th>eForm</th>
-        <th>Speed<br /> Chart</th>
+        <th class="sortable" onclick="sortRow(12, 'numeric')">
+          <div class="sort-field">eForm</div>
+          <div class="sort-icon"><i class="fa fa-sort" aria-hidden="true"></i></div>
+        </th>
+        <th class="sortable" onclick="sortRow(13)">
+          <div class="sort-field">Speed<br /> Chart</div>
+          <div class="sort-icon"><i class="fa fa-sort" aria-hidden="true"></i></div>
+        </th>
         <th>Processing<br /> Note</th>
         <th class="sortable" onclick="sortRow(15, 'date')">
-          <div>Accepted<br /> at</div>
-          <div><i class="fa fa-sort" aria-hidden="true"></i></div>
+          <div class="sort-field">Accepted at</div>
+          <div class="sort-icon"><i class="fa fa-sort" aria-hidden="true"></i></div>
         </th>
         <th>Actions</th>
       </tr>
@@ -327,7 +336,6 @@
 
   {% include 'ta_app/pages/_table_paginator.html' with data=apps %}
 
-  {% include 'ta_app/applications/_contract_read_note.html' %}
 </div>
 
 {% endblock %}
