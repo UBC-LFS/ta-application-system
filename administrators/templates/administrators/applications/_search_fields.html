@@ -6,7 +6,11 @@
     <input type="text" name="number" value="{{ request.GET.number }}" placeholder="Job Number" /> and
     <input type="text" name="section" value="{{ request.GET.section }}" placeholder="Job Section" /> <br />
     <input type="text" name="first_name" value="{{ request.GET.first_name }}" placeholder="First Name" /> and
-    <input type="text" name="last_name" value="{{ request.GET.last_name }}" placeholder="Last Name" />
+    <input type="text" name="last_name" value="{{ request.GET.last_name }}" placeholder="Last Name" /> <br />
+
+    {% if path == 'accepted' %}
+      <input type="text" name="eform" value="{{ request.GET.eform }}" placeholder="eForm" />
+    {% endif %}
 
     <div class="mt-1">
       <button class="btn btn-sm btn-secondary" type="submit">Search</button>

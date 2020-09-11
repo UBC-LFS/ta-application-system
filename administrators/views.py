@@ -1089,6 +1089,7 @@ def accepted_applications(request):
     section_q = request.GET.get('section')
     first_name_q = request.GET.get('first_name')
     last_name_q = request.GET.get('last_name')
+    eform_q = request.GET.get('eform')
 
     app_list = adminApi.get_applications()
     if bool(year_q):
@@ -1105,6 +1106,8 @@ def accepted_applications(request):
         app_list = app_list.filter(applicant__first_name__icontains=first_name_q)
     if bool(last_name_q):
         app_list = app_list.filter(applicant__last_name__icontains=last_name_q)
+    if bool(eform_q):
+        app_list = app_list.filter(admindocuments__eform__icontains=eform_q)
 
     app_list = app_list.filter( Q(applicationstatus__assigned=ApplicationStatus.ACCEPTED) & Q(is_terminated=False) ).order_by('-id').distinct()
 
@@ -1323,8 +1326,6 @@ def decline_reassign(request):
     if request.method == 'POST':
         app = adminApi.get_application( request.POST.get('application') )
 
-        #if app.is_declined_reassigned: raise Http404
-
         old_assigned_hours = request.POST.get('old_assigned_hours')
         new_assigned_hours = request.POST.get('new_assigned_hours')
 
@@ -1350,10 +1351,6 @@ def decline_reassign(request):
         if new_assigned_hours < 0:
             messages.error(request, 'An error occurred. Please check assigned hours. Your new assigned hours must be greater than 0.')
             return HttpResponseRedirect(next)
-
-        #if old_assigned_hours == new_assigned_hours:
-        #    messages.error(request, 'An error occurred. Please check assigned hours. Your new assigned hours are same as current assigned hours.')
-        #    return redirect('administrators:accepted_applications')
 
         if new_assigned_hours == 0 or new_assigned_hours > int(app.job.assigned_ta_hours):
             messages.error(request, 'An error occurred. Please check assigned hours. Valid assigned hours are between 0 and {0}'.format( int(app.job.assigned_ta_hours) ))

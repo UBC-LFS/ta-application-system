@@ -24,7 +24,11 @@ $(document).ready(function() {
         location.reload();
       },
       error: function(err) {
-       console.log(err.status, err.statusText);
+        const message = '<div class="alert alert-danger alert-dismissible fade show" role="alert">' +
+                          'Error: ' + err.statusText + ' (' + err.status + '). An error occurred while submitting the Admin Docs form. Javascript library (JQuery) is down for some reason. Please try again later.' +
+                          '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>' +
+                        '</div>';
+        $('#admin-docs-form-' + appId + '-error').html(message);
      }
    });
  });
