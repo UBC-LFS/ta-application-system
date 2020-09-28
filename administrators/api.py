@@ -16,7 +16,7 @@ from administrators.forms import AdminDocumentsForm
 from users.models import *
 from users import api as userApi
 
-from datetime import datetime
+from datetime import datetime, timedelta
 import math
 import csv
 
@@ -558,6 +558,37 @@ def add_salary(apps):
         app.pt_percentage = round(app.accepted.assigned_hours / app.job.session.term.max_hours * 100, 2)
     return apps
 
+def get_offered_apps_no_response(apps):
+    apps = apps.filter(applicationstatus__assigned=ApplicationStatus.OFFERED)
+    return apps.filter( ~Q(applicationstatus__assigned=ApplicationStatus.ACCEPTED) & ~Q(applicationstatus__assigned=ApplicationStatus.DECLINED) )
+
+def get_accepted_apps_by_day(apps, when):
+    ''' Get accepted apps by day '''
+
+    day = datetime.today().strftime('%Y-%m-%d')
+    query = Q(applicationstatus__created_at=datetime.today().strftime('%Y-%m-%d'))
+    if when == 'yesterday':
+        day = (datetime.today() - timedelta(days=1)).strftime('%Y-%m-%d')
+        query = Q(applicationstatus__created_at=day)
+    elif when == 'week_ago':
+        day = (datetime.today() - timedelta(days=7)).strftime('%Y-%m-%d')
+        query = Q(applicationstatus__created_at__gte=day)
+
+    apps = apps.filter( Q(applicationstatus__assigned=ApplicationStatus.ACCEPTED) & Q(is_terminated=False) & query ).order_by('-id').distinct()
+
+    return add_app_info_into_applications(apps, ['accepted']), day
+
+
+def get_eform_stats(apps):
+    ''' Get the staticstics of eForm '''
+    processed = 0
+    not_processed = 0
+    for app in apps:
+        if hasattr(app, 'admindocuments') and app.admindocuments.eform:
+            processed += 1
+        else:
+            not_processed += 1
+    return { 'processed': processed, 'not_processed': not_processed }
 
 def get_applications_with_multiple_ids(ids):
     ''' Get applications with multiple ids '''

@@ -7,6 +7,10 @@
 
   {% include 'administrators/applications/_search_fields.html' with data=apps total=total_apps path='offered' %}
 
+  <p class="text-dark-gray text-right font-size-sm">
+    This icon <i class="fa fa-question-circle text-warning font-size-1" aria-hidden="true"></i> represents that students don't respond to their job offer contracts (Accepted or Declined).
+  </p>
+
   <form action="{% url 'administrators:applications_send_email' %}?next={{ new_next }}&p=Offered Applications" method="post">
     {% csrf_token %}
 
@@ -44,7 +48,9 @@
               {{ app.email_set.all|length }}
             </td>
             <td>
-              <a class="btn btn-xs btn-info" href="{% url 'administrators:show_application' app_slug=app.slug %}?next={{ new_next }}&p=Offered Applications">{{ app.id }}</a>
+              <a class="btn btn-xs btn-info" href="{% url 'administrators:show_application' app_slug=app.slug %}?next={{ new_next }}&p=Offered Applications">
+                {{ app.id }}
+              </a>
             </td>
             <td>{{ app.job.session.year }}</td>
             <td>{{ app.job.session.term.code }}</td>
@@ -58,7 +64,13 @@
                 {{ app.applicant.get_full_name }}
               </a>
             </td>
-            <td>{% include 'ta_app/applications/_modal_app_status.html' with data=app %}</td>
+            <td>
+              {% include 'ta_app/applications/_modal_app_status.html' with data=app %}
+              
+              {% if not app.accepted.created_at and not app.declined.created_at %}
+                <i class="fa fa-question-circle text-warning font-size-1" aria-hidden="true"></i>
+              {% endif %}
+            </td>
             <td>{% include 'ta_app/applications/_app_instructor_preference.html' with data=app.get_instructor_preference_display %}</td>
             <td>{{ app.classification.year }} {{ app.classification.name }}</td>
             <td>{% include 'ta_app/applications/_modal_note.html' with data=app %}</td>

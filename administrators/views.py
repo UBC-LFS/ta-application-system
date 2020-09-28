@@ -23,7 +23,7 @@ from users.models import *
 from users.forms import *
 from users import api as userApi
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 APP_STATUS = {
@@ -44,9 +44,23 @@ def index(request):
     ''' Index page of Administrator's portal '''
     request = userApi.has_admin_access(request, Role.HR)
     apps = adminApi.get_applications()
+
+    today_accepted_apps, today = adminApi.get_accepted_apps_by_day(apps, 'today')
+    yesterday_accepted_apps, yesterday = adminApi.get_accepted_apps_by_day(apps, 'yesterday')
+    week_ago_accepted_apps, week_ago = adminApi.get_accepted_apps_by_day(apps, 'week_ago')
+
     context = {
         'loggedin_user': userApi.add_avatar(request.user),
-        'accepted_apps': apps.filter(applicationstatus__assigned=ApplicationStatus.ACCEPTED).exclude(applicationstatus__assigned=ApplicationStatus.CANCELLED).order_by('-id').distinct()
+        'accepted_apps': apps.filter(applicationstatus__assigned=ApplicationStatus.ACCEPTED).exclude(applicationstatus__assigned=ApplicationStatus.CANCELLED).order_by('-id').distinct(),
+        'today_accepted_apps': today_accepted_apps,
+        'today_eform_stats': adminApi.get_eform_stats(today_accepted_apps),
+        'yesterday_accepted_apps': yesterday_accepted_apps,
+        'yesterday_eform_stats': adminApi.get_eform_stats(yesterday_accepted_apps),
+        'week_ago_accepted_apps': week_ago_accepted_apps,
+        'week_ago_eform_stats': adminApi.get_eform_stats(week_ago_accepted_apps),
+        'today': today,
+        'yesterday': yesterday,
+        'week_ago': week_ago
     }
     if Role.ADMIN in request.user.roles or Role.SUPERADMIN in request.user.roles:
         sessions = adminApi.get_sessions()
@@ -1036,6 +1050,7 @@ def offered_applications(request):
     section_q = request.GET.get('section')
     first_name_q = request.GET.get('first_name')
     last_name_q = request.GET.get('last_name')
+    no_response_q = request.GET.get('no_response')
 
     app_list = adminApi.get_applications()
     if bool(year_q):
@@ -1052,9 +1067,13 @@ def offered_applications(request):
         app_list = app_list.filter(applicant__first_name__icontains=first_name_q)
     if bool(last_name_q):
         app_list = app_list.filter(applicant__last_name__icontains=last_name_q)
+    if bool(no_response_q):
+        app_list = adminApi.get_offered_apps_no_response(app_list)
 
-    app_list = app_list.filter(applicationstatus__assigned=ApplicationStatus.OFFERED).order_by('-id').distinct()
-    app_list = adminApi.add_app_info_into_applications(app_list, ['offered'])
+    if bool(no_response_q) == False:
+        app_list = app_list.filter(applicationstatus__assigned=ApplicationStatus.OFFERED).order_by('-id').distinct()
+
+    app_list = adminApi.add_app_info_into_applications(app_list, ['offered', 'accepted', 'declined'])
 
     page = request.GET.get('page', 1)
     paginator = Paginator(app_list, settings.PAGE_SIZE)
@@ -1082,6 +1101,8 @@ def accepted_applications(request):
     ''' Display applications accepted by students '''
     request = userApi.has_admin_access(request, Role.HR)
 
+    today = datetime.today().strftime('%Y-%m-%d')
+
     year_q = request.GET.get('year')
     term_q = request.GET.get('term')
     code_q = request.GET.get('code')
@@ -1090,8 +1111,12 @@ def accepted_applications(request):
     first_name_q = request.GET.get('first_name')
     last_name_q = request.GET.get('last_name')
     eform_q = request.GET.get('eform')
+    declined_reassigned_q = request.GET.get('declined_reassigned')
+    accepted_in_today_q = request.GET.get('accepted_in_today')
 
     app_list = adminApi.get_applications()
+    today_accepted_apps, today = adminApi.get_accepted_apps_by_day(app_list, 'today')
+
     if bool(year_q):
         app_list = app_list.filter(job__session__year__icontains=year_q)
     if bool(term_q):
@@ -1107,9 +1132,17 @@ def accepted_applications(request):
     if bool(last_name_q):
         app_list = app_list.filter(applicant__last_name__icontains=last_name_q)
     if bool(eform_q):
-        app_list = app_list.filter(admindocuments__eform__icontains=eform_q)
+        if eform_q.lower() == 'none':
+            app_list = app_list.filter(admindocuments__eform__isnull=True)
+        else:
+            app_list = app_list.filter(admindocuments__eform__icontains=eform_q)
+    if bool(declined_reassigned_q):
+        app_list = app_list.filter(is_declined_reassigned=True)
+    if bool(accepted_in_today_q):
+        app_list = today_accepted_apps
 
-    app_list = app_list.filter( Q(applicationstatus__assigned=ApplicationStatus.ACCEPTED) & Q(is_terminated=False) ).order_by('-id').distinct()
+    if bool(accepted_in_today_q) ==  False:
+        app_list = app_list.filter( Q(applicationstatus__assigned=ApplicationStatus.ACCEPTED) & Q(is_terminated=False) ).order_by('-id').distinct()
 
     page = request.GET.get('page', 1)
     paginator = Paginator(app_list, settings.PAGE_SIZE)
@@ -1126,8 +1159,12 @@ def accepted_applications(request):
     return render(request, 'administrators/applications/accepted_applications.html', {
         'loggedin_user': request.user,
         'apps': adminApi.add_salary(apps),
+        'eform_stats': adminApi.get_eform_stats(apps),
         'total_apps': len(app_list),
-        'new_next': adminApi.build_new_next(request)
+        'new_next': adminApi.build_new_next(request),
+        'today_accepted_apps': today_accepted_apps,
+        'today_eform_stats': adminApi.get_eform_stats(today_accepted_apps),
+        'today': today
     })
 
 
@@ -1412,8 +1449,24 @@ def decline_reassign_confirmation(request):
                 messages.error(request, 'An error occurred while sending a job offer. {0}'.format( ' '.join(errors) ))
                 return HttpResponseRedirect(request.get_full_path())
 
-            messages.success(request, 'Success! The status of Application (ID: {0}) updated'.format(app_id))
+            # admin documents updated
+            if hasattr(reaasigned_app, 'admindocuments'):
+                old_eform = reaasigned_app.admindocuments.eform
+                reaasigned_app.admindocuments.eform = None
+                reaasigned_app.admindocuments.processing_note += '<p>Auto update: eForm - <strong class="text-primary">{0}</strong> on {1}</p>'.format(old_eform, datetime.today().strftime('%Y-%m-%d'))
+                reaasigned_app.admindocuments.save(update_fields=['eform', 'processing_note'])
+
+                if reaasigned_app.admindocuments.processing_note.find(old_eform) > -1:
+                    messages.success(request, 'Success! The status of Application (ID: {0}) updated'.format(app_id))
+                else:
+                    reaasigned_app.admindocuments.eform = old_eform
+                    reaasigned_app.admindocuments.save(update_fields=['eform'])
+                    messages.warning(request, 'Warning! The eForm number of Application (ID: {0}) is not updated into the processing note.'.format(app_id))
+            else:
+                messages.success(request, 'Success! The status of Application (ID: {0}) updated'.format(app_id))
+
             return HttpResponseRedirect(request.POST.get('next'))
+
         else:
             errors = form.errors.get_json_data()
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))

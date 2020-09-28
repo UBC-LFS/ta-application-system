@@ -7,6 +7,8 @@ from django.contrib.messages import get_messages
 from urllib.parse import urlencode
 from django.core.files.uploadedfile import SimpleUploadedFile
 import datetime
+import json
+
 from random import randint
 import tempfile
 from PIL import Image
@@ -60,6 +62,9 @@ class StudentTest(TestCase):
 
     def messages(self, res):
         return [m.message for m in get_messages(res.wsgi_request)]
+
+    def json_messages(self, res):
+        return json.loads( res.content.decode('utf-8') )
 
     def get_resume(self, username):
         return os.path.join(settings.MEDIA_ROOT, 'users', username, 'resume', 'resume.pdf')
@@ -373,7 +378,7 @@ class StudentTest(TestCase):
     def test_view_url_exists_at_desired_location(self):
         print('- Test: view url exists at desired location')
 
-        """self.login(USERS[0], 'password')
+        self.login(USERS[0], 'password')
 
         response = self.client.get( reverse('students:index') )
         self.assertEqual(response.status_code, 403)
@@ -470,14 +475,14 @@ class StudentTest(TestCase):
         self.submit_confiential_information_international_complete(STUDENT)
 
         response = self.client.get( reverse('students:accept_decline_job', args=[SESSION, STUDENT_JOB]) + HISTORY_NEXT )
-        self.assertEqual(response.status_code, 200)"""
+        self.assertEqual(response.status_code, 200)
 
 
     def test_home_page(self):
         print('- Test: Display a home page')
         self.login()
 
-        """response = self.client.get( reverse('students:index') )
+        response = self.client.get( reverse('students:index') )
         #messages = self.messages(response)
         #self.assertTrue('Important' in messages[0])
         self.assertEqual(response.status_code, 302)
@@ -489,7 +494,7 @@ class StudentTest(TestCase):
         response = self.client.get( reverse('students:index') )
         messages = self.messages(response)
         self.assertEqual(messages, [])
-        self.assertEqual(response.status_code, 200)"""
+        self.assertEqual(response.status_code, 200)
 
 
     def test_show_profile(self):
@@ -757,7 +762,7 @@ class StudentTest(TestCase):
         print('- Test: upload user resume')
         self.login()
 
-        """user = userApi.get_user(USERS[2], 'username')
+        user = userApi.get_user(USERS[2], 'username')
         RESUME = self.get_resume(USERS[2])
 
         self.assertIsNone(userApi.has_user_resume_created(user))
@@ -780,14 +785,14 @@ class StudentTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, USERS[2])
         self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
-        self.assertIsNotNone(response.context['loggedin_user'].resume)"""
+        self.assertIsNotNone(response.context['loggedin_user'].resume)
 
 
     def test_delete_user_resume(self):
         print('- Test: delete user resume')
         self.login()
 
-        """user = userApi.get_user(USERS[2], 'username')
+        user = userApi.get_user(USERS[2], 'username')
         RESUME = self.get_resume(USERS[2])
 
         data = {
@@ -826,7 +831,7 @@ class StudentTest(TestCase):
         self.assertTrue('Success' in messages[0])
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse('students:show_profile') + NEXT + HOME_RESUME)
-        self.assertRedirects(response, response.url)"""
+        self.assertRedirects(response, response.url)
 
         #response = self.client.get( reverse('students:show_profile') )
         #self.assertEqual(response.status_code, 200)
@@ -1117,7 +1122,7 @@ class StudentTest(TestCase):
         print('- Test: Display all lists of session terms')
         self.login()
 
-        """response = self.client.get( reverse('students:explore_jobs') )
+        response = self.client.get( reverse('students:explore_jobs') )
         messages = self.messages(response)
         self.assertTrue('Important' in messages[0])
 
@@ -1131,7 +1136,7 @@ class StudentTest(TestCase):
         self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
 
         self.assertEqual( len(response.context['visible_current_sessions']), 3 )
-        self.assertEqual( len(response.context['favourites']), 3 )"""
+        self.assertEqual( len(response.context['favourites']), 3 )
 
     def test_favrouite_jobs(self):
         print('- Test: Display all lists of favourite jobs')
@@ -1148,7 +1153,7 @@ class StudentTest(TestCase):
         print('- Test: Select favourite job')
         self.login()
 
-        """response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) + AVAILABLE_NEXT )
+        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) + AVAILABLE_NEXT )
         self.assertEqual(response.status_code, 403)
 
         self.submit_profile_resume(USERS[2])
@@ -1222,14 +1227,14 @@ class StudentTest(TestCase):
         self.assertEqual(response.context['loggedin_user'].username, USERS[2])
         self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
 
-        self.assertEqual( len(response.context['favourites']), 4 )"""
+        self.assertEqual( len(response.context['favourites']), 4 )
 
 
     def test_available_jobs(self):
         print('- Test: Display jobs available to apply')
         self.login()
 
-        """response = self.client.get( reverse('students:available_jobs', args=[SESSION]) )
+        response = self.client.get( reverse('students:available_jobs', args=[SESSION]) )
         self.assertEqual(response.status_code, 403)
 
         self.submit_profile_resume(USERS[2])
@@ -1238,14 +1243,14 @@ class StudentTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, USERS[2])
         self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
-        self.assertEqual( len(response.context['jobs']), 50 )"""
+        self.assertEqual( len(response.context['jobs']), 50 )
 
 
     def test_apply_job_undergraduate(self):
         print('- Test: Undergraduate students can apply for each job')
         self.login()
 
-        """response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) + AVAILABLE_NEXT )
+        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) + AVAILABLE_NEXT )
         self.assertEqual(response.status_code, 403)
 
         self.submit_profile_resume_undergraduate(USERS[2])
@@ -1280,13 +1285,13 @@ class StudentTest(TestCase):
         self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
         self.assertEqual(response.context['job'].course.slug, STUDENT_JOB)
         self.assertTrue(response.context['has_applied_job'])
-        self.assertFalse(response.context['form'].is_bound)"""
+        self.assertFalse(response.context['form'].is_bound)
 
     def test_apply_job_no_supervisor_approval(self):
         print('- Test: Graudate students cannot apply for each job without supervisor approval')
         self.login()
 
-        """self.submit_profile_resume(USERS[2])
+        self.submit_profile_resume(USERS[2])
 
         response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) + AVAILABLE_NEXT )
         self.assertEqual(response.status_code, 200)
@@ -1318,13 +1323,13 @@ class StudentTest(TestCase):
         self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
         self.assertEqual(response.context['job'].course.slug, STUDENT_JOB)
         self.assertFalse(response.context['has_applied_job'])
-        self.assertFalse(response.context['form'].is_bound)"""
+        self.assertFalse(response.context['form'].is_bound)
 
     def test_apply_job(self):
         print('- Test: Graudate students can apply for each job')
         self.login()
 
-        """self.submit_profile_resume(USERS[2])
+        self.submit_profile_resume(USERS[2])
 
         response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) + '?nex=' + reverse('students:favourite_jobs') + '?page=2' )
         self.assertEqual(response.status_code, 404)
@@ -1473,13 +1478,13 @@ class StudentTest(TestCase):
         self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
         self.assertEqual(response.context['job'].course.slug, STUDENT_JOB)
         self.assertTrue(response.context['has_applied_job'])
-        self.assertFalse(response.context['form'].is_bound)"""
+        self.assertFalse(response.context['form'].is_bound)
 
     def test_cannot_apply_jobs(self):
         print('- Test: Students cannot apply for each job')
 
         # not student role
-        """self.login(USERS[0], PASSWORD)
+        self.login(USERS[0], PASSWORD)
         response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) + AVAILABLE_NEXT )
         self.assertEqual(response.status_code, 403)
 
@@ -1516,7 +1521,7 @@ class StudentTest(TestCase):
         job.save(update_fields=['is_active'])
 
         response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) + AVAILABLE_NEXT )
-        self.assertEqual(response.status_code, 403)"""
+        self.assertEqual(response.status_code, 403)
 
     def test_apply_jobs_without_undergraduate(self):
         print('- Test: Students apply with undergraduate')
@@ -1546,7 +1551,7 @@ class StudentTest(TestCase):
         print('- Test: Display a job to select accept a job offer with domestic students')
         self.login(STUDENT, 'password')
 
-        """user = userApi.get_user(STUDENT, 'username')
+        user = userApi.get_user(STUDENT, 'username')
 
         # if students don't complete required documents, they cannot accept or decline their job offer.
         available1 = userApi.add_confidentiality_validation(user)
@@ -1561,14 +1566,14 @@ class StudentTest(TestCase):
         user = userApi.get_user(STUDENT, 'username')
         available2 = userApi.add_confidentiality_validation(user)
         self.assertEqual(available2['status'], False)
-        self.assertEqual(available2['message'], 'Please check the following information, and update required documents. <ul><li>SIN</li></ul>')"""
+        self.assertEqual(available2['message'], 'Please check the following information, and update required documents. <ul><li>SIN</li></ul>')
 
 
     def test_accept_decline_job_domestic_incomplete_employee_number(self):
         print('- Test: Display a job to select accept a job offer with domestic students without an employee number')
         self.login(STUDENT, 'password')
 
-        """user = userApi.get_user(STUDENT, 'username')
+        user = userApi.get_user(STUDENT, 'username')
 
         # if students don't complete required documents, they cannot accept or decline their job offer.
         available1 = userApi.add_confidentiality_validation(user)
@@ -1589,13 +1594,13 @@ class StudentTest(TestCase):
         user2.confidentiality.save(update_fields=['is_new_employee'])
         available3 = userApi.add_confidentiality_validation(user2)
         self.assertFalse(available3['status'])
-        self.assertEqual(available3['message'], 'Please check the following information, and update required documents. <ul><li>Employee Number</li></ul>')"""
+        self.assertEqual(available3['message'], 'Please check the following information, and update required documents. <ul><li>Employee Number</li></ul>')
 
     def test_accept_decline_job_international_incomplete(self):
         print('- Test: Display a job to select accept or decline a job offer with international students')
         self.login(STUDENT, 'password')
 
-        """user = userApi.get_user(STUDENT, 'username')
+        user = userApi.get_user(STUDENT, 'username')
 
         # if students don't complete required documents, they cannot accept or decline their job offer.
         available1 = userApi.add_confidentiality_validation(user)
@@ -1622,14 +1627,14 @@ class StudentTest(TestCase):
         user2.confidentiality.save(update_fields=['employee_number'])
         available4 = userApi.add_confidentiality_validation(user2)
         self.assertFalse(available4['status'])
-        self.assertEqual(available4['message'], 'Please check the following information, and update required documents. <ul><li>Employee Number</li><li>Personal Data Form</li><li>Study Permit Expiry Date</li></ul>')"""
+        self.assertEqual(available4['message'], 'Please check the following information, and update required documents. <ul><li>Employee Number</li><li>Personal Data Form</li><li>Study Permit Expiry Date</li></ul>')
 
 
     def test_accept_decline_job(self):
         print('- Test: Display a job to select accept or decline a job offer')
         self.login(STUDENT, 'password')
 
-        """response = self.client.get( reverse('students:accept_decline_job', args=[SESSION, STUDENT_JOB]) + HISTORY_WRONG_1 )
+        response = self.client.get( reverse('students:accept_decline_job', args=[SESSION, STUDENT_JOB]) + HISTORY_WRONG_1 )
         self.assertEqual(response.status_code, 404)
         response = self.client.get( reverse('students:accept_decline_job', args=[SESSION, STUDENT_JOB]) + HISTORY_WRONG_2 )
         self.assertEqual(response.status_code, 404)
@@ -1673,14 +1678,14 @@ class StudentTest(TestCase):
         self.assertEqual(response.context['app'].offered.get_assigned_display(), 'Offered')
         self.assertEqual(response.context['app'].offered.assigned_hours, 15.0)
         self.assertFalse(response.context['app'].accepted)
-        self.assertFalse( response.context['app'].declined )"""
+        self.assertFalse( response.context['app'].declined )
 
 
     def test_accept_offer(self):
         print('- Test: Students accept a job offer')
         self.login(STUDENT, 'password')
 
-        """self.submit_confiential_information_international_complete(STUDENT)
+        self.submit_confiential_information_international_complete(STUDENT)
 
         response = self.client.get( reverse('students:accept_decline_job', args=[SESSION, STUDENT_JOB]) + HISTORY_NEXT )
         self.assertEqual(response.status_code, 200)
@@ -1762,13 +1767,204 @@ class StudentTest(TestCase):
         self.assertEqual(appl.job.accumulated_ta_hours, app.job.accumulated_ta_hours + appl.accepted.assigned_hours)
 
         total_hours = adminApi.get_total_assigned_hours(apps, ['accepted'])
-        self.assertEqual(total_hours['accepted'], {'2019-W1': appl.accepted.assigned_hours})"""
+        self.assertEqual(total_hours['accepted'], {'2019-W1': appl.accepted.assigned_hours})
+
+    def test_today_accepted_application(self):
+        print('- Test: Display today accepted applications')
+        self.login(STUDENT, 'password')
+
+        self.submit_confiential_information_international_complete(STUDENT)
+
+        response = self.client.get( reverse('students:accept_decline_job', args=[SESSION, STUDENT_JOB]) + HISTORY_NEXT )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['loggedin_user'].username, STUDENT)
+        self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
+
+        app = response.context['app']
+        self.assertEqual(app.job.course.slug, STUDENT_JOB)
+        self.assertEqual(app.applicant.username, STUDENT)
+
+        data1 = {
+            'application': app.id,
+            'assigned_hours': app.offered.assigned_hours,
+            'decision': 'accept',
+            'has_contract_read': True,
+            'next': reverse('students:history_jobs') + '?page=2'
+        }
+        response = self.client.post( reverse('students:make_decision', args=[SESSION, STUDENT_JOB]), data=urlencode(data1), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse('students:history_jobs') + '?page=2')
+        self.assertRedirects(response, response.url)
+
+        response = self.client.get( reverse('students:history_jobs') + '?page=2' )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['loggedin_user'].username, STUDENT)
+        self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
+
+        apps = response.context['apps']
+        self.assertEqual( len(apps), 3 )
+
+        appl = None
+        for a in apps:
+            if a.id == app.id: appl = a
+
+        self.assertEqual(appl.job.session.slug, SESSION)
+        self.assertEqual(appl.job.course.slug, STUDENT_JOB)
+        self.assertEqual(appl.accepted.get_assigned_display(), 'Accepted')
+        self.assertEqual(appl.accepted.assigned_hours, data1['assigned_hours'])
+        self.assertTrue(appl.accepted.has_contract_read)
+        self.assertEqual(appl.job.assigned_ta_hours, app.job.assigned_ta_hours)
+        self.assertEqual(appl.job.accumulated_ta_hours, app.job.accumulated_ta_hours + appl.accepted.assigned_hours)
+
+        total_hours = adminApi.get_total_assigned_hours(apps, ['accepted'])
+        self.assertEqual(total_hours['accepted'], {'2019-W1': appl.accepted.assigned_hours})
+
+
+        self.login(USERS[0], 'password')
+        response = self.client.get(reverse('administrators:accepted_applications'))
+        self.assertEqual(response.status_code, 200)
+        today_accepted_apps = response.context['today_accepted_apps']
+        today_eform_stats = response.context['today_eform_stats']
+        today = response.context['today']
+
+        self.assertEqual(len(today_accepted_apps), 1)
+        self.assertEqual(today_eform_stats['processed'], 0)
+        self.assertEqual(today_eform_stats['not_processed'], 1)
+        self.assertEqual(today, datetime.date.today().strftime('%Y-%m-%d'))
+
+        # enter eform
+        data2 = {
+            'application': appl.id,
+            'pin': '1237',
+            'tasm': True,
+            'eform': '912345',
+            'speed_chart': 'adsf',
+            'processing_note': 'this is a processing note'
+        }
+        response = self.client.post(reverse('administrators:update_admin_docs'), data=urlencode(data2), content_type=ContentType)
+        messages = self.json_messages(response)
+        self.assertTrue('success', messages['status'])
+        self.assertTrue('Success' in messages['message'])
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get(reverse('administrators:accepted_applications'))
+        self.assertEqual(response.status_code, 200)
+        today_accepted_apps = response.context['today_accepted_apps']
+        today_eform_stats = response.context['today_eform_stats']
+        today = response.context['today']
+
+        self.assertEqual(len(today_accepted_apps), 1)
+        self.assertEqual(today_eform_stats['processed'], 1)
+        self.assertEqual(today_eform_stats['not_processed'], 0)
+        self.assertEqual(today, datetime.date.today().strftime('%Y-%m-%d'))
+
+
+        STUDENT2 = 'user66.test'
+        self.login(STUDENT2, 'password')
+
+        JOB2 = 'apbi-260-001-agroecology-i-introduction-to-principles-and-techniques-w1'
+        SLUG2 = '2019-w1-apbi-260-001-agroecology-i-introduction-to-principles-and-techniques-w1-application-by-user66test'
+        #app = adminApi.get_application(APP_SLUG, 'slug')
+
+        self.submit_profile_resume(STUDENT2)
+        self.submit_confiential_information_international_complete(STUDENT2)
+
+        response = self.client.get( reverse('students:reaccept_application', args=[SLUG2]) + '?next=/students/jobs/history/' )
+        self.assertEqual(response.status_code, 200)
+        app2 = response.context['app']
+
+        self.assertEqual(app2.job.session.slug, SESSION)
+        self.assertEqual(app2.job.course.slug, JOB2)
+        self.assertTrue(app2.is_declined_reassigned)
+
+        new_hours = 70.5
+        data3 = {
+            'application': app2.id,
+            'assigned_hours': new_hours,
+            'decision': 'accept',
+            'has_contract_read': True,
+            'next': reverse('students:history_jobs') + '?page=2'
+        }
+        response = self.client.post( reverse('students:reaccept_application', args=[SLUG2]) + HISTORY_NEXT, data=urlencode(data3), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse('students:history_jobs') + '?page=2')
+        self.assertRedirects(response, response.url)
+
+        response = self.client.get( reverse('students:history_jobs') )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['loggedin_user'].username, STUDENT2)
+        self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
+
+        apps2 = response.context['apps']
+        self.assertEqual( len(apps2), 5 )
+
+        appl2 = None
+        for a in apps2:
+            if a.id == app2.id: appl2 = a
+
+        self.assertEqual(appl2.job.session.slug, SESSION)
+        self.assertEqual(appl2.job.course.slug, JOB2)
+        self.assertEqual(appl2.accepted.get_assigned_display(), 'Accepted')
+        self.assertTrue(appl2.accepted.has_contract_read)
+        self.assertEqual(appl2.accepted.assigned_hours, new_hours)
+        self.assertEqual(appl2.job.assigned_ta_hours, app2.job.assigned_ta_hours)
+
+        diff = new_hours - app2.accepted.assigned_hours
+        self.assertEqual(appl2.job.accumulated_ta_hours, app2.job.accumulated_ta_hours + diff)
+
+        total_hours = adminApi.get_total_assigned_hours(apps2, ['accepted'])
+        self.assertEqual(total_hours['accepted'], {'2019-W1': 45.5 + diff, '2019-W2': 30.0})
+
+        # admin
+        self.login(USERS[0], 'password')
+        response = self.client.get(reverse('administrators:accepted_applications'))
+        self.assertEqual(response.status_code, 200)
+        today_accepted_apps = response.context['today_accepted_apps']
+        today_eform_stats = response.context['today_eform_stats']
+        today = response.context['today']
+
+        self.assertEqual(len(today_accepted_apps), 2)
+        self.assertEqual(today_eform_stats['processed'], 1)
+        self.assertEqual(today_eform_stats['not_processed'], 1)
+        self.assertEqual(today, datetime.date.today().strftime('%Y-%m-%d'))
+
+        # enter eform
+        data4 = {
+            'application': app2.id,
+            'pin': '1237',
+            'tasm': True,
+            'eform': '123366',
+            'speed_chart': 'adsf',
+            'processing_note': 'this is a processing note'
+        }
+        response = self.client.post(reverse('administrators:update_admin_docs'), data=urlencode(data4), content_type=ContentType)
+        messages = self.json_messages(response)
+        self.assertTrue('success', messages['status'])
+        self.assertTrue('Success' in messages['message'])
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get(reverse('administrators:accepted_applications'))
+        self.assertEqual(response.status_code, 200)
+        today_accepted_apps = response.context['today_accepted_apps']
+        today_eform_stats = response.context['today_eform_stats']
+        today = response.context['today']
+
+        self.assertEqual(len(today_accepted_apps), 2)
+        self.assertEqual(today_eform_stats['processed'], 2)
+        self.assertEqual(today_eform_stats['not_processed'], 0)
+        self.assertEqual(today, datetime.date.today().strftime('%Y-%m-%d'))
+
+
 
     def test_cannot_accept_offer(self):
         print('- Test: Students cannot accept a job offer')
         self.login(STUDENT, 'password')
 
-        """self.submit_confiential_information_international_incomplete(STUDENT)
+        self.submit_confiential_information_international_incomplete(STUDENT)
         response = self.client.get( reverse('students:accept_decline_job', args=[SESSION, STUDENT_JOB]) + HISTORY_NEXT )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, STUDENT)
@@ -1790,14 +1986,14 @@ class StudentTest(TestCase):
         self.assertTrue('An error occurred. Please check the following information, and update required documents. <ul><li>Personal Data Form</li><li>Study Permit Expiry Date</li></ul>' in messages[0])
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse('students:accept_decline_job', args=[SESSION, STUDENT_JOB]) + HISTORY_NEXT)
-        self.assertRedirects(response, response.url)"""
+        self.assertRedirects(response, response.url)
 
 
     def test_decline_offer(self):
         print('- Test: Students decline job offers')
         self.login(STUDENT, 'password')
 
-        """self.submit_confiential_information_international_complete(STUDENT)
+        self.submit_confiential_information_international_complete(STUDENT)
 
         response = self.client.get( reverse('students:accept_decline_job', args=[SESSION, STUDENT_JOB]) + HISTORY_NEXT )
         self.assertEqual(response.status_code, 200)
@@ -1871,13 +2067,13 @@ class StudentTest(TestCase):
         self.assertEqual(appl.job.accumulated_ta_hours, app.job.accumulated_ta_hours + appl.declined.assigned_hours)
 
         total_hours = adminApi.get_total_assigned_hours(apps, ['accepted'])
-        self.assertEqual(total_hours['accepted'], {})"""
+        self.assertEqual(total_hours['accepted'], {})
 
     def test_decline_offer_with_incomplete_confidentiality(self):
         print('- Test: Students decline job offers with incomplete confidentiality')
         self.login(STUDENT, 'password')
 
-        """self.submit_confiential_information_international_incomplete(STUDENT)
+        self.submit_confiential_information_international_incomplete(STUDENT)
 
         response = self.client.get( reverse('students:accept_decline_job', args=[SESSION, STUDENT_JOB]) + HISTORY_NEXT )
         self.assertEqual(response.status_code, 200)
@@ -1901,13 +2097,13 @@ class StudentTest(TestCase):
         self.assertTrue('You declined the job offer - 2019 W1: APBI 265 001' in messages[0])
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse('students:history_jobs') + '?page=2')
-        self.assertRedirects(response, response.url)"""
+        self.assertRedirects(response, response.url)
 
 
     def test_reaccept_application(self):
         print('- Test: Students re-accept new job offers')
 
-        """STUDENT = 'user65.test'
+        STUDENT = 'user65.test'
         self.login(STUDENT, 'password')
 
         self.submit_confiential_information_international_complete(STUDENT)
@@ -2037,12 +2233,12 @@ class StudentTest(TestCase):
         self.assertEqual(appl.job.accumulated_ta_hours, app.job.accumulated_ta_hours + diff)
 
         total_hours = adminApi.get_total_assigned_hours(apps, ['accepted'])
-        self.assertEqual(total_hours['accepted'], {'2019-W1': 45.5 + diff, '2019-W2': 30.0})"""
+        self.assertEqual(total_hours['accepted'], {'2019-W1': 45.5 + diff, '2019-W2': 30.0})
 
     def test_reaccept_application_with_incomplete_confidentiality(self):
         print('- Test: Students cannot re-accept new job offers')
 
-        """STUDENT = 'user65.test'
+        STUDENT = 'user65.test'
         self.login(STUDENT, 'password')
 
         self.submit_confiential_information_international_complete(STUDENT)
@@ -2076,13 +2272,13 @@ class StudentTest(TestCase):
         self.assertTrue('An error occurred. Please check the following information, and update required documents. <ul><li>Personal Data Form</li><li>Study Permit Expiry Date</li></ul>' in messages[0])
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse('students:reaccept_application', args=[SLUG]) + HISTORY_NEXT)
-        self.assertRedirects(response, response.url)"""
+        self.assertRedirects(response, response.url)
 
 
     def test_redecline_application(self):
         print('- Test: Students re-decline new job offers')
 
-        """STUDENT = 'user65.test'
+        STUDENT = 'user65.test'
         self.login(STUDENT, 'password')
 
         self.submit_confiential_information_international_complete(STUDENT)
@@ -2188,12 +2384,12 @@ class StudentTest(TestCase):
         self.assertEqual(appl.declined.assigned_hours, 0.0)
 
         self.assertEqual(appl.job.assigned_ta_hours, app.job.assigned_ta_hours)
-        self.assertEqual(appl.job.accumulated_ta_hours, app.job.accumulated_ta_hours - 45.5) # accepted hours was 45.5"""
+        self.assertEqual(appl.job.accumulated_ta_hours, app.job.accumulated_ta_hours - 45.5) # accepted hours was 45.5
 
     def test_redecline_application_with_incomplete_confidentiality(self):
         print('- Test: Students re-decline new job offers with incomplete confidentiality')
 
-        """STUDENT = 'user66.test'
+        STUDENT = 'user66.test'
         self.login(STUDENT, 'password')
 
         self.submit_profile_resume(STUDENT)
@@ -2246,7 +2442,7 @@ class StudentTest(TestCase):
         self.assertEqual(appl.declined.assigned_hours, 0.0)
 
         self.assertEqual(appl.job.assigned_ta_hours, app.job.assigned_ta_hours)
-        self.assertEqual(appl.job.accumulated_ta_hours, app.job.accumulated_ta_hours - 45.5) # accepted hours was 45.5"""
+        self.assertEqual(appl.job.accumulated_ta_hours, app.job.accumulated_ta_hours - 45.5) # accepted hours was 45.5
 
 
     def test_terminate_job(self):

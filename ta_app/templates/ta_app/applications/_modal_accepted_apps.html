@@ -1,0 +1,78 @@
+{% if data|length > 0 %}
+
+  <button class="btn btn-xs btn-info" type="button" data-toggle="modal" data-target="#{{ type }}-accepted-app-modal">
+    <i class="fa fa-file-text-o" aria-hidden="true"></i>
+  </button>
+
+  <div class="modal fade" id="{{ type }}-accepted-app-modal" tabindex="-1" role="dialog" aria-labelledby="{{ type }}-accepted-app-modal-label" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title text-info" id="{{ type }}-accepted-app-modal-label">
+            Accepted Applications - {% if type == 'Week' %}
+              In recent 7 days
+            {% else %}
+              {{ type }}
+            {% endif %}
+          </h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        </div>
+        <div class="modal-item">
+
+          <table
+            class="table table-bordered table-hover table-striped table-responsive-md text-center"
+            data-toggle="table"
+            data-classes=""
+            data-show-export="true"
+            data-export-types="['csv']"
+          >
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>ID</th>
+                <th>Applicant</th>
+                <th>Student Number</th>
+                <th>Employee number</th>
+                <th>eForm</th>
+                <th>Accepted at</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for app in data %}
+                <tr>
+                  <td>{{ forloop.counter }}</td>
+                  <td>{{ app.id }}</td>
+                  <td>
+                    {{ app.applicant.get_full_name }} ({{ app.applicant.username }})
+                  </td>
+                  <td>{{ app.applicant.profile.student_number }}</td>
+                  <td>
+                    {% if app.applicant.confidentiality.employee_number %}
+                      {{ app.applicant.confidentiality.employee_number }}
+                    {% else %}
+                      <span class="badge badge-danger">NEW</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if app.admindocuments.eform %}
+                      {{ app.admindocuments.eform }}
+                    {% else %}
+                      <i class="fa fa-remove text-danger" aria-hidden="true"></i>
+                    {% endif %}
+                  </td>
+                  <th>
+                    {{ app.accepted.created_at }}
+                  </th>
+                </tr>
+              {% empty %}
+                <tr><td>No data found</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endif %}

@@ -8,10 +8,37 @@
 
   {% include 'ta_app/pages/_header.html' with title='Accepted Applications' %}
 
-  {% include 'administrators/applications/_search_fields.html' with data=apps total=total_apps path='accepted' %}
+  <div class="row">
+    <div class="col-md-6">
+      {% include 'administrators/applications/_search_fields.html' with data=apps total=total_apps path='accepted' eform_stats=eform_stats %}
+    </div>
+    <div class="col-md-6">
 
-  {% include 'ta_app/applications/_contract_read_note.html' %}
-  <p class="text-dark-gray text-right font-size-sm"><code>Monthly Salary</code> is paid in Canadian dollars (CAD).</p>
+      <div class="bg-light-gray p-4 text-center" style="height:258.8px">
+        <p class="h4 font-weight-normal mt-3 mb-5">
+          <i class="fa fa-bell-o" aria-hidden="true"></i> Today ({{ today }})
+        </p>
+
+        <table class="table text-center font-size-1">
+          <tbody>
+            <tr>
+              <td>Processed</td>
+              <td>Not processed</td>
+              <td>Total</td>
+            </tr>
+            <tr>
+              <td><span class="text-success h3 font-weight-normal">{{ today_eform_stats.processed }}</span></td>
+              <td><span class="text-danger h3 font-weight-normal">{{ today_eform_stats.not_processed }}</span></td>
+              <td>
+                <span class="h3 font-weight-bold">{{ today_accepted_apps|length }}</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
 
   <div class="my-3">
     <div class="float-right">
@@ -55,58 +82,58 @@
   <table id="accepted-apps-table" class="sortable-table table table-sm table-bordered table-hover table-striped table-responsive-md text-center">
     <thead>
       <tr>
-        <th class="sortable" onclick="sortRow(0, 'numeric')">
+        <th class="sortable" onclick="sortColumn(0, 'numeric')">
           <div class="sort-field">ID</div>
           <div class="sort-icon"><i class="fa fa-sort" aria-hidden="true"></i></div>
         </th>
-        <th class="sortable" onclick="sortRow(1, 'numeric')">
+        <th class="sortable" onclick="sortColumn(1, 'numeric')">
           <div class="sort-field">Year</div>
           <div class="sort-icon"><i class="fa fa-sort" aria-hidden="true"></i></div>
         </th>
-        <th class="sortable" onclick="sortRow(2)">
+        <th class="sortable" onclick="sortColumn(2)">
           <div class="sort-field">Term</div>
           <div class="sort-icon"><i class="fa fa-sort" aria-hidden="true"></i></div>
         </th>
-        <th class="sortable" onclick="sortRow(3)">
+        <th class="sortable" onclick="sortColumn(3)">
           <div class="sort-field">Job</div>
           <div class="sort-icon"><i class="fa fa-sort" aria-hidden="true"></i></div>
         </th>
-        <th class="sortable" onclick="sortRow(4)">
+        <th class="sortable" onclick="sortColumn(4)">
           <div class="sort-field">Applicant</div>
           <div class="sort-icon"><i class="fa fa-sort" aria-hidden="true"></i></div>
         </th>
-        <th class="sortable" onclick="sortRow(5, 'numeric')">
+        <th class="sortable" onclick="sortColumn(5, 'numeric')">
           <div class="sort-field">Student<br /> Number</div>
           <div class="sort-icon"><i class="fa fa-sort" aria-hidden="true"></i></div>
         </th>
-        <th class="sortable" onclick="sortRow(6, 'numeric')">
+        <th class="sortable" onclick="sortColumn(6, 'numeric')">
           <div class="sort-field">Employee<br /> Number</div>
           <div class="sort-icon"><i class="fa fa-sort" aria-hidden="true"></i></div>
         </th>
-        <th class="sortable" onclick="sortRow(7)">
+        <th class="sortable" onclick="sortColumn(7)">
           <div class="sort-field">Classification</div>
           <div class="sort-icon"><i class="fa fa-sort" aria-hidden="true"></i></div>
         </th>
-        <th class="sortable" onclick="sortRow(8, 'dollar')">
+        <th class="sortable" onclick="sortColumn(8, 'dollar')">
           <div class="sort-field"> Monthly<br /> Salary</div>
           <div class="sort-icon"><i class="fa fa-sort" aria-hidden="true"></i></div>
         </th>
-        <th class="sortable" onclick="sortRow(9, 'numeric')">
+        <th class="sortable" onclick="sortColumn(9, 'numeric')">
           <div class="sort-field">P/T (%)</div>
           <div class="sort-icon"><i class="fa fa-sort" aria-hidden="true"></i></div>
         </th>
         <th>PIN</th>
         <th>TASM</th>
-        <th class="sortable" onclick="sortRow(12, 'numeric')">
+        <th class="sortable" onclick="sortColumn(12, 'numeric')">
           <div class="sort-field">eForm</div>
           <div class="sort-icon"><i class="fa fa-sort" aria-hidden="true"></i></div>
         </th>
-        <th class="sortable" onclick="sortRow(13)">
+        <th class="sortable" onclick="sortColumn(13)">
           <div class="sort-field">Speed<br /> Chart</div>
           <div class="sort-icon"><i class="fa fa-sort" aria-hidden="true"></i></div>
         </th>
         <th>Processing<br /> Note</th>
-        <th class="sortable" onclick="sortRow(15, 'date')">
+        <th class="sortable" onclick="sortColumn(15, 'date')">
           <div class="sort-field">Accepted at</div>
           <div class="sort-icon"><i class="fa fa-sort" aria-hidden="true"></i></div>
         </th>
@@ -118,6 +145,12 @@
         <tr>
           <td>
             <a class="btn btn-xs btn-info" href="{% url 'administrators:show_application' app_slug=app.slug %}?next={{ new_next }}&p=Accepted Applications">{{ app.id }}</a>
+            <br />
+            {% if app.admindocuments.eform %}
+              <i class="fa fa-check text-success mt-2 font-size-1" aria-hidden="true"></i>
+            {% else %}
+              <i class="fa fa-remove text-danger mt-2 font-size-1" aria-hidden="true"></i>
+            {% endif %}
           </td>
           <td>{{ app.job.session.year }}</td>
           <td>{{ app.job.session.term.code }}</td>
@@ -130,8 +163,14 @@
             <a href="{% url 'users:show_user' username=app.applicant.username %}?next={{ new_next }}&p=Accepted Applications&t=basic">
               {{ app.applicant.first_name }} <br />{{ app.applicant.last_name }}
             </a>
+
             <div class="text-dark-gray">({{ app.applicant.username }})</div>
+
             {% include 'ta_app/applications/_modal_app_status.html' with data=app display='name' %}
+
+            {% if app.is_declined_reassigned %}
+              <i class="fa fa-asterisk text-danger" aria-hidden="true"></i>
+            {% endif %}
           </td>
           <td>{{ app.applicant.profile.student_number }}</td>
           <td>
@@ -198,7 +237,12 @@
                 <div class="modal-dialog modal-lg" role="document">
                   <div class="modal-content">
                     <div class="modal-header">
-                      <h5 class="modal-title text-info" id="job-application-modal-label-{{ app.id }}">Decline & Re-assign</h5>
+                      <h5 class="modal-title text-info" id="job-application-modal-label-{{ app.id }}">
+                        Decline & Re-assign
+                        {% if app.is_declined_reassigned %}
+                          <i class="fa fa-asterisk text-danger" aria-hidden="true"></i>
+                        {% endif %}
+                      </h5>
                       <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                     </div>
                     <div class="modal-body text-left">
@@ -336,6 +380,14 @@
   </table>
 
   {% include 'ta_app/pages/_table_paginator.html' with data=apps %}
+
+  {% include 'ta_app/applications/_contract_read_note.html' %}
+  {% include 'ta_app/applications/_declined_reassigned_note.html' %}
+  <p class="text-dark-gray text-right font-size-sm m-0">
+    Applications have been processed (eForm is not empty): <i class="fa fa-check text-success" aria-hidden="true"></i>, otherwise <i class="fa fa-remove text-danger" aria-hidden="true"></i>.
+  </p>
+  <p class="text-dark-gray text-right font-size-sm m-0">Enter <code>none</code> in the <code>eForm</code> search box to fetch applications with no eForm ID.</p>
+  <p class="text-dark-gray text-right font-size-sm"><code>Monthly Salary</code> is paid in Canadian dollars (CAD).</p>
 
 </div>
 

@@ -583,6 +583,13 @@ table tbody td {
   right: 0;
   bottom: 7px;
 }
+input[type=checkbox] {
+  vertical-align: middle;
+}
+
+.fa {
+  vertical-align: middle;
+}
 
 .sortable-table thead .sortable .fa {
   color: #aba9a9;

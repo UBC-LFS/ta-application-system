@@ -8,9 +8,7 @@
   {% include 'administrators/applications/_search_fields.html' with data=apps total=total_apps path='declined' %}
 
   {% include 'ta_app/applications/_contract_read_note.html' %}
-  <p class="text-dark-gray text-right font-size-sm m-0">
-    This icon <i class="fa fa-asterisk text-danger" aria-hidden="true"></i> means that administrators did decline accepted applications for re-assign.
-  </p>
+  {% include 'ta_app/applications/_declined_reassigned_note.html' %}
 
   <form action="{% url 'administrators:applications_send_email' %}?next={{ new_next }}&p=Declined Applications" method="post">
     {% csrf_token %}
