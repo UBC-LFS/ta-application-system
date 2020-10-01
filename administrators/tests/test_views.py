@@ -72,7 +72,7 @@ TERMINATED_APP = '?next=' + reverse('administrators:terminated_applications') + 
 ALL_USER = '?next=' + reverse('administrators:all_users') + '?page=2&p=All%20Users&t=basic'
 DASHBOARD_USER = '?next=' + reverse('administrators:applications_dashboard') + '?page=2&p=Dashboard&t=basic'
 
-"""
+
 class SessionTest(TestCase):
     fixtures = DATA
 
@@ -802,7 +802,7 @@ class JobTest(TestCase):
         self.assertEqual(num_offered, 4)
         self.assertEqual(num_accepted, 3)
 
-"""
+
 class ApplicationTest(TestCase):
     fixtures = DATA
 
@@ -1846,7 +1846,7 @@ class ApplicationTest(TestCase):
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual( len(adminApi.get_emails()), len(curr_emails) + len(user_emails) )
 
-"""
+
 
 class HRTest(TestCase):
     fixtures = DATA
@@ -4552,5 +4552,3 @@ class AdminHRTest(TestCase):
         self.assertEqual(messages[0], 'An error occurred while reading table rows. Something went wrong in the 3rd row. (e.g., ID is empty)')
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, response.url)
-
-"""

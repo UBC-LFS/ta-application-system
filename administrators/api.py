@@ -559,8 +559,8 @@ def add_salary(apps):
     return apps
 
 def get_offered_apps_no_response(apps):
-    apps = apps.filter(applicationstatus__assigned=ApplicationStatus.OFFERED)
-    return apps.filter( ~Q(applicationstatus__assigned=ApplicationStatus.ACCEPTED) & ~Q(applicationstatus__assigned=ApplicationStatus.DECLINED) )
+    ''' Get offered apps with no response '''
+    return apps.filter(applicationstatus__assigned=ApplicationStatus.OFFERED).filter( ~Q(applicationstatus__assigned=ApplicationStatus.ACCEPTED) & ~Q(applicationstatus__assigned=ApplicationStatus.DECLINED) ).order_by('-id').distinct()
 
 def get_accepted_apps_by_day(apps, when):
     ''' Get accepted apps by day '''

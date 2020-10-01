@@ -1282,6 +1282,7 @@ def email_history(request):
     title_q = request.GET.get('title')
     message_q = request.GET.get('message')
     type_q = request.GET.get('type')
+    no_response_q = request.GET.get('no_response')
 
     email_list = adminApi.get_emails()
     if bool(receiver_q):
@@ -1292,6 +1293,8 @@ def email_history(request):
         email_list = email_list.filter(message__icontains=message_q)
     if bool(type_q):
         email_list = email_list.filter(type__icontains=type_q)
+    if bool(no_response_q):
+        email_list = email_list.filter(application__applicationstatus__assigned=ApplicationStatus.OFFERED).filter( ~Q(application__applicationstatus__assigned=ApplicationStatus.ACCEPTED) & ~Q(application__applicationstatus__assigned=ApplicationStatus.DECLINED) ).order_by('-id').distinct()
 
     page = request.GET.get('page', 1)
     paginator = Paginator(email_list, settings.PAGE_SIZE)
@@ -1302,6 +1305,9 @@ def email_history(request):
         emails = paginator.page(1)
     except EmptyPage:
         emails = paginator.page(paginator.num_pages)
+
+    for email in emails:
+        email.application = adminApi.add_app_info_into_application(email.application, ['offered', 'accepted', 'declined'])
 
     return render(request, 'administrators/applications/email_history.html', {
         'loggedin_user': request.user,

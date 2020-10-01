@@ -8,9 +8,10 @@
   <div class="search-field bg-light-gray p-4">
     <form method="GET">
       <input type="text" name="receiver" value="{{ request.GET.receiver }}" placeholder="Receiver" /> and
-      <input type="text" name="title" value="{{ request.GET.title }}" placeholder="Title" /> and
+      <input type="text" name="title" value="{{ request.GET.title }}" placeholder="Title" /> <br />
       <input type="text" name="message" value="{{ request.GET.message }}" placeholder="Message" /> and
-      <input type="text" name="type" value="{{ request.GET.type }}" placeholder="Type" />
+      <input type="text" name="type" value="{{ request.GET.type }}" placeholder="Type" /> <br />
+      No response: <input type="checkbox" name="no_response" value="True" {% if request.GET.no_response %}checked{% endif %} />
 
       <div class="mt-1">
         <button class="btn btn-sm btn-secondary" type="submit">Search</button>
@@ -18,7 +19,11 @@
       </div>
     </form>
   </div>
-  <div>{{ total }} result{% if total > 1 %}s {% endif %} found. {{ emails|length }} row{% if emails|length > 1 %}s {% endif %} in this page.</div>
+  <div class="text-dark-gray font-size-sm">
+    {{ total }} result{% if total > 1 %}s {% endif %} found. {{ emails|length }} row{% if emails|length > 1 %}s {% endif %} in this page.
+  </div>
+
+  {% include 'ta_app/applications/_no_response_note.html' %}
 
   <table
     class="table table-bordered table-hover table-striped table-responsive-md text-center"
@@ -37,6 +42,7 @@
         <th data-sortable="true">Email</th>
         <th data-sortable="true">Type</th>
         <th data-sortable="true">Application<br /> ID</th>
+        <th>Application<br /> Status</th>
         <th data-sortable="true">Created at</th>
         <th>Actions</th>
       </tr>
@@ -87,6 +93,13 @@
               {{ email.application.id }}
             </a>
           </td>
+          <td>
+            {% include 'ta_app/applications/_modal_app_status.html' with data=email.application %}
+
+            {% if email.application.offered and not email.application.accepted and not email.application.declined %}
+              <i class="fa fa-question-circle text-warning font-size-1" aria-hidden="true"></i>
+            {% endif %}
+          </td>
           <td>{{ email.created_at }}</td>
           <td>
             <a href="{% url 'administrators:send_reminder' email.id %}?next={{ new_next }}&p=Email History">Remind</a>
@@ -107,7 +120,8 @@
 {% if request.GET.receiver %}&receiver={{ request.GET.receiver }}{% endif %}
 {% if request.GET.title %}&title={{ request.GET.title }}{% endif %}
 {% if request.GET.message %}&message={{ request.GET.message }}{% endif %}
-{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}"
+{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}
+{% if request.GET.no_response %}&no_response={{ request.GET.no_response }}{% endif %}"
             ><i class="fa fa-angle-double-left" aria-hidden="true"></i></a>
           </li>
           <li class="page-item">
@@ -115,7 +129,8 @@
 {% if request.GET.receiver %}&receiver={{ request.GET.receiver }}{% endif %}
 {% if request.GET.title %}&title={{ request.GET.title }}{% endif %}
 {% if request.GET.message %}&message={{ request.GET.message }}{% endif %}
-{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}"
+{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}
+{% if request.GET.no_response %}&no_response={{ request.GET.no_response }}{% endif %}"
             ><i class="fa fa-angle-left" aria-hidden="true"></i></a>
           </li>
         {% else %}
@@ -140,7 +155,8 @@
 {% if request.GET.receiver %}&receiver={{ request.GET.receiver }}{% endif %}
 {% if request.GET.title %}&title={{ request.GET.title }}{% endif %}
 {% if request.GET.message %}&message={{ request.GET.message }}{% endif %}
-{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}"
+{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}
+{% if request.GET.no_response %}&no_response={{ request.GET.no_response }}{% endif %}"
                 >{{ i }}</a>
               {% endif %}
 
@@ -154,7 +170,8 @@
 {% if request.GET.receiver %}&receiver={{ request.GET.receiver }}{% endif %}
 {% if request.GET.title %}&title={{ request.GET.title }}{% endif %}
 {% if request.GET.message %}&message={{ request.GET.message }}{% endif %}
-{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}"
+{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}
+{% if request.GET.no_response %}&no_response={{ request.GET.no_response }}{% endif %}"
             ><i class="fa fa-angle-right" aria-hidden="true"></i></a>
           </li>
           <li class="page-item">
@@ -162,7 +179,8 @@
 {% if request.GET.receiver %}&receiver={{ request.GET.receiver }}{% endif %}
 {% if request.GET.title %}&title={{ request.GET.title }}{% endif %}
 {% if request.GET.message %}&message={{ request.GET.message }}{% endif %}
-{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}"
+{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}
+{% if request.GET.no_response %}&no_response={{ request.GET.no_response }}{% endif %}"
             ><i class="fa fa-angle-double-right" aria-hidden="true"></i></a>
           </li>
         {% else %}

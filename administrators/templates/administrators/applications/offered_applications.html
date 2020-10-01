@@ -7,9 +7,7 @@
 
   {% include 'administrators/applications/_search_fields.html' with data=apps total=total_apps path='offered' %}
 
-  <p class="text-dark-gray text-right font-size-sm">
-    This icon <i class="fa fa-question-circle text-warning font-size-1" aria-hidden="true"></i> represents that students don't respond to their job offer contracts (Accepted or Declined).
-  </p>
+  {% include 'ta_app/applications/_no_response_note.html' %}
 
   <form action="{% url 'administrators:applications_send_email' %}?next={{ new_next }}&p=Offered Applications" method="post">
     {% csrf_token %}
@@ -66,8 +64,8 @@
             </td>
             <td>
               {% include 'ta_app/applications/_modal_app_status.html' with data=app %}
-              
-              {% if not app.accepted.created_at and not app.declined.created_at %}
+
+              {% if not app.accepted and not app.declined %}
                 <i class="fa fa-question-circle text-warning font-size-1" aria-hidden="true"></i>
               {% endif %}
             </td>
