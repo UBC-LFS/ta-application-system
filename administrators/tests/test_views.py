@@ -1847,7 +1847,6 @@ class ApplicationTest(TestCase):
         self.assertEqual( len(adminApi.get_emails()), len(curr_emails) + len(user_emails) )
 
 
-
 class HRTest(TestCase):
     fixtures = DATA
 
@@ -2713,74 +2712,9 @@ class HRTest(TestCase):
         self.assertEqual(u2.profile.roles.all()[0].name, Role.STUDENT)
         self.assertIsNotNone( userApi.has_user_confidentiality_created(u) )
 
-
-    def test_user_exists_via_saml(self):
-        print('- Test: user exists via SAML')
+    def test_change_user_role(self):
+        print('- Test: Display all roles and create a role')
         self.login()
-
-        data = {
-            'first_name': 'test',
-            'last_name': 'user5050',
-            'email': 'test.user5050@example.com',
-            'username': 'test.user5050',
-            'student_number': None,
-            'employee_number': None
-        }
-
-        # user is not present
-        user = userApi.user_exists(data)
-        self.assertIsNone(user)
-
-        # user is created
-        user = userApi.create_user(data)
-        self.assertIsNotNone(user)
-        self.assertEqual(user.username, data['username'])
-        self.assertEqual(user.email, data['email'])
-        self.assertEqual(user.first_name, data['first_name'])
-        self.assertEqual(user.last_name, data['last_name'])
-        self.assertIsNotNone(user.profile)
-        self.assertIsNone(user.profile.student_number)
-        roles = userApi.get_user_roles(user)
-        self.assertEqual(roles, ['Student'])
-        self.assertIsNotNone(user.confidentiality)
-        self.assertIsNone(user.confidentiality.employee_number)
-        self.assertTrue(user.confidentiality.is_new_employee)
-
-        # no exising employee number
-        data2 = {
-            'first_name': 'test',
-            'last_name': 'user5050',
-            'email': 'test.user5050@example.com',
-            'username': 'test.user5050',
-            'student_number': '09988776',
-            'employee_number': '9998888'
-        }
-        user2 = userApi.user_exists(data2)
-        self.assertEqual(user2.profile.student_number, data2['student_number'])
-        self.assertFalse(user2.confidentiality.is_new_employee)
-        self.assertEqual(user2.confidentiality.employee_number, data2['employee_number'])
-
-        # different employee number and is_new_employee = false
-        data3 = {
-            'first_name': 'test',
-            'last_name': 'user5050',
-            'email': 'test.user5050@example.com',
-            'username': 'test.user5050',
-            'student_number': '88888886',
-            'employee_number': '8888888'
-        }
-        user3 = userApi.user_exists(data3)
-        self.assertEqual(user3.username, data3['username'])
-        self.assertEqual(user3.email, data3['email'])
-        self.assertEqual(user3.first_name, data3['first_name'])
-        self.assertEqual(user3.last_name, data3['last_name'])
-        self.assertIsNotNone(user3.profile)
-        self.assertEqual(user3.profile.student_number, data3['student_number'])
-        roles = userApi.get_user_roles(user3)
-        self.assertEqual(roles, ['Student'])
-        self.assertIsNotNone(user3.confidentiality)
-        self.assertEqual(user3.confidentiality.employee_number, data3['employee_number'])
-        self.assertFalse(user3.confidentiality.is_new_employee)
 
         data4 = {
             'user': user.id,

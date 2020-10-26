@@ -238,6 +238,7 @@ def create_user(data):
     )
     if user:
         is_new_employee = True if employee_number == None else False
+
         confidentiality = Confidentiality.objects.create(
             user_id=user.id,
             is_new_employee=is_new_employee,
@@ -280,6 +281,22 @@ def delete_user(user_id):
 
     user.delete()
     return user if user_exists_username(user.username) == None and sin and study_permit and personal_data_form and resume else False
+
+
+def contain_user_duplicated_info(data):
+    ''' Chceck whether student numbers or employee numbers exist in DB '''
+
+    if data['student_number'] != None:
+        sn = Profile.objects.filter(student_number=data['student_number']).exclude(user__username=data['username'])
+        if sn.exists():
+            return True
+
+    if data['employee_number'] != None:
+        en = Confidentiality.objects.filter(employee_number=data['employee_number']).exclude(user__username=data['username'])
+        if en.exists():
+            return True
+
+    return False
 
 
 # end user
@@ -557,7 +574,7 @@ def add_confidentiality_validation(user):
             message = 'Please check the following information, and update required documents. <ul>{0}</ul>'.format(errors)
     else:
         message = "You haven't completed it yet. Please upload required documents."
-    
+
     return {
         'status': True if len(message) == 0 else False,
         'message': message

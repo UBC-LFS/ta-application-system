@@ -1,0 +1,17 @@
+{% extends 'ta_app/base.html' %}
+{% block content %}
+
+<div class="text-center">
+  <h4 class="mt-5 text-danger">
+    <i class="fa fa-ban" aria-hidden="true"></i>
+    Login failed.
+  </h4>
+  <h4>The system has encountered an error.</h4>
+  <p>
+    You may have a duplicated student number, employee number or CWL in the system. <br />Please contact administrator, or the LFS Learning Centre (<span class="text-primary">it@landfood.ubc.ca</span>) for help.
+  </p>
+
+  <a href="{% url 'index' %}">Go to Landing Page</a>
+</div>
+
+{% endblock %}

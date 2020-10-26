@@ -3,11 +3,14 @@ from django.http import HttpResponse, HttpResponseRedirect, HttpResponseServerEr
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout
-from users import api as userApi
+from django.core.exceptions import SuspiciousOperation
+
 from onelogin.saml2.auth import OneLogin_Saml2_Auth
 from onelogin.saml2.settings import OneLogin_Saml2_Settings
 from onelogin.saml2.utils import OneLogin_Saml2_Utils
+
 from accounts import views as accountView
+from users import api as userApi
 
 def init_saml_auth(req):
     return OneLogin_Saml2_Auth(req, custom_base_path=settings.SAML_FOLDER)
@@ -57,6 +60,12 @@ def authenticate(saml_authentication=None):
                 user_data['employee_number'] = value[0]
             elif 'ubcEduStudentNumber' in key:
                 user_data['student_number'] = value[0]
+
+        if user_data['username'] == None:
+            raise SuspiciousOperation
+
+        if userApi.contain_user_duplicated_info(user_data) == True:
+            raise SuspiciousOperation
 
         user = userApi.user_exists(user_data)
         if user == None:
