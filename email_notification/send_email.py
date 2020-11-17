@@ -23,7 +23,7 @@ def send(statuses):
         <p>LFS TA Application System</p>
       </body>
     </html>
-    '''.format(YESTERDAY, len(statuses), lis, URL)
+    '''.format(TODAY, len(statuses), lis, URL)
 
     msg = MIMEText(message, 'html')
     msg['Subject'] = 'Notification: TA Application System'
@@ -42,6 +42,7 @@ def send(statuses):
 if __name__ == "__main__":
     db = TaAppDatabase(USER, PASSWORD, HOST, PORT, DATABASE)
     statuses = db.statuses
+
     if len(statuses)> 0:
-        print('Sent it to HR users. Target day was {0}'.format(YESTERDAY))
         send(statuses)
+        print('Sent it to HR users. Target day was {0}'.format(TODAY))

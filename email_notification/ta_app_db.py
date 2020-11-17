@@ -22,5 +22,7 @@ class TaAppDatabase:
 
     def get_application_statuses(self):
         """ Get all application statuses """
-        self.cursor.execute("SELECT application_id, assigned_hours, created_at FROM administrators_applicationstatus WHERE assigned='" + ACCEPTED_ID + "' AND created_at >= '" + YESTERDAY + "' AND created_at < '" + TODAY + "' ORDER BY id ASC;")
+
+        #self.cursor.execute("SELECT application_id, assigned_hours, created_at FROM administrators_applicationstatus WHERE assigned='" + ACCEPTED_ID + "' AND created_at >= '" + YESTERDAY + "' AND created_at < '" + TODAY + "' ORDER BY id ASC;")
+        self.cursor.execute("SELECT application_id, assigned_hours, created_at FROM administrators_applicationstatus WHERE assigned='" + ACCEPTED_ID + "' AND created_at='" + TODAY + "' ORDER BY id ASC;")
         return self.cursor.fetchall()
