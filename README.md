@@ -150,6 +150,10 @@ $ python manage.py createsuperuser --username=joe --email=joe@example.com
 2. Run this app
 ```
 $ python manage.py runserver
+
+For scheduling tasks
+$ python manage.py runserver --noreload
+
 ```
 
 

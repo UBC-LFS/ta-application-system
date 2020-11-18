@@ -839,6 +839,11 @@ def bulk_update_admin_docs(data, user):
     return True, ''
 
 
+def get_today_accepted_apps():
+    ''' Get accepted application in today '''
+    
+    apps = ApplicationStatus.objects.filter(created_at=datetime.today())
+    return apps if apps.exists() else None
 
 # end applications
 
