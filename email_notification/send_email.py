@@ -23,7 +23,7 @@ def send(statuses):
         <p>LFS TA Application System</p>
       </body>
     </html>
-    '''.format(TODAY, len(statuses), lis, URL)
+    '''.format(TODAY, len(statuses), lis, TA_APP_URL)
 
     msg = MIMEText(message, 'html')
     msg['Subject'] = 'Notification: TA Application System'

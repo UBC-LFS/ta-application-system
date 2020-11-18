@@ -8,3 +8,4 @@ cryptography>=2.7
 django-impersonate>=1.4.1
 onelogin>=1.5.3
 gunicorn>=20.0.4
+apscheduler>=3.6.3

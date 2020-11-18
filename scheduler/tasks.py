@@ -9,7 +9,7 @@ from datetime import datetime
 
 def send():
     apps = adminApi.get_today_accepted_apps()
-    
+
     if apps != None:
         items = ''
         for app_status in apps:
@@ -42,6 +42,7 @@ def send():
             print('The notification has been sent successfully')
 
 def run():
+    print('scheduling tasks running...')
     scheduler = BackgroundScheduler()
     #scheduler.add_job(send, 'cron', day_of_week='mon-fri', hour='9-17')
     scheduler.add_job(send, 'interval', minutes=2)

@@ -12,7 +12,7 @@ SMTP_SERVER = os.environ['TA_APP_EMAIL_HOST']
 SENDER = os.environ['TA_APP_EMAIL_FROM']
 RECEIVER = os.environ['TA_APP_EMAIL_RECEIVER']
 
-URL = 'https://ta-app.landfood.ubc.ca/'
+TA_APP_URL = os.environ['TA_APP_URL']
 YESTERDAY = (datetime.today() - timedelta(days=1)).strftime('%Y-%m-%d')
 TODAY = datetime.today().strftime('%Y-%m-%d')
 ACCEPTED_ID = '3'

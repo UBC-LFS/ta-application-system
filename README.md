@@ -46,6 +46,7 @@ EMAIL_HOST = os.environ['TA_APP_EMAIL_HOST']
 EMAIL_FROM = os.environ['TA_APP_EMAIL_FROM']
 ENCRYPT_SALT = os.environ['TA_APP_ENCRYPT_SALT']
 ENCRYPT_PASSWORD = os.environ['TA_APP_ENCRYPT_PASSWORD']
+TA_APP_URL = os.environ['TA_APP_URL']
 ```
 
 *Note: how to create ENCRYPT_SALT and ENCRYPT_PASSWORD*
