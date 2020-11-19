@@ -14,7 +14,7 @@ def send():
     if apps != None:
         items = ''
         for app_status in apps:
-            items += '<li>Application: ' + app_status.application.applicant.get_full_name() + ' (ID: ' + str(app_status.id) + ', assigned ' + str(app_status.assigned_hours) + ' hours)</li>'
+            items += '<li>Application: ' + app_status.application.applicant.get_full_name() + ' (ID: ' + str(app_status.application.id) + ', assigned ' + str(app_status.assigned_hours) + ' hours)</li>'
 
         title = 'Notification: TA Application System'
         message = '''\
