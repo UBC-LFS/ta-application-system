@@ -43,8 +43,7 @@ def send():
             print('The notification has been sent successfully')
 
 def run():
-    print('scheduling tasks running...')
+    print('Scheduling tasks running...')
     scheduler = BackgroundScheduler()
-    #scheduler.add_job(send, 'cron', day_of_week='mon-fri', hour='9-17')
-    scheduler.add_job(send, 'interval', minutes=2)
+    scheduler.add_job(send, 'cron', day_of_week='mon-fri', hour='9-17')
     scheduler.start()
