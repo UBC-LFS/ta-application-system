@@ -565,13 +565,13 @@ def get_offered_apps_no_response(apps):
 def get_accepted_apps_by_day(apps, when):
     ''' Get accepted apps by day '''
 
-    day = datetime.today().strftime('%Y-%m-%d')
-    query = Q(applicationstatus__created_at=datetime.today().strftime('%Y-%m-%d'))
+    day = date.today()
+    query = Q(applicationstatus__created_at=day)
     if when == 'yesterday':
-        day = (datetime.today() - timedelta(days=1)).strftime('%Y-%m-%d')
+        day = date.today() - timedelta(days=1)
         query = Q(applicationstatus__created_at=day)
     elif when == 'week_ago':
-        day = (datetime.today() - timedelta(days=7)).strftime('%Y-%m-%d')
+        day = date.today() - timedelta(days=7)
         query = Q(applicationstatus__created_at__gte=day)
 
     apps = apps.filter( Q(applicationstatus__assigned=ApplicationStatus.ACCEPTED) & Q(is_terminated=False) & query ).order_by('-id').distinct()
