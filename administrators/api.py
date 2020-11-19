@@ -16,7 +16,7 @@ from administrators.forms import AdminDocumentsForm
 from users.models import *
 from users import api as userApi
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 import math
 import csv
 
@@ -841,8 +841,8 @@ def bulk_update_admin_docs(data, user):
 
 def get_today_accepted_apps():
     ''' Get accepted application in today '''
-    
-    apps = ApplicationStatus.objects.filter(created_at=datetime.today())
+
+    apps = ApplicationStatus.objects.filter( Q(assigned=ApplicationStatus.ACCEPTED) & Q(created_at=date.today()) )
     return apps if apps.exists() else None
 
 # end applications
