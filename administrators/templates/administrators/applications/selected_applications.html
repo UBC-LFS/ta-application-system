@@ -5,7 +5,36 @@
 <div>
   {% include 'ta_app/pages/_header.html' with title='Selected Applications' %}
 
-  {% include 'administrators/applications/_search_fields.html' with data=apps total=total_apps path='selected' %}
+  <div class="row mb-5">
+    <div class="col-md-6">
+      {% include 'administrators/applications/_search_fields.html' with data=apps total=total_apps path='selected' offered_stats=offered_stats %}
+    </div>
+
+    <div class="col-md-6">
+
+      <div class="bg-light-gray p-4 text-center" style="height:240.6px">
+        <p class="h4 font-weight-normal mt-3 mb-5">
+          <i class="fa fa-bell-o" aria-hidden="true"></i> Statistics
+        </p>
+
+        <table class="table text-center font-size-1">
+          <tbody>
+            <tr>
+              <td>Offered</td>
+              <td>Not offered</td>
+              <td>Total</td>
+            </tr>
+            <tr>
+              <td><span class="text-success h3 font-weight-normal">{{ selected_apps.stats.num_offered }}</span></td>
+              <td><span class="text-danger h3 font-weight-normal">{{ selected_apps.stats.num_not_offered }}</span></td>
+              <td><span class="h3 font-weight-bold">{{ selected_apps.total }}</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
 
   <table
     class="table table-bordered table-hover table-striped table-responsive-md text-center"

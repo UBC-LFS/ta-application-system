@@ -8,11 +8,14 @@
     <input type="text" name="first_name" value="{{ request.GET.first_name }}" placeholder="First Name" /> and
     <input type="text" name="last_name" value="{{ request.GET.last_name }}" placeholder="Last Name" /> <br />
 
-    {% if path == 'offered' %}
-      No response: <input type="checkbox" name="no_response" value="True" {% if request.GET.no_response %}checked{% endif %} />
-    {% endif %}
+    {% if path == 'selected' %}
+      Offered: <input type="checkbox" name="offered" value="True" {% if request.GET.offered %}checked{% endif %} /> or
+      Not offered: <input type="checkbox" name="not_offered" value="True" {% if request.GET.not_offered %}checked{% endif %} />
 
-    {% if path == 'accepted' %}
+    {% elif path == 'offered' %}
+      No response: <input type="checkbox" name="no_response" value="True" {% if request.GET.no_response %}checked{% endif %} />
+
+    {% elif path == 'accepted' %}
       <input type="text" name="eform" value="{{ request.GET.eform }}" placeholder="eForm" /> and
       Declined & re-assigned: <input type="checkbox" name="declined_reassigned" value="True" {% if request.GET.declined_reassigned %}checked{% endif %} /> and
       Accepted in today: <input type="checkbox" name="accepted_in_today" value="True" {% if request.GET.accepted_in_today %}checked{% endif %} />
@@ -53,7 +56,11 @@
 <div class="text-dark-gray font-size-sm">
   {{ total }} result{% if total > 1 %}s {% endif %} found. {{ data|length }} row{% if data|length > 1 %}s {% endif %} in this page.
 
-  {% if path == 'accepted' %}
+  {% if path == 'selected' %}
+    <span class="text-success">Offered: {{ offered_stats.num_offered }}</span> |
+    <span class="text-danger">Not offered: {{ offered_stats.num_not_offered }}</span>
+
+  {% elif path == 'accepted' %}
     <span class="text-success">Processed: {{ eform_stats.processed }}</span> |
     <span class="text-danger">Not processed: {{ eform_stats.not_processed }}</span>
   {% endif %}

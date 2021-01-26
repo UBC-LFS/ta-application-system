@@ -611,6 +611,25 @@ def get_selected(app):
     if selected_app.exists(): return selected_app
     return False
 
+
+def get_selected_apps_with_stats():
+    ''' Get a total of selected apps and a stats '''
+    app_list = Application.objects.filter(applicationstatus__assigned=ApplicationStatus.SELECTED).order_by('-id').distinct()
+
+    return len(app_list), get_offered_stats(app_list)
+
+def get_offered_stats(app_list):
+    ''' Get a statistics for offered apps '''
+    stats = { 'num_offered': 0, 'num_not_offered': 0 }
+    apps = add_app_info_into_applications(app_list, ['offered'])
+    for app in apps:
+        if app.offered != None:
+            stats['num_offered'] += 1
+        else:
+            stats['num_not_offered'] += 1
+    return stats
+
+
 def get_offered(app):
     ''' Get an application offered '''
     offered_app = app.applicationstatus_set.filter(assigned=ApplicationStatus.OFFERED)

@@ -15,7 +15,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from django.conf.urls import handler403, handler403
+from django.conf.urls import handler400, handler403, handler404
 from ta_app import views, saml_views
 
 urlpatterns = [

@@ -37,6 +37,7 @@ APP_STATUS = {
 }
 
 
+
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
@@ -916,8 +917,12 @@ def selected_applications(request):
         section_q = request.GET.get('section')
         first_name_q = request.GET.get('first_name')
         last_name_q = request.GET.get('last_name')
+        offered_q = request.GET.get('offered')
+        not_offered_q = request.GET.get('not_offered')
+
 
         app_list = adminApi.get_applications()
+
         if bool(year_q):
             app_list = app_list.filter(job__session__year__icontains=year_q)
         if bool(term_q):
@@ -932,8 +937,15 @@ def selected_applications(request):
             app_list = app_list.filter(applicant__first_name__icontains=first_name_q)
         if bool(last_name_q):
             app_list = app_list.filter(applicant__last_name__icontains=last_name_q)
+        if bool(offered_q):
+            app_list = app_list.filter(applicationstatus__assigned=ApplicationStatus.OFFERED)
+        if bool(not_offered_q):
+            app_list = app_list.filter( ~Q(applicationstatus__assigned=ApplicationStatus.OFFERED) )
+
 
         app_list = app_list.filter(applicationstatus__assigned=ApplicationStatus.SELECTED).order_by('-id').distinct()
+        total_apps = len(app_list)
+
         app_list = adminApi.add_app_info_into_applications(app_list, ['resume', 'selected', 'offered', 'declined'])
 
         page = request.GET.get('page', 1)
@@ -959,10 +971,15 @@ def selected_applications(request):
                 elif (app.job.assigned_ta_hours * 1.0/4.0) < app.job.accumulated_ta_hours:
                     app.ta_hour_progress = 'under_one_quarter'
 
+
+        selected_apps_total, selected_apps_stats = adminApi.get_selected_apps_with_stats()
+
     return render(request, 'administrators/applications/selected_applications.html', {
         'loggedin_user': request.user,
         'apps': apps,
         'total_apps': len(app_list),
+        'selected_apps': { 'total': selected_apps_total, 'stats': selected_apps_stats },
+        'offered_stats': adminApi.get_offered_stats(apps),
         'classification_choices': adminApi.get_classifications(),
         'app_status': APP_STATUS,
         'new_next': adminApi.build_new_next(request)
@@ -1738,6 +1755,8 @@ def all_users(request):
     last_name_q = request.GET.get('last_name')
     preferred_name_q = request.GET.get('preferred_name')
     cwl_q = request.GET.get('cwl')
+    student_number_q = request.GET.get('student_number')
+    employee_number_q = request.GET.get('employee_number')
 
     user_list = userApi.get_users()
     if bool(first_name_q):
@@ -1748,6 +1767,11 @@ def all_users(request):
         user_list = user_list.filter(profile__preferred_name__icontains=preferred_name_q)
     if bool(cwl_q):
         user_list = user_list.filter(username__icontains=cwl_q)
+    if bool(student_number_q):
+        user_list = user_list.filter(profile__student_number__icontains=student_number_q)
+    if bool(employee_number_q):
+        user_list = user_list.filter(confidentiality__employee_number__icontains=employee_number_q)
+
 
     page = request.GET.get('page', 1)
     paginator = Paginator(user_list, settings.PAGE_SIZE)
