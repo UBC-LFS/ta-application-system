@@ -69,8 +69,8 @@ $(document).ready(function() {
      }
      tableData += rowData.substring(0, rowData.length - 1) + '\n';
    }
-   console.log(tableData);
-   //exportCSV(tableData);
+   
+   exportCSV(tableData);
  });
 
 });

@@ -398,7 +398,7 @@ class AdminDocumentsForm(forms.ModelForm):
         help_texts = {
             'pin': 'This field is optional. Maximum length is 4.',
             'tasm': 'This field is optional.',
-            'eform': 'This field is optional. Maximum length is 6.',
+            'eform': 'This field is unique and optional. Maximum length is 6.',
             'worktag': 'This field is optional. Maximum length is 8.',
             'processing_note': 'This field is optional.'
         }

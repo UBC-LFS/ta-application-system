@@ -329,7 +329,7 @@
 
                           <div class="field-wrapper">
                             <label for="id_eform_{{ app.id }}">eForm:</label>
-                            <div class="help">This field is optional. Maximum 6 characters allowed.</div>
+                            <div class="help">This field is unique and optional. Maximum 6 characters allowed.</div>
                             <input id="id_eform_{{ app.id }}" type="text" name="eform" class="form-control" maxlength="6"
                               {% if app.admindocuments.eform %}
                                 value="{{ app.admindocuments.eform }}"
@@ -338,14 +338,6 @@
                               {% endif %}
                             />
                           </div>
-
-                          <input id="id_speed_chart_{{ app.id }}" type="hidden" name="speed_chart" maxlength="4"
-                            {% if app.admindocuments.speed_chart %}
-                              value="{{ app.admindocuments.speed_chart }}"
-                            {% else %}
-                              value=""
-                            {% endif %}
-                          />
 
                           <div class="field-wrapper">
                             <label for="id_worktag_{{ app.id }}">Worktag:</label>
