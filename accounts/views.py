@@ -17,6 +17,8 @@ def redirect_to_index_page(roles):
         return '/instructors/'
     elif 'Student' in roles:
         return '/students/'
+    elif 'Observer' in roles:
+        return '/observers/'
 
     return '/students/'
 

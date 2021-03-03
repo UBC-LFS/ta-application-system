@@ -206,7 +206,12 @@ class Application(models.Model):
         super(Application, self).save(*args, **kwargs)
 
 class ApplicationStatus(models.Model):
-    ''' Application Status '''
+    '''
+    Application Status
+
+    # Updates
+    Cancelled = Terminated
+    '''
     NONE = '0'
     SELECTED = '1'
     OFFERED = '2'
@@ -229,8 +234,15 @@ class ApplicationStatus(models.Model):
     class Meta:
         ordering = ['pk']
 
+
 class AdminDocuments(models.Model):
-    ''' Admin Documents '''
+    '''
+    Admin Documents
+
+    # Updates: made field changes
+    efrom -> position_number
+    speed_chart -> worktag
+    '''
     application = models.OneToOneField(Application, on_delete=models.CASCADE, primary_key=True)
 
     pin = models.CharField(max_length=4, null=True, blank=True)
@@ -238,6 +250,7 @@ class AdminDocuments(models.Model):
     eform = models.CharField(max_length=6, unique=True, null=True, blank=True)
     speed_chart = models.CharField(max_length=4, null=True, blank=True)
     processing_note = models.TextField(null=True, blank=True)
+    worktag = models.CharField(max_length=8, null=True, blank=True)
 
 
 class AdminDocumentsUser(models.Model):

@@ -100,9 +100,11 @@ $ python manage.py collectstatic --noinput
 $ python manage.py migrate
 ```
 
-10. Load data
+10. Load data for local testing
 ```
 $ python manage.py loaddata ta_app/fixtures/*.json
+$ python manage.py loaddata users/fixtures/*.json
+$ python manage.py loaddata administrators/fixtures/*.json
 ```
 
 11. Update *settings.json* and *advanced_settings.json* files in the **saml** folder
@@ -136,9 +138,18 @@ TIME_ZONE = 'America/Vancouver'
 
 15. Test
 ```
+$ python manage.py test accounts
+$ python manage.py test users
 $ python manage.py test instructors
 $ python manage.py test students
-$ python manage.py test administrators
+$ python manage.py test observers
+$ python manage.py test administrators.tests.test_sessions
+$ python manage.py test administrators.tests.test_jobs
+$ python manage.py test administrators.tests.test_courses
+$ python manage.py test administrators.tests.test_applications
+$ python manage.py test administrators.tests.test_preparations
+$ python manage.py test administrators.tests.test_hrs
+$ python manage.py test administrators.tests.test_admin_hrs
 ```
 
 ## Login locally

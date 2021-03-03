@@ -2,6 +2,7 @@ $(document).ready(function() {
 
   // Make a navigation header active
   const roles = window.location.pathname.split('/');
+  
   if (roles[1] === 'administrators') {
     $('#nav-administrator').addClass('active');
 
@@ -10,6 +11,9 @@ $(document).ready(function() {
 
   } else if (roles[1] === 'students') {
     $('#nav-student').addClass('active');
+
+  } else if (roles[1] === 'observers') {
+    $('#nav-observer').addClass('active');
 
   } else if (roles[1] === 'users') {
 
@@ -22,6 +26,9 @@ $(document).ready(function() {
 
     } else if ( parameters[1].includes('students') ) {
       $('#nav-student').addClass('active');
+
+    } else if ( parameters[1].includes('observers') ) {
+      $('#nav-observer').addClass('active');
     }
   }
 

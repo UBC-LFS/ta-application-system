@@ -5,9 +5,22 @@
 <div>
   {% include 'ta_app/pages/_header.html' with title='Offered Applications' %}
 
-  {% include 'administrators/applications/_search_fields.html' with data=apps total=total_apps path='offered' %}
+  <div class="row">
+    <div class="col-md-6">
+      {% include 'administrators/applications/_search_fields.html' with data=apps total=total_apps path='offered' %}
+    </div>
 
-  {% include 'ta_app/applications/_no_response_note.html' %}
+    <div class="col-md-6">
+      <div class="bg-light-gray p-4" style="height:204.6px">
+        <h5>Note:</h5>
+        <ul class="font-size-sm">
+          <li>
+            {% include 'ta_app/applications/_no_response_note.html' %}
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
 
   <form action="{% url 'administrators:applications_send_email' %}?next={{ new_next }}&p=Offered Applications" method="post">
     {% csrf_token %}

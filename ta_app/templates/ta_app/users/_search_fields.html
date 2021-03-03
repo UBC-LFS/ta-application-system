@@ -1,20 +1,22 @@
-<div class="search-field bg-light-gray p-4">
+<div class="search-field bg-light-gray p-3 font-size-sm">
   <form method="GET">
     <input type="text" name="first_name" value="{{ request.GET.first_name }}" placeholder="First Name" /> and
-    <input type="text" name="last_name" value="{{ request.GET.last_name }}" placeholder="Last Name" /> <br />
-
-    {% if path != 'all_admin_docs' %}
-      <input type="text" name="preferred_name" value="{{ request.GET.preferred_name }}" placeholder="Preferred Name" /> and
-    {% endif %}
-
-    <input type="text" name="cwl" value="{{ request.GET.cwl }}" placeholder="CWL" />  <br />
-
+    <input type="text" name="last_name" value="{{ request.GET.last_name }}" placeholder="Last Name" /> and
+    <input type="text" name="preferred_name" value="{{ request.GET.preferred_name }}" placeholder="Preferred Name" />
 
     {% if path == 'all_users' %}
+      <br />
+    {% else %}
+      and
+    {% endif %}
+
+    <input type="text" name="cwl" value="{{ request.GET.cwl }}" placeholder="CWL" />
+
+    {% if path == 'all_users' %}
+      and
       <input type="text" name="student_number" value="{{ request.GET.student_number }}" placeholder="Student Number" /> and
       <input type="text" name="employee_number" value="{{ request.GET.employee_number }}" placeholder="Employee Number" />
     {% endif %}
-
 
     <div class="mt-1">
       <button class="btn btn-sm btn-secondary" type="submit">Search</button>
@@ -27,9 +29,6 @@
 
       {% elif path == 'all_users' %}
         <a class="btn btn-sm btn-light" href="{% url 'administrators:all_users' %}">Clear</a>
-
-      {% elif path == 'all_admin_docs' %}
-        <a class="btn btn-sm btn-light" href="{% url 'administrators:all_admin_docs' %}">Clear</a>
 
       {% endif %}
     </div>

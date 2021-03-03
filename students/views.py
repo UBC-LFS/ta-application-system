@@ -12,10 +12,12 @@ from django.views.static import serve
 from django.db.models import Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
-from users.forms import *
-from users import api as userApi
 from administrators.forms import *
 from administrators import api as adminApi
+
+from users.models import Role
+from users.forms import *
+from users import api as userApi
 
 from datetime import datetime
 
@@ -27,7 +29,7 @@ IMPORTANT_MESSAGE = '<strong>Important:</strong> Please complete all items in yo
 @require_http_methods(['GET'])
 def index(request):
     ''' Index page of student's portal '''
-    request = userApi.has_user_access(request, 'Student')
+    request = userApi.has_user_access(request, Role.STUDENT)
 
     can_apply = userApi.can_apply(request.user)
     if can_apply == False:
@@ -48,7 +50,7 @@ def index(request):
 @require_http_methods(['GET'])
 def show_profile(request):
     ''' Display user profile '''
-    request = userApi.has_user_access(request, 'Student')
+    request = userApi.has_user_access(request, Role.STUDENT)
     adminApi.can_req_parameters_access(request, 'student', ['next', 'p','t'])
 
     loggedin_user = userApi.add_resume(request.user)
@@ -70,7 +72,7 @@ def show_profile(request):
 @require_http_methods(['GET', 'POST'])
 def edit_profile(request):
     ''' Edit user's profile '''
-    request = userApi.has_user_access(request, 'Student')
+    request = userApi.has_user_access(request, Role.STUDENT)
 
     PROGRAM_OTHERS = userApi.get_program_others_id()
     if PROGRAM_OTHERS == None:
@@ -129,7 +131,7 @@ def edit_profile(request):
 @require_http_methods(['POST'])
 def upload_resume(request):
     ''' Upload user's resume '''
-    request = userApi.has_user_access(request, 'Student')
+    request = userApi.has_user_access(request, Role.STUDENT)
     adminApi.can_req_parameters_access(request, 'student', ['next', 'p'])
 
     loggedin_user = userApi.add_resume(request.user)
@@ -164,7 +166,7 @@ def upload_resume(request):
 @require_http_methods(['POST'])
 def delete_resume(request):
     ''' Delete user's resume '''
-    request = userApi.has_user_access(request, 'Student')
+    request = userApi.has_user_access(request, Role.STUDENT)
     adminApi.can_req_parameters_access(request, 'student', ['next', 'p'])
 
     if request.method == 'POST':
@@ -185,7 +187,7 @@ def delete_resume(request):
 @require_http_methods(['GET'])
 def show_confidentiality(request):
     ''' Display user's confidentiality '''
-    request = userApi.has_user_access(request, 'Student')
+    request = userApi.has_user_access(request, Role.STUDENT)
 
     template = 'choose'
     if userApi.has_user_confidentiality_created(request.user) and request.user.confidentiality and request.user.confidentiality.nationality != None:
@@ -203,7 +205,7 @@ def show_confidentiality(request):
 @require_http_methods(['POST'])
 def check_confidentiality(request):
     ''' Check whether an international student or not '''
-    request = userApi.has_user_access(request, 'Student')
+    request = userApi.has_user_access(request, Role.STUDENT)
 
     if request.method == 'POST':
         form = None
@@ -232,7 +234,7 @@ def check_confidentiality(request):
 @require_http_methods(['GET', 'POST'])
 def submit_confidentiality(request):
     ''' Submit user's confidentiality '''
-    request = userApi.has_user_access(request, 'Student')
+    request = userApi.has_user_access(request, Role.STUDENT)
 
     loggedin_user = request.user
     form = None
@@ -302,7 +304,7 @@ def submit_confidentiality(request):
 @require_http_methods(['GET', 'POST'])
 def edit_confidentiality(request):
     ''' Edit user's confidentiality '''
-    request = userApi.has_user_access(request, 'Student')
+    request = userApi.has_user_access(request, Role.STUDENT)
 
     loggedin_user = request.user
     form = None
@@ -439,7 +441,7 @@ def edit_confidentiality(request):
 @require_http_methods(['POST'])
 def delete_confidential_information(request):
     ''' Delete a confidential information '''
-    request = userApi.has_user_access(request, 'Student')
+    request = userApi.has_user_access(request, Role.STUDENT)
 
     if request.method == 'POST':
         data = []
@@ -501,7 +503,7 @@ def download_file(request, username, item, filename):
 @require_http_methods(['GET'])
 def explore_jobs(request):
     ''' Display all lists of session terms '''
-    request = userApi.has_user_access(request, 'Student')
+    request = userApi.has_user_access(request, Role.STUDENT)
 
     can_apply = userApi.can_apply(request.user)
     if can_apply == False:
@@ -520,7 +522,7 @@ def explore_jobs(request):
 @require_http_methods(['GET', 'POST'])
 def favourite_jobs(request):
     ''' Display all lists of session terms '''
-    request = userApi.has_user_access(request, 'Student')
+    request = userApi.has_user_access(request, Role.STUDENT)
 
     if request.method == 'POST':
         form = FavouriteForm(request.POST)
@@ -593,7 +595,7 @@ def favourite_jobs(request):
 @require_http_methods(['GET'])
 def available_jobs(request, session_slug):
     ''' Display jobs available to apply '''
-    request = userApi.has_user_access(request, 'Student')
+    request = userApi.has_user_access(request, Role.STUDENT)
 
     can_apply = userApi.can_apply(request.user)
     if can_apply == False:
@@ -649,7 +651,7 @@ def available_jobs(request, session_slug):
 @require_http_methods(['GET', 'POST'])
 def apply_job(request, session_slug, job_slug):
     ''' Students can apply for each job '''
-    request = userApi.has_user_access(request, 'Student')
+    request = userApi.has_user_access(request, Role.STUDENT)
     adminApi.can_req_parameters_access(request, 'none', ['next'])
     next = adminApi.get_next(request)
 
@@ -714,7 +716,7 @@ def apply_job(request, session_slug, job_slug):
 @require_http_methods(['POST'])
 def select_favourite_job(request, session_slug, job_slug):
     ''' Select favourite jobs '''
-    request = userApi.has_user_access(request, 'Student')
+    request = userApi.has_user_access(request, Role.STUDENT)
 
     if request.method == 'POST':
 
@@ -750,7 +752,7 @@ def select_favourite_job(request, session_slug, job_slug):
 @require_http_methods(['GET'])
 def history_jobs(request):
     ''' Display History of Jobs and total accepted assigned hours '''
-    request = userApi.has_user_access(request, 'Student')
+    request = userApi.has_user_access(request, Role.STUDENT)
 
     year_q = request.GET.get('year')
     term_q = request.GET.get('term')
@@ -780,9 +782,38 @@ def history_jobs(request):
     except EmptyPage:
         apps = paginator.page(paginator.num_pages)
 
+
+    # Add applications with latest status
+    for app in apps:
+        app.applied = None
+        applied = app.applicationstatus_set.filter(assigned=ApplicationStatus.NONE)
+        if applied.exists(): app.applied = applied.first()
+
+        status = app.applicationstatus_set.all().last()
+        if status.assigned == ApplicationStatus.OFFERED:
+            app.offered = None
+            offered = app.applicationstatus_set.filter(assigned=ApplicationStatus.OFFERED)
+            if offered.exists(): app.offered = offered.last()
+
+        elif status.assigned == ApplicationStatus.ACCEPTED:
+            app.accepted = None
+            accepted = app.applicationstatus_set.filter(assigned=ApplicationStatus.ACCEPTED)
+            if accepted.exists(): app.accepted = accepted.last()
+
+        elif status.assigned == ApplicationStatus.DECLINED:
+            app.declined = None
+            declined = app.applicationstatus_set.filter(assigned=ApplicationStatus.DECLINED)
+            if declined.exists():
+                app.declined = declined.last()
+
+        elif status.assigned == ApplicationStatus.CANCELLED:
+            app.cancelled = None
+            cancelled = app.applicationstatus_set.filter(assigned=ApplicationStatus.CANCELLED)
+            if cancelled.exists(): app.cancelled = cancelled.last()
+
     return render(request, 'students/jobs/history_jobs.html', {
         'loggedin_user': request.user,
-        'apps': adminApi.add_applications_with_latest_status(apps),
+        'apps': apps,
         'total_apps': len(app_list)
     })
 
@@ -791,7 +822,7 @@ def history_jobs(request):
 @require_http_methods(['GET', 'POST'])
 def terminate_job(request, session_slug, job_slug):
     ''' Cancel/terminate an accepted job '''
-    request = userApi.has_user_access(request, 'Student')
+    request = userApi.has_user_access(request, Role.STUDENT)
     adminApi.can_req_parameters_access(request, 'none', ['next'])
 
     apps = request.user.application_set.all()
@@ -839,7 +870,7 @@ def terminate_job(request, session_slug, job_slug):
 @require_http_methods(['GET'])
 def accept_decline_job(request, session_slug, job_slug):
     ''' Display a job to select accept or decline a job offer '''
-    request = userApi.has_user_access(request, 'Student')
+    request = userApi.has_user_access(request, Role.STUDENT)
     adminApi.can_req_parameters_access(request, 'none', ['next'])
 
     apps = request.user.application_set.all()
@@ -865,12 +896,11 @@ def accept_decline_job(request, session_slug, job_slug):
 @require_http_methods(['POST'])
 def make_decision(request, session_slug, job_slug):
     ''' Students accept a job offer '''
-    request = userApi.has_user_access(request, 'Student')
+    request = userApi.has_user_access(request, Role.STUDENT)
     if request.method == 'POST':
 
         # Check whether a next url is valid or not
         adminApi.can_req_parameters_access(request, 'none', ['next'], 'POST')
-
         errors = []
         if request.POST.get('has_contract_read') == None:
             errors.append('Please read and understand a Job Offer Contract')
@@ -896,6 +926,7 @@ def make_decision(request, session_slug, job_slug):
                 'assigned_hours': assigned_hours,
                 'has_contract_read': True
             })
+
             if form.is_valid():
                 app = form.cleaned_data['application']
                 if form.save():
@@ -903,7 +934,7 @@ def make_decision(request, session_slug, job_slug):
                     app.save(update_fields=['updated_at'])
 
                     if adminApi.update_job_accumulated_ta_hours(session_slug, job_slug, float(assigned_hours)):
-                        messages.success(request, 'Success! You accepted the job offer - {0} {1}: {2} {3} {4} '.format(app.job.session.year, app.job.session.term.code, app.job.course.code.name, app.job.course.number.name, app.job.course.section.name))
+                        messages.success(request, 'Success! You accepted the job offer - {0} {1}: {2} {3} {4}'.format(app.job.session.year, app.job.session.term.code, app.job.course.code.name, app.job.course.number.name, app.job.course.section.name))
                         return HttpResponseRedirect(request.POST.get('next'))
                     else:
                         messages.error(request, 'An error occurred while updating ta hours.')
@@ -944,7 +975,7 @@ def make_decision(request, session_slug, job_slug):
 @require_http_methods(['GET','POST'])
 def reaccept_application(request, app_slug):
     ''' Re-accept an accepted application after declined '''
-    request = userApi.has_user_access(request, 'Student')
+    request = userApi.has_user_access(request, Role.STUDENT)
 
     app = adminApi.get_application(app_slug, 'slug')
     app = adminApi.add_app_info_into_application(app, ['accepted','declined'])
@@ -1047,7 +1078,7 @@ def reaccept_application(request, app_slug):
 @require_http_methods(['GET'])
 def show_job(request, session_slug, job_slug):
     ''' Display job details '''
-    request = userApi.has_user_access(request, 'Student')
+    request = userApi.has_user_access(request, Role.STUDENT)
     adminApi.can_req_parameters_access(request, 'student-job', ['next', 'p'])
 
     return render(request, 'students/jobs/show_job.html', {
@@ -1060,7 +1091,7 @@ def show_job(request, session_slug, job_slug):
 @require_http_methods(['GET', 'POST'])
 def show_application(request, app_slug):
     ''' Display job details '''
-    request = userApi.has_user_access(request, 'Student')
+    request = userApi.has_user_access(request, Role.STUDENT)
     adminApi.can_req_parameters_access(request, 'none', ['next'])
 
     return render(request, 'students/jobs/show_application.html', {

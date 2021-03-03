@@ -1,0 +1,10 @@
+<nav class="container menu">
+  <div class="dropdown">
+    <a class="btn btn-sm btn-light dropdown-item" href="{% url 'observers:index' %}">Home</a>
+  </div>
+  <div class="dropdown">
+    <a class="dropdown-item" href="{% url 'observers:report_accepted_applications' %}">Report</a>
+  </div>
+</nav>
+
+{% include 'ta_app/pages/_return_messages.html' with data=messages %}

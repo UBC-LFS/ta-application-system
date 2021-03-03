@@ -1,7 +1,13 @@
 {% if 'Admin' in data.roles or 'Superadmin' in roles or 'HR' in data.roles %}
   <p><a href="{% url 'administrators:index' %}">Go to Administrator Home</a></p>
+
 {% elif 'Instructor' in data.roles %}
   <p><a href="{% url 'instructors:index' %}">Go to Instructor Home</a></p>
-{% else %}
+
+{% elif 'Student' in data.roles %}
   <p><a href="{% url 'students:index' %}">Go to Student Home</a></p>
+
+{% elif 'Observer' in data.roles %}
+  <p><a href="{% url 'observers:index' %}">Go to Observer Home</a></p>
+
 {% endif %}

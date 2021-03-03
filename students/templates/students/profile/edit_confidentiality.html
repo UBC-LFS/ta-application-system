@@ -10,7 +10,7 @@
       <a class="btn btn-outline-primary" href="{% url 'students:show_confidentiality' %}">Back to Confidential Info.</a>
     </div>
 
-    <div class="bd-callout bd-callout-warning bg-light-gray col-10 mx-auto font-size-xs">
+    <div class="bd-callout bd-callout-warning col-10 mx-auto font-size-sm">
       {% include 'ta_app/pages/_required_docs_confidentiality.html' with data=loggedin_user.confidentiality.nationality %}
     </div>
   </div>

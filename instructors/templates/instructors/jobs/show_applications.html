@@ -9,22 +9,24 @@
     <div class="left-aside-btn-groups">
       <a class="btn btn-outline-primary" href="{{ next }}">Back to Jobs</a>
     </div>
+
+    <div class="bd-callout bd-callout-warning mt-5 col-10 mx-auto">
+      <h4>Note</h4>
+      <p>
+        {% include 'ta_app/pages/_note_accumulated_ta_hours.html' %}
+      </p>
+    </div>
   </div>
 
   <div class="col-md-9">
-    <div class="mb-5">
-      <div>
-        <h5 class="text-info">
-          <i class="fa fa-info-circle" aria-hidden="true"></i>
-          Summary of TA hours
-        </h5>
-        <ul>
-          <li>Total Assigned TA Hours: <span class="font-weight-bold text-danger">{{ job.assigned_ta_hours }}</span> hours</li>
-          <li>Accumulated TA hours: <span class="font-weight-bold text-danger">{{ job.accumulated_ta_hours }}</span> hours</li>
-        </ul>
-      </div>
-      {% include 'ta_app/pages/_note_accumulated_ta_hours.html' %}
-    </div>
+    <h5 class="text-info">
+      <i class="fa fa-info-circle" aria-hidden="true"></i>
+      Summary of TA hours
+    </h5>
+    <ul>
+      <li>Total Assigned TA Hours: <span class="font-weight-bold text-danger">{{ job.assigned_ta_hours }}</span> hours</li>
+      <li>Accumulated TA hours: <span class="font-weight-bold text-danger">{{ job.accumulated_ta_hours }}</span> hours</li>
+    </ul>
 
     <h5 class="text-info">
       <i class="fa fa-info-circle" aria-hidden="true"></i>
@@ -89,10 +91,10 @@
                           <div class="prompt p-2 text-center">
                             <h4 class="text-primary">{{ app.applicant.get_full_name }}</h4>
                             <p class="col-10 mx-auto">
-                              Please select your preference, and assign TA hours for this course carefully. Once submitted, it cannot be changed.<br />
+                              Please select your preference, and assign TA hours carefully. Once submitted, you cannot modify them.
                             </p>
                             <p class="col-10 mx-auto">
-                              If you select <span class="font-weight-bold">No Preference</span>, please leave <span class="font-weight-bold">0.0</span> for Assign TA Hours.
+                              If change becomes necessary, contact the Academic Coordinator, and note your new choices using the Write link.
                             </p>
                             <p>Thanks!</p>
                           </div>
@@ -106,9 +108,7 @@
                               <label for="id_instructor_preference_{{ app.id }}">Instructor Preference:</label>
                               <select class="form-control" name="instructor_preference" id="id_instructor_preference_{{ app.id }}">
                                 {% for choice in instructor_preference_choices %}
-                                  {% if choice.0 == app.instructor_preference %}
-                                    <option value="{{ choice.0 }}" selected>{{ choice.1 }}</option>
-                                  {% else %}
+                                  {% if choice.1 != 'None' and choice.1 != 'No Preference' %}
                                     <option value="{{ choice.0 }}">{{ choice.1 }}</option>
                                   {% endif %}
                                 {% endfor %}
@@ -126,7 +126,7 @@
                             <input type="hidden" name="application" value="{{ app.id }}" />
                             <input type="hidden" name="has_contract_read" value="false" />
 
-                            <input class="btn btn-primary" type="submit" value="Submit" />
+                            <input class="btn btn-primary font-size-1" type="submit" value="Submit" />
                           </form>
                         </div>
 

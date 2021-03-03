@@ -9,7 +9,7 @@ from users.models import *
 from administrators import api as adminApi
 from users import api as userApi
 
-from administrators.tests.test_views import LOGIN_URL, ContentType, DATA, USERS, SESSION, JOB, APP, COURSE, PASSWORD
+from administrators.tests.test_sessions import LOGIN_URL, ContentType, DATA, USERS, SESSION, JOB, APP, COURSE, PASSWORD
 from django.core.files.uploadedfile import SimpleUploadedFile
 import datetime
 
@@ -25,6 +25,7 @@ class UserTest(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.user = userApi.get_user(USERS[2], 'username')
+        cls.testing_image = os.path.join(settings.BASE_DIR, 'users', 'tests', 'files', 'karsten-wurth-9qvZSH_NOQs-unsplash.jpg')
 
     def login(self, username=None, password=None):
         if username and password:
@@ -79,7 +80,7 @@ class UserTest(TestCase):
         self.assertIsNone(userApi.has_user_resume_created(user))
         data = {
             'user': user.id,
-            'avatar': SimpleUploadedFile('avatar.jpg', b'file_content', content_type='image/jpeg'),
+            'uploaded': SimpleUploadedFile('avatar.jpg', open(self.testing_image, 'rb').read(), content_type='image/jpeg'),
         }
         response = self.client.post( reverse('users:upload_avatar') + ADMINISTRATOR_NEXT, data=data, format='multipart')
         messages = self.messages(response)
@@ -91,6 +92,9 @@ class UserTest(TestCase):
         avatar = userApi.has_user_avatar_created(userApi.get_user(USERS[0], 'username'))
         self.assertIsNotNone(avatar)
 
+        userApi.delete_user_avatar(USERS[0])
+
+
     def test_upload_avatar_instructor(self):
         print('- Test: upload user avatar in an instructor view')
         self.login(USERS[1], 'password')
@@ -99,7 +103,7 @@ class UserTest(TestCase):
         self.assertIsNone(userApi.has_user_resume_created(user))
         data = {
             'user': user.id,
-            'avatar': SimpleUploadedFile('avatar.jpg', b'file_content', content_type='image/jpeg'),
+            'uploaded': SimpleUploadedFile('avatar.jpg', open(self.testing_image, 'rb').read(), content_type='image/jpeg'),
         }
         response = self.client.post( reverse('users:upload_avatar') + INSTRUCTOR_NEXT, data=data, format='multipart')
         messages = self.messages(response)
@@ -111,6 +115,8 @@ class UserTest(TestCase):
         avatar = userApi.has_user_avatar_created(userApi.get_user(USERS[1], 'username'))
         self.assertIsNotNone(avatar)
 
+        userApi.delete_user_avatar(USERS[1])
+
     def test_upload_avatar_student(self):
         print('- Test: upload user avatar in a student view')
         self.login(USERS[2], 'password')
@@ -119,7 +125,7 @@ class UserTest(TestCase):
         self.assertIsNone(userApi.has_user_resume_created(user))
         data = {
             'user': user.id,
-            'avatar': SimpleUploadedFile('avatar.jpg', b'file_content', content_type='image/jpeg'),
+            'uploaded': SimpleUploadedFile('avatar.jpg', open(self.testing_image, 'rb').read(), content_type='image/jpeg'),
         }
         response = self.client.post( reverse('users:upload_avatar') + STUDENT_NEXT, data=data, format='multipart')
         messages = self.messages(response)
@@ -131,6 +137,8 @@ class UserTest(TestCase):
         avatar = userApi.has_user_avatar_created(userApi.get_user(USERS[2], 'username'))
         self.assertIsNotNone(avatar)
 
+        userApi.delete_user_avatar(USERS[2])
+
 
     def test_delete_avatar_administrator(self):
         print('- Test: delete user avatar in an administrator view')
@@ -139,7 +147,7 @@ class UserTest(TestCase):
 
         data = {
             'user': user.id,
-            'avatar': SimpleUploadedFile('avatar.jpg', b'file_content', content_type='image/jpeg')
+            'uploaded': SimpleUploadedFile('avatar.jpg', open(self.testing_image, 'rb').read(), content_type='image/jpeg')
         }
         response = self.client.post( reverse('users:upload_avatar') + ADMINISTRATOR_NEXT, data=data, format='multipart' )
         messages = self.messages(response)
@@ -166,7 +174,7 @@ class UserTest(TestCase):
 
         data = {
             'user': user.id,
-            'avatar': SimpleUploadedFile('avatar.jpg', b'file_content', content_type='image/jpeg')
+            'uploaded': SimpleUploadedFile('avatar.jpg', open(self.testing_image, 'rb').read(), content_type='image/jpeg')
         }
         response = self.client.post( reverse('users:upload_avatar') + INSTRUCTOR_NEXT, data=data, format='multipart' )
         messages = self.messages(response)
@@ -193,7 +201,7 @@ class UserTest(TestCase):
 
         data = {
             'user': user.id,
-            'avatar': SimpleUploadedFile('avatar.jpg', b'file_content', content_type='image/jpeg')
+            'uploaded': SimpleUploadedFile('avatar.jpg', open(self.testing_image, 'rb').read(), content_type='image/jpeg')
         }
         response = self.client.post( reverse('users:upload_avatar') + STUDENT_NEXT, data=data, format='multipart' )
         messages = self.messages(response)

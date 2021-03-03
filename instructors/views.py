@@ -14,6 +14,8 @@ from administrators.views import APP_STATUS
 from administrators.models import *
 from administrators.forms import *
 from administrators import api as adminApi
+
+from users.models import Role
 from users.forms import *
 from users import api as userApi
 
@@ -25,7 +27,7 @@ from datetime import datetime
 @require_http_methods(['GET'])
 def index(request):
     ''' Index page of an instructor's portal '''
-    request = userApi.has_user_access(request, 'Instructor')
+    request = userApi.has_user_access(request, Role.INSTRUCTOR)
 
     return render(request, 'instructors/index.html', {
         'loggedin_user': userApi.add_avatar(request.user)
@@ -37,7 +39,7 @@ def index(request):
 @require_http_methods(['GET', 'POST'])
 def edit_user(request):
     ''' Index page of an instructor's portal '''
-    request = userApi.has_user_access(request, 'Instructor')
+    request = userApi.has_user_access(request, Role.INSTRUCTOR)
 
     confidentiality = userApi.has_user_confidentiality_created(request.user)
 
@@ -98,7 +100,7 @@ def edit_user(request):
 @require_http_methods(['GET'])
 def show_jobs(request):
     ''' Display jobs by instructors '''
-    request = userApi.has_user_access(request, 'Instructor')
+    request = userApi.has_user_access(request, Role.INSTRUCTOR)
 
     year_q = request.GET.get('year')
     term_q = request.GET.get('term')
@@ -159,7 +161,7 @@ def show_jobs(request):
 @require_http_methods(['GET', 'POST'])
 def edit_job(request, session_slug, job_slug):
     ''' Update job details of instructors '''
-    request = userApi.has_user_access(request, 'Instructor')
+    request = userApi.has_user_access(request, Role.INSTRUCTOR)
 
     job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
     if request.method == 'POST':
@@ -198,7 +200,7 @@ def edit_job(request, session_slug, job_slug):
 @require_http_methods(['GET'])
 def show_job(request, session_slug, job_slug):
     ''' Display job details '''
-    request = userApi.has_user_access(request, 'Instructor')
+    request = userApi.has_user_access(request, Role.INSTRUCTOR)
     adminApi.can_req_parameters_access(request, 'none', ['next'])
 
     return render(request, 'instructors/jobs/show_job.html', {
@@ -212,10 +214,12 @@ def show_job(request, session_slug, job_slug):
 @require_http_methods(['GET', 'POST'])
 def show_applications(request, session_slug, job_slug):
     ''' Display applications applied by students '''
-    request = userApi.has_user_access(request, 'Instructor')
+    request = userApi.has_user_access(request, Role.INSTRUCTOR)
     adminApi.can_req_parameters_access(request, 'none', ['next'])
 
     job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
+    apps = Application.objects.filter( Q(job__session__slug=session_slug) & Q(job__course__slug=job_slug) )
+
     if request.method == 'POST':
         instructor_preference = request.POST.get('instructor_preference')
         assigned_hours = request.POST.get('assigned_hours')
@@ -275,11 +279,17 @@ def show_applications(request, session_slug, job_slug):
 
         return HttpResponseRedirect(request.get_full_path())
 
+    else:
+        for app in apps:
+            app.selected = None
+            selected = app.applicationstatus_set.filter(assigned=ApplicationStatus.SELECTED)
+            if selected.exists():
+                app.selected = selected.last()
 
     return render(request, 'instructors/jobs/show_applications.html', {
         'loggedin_user': request.user,
         'job': job,
-        'apps': adminApi.get_applications_with_status_by_session_slug_job_slug(session_slug, job_slug),
+        'apps': apps,
         'instructor_preference_choices': Application.INSTRUCTOR_PREFERENCE_CHOICES,
         'app_status': APP_STATUS,
         'next': adminApi.get_next(request)
@@ -291,7 +301,7 @@ def show_applications(request, session_slug, job_slug):
 @require_http_methods(['GET', 'POST'])
 def write_note(request, app_slug):
     ''' Write a note to administraotors '''
-    request = userApi.has_user_access(request, 'Instructor')
+    request = userApi.has_user_access(request, Role.INSTRUCTOR)
 
     app = adminApi.get_application(app_slug, 'slug')
     if request.method == 'POST':

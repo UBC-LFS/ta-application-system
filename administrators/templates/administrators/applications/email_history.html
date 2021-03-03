@@ -5,25 +5,42 @@
 <div>
   {% include 'ta_app/pages/_header.html' with title='Email History' text=emails|length %}
 
-  <div class="search-field bg-light-gray p-4">
-    <form method="GET">
-      <input type="text" name="receiver" value="{{ request.GET.receiver }}" placeholder="Receiver" /> and
-      <input type="text" name="title" value="{{ request.GET.title }}" placeholder="Title" /> <br />
-      <input type="text" name="message" value="{{ request.GET.message }}" placeholder="Message" /> and
-      <input type="text" name="type" value="{{ request.GET.type }}" placeholder="Type" /> <br />
-      No response: <input type="checkbox" name="no_response" value="True" {% if request.GET.no_response %}checked{% endif %} />
+  <div class="row">
+    <div class="col-md-6">
+      <div class="search-field bg-light-gray p-3 font-size-sm">
+        <form method="GET">
+          <input type="text" name="receiver" value="{{ request.GET.receiver }}" placeholder="Receiver" /> and
+          <input type="text" name="title" value="{{ request.GET.title }}" placeholder="Title" /> <br />
+          <input type="text" name="message" value="{{ request.GET.message }}" placeholder="Message" /> and
+          <input type="text" name="type" value="{{ request.GET.type }}" placeholder="Type" /> <br />
+          No response: <input type="checkbox" name="no_response" value="True" {% if request.GET.no_response %}checked{% endif %} />
 
-      <div class="mt-1">
-        <button class="btn btn-sm btn-secondary" type="submit">Search</button>
-        <a class="btn btn-sm btn-light" href="{% url 'administrators:email_history' %}">Clear</a>
+          <div class="mt-1">
+            <button class="btn btn-sm btn-secondary" type="submit">Search</button>
+            <a class="btn btn-sm btn-light" href="{% url 'administrators:email_history' %}">Clear</a>
+          </div>
+        </form>
       </div>
-    </form>
-  </div>
-  <div class="text-dark-gray font-size-sm">
-    {{ total }} result{% if total > 1 %}s {% endif %} found. {{ emails|length }} row{% if emails|length > 1 %}s {% endif %} in this page.
+      <div class="text-dark-gray font-size-sm">
+        {{ total }} result{% if total > 1 %}s {% endif %} found. {{ emails|length }} row{% if emails|length > 1 %}s {% endif %} in this page.
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="bg-light-gray p-4" style="height:168.6px">
+        <h5>Note:</h5>
+        <ul class="font-size-sm">
+          <li>
+            {% include 'ta_app/applications/_no_response_note.html' %}
+          </li>
+        </ul>
+      </div>
+    </div>
   </div>
 
-  {% include 'ta_app/applications/_no_response_note.html' %}
+
+
+
 
   <table
     class="table table-bordered table-hover table-striped table-responsive-md text-center"

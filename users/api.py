@@ -52,6 +52,9 @@ def get_user_roles(user):
             roles.append(Role.INSTRUCTOR)
         elif role.name == Role.STUDENT:
             roles.append(Role.STUDENT)
+        elif role.name == Role.OBSERVER:
+            roles.append(Role.OBSERVER)
+
     return roles
 
 def loggedin_user(user):
@@ -71,6 +74,8 @@ def loggedin_user(user):
             roles.append(Role.INSTRUCTOR)
         elif role.name == Role.STUDENT:
             roles.append(Role.STUDENT)
+        elif role.name == Role.OBSERVER:
+            roles.append(Role.OBSERVER)
     user.roles = roles
 
     return user
@@ -284,7 +289,7 @@ def delete_user(user_id):
 
 
 def contain_user_duplicated_info(data):
-    ''' Chceck whether student numbers or employee numbers exist in DB '''
+    ''' Chceck whether student numbers, employee numbers exist in DB '''
 
     if data['student_number'] != None:
         sn = Profile.objects.filter(student_number=data['student_number']).exclude(user__username=data['username'])
@@ -331,6 +336,7 @@ def create_profile_init(user):
 
 def create_profile(user, data):
     ''' Create an user's profile '''
+
     student_number = None
     if data['student_number']:
         student_number = data['student_number']
@@ -363,6 +369,7 @@ def update_student_profile_degrees_trainings(profile, old_degrees, old_trainings
 
     return True if profile else None
 
+
 def update_user_profile_roles(profile, old_roles, data):
     profile.roles.remove( *old_roles )
     new_roles = list( data.get('roles') )
@@ -379,6 +386,7 @@ def get_user_roles(user):
 def user_has_role(user, role):
     if user.profile.roles.filter(name=role).exists(): return True
     return False
+
 
 def trim_profile(user):
     ''' Remove user's profile except student_number '''
@@ -909,36 +917,3 @@ def get_error_messages(errors):
 
 def password_generator():
     return ''.join(random.choices(string.ascii_lowercase + string.digits, k=50))
-
-
-
-"""
-def has_loggedin_user_valid_request_username(request, username):
-    ''' Check logged in user is the same as a request user '''
-    if is_valid_user(request.user) == False or request.user.username != username:
-        raise PermissionDenied
-    request.user.roles = request.session['loggedin_user']['roles']
-    return request
-"""
-
-"""
-def validate_parameters(request, list):
-    for parameter in list:
-        if request.GET.get(parameter) == None:
-            raise Http404
-
-
-def get_available_tabs_by_role(role):
-    available_tabs = []
-    if role == 'administrators':
-        available_tabs = ['basic', 'additional', 'confidential']
-    elif role == 'instructors':
-        available_tabs = ['basic', 'additional', 'resume']
-
-    return available_tabs
-
-
-def check_infomation_tab(role, tab):
-    if tab not in get_available_tabs_by_role(role):
-        raise Http404
-"""

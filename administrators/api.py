@@ -384,7 +384,8 @@ def delete_job_by_course_ids(session, course_ids):
 
 def get_application(data, option=None):
     ''' Get an application '''
-    if option == 'slug': return get_object_or_404(Application, slug=data)
+    if option == 'slug':
+        return get_object_or_404(Application, slug=data)
     return get_object_or_404(Application, id=data)
 
 def get_applications_user(user):
@@ -446,12 +447,12 @@ def add_app_info_into_applications(apps, list):
         if 'applied' in list:
             app.applied = None
             applied = app.applicationstatus_set.filter(assigned=ApplicationStatus.NONE)
-            if applied.exists(): app.applied = applied.first()
+            if applied.exists(): app.applied = applied.last()
 
         if 'selected' in list:
             app.selected = None
             selected = app.applicationstatus_set.filter(assigned=ApplicationStatus.SELECTED)
-            if selected.exists(): app.selected = selected.first()
+            if selected.exists(): app.selected = selected.last()
 
         if 'offered' in list:
             app.offered = None
@@ -514,43 +515,6 @@ def get_total_assigned_hours(apps, list):
     return total_hours
 
 
-def add_applications_with_latest_status(apps):
-    ''' Add applications with latest status '''
-    for app in apps:
-        app.applied = None
-        applied = app.applicationstatus_set.filter(assigned=ApplicationStatus.NONE)
-        if applied.exists(): app.applied = applied.first()
-
-        status = app.applicationstatus_set.all().last()
-        if status.assigned == ApplicationStatus.OFFERED:
-            app.offered = None
-            offered = app.applicationstatus_set.filter(assigned=ApplicationStatus.OFFERED)
-            if offered.exists(): app.offered = offered.last()
-
-        elif status.assigned == ApplicationStatus.ACCEPTED:
-            app.accepted = None
-            accepted = app.applicationstatus_set.filter(assigned=ApplicationStatus.ACCEPTED)
-            if accepted.exists(): app.accepted = accepted.last()
-
-        elif status.assigned == ApplicationStatus.DECLINED:
-            app.declined = None
-            declined = app.applicationstatus_set.filter(assigned=ApplicationStatus.DECLINED)
-            if declined.exists():
-                app.declined = declined.last()
-
-        elif status.assigned == ApplicationStatus.CANCELLED:
-            app.cancelled = None
-            cancelled = app.applicationstatus_set.filter(assigned=ApplicationStatus.CANCELLED)
-            if cancelled.exists(): app.cancelled = cancelled.last()
-
-        else:
-            app.applied = None
-            applied = app.applicationstatus_set.filter(assigned=ApplicationStatus.NONE)
-            if applied.exists(): app.applied = applied.first()
-
-    return apps
-
-
 def add_salary(apps):
     ''' Add a salary in applications '''
     for app in apps:
@@ -596,7 +560,8 @@ def get_applications_with_multiple_ids(ids):
 
 def get_applications(option=None):
     ''' Get all applications '''
-    if option: return Application.objects.all().order_by(option)
+    if option:
+        return Application.objects.all().order_by(option)
     return Application.objects.all().order_by('-id')
 
 
@@ -615,6 +580,7 @@ def get_selected(app):
 def get_selected_apps_with_stats():
     ''' Get a total of selected apps and a stats '''
     app_list = Application.objects.filter(applicationstatus__assigned=ApplicationStatus.SELECTED).order_by('-id').distinct()
+    app_list = [ app for app in app_list if app.applicationstatus_set.filter(assigned=ApplicationStatus.NONE).count() == app.applicationstatus_set.filter(assigned=ApplicationStatus.SELECTED).count() ]
 
     return len(app_list), get_offered_stats(app_list)
 
@@ -647,17 +613,6 @@ def get_declined(app):
     declined_app = app.applicationstatus_set.filter(assigned=ApplicationStatus.DECLINED)
     if declined_app.exists(): return declined_app
     return False
-
-
-def get_applications_with_status_by_session_slug_job_slug(session_slug, job_slug):
-    ''' Get selected applications by session_slug and job_slug '''
-    apps = Application.objects.filter( Q(job__session__slug=session_slug) & Q(job__course__slug=job_slug) )
-    for app in apps:
-        app.selected = None
-        selected = app.applicationstatus_set.filter(assigned=ApplicationStatus.SELECTED)
-        if selected.exists(): app.selected = selected.first()
-
-    return apps
 
 
 def get_applications_with_multiple_ids_by_path(ids, path):
@@ -771,11 +726,11 @@ def bulk_update_admin_docs(data, user):
         pin = trim(row[10])
         tasm = True if trim(row[11].lower()) == 'yes' else False
         eform = trim(row[12])
-        speed_chart = trim(row[13])
+        worktag = trim(row[13])
         processing_note = trim(row[14])
 
         admin_docs = get_admin_docs(id)
-        form = AdminDocumentsForm({ 'application': id, 'pin': pin, 'tasm': tasm, 'eform': eform, 'speed_chart': speed_chart, 'processing_note': processing_note }, instance=admin_docs)
+        form = AdminDocumentsForm({ 'application': id, 'pin': pin, 'tasm': tasm, 'eform': eform, 'worktag': worktag, 'processing_note': processing_note }, instance=admin_docs)
         if form.is_valid() == False:
             errors = form.errors.get_json_data()
             return False, 'ID: ' + id + ' - ' + userApi.get_error_messages(errors)
@@ -801,10 +756,10 @@ def bulk_update_admin_docs(data, user):
                 updates.add('eform')
                 fields.append('eForm')
 
-            if trim(admin_docs.speed_chart) != speed_chart:
-                admin_docs.speed_chart = speed_chart
-                updates.add('speed_chart')
-                fields.append('Speed Chart')
+            if trim(admin_docs.worktag) != worktag:
+                admin_docs.worktag = worktag
+                updates.add('worktag')
+                fields.append('Worktag')
 
             if trim(admin_docs.processing_note) != processing_note:
                 admin_docs.processing_note = processing_note
@@ -826,9 +781,9 @@ def bulk_update_admin_docs(data, user):
             if bool(eform):
                 updates.add('eform')
                 fields.append('eForm')
-            if bool(speed_chart):
-                updates.add('speed_chart')
-                fields.append('Speed Chart')
+            if bool(worktag):
+                updates.add('worktag')
+                fields.append('Worktag')
             if bool(processing_note):
                 updates.add('processing_note')
                 fields.append('Processing Note')

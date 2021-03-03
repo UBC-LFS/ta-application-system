@@ -44,6 +44,7 @@ APP_STATUS = {
 def index(request):
     ''' Index page of Administrator's portal '''
     request = userApi.has_admin_access(request, Role.HR)
+
     apps = adminApi.get_applications()
 
     today_accepted_apps, today = adminApi.get_accepted_apps_by_day(apps, 'today')
@@ -809,6 +810,8 @@ def applications_dashboard(request):
     except EmptyPage:
         statuses = paginator.page(paginator.num_pages)
 
+
+
     return render(request, 'administrators/applications/applications_dashboard.html', {
         'loggedin_user': request.user,
         'statuses': statuses,
@@ -920,7 +923,6 @@ def selected_applications(request):
         offered_q = request.GET.get('offered')
         not_offered_q = request.GET.get('not_offered')
 
-
         app_list = adminApi.get_applications()
 
         if bool(year_q):
@@ -941,10 +943,9 @@ def selected_applications(request):
             app_list = app_list.filter(applicationstatus__assigned=ApplicationStatus.OFFERED)
         if bool(not_offered_q):
             app_list = app_list.filter( ~Q(applicationstatus__assigned=ApplicationStatus.OFFERED) )
-
-
+        
         app_list = app_list.filter(applicationstatus__assigned=ApplicationStatus.SELECTED).order_by('-id').distinct()
-        total_apps = len(app_list)
+        app_list = [ app for app in app_list if app.applicationstatus_set.filter(assigned=ApplicationStatus.NONE).count() == app.applicationstatus_set.filter(assigned=ApplicationStatus.SELECTED).count() ]
 
         app_list = adminApi.add_app_info_into_applications(app_list, ['resume', 'selected', 'offered', 'declined'])
 
@@ -984,6 +985,49 @@ def selected_applications(request):
         'app_status': APP_STATUS,
         'new_next': adminApi.build_new_next(request)
     })
+
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['POST'])
+def reset_instructor_preference(request):
+    ''' Reset instructor preference '''
+    request = userApi.has_admin_access(request)
+
+    # Check whether a next url is valid or not
+    adminApi.can_req_parameters_access(request, 'none', ['next'], 'POST')
+
+    app_id = request.POST.get('application')
+    app = adminApi.add_app_info_into_application(adminApi.get_application(app_id), ['offered'])
+
+    # An offered appliation cannot be reset
+    if app.offered != None:
+        messages.error(request, 'An error occurred. An offered application cannot be reset.')
+        return HttpResponseRedirect(request.POST.get('next'))
+
+    instructor_preference = '0'
+
+    instructor_app_form = InstructorApplicationForm({ 'instructor_preference': instructor_preference })
+    if instructor_app_form.is_valid():
+        app_status_form = ApplicationStatusForm({ 'application': app_id, 'assigned': '0', 'assigned_hours': '0', 'has_contract_read': False })
+        if app_status_form:
+            updated_app = adminApi.update_application_instructor_preference(app_id, instructor_preference)
+            if updated_app:
+                if app_status_form.save():
+                    messages.success(request, 'Success! {0}: The Instructor Preference of an Application (ID: {1}, {2} {3} - {4} {5} {6}) has been reset. Please check in <a href="{7}">All Applications</a>'.format(updated_app.applicant.get_full_name(), updated_app.id, updated_app.job.session.year, updated_app.job.session.term.code, updated_app.job.course.code.name, updated_app.job.course.number.name, updated_app.job.course.section.name, reverse('administrators:all_applications')))
+                else:
+                    messages.error(request, 'An error occurred while updating an application status.')
+            else:
+                messages.error(request, 'An error occurred while updating an instructor_preference.')
+        else:
+            errors = app_status_form.errors.get_json_data()
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+    else:
+        errors = instructor_app_form.errors.get_json_data()
+        messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+
+    return HttpResponseRedirect(request.POST.get('next'))
+
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -1225,6 +1269,7 @@ def import_accepted_apps(request):
 
         data = StringIO(file.read().decode())
         result, msg = adminApi.bulk_update_admin_docs(data, request.user)
+        #print('import_accepted_apps', result, msg)
         if result:
             if len(msg) > 0:
                 messages.success( request, 'Success! Updated the following fields in Admin Docs through CSV. {0}'.format(msg) )
@@ -1738,6 +1783,61 @@ def applications_send_email_confirmation(request):
         'admin_email': admin_email if admin_email else None,
         'path': path,
         'next': adminApi.get_next(request)
+    })
+
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def report_accepted_applications(request):
+    ''' Display a report of applications accepted by students '''
+    request = userApi.has_admin_access(request)
+
+    year_q = request.GET.get('year')
+    term_q = request.GET.get('term')
+    code_q = request.GET.get('code')
+    number_q = request.GET.get('number')
+    section_q = request.GET.get('section')
+    first_name_q = request.GET.get('first_name')
+    last_name_q = request.GET.get('last_name')
+    student_number_q = request.GET.get('student_number')
+
+    app_list = adminApi.get_applications()
+    if bool(year_q):
+        app_list = app_list.filter(job__session__year__icontains=year_q)
+    if bool(term_q):
+        app_list = app_list.filter(job__session__term__code__icontains=term_q)
+    if bool(code_q):
+        app_list = app_list.filter(job__course__code__name__icontains=code_q)
+    if bool(number_q):
+        app_list = app_list.filter(job__course__number__name__icontains=number_q)
+    if bool(section_q):
+        app_list = app_list.filter(job__course__section__name__icontains=section_q)
+    if bool(first_name_q):
+        app_list = app_list.filter(applicant__first_name__icontains=first_name_q)
+    if bool(last_name_q):
+        app_list = app_list.filter(applicant__last_name__icontains=last_name_q)
+    if bool(student_number_q):
+        app_list = app_list.filter(applicant__profile__student_number__icontains=student_number_q)
+
+    app_list = app_list.filter( Q(applicationstatus__assigned=ApplicationStatus.ACCEPTED) & Q(is_terminated=False) ).order_by('-id').distinct()
+    app_list = adminApi.add_app_info_into_applications(app_list, ['accepted', 'declined'])
+    app_list = [ app for app in app_list if (app.declined == None) or (app.declined != None and app.accepted.id > app.declined.id) ]
+
+    page = request.GET.get('page', 1)
+    paginator = Paginator(app_list, settings.PAGE_SIZE)
+
+    try:
+    	apps = paginator.page(page)
+    except PageNotAnInteger:
+    	apps = paginator.page(1)
+    except EmptyPage:
+    	apps = paginator.page(paginator.num_pages)
+
+    return render(request, 'administrators/applications/report_accepted_applications.html', {
+        'loggedin_user': request.user,
+        'apps': apps,
+        'total_apps': len(app_list)
     })
 
 
@@ -3057,102 +3157,3 @@ def delete_landing_page(request):
         else:
             messages.error(request, 'An error occurred.')
     return redirect("administrators:landing_pages")
-
-
-
-"""
-@require_http_methods(['GET'])
-def export_accepted_apps(request):
-    ''' Export accepted applications '''
-
-    if request.GET.get('format') == 'csv':
-        next = request.GET.get('next')
-        parse = urlparse(next)
-        queries = parse.query.split('&')
-
-        page_q = None
-        year_q = None
-        term_q = None
-        code_q = None
-        number_q = None
-        section_q = None
-        first_name_q = None
-        last_name_q = None
-
-        for query in queries:
-            parts = query.split('=')
-            if parts[0] == 'page': page_q = parts[1]
-            elif parts[0] == 'year': year_q = parts[1]
-            elif parts[0] == 'term': term_q = parts[1]
-            elif parts[0] == 'code': code_q = parts[1]
-            elif parts[0] == 'number': number_q = parts[1]
-            elif parts[0] == 'section': section_q = parts[1]
-            elif parts[0] == 'first_name': first_name_q = parts[1]
-            elif parts[0] == 'last_name': last_name_q = parts[1]
-
-        app_list = adminApi.get_applications()
-        if bool(year_q):
-            app_list = app_list.filter(job__session__year__icontains=year_q)
-        if bool(term_q):
-            app_list = app_list.filter(job__session__term__code__icontains=term_q)
-        if bool(code_q):
-            app_list = app_list.filter(job__course__code__name__icontains=code_q)
-        if bool(number_q):
-            app_list = app_list.filter(job__course__number__name__icontains=number_q)
-        if bool(section_q):
-            app_list = app_list.filter(job__course__section__name__icontains=section_q)
-        if bool(first_name_q):
-            app_list = app_list.filter(applicant__first_name__icontains=first_name_q)
-        if bool(last_name_q):
-            app_list = app_list.filter(applicant__last_name__icontains=last_name_q)
-
-        app_list = app_list.filter( Q(applicationstatus__assigned=ApplicationStatus.ACCEPTED) & Q(is_terminated=False) ).order_by('-id').distinct()
-
-        page = request.GET.get('page', 1)
-        #paginator = Paginator(app_list, settings.PAGE_SIZE)
-        paginator = Paginator(app_list, 2)
-
-        try:
-            apps = paginator.page(page_q)
-        except PageNotAnInteger:
-            apps = paginator.page(1)
-        except EmptyPage:
-            apps = paginator.page(paginator.num_pages)
-
-        apps = adminApi.add_app_info_into_applications(apps, ['accepted'])
-        apps = adminApi.add_salary(apps)
-
-        rows = []
-        for app in apps:
-            print( type(app.pt_percentage) , app.pt_percentage, adminApi.float_format(app.pt_percentage) )
-            rows.append([
-                app.id,
-                app.job.session.year,
-                app.job.session.term.code,
-                '{0} {1} {2}'.format(app.job.course.code.name, app.job.course.number.name, app.job.course.section.name),
-                '{0} {1} ({2})'.format(app.applicant.first_name, app.applicant.last_name, app.applicant.username),
-                app.applicant.profile.student_number,
-                app.applicant.confidentiality.employee_number,
-                app.classification.name + ' ($' + '{:.2f}'.format(app.classification.wage) + ')',
-                '$' + '{:.2f}'.format(app.salary),
-                '{:.2f}'.format(app.pt_percentage),
-                app.admindocuments.pin if hasattr(app, 'admindocuments') else '',
-                'Yes' if hasattr(app, 'admindocuments') and app.admindocuments.tasm else '',
-                app.admindocuments.eform if hasattr(app, 'admindocuments') else '',
-                app.admindocuments.speed_chart if hasattr(app, 'admindocuments') else '',
-                app.admindocuments.processing_note if hasattr(app, 'admindocuments') else '',
-                '{0} ({1} hours)'.format(app.accepted.created_at, app.accepted.assigned_hours)
-            ])
-        print(rows)
-
-        response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename="TA App - Accepted Applications {0}.csv"'.format( datetime.now().date() )
-
-        writer = csv.writer(response)
-        writer.writerow(['ID', 'Year', 'Term', 'Job', 'Applicant', 'Student Number', 'Employee Number', 'Classification', 'Monthly Salary (CAD)', 'P/T (%)', 'PIN', 'TASM', 'eForm', 'Speed Chart', 'Processing Note', 'Accepted at'])
-        for row in rows:
-            print(row)
-            writer.writerow(row)
-
-        return response
-"""

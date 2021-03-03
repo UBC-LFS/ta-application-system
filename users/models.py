@@ -29,6 +29,7 @@ class Role(models.Model):
     HR = 'HR'
     INSTRUCTOR = 'Instructor'
     STUDENT = 'Student'
+    OBSERVER = 'Observer'
 
     name = models.CharField(max_length=256, unique=True)
     slug = models.SlugField(max_length=256, unique=True)

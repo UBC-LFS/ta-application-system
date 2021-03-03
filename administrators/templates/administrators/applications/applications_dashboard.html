@@ -5,15 +5,23 @@
 <div>
   {% include 'ta_app/pages/_header.html' with title='Dashboard' %}
 
-  <div class="bg-prompt">
-    <div class="prompt p-4 text-center mb-4">
-      <h4>Application Status: Get a glance</h4>
-      <p class="col-8 mx-auto">This table shows you the latest application status of students.</p>
+  <div class="row">
+    <div class="col-md-6">
+      {% include 'administrators/applications/_search_fields.html' with data=statuses total=total_statuses path='dashboard' %}
+    </div>
+    <div class="col-md-6">
+      <div class="bg-light-gray p-4" style="height:180.8px">
+        <p class="text-center">This table shows you the latest application status of applicants.</p>
+
+        <h5>Note:</h5>
+        <ul class="font-size-sm">
+          <li>
+            {% include 'ta_app/applications/_contract_read_note.html' %}
+          </li>
+        </ul>
+      </div>
     </div>
   </div>
-
-  {% include 'administrators/applications/_search_fields.html' with data=statuses total=total_statuses path='dashboard' %}
-  {% include 'ta_app/applications/_contract_read_note.html' %}
 
   <table
     class="table table-bordered table-hover table-striped table-responsive-md text-center"

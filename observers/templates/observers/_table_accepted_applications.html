@@ -1,0 +1,47 @@
+<table
+  class="table table-bordered table-hover table-striped table-responsive-md text-center"
+  data-toggle="table"
+  data-sortable="true"
+  data-classes=""
+  data-show-export="true"
+  data-show-columns="true"
+  data-export-types="['csv']"
+>
+  <thead>
+    <tr>
+      <th data-sortable="true">ID</th>
+      <th data-sortable="true">Year</th>
+      <th data-sortable="true">Term</th>
+      <th data-sortable="true">Job (Course)</th>
+      <th data-sortable="true">Instructor</th>
+      <th data-sortable="true">Applicant Name</th>
+      <th data-sortable="true">Applicant CWL</th>
+      <th data-sortable="true">Applicant Email</th>
+      <th data-sortable="true">Student Number</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for app in data %}
+      <tr>
+        <td>{{ app.id }}</td>
+        <td>{{ app.job.session.year }}</td>
+        <td>{{ app.job.session.term.code }}</td>
+        <td>
+          {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}
+        </td>
+        <td>
+          {% for instructor in app.job.instructors.all %}
+            <span>{{ instructor.get_full_name }}</span>
+            {% if not forloop.last %} <span class="mr-1">,</span> {% endif %}
+          {% empty %}
+            None
+          {% endfor %}
+        </td>
+        <td>{{ app.applicant.get_full_name }}</td>
+        <td>{{ app.applicant.username }}</td>
+        <td>{{ app.applicant.email }}</td>
+        <td>{{ app.applicant.profile.student_number }}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>

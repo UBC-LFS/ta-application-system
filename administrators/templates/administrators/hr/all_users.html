@@ -5,12 +5,22 @@
 <div>
   {% include 'ta_app/pages/_header.html' with title='All Users' %}
 
-  {% include 'ta_app/users/_search_fields.html' with data=users total=total_users path='all_users' %}
+  <div class="row">
+    <div class="col-md-6">
+      {% include 'ta_app/users/_search_fields.html' with data=users total=total_users path='all_users' %}
+    </div>
 
-  <p class="text-right">
-    This icon <span class="badge badge-success"><i class="fa fa-check-square-o" aria-hidden="true"></i></span>
-    represents that <code>I am a new employee</code> field is checked.
-  </p>
+    <div class="col-md-6">
+      <div class="bg-light-gray p-4" style="height:142.8px">
+        <h5>Note:</h5>
+        <ul class="font-size-sm">
+          <li>
+            This icon <span class="badge badge-success"><i class="fa fa-check-square-o" aria-hidden="true"></i></span> represents that <code>I am a new employee</code> field is checked.
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
 
   <table
     class="table table-bordered table-hover table-striped table-responsive-md text-center"

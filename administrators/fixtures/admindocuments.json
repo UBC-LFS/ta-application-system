@@ -8,7 +8,8 @@
       "tasm": false,
       "eform": "AB1234",
       "speed_chart": "CCDD",
-      "processing_note": "Good"
+      "processing_note": "Good",
+      "worktag": "ABCDEFG1"
     }
   },
   {
@@ -20,7 +21,8 @@
       "tasm": true,
       "eform": null,
       "speed_chart": null,
-      "processing_note": null
+      "processing_note": null,
+      "worktag": null
     }
   },
   {
@@ -32,7 +34,8 @@
       "tasm": false,
       "eform": null,
       "speed_chart": null,
-      "processing_note": null
+      "processing_note": null,
+      "worktag": null
     }
   },
   {
@@ -44,7 +47,8 @@
       "tasm": false,
       "eform": null,
       "speed_chart": null,
-      "processing_note": null
+      "processing_note": null,
+      "worktag": null
     }
   }
 ]

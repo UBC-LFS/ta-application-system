@@ -1,0 +1,19 @@
+[
+  {
+    "model": "users.confidentiality",
+    "pk": 1,
+    "fields": {
+      "user_id": 80,
+      "nationality": 1,
+      "employee_number": "0000001",
+      "sin": "users/user80.test/sin/sin.jpg",
+      "sin_expiry_date": "2022-01-02",
+      "study_permit": "users/user80.test/study_permit/study_permit.jpg",
+      "study_permit_expiry_date": "2023-02-02",
+      "personal_data_form": "users/user80.test/personal_data_form/personal_data_form.doc",
+      "is_new_employee": false,
+      "created_at": "2020-01-01",
+      "updated_at": "2020-01-01"
+    }
+  }
+]

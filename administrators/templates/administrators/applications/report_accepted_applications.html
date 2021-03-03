@@ -1,0 +1,15 @@
+{% extends 'ta_app/base.html' %}
+{% block content %}
+{% include 'administrators/_menu.html' %}
+
+<div>
+  {% include 'ta_app/pages/_header.html' with title='Report - Accepted Applications' %}
+
+  {% include 'administrators/applications/_search_fields.html' with data=apps total=total_apps path='report_accepted' %}
+
+  {% include 'observers/_table_accepted_applications.html' with data=apps %}
+
+  {% include 'ta_app/pages/_table_paginator.html' with data=apps %}
+</div>
+
+{% endblock %}

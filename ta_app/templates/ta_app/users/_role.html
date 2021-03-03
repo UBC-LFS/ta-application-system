@@ -10,7 +10,11 @@
 {% elif data == 'Instructor' %}
   <span class="badge badge-success">{{ data.upper }}</span><br />
 
-{% else %}
+{% elif data == 'Student' %}
   <span class="badge badge-light text-dark">{{ data.upper }}</span>
+
+{% else %}
+  <span class="badge badge-secondary">{{ data.upper }}</span>
+
 
 {% endif %}

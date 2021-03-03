@@ -56,6 +56,16 @@
 									</a>
 								</li>
 							{% endif %}
+
+							{% if 'Observer' in loggedin_user.roles %}
+								<li class="nav-item">
+									<a id="nav-observer" class="nav-link" href="{% url 'observers:index' %}">
+										<i class="fa fa-home" aria-hidden="true"></i>
+										{% if loggedin_user.roles|length > 1 %} Observer {% endif %}
+										Home
+									</a>
+								</li>
+							{% endif %}
 						</ul>
   					<span class="text-white">Hi, {{ loggedin_user.get_full_name }}</span>
 						<a id="btn-logout" class="text-white ml-4" href="{% url 'saml' %}?slo">
@@ -90,6 +100,7 @@
 	<footer class="bg-dark-blue">
 		<div class="container">
 			<div class="footer-item">
+				<img class="mr-2" src="{% static 'ta_app/images/UBC-logo-2018-crest-white-rgb300.png' %}" alt="UBC logo" height="40" /> 
 				The University of British Columbia
 			</div>
 			<div class="footer-item">

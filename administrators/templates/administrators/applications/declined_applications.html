@@ -5,10 +5,25 @@
 <div>
   {% include 'ta_app/pages/_header.html' with title='Declined Applications' %}
 
-  {% include 'administrators/applications/_search_fields.html' with data=apps total=total_apps path='declined' %}
+  <div class="row">
+    <div class="col-md-6">
+      {% include 'administrators/applications/_search_fields.html' with data=apps total=total_apps path='declined' %}
+    </div>
 
-  {% include 'ta_app/applications/_contract_read_note.html' %}
-  {% include 'ta_app/applications/_declined_reassigned_note.html' %}
+    <div class="col-md-6">
+      <div class="bg-light-gray p-4" style="height:180.8px">
+        <h5>Note:</h5>
+        <ul class="font-size-sm">
+          <li>
+            {% include 'ta_app/applications/_contract_read_note.html' %}
+          </li>
+          <li>
+            {% include 'ta_app/applications/_declined_reassigned_note.html' %}
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
 
   <form action="{% url 'administrators:applications_send_email' %}?next={{ new_next }}&p=Declined Applications" method="post">
     {% csrf_token %}

@@ -9,11 +9,11 @@ from users.models import *
 from administrators import api as adminApi
 from users import api as userApi
 
-from administrators.tests.test_views import LOGIN_URL, ContentType, DATA, SESSION, PASSWORD, USERS
+from administrators.tests.test_sessions import LOGIN_URL, ContentType, DATA, SESSION, PASSWORD, USERS
 from django.core.files.uploadedfile import SimpleUploadedFile
 import datetime
 
-USER = 'User42.Ins'
+USER = 'user42.ins'
 JOB = 'apbi-200-002-introduction-to-soil-science-w1'
 STUDENT = 'user66.test'
 
@@ -513,7 +513,7 @@ class InstructorTest(TestCase):
         self.assertEqual(second_app.id, 11)
         self.assertEqual(second_app.applicant.username, 'user70.test')
         self.assertEqual(second_app.applicationstatus_set.last().get_assigned_display(), 'Accepted')
-        self.assertEqual(second_app.applicationstatus_set.last().assigned_hours, 65.5)
+        self.assertEqual(second_app.applicationstatus_set.last().assigned_hours, 65.0)
         self.assertEqual(second_app.applicationstatus_set.last().created_at, datetime.date(2019, 9, 20))
 
 

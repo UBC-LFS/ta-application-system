@@ -25,6 +25,7 @@ urlpatterns = [
     path('administrators/', include('administrators.urls')),
     path('instructors/', include('instructors.urls')),
     path('students/', include('students.urls')),
+    path('observers/', include('observers.urls')),
     path('summernote/', include('django_summernote.urls')),
     path('impersonate/', include('impersonate.urls')),
     path('saml/', saml_views.saml, name='saml'),

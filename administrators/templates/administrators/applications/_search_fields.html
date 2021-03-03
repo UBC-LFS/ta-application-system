@@ -1,24 +1,32 @@
-<div class="search-field bg-light-gray p-4">
+<div class="search-field bg-light-gray p-3 font-size-sm">
   <form method="GET">
     <input type="text" name="year" value="{{ request.GET.year }}" placeholder="Year" /> and
     <input type="text" name="term" value="{{ request.GET.term }}" placeholder="Term" /> <br />
     <input type="text" name="code" value="{{ request.GET.code }}" placeholder="Job Code" /> and
     <input type="text" name="number" value="{{ request.GET.number }}" placeholder="Job Number" /> and
     <input type="text" name="section" value="{{ request.GET.section }}" placeholder="Job Section" /> <br />
-    <input type="text" name="first_name" value="{{ request.GET.first_name }}" placeholder="First Name" /> and
-    <input type="text" name="last_name" value="{{ request.GET.last_name }}" placeholder="Last Name" /> <br />
+    <input type="text" name="first_name" value="{{ request.GET.first_name }}" placeholder="Applicant First Name" /> and
+    <input type="text" name="last_name" value="{{ request.GET.last_name }}" placeholder="Applicant Last Name" />
 
     {% if path == 'selected' %}
+      <br />
       Offered: <input type="checkbox" name="offered" value="True" {% if request.GET.offered %}checked{% endif %} /> or
       Not offered: <input type="checkbox" name="not_offered" value="True" {% if request.GET.not_offered %}checked{% endif %} />
 
     {% elif path == 'offered' %}
+      <br />
       No response: <input type="checkbox" name="no_response" value="True" {% if request.GET.no_response %}checked{% endif %} />
 
     {% elif path == 'accepted' %}
+      <br />
       <input type="text" name="eform" value="{{ request.GET.eform }}" placeholder="eForm" /> and
       Declined & re-assigned: <input type="checkbox" name="declined_reassigned" value="True" {% if request.GET.declined_reassigned %}checked{% endif %} /> and
       Accepted in today: <input type="checkbox" name="accepted_in_today" value="True" {% if request.GET.accepted_in_today %}checked{% endif %} />
+
+    {% elif path == 'report_accepted' %}
+      and
+      <input type="text" name="student_number" value="{{ request.GET.student_number }}" placeholder="Student Number" />
+
     {% endif %}
 
     <div class="mt-1">
@@ -45,8 +53,8 @@
       {% elif path == 'terminated' %}
         <a class="btn btn-sm btn-light" href="{% url 'administrators:terminated_applications' %}">Clear</a>
 
-      {% elif path == 'all_admin_docs' %}
-        <a class="btn btn-sm btn-light" href="{% url 'administrators:all_admin_docs' %}">Clear</a>
+      {% elif path == 'report_accepted' %}
+        <a class="btn btn-sm btn-light" href="{% url 'administrators:report_accepted_applications' %}">Clear</a>
 
       {% endif %}
     </div>
