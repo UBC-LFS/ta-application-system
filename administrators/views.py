@@ -1519,17 +1519,20 @@ def decline_reassign_confirmation(request):
 
             # admin documents updated
             if hasattr(reaasigned_app, 'admindocuments'):
-                old_eform = reaasigned_app.admindocuments.eform
-                reaasigned_app.admindocuments.eform = None
-                reaasigned_app.admindocuments.processing_note += "<p>Auto update: eForm - <strong class='text-primary'>{0}</strong> on {1}</p>".format(old_eform, datetime.today().strftime('%Y-%m-%d'))
-                reaasigned_app.admindocuments.save(update_fields=['eform', 'processing_note'])
-
-                if reaasigned_app.admindocuments.processing_note.find(old_eform) > -1:
+                if reaasigned_app.admindocuments.eform == None:
                     messages.success(request, 'Success! The status of Application (ID: {0}) updated'.format(app_id))
                 else:
-                    reaasigned_app.admindocuments.eform = old_eform
-                    reaasigned_app.admindocuments.save(update_fields=['eform'])
-                    messages.warning(request, 'Warning! The eForm number of Application (ID: {0}) is not updated into the processing note.'.format(app_id))
+                    old_eform = reaasigned_app.admindocuments.eform
+                    reaasigned_app.admindocuments.eform = None
+                    reaasigned_app.admindocuments.processing_note += "<p>Auto update: eForm - <strong class='text-primary'>{0}</strong> on {1}</p>".format(old_eform, datetime.today().strftime('%Y-%m-%d'))
+                    reaasigned_app.admindocuments.save(update_fields=['eform', 'processing_note'])
+
+                    if reaasigned_app.admindocuments.processing_note.find(old_eform) > -1:
+                        messages.success(request, 'Success! The status of Application (ID: {0}) updated'.format(app_id))
+                    else:
+                        reaasigned_app.admindocuments.eform = old_eform
+                        reaasigned_app.admindocuments.save(update_fields=['eform'])
+                        messages.warning(request, 'Warning! The eForm number of Application (ID: {0}) is not updated into the processing note.'.format(app_id))
             else:
                 messages.success(request, 'Success! The status of Application (ID: {0}) updated'.format(app_id))
 

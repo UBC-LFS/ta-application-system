@@ -1078,7 +1078,45 @@ class ApplicationTest(TestCase):
         self.assertTrue(updated_app.admindocuments.tasm, data2['tasm'])
         self.assertIsNone(updated_app.admindocuments.eform)
         self.assertTrue(updated_app.admindocuments.worktag, data2['worktag'])
-        self.assertTrue('<p>this is a processing note.</p><p>Auto update: eForm - <strong class="text-primary">af3343</strong>' in updated_app.admindocuments.processing_note)
+        self.assertEqual(updated_app.admindocuments.processing_note, "<p>this is a processing note.</p><p>Auto update: eForm - <strong class='text-primary'>af3343</strong> on {0}</p>".format( datetime.date.today().strftime('%Y-%m-%d') ))
+
+
+    def test_decline_reassign_empty_eform(self):
+        print('- Test: Decline and reassign a job offer with new assigned hours - empty eform')
+        self.login()
+
+        FULL_PATH = reverse('administrators:accepted_applications') + '?page=2'
+        NEXT = '?next=' + FULL_PATH
+        app_id = 8
+
+        response = self.client.get(FULL_PATH)
+        self.assertEqual(response.status_code, 200)
+        accepted_applications = response.context['apps']
+
+        application = None
+        for app in accepted_applications:
+            if app.id == app_id:
+                application = app
+                break
+
+        self.assertTrue( hasattr(application, 'admindocuments') )
+
+        data = {
+            'application': str(application.id),
+            'new_assigned_hours': '31.0',
+            'old_assigned_hours': str(application.accepted.assigned_hours),
+            'is_declined_reassigned': 'true',
+            'next' : FULL_PATH
+        }
+        response = self.client.post( reverse('administrators:decline_reassign_confirmation') + NEXT, data=urlencode(data), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertEqual(messages[0], 'Success! The status of Application (ID: 8) updated')
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, FULL_PATH)
+        self.assertRedirects(response, response.url)
+
+        found_app = adminApi.get_application(application.id)
+        self.assertEqual(found_app.admindocuments.processing_note, 'This is a processing note')
 
 
     def test_terminate(self):
@@ -1325,7 +1363,7 @@ class ApplicationTest(TestCase):
         expected2 = [
             {'id': 21, 'assigned': ApplicationStatus.NONE, 'created_at': datetime.date(2019, 9, 1)},
             {'id': 41, 'assigned': ApplicationStatus.SELECTED, 'created_at': datetime.date(2019, 9, 5)},
-            {'id': 73, 'assigned': ApplicationStatus.NONE, 'created_at': datetime.date.today()},
+            {'id': 74, 'assigned': ApplicationStatus.NONE, 'created_at': datetime.date.today()},
         ]
 
         count2 = 0
@@ -1390,7 +1428,7 @@ class ApplicationTest(TestCase):
 
         self.assertIsNotNone(app5)
         self.assertIsNotNone(app5.selected)
-        self.assertEqual(app5.selected.id, 74)
+        self.assertEqual(app5.selected.id, 75)
         self.assertEqual(app5.selected.assigned, ApplicationStatus.SELECTED)
         self.assertEqual(app5.selected.created_at, datetime.date.today())
 
@@ -1454,10 +1492,10 @@ class ApplicationTest(TestCase):
         expected7 = [
             {'id': 21, 'assigned': ApplicationStatus.NONE, 'created_at': datetime.date(2019, 9, 1)},
             {'id': 41, 'assigned': ApplicationStatus.SELECTED, 'created_at': datetime.date(2019, 9, 5)},
-            {'id': 73, 'assigned': ApplicationStatus.NONE, 'created_at': datetime.date.today()},
-            {'id': 74, 'assigned': ApplicationStatus.SELECTED, 'created_at': datetime.date.today()},
-            {'id': 75, 'assigned': ApplicationStatus.OFFERED, 'created_at': datetime.date.today()},
-            {'id': 76, 'assigned': ApplicationStatus.ACCEPTED, 'created_at': datetime.date.today()},
+            {'id': 74, 'assigned': ApplicationStatus.NONE, 'created_at': datetime.date.today()},
+            {'id': 75, 'assigned': ApplicationStatus.SELECTED, 'created_at': datetime.date.today()},
+            {'id': 76, 'assigned': ApplicationStatus.OFFERED, 'created_at': datetime.date.today()},
+            {'id': 77, 'assigned': ApplicationStatus.ACCEPTED, 'created_at': datetime.date.today()},
         ]
 
         count5 = 0

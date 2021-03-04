@@ -34,7 +34,7 @@
       "tasm": false,
       "eform": null,
       "speed_chart": null,
-      "processing_note": null,
+      "processing_note": "This is a processing note",
       "worktag": null
     }
   },
