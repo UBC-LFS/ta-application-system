@@ -52,24 +52,24 @@ $(document).ready(function() {
    let tableData = header.join(',') + '\n';
 
    for (let i = 1; i < rows.length; i++) {
-     let rowData = '';
-     for (let j = 0; j < rows[i].children.length-1; j++) {
-       let col = rows[i].children[j];
-       if (col.children.length > 1) {
-         let str = '"';
-         if (col.children[1].innerText.length === 0) {
-           str += replaceNewLine(col.children[0].innerText) + '",';
-         } else {
-           str += replaceNewLine(col.children[0].innerText) + ' ' + replaceNewLine(col.children[1].innerText) + '",';
-         }
-         rowData += str;
-       } else {
-         rowData += '"' + replaceNewLine(col.innerText) + '",';
-       }
-     }
-     tableData += rowData.substring(0, rowData.length - 1) + '\n';
-   }
-   
+      let rowData = '';
+      for (let j = 0; j < rows[i].children.length-1; j++) {
+        let col = rows[i].children[j];
+        if (col.children.length > 1) {
+          let str = '"';
+          if (col.children[1].innerText.length === 0) {
+            str += replaceNewLine(col.children[0].innerText).replace(/\"/g, "\"\"") + '",';
+          } else {
+            str += replaceNewLine(col.children[0].innerText) + ' ' + replaceNewLine(col.children[1].innerText) + '",';
+          }
+          rowData += str;
+        } else {
+          rowData += '"' + replaceNewLine(col.innerText) + '",';
+        }
+      }
+      tableData += rowData.substring(0, rowData.length - 1) + '\n';
+    }
+
    exportCSV(tableData);
  });
 
@@ -77,18 +77,21 @@ $(document).ready(function() {
 
 // Get today's date format
 function getToday() {
-  const d = new Date();
-  let month = d.getMonth();
-  if (month < 10) month = '0' + d.getMonth();
-  let date = d.getDate();
-  if (date < 10) date = '0' + d.getDate();
-  return d.getFullYear() + '-' + month + '-' + date;
+  var d = new Date(),
+      month = '' + (d.getMonth() + 1),
+      day = '' + d.getDate(),
+      year = d.getFullYear();
+
+  if (month.length < 2) month = '0' + month;
+  if (day.length < 2) day = '0' + day;
+
+  return [year, month, day].join('-');
 }
 
 // Export data to a csv file
 function exportCSV(data) {
   let el = document.createElement('a');
-  const blob = new Blob([data], { type: 'text/csv; charset=utf-8;' });
+  const blob = new Blob([data], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   el.href = url;
   el.setAttribute('download', 'TA App - Accepted Applications ' + getToday() + '.csv');

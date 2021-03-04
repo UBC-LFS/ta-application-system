@@ -943,7 +943,7 @@ def selected_applications(request):
             app_list = app_list.filter(applicationstatus__assigned=ApplicationStatus.OFFERED)
         if bool(not_offered_q):
             app_list = app_list.filter( ~Q(applicationstatus__assigned=ApplicationStatus.OFFERED) )
-        
+
         app_list = app_list.filter(applicationstatus__assigned=ApplicationStatus.SELECTED).order_by('-id').distinct()
         app_list = [ app for app in app_list if app.applicationstatus_set.filter(assigned=ApplicationStatus.NONE).count() == app.applicationstatus_set.filter(assigned=ApplicationStatus.SELECTED).count() ]
 
@@ -1521,7 +1521,7 @@ def decline_reassign_confirmation(request):
             if hasattr(reaasigned_app, 'admindocuments'):
                 old_eform = reaasigned_app.admindocuments.eform
                 reaasigned_app.admindocuments.eform = None
-                reaasigned_app.admindocuments.processing_note += '<p>Auto update: eForm - <strong class="text-primary">{0}</strong> on {1}</p>'.format(old_eform, datetime.today().strftime('%Y-%m-%d'))
+                reaasigned_app.admindocuments.processing_note += "<p>Auto update: eForm - <strong class='text-primary'>{0}</strong> on {1}</p>".format(old_eform, datetime.today().strftime('%Y-%m-%d'))
                 reaasigned_app.admindocuments.save(update_fields=['eform', 'processing_note'])
 
                 if reaasigned_app.admindocuments.processing_note.find(old_eform) > -1:
