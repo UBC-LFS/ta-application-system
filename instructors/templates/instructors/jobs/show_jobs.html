@@ -52,8 +52,14 @@
               {% endif %}
             </td>
             <td>{% include 'ta_app/jobs/_job_is_active.html' with data=job %}</td>
-            <td>{{ job.created_at }}</td>
-            <td>{{ job.updated_at }}</td>
+            <td>
+              <span class="d-none">{{ job.created_at|date:"Y m d z" }}</span>
+              {{ job.created_at }}
+            </td>
+            <td>
+              <span class="d-none">{{ job.updated_at|date:"Y m d z" }}</span>
+              {{ job.updated_at }}
+            </td>
             <td>
               <a class="btn btn-link btn-xs" href="{% url 'instructors:edit_job' session_slug=job.session.slug job_slug=job.course.slug %}?next={{ new_next }}">Edit Job</a>
             </td>

@@ -91,7 +91,10 @@
               <div><span class="badge badge-success">READ</span></div>
             {% endif %}
           </td>
-          <td>{{ st.created_at }}</td>
+          <td>
+            <span class="d-none">{{ st.created_at|date:"Y m d z" }}</span>
+            {{ st.created_at }}
+          </td>
         </tr>
       {% endfor %}
     </tbody>

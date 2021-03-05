@@ -48,8 +48,14 @@
               <span class="badge badge-danger">{{ job.is_active }} <i class="fa fa-stop-circle" aria-hidden="true"></i></span>
             {% endif %}
           </td>
-          <td>{{ job.created_at }}</td>
-          <td>{{ job.updated_at }}</td>
+          <td>
+            <span class="d-none">{{ job.created_at|date:"Y m d z" }}</span>
+            {{ job.created_at }}
+          </td>
+          <td>
+            <span class="d-none">{{ job.updated_at|date:"Y m d z" }}</span>
+            {{ job.updated_at }}
+          </td>
           <td>
             <a class="btn btn-sm btn-link" href="{% url 'administrators:edit_job' session_slug=job.session.slug job_slug=job.course.slug %}?next={{ new_next }}&p=Prepare Jobs">Edit</a>
           </td>

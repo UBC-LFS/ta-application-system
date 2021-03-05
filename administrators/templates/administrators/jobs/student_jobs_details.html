@@ -126,7 +126,10 @@
                 {% include 'ta_app/applications/_app_status.html' with data=app.offered.get_assigned_display %}
               </td>
               <td>{{ app.offered.assigned_hours }} hours</td>
-              <td>{{ app.offered.created_at }}</td>
+              <td>
+                <span class="d-none">{{ app.offered.created_at|date:"Y m d z" }}</span>
+                {{ app.offered.created_at }}
+              </td>
             </tr>
           {% endfor %}
         </tbody>
@@ -175,7 +178,10 @@
                 {% include 'ta_app/applications/_app_status.html' with data=app.accepted.get_assigned_display %}
               </td>
               <td>{{ app.accepted.assigned_hours }} hours</td>
-              <td>{{ app.accepted.created_at }}</td>
+              <td>
+                <span class="d-none">{{ app.accepted.created_at|date:"Y m d z" }}</span>
+                {{ app.accepted.created_at }}
+              </td>
             </tr>
 
           {% endfor %}
@@ -237,8 +243,14 @@
                 {% include 'ta_app/applications/_modal_app_status.html' with data=app %}<br />
                 <small class="text-dark-gray">{{ app.applicationstatus_set.last.created_at }}</small>
               </td>
-              <td>{{ app.created_at }}</td>
-              <td>{{ app.updated_at }}</td>
+              <td>
+                <span class="d-none">{{ app.created_at|date:"Y m d z" }}</span>
+                {{ app.created_at }}
+              </td>
+              <td>
+                <span class="d-none">{{ app.updated_at|date:"Y m d z" }}</span>
+                {{ app.updated_at }}
+              </td>
             </tr>
           {% endfor %}
         </tbody>

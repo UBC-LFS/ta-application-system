@@ -34,7 +34,7 @@
     </h5>
 
     <table
-      class="table table-bordered table-hover table-striped table-responsive-md text-center font-size-1"
+      class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center font-size-1"
       data-toggle="table"
       data-sortable="true"
       data-classes=""
@@ -47,7 +47,7 @@
         <tr>
           <th data-sortable="true">Applicant</th>
           <th data-sortable="true">CWL</th>
-          <th data-sortable="true">Application</th>
+          <th>Application</th>
           <th data-sortable="true">Applied at</th>
           <th>Instructor <br />Preference</th>
           <th>Application <br />Status</th>
@@ -62,7 +62,10 @@
               <a href="{% url 'users:show_user' username=app.applicant.username %}?next={{ request.get_full_path }}&p=Applications&t=basic">{{ app.applicant.username }}</a>
             </td>
             <td>{% include 'ta_app/applications/_modal_app_details.html' with data=app pin_display='False' %}</td>
-            <td>{{ app.created_at }}</td>
+            <td>
+              <span class="d-none">{{ app.created_at|date:"Y m d z" }}</span>
+              {{ app.created_at }}
+            </td>
             <td>
               {% if app.instructor_preference != app_status.none and app.selected %}
 

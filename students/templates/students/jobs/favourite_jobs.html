@@ -68,7 +68,10 @@
 								{% include 'ta_app/jobs/_modal_job_details.html' with data=fav.job %}
 							</td>
 							<td>{% include 'ta_app/jobs/_job_instructor.html' with data=fav.job %}</td>
-							<td>{{ fav.created_at }}</td>
+							<td>
+								<span class="d-none">{{ fav.created_at|date:"Y m d z" }}</span>
+								{{ fav.created_at }}
+							</td>
 							<td>
 								{% if fav.my_app %}
 									{% include 'ta_app/applications/_app_status.html' with data='None' %}

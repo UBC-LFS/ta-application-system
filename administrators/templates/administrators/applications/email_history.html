@@ -117,7 +117,10 @@
               <i class="fa fa-question-circle text-warning font-size-1" aria-hidden="true"></i>
             {% endif %}
           </td>
-          <td>{{ email.created_at }}</td>
+          <td>
+            <span class="d-none">{{ email.created_at|date:"Y m d z" }}</span>
+            {{ email.created_at }}
+          </td>
           <td>
             <a href="{% url 'administrators:send_reminder' email.id %}?next={{ new_next }}&p=Email History">Remind</a>
           </td>

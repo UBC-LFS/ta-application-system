@@ -74,8 +74,14 @@
                 None
               {% endif %}
             </td>
-            <td>{{ app.created_at }}</td>
-            <td>{{ app.updated_at }}</td>
+            <td>
+              <span class="d-none">{{ app.created_at|date:"Y m d z" }}</span>
+              {{ app.created_at }}
+            </td>
+            <td>
+              <span class="d-none">{{ app.updated_at|date:"Y m d z" }}</span>
+              {{ app.updated_at }}
+            </td>
           </tr>
         {% endfor %}
       </tbody>

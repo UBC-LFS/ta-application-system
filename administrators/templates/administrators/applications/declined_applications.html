@@ -86,11 +86,19 @@
             <td>{% include 'ta_app/applications/_app_instructor_preference.html' with data=app.get_instructor_preference_display %}</td>
             <td>{% include 'ta_app/applications/_app_classification.html' with data=app %}</td>
             <td>{% include 'ta_app/applications/_modal_note.html' with data=app %}</td>
-            <td>{{ app.created_at }}</td>
-            <td>{{ app.updated_at }}</td>
             <td>
-              <div>{{ app.declined.created_at }}</div>
+              <span class="d-none">{{ app.created_at|date:"Y m d z" }}</span>
+              {{ app.created_at }}
+            </td>
+            <td>
+              <span class="d-none">{{ app.updated_at|date:"Y m d z" }}</span>
+              {{ app.updated_at }}
+            </td>
+            <td>
+              <span class="d-none">{{ app.declined.created_at|date:"Y m d z" }}</span>
+              {{ app.declined.created_at }}
               {% if app.declined.has_contract_read %}
+                <br />
                 <span class="badge badge-success">READ</span>
               {% endif %}
             </td>
