@@ -176,5 +176,10 @@ LOCAL_LOGIN=True
 Open a new window with an URL ``` http://localhost:8000/accounts/local_login/ ```
 
 
+**Upgrade Django**
+```
+pip install --upgrade django==new_version (e.g., 2.2.19)
+```
+
 Happy coding!
 Thank you.
