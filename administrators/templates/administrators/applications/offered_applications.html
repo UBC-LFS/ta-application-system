@@ -79,7 +79,7 @@
               {% include 'ta_app/applications/_modal_app_status.html' with data=app %}
 
               {% if not app.accepted and not app.declined %}
-                <i class="fa fa-question-circle text-warning font-size-1" aria-hidden="true"></i>
+                <i class="fa fa-question-circle text-warning font-size-1 vertical-middle" aria-hidden="true"></i>
               {% endif %}
             </td>
             <td>{% include 'ta_app/applications/_app_instructor_preference.html' with data=app.get_instructor_preference_display %}</td>

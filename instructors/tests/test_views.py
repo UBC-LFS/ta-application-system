@@ -377,7 +377,32 @@ class InstructorTest(TestCase):
         self.assertEqual(response.context['job'].application_set.first().instructor_preference, '0')
         self.assertEqual( len(response.context['instructor_preference_choices']), 5 )
 
-        # Invalid assigned hours
+        self.assertEqual(response.context['full_job_name'], 'APBI_200_002')
+        self.assertEqual(response.context['app_status'], {'none': '0', 'applied': '0', 'selected': '1', 'offered': '2', 'accepted': '3', 'declined': '4', 'cancelled': '5'})
+        self.assertEqual(response.context['next'], '/instructors/jobs/?page=2')
+
+        applications = [
+            { 'id': 6 },
+            { 'id': 11, 'accepted_apps': ['APBI 200 002 (65.0 hours)'] },
+            { 'id': 16 },
+            { 'id': 21, 'accepted_apps': ['APBI 200 001 (30.0 hours)', 'APBI 260 001 (70.0 hours)'] }
+        ]
+
+        c = 0
+        for app in response.context['apps']:
+            self.assertEqual(app.id, applications[c]['id'])
+
+            if len(app.applicant.accepted_apps) > 0:
+                d = 0
+                for accepted_app in app.applicant.accepted_apps:
+                    self.assertEqual(accepted_app.job.course.code.name + ' ' + accepted_app.job.course.number.name + ' ' + accepted_app.job.course.section.name + ' ('+ str(accepted_app.accepted.assigned_hours) + ' hours)', applications[c]['accepted_apps'][d])
+                    d += 1
+            c += 1
+
+    def test_select_instructor_preference_failure1(self):
+        print('- select instructor preference failure 1 - Invalid assigned hours')
+        self.login()
+
         data1 = {
             'assigned': ApplicationStatus.OFFERED,
             'application': '6',
@@ -392,7 +417,10 @@ class InstructorTest(TestCase):
         self.assertEqual(response.url, reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT)
         self.assertRedirects(response, response.url)
 
-        # Minus assigned hours
+    def test_select_instructor_preference_failure2(self):
+        print('- select instructor preference failure 2 - Minus assigned hours')
+        self.login()
+
         data2 = {
             'assigned': ApplicationStatus.OFFERED,
             'application': '6',
@@ -407,7 +435,10 @@ class InstructorTest(TestCase):
         self.assertEqual(response.url, reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT)
         self.assertRedirects(response, response.url)
 
-        # no select for a preference
+    def test_select_instructor_preference_failure3(self):
+        print('- select instructor preference failure 3 - no select for a preference')
+        self.login()
+
         data3 = {
             'assigned': ApplicationStatus.OFFERED,
             'application': '6',
@@ -422,7 +453,11 @@ class InstructorTest(TestCase):
         self.assertEqual(response.url, reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT)
         self.assertRedirects(response, response.url)
 
-        # no preference
+
+    def test_select_instructor_preference_failure4(self):
+        print('- select instructor preference failure 4 - no preference')
+        self.login()
+
         data4 = {
             'assigned': ApplicationStatus.OFFERED,
             'application': '6',
@@ -437,7 +472,10 @@ class InstructorTest(TestCase):
         self.assertEqual(response.url, reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT)
         self.assertRedirects(response, response.url)
 
-        # yes selection, 0 hours
+    def test_select_instructor_preference_failure5(self):
+        print('- select instructor preference failure 5 - yes selection, 0 hours')
+        self.login()
+
         data5 = {
             'assigned': ApplicationStatus.OFFERED,
             'application': '6',
@@ -452,7 +490,11 @@ class InstructorTest(TestCase):
         self.assertEqual(response.url, reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT)
         self.assertRedirects(response, response.url)
 
-        # big assigned hours
+
+    def test_select_instructor_preference_failure6(self):
+        print('- select instructor preference failure 6 - big assigned hours')
+        self.login()
+
         data6 = {
             'assigned': ApplicationStatus.OFFERED,
             'application': '6',
@@ -467,7 +509,10 @@ class InstructorTest(TestCase):
         self.assertEqual(response.url, reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT)
         self.assertRedirects(response, response.url)
 
-        # floating point hours
+    def test_select_instructor_preference_failure7(self):
+        print('- select instructor preference failure 7 - floating point hours')
+        self.login()
+
         data7 = {
             'assigned': ApplicationStatus.OFFERED,
             'application': '6',
@@ -482,7 +527,10 @@ class InstructorTest(TestCase):
         self.assertEqual(response.url, reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT)
         self.assertRedirects(response, response.url)
 
-        # ok
+    def test_select_instructor_preference_success(self):
+        print('- select instructor preference success')
+        self.login()
+
         data8 = {
             'assigned': ApplicationStatus.OFFERED,
             'application': '6',

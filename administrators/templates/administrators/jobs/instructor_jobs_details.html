@@ -9,78 +9,90 @@
     <div class="left-aside-btn-groups">
       <a class="btn btn-outline-primary" href="{{ next }}">Back to {{ request.GET.p }}</a>
     </div>
+
+    <div class="board col-10 mx-auto mt-5 text-center">
+      <h5 class="text-info mb-4">Statistics</h5>
+
+      <table class="table font-size-1">
+        <thead>
+          <tr>
+            <th>Total Applicants</th>
+            <th>Total Jobs</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>{{ user.total_applicants }}</td>
+            <td>{{ user.job_set.all|length }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
   </div>
 
   <div class="col-md-8">
-    <div class="board col-11 mx-auto">
-      <h3>Details</h3>
+    <h3 class="text-info">Applications</h3>
 
-      <div>
-        <h6>Total Jobs:</h6>
-        <span>{{ user.job_set.all|length }}</span>
-      </div>
+    <table
+      class="table table-bordered table-hover table-striped table-responsive-md text-center"
+      data-toggle="table"
+      data-sortable="true"
+      data-classes=""
+      data-pagination="true"
+      data-search="true"
+      data-page-size="50"
+      data-page-list="[50, 100, 200, all]"
+      data-show-export="true"
+      data-show-columns="true"
+      data-export-types="['csv']"
+    >
+      <thead>
+        <tr>
+          <th data-sortable="true">Job ID</th>
+          <th data-sortable="true">Year</th>
+          <th data-sortable="true">Term</th>
+          <th data-sortable="true">Job</th>
+          <th>Applicants</th>
+          <th data-sortable="true">Active</th>
+          <th data-sortable="true">Created at</th>
+          <th data-sortable="true">Updated at</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for job in user.job_set.all %}
+          <tr>
+            <td>{{ job.id }}</td>
+            <td>{{ job.session.year }}</td>
+            <td>{{ job.session.term.code }}</td>
+            <td>{{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</td>
+            <td>
+              {% for app in job.application_set.all %}
+                {% include 'ta_app/users/_modal_user_details.html' with data=app.applicant %}<br />
+              {% empty %}
+                No applicants
+              {% endfor %}
+            </td>
+            <td>{% include 'ta_app/jobs/_job_is_active.html' with data=job %}</td>
+            <td>
+              <span class="d-none">{{ job.created_at|date:"Y m d z" }}</span>
+              {{ job.created_at }}
+            </td>
+            <td>
+              <span class="d-none">{{ job.updated_at|date:"Y m d z" }}</span>
+              {{ job.updated_at }}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
 
-      <div>
-        <h6>Total Applicants:</h6>
-        <span>{{ user.total_applicants }}</span>
-      </div>
-    </div>
   </div>
+
 </div>
 
 <div class="mt-5">
-  <table
-    class="table table-bordered table-hover table-striped table-responsive-md text-center"
-    data-toggle="table"
-    data-sortable="true"
-    data-classes=""
-    data-pagination="true"
-    data-search="true"
-    data-page-size="50"
-    data-page-list="[50, 100, 200, all]"
-    data-show-export="true"
-    data-show-columns="true"
-    data-export-types="['csv']"
-  >
-    <thead>
-      <tr>
-        <th data-sortable="true">Job ID</th>
-        <th data-sortable="true">Year</th>
-        <th data-sortable="true">Term</th>
-        <th data-sortable="true">Job</th>
-        <th>Applicants</th>
-        <th data-sortable="true">Active</th>
-        <th data-sortable="true">Created at</th>
-        <th data-sortable="true">Updated at</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for job in user.job_set.all %}
-        <tr>
-          <td>{{ job.id }}</td>
-          <td>{{ job.session.year }}</td>
-          <td>{{ job.session.term.code }}</td>
-          <td>{{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</td>
-          <td>
-            {% for app in job.application_set.all %}
-              {% include 'ta_app/users/_modal_user_details.html' with data=app.applicant %}<br />
-            {% empty %}
-              No applicants
-            {% endfor %}
-          </td>
-          <td>{% include 'ta_app/jobs/_job_is_active.html' with data=job %}</td>
-          <td>
-            <span class="d-none">{{ job.created_at|date:"Y m d z" }}</span>
-            {{ job.created_at }}
-          </td>
-          <td>
-            <span class="d-none">{{ job.updated_at|date:"Y m d z" }}</span>
-            {{ job.updated_at }}
-          </td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+
 </div>
 
 {% endblock %}

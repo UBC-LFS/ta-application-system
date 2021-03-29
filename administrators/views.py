@@ -265,6 +265,27 @@ def show_session(request, session_slug):
         'next': adminApi.get_next(request)
     })
 
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def show_report(request, session_slug):
+    ''' Display session summary including applicant information '''
+    request = userApi.has_admin_access(request)
+    adminApi.can_req_parameters_access(request, 'session', ['next', 'p'])
+
+    session = adminApi.get_session(session_slug, 'slug')
+
+    applicants, total_accepted_applicants = adminApi.add_applied_apps_to_applicants(session)
+    return render(request, 'administrators/sessions/show_report.html', {
+        'loggedin_user': request.user,
+        'session': session,
+        'applicants': applicants,
+        'total_accepted_applicants': total_accepted_applicants,
+        'next': adminApi.get_next(request)
+    })
+
+
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET', 'POST'])
@@ -587,13 +608,20 @@ def student_jobs_details(request, username):
 
     user = userApi.get_user(username, 'username')
     apps = user.application_set.all()
-    apps = adminApi.add_app_info_into_applications(apps, ['offered', 'accepted'])
+    apps = adminApi.add_app_info_into_applications(apps, ['offered', 'accepted', 'declined'])
 
     offered_apps = []
     accepted_apps = []
     for app in apps:
-        if app.offered: offered_apps.append(app)
-        if app.accepted: accepted_apps.append(app)
+        if app.offered:
+            offered_apps.append(app)
+
+        if app.accepted:
+            if app.is_declined_reassigned:
+                if app.accepted.id > app.declined.id: accepted_apps.append(app)
+            else:
+                accepted_apps.append(app)
+
 
     return render(request, 'administrators/jobs/student_jobs_details.html', {
         'loggedin_user': request.user,
@@ -1269,7 +1297,7 @@ def import_accepted_apps(request):
 
         data = StringIO(file.read().decode())
         result, msg = adminApi.bulk_update_admin_docs(data, request.user)
-        #print('import_accepted_apps', result, msg)
+        
         if result:
             if len(msg) > 0:
                 messages.success( request, 'Success! Updated the following fields in Admin Docs through CSV. {0}'.format(msg) )

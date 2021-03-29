@@ -142,6 +142,15 @@ main {
   font-size: 0.8rem;
 }
 
+.modal-table > thead > tr {
+  background-color: #fff !important;
+}
+
+.modal-table th,
+.modal-table td {
+  padding: 0.75rem !important;
+}
+
 .left-content {
   border: 1px solid #e6e6e6;
   border-radius: 4px;
@@ -568,41 +577,42 @@ table tbody td {
   vertical-align: middle !important;
 }
 
-.sortable-table thead tr {
+.sortable-table > thead > tr {
   height: 90px;
 }
 
-.sortable-table thead .sortable {
+.sortable-table > thead .sortable {
   position: relative;
   cursor: pointer;
 }
 
-.sortable-table thead .sortable > .sort-icon {
+.sortable-table > thead .sortable > .sort-icon {
   position: absolute;
   left: 0;
   right: 0;
   bottom: 7px;
 }
+
+.sortable-table > thead .sortable .fa {
+  color: #aba9a9;
+}
+
+.sortable-table > thead .sortable .fa-sort-numeric-asc,
+.sortable-table > thead .sortable .fa-sort-alpha-asc {
+  color: #dc3545;
+}
+
+.sortable-table > thead .sortable .fa-sort-numeric-desc,
+.sortable-table > thead .sortable .fa-sort-alpha-desc {
+  color: #007bff;
+}
+
 input[type=checkbox] {
   vertical-align: middle;
 }
 
-/*.fa {
+.fa.vertical-middle {
   vertical-align: middle;
-}*/
-
-.sortable-table thead .sortable .fa {
-  color: #aba9a9;
-}
-
-.sortable-table thead .sortable .fa-sort-numeric-asc,
-.sortable-table thead .sortable .fa-sort-alpha-asc {
-  color: #dc3545;
-}
-
-.sortable-table thead .sortable .fa-sort-numeric-desc,
-.sortable-table thead .sortable .fa-sort-alpha-desc {
-  color: #007bff;
 }
 
 .recent-applied-jobs {

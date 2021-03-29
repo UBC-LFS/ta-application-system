@@ -286,10 +286,13 @@ def show_applications(request, session_slug, job_slug):
             if selected.exists():
                 app.selected = selected.last()
 
+            app.applicant = adminApi.get_applicant_status(app.job.session.year, app.job.session.term.code, app.applicant)
+
     return render(request, 'instructors/jobs/show_applications.html', {
         'loggedin_user': request.user,
         'job': job,
         'apps': apps,
+        'full_job_name': job.course.code.name + '_' + job.course.number.name + '_' + job.course.section.name,
         'instructor_preference_choices': Application.INSTRUCTOR_PREFERENCE_CHOICES,
         'app_status': APP_STATUS,
         'next': adminApi.get_next(request)

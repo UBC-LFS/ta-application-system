@@ -39,6 +39,7 @@
         <th data-sortable="true">Is archived</th>
         <th data-sortable="true">Created at</th>
         <th data-sortable="true">Updated at</th>
+        <th>Report</th>
         <th>Actions</th>
       </tr>
     </thead>
@@ -61,6 +62,9 @@
           <td>
             <span class="d-none">{{ app.created_at|date:"Y m d z" }}</span>
             {{ session.updated_at }}
+          </td>
+          <td>
+            <a href="{% url 'administrators:show_report' session_slug=session.slug %}?next={{ new_next }}&p=Current Sessions">View</a>
           </td>
           <td>
             <div class="btn-toolbar">

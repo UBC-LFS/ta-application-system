@@ -194,11 +194,11 @@ def available_session(session_slug):
         raise PermissionDenied
 
 def get_sessions_by_year(year):
-    """ Get sessions by year """
+    ''' Get sessions by year '''
     return Session.objects.filter(year=year)
 
 def session_exists(session_id):
-    """ Check a session exists """
+    ''' Check a session exists '''
     if Session.objects.filter(id=session_id).exists():
         return True
     return False
@@ -244,12 +244,72 @@ def update_session_jobs(session, courses):
             return None
 
 def add_num_instructors(sessions):
+    ''' Add a number of instructors to sessions'''
     for session in sessions:
         count = 0
         for job in session.job_set.all():
             if job.instructors.count() > 0: count += 1
         session.num_instructors = count
     return sessions
+
+def get_applicant_status(year, term_code, applicant):
+    ''' Get applicant's status '''
+
+    applicant.has_applied = False
+    apps = applicant.application_set.filter( Q(job__session__year=year) & Q(job__session__term__code=term_code) )
+
+    if apps.count() > 0:
+        applicant.has_applied = True
+        applicant.accepted_apps = []
+
+        for app in apps:
+            app = add_app_info_into_application(app, ['accepted', 'declined'])
+            app.full_course_name = app.job.course.code.name + '_' + app.job.course.number.name + '_' + app.job.course.section.name
+            
+            if app.accepted:
+                if app.is_declined_reassigned == True:
+                    if app.accepted.id > app.declined.id:
+                        applicant.accepted_apps.append(app)
+                else:
+                    applicant.accepted_apps.append(app)
+
+    return applicant
+
+
+def add_applied_apps_to_applicants(session):
+    ''' Add applied applications to applicants in the session '''
+
+    students = User.objects.filter(profile__roles__name=Role.STUDENT)
+    total_accepted_applicants = 0
+
+    applicants = []
+    for student in students:
+        student.has_applied = False
+        apps = student.application_set.filter( Q(job__session__year=session.year) & Q(job__session__term__code=session.term.code) )
+
+        if apps.count() > 0:
+            student.has_applied = True
+            student.accepted_apps = []
+
+            for app in apps:
+                app = add_app_info_into_application(app, ['accepted', 'declined'])
+                if app.accepted:
+                    valid_accepted = False
+                    if app.is_declined_reassigned == True:
+                        if app.accepted.id > app.declined.id:
+                            student.accepted_apps.append(app)
+                            valid_accepted = True
+                    else:
+                        student.accepted_apps.append(app)
+                        valid_accepted = True
+
+                    if valid_accepted:
+                        total_accepted_applicants += 1
+
+            applicants.append(student)
+
+    return applicants, total_accepted_applicants
+
 
 
 # end sessions
@@ -494,6 +554,7 @@ def get_total_assigned_hours(apps, list):
 
         if 'accepted' in list:
             accepted = app.applicationstatus_set.filter(assigned=ApplicationStatus.ACCEPTED)
+
             if accepted.exists():
                 can_add = True
 
@@ -502,8 +563,11 @@ def get_total_assigned_hours(apps, list):
                     can_add = False
 
                 declined = app.applicationstatus_set.filter(assigned=ApplicationStatus.DECLINED)
-                if declined.exists() and declined.last().parent_id == None:
-                    can_add = False
+
+                # check whether the app is declined and reassigned
+                if app.is_declined_reassigned == True:
+                    if declined.exists() and accepted.last().id < declined.last().id:
+                        can_add = False
 
                 if can_add == True:
                     year_term = '{0}-{1}'.format(app.job.session.year, app.job.session.term.code)

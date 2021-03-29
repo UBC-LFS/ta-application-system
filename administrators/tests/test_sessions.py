@@ -154,7 +154,9 @@ class SessionTest(TestCase):
     def test_show_session(self):
         print('- Test: show a session')
         self.login()
+
         session = adminApi.get_session(SESSION, 'slug')
+
         response = self.client.get(reverse('administrators:show_session', args=[session.slug]))
         self.assertEqual(response.status_code, 404)
 
@@ -175,6 +177,41 @@ class SessionTest(TestCase):
         self.assertEqual(response.context['loggedin_user'].username, USERS[0])
         self.assertEqual(response.context['session'].id, session.id)
         self.assertEqual(response.context['session'].slug, SESSION)
+        self.assertEqual(response.context['next'], CURRENT_NEXT)
+
+
+    def test_view_report(self):
+        print('- Test: view a report')
+        self.login()
+
+        session = adminApi.get_session(SESSION, 'slug')
+
+        response = self.client.get(reverse('administrators:show_report', args=[session.slug]) + CURRENT_SESSION)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['loggedin_user'].username, USERS[0])
+        self.assertEqual(response.context['session'].id, session.id)
+        self.assertEqual(response.context['session'].slug, SESSION)
+        self.assertEqual(response.context['total_accepted_applicants'], 3)
+        self.assertEqual(response.context['next'], CURRENT_NEXT)
+
+        applicants = [
+            { 'username': 'user65.test' },
+            { 'username': 'user66.test' },
+            { 'username': 'user70.test', 'accepted_apps': ['APBI 200 002 (65.0 hours)'] },
+            { 'username': 'user80.test' },
+            { 'username': 'user100.test', 'accepted_apps': ['APBI 200 001 (30.0 hours)', 'APBI 260 001 (70.0 hours)'] }
+        ]
+
+        c = 0
+        for applicant in response.context['applicants']:
+            self.assertEqual(applicant.username, applicants[c]['username'])
+
+            if len(applicant.accepted_apps) > 0:
+                d = 0
+                for accepted_app in applicant.accepted_apps:
+                    self.assertEqual(accepted_app.job.course.code.name + ' ' + accepted_app.job.course.number.name + ' ' + accepted_app.job.course.section.name + ' ('+ str(accepted_app.accepted.assigned_hours) + ' hours)', applicants[c]['accepted_apps'][d])
+                    d += 1
+            c += 1
 
 
     def test_create_session(self):

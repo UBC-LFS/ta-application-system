@@ -373,6 +373,29 @@ class JobTest(TestCase):
         self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
         self.assertEqual(response.context['user'].username, USERS[2])
 
+        offered_app_ids = [1, 22, 24, 25]
+        self.assertEqual(len(response.context['offered_apps']), 4)
+
+        c1 = 0
+        for app in response.context['offered_apps']:
+            self.assertEqual(app.id, offered_app_ids[c1])
+            c1 += 1
+
+        accepted_app_ids = [1, 22, 24]
+        self.assertEqual(len(response.context['accepted_apps']), 3)
+
+        c2 = 0
+        for app in response.context['accepted_apps']:
+            self.assertEqual(app.id, accepted_app_ids[c2])
+            c2 += 1
+
+        self.assertEqual(response.context['tab_urls']['all'], '/administrators/students/user100.test/jobs/?next=/administrators/jobs/student/?page=2&p=Jobs by Student&t=all')
+        self.assertEqual(response.context['tab_urls']['offered'], '/administrators/students/user100.test/jobs/?next=/administrators/jobs/student/?page=2&p=Jobs by Student&t=offered')
+        self.assertEqual(response.context['tab_urls']['accepted'], '/administrators/students/user100.test/jobs/?next=/administrators/jobs/student/?page=2&p=Jobs by Student&t=accepted')
+        self.assertEqual(response.context['current_tab'], 'all')
+        self.assertEqual(response.context['app_status'], {'none': '0', 'applied': '0', 'selected': '1', 'offered': '2', 'accepted': '3', 'declined': '4', 'cancelled': '5'})
+        self.assertEqual(response.context['next'], '/administrators/jobs/student/?page=2')
+
         apps = response.context['apps']
         num_offered = 0
         num_accepted = 0

@@ -78,7 +78,7 @@
             	<div class="modal-dialog modal-lg" role="document">
             	  <div class="modal-content">
               		<div class="modal-header">
-              		  <h5 class="modal-title" id="email-modal-label-{{ email.id }}">Sent an email to {{ email.receiver }}</h5>
+              		  <h5 class="modal-title text-info" id="email-modal-label-{{ email.id }}">Sent an email to {{ email.receiver }}</h5>
               		  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
               		</div>
               		<div class="modal-body text-left">
@@ -114,7 +114,7 @@
             {% include 'ta_app/applications/_modal_app_status.html' with data=email.application %}
 
             {% if email.application.offered and not email.application.accepted and not email.application.declined %}
-              <i class="fa fa-question-circle text-warning font-size-1" aria-hidden="true"></i>
+              <i class="fa fa-question-circle text-warning font-size-1 vertical-middle" aria-hidden="true"></i>
             {% endif %}
           </td>
           <td>
