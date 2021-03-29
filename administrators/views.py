@@ -608,7 +608,7 @@ def student_jobs_details(request, username):
 
     user = userApi.get_user(username, 'username')
     apps = user.application_set.all()
-    apps = adminApi.add_app_info_into_applications(apps, ['offered', 'accepted', 'declined'])
+    apps = adminApi.add_app_info_into_applications(apps, ['offered', 'accepted', 'declined', 'cancelled'])
 
     offered_apps = []
     accepted_apps = []
@@ -619,9 +619,10 @@ def student_jobs_details(request, username):
         if app.accepted:
             if app.is_declined_reassigned:
                 if app.accepted.id > app.declined.id: accepted_apps.append(app)
+            elif app.is_terminated:
+                if app.cancelled == None: accepted_apps.append(app)
             else:
                 accepted_apps.append(app)
-
 
     return render(request, 'administrators/jobs/student_jobs_details.html', {
         'loggedin_user': request.user,
@@ -1297,7 +1298,7 @@ def import_accepted_apps(request):
 
         data = StringIO(file.read().decode())
         result, msg = adminApi.bulk_update_admin_docs(data, request.user)
-        
+
         if result:
             if len(msg) > 0:
                 messages.success( request, 'Success! Updated the following fields in Admin Docs through CSV. {0}'.format(msg) )

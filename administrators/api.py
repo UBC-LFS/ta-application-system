@@ -263,13 +263,14 @@ def get_applicant_status(year, term_code, applicant):
         applicant.accepted_apps = []
 
         for app in apps:
-            app = add_app_info_into_application(app, ['accepted', 'declined'])
+            app = add_app_info_into_application(app, ['accepted', 'declined', 'cancelled'])
             app.full_course_name = app.job.course.code.name + '_' + app.job.course.number.name + '_' + app.job.course.section.name
-            
+
             if app.accepted:
                 if app.is_declined_reassigned == True:
-                    if app.accepted.id > app.declined.id:
-                        applicant.accepted_apps.append(app)
+                    if app.accepted.id > app.declined.id: applicant.accepted_apps.append(app)
+                elif app.is_terminated == True:
+                    if app.cancelled == None: applicant.accepted_apps.append(app)
                 else:
                     applicant.accepted_apps.append(app)
 
@@ -292,11 +293,15 @@ def add_applied_apps_to_applicants(session):
             student.accepted_apps = []
 
             for app in apps:
-                app = add_app_info_into_application(app, ['accepted', 'declined'])
+                app = add_app_info_into_application(app, ['accepted', 'declined', 'cancelled'])
                 if app.accepted:
                     valid_accepted = False
-                    if app.is_declined_reassigned == True:
+                    if app.is_declined_reassigned:
                         if app.accepted.id > app.declined.id:
+                            student.accepted_apps.append(app)
+                            valid_accepted = True
+                    elif app.is_terminated:
+                        if app.cancelled == None:
                             student.accepted_apps.append(app)
                             valid_accepted = True
                     else:
@@ -558,16 +563,17 @@ def get_total_assigned_hours(apps, list):
             if accepted.exists():
                 can_add = True
 
-                cancelled = app.applicationstatus_set.filter(assigned=ApplicationStatus.CANCELLED)
-                if app.is_terminated == True and cancelled.exists() == True:
-                    can_add = False
-
                 declined = app.applicationstatus_set.filter(assigned=ApplicationStatus.DECLINED)
+                cancelled = app.applicationstatus_set.filter(assigned=ApplicationStatus.CANCELLED)
 
                 # check whether the app is declined and reassigned
-                if app.is_declined_reassigned == True:
-                    if declined.exists() and accepted.last().id < declined.last().id:
+                if app.is_declined_reassigned == True and declined.exists() == True:
+                    if accepted.last().id < declined.last().id:
                         can_add = False
+
+                # To check whether the app is terminated or not
+                if app.is_terminated == True and cancelled.exists() == True:
+                    can_add = False
 
                 if can_add == True:
                     year_term = '{0}-{1}'.format(app.job.session.year, app.job.session.term.code)
