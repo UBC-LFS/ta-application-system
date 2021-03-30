@@ -59,12 +59,25 @@ def report_accepted_applications(request):
     if bool(student_number_q):
         app_list = app_list.filter(applicant__profile__student_number__icontains=student_number_q)
 
-    app_list = app_list.filter( Q(applicationstatus__assigned=ApplicationStatus.ACCEPTED) & Q(is_terminated=False) ).order_by('-id').distinct()
-    app_list = adminApi.add_app_info_into_applications(app_list, ['accepted', 'declined'])
-    app_list = [ app for app in app_list if (app.declined == None) or (app.declined != None and app.accepted.id > app.declined.id) ]
+    #app_list = app_list.filter( Q(applicationstatus__assigned=ApplicationStatus.ACCEPTED) & Q(is_terminated=False) ).order_by('-id').distinct()
+    #app_list = adminApi.add_app_info_into_applications(app_list, ['accepted', 'declined'])
+    #app_list = [ app for app in app_list if (app.declined == None) or (app.declined != None and app.accepted.id > app.declined.id) ]
+    app_list = app_list.filter(applicationstatus__assigned=ApplicationStatus.ACCEPTED).order_by('-id').distinct()
+    app_list = adminApi.add_app_info_into_applications(app_list, ['accepted', 'declined', 'cancelled'])
+
+    filtered_app_list = []
+    for app in app_list:
+        filtered_app_list, _, _ = adminApi.valid_accepted_app(filtered_app_list, app)
+        """if app.is_terminated == False or app.cancelled == None:
+            if app.is_declined_reassigned:
+                latest_status = adminApi.get_latest_status_in_app(app)
+                if (latest_status == 'declined' and app.declined.parent_id != None) or (latest_status == 'accepted'):
+                    filtered_app_list.append(app)
+            else:
+                filtered_app_list.append(app)"""
 
     page = request.GET.get('page', 1)
-    paginator = Paginator(app_list, settings.PAGE_SIZE)
+    paginator = Paginator(filtered_app_list, settings.PAGE_SIZE)
 
     try:
     	apps = paginator.page(page)
@@ -78,5 +91,5 @@ def report_accepted_applications(request):
     return render(request, 'observers/report_accepted_applications.html', {
         'loggedin_user': request.user,
         'apps': apps,
-        'total_apps': len(app_list)
+        'total_apps': len(filtered_app_list)
     })

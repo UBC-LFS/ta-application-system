@@ -275,8 +275,8 @@ def show_report(request, session_slug):
     adminApi.can_req_parameters_access(request, 'session', ['next', 'p'])
 
     session = adminApi.get_session(session_slug, 'slug')
-
     applicants, total_accepted_applicants = adminApi.add_applied_apps_to_applicants(session)
+
     return render(request, 'administrators/sessions/show_report.html', {
         'loggedin_user': request.user,
         'session': session,
@@ -616,13 +616,16 @@ def student_jobs_details(request, username):
         if app.offered:
             offered_apps.append(app)
 
-        if app.accepted:
-            if app.is_declined_reassigned:
-                if app.accepted.id > app.declined.id: accepted_apps.append(app)
-            elif app.is_terminated:
-                if app.cancelled == None: accepted_apps.append(app)
-            else:
-                accepted_apps.append(app)
+        accepted_apps, _, _ = adminApi.valid_accepted_app(accepted_apps, app)
+
+        """if app.accepted:
+            if app.is_terminated == False or app.cancelled == None:
+                if app.is_declined_reassigned:
+                    latest_status = adminApi.get_latest_status_in_app(app)
+                    if (latest_status == 'declined' and app.declined.parent_id != None) or (latest_status == 'accepted'):
+                        accepted_apps.append(app)
+                else:
+                    accepted_apps.append(app)"""
 
     return render(request, 'administrators/jobs/student_jobs_details.html', {
         'loggedin_user': request.user,
@@ -1852,12 +1855,15 @@ def report_accepted_applications(request):
     if bool(student_number_q):
         app_list = app_list.filter(applicant__profile__student_number__icontains=student_number_q)
 
-    app_list = app_list.filter( Q(applicationstatus__assigned=ApplicationStatus.ACCEPTED) & Q(is_terminated=False) ).order_by('-id').distinct()
-    app_list = adminApi.add_app_info_into_applications(app_list, ['accepted', 'declined'])
-    app_list = [ app for app in app_list if (app.declined == None) or (app.declined != None and app.accepted.id > app.declined.id) ]
+    app_list = app_list.filter(applicationstatus__assigned=ApplicationStatus.ACCEPTED).order_by('-id').distinct()
+    app_list = adminApi.add_app_info_into_applications(app_list, ['accepted', 'declined', 'cancelled'])
+
+    filtered_app_list = []
+    for app in app_list:
+        filtered_app_list, _, _ = adminApi.valid_accepted_app(filtered_app_list, app)
 
     page = request.GET.get('page', 1)
-    paginator = Paginator(app_list, settings.PAGE_SIZE)
+    paginator = Paginator(filtered_app_list, settings.PAGE_SIZE)
 
     try:
     	apps = paginator.page(page)
@@ -1869,7 +1875,7 @@ def report_accepted_applications(request):
     return render(request, 'administrators/applications/report_accepted_applications.html', {
         'loggedin_user': request.user,
         'apps': apps,
-        'total_apps': len(app_list)
+        'total_apps': len(filtered_app_list)
     })
 
 
