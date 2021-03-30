@@ -85,4 +85,19 @@ class ObserverTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, USER)
         self.assertEqual(response.context['loggedin_user'].roles, ['Observer'])
-        self.assertEqual(response.context['total_apps'], 4)
+        self.assertEqual(response.context['total_apps'], 6)
+
+        apps = [
+            { 'id': 24, 'info': '2019_W2_APBI_260_001_user100.test' },
+            { 'id': 22, 'info': '2019_W1_APBI_260_001_user100.test' },
+            { 'id': 11, 'info': '2019_W1_APBI_200_002_user70.test' },
+            { 'id': 8, 'info': '2019_W2_APBI_200_001_user66.test' },
+            { 'id': 7, 'info': '2019_W1_APBI_260_001_user66.test' },
+            { 'id': 1, 'info': '2019_W1_APBI_200_001_user100.test' }
+        ]
+
+        c = 0
+        for app in response.context['apps']:
+            self.assertEqual(app.id, apps[c]['id'])
+            self.assertEqual(app.job.session.year + '_' + app.job.session.term.code + '_' + app.job.course.code.name + '_' + app.job.course.number.name + '_' + app.job.course.section.name + '_' + app.applicant.username, apps[c]['info'])
+            c += 1

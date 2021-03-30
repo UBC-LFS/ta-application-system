@@ -191,14 +191,15 @@ class SessionTest(TestCase):
         self.assertEqual(response.context['loggedin_user'].username, USERS[0])
         self.assertEqual(response.context['session'].id, session.id)
         self.assertEqual(response.context['session'].slug, SESSION)
-        self.assertEqual(response.context['total_accepted_applicants'], 3)
+        self.assertEqual(len(response.context['applicants']), 5)
+        self.assertEqual(response.context['total_accepted_applicants'], 4)
         self.assertEqual(response.context['next'], CURRENT_NEXT)
 
         applicants = [
-            { 'username': 'user65.test' },
-            { 'username': 'user66.test' },
+            { 'username': 'user65.test', 'accepted_apps': [] },
+            { 'username': 'user66.test', 'accepted_apps': ['APBI 260 001 (45.0 hours)'] },
             { 'username': 'user70.test', 'accepted_apps': ['APBI 200 002 (65.0 hours)'] },
-            { 'username': 'user80.test' },
+            { 'username': 'user80.test', 'accepted_apps': [] },
             { 'username': 'user100.test', 'accepted_apps': ['APBI 200 001 (30.0 hours)', 'APBI 260 001 (70.0 hours)'] }
         ]
 

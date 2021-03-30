@@ -382,9 +382,9 @@ class InstructorTest(TestCase):
         self.assertEqual(response.context['next'], '/instructors/jobs/?page=2')
 
         applications = [
-            { 'id': 6 },
+            { 'id': 6, 'accepted_apps': ['APBI 260 001 (45.0 hours)'] },
             { 'id': 11, 'accepted_apps': ['APBI 200 002 (65.0 hours)'] },
-            { 'id': 16 },
+            { 'id': 16, 'accepted_apps': [] },
             { 'id': 21, 'accepted_apps': ['APBI 200 001 (30.0 hours)', 'APBI 260 001 (70.0 hours)'] }
         ]
 

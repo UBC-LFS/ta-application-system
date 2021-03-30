@@ -336,8 +336,8 @@ class JobTest(TestCase):
         self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
         self.assertEqual(response.context['user'].username, USERS[1])
 
-    def test_student_jobs_details(self):
-        print('- Test: display jobs that a student has')
+    def test_student_jobs_details1(self):
+        print('- Test: display jobs that a student has - user100.test')
         self.login()
 
         response = self.client.get( reverse('administrators:student_jobs_details', args=[ USERS[2] ]) + '?next=/administrators/jobs/student/?page=2' )
@@ -409,3 +409,53 @@ class JobTest(TestCase):
         self.assertEqual(len(apps), 7)
         self.assertEqual(num_offered, 4)
         self.assertEqual(num_accepted, 3)
+
+
+    def test_student_jobs_details2(self):
+        print('- Test: display jobs that a student has - user66.test')
+        self.login()
+
+        user = userApi.get_user('user66.test', 'username')
+
+        response = self.client.get( reverse('administrators:student_jobs_details', args=[ user.username ]) + STUDENT_JOB )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['loggedin_user'].username, USERS[0])
+        self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
+        self.assertEqual(response.context['user'].username, user.username)
+
+        offered_app_ids = [7, 8]
+        self.assertEqual(len(response.context['offered_apps']), 2)
+
+        c1 = 0
+        for app in response.context['offered_apps']:
+            self.assertEqual(app.id, offered_app_ids[c1])
+            c1 += 1
+
+        accepted_app_ids = [7, 8]
+        self.assertEqual(len(response.context['accepted_apps']), 2)
+
+        c2 = 0
+        for app in response.context['accepted_apps']:
+            self.assertEqual(app.id, accepted_app_ids[c2])
+            c2 += 1
+
+        self.assertEqual(response.context['tab_urls']['all'], '/administrators/students/user66.test/jobs/?next=/administrators/jobs/student/?page=2&p=Jobs by Student&t=all')
+        self.assertEqual(response.context['tab_urls']['offered'], '/administrators/students/user66.test/jobs/?next=/administrators/jobs/student/?page=2&p=Jobs by Student&t=offered')
+        self.assertEqual(response.context['tab_urls']['accepted'], '/administrators/students/user66.test/jobs/?next=/administrators/jobs/student/?page=2&p=Jobs by Student&t=accepted')
+        self.assertEqual(response.context['current_tab'], 'all')
+        self.assertEqual(response.context['app_status'], {'none': '0', 'applied': '0', 'selected': '1', 'offered': '2', 'accepted': '3', 'declined': '4', 'cancelled': '5'})
+        self.assertEqual(response.context['next'], '/administrators/jobs/student/?page=2')
+
+        apps = response.context['apps']
+        num_offered = 0
+        num_accepted = 0
+        for app in apps:
+            if app.offered is not None: num_offered += 1
+            if app.accepted is not None: num_accepted += 1
+
+        total_assigned_hours = response.context['total_assigned_hours']
+        self.assertEqual( total_assigned_hours['offered'], {'2019-W1': 45.0, '2019-W2': 30.0} )
+        self.assertEqual( total_assigned_hours['accepted'], {'2019-W1': 45.0, '2019-W2': 30.0} )
+        self.assertEqual(len(apps), 5)
+        self.assertEqual(num_offered, 2)
+        self.assertEqual(num_accepted, 2)
