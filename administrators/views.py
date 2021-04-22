@@ -186,6 +186,8 @@ def current_sessions(request):
     ''' Display all information of sessions and create a session '''
     request = userApi.has_admin_access(request)
 
+    request.session['next_session'] = adminApi.build_new_next(request)
+
     year_q = request.GET.get('year')
     term_q = request.GET.get('term')
 
@@ -221,6 +223,8 @@ def current_sessions(request):
 def archived_sessions(request):
     ''' Display all information of sessions and create a session '''
     request = userApi.has_admin_access(request)
+
+    request.session['next_session'] = adminApi.build_new_next(request)
 
     year_q = request.GET.get('year')
     term_q = request.GET.get('term')
@@ -272,17 +276,59 @@ def show_session(request, session_slug):
 def show_report(request, session_slug):
     ''' Display session summary including applicant information '''
     request = userApi.has_admin_access(request)
-    adminApi.can_req_parameters_access(request, 'session', ['next', 'p'])
+    #adminApi.can_req_parameters_access(request, 'session', ['next', 'p'])
 
     session = adminApi.get_session(session_slug, 'slug')
-    applicants, total_accepted_applicants = adminApi.add_applied_apps_to_applicants(session)
+
+    applicants = User.objects.filter( Q(profile__roles__name='Student') & Q(application__job__session__year=session.year) & Q(application__job__session__term__code=session.term.code) ).order_by('last_name', 'first_name').distinct()
+    total_applicants = applicants.count()
+
+    first_name_q = request.GET.get('first_name')
+    last_name_q = request.GET.get('last_name')
+    cwl_q = request.GET.get('cwl')
+    student_number_q = request.GET.get('student_number')
+
+    if bool(first_name_q):
+        applicants = applicants.filter(first_name__icontains=first_name_q)
+    if bool(last_name_q):
+        applicants = applicants.filter(last_name__icontains=last_name_q)
+    if bool(cwl_q):
+        applicants = applicants.filter(username__icontains=cwl_q)
+    if bool(student_number_q):
+        applicants = applicants.filter(profile__student_number__icontains=student_number_q)
+
+    page = request.GET.get('page', 1)
+    paginator = Paginator(applicants, settings.PAGE_SIZE)
+
+    try:
+        applicants = paginator.page(page)
+    except PageNotAnInteger:
+        applicants = paginator.page(1)
+    except EmptyPage:
+        applicants = paginator.page(paginator.num_pages)
+
+    for applicant in applicants:
+        applicant.has_applied = False
+        apps = applicant.application_set.filter( Q(job__session__year=session.year) & Q(job__session__term__code=session.term.code) )
+
+        if apps.count() > 0:
+            applicant.has_applied = True
+            applicant.accepted_apps = []
+            for app in apps:
+                applicant.accepted_apps, _, _ = adminApi.valid_accepted_app(applicant.accepted_apps, app, 0)
+
+
+    back_to_word = 'Current Sessions'
+    if 'archived' in request.session.get('next_session', None):
+        back_to_word = 'Archived Sessions'
 
     return render(request, 'administrators/sessions/show_report.html', {
         'loggedin_user': request.user,
         'session': session,
+        'total_applicants': total_applicants,
         'applicants': applicants,
-        'total_accepted_applicants': total_accepted_applicants,
-        'next': adminApi.get_next(request)
+        'next_session': request.session.get('next_session', None),
+        'back_to_word': back_to_word
     })
 
 
@@ -618,15 +664,6 @@ def student_jobs_details(request, username):
 
         accepted_apps, _, _ = adminApi.valid_accepted_app(accepted_apps, app)
 
-        """if app.accepted:
-            if app.is_terminated == False or app.cancelled == None:
-                if app.is_declined_reassigned:
-                    latest_status = adminApi.get_latest_status_in_app(app)
-                    if (latest_status == 'declined' and app.declined.parent_id != None) or (latest_status == 'accepted'):
-                        accepted_apps.append(app)
-                else:
-                    accepted_apps.append(app)"""
-
     return render(request, 'administrators/jobs/student_jobs_details.html', {
         'loggedin_user': request.user,
         'user': userApi.add_avatar(user),
@@ -842,8 +879,6 @@ def applications_dashboard(request):
     except EmptyPage:
         statuses = paginator.page(paginator.num_pages)
 
-
-
     return render(request, 'administrators/applications/applications_dashboard.html', {
         'loggedin_user': request.user,
         'statuses': statuses,
@@ -859,32 +894,10 @@ def all_applications(request):
     ''' Display all applications '''
     request = userApi.has_admin_access(request)
 
-    year_q = request.GET.get('year')
-    term_q = request.GET.get('term')
-    code_q = request.GET.get('code')
-    number_q = request.GET.get('number')
-    section_q = request.GET.get('section')
-    first_name_q = request.GET.get('first_name')
-    last_name_q = request.GET.get('last_name')
-
-    app_list = adminApi.get_applications()
-    if bool(year_q):
-        app_list = app_list.filter(job__session__year__icontains=year_q)
-    if bool(term_q):
-        app_list = app_list.filter(job__session__term__code__icontains=term_q)
-    if bool(code_q):
-        app_list = app_list.filter(job__course__code__name__icontains=code_q)
-    if bool(number_q):
-        app_list = app_list.filter(job__course__number__name__icontains=number_q)
-    if bool(section_q):
-        app_list = app_list.filter(job__course__section__name__icontains=section_q)
-    if bool(first_name_q):
-        app_list = app_list.filter(applicant__first_name__icontains=first_name_q)
-    if bool(last_name_q):
-        app_list = app_list.filter(applicant__last_name__icontains=last_name_q)
+    apps, info = adminApi.get_applications_filter_limit(request, 'all')
 
     page = request.GET.get('page', 1)
-    paginator = Paginator(app_list, settings.PAGE_SIZE)
+    paginator = Paginator(apps, settings.PAGE_SIZE)
 
     try:
         apps = paginator.page(page)
@@ -896,7 +909,7 @@ def all_applications(request):
     return render(request, 'administrators/applications/all_applications.html', {
         'loggedin_user': request.user,
         'apps': apps,
-        'total_apps': len(app_list),
+        'num_filtered_apps': info['num_filtered_apps'],
         'new_next': adminApi.build_new_next(request)
     })
 
@@ -945,44 +958,10 @@ def selected_applications(request):
 
         return HttpResponseRedirect(request.POST.get('next'))
     else:
-        year_q = request.GET.get('year')
-        term_q = request.GET.get('term')
-        code_q = request.GET.get('code')
-        number_q = request.GET.get('number')
-        section_q = request.GET.get('section')
-        first_name_q = request.GET.get('first_name')
-        last_name_q = request.GET.get('last_name')
-        offered_q = request.GET.get('offered')
-        not_offered_q = request.GET.get('not_offered')
-
-        app_list = adminApi.get_applications()
-
-        if bool(year_q):
-            app_list = app_list.filter(job__session__year__icontains=year_q)
-        if bool(term_q):
-            app_list = app_list.filter(job__session__term__code__icontains=term_q)
-        if bool(code_q):
-            app_list = app_list.filter(job__course__code__name__icontains=code_q)
-        if bool(number_q):
-            app_list = app_list.filter(job__course__number__name__icontains=number_q)
-        if bool(section_q):
-            app_list = app_list.filter(job__course__section__name__icontains=section_q)
-        if bool(first_name_q):
-            app_list = app_list.filter(applicant__first_name__icontains=first_name_q)
-        if bool(last_name_q):
-            app_list = app_list.filter(applicant__last_name__icontains=last_name_q)
-        if bool(offered_q):
-            app_list = app_list.filter(applicationstatus__assigned=ApplicationStatus.OFFERED)
-        if bool(not_offered_q):
-            app_list = app_list.filter( ~Q(applicationstatus__assigned=ApplicationStatus.OFFERED) )
-
-        app_list = app_list.filter(applicationstatus__assigned=ApplicationStatus.SELECTED).order_by('-id').distinct()
-        app_list = [ app for app in app_list if app.applicationstatus_set.filter(assigned=ApplicationStatus.NONE).count() == app.applicationstatus_set.filter(assigned=ApplicationStatus.SELECTED).count() ]
-
-        app_list = adminApi.add_app_info_into_applications(app_list, ['resume', 'selected', 'offered', 'declined'])
+        apps, info = adminApi.get_applications_filter_limit(request, 'selected')
 
         page = request.GET.get('page', 1)
-        paginator = Paginator(app_list, settings.PAGE_SIZE)
+        paginator = Paginator(apps, settings.PAGE_SIZE)
 
         try:
             apps = paginator.page(page)
@@ -991,7 +970,15 @@ def selected_applications(request):
         except EmptyPage:
             apps = paginator.page(paginator.num_pages)
 
+        apps = adminApi.add_app_info_into_applications(apps, ['resume', 'selected', 'offered', 'declined'])
+
+        filtered_offered_apps = { 'num_offered': 0, 'num_not_offered': 0 }
         for app in apps:
+            if app.offered != None:
+                filtered_offered_apps['num_offered'] += 1
+            else:
+                filtered_offered_apps['num_not_offered'] += 1
+
             if app.job.assigned_ta_hours == app.job.accumulated_ta_hours:
                 app.ta_hour_progress = 'done'
             elif app.job.assigned_ta_hours < app.job.accumulated_ta_hours:
@@ -1004,15 +991,18 @@ def selected_applications(request):
                 elif (app.job.assigned_ta_hours * 1.0/4.0) < app.job.accumulated_ta_hours:
                     app.ta_hour_progress = 'under_one_quarter'
 
-
-        selected_apps_total, selected_apps_stats = adminApi.get_selected_apps_with_stats()
-
     return render(request, 'administrators/applications/selected_applications.html', {
         'loggedin_user': request.user,
         'apps': apps,
-        'total_apps': len(app_list),
-        'selected_apps': { 'total': selected_apps_total, 'stats': selected_apps_stats },
-        'offered_stats': adminApi.get_offered_stats(apps),
+        'num_all_apps': info['num_all_apps'],
+        'filtered_apps_stats': {
+            'num_filtered_apps': info['num_filtered_apps'],
+            'filtered_offered_apps': filtered_offered_apps,
+        },
+        'all_offered_apps_stats': {
+            'num_offered': info['num_offered_apps'],
+            'num_not_offered': info['num_all_apps'] - info['num_offered_apps']
+        },
         'classification_choices': adminApi.get_classifications(),
         'app_status': APP_STATUS,
         'new_next': adminApi.build_new_next(request)
@@ -1136,40 +1126,10 @@ def offered_applications(request):
     ''' Display applications offered by admins '''
     request = userApi.has_admin_access(request)
 
-    year_q = request.GET.get('year')
-    term_q = request.GET.get('term')
-    code_q = request.GET.get('code')
-    number_q = request.GET.get('number')
-    section_q = request.GET.get('section')
-    first_name_q = request.GET.get('first_name')
-    last_name_q = request.GET.get('last_name')
-    no_response_q = request.GET.get('no_response')
-
-    app_list = adminApi.get_applications()
-    if bool(year_q):
-        app_list = app_list.filter(job__session__year__icontains=year_q)
-    if bool(term_q):
-        app_list = app_list.filter(job__session__term__code__icontains=term_q)
-    if bool(code_q):
-        app_list = app_list.filter(job__course__code__name__icontains=code_q)
-    if bool(number_q):
-        app_list = app_list.filter(job__course__number__name__icontains=number_q)
-    if bool(section_q):
-        app_list = app_list.filter(job__course__section__name__icontains=section_q)
-    if bool(first_name_q):
-        app_list = app_list.filter(applicant__first_name__icontains=first_name_q)
-    if bool(last_name_q):
-        app_list = app_list.filter(applicant__last_name__icontains=last_name_q)
-    if bool(no_response_q):
-        app_list = adminApi.get_offered_apps_no_response(app_list)
-
-    if bool(no_response_q) == False:
-        app_list = app_list.filter(applicationstatus__assigned=ApplicationStatus.OFFERED).order_by('-id').distinct()
-
-    app_list = adminApi.add_app_info_into_applications(app_list, ['offered', 'accepted', 'declined'])
+    apps, info = adminApi.get_applications_filter_limit(request, 'offered')
 
     page = request.GET.get('page', 1)
-    paginator = Paginator(app_list, settings.PAGE_SIZE)
+    paginator = Paginator(apps, settings.PAGE_SIZE)
 
     try:
         apps = paginator.page(page)
@@ -1178,10 +1138,12 @@ def offered_applications(request):
     except EmptyPage:
         apps = paginator.page(paginator.num_pages)
 
+    apps = adminApi.add_app_info_into_applications(apps, ['offered', 'accepted', 'declined'])
+
     return render(request, 'administrators/applications/offered_applications.html', {
         'loggedin_user': request.user,
         'apps': apps,
-        'total_apps': len(app_list),
+        'num_filtered_apps': info['num_filtered_apps'],
         'admin_emails': adminApi.get_admin_emails(),
         'new_next': adminApi.build_new_next(request)
     })
@@ -1194,51 +1156,10 @@ def accepted_applications(request):
     ''' Display applications accepted by students '''
     request = userApi.has_admin_access(request, Role.HR)
 
-    today = datetime.today().strftime('%Y-%m-%d')
-
-    year_q = request.GET.get('year')
-    term_q = request.GET.get('term')
-    code_q = request.GET.get('code')
-    number_q = request.GET.get('number')
-    section_q = request.GET.get('section')
-    first_name_q = request.GET.get('first_name')
-    last_name_q = request.GET.get('last_name')
-    eform_q = request.GET.get('eform')
-    declined_reassigned_q = request.GET.get('declined_reassigned')
-    accepted_in_today_q = request.GET.get('accepted_in_today')
-
-    app_list = adminApi.get_applications()
-    today_accepted_apps, today = adminApi.get_accepted_apps_by_day(app_list, 'today')
-
-    if bool(year_q):
-        app_list = app_list.filter(job__session__year__icontains=year_q)
-    if bool(term_q):
-        app_list = app_list.filter(job__session__term__code__icontains=term_q)
-    if bool(code_q):
-        app_list = app_list.filter(job__course__code__name__icontains=code_q)
-    if bool(number_q):
-        app_list = app_list.filter(job__course__number__name__icontains=number_q)
-    if bool(section_q):
-        app_list = app_list.filter(job__course__section__name__icontains=section_q)
-    if bool(first_name_q):
-        app_list = app_list.filter(applicant__first_name__icontains=first_name_q)
-    if bool(last_name_q):
-        app_list = app_list.filter(applicant__last_name__icontains=last_name_q)
-    if bool(eform_q):
-        if eform_q.lower() == 'none':
-            app_list = app_list.filter(admindocuments__eform__isnull=True)
-        else:
-            app_list = app_list.filter(admindocuments__eform__icontains=eform_q)
-    if bool(declined_reassigned_q):
-        app_list = app_list.filter(is_declined_reassigned=True)
-    if bool(accepted_in_today_q):
-        app_list = today_accepted_apps
-
-    if bool(accepted_in_today_q) ==  False:
-        app_list = app_list.filter( Q(applicationstatus__assigned=ApplicationStatus.ACCEPTED) & Q(is_terminated=False) ).order_by('-id').distinct()
+    apps, info = adminApi.get_applications_filter_limit(request, 'accepted')
 
     page = request.GET.get('page', 1)
-    paginator = Paginator(app_list, settings.PAGE_SIZE)
+    paginator = Paginator(apps, settings.PAGE_SIZE)
 
     try:
         apps = paginator.page(page)
@@ -1253,11 +1174,11 @@ def accepted_applications(request):
         'loggedin_user': request.user,
         'apps': adminApi.add_salary(apps),
         'eform_stats': adminApi.get_eform_stats(apps),
-        'total_apps': len(app_list),
+        'num_filtered_apps': info['num_filtered_apps'],
         'new_next': adminApi.build_new_next(request),
-        'today_accepted_apps': today_accepted_apps,
-        'today_eform_stats': adminApi.get_eform_stats(today_accepted_apps),
-        'today': today
+        'today_accepted_apps': info['today_accepted_apps'],
+        'today_eform_stats': adminApi.get_eform_stats(info['today_accepted_apps'],),
+        'today': info['today']
     })
 
 
@@ -1320,35 +1241,10 @@ def declined_applications(request):
     ''' Display applications declined by students '''
     request = userApi.has_admin_access(request)
 
-    year_q = request.GET.get('year')
-    term_q = request.GET.get('term')
-    code_q = request.GET.get('code')
-    number_q = request.GET.get('number')
-    section_q = request.GET.get('section')
-    first_name_q = request.GET.get('first_name')
-    last_name_q = request.GET.get('last_name')
-
-    app_list = adminApi.get_applications()
-    if bool(year_q):
-        app_list = app_list.filter(job__session__year__icontains=year_q)
-    if bool(term_q):
-        app_list = app_list.filter(job__session__term__code__icontains=term_q)
-    if bool(code_q):
-        app_list = app_list.filter(job__course__code__name__icontains=code_q)
-    if bool(number_q):
-        app_list = app_list.filter(job__course__number__name__icontains=number_q)
-    if bool(section_q):
-        app_list = app_list.filter(job__course__section__name__icontains=section_q)
-    if bool(first_name_q):
-        app_list = app_list.filter(applicant__first_name__icontains=first_name_q)
-    if bool(last_name_q):
-        app_list = app_list.filter(applicant__last_name__icontains=last_name_q)
-
-    app_list = app_list.filter(applicationstatus__assigned=ApplicationStatus.DECLINED).order_by('-id').distinct()
-    app_list = adminApi.add_app_info_into_applications(app_list, ['declined'])
+    apps, info = adminApi.get_applications_filter_limit(request, 'declined')
 
     page = request.GET.get('page', 1)
-    paginator = Paginator(app_list, settings.PAGE_SIZE)
+    paginator = Paginator(apps, settings.PAGE_SIZE)
 
     try:
         apps = paginator.page(page)
@@ -1357,10 +1253,12 @@ def declined_applications(request):
     except EmptyPage:
         apps = paginator.page(paginator.num_pages)
 
+    apps = adminApi.add_app_info_into_applications(apps, ['declined'])
+
     return render(request, 'administrators/applications/declined_applications.html', {
         'loggedin_user': request.user,
         'apps': apps,
-        'total_apps': len(app_list),
+        'num_filtered_apps': info['num_filtered_apps'],
         'admin_emails': adminApi.get_admin_emails(),
         'new_next': adminApi.build_new_next(request)
     })
@@ -1650,32 +1548,10 @@ def terminated_applications(request):
     ''' Terminated applications '''
     request = userApi.has_admin_access(request)
 
-    year_q = request.GET.get('year')
-    term_q = request.GET.get('term')
-    code_q = request.GET.get('code')
-    number_q = request.GET.get('number')
-    section_q = request.GET.get('section')
-    first_name_q = request.GET.get('first_name')
-    last_name_q = request.GET.get('last_name')
-
-    app_list = adminApi.get_terminated_applications()
-    if bool(year_q):
-        app_list = app_list.filter(job__session__year__icontains=year_q)
-    if bool(term_q):
-        app_list = app_list.filter(job__session__term__code__icontains=term_q)
-    if bool(code_q):
-        app_list = app_list.filter(job__course__code__name__icontains=code_q)
-    if bool(number_q):
-        app_list = app_list.filter(job__course__number__name__icontains=number_q)
-    if bool(section_q):
-        app_list = app_list.filter(job__course__section__name__icontains=section_q)
-    if bool(first_name_q):
-        app_list = app_list.filter(applicant__first_name__icontains=first_name_q)
-    if bool(last_name_q):
-        app_list = app_list.filter(applicant__last_name__icontains=last_name_q)
+    apps, info = adminApi.get_applications_filter_limit(request, 'terminated')
 
     page = request.GET.get('page', 1)
-    paginator = Paginator(app_list, settings.PAGE_SIZE)
+    paginator = Paginator(apps, settings.PAGE_SIZE)
 
     try:
         apps = paginator.page(page)
@@ -1687,7 +1563,7 @@ def terminated_applications(request):
     return render(request, 'administrators/applications/terminated_applications.html', {
         'loggedin_user': request.user,
         'apps': apps,
-        'total_apps': len(app_list),
+        'num_filtered_apps': info['num_filtered_apps'],
         'admin_emails': adminApi.get_admin_emails(),
         'new_next': adminApi.build_new_next(request)
     })
@@ -1828,42 +1704,10 @@ def report_accepted_applications(request):
     ''' Display a report of applications accepted by students '''
     request = userApi.has_admin_access(request)
 
-    year_q = request.GET.get('year')
-    term_q = request.GET.get('term')
-    code_q = request.GET.get('code')
-    number_q = request.GET.get('number')
-    section_q = request.GET.get('section')
-    first_name_q = request.GET.get('first_name')
-    last_name_q = request.GET.get('last_name')
-    student_number_q = request.GET.get('student_number')
-
-    app_list = adminApi.get_applications()
-    if bool(year_q):
-        app_list = app_list.filter(job__session__year__icontains=year_q)
-    if bool(term_q):
-        app_list = app_list.filter(job__session__term__code__icontains=term_q)
-    if bool(code_q):
-        app_list = app_list.filter(job__course__code__name__icontains=code_q)
-    if bool(number_q):
-        app_list = app_list.filter(job__course__number__name__icontains=number_q)
-    if bool(section_q):
-        app_list = app_list.filter(job__course__section__name__icontains=section_q)
-    if bool(first_name_q):
-        app_list = app_list.filter(applicant__first_name__icontains=first_name_q)
-    if bool(last_name_q):
-        app_list = app_list.filter(applicant__last_name__icontains=last_name_q)
-    if bool(student_number_q):
-        app_list = app_list.filter(applicant__profile__student_number__icontains=student_number_q)
-
-    app_list = app_list.filter(applicationstatus__assigned=ApplicationStatus.ACCEPTED).order_by('-id').distinct()
-    app_list = adminApi.add_app_info_into_applications(app_list, ['accepted', 'declined', 'cancelled'])
-
-    filtered_app_list = []
-    for app in app_list:
-        filtered_app_list, _, _ = adminApi.valid_accepted_app(filtered_app_list, app)
+    apps, total_apps = adminApi.get_report_accepted_applications(request)
 
     page = request.GET.get('page', 1)
-    paginator = Paginator(filtered_app_list, settings.PAGE_SIZE)
+    paginator = Paginator(apps, settings.PAGE_SIZE)
 
     try:
     	apps = paginator.page(page)
@@ -1872,10 +1716,14 @@ def report_accepted_applications(request):
     except EmptyPage:
     	apps = paginator.page(paginator.num_pages)
 
+    filtered_app_list = []
+    for app in apps:
+        filtered_app_list, _, _ = adminApi.valid_accepted_app(filtered_app_list, app)
+
     return render(request, 'administrators/applications/report_accepted_applications.html', {
         'loggedin_user': request.user,
         'apps': apps,
-        'total_apps': len(filtered_app_list)
+        'total_apps': total_apps
     })
 
 

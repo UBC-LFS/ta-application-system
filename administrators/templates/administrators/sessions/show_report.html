@@ -8,42 +8,24 @@
     {% include 'ta_app/pages/_left_aside.html' with view_name='sessions' title='Session Report' data=session %}
 
     <div class="left-aside-btn-groups">
-      <a class="btn btn-outline-primary" href="{{ next }}">Back to {{ request.GET.p }}</a>
-    </div>
-
-    <div class="board col-10 mx-auto mt-5 text-center">
-      <h5 class="text-info mb-4">Statistics</h5>
-
-      <table class="table font-size-1">
-        <thead>
-          <tr>
-            <th>Accepted Applicants</th>
-            <th>Total Applicants</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>{{ total_accepted_applicants }}</td>
-            <td>{{ applicants|length }}</td>
-          </tr>
-        </tbody>
-      </table>
+      <a class="btn btn-outline-primary" href="{{ next_session }}">Back to {{ back_to_word }}</a>
     </div>
   </div>
 
   <div class="col-md-8">
 
-    <h3 class="text-info">All Applicants</h3>
+    <h3 class="text-info">
+      All Applicants
+      <small class="text-secondary">Total: {{ total_applicants }}</small>
+    </h3>
+
+    {% include 'instructors/jobs/_search_fields.html' with data=applicants total=total_applicants path='administrators_sessions' session_slug=session.slug %}
 
     <table
       class="table table-bordered table-hover table-striped table-responsive-md text-center"
       data-toggle="table"
       data-sortable="true"
       data-classes=""
-      data-pagination="true"
-      data-search="true"
-      data-page-size="50"
-      data-page-list="[50, 100, 200, all]"
       data-show-export="true"
       data-show-columns="true"
       data-export-types="['csv']"
@@ -53,33 +35,37 @@
           <th data-sortable="true">First Name</th>
           <th data-sortable="true">Last Name</th>
           <th data-sortable="true">CWL</th>
+          <th>Student Number</th>
           <th data-sortable="true">Number of <br />Accepted Apps</th>
           <th>Accepted <br/>Applications</th>
         </tr>
       </thead>
       <tbody>
         {% for applicant in applicants %}
-        {% if applicant.has_applied %}
-          <tr>
-            <td>{{ applicant }}</td>
-            <td>{{ applicant.last_name }}</td>
-            <td>{{ applicant.username }}</td>
-            <td>{{ applicant.accepted_apps|length }}</td>
-            <td>
-              {% for app in applicant.accepted_apps %}
-                <div>
-                  {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}
-                  ({{ app.accepted.assigned_hours }} hours){% if not forloop.last %},{% endif %}
-                </div>
-              {% empty %}
-                None
-              {% endfor %}
-            </td>
-          </tr>
-        {% endif %}
+          {% if applicant.has_applied %}
+            <tr>
+              <td>{{ applicant.first_name }}</td>
+              <td>{{ applicant.last_name }}</td>
+              <td>{{ applicant.username }}</td>
+              <td>{{ applicant.profile.student_number }}</td>
+              <td>{{ applicant.accepted_apps|length }}</td>
+              <td>
+                {% for app in applicant.accepted_apps %}
+                  <div>
+                    {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}
+                    ({{ app.accepted.assigned_hours }} hours){% if not forloop.last %},{% endif %}
+                  </div>
+                {% empty %}
+                  None
+                {% endfor %}
+              </td>
+            </tr>
+          {% endif %}
         {% endfor %}
       </tbody>
     </table>
+
+    {% include 'instructors/jobs/_table_paginator.html' with data=applicants %}
 
   </div>
 </div>

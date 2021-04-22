@@ -7,7 +7,7 @@
     {% include 'ta_app/pages/_left_aside.html' with view_name='job_applications' title='Edit Job' data=job %}
 
     <div class="left-aside-btn-groups mb-5">
-      <a class="btn btn-outline-primary" href="{{ next }}">Back to Jobs</a>
+      <a class="btn btn-outline-primary" href="{{ next_first }}">Back to Jobs</a>
     </div>
 
     <div class="col-10 mx-auto">
@@ -69,9 +69,8 @@
           {{ field }}
         {% endfor %}
 
-        <input type="hidden" name="next" value="{{ next }}" />
-
-        <a class="btn btn-outline-secondary" href="{{ next }}">Cancel</a>
+        <input type="hidden" name="next_first" value="{{ next_first }}" />
+        <a class="btn btn-outline-secondary" href="{{ next_first }}">Cancel</a>
         <input class="btn btn-primary" type="submit" value="Update" />
       </form>
     </div>

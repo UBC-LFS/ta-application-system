@@ -90,14 +90,18 @@ class InstructorTest(TestCase):
         response = self.client.get( reverse('instructors:index') )
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get( reverse('instructors:show_jobs') + JOBS_NEXT )
+        response = self.client.get( reverse('instructors:show_jobs') )
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get( reverse('instructors:edit_job', args=[SESSION, JOB]) + JOBS_NEXT )
+        response = self.client.get( reverse('instructors:edit_job', args=[SESSION, JOB]) )
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get( reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT )
+        response = self.client.get( reverse('instructors:show_applications', args=[SESSION, JOB]) )
         self.assertEqual(response.status_code, 200)
+
+        response = self.client.get( reverse('instructors:status_summary_applicants', args=[SESSION]) )
+        self.assertEqual(response.status_code, 200)
+
 
     def test_index(self):
         print('- Display an index page')
@@ -140,8 +144,8 @@ class InstructorTest(TestCase):
         self.assertEqual(response.context['loggedin_user'].confidentiality.employee_number, data['employee_number'])
 
 
-    def test_edit_user_missing_values(self):
-        print('- Test to edit the information of an user with missing values')
+    def test_edit_user_missing_values1(self):
+        print('- Test to edit the information of an user with missing values - first name')
         self.login()
 
         user = userApi.get_user(USER, 'username')
@@ -156,10 +160,19 @@ class InstructorTest(TestCase):
         }
         response = self.client.post(reverse('instructors:edit_user'), data=urlencode(data1, True), content_type=ContentType)
         messages = self.messages(response)
-        self.assertTrue('An error occurred' in messages[0])
+        self.assertEqual(messages[0], 'An error occurred while updating an User Edit Form. FIRST NAME: This field is required.')
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse('instructors:edit_user'))
         self.assertRedirects(response, response.url)
+
+
+    def test_edit_user_missing_values2(self):
+        print('- Test to edit the information of an user with missing values - last name')
+        self.login()
+
+        user = userApi.get_user(USER, 'username')
+        user_first_role = user.profile.roles.all()[0]
+        self.assertEqual(user_first_role.name, Role.INSTRUCTOR)
 
         data2 = {
             'user': user.id,
@@ -169,10 +182,18 @@ class InstructorTest(TestCase):
         }
         response = self.client.post(reverse('instructors:edit_user'), data=urlencode(data2, True), content_type=ContentType)
         messages = self.messages(response)
-        self.assertTrue('An error occurred' in messages[0])
+        self.assertTrue(messages[0], 'An error occurred while updating an User Edit Form. LAST NAME: This field is required.')
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse('instructors:edit_user'))
         self.assertRedirects(response, response.url)
+
+    def test_edit_user_missing_values3(self):
+        print('- Test to edit the information of an user with missing values - email')
+        self.login()
+
+        user = userApi.get_user(USER, 'username')
+        user_first_role = user.profile.roles.all()[0]
+        self.assertEqual(user_first_role.name, Role.INSTRUCTOR)
 
         data3 = {
             'user': user.id,
@@ -182,10 +203,19 @@ class InstructorTest(TestCase):
         }
         response = self.client.post(reverse('instructors:edit_user'), data=urlencode(data3, True), content_type=ContentType)
         messages = self.messages(response)
-        self.assertTrue('An error occurred' in messages[0])
+        self.assertTrue(messages[0], 'An error occurred while updating an User Edit Form. EMAIL: This field is required.')
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse('instructors:edit_user'))
         self.assertRedirects(response, response.url)
+
+
+    def test_edit_user_missing_values4(self):
+        print('- Test to edit the information of an user with missing values - valid email address')
+        self.login()
+
+        user = userApi.get_user(USER, 'username')
+        user_first_role = user.profile.roles.all()[0]
+        self.assertEqual(user_first_role.name, Role.INSTRUCTOR)
 
         data4 = {
             'user': user.id,
@@ -196,10 +226,19 @@ class InstructorTest(TestCase):
         }
         response = self.client.post(reverse('instructors:edit_user'), data=urlencode(data4, True), content_type=ContentType)
         messages = self.messages(response)
-        self.assertTrue('An error occurred' in messages[0])
+        self.assertTrue(messages[0], 'An error occurred while updating an User Form. EMAIL: Enter a valid email address.')
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse('instructors:edit_user'))
         self.assertRedirects(response, response.url)
+
+
+    def test_edit_user_missing_values5(self):
+        print('- Test to edit the information of an user with missing values - employee number')
+        self.login()
+
+        user = userApi.get_user(USER, 'username')
+        user_first_role = user.profile.roles.all()[0]
+        self.assertEqual(user_first_role.name, Role.INSTRUCTOR)
 
         data5 = {
             'user': user.id,
@@ -210,10 +249,19 @@ class InstructorTest(TestCase):
         }
         response = self.client.post(reverse('instructors:edit_user'), data=urlencode(data5, True), content_type=ContentType)
         messages = self.messages(response)
-        self.assertTrue('An error occurred' in messages[0])
+        self.assertTrue(messages[0], 'An error occurred while updating an User Form. EMPLOYEE NUMBER: Ensure this value has at most 7 characters (it has 8).')
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse('instructors:edit_user'))
         self.assertRedirects(response, response.url)
+
+
+    def test_edit_user_missing_values6(self):
+        print('- Test to edit the information of an user with missing values - employee number')
+        self.login()
+
+        user = userApi.get_user(USER, 'username')
+        user_first_role = user.profile.roles.all()[0]
+        self.assertEqual(user_first_role.name, Role.INSTRUCTOR)
 
         data6 = {
             'user': user.id,
@@ -224,7 +272,7 @@ class InstructorTest(TestCase):
         }
         response = self.client.post(reverse('instructors:edit_user'), data=urlencode(data6, True), content_type=ContentType)
         messages = self.messages(response)
-        self.assertTrue('An error occurred' in messages[0])
+        self.assertTrue(messages[0], 'An error occurred while updating an User Form. EMPLOYEE NUMBER: Ensure this value has at least 7 characters (it has 3).')
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse('instructors:edit_user'))
         self.assertRedirects(response, response.url)
@@ -290,14 +338,11 @@ class InstructorTest(TestCase):
         print('- Display jobs by instructors')
         self.login()
 
-        response = self.client.get( reverse('instructors:edit_job', args=[SESSION, JOB]) + JOBS_WRONG_1 )
-        self.assertEqual(response.status_code, 404)
-        response = self.client.get( reverse('instructors:edit_job', args=[SESSION, JOB]) + JOBS_WRONG_2 )
-        self.assertEqual(response.status_code, 404)
-        response = self.client.get( reverse('instructors:edit_job', args=[SESSION, JOB]) + JOBS_WRONG_2 )
-        self.assertEqual(response.status_code, 404)
+        session = self.client.session
+        session['next_first'] = reverse('instructors:show_jobs') + '?page=1'
+        session.save()
 
-        response = self.client.get( reverse('instructors:edit_job', args=[SESSION, JOB]) + JOBS_NEXT )
+        response = self.client.get( reverse('instructors:edit_job', args=[SESSION, JOB]) )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, USER)
         self.assertEqual(response.context['loggedin_user'].roles, ['Instructor'])
@@ -305,47 +350,39 @@ class InstructorTest(TestCase):
         self.assertFalse(response.context['form'].is_bound)
         self.assertEqual(response.context['form'].instance, response.context['job'])
         self.assertEqual( len(response.context['jobs']), 6 )
+        self.assertEqual(response.context['next_first'], '/instructors/jobs/?page=1')
 
-        data1 = {
+        next_first = response.context['next_first']
+
+        data = {
             'course_overview': 'course overview',
             'description': 'job description',
             'note': 'job note',
-            'next': '/instructors/jobS/?page=2'
+            'next_first': next_first
         }
-        response = self.client.post( reverse('instructors:edit_job', args=[SESSION, JOB]), data=urlencode(data1), content_type=ContentType )
-        self.assertEqual(response.status_code, 404)
-
-        data2 = {
-            'course_overview': 'course overview',
-            'description': 'job description',
-            'note': 'job note',
-            'next': reverse('instructors:show_jobs') + '?page=2'
-        }
-        response = self.client.post( reverse('instructors:edit_job', args=[SESSION, JOB]), data=urlencode(data2), content_type=ContentType )
+        response = self.client.post( reverse('instructors:edit_job', args=[SESSION, JOB]), data=urlencode(data), content_type=ContentType )
         messages = self.messages(response)
         self.assertTrue('Success' in messages[0])
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse('instructors:show_jobs') + '?page=2')
+        self.assertEqual(response.url, next_first)
         self.assertRedirects(response, response.url)
 
-        response = self.client.get( reverse('instructors:edit_job', args=[SESSION, JOB]) + JOBS_NEXT )
+        response = self.client.get( reverse('instructors:edit_job', args=[SESSION, JOB]) )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context['job'].course_overview, data2['course_overview'])
-        self.assertEqual(response.context['job'].description, data2['description'])
-        self.assertEqual(response.context['job'].note, data2['note'])
+        self.assertEqual(response.context['job'].course_overview, data['course_overview'])
+        self.assertEqual(response.context['job'].description, data['description'])
+        self.assertEqual(response.context['job'].note, data['note'])
+
 
     def test_show_job(self):
         print('- Test: display a job')
         self.login()
 
-        response = self.client.get( reverse('instructors:show_job', args=[SESSION, JOB]) + JOBS_WRONG_1 )
-        self.assertEqual(response.status_code, 404)
-        response = self.client.get( reverse('instructors:show_job', args=[SESSION, JOB]) + JOBS_WRONG_2 )
-        self.assertEqual(response.status_code, 404)
-        response = self.client.get( reverse('instructors:show_job', args=[SESSION, JOB]) + JOBS_WRONG_2 )
-        self.assertEqual(response.status_code, 404)
+        session = self.client.session
+        session['next_first'] = reverse('instructors:show_jobs') + '?page=1'
+        session.save()
 
-        response = self.client.get( reverse('instructors:show_job', args=[SESSION, JOB]) + JOBS_NEXT )
+        response = self.client.get( reverse('instructors:show_job', args=[SESSION, JOB]) )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, USER)
         self.assertEqual(response.context['loggedin_user'].roles, ['Instructor'])
@@ -354,6 +391,7 @@ class InstructorTest(TestCase):
         self.assertEqual(job.session.term.code, 'W1')
         self.assertEqual(job.session.slug, SESSION)
         self.assertEqual(job.course.slug, JOB)
+        self.assertEqual(response.context['next_first'], '/instructors/jobs/?page=1')
 
     def test_show_applications(self):
         print('- Display applications applied by students')
@@ -361,14 +399,11 @@ class InstructorTest(TestCase):
 
         job = adminApi.get_job_by_session_slug_job_slug(SESSION, JOB)
 
-        response = self.client.get( reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_WRONG_1 )
-        self.assertEqual(response.status_code, 404)
-        response = self.client.get( reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_WRONG_2 )
-        self.assertEqual(response.status_code, 404)
-        response = self.client.get( reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_WRONG_2 )
-        self.assertEqual(response.status_code, 404)
+        session = self.client.session
+        session['next_first'] = reverse('instructors:show_jobs') + '?page=1'
+        session.save()
 
-        response = self.client.get( reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT)
+        response = self.client.get( reverse('instructors:show_applications', args=[SESSION, JOB]) )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, USER)
         self.assertEqual(response.context['loggedin_user'].roles, ['Instructor'])
@@ -379,7 +414,7 @@ class InstructorTest(TestCase):
 
         self.assertEqual(response.context['full_job_name'], 'APBI_200_002')
         self.assertEqual(response.context['app_status'], {'none': '0', 'applied': '0', 'selected': '1', 'offered': '2', 'accepted': '3', 'declined': '4', 'cancelled': '5'})
-        self.assertEqual(response.context['next'], '/instructors/jobs/?page=2')
+        self.assertEqual(response.context['next_first'], '/instructors/jobs/?page=1')
 
         applications = [
             { 'id': 6, 'accepted_apps': ['APBI 260 001 (45.0 hours)'] },
@@ -573,61 +608,33 @@ class InstructorTest(TestCase):
         app = adminApi.get_application(APP, 'slug')
         self.assertIsNone(app.note)
 
-        response = self.client.get( reverse('instructors:write_note', args=[APP]) + '?nex=' + reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT)
-        self.assertEqual(response.status_code, 404)
-        response = self.client.get( reverse('instructors:write_note', args=[APP]) + '?next=' + reverse('instructors:show_applications', args=['2019-w11', JOB]) + JOBS_NEXT)
-        self.assertEqual(response.status_code, 404)
-        response = self.client.get( reverse('instructors:write_note', args=[APP]) + '?next=' + reverse('instructors:show_applications', args=[SESSION, 'apbi-200-002-introduct']) + JOBS_NEXT)
-        self.assertEqual(response.status_code, 404)
+        next_second = '/instructors/sessions/2019-w1/jobs/apbi-200-002-introduction-to-soil-science-w1/applications/'
+        session = self.client.session
+        session['next_second'] = next_second
+        session.save()
 
+        response = self.client.get(reverse('instructors:write_note', args=[APP]))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['loggedin_user'].username, USER)
+        self.assertEqual(response.context['loggedin_user'].roles, ['Instructor'])
+        self.assertEqual(response.context['app'].job.course.slug, JOB)
+        self.assertFalse(response.context['form'].is_bound)
+        self.assertEqual(response.context['form'].instance, response.context['app'])
+        self.assertEqual(response.context['app_status'], {'none': '0', 'applied': '0', 'selected': '1', 'offered': '2', 'accepted': '3', 'declined': '4', 'cancelled': '5'})
+        self.assertEqual(response.context['next_second'], next_second)
 
-        data1 = {
+        data = {
             'note': 'new note',
-            'next': '?nex=/instructors/sessions/2019-w1/jobs/apbi-200-002-introduction-to-soil-science-w1/applications/?next=/instructors/jobs/'
+            'next_second': next_second
         }
-        response = self.client.post( reverse('instructors:write_note', args=[APP]) + '?next=' + reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT, data=urlencode(data1), content_type=ContentType )
-        self.assertEqual(response.status_code, 404)
-
-        data2 = {
-            'note': 'new note',
-            'next': '?next=/instructor/sessions/2019-w1/jobs/apbi-200-002-introduction-to-soil-science-w1/applications/?next=/instructors/jobs/'
-        }
-        response = self.client.post( reverse('instructors:write_note', args=[APP]) + '?next=' + reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT, data=urlencode(data2), content_type=ContentType )
-        self.assertEqual(response.status_code, 404)
-
-        data3 = {
-            'note': 'new note',
-            'next': '?next=/instructors/seSsions/2019-w1/jobs/apbi-200-002-introduction-to-soil-science-w1/applications/?next=/instructors/jobs/'
-        }
-        response = self.client.post( reverse('instructors:write_note', args=[APP]) + '?next=' + reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT, data=urlencode(data3), content_type=ContentType )
-        self.assertEqual(response.status_code, 404)
-
-        data4 = {
-            'note': 'new note',
-            'next': '?next=/instructors/seSsions/2019-w3/jobs/apbi-200-002-introduction-to-soil-science-w1/applications/?next=/instructors/jobs/'
-        }
-        response = self.client.post( reverse('instructors:write_note', args=[APP]) + '?next=' + reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT, data=urlencode(data4), content_type=ContentType )
-        self.assertEqual(response.status_code, 404)
-
-        data5 = {
-            'note': 'new note',
-            'next': '?next=/instructors/sessions/2019-w1/jobs/apbi-200-002-introduction-to-soil-science-w3/applications/?next=/instructors/jobs/'
-        }
-        response = self.client.post( reverse('instructors:write_note', args=[APP]) + '?next=' + reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT, data=urlencode(data5), content_type=ContentType )
-        self.assertEqual(response.status_code, 404)
-
-        data6 = {
-            'note': 'new note',
-            'next': APP_PATH
-        }
-        response = self.client.post( reverse('instructors:write_note', args=[APP]) + '?next=' + reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT, data=urlencode(data6), content_type=ContentType )
+        response = self.client.post( reverse('instructors:write_note', args=[APP]), data=urlencode(data), content_type=ContentType )
         messages = self.messages(response)
         self.assertTrue('Success' in messages[0])
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, APP_PATH)
+        self.assertEqual(response.url, reverse('instructors:show_applications', args=[SESSION, JOB]))
         self.assertRedirects(response, response.url)
 
-        response = self.client.get( reverse('instructors:show_applications', args=[SESSION, JOB]) + '?next=' + APP_PATH)
+        response = self.client.get( reverse('instructors:show_applications', args=[SESSION, JOB]) )
         self.assertEqual(response.status_code, 200)
         apps = response.context['apps']
 
@@ -649,4 +656,31 @@ class InstructorTest(TestCase):
         self.assertEqual(app.is_declined_reassigned, appl.is_declined_reassigned)
         self.assertEqual(app.is_terminated, appl.is_terminated)
         self.assertIsNotNone(appl.note)
-        self.assertEqual(appl.note, data6['note'])
+        self.assertEqual(appl.note, data['note'])
+
+    def test_status_summary_applicants(self):
+        print('- Test: display a status summary of applicants')
+        self.login()
+
+        next_second = '/instructors/sessions/2019-w1/jobs/apbi-200-002-introduction-to-soil-science-w1/applications/'
+        session = self.client.session
+        session['next_second'] = next_second
+        session.save()
+
+        response = self.client.get( reverse('instructors:status_summary_applicants', args=[SESSION]) )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['loggedin_user'].username, USER)
+        self.assertEqual(response.context['loggedin_user'].roles, ['Instructor'])
+        session = response.context['session']
+        self.assertEqual(session.year, '2019')
+        self.assertEqual(session.term.code, 'W1')
+        self.assertEqual(session.slug, SESSION)
+        self.assertEqual(response.context['total_applicants'], 5)
+        self.assertEqual(response.context['next_second'], next_second)
+        applicants = response.context['applicants']
+
+        applicant_list = ['user100.test', 'user65.test', 'user66.test', 'user70.test', 'user80.test']
+        c = 0
+        for applicant in applicants:
+            self.assertEqual(applicant.username, applicant_list[c])
+            c += 1

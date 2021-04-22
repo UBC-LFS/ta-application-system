@@ -2,12 +2,13 @@
 {% block content %}
 
 {% include 'instructors/_menu.html' %}
+
 <div class="row">
   <div class="col-md-3">
     {% include 'ta_app/pages/_left_aside_compact.html' with view_name='job_applications' title='Applications' data=job %}
 
     <div class="left-aside-btn-groups">
-      <a class="btn btn-outline-primary" href="{{ next }}">Back to Jobs</a>
+      <a class="btn btn-outline-primary" href="{{ next_first }}">Back to Jobs</a>
     </div>
 
     <div class="bd-callout bd-callout-warning mt-5 col-10 mx-auto">
@@ -35,6 +36,9 @@
       <i class="fa fa-info-circle" aria-hidden="true"></i>
       Number of Applications: {{ job.application_set.all|length }}
     </h5>
+    <ul>
+      <li>If you would like to view a list of all applicants and their status in this term, please go to <a href="{% url 'instructors:status_summary_applicants' session_slug=job.session.slug %}">Status Summary of Applicants</a>.</li>
+    </ul>
 
     <table
       class="table table-bordered table-hover table-striped table-responsive-md text-center font-size-sm"
@@ -226,7 +230,7 @@
             </td>
             <td>
               {% include 'ta_app/applications/_modal_note.html' with data=app %}
-              <a class="btn btn-link btn-xs" href="{% url 'instructors:write_note' app_slug=app.slug %}?next={{ request.get_full_path }}">Write</a>
+              <a class="btn btn-link btn-xs" href="{% url 'instructors:write_note' app_slug=app.slug %}">Write</a>
             </td>
           </tr>
         {% endfor %}

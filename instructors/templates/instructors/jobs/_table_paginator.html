@@ -1,0 +1,81 @@
+{% if data.has_other_pages %}
+  <nav class="table-paginator" aria-label="Page navigation Search results pages">
+    <ul class="pagination justify-content-center">
+
+      {% if data.has_previous %}
+        <li class="page-item">
+          <a class="page-link" href="?page=1
+{% if request.GET.first_name %}&first_name={{ request.GET.first_name }}{% endif %}
+{% if request.GET.last_name %}&last_name={{ request.GET.last_name }}{% endif %}
+{% if request.GET.cwl %}&cwl={{ request.GET.cwl }}{% endif %}
+{% if request.GET.student_number %}&student_number={{ request.GET.student_number }}{% endif %}"
+          ><i class="fa fa-angle-double-left" aria-hidden="true"></i></a>
+        </li>
+        <li class="page-item">
+          <a class="page-link" href="?page={{ data.previous_page_number }}
+{% if request.GET.first_name %}&first_name={{ request.GET.first_name }}{% endif %}
+{% if request.GET.last_name %}&last_name={{ request.GET.last_name }}{% endif %}
+{% if request.GET.cwl %}&cwl={{ request.GET.cwl }}{% endif %}
+{% if request.GET.student_number %}&student_number={{ request.GET.student_number }}{% endif %}"
+          ><i class="fa fa-angle-left" aria-hidden="true"></i></a>
+        </li>
+      {% else %}
+        <li class="page-item disabled">
+          <span class="page-link"><i class="fa fa-angle-double-left" aria-hidden="true"></i></span>
+        </li>
+        <li class="page-item disabled">
+          <span class="page-link"><i class="fa fa-angle-left" aria-hidden="true"></i></span>
+        </li>
+      {% endif %}
+
+      {% for i in data.paginator.page_range %}
+        {% if data.number == i %}
+          <li class="page-item active">
+            <span class="page-link" >{{ i }} <span class="sr-only">(current)</span></span>
+          </li>
+        {% else %}
+          <li class="page-item">
+
+            {% if i|add:"-3" <= data.number and data.number <= i|add:"3" %}
+              <a class="page-link" href="?page={{ i }}
+{% if request.GET.first_name %}&first_name={{ request.GET.first_name }}{% endif %}
+{% if request.GET.last_name %}&last_name={{ request.GET.last_name }}{% endif %}
+{% if request.GET.cwl %}&cwl={{ request.GET.cwl }}{% endif %}
+{% if request.GET.student_number %}&student_number={{ request.GET.student_number }}{% endif %}"
+              >{{ i }}</a>
+            {% endif %}
+
+          </li>
+        {% endif %}
+      {% endfor %}
+
+      {% if data.has_next %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ data.next_page_number }}
+{% if request.GET.first_name %}&first_name={{ request.GET.first_name }}{% endif %}
+{% if request.GET.last_name %}&last_name={{ request.GET.last_name }}{% endif %}
+{% if request.GET.cwl %}&cwl={{ request.GET.cwl }}{% endif %}
+{% if request.GET.student_number %}&student_number={{ request.GET.student_number }}{% endif %}"
+          ><i class="fa fa-angle-right" aria-hidden="true"></i></a>
+        </li>
+        <li class="page-item">
+          <a class="page-link" href="?page={{ data.paginator.num_pages }}
+{% if request.GET.first_name %}&first_name={{ request.GET.first_name }}{% endif %}
+{% if request.GET.last_name %}&last_name={{ request.GET.last_name }}{% endif %}
+{% if request.GET.cwl %}&cwl={{ request.GET.cwl }}{% endif %}
+{% if request.GET.student_number %}&student_number={{ request.GET.student_number }}{% endif %}"
+          ><i class="fa fa-angle-double-right" aria-hidden="true"></i></a>
+        </li>
+      {% else %}
+        <li class="page-item disabled">
+          <span class="page-link"><i class="fa fa-angle-right" aria-hidden="true"></i></span>
+        </li>
+        <li class="page-item disabled">
+          <span class="page-link"><i class="fa fa-angle-double-right" aria-hidden="true"></i></span>
+        </li>
+      {% endif %}
+
+    </ul>
+  </nav>
+
+{% endif %}

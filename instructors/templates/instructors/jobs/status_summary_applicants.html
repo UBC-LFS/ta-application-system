@@ -1,0 +1,67 @@
+{% extends 'ta_app/base.html' %}
+{% block content %}
+
+{% include 'instructors/_menu.html' %}
+
+<div class="row">
+  <div class="col-md-4">
+    {% include 'ta_app/pages/_left_aside.html' with view_name='sessions' title='Status Summary of Applicants' data=session %}
+
+    <div class="left-aside-btn-groups">
+      <a class="btn btn-outline-primary" href="{{ next_second }}">Back to Applications</a>
+    </div>
+  </div>
+  <div class="col-md-8">
+
+    <h3 class="text-info">
+      All Applicants
+      <small class="text-secondary">Total: {{ total_applicants }}</small>
+    </h3>
+
+    {% include 'instructors/jobs/_search_fields.html' with data=applicants total=total_applicants path='instructors_applications' session_slug=session.slug %}
+
+    <table
+      class="table table-bordered table-hover table-striped table-responsive-md text-center mt-5"
+      data-toggle="table"
+      data-sortable="true"
+      data-classes=""
+    >
+      <thead>
+        <tr>
+          <th data-sortable="true">First Name</th>
+          <th data-sortable="true">Last Name</th>
+          <th data-sortable="true">CWL</th>
+          <th data-sortable="true">Student Number</th>
+          <th>Course & Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for applicant in applicants %}
+          <tr>
+            <td>{{ applicant.first_name }}</td>
+            <td>{{ applicant.last_name }}</td>
+            <td>{{ applicant.username }}</td>
+            <td>{{ applicant.profile.student_number }}</td>
+            <td>
+                {% for app in applicant.apps %}
+                  <div class="text-left my-1">
+                    <span class="font-weight-bold">{{ app.course }}:</span>
+                    <span class="badge badge-light font-size-xs font-weight-normal">Applied on {{ app.applied.created_at }}</span>
+                    {% if app.accepted %}
+                      <span class="badge badge-success font-size-xs font-weight-normal">Accepted on {{ app.accepted.created_at }}</span>{% if not forloop.last %},{% endif %}
+                    {% endif %}
+                  </div>
+                {% empty %}
+                  None
+                {% endfor %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    {% include 'instructors/jobs/_table_paginator.html' with data=applicants %}
+  </div>
+</div>
+
+{% endblock %}

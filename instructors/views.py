@@ -9,6 +9,7 @@ from django.views.decorators.http import require_http_methods
 from django.views.decorators.cache import cache_control
 from django.db.models import Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from urllib.parse import urlparse
 
 from administrators.views import APP_STATUS
 from administrators.models import *
@@ -102,42 +103,25 @@ def show_jobs(request):
     ''' Display jobs by instructors '''
     request = userApi.has_user_access(request, Role.INSTRUCTOR)
 
+    request.session['next_first'] = adminApi.build_new_next(request)
+
     year_q = request.GET.get('year')
     term_q = request.GET.get('term')
     code_q = request.GET.get('code')
     number_q = request.GET.get('number')
     section_q = request.GET.get('section')
 
-    filters = None
-    if bool(year_q):
-        if filters:
-            filters = filters & Q(session__year__icontains=year_q)
-        else:
-            filters = Q(session__year__icontains=year_q)
-    if bool(term_q):
-        if filters:
-            filters = filters & Q(session__term__code__icontains=term_q)
-        else:
-            filters = Q(session__term__code__icontains=term_q)
-    if bool(code_q):
-        if filters:
-            filters = filters & Q(course__code__name__icontains=code_q)
-        else:
-            filters = Q(course__code__name__icontains=code_q)
-    if bool(number_q):
-        if filters:
-            filters = filters & Q(course__number__name__icontains=number_q)
-        else:
-            filters = Q(course__number__name__icontains=number_q)
-    if bool(section_q):
-        if filters:
-            filters = filters & Q(course__section__name__icontains=section_q)
-        else:
-            filters = Q(course__section__name__icontains=section_q)
-
     job_list = request.user.job_set.all()
-    if filters != None:
-        job_list = job_list.filter(filters)
+    if bool(year_q):
+        job_list = job_list.filter(session__year__icontains=year_q)
+    if bool(term_q):
+        job_list = job_list.filter(session__term__code__icontains=term_q)
+    if bool(code_q):
+        job_list = job_list.filter(course__code__name__icontains=code_q)
+    if bool(number_q):
+        job_list = job_list.filter(course__number__name__icontains=number_q)
+    if bool(section_q):
+        job_list = job_list.filter(course__section__name__icontains=section_q)
 
     page = request.GET.get('page', 1)
     paginator = Paginator(job_list, settings.PAGE_SIZE)
@@ -149,11 +133,11 @@ def show_jobs(request):
     except EmptyPage:
         jobs = paginator.page(paginator.num_pages)
 
+
     return render(request, 'instructors/jobs/show_jobs.html', {
         'loggedin_user': request.user,
         'jobs': jobs,
-        'total_jobs': len(job_list),
-        'new_next': adminApi.build_new_next(request)
+        'total_jobs': len(job_list)
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -165,10 +149,6 @@ def edit_job(request, session_slug, job_slug):
 
     job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
     if request.method == 'POST':
-
-        # Check whether a next url is valid or not
-        adminApi.can_req_parameters_access(request, 'none', ['next'], 'POST')
-
         form = InstructorJobForm(request.POST, instance=job)
         if form.is_valid():
             job = form.save(commit=False)
@@ -176,7 +156,7 @@ def edit_job(request, session_slug, job_slug):
             job.save()
             if job:
                 messages.success(request, 'Success! {0} {1} - {2} {3} {4}: job details updated'.format(job.session.year, job.session.term.code, job.course.code.name, job.course.number.name, job.course.section.name))
-                return HttpResponseRedirect(request.POST.get('next'))
+                return HttpResponseRedirect(request.POST.get('next_first'))
             else:
                 messages.error(request, 'An error occurred while updating job details.')
         else:
@@ -184,15 +164,14 @@ def edit_job(request, session_slug, job_slug):
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
         return HttpResponseRedirect(request.get_full_path())
-    else:
-        adminApi.can_req_parameters_access(request, 'none', ['next'])
+
 
     return render(request, 'instructors/jobs/edit_job.html', {
         'loggedin_user': request.user,
         'job': job,
         'form': InstructorJobForm(data=None, instance=job),
         'jobs': adminApi.get_recent_ten_job_details(job.course, job.session.year),
-        'next': adminApi.get_next(request)
+        'next_first': request.session.get('next_first')
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -201,12 +180,11 @@ def edit_job(request, session_slug, job_slug):
 def show_job(request, session_slug, job_slug):
     ''' Display job details '''
     request = userApi.has_user_access(request, Role.INSTRUCTOR)
-    adminApi.can_req_parameters_access(request, 'none', ['next'])
 
     return render(request, 'instructors/jobs/show_job.html', {
         'loggedin_user': request.user,
         'job': adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug),
-        'next': adminApi.get_next(request)
+        'next_first': request.session.get('next_first')
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -215,7 +193,8 @@ def show_job(request, session_slug, job_slug):
 def show_applications(request, session_slug, job_slug):
     ''' Display applications applied by students '''
     request = userApi.has_user_access(request, Role.INSTRUCTOR)
-    adminApi.can_req_parameters_access(request, 'none', ['next'])
+
+    request.session['next_second'] = adminApi.build_new_next(request)
 
     job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
     apps = Application.objects.filter( Q(job__session__slug=session_slug) & Q(job__course__slug=job_slug) )
@@ -295,7 +274,74 @@ def show_applications(request, session_slug, job_slug):
         'full_job_name': job.course.code.name + '_' + job.course.number.name + '_' + job.course.section.name,
         'instructor_preference_choices': Application.INSTRUCTOR_PREFERENCE_CHOICES,
         'app_status': APP_STATUS,
-        'next': adminApi.get_next(request)
+        'next_first': request.session.get('next_first', None)
+    })
+
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def status_summary_applicants(request, session_slug):
+    ''' Display the status of applicants in each session term '''
+    request = userApi.has_user_access(request, Role.INSTRUCTOR)
+
+    session = adminApi.get_session(session_slug, 'slug')
+
+    applicants = User.objects.filter( Q(profile__roles__name='Student') & Q(application__job__session__year=session.year) & Q(application__job__session__term__code=session.term.code) ).order_by('last_name', 'first_name').distinct()
+    total_applicants = applicants.count()
+
+    first_name_q = request.GET.get('first_name')
+    last_name_q = request.GET.get('last_name')
+    cwl_q = request.GET.get('cwl')
+    student_number_q = request.GET.get('student_number')
+
+    if bool(first_name_q):
+        applicants = applicants.filter(first_name__icontains=first_name_q)
+    if bool(last_name_q):
+        applicants = applicants.filter(last_name__icontains=last_name_q)
+    if bool(cwl_q):
+        applicants = applicants.filter(username__icontains=cwl_q)
+    if bool(student_number_q):
+        applicants = applicants.filter(profile__student_number__icontains=student_number_q)
+
+    page = request.GET.get('page', 1)
+    paginator = Paginator(applicants, settings.PAGE_SIZE)
+
+    try:
+        applicants = paginator.page(page)
+    except PageNotAnInteger:
+        applicants = paginator.page(1)
+    except EmptyPage:
+        applicants = paginator.page(paginator.num_pages)
+
+    for applicant in applicants:
+        apps = applicant.application_set.filter( Q(job__session__year=session.year) & Q(job__session__term__code=session.term.code) )
+
+        applicant.apps = []
+        for app in apps:
+            app = adminApi.add_app_info_into_application(app, ['applied', 'accepted', 'declined', 'cancelled'])
+            app_obj = {
+                'course': app.job.course.code.name + ' ' + app.job.course.number.name + ' ' + app.job.course.section.name,
+                'applied': app.applied,
+                'accepted': None
+            }
+            if app.accepted:
+                if app.is_terminated == False or app.cancelled == None:
+                    if app.is_declined_reassigned:
+                        latest_status = adminApi.get_latest_status_in_app(app)
+                        if (latest_status == 'declined' and app.declined.parent_id != None) or (latest_status == 'accepted'):
+                            app_obj['accepted'] = app.accepted
+                    else:
+                        app_obj['accepted'] = app.accepted
+
+            applicant.apps.append(app_obj)
+
+    return render(request, 'instructors/jobs/status_summary_applicants.html', {
+        'loggedin_user': request.user,
+        'session': session,
+        'total_applicants': total_applicants,
+        'applicants': applicants,
+        'next_second': request.session.get('next_second', None)
     })
 
 
@@ -308,10 +354,6 @@ def write_note(request, app_slug):
 
     app = adminApi.get_application(app_slug, 'slug')
     if request.method == 'POST':
-
-        # Check whether a next url is valid or not
-        adminApi.can_req_parameters_access(request, 'none', ['next'], 'POST')
-
         form = ApplicationNoteForm(request.POST, instance=app)
         if form.is_valid():
             appl = form.save(commit=False)
@@ -319,21 +361,22 @@ def write_note(request, app_slug):
             appl.save()
             if appl:
                 messages.success(request, 'Success! {0} {1} - {2} {3} {4}: Note for {5}(CWL: {6}) updated.'.format(appl.job.session.year, appl.job.session.term.code, appl.job.course.code.name, appl.job.course.number.name, appl.job.course.section.name, appl.applicant.get_full_name(), appl.applicant.username))
-                return HttpResponseRedirect(request.POST.get('next'))
+                return HttpResponseRedirect(request.POST.get('next_second'))
             else:
                 messages.error(request, 'An error occurred while writing a note.')
         else:
             errors = form.errors.get_json_data()
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
-        return HttpResponseRedirect( reverse('instructors:write_note', args=[app_slug]) + '?next=' + request.POST.get('next'))
+        return HttpResponseRedirect( reverse('instructors:write_note', args=[app_slug]) )
     else:
-        adminApi.can_req_parameters_access(request, 'instructor-note', ['next'])
-
+        #adminApi.can_req_parameters_access(request, 'instructor-note', [])
+        pass
+    
     return render(request, 'instructors/jobs/write_note.html', {
         'loggedin_user': request.user,
         'app': adminApi.add_app_info_into_application(app, ['selected']),
         'form': ApplicationNoteForm(data=None, instance=app),
         'app_status': APP_STATUS,
-        'next': adminApi.get_next(request)
+        'next_second': request.session.get('next_second', None)
     })

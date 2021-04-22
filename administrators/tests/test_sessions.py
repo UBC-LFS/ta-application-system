@@ -74,9 +74,6 @@ ALL_USER = '?next=' + reverse('administrators:all_users') + '?page=2&p=All%20Use
 DASHBOARD_USER = '?next=' + reverse('administrators:applications_dashboard') + '?page=2&p=Dashboard&t=basic'
 
 
-
-
-
 class SessionTest(TestCase):
     fixtures = DATA
 
@@ -100,7 +97,7 @@ class SessionTest(TestCase):
         response = self.client.get( reverse('administrators:current_sessions') )
         self.assertEqual(response.status_code, 403)
 
-        response = self.client.get( reverse('administrators:show_session', args=['2019-w1']) + CURRENT_SESSION )
+        response = self.client.get( reverse('administrators:show_session', args=[SESSION]) + CURRENT_SESSION )
         self.assertEqual(response.status_code, 403)
 
         self.login(USERS[2], 'password')
@@ -108,7 +105,7 @@ class SessionTest(TestCase):
         response = self.client.get( reverse('administrators:current_sessions') )
         self.assertEqual(response.status_code, 403)
 
-        response = self.client.get( reverse('administrators:show_session', args=['2019-w1']) + CURRENT_SESSION )
+        response = self.client.get( reverse('administrators:show_session', args=[SESSION]) + CURRENT_SESSION )
         self.assertEqual(response.status_code, 403)
 
         self.login('user3.admin', 'password')
@@ -116,7 +113,7 @@ class SessionTest(TestCase):
         response = self.client.get( reverse('administrators:current_sessions') )
         self.assertEqual(response.status_code, 403)
 
-        response = self.client.get( reverse('administrators:show_session', args=['2019-w1']) + CURRENT_SESSION )
+        response = self.client.get( reverse('administrators:show_session', args=[SESSION]) + CURRENT_SESSION )
         self.assertEqual(response.status_code, 403)
 
         self.login()
@@ -133,23 +130,26 @@ class SessionTest(TestCase):
         response = self.client.get( reverse('administrators:create_session_confirmation') )
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get( reverse('administrators:show_session', args=['2019-w1']) + CURRENT_SESSION )
+        response = self.client.get( reverse('administrators:show_session', args=[SESSION]) + CURRENT_SESSION )
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get( reverse('administrators:edit_session', args=['2019-w1']) + CURRENT_SESSION )
+        response = self.client.get( reverse('administrators:edit_session', args=[SESSION]) + CURRENT_SESSION )
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get( reverse('administrators:show_session', args=['2019-w1']) + ARCHIVED_SESSION )
+        response = self.client.get( reverse('administrators:show_session', args=[SESSION]) + ARCHIVED_SESSION )
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get( reverse('administrators:edit_session', args=['2019-w1']) + ARCHIVED_SESSION )
+        response = self.client.get( reverse('administrators:edit_session', args=[SESSION]) + ARCHIVED_SESSION )
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get( reverse('administrators:show_session', args=['2019-w1']) + '?next=/administrators/sessions/currentt/&p=Current%20Sessions' )
+        response = self.client.get( reverse('administrators:show_session', args=[SESSION]) + '?next=/administrators/sessions/currentt/&p=Current%20Sessions' )
         self.assertEqual(response.status_code, 404)
 
-        response = self.client.get( reverse('administrators:edit_session', args=['2019-w1']) + '?next=/administrators/sessions/archive/&p=Archived%20Sessions' )
+        response = self.client.get( reverse('administrators:edit_session', args=[SESSION]) + '?next=/administrators/sessions/archive/&p=Archived%20Sessions' )
         self.assertEqual(response.status_code, 404)
+
+        response = self.client.get( reverse('administrators:show_report', args=[SESSION]) )
+        self.assertEqual(response.status_code, 200)
 
     def test_show_session(self):
         print('- Test: show a session')
@@ -180,27 +180,31 @@ class SessionTest(TestCase):
         self.assertEqual(response.context['next'], CURRENT_NEXT)
 
 
-    def test_view_report(self):
-        print('- Test: view a report')
+    def test_view_session_report(self):
+        print('- Test: view a session report')
         self.login()
+
+        client_session = self.client.session
+        client_session['next_session'] = reverse('administrators:current_sessions') + '?page=1'
+        client_session.save()
 
         session = adminApi.get_session(SESSION, 'slug')
 
-        response = self.client.get(reverse('administrators:show_report', args=[session.slug]) + CURRENT_SESSION)
+        response = self.client.get(reverse('administrators:show_report', args=[session.slug]))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, USERS[0])
         self.assertEqual(response.context['session'].id, session.id)
         self.assertEqual(response.context['session'].slug, SESSION)
-        self.assertEqual(len(response.context['applicants']), 5)
-        self.assertEqual(response.context['total_accepted_applicants'], 4)
-        self.assertEqual(response.context['next'], CURRENT_NEXT)
+        self.assertEqual(response.context['total_applicants'], 5)
+        self.assertEqual(response.context['next_session'], reverse('administrators:current_sessions') + '?page=1')
+        self.assertEqual(response.context['back_to_word'], 'Current Sessions')
 
         applicants = [
+            { 'username': 'user100.test', 'accepted_apps': ['APBI 200 001 (30.0 hours)', 'APBI 260 001 (70.0 hours)'] },
             { 'username': 'user65.test', 'accepted_apps': [] },
             { 'username': 'user66.test', 'accepted_apps': ['APBI 260 001 (45.0 hours)'] },
             { 'username': 'user70.test', 'accepted_apps': ['APBI 200 002 (65.0 hours)'] },
-            { 'username': 'user80.test', 'accepted_apps': [] },
-            { 'username': 'user100.test', 'accepted_apps': ['APBI 200 001 (30.0 hours)', 'APBI 260 001 (70.0 hours)'] }
+            { 'username': 'user80.test', 'accepted_apps': [] }
         ]
 
         c = 0

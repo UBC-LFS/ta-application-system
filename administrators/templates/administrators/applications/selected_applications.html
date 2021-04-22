@@ -7,7 +7,7 @@
 
   <div class="row">
     <div class="col-md-6">
-      {% include 'administrators/applications/_search_fields.html' with data=apps total=total_apps path='selected' offered_stats=offered_stats %}
+      {% include 'administrators/applications/_search_fields.html' with data=apps total=filtered_apps_stats.num_filtered_apps path='selected' filtered_offered_apps=filtered_apps_stats.filtered_offered_apps %}
     </div>
 
     <div class="col-md-6">
@@ -25,9 +25,9 @@
               <td>Total</td>
             </tr>
             <tr>
-              <td><span class="text-success h3 font-weight-normal">{{ selected_apps.stats.num_offered }}</span></td>
-              <td><span class="text-danger h3 font-weight-normal">{{ selected_apps.stats.num_not_offered }}</span></td>
-              <td><span class="h3 font-weight-bold">{{ selected_apps.total }}</span></td>
+              <td><span class="text-success h3 font-weight-normal">{{ all_offered_apps_stats.num_offered }}</span></td>
+              <td><span class="text-danger h3 font-weight-normal">{{ all_offered_apps_stats.num_not_offered }}</span></td>
+              <td><span class="h3 font-weight-bold">{{ num_all_apps }}</span></td>
             </tr>
           </tbody>
         </table>

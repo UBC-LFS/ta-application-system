@@ -65,8 +65,8 @@
   {{ total }} result{% if total > 1 %}s {% endif %} found. {{ data|length }} row{% if data|length > 1 %}s {% endif %} in this page.
 
   {% if path == 'selected' %}
-    <span class="text-success">Offered: {{ offered_stats.num_offered }}</span> |
-    <span class="text-danger">Not offered: {{ offered_stats.num_not_offered }}</span>
+    <span class="text-success">Offered: {{ filtered_offered_apps.num_offered }}</span> |
+    <span class="text-danger">Not offered: {{ filtered_offered_apps.num_not_offered }}</span>
 
   {% elif path == 'accepted' %}
     <span class="text-success">Processed: {{ eform_stats.processed }}</span> |

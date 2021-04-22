@@ -1,0 +1,22 @@
+<div class="search-field bg-light-gray p-3 font-size-sm">
+  <form method="GET">
+    <input type="text" name="first_name" value="{{ request.GET.first_name }}" placeholder="First Name" /> and
+    <input type="text" name="last_name" value="{{ request.GET.last_name }}" placeholder="Last Name" /> and
+    <input type="text" name="cwl" value="{{ request.GET.cwl }}" placeholder="CWL" /> and
+    <input type="text" name="student_number" value="{{ request.GET.student_number }}" placeholder="Student Number" />
+
+    <div class="mt-1">
+      <button class="btn btn-sm btn-secondary" type="submit">Search</button>
+
+      {% if path == 'administrators_sessions' %}
+        <a class="btn btn-sm btn-light" href="{% url 'administrators:show_report' session_slug=session_slug %}">Clear</a>
+
+      {% elif path == 'instructors_applications' %}
+        <a class="btn btn-sm btn-light" href="{% url 'instructors:status_summary_applicants' session_slug=session_slug %}">Clear</a>
+
+      {% endif %}
+    </div>
+  </form>
+</div>
+
+<div class="text-dark-gray font-size-sm">{{ total }} result{% if total > 1 %}s {% endif %} found. {{ data|length }} row{% if data|length > 1 %}s {% endif %} in this page.</div>
