@@ -77,19 +77,19 @@ class ObserverTest(TestCase):
         self.assertEqual(response.context['loggedin_user'].roles, ['Observer'])
 
 
-    def test_report(self):
-        print('- Display a report page')
+    def test_show_report_accepted_apps(self):
+        print('- Display a report of accepted apps page')
         self.login()
 
         response = self.client.get( reverse('observers:report_accepted_applications') )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, USER)
         self.assertEqual(response.context['loggedin_user'].roles, ['Observer'])
-        self.assertEqual(response.context['total_apps'], 6)
+        self.assertEqual(response.context['total_apps'], 5)
 
         apps = [
             { 'id': 24, 'info': '2019_W2_APBI_260_001_user100.test' },
-            { 'id': 22, 'info': '2019_W1_APBI_260_001_user100.test' },
+            # { 'id': 22, 'info': '2019_W1_APBI_260_001_user100.test' }, terminated
             { 'id': 11, 'info': '2019_W1_APBI_200_002_user70.test' },
             { 'id': 8, 'info': '2019_W2_APBI_200_001_user66.test' },
             { 'id': 7, 'info': '2019_W1_APBI_260_001_user66.test' },

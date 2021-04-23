@@ -299,8 +299,7 @@ def get_applicant_status(year, term_code, applicant):
 def get_report_accepted_applications(request):
     ''' Get a report for accepted applications'''
 
-    apps = Application.objects.filter(applicationstatus__assigned=ApplicationStatus.ACCEPTED).order_by('-id').distinct()
-    total_apps = apps.count()
+    apps = Application.objects.filter( Q(applicationstatus__assigned=ApplicationStatus.ACCEPTED) & Q(is_terminated=False) ).order_by('-id').distinct()
 
     if bool( request.GET.get('year') ):
         apps = apps.filter(job__session__year__icontains=request.GET.get('year'))
@@ -319,7 +318,7 @@ def get_report_accepted_applications(request):
     if bool( request.GET.get('student_number') ):
         apps = apps.filter(applicant__profile__student_number__icontains=request.GET.get('student_number'))
 
-    return apps, total_apps
+    return apps, apps.count()
 
 
 # end sessions

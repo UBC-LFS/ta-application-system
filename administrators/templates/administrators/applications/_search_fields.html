@@ -23,10 +23,6 @@
       Declined & re-assigned: <input type="checkbox" name="declined_reassigned" value="True" {% if request.GET.declined_reassigned %}checked{% endif %} /> and
       Accepted in today: <input type="checkbox" name="accepted_in_today" value="True" {% if request.GET.accepted_in_today %}checked{% endif %} />
 
-    {% elif path == 'report_accepted' %}
-      and
-      <input type="text" name="student_number" value="{{ request.GET.student_number }}" placeholder="Student Number" />
-
     {% endif %}
 
     <div class="mt-1">
@@ -52,9 +48,6 @@
 
       {% elif path == 'terminated' %}
         <a class="btn btn-sm btn-light" href="{% url 'administrators:terminated_applications' %}">Clear</a>
-
-      {% elif path == 'report_accepted' %}
-        <a class="btn btn-sm btn-light" href="{% url 'administrators:report_accepted_applications' %}">Clear</a>
 
       {% endif %}
     </div>

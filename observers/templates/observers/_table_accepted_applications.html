@@ -23,7 +23,13 @@
   <tbody>
     {% for app in data %}
       <tr>
-        <td>{{ app.id }}</td>
+        <td>
+          {{ app.id }}
+
+          {% if app.is_declined_reassigned %}
+            <i class="fa fa-asterisk text-danger" aria-hidden="true"></i>
+          {% endif %}
+        </td>
         <td>{{ app.job.session.year }}</td>
         <td>{{ app.job.session.term.code }}</td>
         <td>

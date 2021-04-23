@@ -5,7 +5,22 @@
 <div>
   {% include 'ta_app/pages/_header.html' with title='Report - Accepted Applications' %}
 
-  {% include 'administrators/applications/_search_fields.html' with data=apps total=total_apps path='report_accepted' %}
+  <div class="row">
+    <div class="col-md-6">
+      {% include 'observers/_search_fields.html' with data=apps total=total_apps path='administrators' %}
+    </div>
+
+    <div class="col-md-6">
+      <div class="bg-light-gray p-4" style="height:180.8px">
+        <h5>Note:</h5>
+        <ul class="font-size-sm">
+          <li>
+            {% include 'ta_app/applications/_declined_reassigned_note.html' %}
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
 
   {% include 'observers/_table_accepted_applications.html' with data=apps %}
 

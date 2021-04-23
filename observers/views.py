@@ -44,10 +44,6 @@ def report_accepted_applications(request):
     except EmptyPage:
     	apps = paginator.page(paginator.num_pages)
 
-    filtered_app_list = []
-    for app in apps:
-        filtered_app_list, _, _ = adminApi.valid_accepted_app(filtered_app_list, app)
-
     return render(request, 'observers/report_accepted_applications.html', {
         'loggedin_user': request.user,
         'apps': apps,
