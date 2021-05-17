@@ -93,7 +93,7 @@
           </td>
           <td>
             {% if user.last_login %}
-              <span class="d-none">{{ app.created_at|date:"Y m d z" }}</span>
+              <span class="d-none">{{ user.last_login|date:"Y m d z" }}</span>
               {{ user.last_login|date:"N j, Y" }}<br />
               {{ user.last_login|date:"g:i a" }}
             {% else %}
