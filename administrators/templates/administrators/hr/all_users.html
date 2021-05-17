@@ -43,6 +43,7 @@
         <th data-sortable="true">E-mail</th>
         <th data-sortable="true">Role</th>
         <th data-sortable="true">Superuser <br />Status</th>
+        <th data-sortable="true">Last Login</th>
         <th>Actions</th>
       </tr>
     </thead>
@@ -88,6 +89,14 @@
           <td>
             {% if user.is_superuser%}
               <i class="fa fa-check-circle text-chocolate font-size-1 vertical-middle" aria-hidden="true"></i>
+            {% endif %}
+          </td>
+          <td>
+            {% if user.last_login %}
+              {{ user.last_login|date:"N j, Y" }}<br />
+              {{ user.last_login|date:"g:i a" }}
+            {% else %}
+              None
             {% endif %}
           </td>
           <td>

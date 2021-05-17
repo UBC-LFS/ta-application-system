@@ -38,7 +38,7 @@ class AdminHRTest(TestCase):
 
     def build_csv_file(self, apps, options, id_included=False):
         ''' Build a csv file '''
-        csv_file = 'ID,Year,Term,Job,Applicant,Student Number,Employee Number,Classification,Monthly Salary (CAD),P/T (%),PIN,TASM,eForm,Worktag,Processing Note,Accepted at\n'
+        csv_file = 'ID,Year,Term,Job,Applicant,Student Number,Employee Number,Classification,Monthly Salary (CAD),P/T (%),PIN,TASM,Processed,Worktag,Processing Note,Accepted at\n'
         objs = []
         c = 1
         for app in apps:
@@ -46,22 +46,22 @@ class AdminHRTest(TestCase):
                 csv_file += '"' + str(app.id) + '","2019","W2","APBI 260 001","Michael Jordan (user100.test)","45345555","1111112","2019 STA ($35.42)","$442.75","26.04",'
                 pin = app.admindocuments.pin
                 tasm = app.admindocuments.tasm
-                eform = app.admindocuments.eform
+                processed = app.admindocuments.processed
                 worktag = app.admindocuments.worktag
                 processing_note = app.admindocuments.processing_note
 
                 if 'pin' in options: pin = '998'+ str(c)
                 if 'tasm' in options:
                     tasm = False if tasm else True
-                if 'eform' in options: eform = 'LLGG6' + str(c)
+                if 'processed' in options: processed = 'Done'
                 if 'worktag' in options: worktag = 'xyzlmno' + str(c)
                 if 'processing_note' in options: processing_note = 'Very good. Updated ' + str(c)
 
-                objs.append({ 'id': app.id, 'pin': pin, 'tasm': tasm, 'eform': eform, 'worktag': worktag, 'processing_note': processing_note })
+                objs.append({ 'id': app.id, 'pin': pin, 'tasm': tasm, 'processed': processed, 'worktag': worktag, 'processing_note': processing_note })
 
                 csv_file += '"' + str(pin) + '",' if pin != None else '"",'
                 csv_file += '"' + "YES" + '",' if tasm else '"",'
-                csv_file += '"' + str(eform) + '",' if eform != None else '"",'
+                csv_file += '"' + str(processed) + '",' if processed != None else '"",'
                 csv_file += '"' + str(worktag) + '",' if worktag != None else '"",'
                 csv_file += '"' + str(processing_note) + '",' if processing_note != None else '"",'
                 csv_file += '"Sept. 20, 2019 (50.0 hours)"\n'
@@ -69,11 +69,11 @@ class AdminHRTest(TestCase):
                 if id_included:
                     pin = '9977'
                     tasm = 'YES'
-                    eform = 'vASE12'
+                    processed = 'Done'
                     worktag = 'ABCDEFG9'
                     processing_note = 'Yay good'
-                    csv_file += '"' + str(app.id) + '","2019","W2","APBI 260 001","Michael Jordan (user100.test)","45345555","1111112","2019 STA ($35.42)","$442.75","26.04","{0}",{1},"{2}","{3}","{4}","Sept. 20, 2019 (50.0 hours)"\n'.format(pin, tasm, eform, worktag, processing_note)
-                    objs.append({ 'id': app.id, 'pin': pin, 'tasm': tasm, 'eform': eform, 'worktag': worktag, 'processing_note': processing_note })
+                    csv_file += '"' + str(app.id) + '","2019","W2","APBI 260 001","Michael Jordan (user100.test)","45345555","1111112","2019 STA ($35.42)","$442.75","26.04","{0}",{1},"{2}","{3}","{4}","Sept. 20, 2019 (50.0 hours)"\n'.format(pin, tasm, processed, worktag, processing_note)
+                    objs.append({ 'id': app.id, 'pin': pin, 'tasm': tasm, 'processed': processed, 'worktag': worktag, 'processing_note': processing_note })
             c += 1
 
         return csv_file, objs
@@ -150,7 +150,7 @@ class AdminHRTest(TestCase):
         data1 = {
             'pin': '1237',
             'tasm': 'true',
-            'eform': 'af3343',
+            'processed': 'Done',
             'worktag': 'ABCDEFG9',
             'processing_note': 'this is a processing note'
         }
@@ -170,7 +170,7 @@ class AdminHRTest(TestCase):
             'application': app_id,
             'pin': '12377',
             'tasm': 'true',
-            'eform': 'af3343',
+            'processed': 'Done',
             'worktag': 'ABCDEFG9',
             'processing_note': 'this is a processing note'
         }
@@ -190,7 +190,7 @@ class AdminHRTest(TestCase):
             'application': app_id,
             'pin': '1237',
             'tasm': 'true',
-            'eform': 'af3343',
+            'processed': 'Done',
             'worktag': 'ABCDEFG9',
             'processing_note': 'this is a processing note',
         }
@@ -212,7 +212,7 @@ class AdminHRTest(TestCase):
         self.assertTrue(app.id, app_id)
         self.assertTrue(app.admindocuments.pin, data3['pin'])
         self.assertTrue(app.admindocuments.tasm, data3['tasm'])
-        self.assertTrue(app.admindocuments.eform, data3['eform'])
+        self.assertTrue(app.admindocuments.processed, data3['processed'])
         self.assertTrue(app.admindocuments.worktag, data3['worktag'])
         self.assertEqual( len(app.admindocuments.admindocumentsuser_set.all()), 1 )
 
@@ -229,7 +229,7 @@ class AdminHRTest(TestCase):
             'application': app_id,
             'pin': '1237',
             'tasm': 'true',
-            'eform': '',
+            'processed': '',
             'worktag': 'ABCDEFG9',
             'processing_note': ''
         }
@@ -251,7 +251,7 @@ class AdminHRTest(TestCase):
         self.assertEqual(app1.id, app_id)
         self.assertEqual(app1.admindocuments.pin, data1['pin'])
         self.assertTrue(app1.admindocuments.tasm)
-        self.assertIsNone(app1.admindocuments.eform)
+        self.assertIsNone(app1.admindocuments.processed)
         self.assertEqual(app1.admindocuments.worktag, data1['worktag'])
         self.assertEqual( len(app1.admindocuments.admindocumentsuser_set.all()), 1 )
 
@@ -260,7 +260,7 @@ class AdminHRTest(TestCase):
             'application': app_id,
             'pin': '1237',
             'tasm': 'true',
-            'eform': 'af3343',
+            'processed': 'Done',
             'worktag': 'ABCDEFG9',
             'processing_note': 'this is a processing note',
         }
@@ -282,7 +282,7 @@ class AdminHRTest(TestCase):
         self.assertEqual(app2.id, app_id)
         self.assertEqual(app2.admindocuments.pin, data2['pin'])
         self.assertTrue(app2.admindocuments.tasm)
-        self.assertEqual(app2.admindocuments.eform, data2['eform'])
+        self.assertEqual(app2.admindocuments.processed, data2['processed'])
         self.assertEqual(app2.admindocuments.worktag, data2['worktag'])
         self.assertEqual( len(app2.admindocuments.admindocumentsuser_set.all()), 2 )
 
@@ -293,7 +293,7 @@ class AdminHRTest(TestCase):
             'application': app_id,
             'pin': '1255',
             'tasm': 'false',
-            'eform': 'af3343',
+            'processed': 'Done',
             'worktag': 'ABCDEFG8',
             'processing_note': 'this is a processing note'
         }
@@ -315,7 +315,7 @@ class AdminHRTest(TestCase):
         self.assertEqual(app3.id, app_id)
         self.assertEqual(app3.admindocuments.pin, data3['pin'])
         self.assertFalse(app3.admindocuments.tasm, data3['tasm'])
-        self.assertEqual(app3.admindocuments.eform, data3['eform'])
+        self.assertEqual(app3.admindocuments.processed, data3['processed'])
         self.assertEqual(app3.admindocuments.worktag, data3['worktag'])
         self.assertEqual( len(app3.admindocuments.admindocumentsuser_set.all()), 3 )
 
@@ -361,7 +361,7 @@ class AdminHRTest(TestCase):
         print('- Test: Admin or HR can have update admin docs via CSV - no data fields')
         self.login()
 
-        csv = 'ID,Year,Term,Job,Applicant,Student Number,Employee Number,Classification,Monthly Salary (CAD),P/T (%),PIN,TASM,eForm,Worktag,Processing Note,Accepted at\n'
+        csv = 'ID,Year,Term,Job,Applicant,Student Number,Employee Number,Classification,Monthly Salary (CAD),P/T (%),PIN,TASM,Processed,Worktag,Processing Note,Accepted at\n'
         data = {
             'file': SimpleUploadedFile('ta_app.csv', csv.encode(), content_type='text/csv'),
             'next': reverse('administrators:accepted_applications')
@@ -377,7 +377,7 @@ class AdminHRTest(TestCase):
         print('- Test: Admin or HR can have update admin docs via CSV - some columns are missing')
         self.login()
 
-        csv3 = 'ID,Year,Term,Job,Applicant,Student Number,Employee Number,Classification,Monthly Salary (CAD),P/T (%),PIN,TASM,eForm,Worktag,Processing Note,Accepted at\n"24","2019","W2","APBI 260 001","Michael Jordan (user100.test)","45345555","1111112","2019 STA ($35.42)","$442.75","26.04","2222","","444444","5555","6666"\n'
+        csv3 = 'ID,Year,Term,Job,Applicant,Student Number,Employee Number,Classification,Monthly Salary (CAD),P/T (%),PIN,TASM,Processed,Worktag,Processing Note,Accepted at\n"24","2019","W2","APBI 260 001","Michael Jordan (user100.test)","45345555","1111112","2019 STA ($35.42)","$442.75","26.04","2222","","444444","5555","6666"\n'
         data3 = {
             'file': SimpleUploadedFile('ta_app.csv', csv3.encode(), content_type='text/csv'),
             'next': reverse('administrators:accepted_applications')
@@ -435,14 +435,14 @@ class AdminHRTest(TestCase):
         self.assertEqual(response.status_code, 200)
         apps = response.context['apps']
 
-        csv, objs = self.build_csv_file(apps, ['pin', 'tasm', 'eform', 'worktag', 'processing_note'])
+        csv, objs = self.build_csv_file(apps, ['pin', 'tasm', 'processed', 'worktag', 'processing_note'])
         data = {
             'file': SimpleUploadedFile('ta_app.csv', csv.encode(), content_type='text/csv'),
             'next': reverse('administrators:accepted_applications')
         }
         response = self.client.post(reverse('administrators:import_accepted_apps'), data=data, format='multipart')
         messages = self.messages(response)
-        self.assertEqual(messages[0], 'Success! Updated the following fields in Admin Docs through CSV. <ul><li><strong>ID: 24 (CWL: user100.test)</strong> - PIN,TASM,eForm,Worktag,Processing Note</li><li><strong>ID: 11 (CWL: user70.test)</strong> - PIN,TASM,eForm,Worktag,Processing Note</li><li><strong>ID: 8 (CWL: user66.test)</strong> - PIN,TASM,eForm,Worktag,Processing Note</li><li><strong>ID: 7 (CWL: user66.test)</strong> - PIN,TASM,eForm,Worktag,Processing Note</li></ul>')
+        self.assertEqual(messages[0], 'Success! Updated the following fields in Admin Docs through CSV. <ul><li><strong>ID: 24 (CWL: user100.test)</strong> - PIN,TASM,Worktag,Processing Note</li><li><strong>ID: 11 (CWL: user70.test)</strong> - PIN,TASM,Processed,Worktag,Processing Note</li><li><strong>ID: 8 (CWL: user66.test)</strong> - PIN,TASM,Processed,Worktag,Processing Note</li><li><strong>ID: 7 (CWL: user66.test)</strong> - PIN,TASM,Processed,Worktag,Processing Note</li></ul>')
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, response.url)
 
@@ -454,14 +454,14 @@ class AdminHRTest(TestCase):
         self.assertEqual(response.status_code, 200)
         apps = response.context['apps']
 
-        csv, objs = self.build_csv_file(apps, ['pin', 'tasm', 'eform', 'worktag', 'processing_note'], True)
+        csv, objs = self.build_csv_file(apps, ['pin', 'tasm', 'processed', 'worktag', 'processing_note'], True)
         data = {
             'file': SimpleUploadedFile('ta_app.csv', csv.encode(), content_type='text/csv'),
             'next': reverse('administrators:accepted_applications')
         }
         response = self.client.post(reverse('administrators:import_accepted_apps'), data=data, format='multipart')
         messages = self.messages(response)
-        self.assertEqual(messages[0], 'Success! Updated the following fields in Admin Docs through CSV. <ul><li><strong>ID: 24 (CWL: user100.test)</strong> - PIN,TASM,eForm,Worktag,Processing Note</li><li><strong>ID: 11 (CWL: user70.test)</strong> - PIN,TASM,eForm,Worktag,Processing Note</li><li><strong>ID: 8 (CWL: user66.test)</strong> - PIN,TASM,eForm,Worktag,Processing Note</li><li><strong>ID: 7 (CWL: user66.test)</strong> - PIN,TASM,eForm,Worktag,Processing Note</li><li><strong>ID: 1 (CWL: user100.test)</strong> - PIN,TASM,eForm,Worktag,Processing Note</li></ul>')
+        self.assertEqual(messages[0], 'Success! Updated the following fields in Admin Docs through CSV. <ul><li><strong>ID: 24 (CWL: user100.test)</strong> - PIN,TASM,Worktag,Processing Note</li><li><strong>ID: 11 (CWL: user70.test)</strong> - PIN,TASM,Processed,Worktag,Processing Note</li><li><strong>ID: 8 (CWL: user66.test)</strong> - PIN,TASM,Processed,Worktag,Processing Note</li><li><strong>ID: 7 (CWL: user66.test)</strong> - PIN,TASM,Processed,Worktag,Processing Note</li><li><strong>ID: 1 (CWL: user100.test)</strong> - PIN,TASM,Processed,Worktag,Processing Note</li></ul>')
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, response.url)
 
@@ -476,7 +476,7 @@ class AdminHRTest(TestCase):
         self.assertTrue(hasattr(app, 'admindocuments'))
         self.assertEqual(app.admindocuments.pin, found['pin'])
         self.assertEqual(app.admindocuments.tasm, found['tasm'])
-        self.assertEqual(app.admindocuments.eform, found['eform'])
+        self.assertEqual(app.admindocuments.processed, found['processed'])
         self.assertEqual(app.admindocuments.worktag, found['worktag'])
         self.assertEqual(app.admindocuments.processing_note, found['processing_note'])
 
@@ -488,8 +488,8 @@ class AdminHRTest(TestCase):
         self.assertEqual(response.status_code, 200)
         apps = response.context['apps']
 
-        csv, objs = self.build_csv_file(apps, ['pin', 'tasm', 'eform', 'worktag', 'processing_note'], True)
-        csv += '"111111","2019","W2","APBI 260 001","Michael Jordan (user100.test)","45345555","1111112","2019 STA ($35.42)","$442.75","26.04","1277","YES","JJSVV1","jj1b","Extra","Sept. 20, 2019 (50.0 hours)"\n'
+        csv, objs = self.build_csv_file(apps, ['pin', 'tasm', 'processed', 'worktag', 'processing_note'], True)
+        csv += '"111111","2019","W2","APBI 260 001","Michael Jordan (user100.test)","45345555","1111112","2019 STA ($35.42)","$442.75","26.04","1277","YES","Done","jj1b","Extra","Sept. 20, 2019 (50.0 hours)"\n'
         data = {
             'file': SimpleUploadedFile('ta_app.csv', csv.encode(), content_type='text/csv'),
             'next': reverse('administrators:accepted_applications')
@@ -508,8 +508,8 @@ class AdminHRTest(TestCase):
         self.assertEqual(response.status_code, 200)
         apps = response.context['apps']
 
-        csv, objs = self.build_csv_file(apps, ['pin', 'tasm', 'eform', 'worktag', 'processing_note'], True)
-        csv += '"25","2019","W2","APBI 260 001","Michael Jordan (user100.test)","45345555","1111112","2019 STA ($35.42)","$442.75","26.04","1277","YES","JJSVV1","jj2b","Extra","Sept. 20, 2019 (50.0 hours)"\n'
+        csv, objs = self.build_csv_file(apps, ['pin', 'tasm', 'processed', 'worktag', 'processing_note'], True)
+        csv += '"25","2019","W2","APBI 260 001","Michael Jordan (user100.test)","45345555","1111112","2019 STA ($35.42)","$442.75","26.04","1277","YES","Done","jj2b","Extra","Sept. 20, 2019 (50.0 hours)"\n'
         data = {
             'file': SimpleUploadedFile('ta_app.csv', csv.encode(), content_type='text/csv'),
             'next': reverse('administrators:accepted_applications')
@@ -528,7 +528,7 @@ class AdminHRTest(TestCase):
         self.assertEqual(response.status_code, 200)
         apps = response.context['apps']
 
-        csv, objs = self.build_csv_file(apps, ['pin', 'tasm', 'eform', 'worktag', 'processing_note'])
+        csv, objs = self.build_csv_file(apps, ['pin', 'tasm', 'processed', 'worktag', 'processing_note'])
         csv += ',,,,,,,,,,,,,,,\n'
         data = {
             'file': SimpleUploadedFile('ta_app.csv', csv.encode(), content_type='text/csv'),
@@ -536,7 +536,7 @@ class AdminHRTest(TestCase):
         }
         response = self.client.post(reverse('administrators:import_accepted_apps'), data=data, format='multipart')
         messages = self.messages(response)
-        self.assertEqual(messages[0], 'Success! Updated the following fields in Admin Docs through CSV. <ul><li><strong>ID: 24 (CWL: user100.test)</strong> - PIN,TASM,eForm,Worktag,Processing Note</li><li><strong>ID: 11 (CWL: user70.test)</strong> - PIN,TASM,eForm,Worktag,Processing Note</li><li><strong>ID: 8 (CWL: user66.test)</strong> - PIN,TASM,eForm,Worktag,Processing Note</li><li><strong>ID: 7 (CWL: user66.test)</strong> - PIN,TASM,eForm,Worktag,Processing Note</li></ul>')
+        self.assertEqual(messages[0], 'Success! Updated the following fields in Admin Docs through CSV. <ul><li><strong>ID: 24 (CWL: user100.test)</strong> - PIN,TASM,Worktag,Processing Note</li><li><strong>ID: 11 (CWL: user70.test)</strong> - PIN,TASM,Processed,Worktag,Processing Note</li><li><strong>ID: 8 (CWL: user66.test)</strong> - PIN,TASM,Processed,Worktag,Processing Note</li><li><strong>ID: 7 (CWL: user66.test)</strong> - PIN,TASM,Processed,Worktag,Processing Note</li></ul>')
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, response.url)
 
@@ -548,7 +548,7 @@ class AdminHRTest(TestCase):
         self.assertEqual(response.status_code, 200)
         apps = response.context['apps']
 
-        csv, objs = self.build_csv_file(apps, ['pin', 'tasm', 'eform', 'worktag', 'processing_note'])
+        csv, objs = self.build_csv_file(apps, ['pin', 'tasm', 'processed', 'worktag', 'processing_note'])
         csv_modified = csv.replace('"8"', '""')
         data = {
             'file': SimpleUploadedFile('ta_app.csv', csv_modified.encode(), content_type='text/csv'),

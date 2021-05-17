@@ -6,7 +6,7 @@
       "application_id": 24,
       "pin": "1111",
       "tasm": false,
-      "eform": "AB1234",
+      "processed": "Done",
       "speed_chart": "CCDD",
       "processing_note": "Good",
       "worktag": "ABCDEFG1"
@@ -19,7 +19,7 @@
       "application_id": 11,
       "pin": "2222",
       "tasm": true,
-      "eform": null,
+      "processed": null,
       "speed_chart": null,
       "processing_note": null,
       "worktag": null
@@ -32,7 +32,7 @@
       "application_id": 8,
       "pin": null,
       "tasm": false,
-      "eform": null,
+      "processed": null,
       "speed_chart": null,
       "processing_note": "This is a processing note",
       "worktag": null
@@ -45,7 +45,7 @@
       "application_id": 7,
       "pin": null,
       "tasm": false,
-      "eform": null,
+      "processed": null,
       "speed_chart": null,
       "processing_note": null,
       "worktag": null

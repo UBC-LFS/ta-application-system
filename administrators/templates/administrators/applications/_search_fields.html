@@ -19,7 +19,7 @@
 
     {% elif path == 'accepted' %}
       <br />
-      <input type="text" name="eform" value="{{ request.GET.eform }}" placeholder="eForm" /> and
+      <input type="text" name="processed" value="{{ request.GET.processed }}" placeholder="Processed" /> and
       Declined & re-assigned: <input type="checkbox" name="declined_reassigned" value="True" {% if request.GET.declined_reassigned %}checked{% endif %} /> and
       Accepted in today: <input type="checkbox" name="accepted_in_today" value="True" {% if request.GET.accepted_in_today %}checked{% endif %} />
 
@@ -62,7 +62,7 @@
     <span class="text-danger">Not offered: {{ filtered_offered_apps.num_not_offered }}</span>
 
   {% elif path == 'accepted' %}
-    <span class="text-success">Processed: {{ eform_stats.processed }}</span> |
-    <span class="text-danger">Not processed: {{ eform_stats.not_processed }}</span>
+    <span class="text-success">Processed: {{ processed_stats.processed }}</span> |
+    <span class="text-danger">Not processed: {{ processed_stats.not_processed }}</span>
   {% endif %}
 </div>

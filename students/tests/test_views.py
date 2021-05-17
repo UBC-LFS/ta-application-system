@@ -59,13 +59,12 @@ class StudentTest(TestCase):
         cls.testing_resume = os.path.join(settings.BASE_DIR, 'users', 'tests', 'files', 'resumeguide200914341.pdf')
         cls.testing_sin = os.path.join(settings.BASE_DIR, 'users', 'tests', 'files', 'karsten-wurth-9qvZSH_NOQs-unsplash.jpg')
         cls.testing_study_permit = os.path.join(settings.BASE_DIR, 'users', 'tests', 'files', 'lucas-davies-3aubsNmGuLE-unsplash.jpg')
-        cls.testing_personal_data_form = os.path.join(settings.BASE_DIR, 'users', 'tests', 'files', 'personal_data_form.doc')
 
     def login(self, username=None, password=None):
         if username and password:
-            self.client.post(LOGIN_URL, data={'username': username, 'password': password})
+            self.client.post(LOGIN_URL, data={'username': username, PASSWORD: password})
         else:
-            self.client.post(LOGIN_URL, data={'username': self.user.username, 'password': PASSWORD})
+            self.client.post(LOGIN_URL, data={'username': self.user.username, PASSWORD: PASSWORD})
 
     def messages(self, res):
         return [m.message for m in get_messages(res.wsgi_request)]
@@ -253,7 +252,6 @@ class StudentTest(TestCase):
 
         SIN = self.testing_sin
         STUDY_PERMIT = self.testing_study_permit
-        PERSONAL_DATA_FORM = self.testing_personal_data_form
 
         user = userApi.get_user(username, 'username')
         data = {
@@ -268,12 +266,12 @@ class StudentTest(TestCase):
         data = {
             'user': user.id,
             'nationality': data['nationality'],
+            'date_of_birth': '2000-01-01',
             'employee_number': random_with_N_digits(7),
             'sin': SimpleUploadedFile('sin.jpg', open(SIN, 'rb').read(), content_type='image/jpeg'),
             'sin_expiry_date': '2030-01-01',
             'study_permit': SimpleUploadedFile('study_permit.jpg', open(STUDY_PERMIT, 'rb').read(), content_type='image/jpeg'),
-            'study_permit_expiry_date': '2030-01-01',
-            'personal_data_form': SimpleUploadedFile('personal_data_form.doc', open(PERSONAL_DATA_FORM, 'rb').read(), content_type='application/msword')
+            'study_permit_expiry_date': '2030-01-01'
         }
         response = self.client.post( reverse('students:submit_confidentiality'), data=data, format='multipart' )
         messages = self.messages(response)
@@ -286,7 +284,6 @@ class StudentTest(TestCase):
 
         SIN = self.testing_sin
         STUDY_PERMIT = self.testing_study_permit
-        PERSONAL_DATA_FORM = self.testing_personal_data_form
 
         user = userApi.get_user(username, 'username')
         data = {
@@ -301,10 +298,10 @@ class StudentTest(TestCase):
         data = {
             'user': user.id,
             'nationality': data['nationality'],
+            'date_of_birth': '2000-01-01',
             'is_new_employee': True,
             'employee_number': '',
-            'sin': SimpleUploadedFile('sin.jpg', open(SIN, 'rb').read(), content_type='image/jpeg'),
-            'personal_data_form': SimpleUploadedFile('personal_data_form.doc', open(PERSONAL_DATA_FORM, 'rb').read(), content_type='application/msword'),
+            'sin': SimpleUploadedFile('sin.jpg', open(SIN, 'rb').read(), content_type='image/jpeg')
         }
         response = self.client.post( reverse('students:submit_confidentiality'), data=data, format='multipart' )
         messages = self.messages(response)
@@ -313,11 +310,10 @@ class StudentTest(TestCase):
         self.assertRedirects(response, response.url)
 
     def submit_confiential_information_domestic_incomplete(self, username):
-        ''' Submit confidential information '''
+        ''' Submit confidential information - missing sin '''
 
         SIN = self.testing_sin
         STUDY_PERMIT = self.testing_study_permit
-        PERSONAL_DATA_FORM = self.testing_personal_data_form
 
         user = userApi.get_user(username, 'username')
         data = {
@@ -332,8 +328,8 @@ class StudentTest(TestCase):
         data = {
             'user': user.id,
             'nationality': data['nationality'],
-            'employee_number': random_with_N_digits(7),
-            'personal_data_form': SimpleUploadedFile('personal_data_form.doc', open(PERSONAL_DATA_FORM, 'rb').read(), content_type='application/msword'),
+            'date_of_birth': '2000-01-01',
+            'employee_number': random_with_N_digits(7)
         }
         response = self.client.post( reverse('students:submit_confidentiality'), data=data, format='multipart' )
         messages = self.messages(response)
@@ -342,11 +338,10 @@ class StudentTest(TestCase):
         self.assertRedirects(response, response.url)
 
     def submit_confiential_information_international_incomplete(self, username):
-        ''' Submit confidential information '''
+        ''' Submit confidential information - missing date of birth and expired study permit expiry date'''
 
         SIN = self.testing_sin
         STUDY_PERMIT = self.testing_study_permit
-        PERSONAL_DATA_FORM = self.testing_personal_data_form
 
         user = userApi.get_user(username, 'username')
         data = {
@@ -391,14 +386,11 @@ class StudentTest(TestCase):
             else:
                 userApi.delete_user_study_permit(user)
 
-        if 'personal_data_form' in list:
-            userApi.delete_personal_data_form(user)
-
 
     def test_view_url_exists_at_desired_location_admin(self):
         print('- Test: view url exists at desired location - admin')
 
-        self.login(USERS[0], 'password')
+        self.login(USERS[0], PASSWORD)
 
         response = self.client.get( reverse('students:index') )
         self.assertEqual(response.status_code, 403)
@@ -413,7 +405,7 @@ class StudentTest(TestCase):
     def test_view_url_exists_at_desired_location_admin2(self):
         print('- Test: view url exists at desired location - admin2')
 
-        self.login('user3.admin', 'password')
+        self.login('user3.admin', PASSWORD)
 
         response = self.client.get( reverse('students:index') )
         self.assertEqual(response.status_code, 403)
@@ -428,7 +420,7 @@ class StudentTest(TestCase):
     def test_view_url_exists_at_desired_location_instructor(self):
         print('- Test: view url exists at desired location - instructor')
 
-        self.login(USERS[1], 'password')
+        self.login(USERS[1], PASSWORD)
 
         response = self.client.get( reverse('students:index') )
         self.assertEqual(response.status_code, 403)
@@ -509,13 +501,13 @@ class StudentTest(TestCase):
     def test_view_url_exists_at_desired_location_student2(self):
         print('- Test: view url exists at desired location - student2')
 
-        self.login(STUDENT, 'password')
+        self.login(STUDENT, PASSWORD)
         self.submit_confiential_information_international_complete(STUDENT)
 
         response = self.client.get( reverse('students:accept_decline_job', args=[SESSION, STUDENT_JOB]) + HISTORY_NEXT )
         self.assertEqual(response.status_code, 200)
 
-        self.delete_document(STUDENT, ['sin', 'study_permit', 'personal_data_form'], 'international')
+        self.delete_document(STUDENT, ['sin', 'study_permit'], 'international')
 
 
     def test_home_page(self):
@@ -998,6 +990,7 @@ class StudentTest(TestCase):
         data4 = {
             'user': user.id,
             'nationality': '1',
+            'date_of_birth': '2000-01-01',
             'is_new_employee': True,
             'employee_number': '',
             'sin': SimpleUploadedFile('sin.jpg', open(self.testing_sin, 'rb').read(), content_type='image/jpeg'),
@@ -1013,18 +1006,21 @@ class StudentTest(TestCase):
 
         response = self.client.get( reverse('students:show_confidentiality') )
         self.assertEqual(response.status_code, 200)
+
         loggedin_user = response.context['loggedin_user']
         self.assertEqual(loggedin_user.confidentiality.nationality, '1')
+        self.assertEqual(loggedin_user.confidentiality.date_of_birth, datetime.date(2000, 1, 1))
         self.assertTrue(loggedin_user.confidentiality.is_new_employee)
         self.assertIsNone(loggedin_user.confidentiality.employee_number)
         self.assertEqual(loggedin_user.confidentiality.sin_expiry_date, datetime.date(2020, 1, 1))
         self.assertEqual(loggedin_user.confidentiality.study_permit_expiry_date, datetime.date(2020, 5, 5))
 
-        self.delete_document(USERS[2], ['sin', 'study_permit', 'personal_data_form'], 'international')
+        self.delete_document(USERS[2], ['sin', 'study_permit'], 'international')
 
         data5 = {
             'user': user.id,
             'nationality': '1',
+            'date_of_birth': '2000-01-01',
             'employee_number': '0000009',
             'sin': SimpleUploadedFile('sin.jpg', open(self.testing_sin, 'rb').read(), content_type='image/jpeg'),
             'sin_expiry_date': '2020-01-01',
@@ -1041,12 +1037,13 @@ class StudentTest(TestCase):
         self.assertEqual(response.status_code, 200)
         loggedin_user = response.context['loggedin_user']
         self.assertEqual(loggedin_user.confidentiality.nationality, '1')
+        self.assertEqual(loggedin_user.confidentiality.date_of_birth, datetime.date(2000, 1, 1))
         self.assertFalse(loggedin_user.confidentiality.is_new_employee)
         self.assertEqual(loggedin_user.confidentiality.employee_number, data5['employee_number'])
         self.assertEqual(loggedin_user.confidentiality.sin_expiry_date, datetime.date(2020, 1, 1))
         self.assertEqual(loggedin_user.confidentiality.study_permit_expiry_date, datetime.date(2020, 5, 5))
 
-        self.delete_document(USERS[2], ['sin', 'study_permit', 'personal_data_form'], 'international')
+        self.delete_document(USERS[2], ['sin', 'study_permit'], 'international')
 
 
     def test_edit_confidentiality(self):
@@ -1063,9 +1060,11 @@ class StudentTest(TestCase):
         self.assertTrue('Please submit your information' in messages[0])
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, response.url)
+
         data = {
             'user': user.id,
             'nationality': '1',
+            'date_of_birth': '2000-01-01',
             'employee_number': '1234567',
             'sin_expiry_date': '2020-01-01',
             'study_permit_expiry_date': '2020-05-05'
@@ -1076,9 +1075,11 @@ class StudentTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, response.url)
 
+        # edit date of birth, employee number sin_expiry_date, and study_permit_expiry_date
         data2 = {
             'user': user.id,
             'nationality': '1',
+            'date_of_birth': '2000-11-11',
             'employee_number': '1234568',
             'sin_expiry_date': '2020-01-11',
             'study_permit_expiry_date': '2020-05-22'
@@ -1093,6 +1094,7 @@ class StudentTest(TestCase):
         self.assertEqual(response.status_code, 200)
         loggedin_user = response.context['loggedin_user']
         self.assertEqual(loggedin_user.confidentiality.nationality, data2['nationality'])
+        self.assertEqual(loggedin_user.confidentiality.date_of_birth, datetime.date(2000, 11, 11))
         self.assertFalse(loggedin_user.confidentiality.is_new_employee)
         self.assertEqual(loggedin_user.confidentiality.employee_number, data2['employee_number'])
         self.assertEqual(loggedin_user.confidentiality.sin_expiry_date, datetime.date(2020, 1, 11))
@@ -1115,7 +1117,7 @@ class StudentTest(TestCase):
 
 
     def test_edit_confidentiality_checking(self):
-        print('- Test: Edit confidentional information with checking conditions')
+        print('- Test: Edit confidentional information with checking conditions for employee number')
         self.login()
 
         user = userApi.get_user(USERS[2], 'username')
@@ -1128,9 +1130,11 @@ class StudentTest(TestCase):
         self.assertTrue('Please submit your information' in messages[0])
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, response.url)
+
         data = {
             'user': user.id,
             'nationality': '1',
+            'date_of_birth': '2000-01-01',
             'employee_number': '0000000',
             'sin_expiry_date': '2020-01-01',
             'study_permit_expiry_date': '2020-05-05'
@@ -1149,6 +1153,7 @@ class StudentTest(TestCase):
         data1 = {
             'user': user1.id,
             'nationality': '1',
+            'date_of_birth': '2000-01-01',
             'employee_number': '',
             'sin': SimpleUploadedFile('sin.jpg', open(self.testing_sin, 'rb').read(), content_type='image/jpeg'),
             'sin_expiry_date': '2020-01-01',
@@ -1164,6 +1169,7 @@ class StudentTest(TestCase):
         data2 = {
             'user': user1.id,
             'nationality': '1',
+            'date_of_birth': '2000-01-01',
             'is_new_employee': True,
             'employee_number': '0000000',
             'sin': SimpleUploadedFile('sin.jpg', open(self.testing_sin, 'rb').read(), content_type='image/jpeg'),
@@ -1184,6 +1190,7 @@ class StudentTest(TestCase):
         data3 = {
             'user': user3.id,
             'nationality': '1',
+            'date_of_birth': '2000-01-01',
             'is_new_employee': True,
             'employee_number': '0000000',
             'sin': SimpleUploadedFile('sin.jpg', open(self.testing_sin, 'rb').read(), content_type='image/jpeg'),
@@ -1197,7 +1204,84 @@ class StudentTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, response.url)
 
-        self.delete_document(USERS[2], ['sin', 'study_permit', 'personal_data_form'], 'international')
+        self.delete_document(USERS[2], ['sin', 'study_permit'], 'international')
+
+    def test_delete_confidential_information(self):
+        print('- Test: delete confidential information')
+        self.login()
+
+        self.submit_confiential_information_international_complete(USERS[2])
+
+        response = self.client.get( reverse('students:show_confidentiality') )
+        self.assertEqual(response.status_code, 200)
+
+        user = response.context['loggedin_user']
+        self.assertEqual(user.confidentiality.nationality, '1')
+        self.assertEqual(user.confidentiality.date_of_birth, datetime.date(2000, 1, 1))
+        self.assertFalse(user.confidentiality.is_new_employee)
+        self.assertIsNotNone(user.confidentiality.employee_number)
+        self.assertEqual(user.confidentiality.sin_expiry_date, datetime.date(2030, 1, 1))
+        self.assertEqual(user.confidentiality.study_permit_expiry_date, datetime.date(2030, 1, 1))
+        self.assertEqual(user.confidentiality.sin, 'users/user100.test/sin/sin.jpg')
+        self.assertEqual(user.confidentiality.study_permit, 'users/user100.test/study_permit/study_permit.jpg')
+
+        data = {
+            'user': USERS[2],
+            'date_of_birth': 'on',
+            'employee_number': 'on',
+            'sin': 'on',
+            'sin_expiry_date': 'on',
+            'study_permit': 'on',
+            'study_permit_expiry_date': 'on'
+        }
+        response = self.client.post( reverse('students:delete_confidential_information'), data=data, format='multipart' )
+        messages = self.messages(response)
+        self.assertEqual(messages[0], 'Success! Confidential Information of user100.test deleted')
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+        user = userApi.get_user(USERS[2], 'username')
+        self.assertIsNotNone(userApi.has_user_confidentiality_created(user))
+
+        self.assertEqual(user.confidentiality.nationality, '1')
+        self.assertEqual(user.confidentiality.date_of_birth, None)
+        self.assertFalse(user.confidentiality.is_new_employee)
+        self.assertEqual(user.confidentiality.employee_number, None)
+        self.assertEqual(user.confidentiality.sin_expiry_date, None)
+        self.assertEqual(user.confidentiality.study_permit_expiry_date, None)
+        self.assertFalse( bool(user.confidentiality.sin) )
+        self.assertFalse( bool(user.confidentiality.sin) )
+
+
+    def test_delete_confidential_information_nothing_selected(self):
+        print('- Test: delete confidential information - nothing selected')
+        self.login()
+
+        self.submit_confiential_information_international_complete(USERS[2])
+
+        data = {
+            'user': USERS[2]
+        }
+        response = self.client.post( reverse('students:delete_confidential_information'), data=data, format='multipart'  )
+        messages = self.messages(response)
+        self.assertEqual(messages[0], 'An error occurred while deleting. Please select any information that you want to delete.')
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+
+        user = userApi.get_user(USERS[2], 'username')
+        self.assertIsNotNone(userApi.has_user_confidentiality_created(user))
+
+        self.assertEqual(user.confidentiality.nationality, '1')
+        self.assertEqual(user.confidentiality.date_of_birth, datetime.date(2000, 1, 1))
+        self.assertFalse(user.confidentiality.is_new_employee)
+        self.assertIsNotNone(user.confidentiality.employee_number)
+        self.assertEqual(user.confidentiality.sin_expiry_date, datetime.date(2030, 1, 1))
+        self.assertEqual(user.confidentiality.study_permit_expiry_date, datetime.date(2030, 1, 1))
+        self.assertEqual(user.confidentiality.sin, 'users/user100.test/sin/sin.jpg')
+        self.assertEqual(user.confidentiality.study_permit, 'users/user100.test/study_permit/study_permit.jpg')
+
+        self.delete_document(USERS[2], ['sin', 'study_permit'], 'international')
 
 
     def test_explore_jobs(self):
@@ -1624,7 +1708,6 @@ class StudentTest(TestCase):
         self.delete_document(USERS[2], ['resume'])
 
 
-
     def test_apply_jobs_without_undergraduate(self):
         print('- Test: Students apply with undergraduate')
 
@@ -1651,7 +1734,7 @@ class StudentTest(TestCase):
 
     def test_accept_decline_job_domestic_incomplete(self):
         print('- Test: Display a job to select accept a job offer with domestic students')
-        self.login(STUDENT, 'password')
+        self.login(STUDENT, PASSWORD)
 
         user = userApi.get_user(STUDENT, 'username')
 
@@ -1670,12 +1753,12 @@ class StudentTest(TestCase):
         self.assertEqual(available2['status'], False)
         self.assertEqual(available2['message'], 'Please check the following information, and update required documents. <ul><li>SIN</li></ul>')
 
-        self.delete_document(STUDENT, ['personal_data_form'])
+        self.delete_document(STUDENT, [])
 
 
     def test_accept_decline_job_domestic_incomplete_employee_number(self):
         print('- Test: Display a job to select accept a job offer with domestic students without an employee number')
-        self.login(STUDENT, 'password')
+        self.login(STUDENT, PASSWORD)
 
         user = userApi.get_user(STUDENT, 'username')
 
@@ -1700,12 +1783,12 @@ class StudentTest(TestCase):
         self.assertFalse(available3['status'])
         self.assertEqual(available3['message'], 'Please check the following information, and update required documents. <ul><li>Employee Number</li></ul>')
 
-        self.delete_document(STUDENT, ['sin', 'personal_data_form'])
+        self.delete_document(STUDENT, ['sin'])
 
 
     def test_accept_decline_job_international_incomplete(self):
         print('- Test: Display a job to select accept or decline a job offer with international students')
-        self.login(STUDENT, 'password')
+        self.login(STUDENT, PASSWORD)
 
         user = userApi.get_user(STUDENT, 'username')
 
@@ -1722,26 +1805,26 @@ class StudentTest(TestCase):
         user2 = userApi.get_user(STUDENT, 'username')
         available2 = userApi.add_confidentiality_validation(user2)
         self.assertEqual(available2['status'], False)
-        self.assertEqual(available2['message'], 'Please check the following information, and update required documents. <ul><li>Personal Data Form</li><li>Study Permit Expiry Date</li></ul>')
+        self.assertEqual(available2['message'], 'Please check the following information, and update required documents. <ul><li>Date of Birth</li><li>Study Permit Expiry Date</li></ul>')
 
         user2.confidentiality.is_new_employee = False
         user2.confidentiality.save(update_fields=['is_new_employee'])
         available3 = userApi.add_confidentiality_validation(user2)
         self.assertFalse(available3['status'])
-        self.assertEqual(available3['message'], 'Please check the following information, and update required documents. <ul><li>Personal Data Form</li><li>Study Permit Expiry Date</li></ul>')
+        self.assertEqual(available3['message'], 'Please check the following information, and update required documents. <ul><li>Date of Birth</li><li>Study Permit Expiry Date</li></ul>')
 
         user2.confidentiality.employee_number = None
         user2.confidentiality.save(update_fields=['employee_number'])
         available4 = userApi.add_confidentiality_validation(user2)
         self.assertFalse(available4['status'])
-        self.assertEqual(available4['message'], 'Please check the following information, and update required documents. <ul><li>Employee Number</li><li>Personal Data Form</li><li>Study Permit Expiry Date</li></ul>')
+        self.assertEqual(available4['message'], 'Please check the following information, and update required documents. <ul><li>Employee Number</li><li>Date of Birth</li><li>Study Permit Expiry Date</li></ul>')
 
         self.delete_document(STUDENT, ['sin', 'study_permit'], 'international')
 
 
     def test_accept_decline_job(self):
         print('- Test: Display a job to select accept or decline a job offer')
-        self.login(STUDENT, 'password')
+        self.login(STUDENT, PASSWORD)
 
         response = self.client.get( reverse('students:accept_decline_job', args=[SESSION, STUDENT_JOB]) + HISTORY_WRONG_1 )
         self.assertEqual(response.status_code, 404)
@@ -1789,12 +1872,12 @@ class StudentTest(TestCase):
         self.assertFalse(response.context['app'].accepted)
         self.assertFalse( response.context['app'].declined )
 
-        self.delete_document(STUDENT, ['sin', 'study_permit', 'personal_data_form'], 'international')
+        self.delete_document(STUDENT, ['sin', 'study_permit'], 'international')
 
 
     def test_accept_offer(self):
         print('- Test: Students accept a job offer')
-        self.login(STUDENT, 'password')
+        self.login(STUDENT, PASSWORD)
 
         self.submit_confiential_information_international_complete(STUDENT)
 
@@ -1880,12 +1963,12 @@ class StudentTest(TestCase):
         total_hours = adminApi.get_total_assigned_hours(apps, ['accepted'])
         self.assertEqual(total_hours['accepted'], {'2019-W1': appl.accepted.assigned_hours})
 
-        self.delete_document(STUDENT, ['sin', 'study_permit', 'personal_data_form'], 'international')
+        self.delete_document(STUDENT, ['sin', 'study_permit'], 'international')
 
 
     def test_today_accepted_application_student(self):
         print('- Test: Display today accepted applications - student')
-        self.login(STUDENT, 'password')
+        self.login(STUDENT, PASSWORD)
 
         self.submit_confiential_information_international_complete(STUDENT)
 
@@ -1936,25 +2019,25 @@ class StudentTest(TestCase):
         self.assertEqual(total_hours['accepted'], {'2019-W1': appl.accepted.assigned_hours})
 
 
-        self.login(USERS[0], 'password')
+        self.login(USERS[0], PASSWORD)
         response = self.client.get(reverse('administrators:accepted_applications'))
         self.assertEqual(response.status_code, 200)
         today_accepted_apps = response.context['today_accepted_apps']
-        today_eform_stats = response.context['today_eform_stats']
+        today_processed_stats = response.context['today_processed_stats']
         today = response.context['today']
 
         self.assertEqual(len(today_accepted_apps), 1)
-        self.assertEqual(today_eform_stats['processed'], 0)
-        self.assertEqual(today_eform_stats['not_processed'], 1)
+        self.assertEqual(today_processed_stats['processed'], 0)
+        self.assertEqual(today_processed_stats['not_processed'], 1)
         self.assertEqual(today.strftime('%Y-%m-%d'), datetime.date.today().strftime('%Y-%m-%d'))
 
-        # enter eform
+        # enter processed
         data2 = {
             'application': appl.id,
             'pin': '1237',
             'tasm': True,
-            'eform': '912345',
-            'speed_chart': 'adsf',
+            'processed': 'Done',
+            'worktag': 'adsf1111',
             'processing_note': 'this is a processing note'
         }
         response = self.client.post(reverse('administrators:update_admin_docs'), data=urlencode(data2), content_type=ContentType)
@@ -1966,19 +2049,19 @@ class StudentTest(TestCase):
         response = self.client.get(reverse('administrators:accepted_applications'))
         self.assertEqual(response.status_code, 200)
         today_accepted_apps = response.context['today_accepted_apps']
-        today_eform_stats = response.context['today_eform_stats']
+        today_processed_stats = response.context['today_processed_stats']
         today = response.context['today']
 
         self.assertEqual(len(today_accepted_apps), 1)
-        self.assertEqual(today_eform_stats['processed'], 1)
-        self.assertEqual(today_eform_stats['not_processed'], 0)
+        self.assertEqual(today_processed_stats['processed'], 1)
+        self.assertEqual(today_processed_stats['not_processed'], 0)
         self.assertEqual(today.strftime('%Y-%m-%d'), datetime.date.today().strftime('%Y-%m-%d'))
 
-        self.delete_document(STUDENT, ['sin', 'study_permit', 'personal_data_form'], 'international')
+        self.delete_document(STUDENT, ['sin', 'study_permit'], 'international')
 
 
         # 2nd student
-        self.login(STUDENT2, 'password')
+        self.login(STUDENT2, PASSWORD)
 
         JOB2 = 'apbi-260-001-agroecology-i-introduction-to-principles-and-techniques-w1'
         SLUG2 = '2019-w1-apbi-260-001-agroecology-i-introduction-to-principles-and-techniques-w1-application-by-user66test'
@@ -2035,26 +2118,26 @@ class StudentTest(TestCase):
         total_hours = adminApi.get_total_assigned_hours(apps2, ['accepted'])
         self.assertEqual(total_hours['accepted'], {'2019-W1': 45.0 + diff, '2019-W2': 30.0})
 
-        self.login(USERS[0], 'password')
+        self.login(USERS[0], PASSWORD)
 
         response = self.client.get(reverse('administrators:accepted_applications'))
         self.assertEqual(response.status_code, 200)
         today_accepted_apps = response.context['today_accepted_apps']
-        today_eform_stats = response.context['today_eform_stats']
+        today_processed_stats = response.context['today_processed_stats']
         today = response.context['today']
 
         self.assertEqual(len(today_accepted_apps), 2)
-        self.assertEqual(today_eform_stats['processed'], 1)
-        self.assertEqual(today_eform_stats['not_processed'], 1)
+        self.assertEqual(today_processed_stats['processed'], 1)
+        self.assertEqual(today_processed_stats['not_processed'], 1)
         self.assertEqual(today.strftime('%Y-%m-%d'), datetime.date.today().strftime('%Y-%m-%d'))
 
-        # enter eform
+        # enter processed
         data4 = {
             'application': app2.id,
             'pin': '1237',
             'tasm': True,
-            'eform': '123366',
-            'speed_chart': 'adsf',
+            'processed': 'Done',
+            'worktag': 'adsf1111',
             'processing_note': 'this is a processing note'
         }
         response = self.client.post(reverse('administrators:update_admin_docs'), data=urlencode(data4), content_type=ContentType)
@@ -2066,20 +2149,20 @@ class StudentTest(TestCase):
         response = self.client.get(reverse('administrators:accepted_applications'))
         self.assertEqual(response.status_code, 200)
         today_accepted_apps = response.context['today_accepted_apps']
-        today_eform_stats = response.context['today_eform_stats']
+        today_processed_stats = response.context['today_processed_stats']
         today = response.context['today']
 
         self.assertEqual(len(today_accepted_apps), 2)
-        self.assertEqual(today_eform_stats['processed'], 2)
-        self.assertEqual(today_eform_stats['not_processed'], 0)
+        self.assertEqual(today_processed_stats['processed'], 2)
+        self.assertEqual(today_processed_stats['not_processed'], 0)
         self.assertEqual(today.strftime('%Y-%m-%d'), datetime.date.today().strftime('%Y-%m-%d'))
 
-        self.delete_document(STUDENT2, ['resume', 'sin', 'study_permit', 'personal_data_form'], 'international')
+        self.delete_document(STUDENT2, ['resume', 'sin', 'study_permit'], 'international')
 
 
     def test_cannot_accept_offer(self):
         print('- Test: Students cannot accept a job offer')
-        self.login(STUDENT, 'password')
+        self.login(STUDENT, PASSWORD)
 
         self.submit_confiential_information_international_incomplete(STUDENT)
 
@@ -2101,17 +2184,17 @@ class StudentTest(TestCase):
         }
         response = self.client.post( reverse('students:make_decision', args=[SESSION, STUDENT_JOB]), data=urlencode(data1), content_type=ContentType )
         messages = self.messages(response)
-        self.assertTrue('An error occurred. Please check the following information, and update required documents. <ul><li>Personal Data Form</li><li>Study Permit Expiry Date</li></ul>' in messages[0])
+        self.assertTrue('An error occurred. Please check the following information, and update required documents. <ul><li>Date of Birth</li><li>Study Permit Expiry Date</li></ul>' in messages[0])
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse('students:accept_decline_job', args=[SESSION, STUDENT_JOB]) + HISTORY_NEXT)
         self.assertRedirects(response, response.url)
 
-        self.delete_document(STUDENT, ['sin', 'study_permit', 'personal_data_form'], 'international')
+        self.delete_document(STUDENT, ['sin', 'study_permit'], 'international')
 
 
     def test_decline_offer(self):
         print('- Test: Students decline job offers')
-        self.login(STUDENT, 'password')
+        self.login(STUDENT, PASSWORD)
 
         self.submit_confiential_information_international_complete(STUDENT)
 
@@ -2189,12 +2272,12 @@ class StudentTest(TestCase):
         total_hours = adminApi.get_total_assigned_hours(apps, ['accepted'])
         self.assertEqual(total_hours['accepted'], {})
 
-        self.delete_document(STUDENT, ['sin', 'study_permit', 'personal_data_form'], 'international')
+        self.delete_document(STUDENT, ['sin', 'study_permit'], 'international')
 
 
     def test_decline_offer_with_incomplete_confidentiality(self):
         print('- Test: Students decline job offers with incomplete confidentiality')
-        self.login(STUDENT, 'password')
+        self.login(STUDENT, PASSWORD)
 
         self.submit_confiential_information_international_incomplete(STUDENT)
 
@@ -2222,14 +2305,14 @@ class StudentTest(TestCase):
         self.assertEqual(response.url, reverse('students:history_jobs') + '?page=2')
         self.assertRedirects(response, response.url)
 
-        self.delete_document(STUDENT, ['sin', 'study_permit', 'personal_data_form'], 'international')
+        self.delete_document(STUDENT, ['sin', 'study_permit'], 'international')
 
 
     def test_reaccept_application_not_ready(self):
         print('- Test: Students re-accept new job offers - not ready')
 
         STUDENT = 'user65.test'
-        self.login(STUDENT, 'password')
+        self.login(STUDENT, PASSWORD)
 
         self.submit_confiential_information_international_complete(STUDENT)
 
@@ -2237,13 +2320,13 @@ class StudentTest(TestCase):
         app = adminApi.get_application(APP_SLUG, 'slug')
         self.assertFalse(app.is_declined_reassigned)
 
-        self.delete_document(STUDENT, ['sin', 'study_permit', 'personal_data_form'], 'international')
+        self.delete_document(STUDENT, ['sin', 'study_permit'], 'international')
 
 
     def test_reaccept_application_success(self):
         print('- Test: Students re-accept new job offers - success')
 
-        self.login(STUDENT2, 'password')
+        self.login(STUDENT2, PASSWORD)
 
         response = self.client.get( reverse('students:index') )
         self.assertEqual(response.status_code, 302)
@@ -2365,13 +2448,13 @@ class StudentTest(TestCase):
         total_hours = adminApi.get_total_assigned_hours(apps, ['accepted'])
         self.assertEqual(total_hours['accepted'], {'2019-W1': 45.0 + diff, '2019-W2': 30.0})
 
-        self.delete_document(STUDENT2, ['resume', 'sin', 'study_permit', 'personal_data_form'], 'international')
+        self.delete_document(STUDENT2, ['resume', 'sin', 'study_permit'], 'international')
 
 
     def test_reaccept_application_with_incomplete_confidentiality_not_ready(self):
         print('- Test: Students cannot re-accept new job offers - not ready')
 
-        self.login(STUDENT, 'password')
+        self.login(STUDENT, PASSWORD)
 
         self.submit_confiential_information_international_complete(STUDENT)
 
@@ -2379,13 +2462,13 @@ class StudentTest(TestCase):
         app = adminApi.get_application(APP_SLUG, 'slug')
         self.assertFalse(app.is_declined_reassigned)
 
-        self.delete_document(STUDENT, ['sin', 'study_permit', 'personal_data_form'], 'international')
+        self.delete_document(STUDENT, ['sin', 'study_permit'], 'international')
 
 
     def test_reaccept_application_with_incomplete_confidentiality_success(self):
         print('- Test: Students cannot re-accept new job offers - success')
 
-        self.login(STUDENT2, 'password')
+        self.login(STUDENT2, PASSWORD)
 
         response = self.client.get( reverse('students:index') )
         self.assertEqual(response.status_code, 302)
@@ -2406,18 +2489,18 @@ class StudentTest(TestCase):
         }
         response = self.client.post( reverse('students:reaccept_application', args=[SLUG]) + HISTORY_NEXT, data=urlencode(data1), content_type=ContentType )
         messages = self.messages(response)
-        self.assertTrue('An error occurred. Please check the following information, and update required documents. <ul><li>Personal Data Form</li><li>Study Permit Expiry Date</li></ul>' in messages[0])
+        self.assertTrue('An error occurred. Please check the following information, and update required documents. <ul><li>Date of Birth</li><li>Study Permit Expiry Date</li></ul>' in messages[0])
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse('students:reaccept_application', args=[SLUG]) + HISTORY_NEXT)
         self.assertRedirects(response, response.url)
 
-        self.delete_document(STUDENT2, ['resume', 'sin', 'study_permit', 'personal_data_form'], 'international')
+        self.delete_document(STUDENT2, ['resume', 'sin', 'study_permit'], 'international')
 
 
     def test_redecline_application_not_ready(self):
         print('- Test: Students re-decline new job offers - not ready')
 
-        self.login(STUDENT, 'password')
+        self.login(STUDENT, PASSWORD)
 
         self.submit_confiential_information_international_complete(STUDENT)
 
@@ -2425,13 +2508,13 @@ class StudentTest(TestCase):
         app = adminApi.get_application(APP_SLUG, 'slug')
         self.assertFalse(app.is_declined_reassigned)
 
-        self.delete_document(STUDENT, ['sin', 'study_permit', 'personal_data_form'], 'international')
+        self.delete_document(STUDENT, ['sin', 'study_permit'], 'international')
 
 
     def test_redecline_application_success(self):
         print('- Test: Students re-decline new job offers - success')
 
-        self.login(STUDENT2, 'password')
+        self.login(STUDENT2, PASSWORD)
 
         self.submit_confiential_information_international_complete(STUDENT2)
 
@@ -2529,13 +2612,13 @@ class StudentTest(TestCase):
         self.assertEqual(appl.job.assigned_ta_hours, app.job.assigned_ta_hours)
         self.assertEqual(appl.job.accumulated_ta_hours, app.job.accumulated_ta_hours - 45.0) # accepted hours was 45.0
 
-        self.delete_document(STUDENT2, ['resume', 'sin', 'study_permit', 'personal_data_form'], 'international')
+        self.delete_document(STUDENT2, ['resume', 'sin', 'study_permit'], 'international')
 
 
     def test_redecline_application_with_incomplete_confidentiality(self):
         print('- Test: Students re-decline new job offers with incomplete confidentiality')
 
-        self.login(STUDENT2, 'password')
+        self.login(STUDENT2, PASSWORD)
 
         self.submit_profile_resume(STUDENT2)
         self.submit_confiential_information_international_incomplete(STUDENT2)
@@ -2589,7 +2672,7 @@ class StudentTest(TestCase):
         self.assertEqual(appl.job.assigned_ta_hours, app.job.assigned_ta_hours)
         self.assertEqual(appl.job.accumulated_ta_hours, app.job.accumulated_ta_hours - 45.0) # accepted hours was 45.0
 
-        self.delete_document(STUDENT2, ['resume', 'sin', 'study_permit', 'personal_data_form'], 'international')
+        self.delete_document(STUDENT2, ['resume', 'sin', 'study_permit'], 'international')
 
 
     def test_terminate_job(self):

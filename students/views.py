@@ -194,9 +194,8 @@ def show_confidentiality(request):
         template = 'detail'
 
     user = userApi.add_confidentiality_given_list(request.user, ['sin', 'study_permit'])
-    user = userApi.add_avatar(user)
     return render(request, 'students/profile/show_confidentiality.html', {
-        'loggedin_user': userApi.add_personal_data_form(user),
+        'loggedin_user': userApi.add_avatar(user),
         'template': template
     })
 
@@ -310,7 +309,6 @@ def edit_confidentiality(request):
     form = None
     sin_file = None
     study_permit_file = None
-    personal_data_form_file = None
     can_delete = False
 
     confidentiality = userApi.has_user_confidentiality_created(loggedin_user)
@@ -384,9 +382,9 @@ def edit_confidentiality(request):
                 updated_confidentiality.study_permit_expiry_date = data['study_permit_expiry_date']
                 update_fields.append('study_permit_expiry_date')
 
-            if request.FILES.get('personal_data_form') is not None:
-                updated_confidentiality.personal_data_form = request.FILES.get('personal_data_form')
-                update_fields.append('personal_data_form')
+            if data['date_of_birth'] is not None:
+                updated_confidentiality.date_of_birth = data['date_of_birth']
+                update_fields.append('date_of_birth')
 
             updated_confidentiality.save(update_fields=update_fields)
 
@@ -413,8 +411,7 @@ def edit_confidentiality(request):
                 study_permit_file = os.path.basename(confidentiality.study_permit.name)
                 can_delete = True
 
-            if bool(confidentiality.personal_data_form):
-                personal_data_form_file = os.path.basename(confidentiality.personal_data_form.name)
+            if bool(confidentiality.date_of_birth):
                 can_delete = True
 
             if confidentiality.nationality == '0':
@@ -430,7 +427,6 @@ def edit_confidentiality(request):
         'loggedin_user': userApi.add_avatar(loggedin_user),
         'sin_file': sin_file,
         'study_permit_file': study_permit_file,
-        'personal_data_form_file': personal_data_form_file,
         'form': form,
         'can_delete': can_delete,
         'confidentiality': confidentiality
@@ -445,12 +441,12 @@ def delete_confidential_information(request):
 
     if request.method == 'POST':
         data = []
+        if request.POST.get('date_of_birth') != None: data.append('date_of_birth')
         if request.POST.get('employee_number') != None: data.append('employee_number')
         if request.POST.get('sin') != None: data.append('sin')
         if request.POST.get('sin_expiry_date') != None: data.append('sin_expiry_date')
         if request.POST.get('study_permit') != None: data.append('study_permit')
         if request.POST.get('study_permit_expiry_date') != None: data.append('study_permit_expiry_date')
-        if request.POST.get('personal_data_form') != None: data.append('personal_data_form')
 
         if len(data) == 0:
             messages.error(request, 'An error occurred while deleting. Please select any information that you want to delete.')

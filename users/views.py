@@ -36,7 +36,6 @@ def show_user(request, username):
 
     if tab == 'confidential':
         user = userApi.add_confidentiality_given_list(user, ['sin','study_permit'])
-        user = userApi.add_personal_data_form(user)
 
     return render(request, 'users/show_user.html', {
         'loggedin_user': request.user,

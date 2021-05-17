@@ -113,7 +113,12 @@ def NumericalValueValidator(value):
 
 
 class Confidentiality(models.Model):
-    ''' '''
+    '''
+    Confidential Information
+
+    personal_data_form: no longer available
+     '''
+     
     NATIONALITY_CHOICES = [
         ('0', 'Domestic Student'),
         ('1', 'International Student')
@@ -159,6 +164,8 @@ class Confidentiality(models.Model):
         null=True,
         blank=True
     )
+
+    date_of_birth = models.DateField(null=True, blank=True)
 
     created_at = models.DateField(null=True, blank=True)
     updated_at = models.DateField(null=True, blank=True)

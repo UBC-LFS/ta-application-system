@@ -595,14 +595,6 @@ def get_total_assigned_hours(apps, list):
     return total_hours
 
 
-def add_salary(apps):
-    ''' Add a salary in applications '''
-    for app in apps:
-        app.salary = round(app.accepted.assigned_hours * app.classification.wage / app.job.session.term.by_month, 2)
-        app.pt_percentage = round(app.accepted.assigned_hours / app.job.session.term.max_hours * 100, 2)
-    return apps
-
-
 def get_accepted_apps_by_day(apps, when):
     ''' Get accepted apps by day '''
 
@@ -620,12 +612,12 @@ def get_accepted_apps_by_day(apps, when):
     return add_app_info_into_applications(apps, ['accepted']), day
 
 
-def get_eform_stats(apps):
-    ''' Get the staticstics of eForm '''
+def get_processed_stats(apps):
+    ''' Get the staticstics of processed '''
     processed = 0
     not_processed = 0
     for app in apps:
-        if hasattr(app, 'admindocuments') and app.admindocuments.eform:
+        if hasattr(app, 'admindocuments') and app.admindocuments.processed:
             processed += 1
         else:
             not_processed += 1
@@ -701,13 +693,13 @@ def get_applications_filter_limit(request, status):
             apps = apps.filter(applicationstatus__assigned=ApplicationStatus.OFFERED).order_by('-id').distinct()
 
     elif status == 'accepted':
-        eform_q = request.GET.get('eform')
+        processed_q = request.GET.get('processed')
 
-        if bool(eform_q):
-            if eform_q.lower() == 'none':
-                apps = apps.filter(admindocuments__eform__isnull=True)
+        if bool(processed_q):
+            if processed_q.lower() == 'none':
+                apps = apps.filter(admindocuments__processed__isnull=True)
             else:
-                apps = apps.filter(admindocuments__eform__icontains=eform_q)
+                apps = apps.filter(admindocuments__processed__icontains=processed_q)
 
         if bool( request.GET.get('declined_reassigned') ):
             apps = apps.filter(is_declined_reassigned=True)
@@ -867,12 +859,12 @@ def bulk_update_admin_docs(data, user):
         id = trim(row[0])
         pin = trim(row[10])
         tasm = True if trim(row[11].lower()) == 'yes' else False
-        eform = trim(row[12])
+        processed = trim(row[12])
         worktag = trim(row[13])
         processing_note = trim(row[14])
 
         admin_docs = get_admin_docs(id)
-        form = AdminDocumentsForm({ 'application': id, 'pin': pin, 'tasm': tasm, 'eform': eform, 'worktag': worktag, 'processing_note': processing_note }, instance=admin_docs)
+        form = AdminDocumentsForm({ 'application': id, 'pin': pin, 'tasm': tasm, 'processed': processed, 'worktag': worktag, 'processing_note': processing_note }, instance=admin_docs)
         if form.is_valid() == False:
             errors = form.errors.get_json_data()
             return False, 'ID: ' + id + ' - ' + userApi.get_error_messages(errors)
@@ -893,10 +885,10 @@ def bulk_update_admin_docs(data, user):
                 updates.add('tasm')
                 fields.append('TASM')
 
-            if trim(admin_docs.eform) != eform:
-                admin_docs.eform = eform
-                updates.add('eform')
-                fields.append('eForm')
+            if trim(admin_docs.processed) != processed:
+                admin_docs.processed = processed
+                updates.add('processed')
+                fields.append('Processed')
 
             if trim(admin_docs.worktag) != worktag:
                 admin_docs.worktag = worktag
@@ -920,9 +912,9 @@ def bulk_update_admin_docs(data, user):
             if tasm == True:
                 updates.add('tasm')
                 fields.append('TASM')
-            if bool(eform):
-                updates.add('eform')
-                fields.append('eForm')
+            if bool(processed):
+                updates.add('processed')
+                fields.append('Processed')
             if bool(worktag):
                 updates.add('worktag')
                 fields.append('Worktag')
@@ -958,8 +950,15 @@ def bulk_update_admin_docs(data, user):
 def get_today_accepted_apps():
     ''' Get accepted application in today '''
 
-    apps = ApplicationStatus.objects.filter( Q(assigned=ApplicationStatus.ACCEPTED) & Q(created_at=date.today()) )
-    return apps if apps.exists() else None
+    app_statuses = ApplicationStatus.objects.filter( Q(assigned=ApplicationStatus.ACCEPTED) & Q(created_at=date.today()) )
+    return app_statuses if app_statuses.exists() else None
+
+
+def get_today_terminated_apps():
+    ''' Get terminated application in today '''
+
+    app_statuses = ApplicationStatus.objects.filter( Q(application__is_terminated=True) & Q(assigned=ApplicationStatus.CANCELLED) & Q(created_at=date.today()) )
+    return app_statuses if app_statuses.exists() else None
 
 # end applications
 
@@ -1194,6 +1193,9 @@ def trim(str):
     ''' Remove whitespaces '''
     return str.strip() if str != None and len(str) > 0 else ''
 
+def get_session_term_full_name(app):
+    ''' Get a full name of a session term '''
+    return '{0} {1} - {2} {3} {4}'.format(app.job.session.year, app.job.session.term.code, app.job.course.code.name, app.job.course.number.name, app.job.course.section.name)
 
 
 """

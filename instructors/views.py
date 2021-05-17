@@ -372,7 +372,7 @@ def write_note(request, app_slug):
     else:
         #adminApi.can_req_parameters_access(request, 'instructor-note', [])
         pass
-    
+
     return render(request, 'instructors/jobs/write_note.html', {
         'loggedin_user': request.user,
         'app': adminApi.add_app_info_into_application(app, ['selected']),

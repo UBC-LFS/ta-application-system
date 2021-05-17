@@ -14,8 +14,9 @@ from users import api as userApi
 
 import datetime
 
-from administrators.tests.test_sessions import LOGIN_URL, ContentType, DATA, PASSWORD, USERS
-from students.tests.test_views import random_with_N_digits
+from administrators.tests.test_sessions import LOGIN_URL, ContentType, DATA, PASSWORD, USERS, SESSION
+from students.tests.test_views import STUDENT, STUDENT_JOB, HISTORY_NEXT, random_with_N_digits
+
 
 APP = '2019-w1-apbi-200-001-introduction-to-soil-science-w1-application-by-user100test'
 
@@ -38,7 +39,6 @@ class ApplicationTest(TestCase):
         cls.testing_resume = os.path.join(settings.BASE_DIR, 'users', 'tests', 'files', 'resumeguide200914341.pdf')
         cls.testing_sin = os.path.join(settings.BASE_DIR, 'users', 'tests', 'files', 'karsten-wurth-9qvZSH_NOQs-unsplash.jpg')
         cls.testing_study_permit = os.path.join(settings.BASE_DIR, 'users', 'tests', 'files', 'lucas-davies-3aubsNmGuLE-unsplash.jpg')
-        cls.testing_personal_data_form = os.path.join(settings.BASE_DIR, 'users', 'tests', 'files', 'personal_data_form.doc')
 
     def login(self, username=None, password=None):
         if username and password:
@@ -58,7 +58,6 @@ class ApplicationTest(TestCase):
 
         SIN = self.testing_sin
         STUDY_PERMIT = self.testing_study_permit
-        PERSONAL_DATA_FORM = self.testing_personal_data_form
 
         user = userApi.get_user(username, 'username')
         data = {
@@ -73,12 +72,12 @@ class ApplicationTest(TestCase):
         data = {
             'user': user.id,
             'nationality': data['nationality'],
+            'date_of_birth': '2000-01-01',
             'employee_number': random_with_N_digits(7),
             'sin': SimpleUploadedFile('sin.jpg', open(SIN, 'rb').read(), content_type='image/jpeg'),
             'sin_expiry_date': '2030-01-01',
             'study_permit': SimpleUploadedFile('study_permit.jpg', open(STUDY_PERMIT, 'rb').read(), content_type='image/jpeg'),
-            'study_permit_expiry_date': '2030-01-01',
-            'personal_data_form': SimpleUploadedFile('personal_data_form.doc', open(PERSONAL_DATA_FORM, 'rb').read(), content_type='application/msword')
+            'study_permit_expiry_date': '2030-01-01'
         }
         response = self.client.post( reverse('students:submit_confidentiality'), data=data, format='multipart' )
         messages = self.messages(response)
@@ -102,9 +101,6 @@ class ApplicationTest(TestCase):
                 userApi.delete_user_study_permit(user, '1')
             else:
                 userApi.delete_user_study_permit(user)
-
-        if 'personal_data_form' in list:
-            userApi.delete_personal_data_form(user)
 
 
     def test_view_url_exists_at_desired_location(self):
@@ -685,7 +681,7 @@ class ApplicationTest(TestCase):
             'application': app_id,
             'pin': '12377',
             'tasm': True,
-            'eform': 'af3343',
+            'processed': 'Done',
             'worktag': 'adsfabcde',
             'processing_note': 'this is a processing note'
         }
@@ -709,7 +705,7 @@ class ApplicationTest(TestCase):
             'application': app_id,
             'pin': '12377',
             'tasm': True,
-            'eform': 'af3343',
+            'processed': 'Done',
             'worktag': 'adsfabcdedfaf',
             'processing_note': 'this is a processing note'
         }
@@ -734,7 +730,7 @@ class ApplicationTest(TestCase):
             'application': app_id,
             'pin': '1237',
             'tasm': True,
-            'eform': 'af3343',
+            'processed': 'Done',
             'worktag': 'adsffddf',
             'processing_note': 'this is a processing note'
         }
@@ -756,7 +752,7 @@ class ApplicationTest(TestCase):
         self.assertTrue(app.id, app_id)
         self.assertTrue(app.admindocuments.pin, data['pin'])
         self.assertTrue(app.admindocuments.tasm, data['tasm'])
-        self.assertTrue(app.admindocuments.eform, data['eform'])
+        self.assertTrue(app.admindocuments.processed, data['processed'])
         self.assertTrue(app.admindocuments.worktag, data['worktag'])
         self.assertTrue(app.admindocuments.processing_note, data['processing_note'])
 
@@ -963,8 +959,8 @@ class ApplicationTest(TestCase):
         self.assertEqual(updated_app.applicationstatus_set.last().get_assigned_display(), 'Declined')
         self.assertEqual(str(updated_app.applicationstatus_set.last().assigned_hours), data8['new_assigned_hours'])
 
-    def test_decline_reassign_eform_processing_note(self):
-        print('- Test: Decline and reassign a job offer with new assigned hours and efrom data moves to processing note')
+    def test_decline_reassign_processed_processing_note(self):
+        print('- Test: Decline and reassign a job offer with new assigned hours and processed data moves to processing note')
         self.login()
 
         FULL_PATH = reverse('administrators:accepted_applications') + '?page=2'
@@ -983,7 +979,7 @@ class ApplicationTest(TestCase):
 
         self.assertFalse( hasattr(application, 'admindocuments') )
 
-        # no eForm exists
+        # no processed exists
         data1 = {
             'application': str(application.id),
             'new_assigned_hours': '20.0',
@@ -1013,12 +1009,12 @@ class ApplicationTest(TestCase):
         self.assertEqual(updated_app.applicationstatus_set.last().get_assigned_display(), 'Declined')
         self.assertEqual(str(updated_app.applicationstatus_set.last().assigned_hours), data1['new_assigned_hours'])
 
-        # eForm exists
+        # processed exists
         data2 = {
             'application': app_id,
             'pin': '1237',
             'tasm': True,
-            'eform': 'af3343',
+            'processed': 'Done',
             'worktag': 'adsfggrr',
             'processing_note': '<p>this is a processing note.</p>'
         }
@@ -1040,7 +1036,7 @@ class ApplicationTest(TestCase):
         self.assertTrue(app.id, app_id)
         self.assertTrue(app.admindocuments.pin, data2['pin'])
         self.assertTrue(app.admindocuments.tasm, data2['tasm'])
-        self.assertTrue(app.admindocuments.eform, data2['eform'])
+        self.assertTrue(app.admindocuments.processed, data2['processed'])
         self.assertTrue(app.admindocuments.worktag, data2['worktag'])
         self.assertTrue(app.admindocuments.processing_note, data2['processing_note'])
 
@@ -1076,13 +1072,13 @@ class ApplicationTest(TestCase):
         self.assertTrue( hasattr(updated_app, 'admindocuments') )
         self.assertTrue(updated_app.admindocuments.pin, data2['pin'])
         self.assertTrue(updated_app.admindocuments.tasm, data2['tasm'])
-        self.assertIsNone(updated_app.admindocuments.eform)
+        self.assertIsNone(updated_app.admindocuments.processed)
         self.assertTrue(updated_app.admindocuments.worktag, data2['worktag'])
-        self.assertEqual(updated_app.admindocuments.processing_note, "<p>this is a processing note.</p><p>Auto update: eForm - <strong class='text-primary'>af3343</strong> on {0}</p>".format( datetime.date.today().strftime('%Y-%m-%d') ))
+        self.assertEqual(updated_app.admindocuments.processing_note, "<p>this is a processing note.</p><p>Auto update: Processed - <strong class='text-primary'>Done</strong> on {0}</p>".format( datetime.date.today().strftime('%Y-%m-%d') ))
 
 
-    def test_decline_reassign_empty_eform(self):
-        print('- Test: Decline and reassign a job offer with new assigned hours - empty eform')
+    def test_decline_reassign_empty_processed(self):
+        print('- Test: Decline and reassign a job offer with new assigned hours - empty processed')
         self.login()
 
         FULL_PATH = reverse('administrators:accepted_applications') + '?page=2'
@@ -1505,4 +1501,178 @@ class ApplicationTest(TestCase):
             self.assertEqual(expected7[count5]['created_at'], status.created_at)
             count5 += 1
 
-        self.delete_document(STUDENT, ['sin', 'study_permit', 'personal_data_form'], 'international')
+        self.delete_document(STUDENT, ['sin', 'study_permit'], 'international')
+
+
+
+class SchedulingTaskTest(TestCase):
+    fixtures = DATA
+
+    @classmethod
+    def setUpTestData(cls):
+        print('\nScheduling Task testing has started ==>')
+        cls.user = userApi.get_user(USERS[0], 'username')
+        cls.testing_sin = os.path.join(settings.BASE_DIR, 'users', 'tests', 'files', 'karsten-wurth-9qvZSH_NOQs-unsplash.jpg')
+        cls.testing_study_permit = os.path.join(settings.BASE_DIR, 'users', 'tests', 'files', 'lucas-davies-3aubsNmGuLE-unsplash.jpg')
+
+    def login(self, username=None, password=None):
+        if username and password:
+            self.client.post(LOGIN_URL, data={'username': username, 'password': password})
+        else:
+            self.client.post(LOGIN_URL, data={'username': self.user.username, 'password': PASSWORD})
+
+    def messages(self, res):
+        return [m.message for m in get_messages(res.wsgi_request)]
+
+    def submit_confiential_information_international_complete(self, username):
+        ''' Submit confidential information '''
+
+        SIN = self.testing_sin
+        STUDY_PERMIT = self.testing_study_permit
+
+        user = userApi.get_user(username, 'username')
+        data = {
+            'user': user.id,
+            'nationality': '1'
+        }
+        response = self.client.post( reverse('students:check_confidentiality'), data=urlencode(data), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue('Please submit your information' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+        data = {
+            'user': user.id,
+            'nationality': data['nationality'],
+            'date_of_birth': '2000-01-01',
+            'employee_number': random_with_N_digits(7),
+            'sin': SimpleUploadedFile('sin.jpg', open(SIN, 'rb').read(), content_type='image/jpeg'),
+            'sin_expiry_date': '2030-01-01',
+            'study_permit': SimpleUploadedFile('study_permit.jpg', open(STUDY_PERMIT, 'rb').read(), content_type='image/jpeg'),
+            'study_permit_expiry_date': '2030-01-01'
+        }
+        response = self.client.post( reverse('students:submit_confidentiality'), data=data, format='multipart' )
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+
+    def delete_document(self, user, list, option='domestic'):
+        ''' Delete a list of document '''
+        if 'resume' in list:
+            userApi.delete_user_resume(user)
+
+        if 'sin' in list:
+            if option == 'international':
+                userApi.delete_user_sin(user, '1')
+            else:
+                userApi.delete_user_sin(user)
+
+        if 'study_permit' in list:
+            if option == 'international':
+                userApi.delete_user_study_permit(user, '1')
+            else:
+                userApi.delete_user_study_permit(user)
+
+
+    def accept_offer_user65(self):
+        STUDENT = 'user65.test'
+
+        self.login(STUDENT, PASSWORD)
+
+        self.submit_confiential_information_international_complete(STUDENT)
+
+        response = self.client.get( reverse('students:accept_decline_job', args=[SESSION, STUDENT_JOB]) + HISTORY_NEXT )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['loggedin_user'].username, STUDENT)
+        self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
+
+        app = response.context['app']
+        self.assertEqual(app.job.course.slug, STUDENT_JOB)
+        self.assertEqual(app.applicant.username, STUDENT)
+
+        data = {
+            'application': app.id,
+            'assigned_hours': app.offered.assigned_hours,
+            'decision': 'accept',
+            'has_contract_read': 'true',
+            'next': reverse('students:history_jobs')
+        }
+        response = self.client.post( reverse('students:make_decision', args=[SESSION, STUDENT_JOB]), data=urlencode(data), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse('students:history_jobs'))
+        self.assertRedirects(response, response.url)
+
+        self.delete_document(STUDENT, ['sin', 'study_permit'], 'international')
+
+
+    def terminated_offer_user100(self):
+
+        STUDENT_JOB = 'apbi-260-001-agroecology-i-introduction-to-principles-and-techniques-w1'
+        self.login(USERS[2], PASSWORD)
+        app_id = '22'
+
+        data = {
+            'application': app_id,
+            'assigned_hours':70.0,
+            'assigned': ApplicationStatus.CANCELLED,
+            'parent_id': '57',
+            'next': reverse('students:history_jobs')
+        }
+        response = self.client.post( reverse('students:terminate_job', args=[SESSION, STUDENT_JOB]) + HISTORY_NEXT, data=urlencode(data), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue('Application of 2019 W1 - APBI 260 001 terminated.' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse('students:history_jobs'))
+        self.assertRedirects(response, response.url)
+
+
+    def test_send_accepted_apps(self):
+        print('- Test: send accepted apps')
+
+        self.accept_offer_user65()
+
+        self.login()
+
+        app_statuses = adminApi.get_today_accepted_apps()
+
+        app_list = [
+            { 'app_status_id': 69, 'assigned': '3', 'assigned_hours': 15.0, 'app_id': 3, 'full_name': 'User65 Test', 'session_term': '2019 W1 - APBI 265 001' }
+        ]
+
+        c = 0
+        for app_status in app_statuses:
+            self.assertEqual(app_status.id, app_list[0]['app_status_id'])
+            self.assertEqual(app_status.assigned, app_list[0]['assigned'])
+            self.assertEqual(app_status.assigned_hours, app_list[0]['assigned_hours'])
+            self.assertEqual(app_status.application.id, app_list[0]['app_id'])
+            self.assertEqual(app_status.application.applicant.get_full_name(), app_list[0]['full_name'])
+            self.assertEqual(adminApi.get_session_term_full_name(app_status.application), app_list[0]['session_term'])
+            c += 1
+
+
+    def test_send_terminated_apps(self):
+        print('- Test: send terminated apps')
+        self.login()
+
+        self.terminated_offer_user100()
+
+        self.login()
+
+        app_statuses = adminApi.get_today_terminated_apps()
+
+        app_list = [
+            { 'app_status_id': 70, 'assigned': '5', 'assigned_hours': 70.0, 'app_id': 22, 'full_name': 'User100 Test', 'session_term': '2019 W1 - APBI 260 001' }
+        ]
+
+        c = 0
+        for app_status in app_statuses:
+            self.assertEqual(app_status.id, app_list[0]['app_status_id'])
+            self.assertEqual(app_status.assigned, app_list[0]['assigned'])
+            self.assertEqual(app_status.assigned_hours, app_list[0]['assigned_hours'])
+            self.assertEqual(app_status.application.id, app_list[0]['app_id'])
+            self.assertEqual(app_status.application.applicant.get_full_name(), app_list[0]['full_name'])
+            self.assertEqual(adminApi.get_session_term_full_name(app_status.application), app_list[0]['session_term'])
+            c += 1

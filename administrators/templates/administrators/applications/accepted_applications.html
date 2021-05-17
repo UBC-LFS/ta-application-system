@@ -10,7 +10,7 @@
 
   <div class="row">
     <div class="col-md-6">
-      {% include 'administrators/applications/_search_fields.html' with data=apps total=num_filtered_apps path='accepted' eform_stats=eform_stats %}
+      {% include 'administrators/applications/_search_fields.html' with data=apps total=num_filtered_apps path='accepted' processed_stats=processed_stats %}
     </div>
 
     <div class="col-md-6">
@@ -28,8 +28,8 @@
               <td>Total</td>
             </tr>
             <tr>
-              <td><span class="text-success h3 font-weight-normal">{{ today_eform_stats.processed }}</span></td>
-              <td><span class="text-danger h3 font-weight-normal">{{ today_eform_stats.not_processed }}</span></td>
+              <td><span class="text-success h3 font-weight-normal">{{ today_processed_stats.processed }}</span></td>
+              <td><span class="text-danger h3 font-weight-normal">{{ today_processed_stats.not_processed }}</span></td>
               <td>
                 <span class="h3 font-weight-bold">{{ today_accepted_apps|length }}</span>
               </td>
@@ -56,7 +56,7 @@
             </div>
             <div class="modal-body">
               <div class="bg-light-gray p-3 mb-3">
-                <code>PIN</code>, <code>TASM</code>, <code>eForm</code>, <code>Worktag</code> and <code>Processing Note</code> are allowed to update in Admin Documents.
+                <code>PIN</code>, <code>TASM</code>, <code>Processed</code>, <code>Worktag</code> and <code>Processing Note</code> are allowed to update in Admin Documents.
               </div>
 
               <form action="{% url 'administrators:import_accepted_apps' %}" method="post" enctype="multipart/form-data">
@@ -126,8 +126,8 @@
         </th>
         <th>PIN</th>
         <th>TASM</th>
-        <th class="sortable" onclick="sortColumn(12, 'numeric')">
-          <div class="sort-field">eForm</div>
+        <th class="sortable" onclick="sortColumn(12)">
+          <div class="sort-field">Processed</div>
           <div class="sort-icon"><i class="fa fa-sort" aria-hidden="true"></i></div>
         </th>
         <th class="sortable" onclick="sortColumn(13)">
@@ -148,7 +148,7 @@
           <td>
             <a class="btn btn-xs btn-info" href="{% url 'administrators:show_application' app_slug=app.slug %}?next={{ new_next }}&p=Accepted Applications">{{ app.id }}</a>
             <br />
-            {% if app.admindocuments.eform %}
+            {% if app.admindocuments.processed %}
               <i class="fa fa-check text-success mt-2 font-size-1" aria-hidden="true"></i>
             {% else %}
               <i class="fa fa-remove text-danger mt-2 font-size-1" aria-hidden="true"></i>
@@ -200,8 +200,8 @@
             {% endif %}
           </td>
           <td>
-            {% if app.admindocuments.eform %}
-              {{ app.admindocuments.eform }}
+            {% if app.admindocuments.processed %}
+              {{ app.admindocuments.processed }}
             {% endif %}
           </td>
           <td>
@@ -328,11 +328,11 @@
                           </div>
 
                           <div class="field-wrapper">
-                            <label for="id_eform_{{ app.id }}">eForm:</label>
-                            <div class="help">This field is unique and optional. Maximum 6 characters allowed.</div>
-                            <input id="id_eform_{{ app.id }}" type="text" name="eform" class="form-control" maxlength="6"
-                              {% if app.admindocuments.eform %}
-                                value="{{ app.admindocuments.eform }}"
+                            <label for="id_processed_{{ app.id }}">Processed:</label>
+                            <div class="help">This field is optional. Maximum 4 characters allowed.</div>
+                            <input id="id_processed_{{ app.id }}" type="text" name="processed" class="form-control" maxlength="6"
+                              {% if app.admindocuments.processed %}
+                                value="{{ app.admindocuments.processed }}"
                               {% else %}
                                 value=""
                               {% endif %}
@@ -341,8 +341,8 @@
 
                           <div class="field-wrapper">
                             <label for="id_worktag_{{ app.id }}">Worktag:</label>
-                            <div class="help">This field is optional. Maximum 8 characters allowed.</div>
-                            <input id="id_worktag_{{ app.id }}" type="text" name="worktag" class="form-control" maxlength="8"
+                            <div class="help">This field is optional. Maximum 35 characters allowed.</div>
+                            <input id="id_worktag_{{ app.id }}" type="text" name="worktag" class="form-control" maxlength="35"
                               {% if app.admindocuments.worktag %}
                                 value="{{ app.admindocuments.worktag }}"
                               {% else %}
@@ -408,10 +408,10 @@
       <li>{% include 'ta_app/applications/_contract_read_note.html' %}</li>
       <li>{% include 'ta_app/applications/_declined_reassigned_note.html' %}</li>
       <li>
-        Applications have been processed (eForm is not empty): <i class="fa fa-check text-success" aria-hidden="true"></i>, otherwise <i class="fa fa-remove text-danger" aria-hidden="true"></i>.
+        Applications have been processed (Processed is not empty): <i class="fa fa-check text-success" aria-hidden="true"></i>, otherwise <i class="fa fa-remove text-danger" aria-hidden="true"></i>.
       </li>
       <li>
-        Enter <code>none</code> in the <code>eForm</code> search box to fetch applications with no eForm ID.
+        Enter <code>none</code> in the <code>Processed</code> search box to fetch applications with no Processed data.
       </li>
       <li>
         <code>Monthly Salary</code> is paid in Canadian dollars (CAD).
@@ -419,6 +419,7 @@
       <li>
         If an <code>eForm</code> or a <code>Speed Chart</code> (or both) data exists, it will appear in the Admin Docs window.
       </li>
+      <li>In Summer Terms (<code>S1</code> and <code>S2</code>), P/T (%) calculation multiplies the existing formula by 2.</li>
     </ul>
   </div>
 

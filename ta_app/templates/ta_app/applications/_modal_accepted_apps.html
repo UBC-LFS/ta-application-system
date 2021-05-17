@@ -33,7 +33,7 @@
                 <th>Applicant</th>
                 <th>Student Number</th>
                 <th>Employee number</th>
-                <th>eForm</th>
+                <th>Processed</th>
                 <th>Accepted at</th>
               </tr>
             </thead>
@@ -54,8 +54,8 @@
                     {% endif %}
                   </td>
                   <td>
-                    {% if app.admindocuments.eform %}
-                      {{ app.admindocuments.eform }}
+                    {% if app.admindocuments.processed %}
+                      {{ app.admindocuments.processed }}
                     {% else %}
                       <i class="fa fa-remove text-danger" aria-hidden="true"></i>
                     {% endif %}

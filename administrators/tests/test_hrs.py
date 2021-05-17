@@ -12,7 +12,12 @@ from users.models import *
 from administrators import api as adminApi
 from users import api as userApi
 
+import datetime as dt
+from datetime import datetime, timedelta
+from django.utils.timezone import get_current_timezone
+
 from administrators.tests.test_sessions import LOGIN_URL, ContentType, DATA, USERS, PASSWORD, SESSION, JOB, APP, COURSE
+from students.tests.test_views import random_with_N_digits
 
 ALL_USER = '?next=' + reverse('administrators:all_users') + '?page=2&p=All%20Users&t=basic'
 DASHBOARD_USER = '?next=' + reverse('administrators:applications_dashboard') + '?page=2&p=Dashboard&t=basic'
@@ -28,6 +33,9 @@ class HRTest(TestCase):
     def setUpTestData(cls):
         print('\nHR testing has started ==>')
         cls.user = userApi.get_user(USERS[0], 'username')
+        cls.testing_resume = os.path.join(settings.BASE_DIR, 'users', 'tests', 'files', 'resumeguide200914341.pdf')
+        cls.testing_sin = os.path.join(settings.BASE_DIR, 'users', 'tests', 'files', 'karsten-wurth-9qvZSH_NOQs-unsplash.jpg')
+        cls.testing_study_permit = os.path.join(settings.BASE_DIR, 'users', 'tests', 'files', 'lucas-davies-3aubsNmGuLE-unsplash.jpg')
 
     def login(self, username=None, password=None):
         if username and password:
@@ -37,6 +45,78 @@ class HRTest(TestCase):
 
     def messages(self, res):
         return [m.message for m in get_messages(res.wsgi_request)]
+
+    def submit_resume(self, username):
+        ''' Submit resume '''
+        self.login(USERS[2], PASSWORD)
+
+        RESUME = self.testing_resume
+
+        user = userApi.get_user(username, 'username')
+        data = {
+            'user': user.id,
+            'uploaded': SimpleUploadedFile('resume.pdf', open(RESUME, 'rb').read(), content_type='application/pdf')
+        }
+        response = self.client.post( reverse('students:upload_resume') + '?next=/students/&p=Edit%20Profile&t=resume', data=data, format='multipart')
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse('students:show_profile') + '?next=/students/&p=Edit%20Profile&t=resume')
+        self.assertRedirects(response, response.url)
+
+        resume = userApi.has_user_resume_created(user)
+        self.assertIsNotNone(resume)
+
+
+    def submit_confiential_information_international_complete(self, username):
+        ''' Submit confidential information '''
+        self.login(USERS[2], PASSWORD)
+
+        SIN = self.testing_sin
+        STUDY_PERMIT = self.testing_study_permit
+
+        user = userApi.get_user(username, 'username')
+        data = {
+            'user': user.id,
+            'nationality': '1'
+        }
+        response = self.client.post( reverse('students:check_confidentiality'), data=urlencode(data), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue('Please submit your information' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+        data = {
+            'user': user.id,
+            'nationality': data['nationality'],
+            'date_of_birth': '2000-01-01',
+            'employee_number': random_with_N_digits(7),
+            'sin': SimpleUploadedFile('sin.jpg', open(SIN, 'rb').read(), content_type='image/jpeg'),
+            'sin_expiry_date': '2030-01-01',
+            'study_permit': SimpleUploadedFile('study_permit.jpg', open(STUDY_PERMIT, 'rb').read(), content_type='image/jpeg'),
+            'study_permit_expiry_date': '2030-01-01'
+        }
+        response = self.client.post( reverse('students:submit_confidentiality'), data=data, format='multipart' )
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+    def delete_document(self, user, list, option='domestic'):
+        ''' Delete a list of document '''
+        if 'resume' in list:
+            userApi.delete_user_resume(user)
+
+        if 'sin' in list:
+            if option == 'international':
+                userApi.delete_user_sin(user, '1')
+            else:
+                userApi.delete_user_sin(user)
+
+        if 'study_permit' in list:
+            if option == 'international':
+                userApi.delete_user_study_permit(user, '1')
+            else:
+                userApi.delete_user_study_permit(user)
 
     def test_view_url_exists_at_desired_location(self):
         print('- Test: view url exists at desired location')
@@ -572,16 +652,6 @@ class HRTest(TestCase):
         response = self.client.get(reverse('administrators:delete_user_confirmation', args=[USERS[2]]) + ALL_USER)
         self.assertEqual(response.status_code, 200)
         self.assertEqual( len(response.context['users']), 164 )
-        self.assertEqual( len(response.context['apps']), 7 )
-        apps = response.context['apps']
-
-        items = []
-        for app in apps:
-            accepted = app.applicationstatus_set.filter(assigned=ApplicationStatus.ACCEPTED)
-            if accepted.exists():
-                items.append({ 'job': app.job, 'assigned_hours': accepted.last().assigned_hours })
-            else:
-                items.append({ 'job': app.job, 'assigned_hours': 0.0 })
 
         data = {
             'user': user.id,
@@ -594,34 +664,78 @@ class HRTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, response.url)
 
-        for item in items:
-            new_job = adminApi.get_job_by_session_slug_job_slug(item['job'].session.slug, item['job'].course.slug)
-            self.assertEqual(item['job'].accumulated_ta_hours - item['assigned_hours'], new_job.accumulated_ta_hours)
-
         response = self.client.get(reverse('users:show_user', args=[USERS[2]]) + ALL_USER)
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 200)
 
-        self.assertIsNone(userApi.user_exists_username(user.username))
+        self.assertIsNotNone(userApi.user_exists_username(user.username))
         self.assertFalse(userApi.resume_exists(user))
         self.assertFalse(userApi.confidentiality_exists(user))
-
-        # Check user's profile, profile-degrees, profile-trainings
-        self.assertFalse(userApi.profile_exists(user))
-        degree_found = False
-        for degree in userApi.get_degrees():
-            if degree.profile_set.filter(user_id=user.id ).exists():
-                degree_found = True
-        self.assertFalse(degree_found)
-
-        training_found = False
-        for training in userApi.get_trainings():
-            if training.profile_set.filter(user_id=user.id ).exists():
-                training_found = True
-        self.assertFalse(degree_found)
-
-        self.assertIsNone( userApi.has_user_profile_created(user) )
-        self.assertIsNone( userApi.has_user_resume_created(user) )
         self.assertIsNone( userApi.has_user_confidentiality_created(user) )
+
+    def test_destroy_user_contents(self):
+        print('- Test: destroy user contents')
+
+        self.submit_resume(USERS[2])
+        self.submit_confiential_information_international_complete(USERS[2])
+
+        self.login()
+
+        user = userApi.get_user(USERS[2], 'username')
+        user.last_login = dt.datetime(2000, 1, 1, 0, 0, 0, 0, tzinfo=get_current_timezone())
+        user.save(update_fields=['last_login'])
+
+        self.assertTrue(userApi.resume_exists(user))
+        self.assertTrue(userApi.confidentiality_exists(user))
+        self.assertIsNotNone( userApi.has_user_confidentiality_created(user) )
+
+        self.assertTrue( bool(user.confidentiality.sin) )
+        self.assertTrue( bool(user.confidentiality.study_permit) )
+
+        self.assertEqual(user.last_login.strftime('%Y-%m-%d'), dt.date(2000, 1, 1).strftime('%Y-%m-%d'))
+
+        response = self.client.get(reverse('administrators:destroy_user_contents'))
+        self.assertEqual(response.status_code, 200)
+
+        target_date = datetime.now(tz=get_current_timezone()) - timedelta(days=3*365)
+        self.assertEqual(response.context['target_date'], target_date.strftime('%Y-%m-%d'))
+        self.assertEqual(response.context['users'][0].id, 100)
+        self.assertEqual(response.context['users'][0].username, 'user100.test')
+
+        data = {
+            'user': [str(response.context['users'][0].id)]
+        }
+
+        response = self.client.post(reverse('administrators:destroy_user_contents'), data=urlencode(data, True), content_type=ContentType)
+        messages = self.messages(response)
+        self.assertTrue(messages[0], "Success! The contents of User IDs ['100'] are deleted")
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse('administrators:destroy_user_contents'))
+        self.assertRedirects(response, response.url)
+
+        user = userApi.get_user(100)
+        self.assertIsNotNone(userApi.user_exists_username(user.username))
+        self.assertTrue(userApi.profile_exists(user))
+
+        self.assertIsNone(user.profile.qualifications)
+        self.assertIsNone(user.profile.prior_employment)
+        self.assertIsNone(user.profile.special_considerations)
+        self.assertIsNone(user.profile.status)
+        self.assertIsNone(user.profile.program)
+        self.assertIsNone(user.profile.program_others)
+        self.assertIsNone(user.profile.graduation_date)
+        self.assertIsNone(user.profile.degree_details)
+        self.assertIsNone(user.profile.training_details)
+        self.assertIsNone(user.profile.lfs_ta_training)
+        self.assertIsNone(user.profile.lfs_ta_training_details)
+        self.assertIsNone(user.profile.ta_experience)
+        self.assertIsNone(user.profile.ta_experience_details)
+        self.assertTrue(user.profile.is_trimmed)
+
+        self.assertFalse(userApi.resume_exists(user))
+        self.assertFalse(userApi.confidentiality_exists(user))
+        self.assertIsNone( userApi.has_user_confidentiality_created(user) )
+
+        self.delete_document(USERS[2], ['sin', 'study_permit'], 'international')
 
 
     def test_create_user(self):

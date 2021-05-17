@@ -103,8 +103,8 @@
         <tbody>
           <tr>
             <td>Today ({{ today }})</td>
-            <td><span class="text-success">{{ today_eform_stats.processed }}</span></td>
-            <td><span class="text-danger">{{ today_eform_stats.not_processed }}</span></td>
+            <td><span class="text-success">{{ today_processed_stats.processed }}</span></td>
+            <td><span class="text-danger">{{ today_processed_stats.not_processed }}</span></td>
             <td>
               <span class="font-weight-bold">{{ today_accepted_apps|length }}</span>
               {% include 'ta_app/applications/_modal_accepted_apps.html' with data=today_accepted_apps type='Today' %}
@@ -112,8 +112,8 @@
           </tr>
           <tr>
             <td>Yesterday ({{ yesterday }})</td>
-            <td><span class="text-success">{{ yesterday_eform_stats.processed }}</span></td>
-            <td><span class="text-danger">{{ yesterday_eform_stats.not_processed }}</span></td>
+            <td><span class="text-success">{{ yesterday_processed_stats.processed }}</span></td>
+            <td><span class="text-danger">{{ yesterday_processed_stats.not_processed }}</span></td>
             <td>
               <span class="font-weight-bold">{{ yesterday_accepted_apps|length }}</span>
               {% include 'ta_app/applications/_modal_accepted_apps.html' with data=yesterday_accepted_apps type='Yesterday' %}
@@ -121,8 +121,8 @@
           </tr>
           <tr>
             <td>{{ week_ago }} ~ {{ today }}</td>
-            <td><span class="text-success">{{ week_ago_eform_stats.processed }}</span></td>
-            <td><span class="text-danger">{{ week_ago_eform_stats.not_processed }}</span></td>
+            <td><span class="text-success">{{ week_ago_processed_stats.processed }}</span></td>
+            <td><span class="text-danger">{{ week_ago_processed_stats.not_processed }}</span></td>
             <td>
               <span class="font-weight-bold">{{ week_ago_accepted_apps|length }}</span>
               {% include 'ta_app/applications/_modal_accepted_apps.html' with data=week_ago_accepted_apps type='Week' %}

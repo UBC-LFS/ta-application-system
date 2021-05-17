@@ -23,7 +23,7 @@ from users.models import *
 from users.forms import *
 from users import api as userApi
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 
 APP_STATUS = {
@@ -55,11 +55,11 @@ def index(request):
         'loggedin_user': userApi.add_avatar(request.user),
         'accepted_apps': apps.filter(applicationstatus__assigned=ApplicationStatus.ACCEPTED).exclude(applicationstatus__assigned=ApplicationStatus.CANCELLED).order_by('-id').distinct(),
         'today_accepted_apps': today_accepted_apps,
-        'today_eform_stats': adminApi.get_eform_stats(today_accepted_apps),
+        'today_processed_stats': adminApi.get_processed_stats(today_accepted_apps),
         'yesterday_accepted_apps': yesterday_accepted_apps,
-        'yesterday_eform_stats': adminApi.get_eform_stats(yesterday_accepted_apps),
+        'yesterday_processed_stats': adminApi.get_processed_stats(yesterday_accepted_apps),
         'week_ago_accepted_apps': week_ago_accepted_apps,
-        'week_ago_eform_stats': adminApi.get_eform_stats(week_ago_accepted_apps),
+        'week_ago_processed_stats': adminApi.get_processed_stats(week_ago_accepted_apps),
         'today': today,
         'yesterday': yesterday,
         'week_ago': week_ago
@@ -1170,14 +1170,20 @@ def accepted_applications(request):
 
     apps = adminApi.add_app_info_into_applications(apps, ['accepted'])
 
+    for app in apps:
+        app.salary = round(app.accepted.assigned_hours * app.classification.wage / app.job.session.term.by_month, 2)
+        app.pt_percentage = round(app.accepted.assigned_hours / app.job.session.term.max_hours * 100, 2)
+        if app.job.course.term.code == 'S1' or app.job.course.term.code == 'S2':
+            app.pt_percentage = app.pt_percentage * 2
+
     return render(request, 'administrators/applications/accepted_applications.html', {
         'loggedin_user': request.user,
-        'apps': adminApi.add_salary(apps),
-        'eform_stats': adminApi.get_eform_stats(apps),
+        'apps': apps,
+        'processed_stats': adminApi.get_processed_stats(apps),
         'num_filtered_apps': info['num_filtered_apps'],
         'new_next': adminApi.build_new_next(request),
         'today_accepted_apps': info['today_accepted_apps'],
-        'today_eform_stats': adminApi.get_eform_stats(info['today_accepted_apps'],),
+        'today_processed_stats': adminApi.get_processed_stats(info['today_accepted_apps'],),
         'today': info['today']
     })
 
@@ -1449,20 +1455,20 @@ def decline_reassign_confirmation(request):
 
             # admin documents updated
             if hasattr(reaasigned_app, 'admindocuments'):
-                if reaasigned_app.admindocuments.eform == None:
+                if reaasigned_app.admindocuments.processed == None:
                     messages.success(request, 'Success! The status of Application (ID: {0}) updated'.format(app_id))
                 else:
-                    old_eform = reaasigned_app.admindocuments.eform
-                    reaasigned_app.admindocuments.eform = None
-                    reaasigned_app.admindocuments.processing_note += "<p>Auto update: eForm - <strong class='text-primary'>{0}</strong> on {1}</p>".format(old_eform, datetime.today().strftime('%Y-%m-%d'))
-                    reaasigned_app.admindocuments.save(update_fields=['eform', 'processing_note'])
+                    old_processed = reaasigned_app.admindocuments.processed
+                    reaasigned_app.admindocuments.processed = None
+                    reaasigned_app.admindocuments.processing_note += "<p>Auto update: Processed - <strong class='text-primary'>{0}</strong> on {1}</p>".format(old_processed, datetime.today().strftime('%Y-%m-%d'))
+                    reaasigned_app.admindocuments.save(update_fields=['processed', 'processing_note'])
 
-                    if reaasigned_app.admindocuments.processing_note.find(old_eform) > -1:
+                    if reaasigned_app.admindocuments.processing_note.find(old_processed) > -1:
                         messages.success(request, 'Success! The status of Application (ID: {0}) updated'.format(app_id))
                     else:
-                        reaasigned_app.admindocuments.eform = old_eform
-                        reaasigned_app.admindocuments.save(update_fields=['eform'])
-                        messages.warning(request, 'Warning! The eForm number of Application (ID: {0}) is not updated into the processing note.'.format(app_id))
+                        reaasigned_app.admindocuments.processed = old_processed
+                        reaasigned_app.admindocuments.save(update_fields=['processed'])
+                        messages.warning(request, 'Warning! The Processed data of Application (ID: {0}) is not updated into the processing note.'.format(app_id))
             else:
                 messages.success(request, 'Success! The status of Application (ID: {0}) updated'.format(app_id))
 
@@ -1957,32 +1963,28 @@ def delete_user_confirmation(request, username):
     user = userApi.get_user(username, 'username')
     apps = []
     if request.method == 'POST':
-        user_id = request.POST.get('user')
-        deleted_user = userApi.delete_user(user_id)
-        if deleted_user:
-            messages.success(request, 'Success! {0} {1} ({2}) deleted'.format(deleted_user.first_name, deleted_user.last_name, deleted_user.username))
+        user = userApi.get_user( request.POST.get('user') )
+
+        sin = userApi.delete_user_sin(user.username)
+        study_permit = userApi.delete_user_study_permit(user.username)
+
+        if userApi.has_user_confidentiality_created(user) != None and sin and study_permit:
+            user.confidentiality.delete()
+
+        if userApi.confidentiality_exists(user) == False:
+            messages.success(request, "Success! {0} ({1})'s Confidential Information deleted".format(user.get_full_name(), user.username))
         else:
-            messages.error(request, 'An error occurred while deleting a user.')
+            messages.error(request, 'An error occurred while deleting the Confidential Information of the user - {0}.'.format(user.get_full_name()))
 
         return HttpResponseRedirect(request.POST.get('next'))
 
     else:
         user = userApi.add_confidentiality_given_list(user, ['sin','study_permit'])
-        user = userApi.add_personal_data_form(user)
-        app_list = adminApi.get_applications_user(user)
-        for app in app_list:
-            app = adminApi.add_app_info_into_application(app, ['accepted'])
-            if app.accepted == None:
-                app.new_accumulated_ta_hours = app.job.accumulated_ta_hours
-            else:
-                app.new_accumulated_ta_hours = app.job.accumulated_ta_hours - app.accepted.assigned_hours
-            apps.append(app)
 
     return render(request, 'administrators/hr/delete_user_confirmation.html', {
         'loggedin_user': request.user,
         'user': userApi.add_resume(user),
         'users': userApi.get_users(),
-        'apps': apps,
         'next': adminApi.get_next(request)
     })
 
@@ -1997,24 +1999,46 @@ def destroy_user_contents(request):
     users = None
     target_date = None
     if request.method == 'POST':
-        data = request.POST.getlist('user')
-        count = 0
-        for user_id in data:
-            deleted = userApi.destroy_profile_resume_confidentiality(user_id)
-            if deleted: count += 1
+        if len(request.POST.getlist('user')) < 1:
+            messages.error(request, 'An error occurred. Please select any user(s) to be destroyed from the list below.')
+            return redirect('administrators:destroy_user_contents')
 
-        if count == len(data):
-            messages.success(request, 'Success! The contents of User IDs {0} are deleted'.format(data))
+        deleted_users = []
+        count = 0
+        for user_id in request.POST.getlist('user'):
+            user = userApi.get_user(user_id)
+
+            sin = userApi.delete_user_sin(user.username)
+            study_permit = userApi.delete_user_study_permit(user.username)
+
+            if userApi.has_user_confidentiality_created(user):
+                user.confidentiality.delete()
+
+            resume = userApi.delete_user_resume(user)
+            profile = userApi.trim_profile(user)
+
+            dirpath = os.path.join( settings.MEDIA_ROOT, 'users', user.username )
+            if os.path.exists(dirpath) and os.path.isdir(dirpath):
+                os.rmdir(dirpath)
+
+            if profile and resume and userApi.resume_exists(user) == False and userApi.confidentiality_exists(user) == False:
+                deleted_users.append(user.get_full_name())
+                count += 1
+
+        if count == len(deleted_users):
+            messages.success(request, 'Success! The contents of users ({0}) are destroyed completely'.format( ', '.join(deleted_users) ))
+        elif len(deleted_users)> 0:
+            messages.warning(request, 'Warning! The contents of users ({0}) are destroyed partially'.format( ', '.join(deleted_users) ))
         else:
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
         return redirect('administrators:destroy_user_contents')
+    
     else:
         user_list, target_date = userApi.get_users('destroy')
         users = []
         for user in user_list:
             user = userApi.add_confidentiality_given_list(user, ['sin','study_permit'])
-            user = userApi.add_personal_data_form(user)
             user = userApi.add_resume(user)
             users.append(user)
 

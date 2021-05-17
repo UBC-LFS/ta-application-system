@@ -14,7 +14,9 @@ from administrators.models import *
 from administrators.forms import ROLES
 from administrators import api as adminApi
 
-from datetime import datetime, date, timedelta
+from datetime import datetime, timedelta
+from django.utils.timezone import get_current_timezone
+
 import shutil
 from PIL import Image
 import random
@@ -144,8 +146,8 @@ def get_user(data, by=None):
 def get_users(option=None):
     ''' Get all users '''
     if option == 'destroy':
-        target_date = date.today() - timedelta(days=3*365)
-        return User.objects.filter( Q(last_login__lt=target_date) & Q(profile__is_trimmed=False) ), target_date
+        target_date = datetime.now(tz=get_current_timezone()) - timedelta(days=3*365)
+        return User.objects.filter( Q(last_login__lt=target_date) & Q(profile__is_trimmed=False) ), target_date.strftime('%Y-%m-%d')
 
     return User.objects.all().order_by('last_name', 'first_name')
 
@@ -263,30 +265,6 @@ def create_user(data):
 
     return False
 
-def delete_user(user_id):
-    ''' Delete a user '''
-    user = get_user(user_id)
-    apps = adminApi.get_applications_user(user)
-    for app in apps:
-        accepted = app.applicationstatus_set.filter(assigned=ApplicationStatus.ACCEPTED)
-        if accepted.exists():
-            job = adminApi.get_job_by_session_slug_job_slug(app.job.session.slug, app.job.course.slug)
-            job.accumulated_ta_hours -= accepted.last().assigned_hours
-            job.updated_at = datetime.now()
-            job.save(update_fields=['accumulated_ta_hours', 'updated_at'])
-
-    sin = delete_user_sin(user.username)
-    study_permit = delete_user_study_permit(user.username)
-    personal_data_form = delete_personal_data_form(user.username)
-    resume = delete_user_resume(user)
-
-    dirpath = os.path.join( settings.MEDIA_ROOT, 'users', user.username )
-    if os.path.exists(dirpath) and os.path.isdir(dirpath):
-        os.rmdir(dirpath)
-
-    user.delete()
-    return user if user_exists_username(user.username) == None and sin and study_permit and personal_data_form and resume else False
-
 
 def contain_user_duplicated_info(data):
     ''' Chceck whether student numbers, employee numbers exist in DB '''
@@ -311,7 +289,7 @@ def contain_user_duplicated_info(data):
 
 
 def profile_exists(user):
-    """ Check user's profile exists """
+    ''' Check user's profile exists '''
     if Profile.objects.filter(user__id=user.id).exists():
         return True
     return False
@@ -394,6 +372,7 @@ def trim_profile(user):
     degrees = profile.degrees.all()
     trainings = profile.trainings.all()
     if profile:
+        profile.preferred_name = None
         profile.qualifications = None
         profile.prior_employment = None
         profile.special_considerations = None
@@ -413,11 +392,11 @@ def trim_profile(user):
         profile.trainings.remove( *trainings )
 
         updated_fields = [
-            'qualifications', 'prior_employment', 'special_considerations',
-            'status', 'program', 'program_others', 'graduation_date',
-            'degree_details', 'training_details', 'lfs_ta_training',
-            'lfs_ta_training_details', 'ta_experience', 'ta_experience_details',
-            'is_trimmed'
+            'preferred_name', 'qualifications', 'prior_employment',
+            'special_considerations', 'status', 'program', 'program_others',
+            'graduation_date', 'degree_details', 'training_details',
+            'lfs_ta_training', 'lfs_ta_training_details', 'ta_experience',
+            'ta_experience_details', 'is_trimmed'
         ]
         profile.save(update_fields=updated_fields)
 
@@ -464,7 +443,7 @@ def delete_user_resume(data):
 
 
 def resume_exists(user):
-    """ Check user's resume exists """
+    ''' Check user's resume exists '''
     if Resume.objects.filter(user__id=user.id).exists():
         return True
     return False
@@ -522,6 +501,14 @@ def delete_user_avatar(data):
 def create_confidentiality(user):
     return Confidentiality.objects.create(user_id=user.id, created_at=datetime.now(), updated_at=datetime.now())
 
+
+def confidentiality_exists(user):
+    ''' Check user's confidentiality exists '''
+    if Confidentiality.objects.filter(user__id=user.id).exists():
+        return True
+    return False
+
+
 def has_user_confidentiality_created(user):
     ''' Check an user has a confidentiality '''
     try:
@@ -546,12 +533,6 @@ def add_confidentiality_given_list(user, array):
 
     return user
 
-def confidentiality_exists(user):
-    ''' Check user's confidentiality exists '''
-    if Confidentiality.objects.filter(user__id=user.id).exists():
-        return True
-    return False
-
 
 def add_confidentiality_validation(user):
     ''' Add confidentiality validation into apps '''
@@ -563,8 +544,8 @@ def add_confidentiality_validation(user):
 
         if bool(confidentiality.employee_number) == False and confidentiality.is_new_employee == False:
             errors += '<li>Employee Number</li>'
-        if bool(confidentiality.personal_data_form) == False:
-            errors += '<li>Personal Data Form</li>'
+        if bool(confidentiality.date_of_birth) == False:
+            errors += '<li>Date of Birth</li>'
         if bool(confidentiality.sin) == False:
             errors += '<li>SIN</li>'
 
@@ -593,29 +574,29 @@ def delete_confidential_information(data):
     ''' Delete your confidential information '''
 
     username = data.get('user')
+    date_of_birth = data.get('date_of_birth')
     employee_number = data.get('employee_number')
     sin = data.get('sin')
     sin_expiry_date = data.get('sin_expiry_date')
     study_permit = data.get('study_permit')
     study_permit_expiry_date = data.get('study_permit_expiry_date')
-    personal_data_form = data.get('personal_data_form')
 
     user = get_user(username, 'username')
     confidentiality = Confidentiality.objects.filter(user_id=user.id)
 
     errors = []
+    if date_of_birth is not None:
+        if confidentiality.update(date_of_birth=None) == False:
+            errors.append('Date of Birth')
+
     if employee_number is not None:
         if confidentiality.update(employee_number=None) == False:
             errors.append('Employee Number')
 
-    if personal_data_form is not None:
-        if delete_personal_data_form(username) == False:
-            errors.append('Personal Data Form.')
-
     if sin is not None:
         if sin_expiry_date is not None:
             if delete_user_sin(username, '1') == False:
-                errors.append('SIN and SIN expiry date.')
+                errors.append('SIN and SIN expiry date')
         else:
             if delete_user_sin(username) == False:
                 errors.append('SIN')
@@ -637,15 +618,6 @@ def delete_confidential_information(data):
                 errors.append('Study Permit Expiry Date')
 
     return True if len(errors) == 0 else ', '.join(errors)
-
-
-def add_personal_data_form(user):
-    ''' Add personal data form of an user '''
-    if has_user_confidentiality_created(user) and bool(user.confidentiality.personal_data_form):
-        user.personal_data_form_filename = os.path.basename(user.confidentiality.personal_data_form.name)
-    else:
-        user.personal_data_form_filename = None
-    return user
 
 
 def delete_user_sin(username, option=None):
@@ -707,53 +679,7 @@ def delete_user_study_permit(username, option=None):
     return True
 
 
-def delete_personal_data_form(data):
-    ''' Delete user's personal data form '''
-    user = get_user(data, 'username')
-
-    if has_user_confidentiality_created(user) and bool(user.confidentiality.personal_data_form):
-        user.confidentiality.personal_data_form.close()
-        if user.confidentiality.personal_data_form.closed:
-            try:
-                user.confidentiality.personal_data_form.delete(save=False)
-                deleted = Confidentiality.objects.filter(user_id=user.id).update(personal_data_form=None)
-
-                if deleted and not bool(user.confidentiality.personal_data_form):
-                    dirpath = os.path.join(settings.MEDIA_ROOT, 'users', user.username, 'personal_data_form')
-                    if os.path.exists(dirpath) and os.path.isdir(dirpath):
-                        os.rmdir(dirpath)
-                        return True
-                else:
-                    return False
-            except OSError:
-                print('pdf OSError')
-                return False
-        else:
-            return False
-    return True
-
 # end Confidentiality
-
-
-def destroy_profile_resume_confidentiality(user_id):
-    ''' Trim user's profile, resume and confidentiality '''
-    user = get_user(user_id)
-
-    sin = delete_user_sin(user.username)
-    study_permit = delete_user_study_permit(user.username)
-    personal_data_form = delete_personal_data_form(user.username)
-
-    if has_user_confidentiality_created(user):
-        user.confidentiality.delete()
-
-    resume = delete_user_resume(user)
-    profile = trim_profile(user)
-
-    dirpath = os.path.join( settings.MEDIA_ROOT, 'users', user.username )
-    if os.path.exists(dirpath) and os.path.isdir(dirpath):
-        os.rmdir(dirpath)
-
-    return True if user and resume and sin and study_permit and profile else False
 
 
 def create_expiry_date(year, month, day):

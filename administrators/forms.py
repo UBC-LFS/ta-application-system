@@ -379,27 +379,27 @@ class AdminDocumentsForm(forms.ModelForm):
     class Meta:
         model = AdminDocuments
         fields = [
-            'application', 'pin', 'tasm', 'eform', 'worktag', 'processing_note'
+            'application', 'pin', 'tasm', 'processed', 'worktag', 'processing_note'
         ]
         labels = {
             'pin': 'PIN',
             'tasm': 'TASM',
-            'eform': 'eForm',
+            'processed': 'Processed',
             'worktag': 'Worktag',
             'processing_note': 'Processing Note'
         }
         widgets = {
             'application': forms.HiddenInput(),
             'pin': forms.TextInput(attrs={ 'class':'form-control' }),
-            'eform': forms.TextInput(attrs={ 'class':'form-control' }),
+            'processed': forms.TextInput(attrs={ 'class':'form-control' }),
             'worktag': forms.TextInput(attrs={ 'class':'form-control' }),
             'processing_note': forms.Textarea(attrs={ 'class':'form-control', 'rows': 2 })
         }
         help_texts = {
             'pin': 'This field is optional. Maximum length is 4.',
             'tasm': 'This field is optional.',
-            'eform': 'This field is unique and optional. Maximum length is 6.',
-            'worktag': 'This field is optional. Maximum length is 8.',
+            'processed': 'This field is optional. Maximum length is 4.',
+            'worktag': 'This field is optional. Maximum length is 35.',
             'processing_note': 'This field is optional.'
         }
 

@@ -10,6 +10,17 @@
 </div>
 
 <div>
+  <h6>Date of Birth:</h6>
+  <span>
+    {% if data.confidentiality.date_of_birth %}
+      {{ data.confidentiality.date_of_birth|date:"F j, Y" }}
+    {% else %}
+      None
+    {% endif %}
+  </span>
+</div>
+
+<div>
   <h6>I am a new employee:</h6>
   <span>
     {% if data.confidentiality.is_new_employee %}
@@ -76,18 +87,6 @@
   </div>
 
 {% endif %}
-
-<div>
-  <h6>Personal Data Form:</h6>
-
-  {% if data.confidentiality.personal_data_form %}
-    <a class="btn btn-link" href="{% url 'students:download_file' username=data.username item='personal_data_form' filename=data.personal_data_form_filename %}" target="_blank">
-      <i class="fa fa-cloud-download" aria-hidden="true"></i> {{ data.personal_data_form_filename }}
-    </a>
-  {% else %}
-    <span>None</span>
-  {% endif %}
-</div>
 
 <div>
   <h6>Created at:</h6>

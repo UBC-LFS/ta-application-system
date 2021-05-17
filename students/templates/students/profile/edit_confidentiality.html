@@ -76,6 +76,16 @@
 
           <table class="table font-size-1">
             <tbody>
+              {% if loggedin_user.confidentiality.date_of_birth %}
+                <tr>
+                  <td style="width:5%"><input id="id_date_of_birth" type="checkbox" name="date_of_birth" /></td>
+                  <td>
+                    Date of Birth <br />
+                    <small class="text-dark-gray">{{ loggedin_user.confidentiality.date_of_birth }}</small>
+                  </td>
+                </tr>
+              {% endif %}
+
               {% if loggedin_user.confidentiality.employee_number %}
                 <tr>
                   <td style="width:5%"><input id="id_employee_number"type="checkbox" name="employee_number" /></td>
@@ -127,16 +137,6 @@
                     </td>
                   </tr>
                 {% endif %}
-              {% endif %}
-
-              {% if loggedin_user.confidentiality.personal_data_form %}
-                <tr>
-                  <td style="width:5%"><input id="personal_data_form" type="checkbox" name="personal_data_form" /></td>
-                  <td>
-                    Personal Data Form <br />
-                    <small class="text-dark-gray">{{ personal_data_form_file }}</small>
-                  </td>
-                </tr>
               {% endif %}
 
             </tbody>

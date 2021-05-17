@@ -318,25 +318,30 @@ class ConfidentialityDomesticForm(forms.ModelForm):
         choices=Confidentiality.NATIONALITY_CHOICES,
         label='Am I a domestic or international student?',
     )
+
+    date_of_birth = forms.DateField(
+        required=False,
+        widget=forms.SelectDateWidget(years=range(DATE.year - 70, DATE.year)),
+        label='Date of Birth:',
+        help_text='Format: Month-Day-Year'
+    )
+
     class Meta:
         model = Confidentiality
-        fields = ['user', 'nationality', 'is_new_employee', 'employee_number', 'sin', 'personal_data_form']
+        fields = ['user', 'nationality', 'date_of_birth', 'is_new_employee', 'employee_number', 'sin']
         widgets = {
             'user': forms.HiddenInput(),
-            'sin': forms.FileInput(),
-            'personal_data_form': forms.FileInput()
+            'sin': forms.FileInput()
         }
         labels = {
             'is_new_employee': 'I am a new employee:',
             'employee_number': 'Employee Number:',
-            'sin': 'Social Insurance Number (SIN):',
-            'personal_data_form': 'Personal Data Form:'
+            'sin': 'Social Insurance Number (SIN):'
         }
         help_texts = {
             'is_new_employee': "You are a new UBC employee if you have never had a UBC Employee Number or been paid by UBC. ",
             'employee_number': 'Enter your UBC Employee ID number here, if you have one. Must be numeric and 7 digits in length.',
-            'sin': 'Valid file formats: JPG, JPEG, PNG. A filename has at most 256 characters.',
-            'personal_data_form': 'Valid file formats: PDF, DOC, DOCX. A filename has at most 256 characters.'
+            'sin': 'Valid file formats: JPG, JPEG, PNG. A filename has at most 256 characters.'
         }
 
 
@@ -346,40 +351,47 @@ class ConfidentialityInternationalForm(forms.ModelForm):
         choices=Confidentiality.NATIONALITY_CHOICES,
         label='Am I a domestic or international student?',
     )
+
     sin_expiry_date = forms.DateField(
         required=False,
         widget=forms.SelectDateWidget(years=range(DATE.year, DATE.year + 20)),
         label='SIN Expiry Date:',
         help_text='Format: Month-Day-Year'
     )
+
     study_permit_expiry_date = forms.DateField(
         required=False,
         widget=forms.SelectDateWidget(years=range(DATE.year, DATE.year + 20)),
         label='Study Permit Expiry Date:',
         help_text='Format: Month-Day-Year'
     )
+
+    date_of_birth = forms.DateField(
+        required=False,
+        widget=forms.SelectDateWidget(years=range(DATE.year - 70, DATE.year)),
+        label='Date of Birth:',
+        help_text='Format: Month-Day-Year'
+    )
+
     class Meta:
         model = Confidentiality
-        fields = ['user', 'nationality', 'is_new_employee', 'employee_number', 'sin', 'sin_expiry_date', 'study_permit', 'study_permit_expiry_date', 'personal_data_form']
+        fields = ['user', 'nationality', 'date_of_birth', 'is_new_employee', 'employee_number', 'sin', 'sin_expiry_date', 'study_permit', 'study_permit_expiry_date']
         widgets = {
             'user': forms.HiddenInput(),
             'sin': forms.FileInput(),
-            'study_permit': forms.FileInput(),
-            'personal_data_form': forms.FileInput()
+            'study_permit': forms.FileInput()
         }
         labels = {
             'is_new_employee': 'I am a new employee:',
             'employee_number': 'Employee Number:',
             'sin': 'Social Insurance Number (SIN):',
-            'study_permit': 'Study Permit:',
-            'personal_data_form': 'Personal Data Form:'
+            'study_permit': 'Study Permit:'
         }
         help_texts = {
             'is_new_employee': "You are a new UBC employee if you have never had a UBC Employee Number or been paid by UBC. ",
             'employee_number': 'Enter your UBC Employee ID number here, if you have one. Must be numeric and 7 digits in length.',
             'sin': 'Valid file formats: JPG, JPEG, PNG. A filename has at most 256 characters.',
-            'study_permit': 'Valid file formats: JPG, JPEG, PNG. A filename has at most 256 characters.',
-            'personal_data_form': 'Valid file formats: PDF, DOC, DOCX. A filename has at most 256 characters.'
+            'study_permit': 'Valid file formats: JPG, JPEG, PNG. A filename has at most 256 characters.'
         }
 
 
@@ -389,21 +401,31 @@ class ConfidentialityForm(forms.ModelForm):
         choices=Confidentiality.NATIONALITY_CHOICES,
         label='Am I a domestic or international student?',
     )
+
     sin_expiry_date = forms.DateField(
         required=False,
         widget=forms.SelectDateWidget(years=range(DATE.year, DATE.year + 20)),
         label='SIN Expiry Date:',
         help_text='Format: Month-Day-Year'
     )
+
     study_permit_expiry_date = forms.DateField(
         required=False,
         widget=forms.SelectDateWidget(years=range(DATE.year, DATE.year + 20)),
         label='Study Permit Expiry Date:',
         help_text='Format: Month-Day-Year'
     )
+
+    date_of_birth = forms.DateField(
+        required=False,
+        widget=forms.SelectDateWidget(years=range(DATE.year - 70, DATE.year)),
+        label='Date of Birth:',
+        help_text='Format: Month-Day-Year'
+    )
+
     class Meta:
         model = Confidentiality
-        fields = ['user', 'nationality', 'is_new_employee', 'employee_number', 'sin', 'sin_expiry_date', 'study_permit', 'study_permit_expiry_date', 'personal_data_form']
+        fields = ['user', 'nationality', 'date_of_birth', 'is_new_employee', 'employee_number', 'sin', 'sin_expiry_date', 'study_permit', 'study_permit_expiry_date']
         widgets = {
             'user': forms.HiddenInput(),
             'employee_number': forms.TextInput( attrs={ 'class': 'form-control' } ),
@@ -414,17 +436,15 @@ class ConfidentialityForm(forms.ModelForm):
             'is_new_employee': 'I am a new employee:',
             'employee_number': 'Employee Number:',
             'sin': 'Social Insurance Number (SIN):',
-            'study_permit': 'Study Permit:',
-            'personal_data_form': 'Personal Data Form:'
+            'study_permit': 'Study Permit:'
         }
         help_texts = {
             'is_new_employee': "You are a new UBC employee if you have never had a UBC Employee Number or been paid by UBC. ",
             'employee_number': 'Enter your UBC Employee ID number here, if you have one. Must be numeric and 7 digits in length.',
             'sin': 'Valid file formats: JPG, JPEG, PNG. A filename has at most 256 characters.',
-            'study_permit': 'Valid file formats: JPG, JPEG, PNG. A filename has at most 256 characters.',
-            'personal_data_form': 'Valid file formats: PDF, DOC, DOCX. A filename has at most 256 characters.'
+            'study_permit': 'Valid file formats: JPG, JPEG, PNG. A filename has at most 256 characters.'
         }
-        field_order = ['user', 'nationality', 'is_new_employee', 'employee_number', 'sin', 'sin_expiry_date', 'study_permit', 'study_permit_expiry_date', 'personal_data_form']
+        field_order = ['user', 'nationality', 'date_of_birth', 'is_new_employee', 'employee_number', 'sin', 'sin_expiry_date', 'study_permit', 'study_permit_expiry_date']
 
 
 class ResumeForm(forms.ModelForm):
