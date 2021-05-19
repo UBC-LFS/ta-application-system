@@ -4,11 +4,11 @@
     "pk": 1,
     "fields": {
       "title": "Congratulations! You get a job offer",
-      "message": "<p>Hi {0},</p><p><br></p><p>TA position for {1}:</p><p><br></p><p>{2} for {3} hours as a {4}.</p>",
-      "type": "Type 1",
+      "message": "<p>Congratulations! You get a job offer.<br></p><p><br></p><p>Student Name: {0}</p><p>Student #: {1}</p><p>Session-Term: {2}</p><p>Course/Job: {3}</p><p>Instructor: {4}</p><p>Assigned Hours: {5}</p><p>Classification: {6}</p>",
+      "type": "Offer email",
       "created_at": "2019-11-04",
       "updated_at": "2019-11-04",
-      "slug": "type-1"
+      "slug": "offer-email"
     }
   },
   {

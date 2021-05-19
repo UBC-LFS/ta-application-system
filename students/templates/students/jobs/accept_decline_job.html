@@ -52,7 +52,10 @@
             </div>
           </div>
 
-          {% include 'ta_app/applications/_job_offer_contract.html' with employee=loggedin_user data=app type='None' %}
+          <div class="job-offer-contract bg-white border-grayish-blue p-4">
+            <h3>Job Offer Details</h3>
+            {{ job_offer_details|safe }}
+          </div>
 
           <div class="text-center">
             {% include 'ta_app/pages/_submit_note.html' %}
@@ -62,7 +65,7 @@
 
               <div>
                 <input type="checkbox" name="has_contract_read" value="true" />
-                <span class="font-weight-bold">I read and understood my Offer contract</span>
+                <span class="font-weight-bold">I read and understood my Job Offer Details document</span>
               </div>
 
               <div class="field-wrapper">

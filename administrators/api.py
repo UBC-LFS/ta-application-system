@@ -950,7 +950,7 @@ def bulk_update_admin_docs(data, user):
 def get_today_accepted_apps():
     ''' Get accepted application in today '''
 
-    app_statuses = ApplicationStatus.objects.filter( Q(assigned=ApplicationStatus.ACCEPTED) & Q(created_at=date.today()) )
+    app_statuses = ApplicationStatus.objects.filter( Q(assigned=ApplicationStatus.ACCEPTED) & Q(created_at=date.today()) & Q(application__is_terminated=False) )
     return app_statuses if app_statuses.exists() else None
 
 
@@ -1141,18 +1141,50 @@ def get_admin_emails():
     return AdminEmail.objects.all()
 
 def get_admin_email(admin_email_id):
-    ''' Get a admin email by id '''
+    ''' Get an admin email by id '''
     return get_object_or_404(AdminEmail, id=admin_email_id)
 
 def get_admin_email_by_slug(slug):
-    ''' Get a admin_email by slug '''
+    ''' Get an admin_email by slug '''
     return get_object_or_404(AdminEmail, slug=slug)
 
 def delete_admin_email(admin_email_id):
-    ''' Delete a admin_email '''
+    ''' Delete an admin_email '''
     admin_email = get_admin_email(admin_email_id)
     admin_email.delete()
     return admin_email if admin_email else False
+
+def get_admin_email_by_type(type):
+    ''' Get an admin email with an offer email type '''
+    admin_email = AdminEmail.objects.filter(type=type)
+    return admin_email.first() if admin_email.exists() else None
+
+def get_job_offer_details(user, app, type):
+    ''' Get job offer details '''
+
+    offer_email = get_admin_email_by_type('Offer email')
+    if offer_email == None:
+        return 'No Job Offer Details document'
+
+    instructors = []
+    for instructor in app.job.instructors.all():
+        instructors.append(instructor.get_full_name())
+
+    assigned_hours = 0.0
+    if type == 'offered':
+        assigned_hours = app.offered.assigned_hours
+    elif type == 'reassigned':
+        assigned_hours = app.declined.assigned_hours
+
+    return offer_email.message.format(
+        user.get_full_name(),
+        user.profile.student_number,
+        app.job.session.year + ' ' + app.job.session.term.code,
+        app.job.course.code.name + ' ' + app.job.course.number.name + ' ' + app.job.course.section.name,
+        ', '.join(instructors),
+        assigned_hours,
+        app.classification.name
+    )
 
 
 # Landing Page
@@ -1166,14 +1198,10 @@ def get_landing_page(landing_page_id):
     return get_object_or_404(LandingPage, id=landing_page_id)
 
 
-def delete_landing_page(landing_page_id):
-    ''' Delete a landing page '''
-    landing_page = get_landing_page(landing_page_id)
-    landing_page.delete()
-    return landing_page if landing_page else False
-
 def get_visible_landing_page():
+    ''' Get a visible landing page '''
     return LandingPage.objects.filter(is_visible=True).order_by('created_at', 'updated_at').last()
+
 
 
 # utils
@@ -1196,174 +1224,3 @@ def trim(str):
 def get_session_term_full_name(app):
     ''' Get a full name of a session term '''
     return '{0} {1} - {2} {3} {4}'.format(app.job.session.year, app.job.session.term.code, app.job.course.code.name, app.job.course.number.name, app.job.course.section.name)
-
-
-"""
-def get_selected_apps_with_stats():
-    ''' Get a total of selected apps and a stats '''
-    app_list = Application.objects.filter(applicationstatus__assigned=ApplicationStatus.SELECTED).order_by('-id').distinct()
-    app_list = [ app for app in app_list if app.applicationstatus_set.filter(assigned=ApplicationStatus.NONE).count() == app.applicationstatus_set.filter(assigned=ApplicationStatus.SELECTED).count() ]
-
-    return len(app_list), get_offered_stats(app_list)
-
-def get_offered_stats(app_list):
-    ''' Get a statistics for offered apps '''
-    stats = { 'num_offered': 0, 'num_not_offered': 0 }
-    apps = add_app_info_into_applications(app_list, ['offered'])
-    for app in apps:
-        if app.offered != None:
-            stats['num_offered'] += 1
-        else:
-            stats['num_not_offered'] += 1
-    return stats
-"""
-
-
-
-"""
-def add_applied_apps_to_applicants(session):
-    ''' Add applied applications to applicants in the session '''
-
-    students = User.objects.filter(profile__roles__name=Role.STUDENT)
-    total_accepted_applicants = 0
-
-    applicants = []
-    for student in students:
-        student.has_applied = False
-        apps = student.application_set.filter( Q(job__session__year=session.year) & Q(job__session__term__code=session.term.code) )
-
-        if apps.count() > 0:
-            student.has_applied = True
-            student.accepted_apps = []
-            for app in apps:
-                student.accepted_apps, total_accepted_applicants, _ = valid_accepted_app(student.accepted_apps, app, total_accepted_applicants)
-
-            applicants.append(student)
-
-    return applicants, total_accepted_applicants
-"""
-
-"""
-def get_applicant_status2(year, term_code, applicant):
-    ''' Get applicant's status '''
-
-    applicant.has_applied = False
-    apps = applicant.application_set.filter( Q(job__session__year=year) & Q(job__session__term__code=term_code) )
-
-    if apps.count() > 0:
-        applicant.has_applied = True
-        applicant.accepted_apps = []
-
-        for app in apps:
-            app.full_course_name = app.job.course.code.name + '_' + app.job.course.number.name + '_' + app.job.course.section.name
-
-            app = add_app_info_into_application(app, ['accepted', 'declined', 'cancelled'])
-            if app.accepted:
-                if app.is_terminated == False or app.cancelled == None:
-                    if app.is_declined_reassigned:
-                        latest_status = get_latest_status_in_app(app)
-                        if (latest_status == 'declined' and app.declined.parent_id != None) or (latest_status == 'accepted'):
-                            applicant.accepted_apps.append(app)
-                    else:
-                        applicant.accepted_apps.append(app)
-
-    return applicant
-"""
-
-"""
-def add_applied_apps_to_applicants2(session):
-    ''' Add applied applications to applicants in the session '''
-
-    students = User.objects.filter(profile__roles__name=Role.STUDENT)
-    total_accepted_applicants = 0
-
-    applicants = []
-    for student in students:
-        student.has_applied = False
-        apps = student.application_set.filter( Q(job__session__year=session.year) & Q(job__session__term__code=session.term.code) )
-
-        if apps.count() > 0:
-            student.has_applied = True
-            student.accepted_apps = []
-
-            for app in apps:
-                app = add_app_info_into_application(app, ['accepted', 'declined', 'cancelled'])
-                if app.accepted:
-                    valid_accepted = False
-                    if app.is_terminated == False or app.cancelled == None:
-                        if app.is_declined_reassigned:
-                            latest_status = get_latest_status_in_app(app)
-                            if (latest_status == 'declined' and app.declined.parent_id != None) or (latest_status == 'accepted'):
-                                student.accepted_apps.append(app)
-                                valid_accepted = True
-                        else:
-                            student.accepted_apps.append(app)
-                            valid_accepted = True
-
-                    if valid_accepted:
-                        total_accepted_applicants += 1
-
-            applicants.append(student)
-
-    return applicants, total_accepted_applicants
-"""
-
-
-"""
-def get_total_assigned_hours2(apps, list):
-    ''' Get total assigend hours in list '''
-    total_hours = {}
-    for name in list:
-        total_hours[name] = {}
-
-    for app in apps:
-        if 'offered' in list:
-            offered = app.applicationstatus_set.filter(assigned=ApplicationStatus.OFFERED)
-            if offered.exists():
-                year_term = '{0}-{1}'.format(app.job.session.year, app.job.session.term.code)
-                if year_term in total_hours['offered'].keys():
-                    total_hours['offered'][year_term] += offered.last().assigned_hours
-                else:
-                    total_hours['offered'][year_term] = offered.last().assigned_hours
-
-        if 'accepted' in list:
-            accepted = app.applicationstatus_set.filter(assigned=ApplicationStatus.ACCEPTED)
-
-            if accepted.exists():
-                can_add = True
-
-                declined = app.applicationstatus_set.filter(assigned=ApplicationStatus.DECLINED)
-                cancelled = app.applicationstatus_set.filter(assigned=ApplicationStatus.CANCELLED)
-
-                # To check whether the app is terminated or not
-                if app.is_terminated and cancelled.exists():
-                    can_add = False
-
-                # check whether the app is declined and reassigned
-                if can_add:
-                    if app.is_declined_reassigned and declined.exists():
-                        latest_status = get_latest_status_in_app(app)
-                        if (latest_status == 'declined' and declined.last().parent_id == None) or (latest_status == 'accepted'):
-                            can_add = False
-
-                if can_add:
-                    year_term = '{0}-{1}'.format(app.job.session.year, app.job.session.term.code)
-                    if year_term in total_hours['accepted'].keys():
-                        total_hours['accepted'][year_term] += accepted.last().assigned_hours
-                    else:
-                        total_hours['accepted'][year_term] = accepted.last().assigned_hours
-
-    return total_hours
-"""
-
-"""
-def get_offered_apps_no_response(apps):
-    ''' Get offered apps with no response '''
-    return apps.filter(applicationstatus__assigned=ApplicationStatus.OFFERED).filter( ~Q(applicationstatus__assigned=ApplicationStatus.ACCEPTED) & ~Q(applicationstatus__assigned=ApplicationStatus.DECLINED) ).order_by('-id').distinct()
-"""
-
-"""
-def get_terminated_applications():
-    ''' Update an application for the termination of an application '''
-    return Application.objects.filter(is_terminated=True).order_by('-id')
-"""

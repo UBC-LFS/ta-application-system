@@ -2033,7 +2033,7 @@ def destroy_user_contents(request):
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
         return redirect('administrators:destroy_user_contents')
-    
+
     else:
         user_list, target_date = userApi.get_users('destroy')
         users = []
@@ -2994,7 +2994,7 @@ def delete_admin_email(request):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET', 'POST'])
 def landing_pages(request):
-    ''' Edit a landing page '''
+    ''' View a landing page '''
     request = userApi.has_admin_access(request)
 
     if request.method == 'POST':
@@ -3002,7 +3002,7 @@ def landing_pages(request):
         if form.is_valid():
             landing_page = form.save()
             if landing_page:
-                messages.success(request, 'Success! New landing page (ID: {0}) created.'.format(landing_page.id))
+                messages.success(request, 'Success! New landing Page (ID: {0}) created.'.format(landing_page.id))
                 return redirect('administrators:landing_pages')
             else:
                 messages.error(request, 'An error occurred.')
@@ -3021,7 +3021,7 @@ def landing_pages(request):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET', 'POST'])
 def edit_landing_page(request, landing_page_id):
-    ''' Edit a admin_email '''
+    ''' Edit a landing page '''
     request = userApi.has_admin_access(request)
 
     landing_page = adminApi.get_landing_page(landing_page_id)
@@ -3056,10 +3056,11 @@ def delete_landing_page(request):
     request = userApi.has_admin_access(request)
 
     if request.method == 'POST':
-        landing_page_id = request.POST.get('landing_page')
-        deleted_landing_page = adminApi.delete_landing_page(landing_page_id)
-        if deleted_landing_page:
-            messages.success(request, 'Success! Landing Page {0} deleted'.format(deleted_landing_page.title))
+        landing_page = adminApi.get_landing_page( request.POST.get('landing_page') )
+        landing_page.delete()
+
+        if landing_page:
+            messages.success(request, 'Success! Landing Page {0} deleted'.format(landing_page.title))
         else:
             messages.error(request, 'An error occurred.')
     return redirect("administrators:landing_pages")

@@ -877,14 +877,11 @@ def accept_decline_job(request, session_slug, job_slug):
     if app.job.session.is_archived == True or app.offered is None:
         raise PermissionDenied
 
-    #can_accept_or_decline = userApi.add_confidentiality_validation(request.user)
-    #if can_accept_or_decline['status'] == False:
-    #    raise PermissionDenied
-
     return render(request, 'students/jobs/accept_decline_job.html', {
         'loggedin_user': request.user,
         'app': app,
-        'can_accept': userApi.add_confidentiality_validation(request.user)
+        'can_accept': userApi.add_confidentiality_validation(request.user),
+        'job_offer_details': adminApi.get_job_offer_details(request.user, app, 'offered')
     })
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -978,10 +975,6 @@ def reaccept_application(request, app_slug):
     if app.job.session.is_archived == True or app.is_declined_reassigned != True:
         raise PermissionDenied
 
-    #can_accept_or_decline = userApi.add_confidentiality_validation(request.user)
-    #if can_accept_or_decline['status'] == False:
-    #    raise PermissionDenied
-
     if request.method == 'POST':
 
         # Check whether a next url is valid or not
@@ -1065,7 +1058,8 @@ def reaccept_application(request, app_slug):
     return render(request, 'students/jobs/reaccept_application.html', {
         'loggedin_user': request.user,
         'app': app,
-        'can_accept': userApi.add_confidentiality_validation(request.user)
+        'can_accept': userApi.add_confidentiality_validation(request.user),
+        'job_offer_details': adminApi.get_job_offer_details(request.user, app, 'reassigned')
     })
 
 
