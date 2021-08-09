@@ -1612,6 +1612,7 @@ def terminated_applications(request):
         'apps': apps,
         'num_filtered_apps': info['num_filtered_apps'],
         'admin_emails': adminApi.get_admin_emails(),
+        'app_status': APP_STATUS,
         'new_next': adminApi.build_new_next(request)
     })
 

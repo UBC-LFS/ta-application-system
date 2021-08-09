@@ -5,7 +5,22 @@
 <div>
   {% include 'ta_app/pages/_header.html' with title='Terminated Applications' %}
 
-  {% include 'administrators/applications/_search_fields.html' with data=apps total=num_filtered_apps path='terminated' %}
+  <div class="row">
+    <div class="col-md-6">
+      {% include 'administrators/applications/_search_fields.html' with data=apps total=num_filtered_apps path='terminated' %}
+    </div>
+
+    <div class="col-md-6">
+      <div class="bg-light-gray p-4" style="height:180.8px">
+        <h5>Note:</h5>
+        <ul class="font-size-sm">
+          <li>
+            This icon <i class="fa fa-bell text-warning" aria-hidden="true"></i> means that students have not responded yet.
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
 
   <form action="{% url 'administrators:applications_send_email' %}?next={{ new_next }}&p=Terminated Applications" method="post">
     {% csrf_token %}
@@ -60,7 +75,12 @@
               </a>
               <div><small class="text-dark-gray">({{ app.applicant.username }})</small></div>
             </td>
-            <td>{% include 'ta_app/applications/_modal_app_status.html' with data=app %}</td>
+            <td>
+              {% include 'ta_app/applications/_modal_app_status.html' with data=app %}
+              {% if app.applicationstatus_set.last.assigned != app_status.cancelled %}
+                <i class="fa fa-bell text-warning" aria-hidden="true"></i>
+              {% endif %}
+            </td>
             <td>{% include 'ta_app/applications/_app_instructor_preference.html' with data=app.get_instructor_preference_display %}</td>
             <td>
               {% if app.classification %}
