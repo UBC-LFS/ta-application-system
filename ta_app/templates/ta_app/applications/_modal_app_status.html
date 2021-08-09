@@ -50,6 +50,21 @@
             {% endfor %}
         </table>
 
+        {% if app.is_declined_reassigned or app.is_terminated %}
+          <div class="text-left mt-3">
+            <h6>Note:</h6>
+            <ul>
+              {% if app.is_declined_reassigned %}
+                <li>This application is declined and reassigned by administrators.</li>
+              {% endif %}
+
+              {% if app.is_terminated %}
+                <li>This application is terminated by administrators.</li>
+              {% endif %}
+            </ul>
+          </div>
+        {% endif %}
+
       </div>
     </div>
   </div>

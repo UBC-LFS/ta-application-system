@@ -5,7 +5,27 @@
 <div>
   {% include 'ta_app/pages/_header.html' with title='All Applications' %}
 
-  {% include 'administrators/applications/_search_fields.html' with data=apps total=num_filtered_apps path='all' %}
+
+
+  <div class="row">
+    <div class="col-md-6">
+      {% include 'administrators/applications/_search_fields.html' with data=apps total=num_filtered_apps path='all' %}
+    </div>
+
+    <div class="col-md-6">
+      <div class="bg-light-gray p-4" style="height:180.8px">
+        <h5>Note:</h5>
+        <ul class="font-size-sm">
+          <li>
+            Reset buttons will appear in the Actions column when the latest application status is
+            <span class="badge badge-orange">SELECTED</span>
+            <span class="badge badge-danger">DECLINED</span> or
+            <span class="badge badge-secondary">TERMINATED</span>.
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
 
   <table
     class="table table-bordered table-hover table-striped table-responsive-md text-center"
@@ -116,7 +136,7 @@
                             </ul>
 
                             <h6 class="my-3">Are you sure to <span class="text-danger">reset</span> this application <span class="text-secondary"></span>?</h6>
-                            
+
                             <form action="{% url 'administrators:reset_application' %}" method="post">
                               {% csrf_token %}
 
