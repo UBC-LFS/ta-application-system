@@ -906,12 +906,63 @@ def all_applications(request):
     except EmptyPage:
         apps = paginator.page(paginator.num_pages)
 
+    for app in apps:
+        app.can_reset = adminApi.app_can_reset(app)
+
     return render(request, 'administrators/applications/all_applications.html', {
         'loggedin_user': request.user,
         'apps': apps,
         'num_filtered_apps': info['num_filtered_apps'],
+        'app_status': APP_STATUS,
         'new_next': adminApi.build_new_next(request)
     })
+
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['POST'])
+def reset_application(request):
+    ''' Reset an application '''
+    request = userApi.has_admin_access(request)
+
+    # Check whether a next url is valid or not
+    adminApi.can_req_parameters_access(request, 'none', ['next'], 'POST')
+
+    app_id = request.POST.get('application')
+    app = adminApi.get_application(app_id)
+
+    # An offered appliation cannot be reset
+    if adminApi.app_can_reset(app) == False:
+       messages.error(request, 'An error occurred. Selected or Declined applications can be reset.')
+       return HttpResponseRedirect(request.POST.get('next'))
+
+    instructor_preference = '0'
+
+    reset_app_form = InstructorApplicationForm({ 'instructor_preference': instructor_preference })
+    if reset_app_form.is_valid():
+        app_status_form = ApplicationStatusForm({ 'application': app_id, 'assigned': ApplicationStatus.NONE, 'assigned_hours': '0', 'has_contract_read': False })
+        if app_status_form:
+            updated_app = adminApi.update_reset_application(app_id, instructor_preference)
+            if updated_app:
+                if app_status_form.save():
+                    app_reset = ApplicationReset.objects.create(application=app, user=request.user.get_full_name())
+                    if app_reset:
+                        messages.success(request, 'Success! {0} - the following information (ID: {1}, {2} {3} - {4} {5} {6}) have been reset. <ul><li>Instructor Preference</li><li>Assigned Status</li><li>Assigned Hours</li></ul>'.format(updated_app.applicant.get_full_name(), updated_app.id, updated_app.job.session.year, updated_app.job.session.term.code, updated_app.job.course.code.name, updated_app.job.course.number.name, updated_app.job.course.section.name))
+                    else:
+                        messages.error(request, 'An error occurred while updating an application reset logs.')
+                else:
+                    messages.error(request, 'An error occurred while updating an application status.')
+            else:
+                messages.error(request, 'An error occurred while updating an instructor_preference.')
+        else:
+            errors = app_status_form.errors.get_json_data()
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+    else:
+        errors = instructor_app_form.errors.get_json_data()
+        messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+
+    return HttpResponseRedirect(request.POST.get('next'))
+
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -938,7 +989,6 @@ def selected_applications(request):
         if adminApi.is_valid_integer(assigned_hours) == False:
             messages.error(request, 'An error occurred. Please check assigned hours. Assign TA Hours must be non-negative integers.')
             return HttpResponseRedirect(request.POST.get('next'))
-
 
         assigned_hours = int( float(assigned_hours) )
 
@@ -974,6 +1024,31 @@ def selected_applications(request):
 
         filtered_offered_apps = { 'num_offered': 0, 'num_not_offered': 0 }
         for app in apps:
+            offer_modal = {
+                'title': '',
+                'form_url': reverse('administrators:offer_job', args=[app.job.session.slug, app.job.course.slug]),
+                'classification_id': app.classification.id if app.classification != None else -1,
+                'assigned_hours': app.selected.assigned_hours,
+                'button_colour': 'btn-primary'
+            }
+            latest_status = adminApi.get_latest_status_in_app(app)
+            num_reset = app.applicationreset_set.count()
+            if latest_status == 'none':
+                if num_reset > 0 and app.applicationstatus_set.filter(assigned=ApplicationStatus.NONE).count() > num_reset:
+                    offer_modal['title'] = 'Re-offer'
+            elif latest_status == 'selected':
+                if num_reset > 0 and app.applicationstatus_set.filter(assigned=ApplicationStatus.SELECTED).count() > num_reset:
+                    offer_modal['title'] = 'Re-offer'
+                else:
+                    offer_modal['title'] = 'Offer'
+            else:
+                offer_modal['title'] = 'Edit Job Offer'
+                offer_modal['form_url'] = ''
+                offer_modal['assigned_hours'] = app.offered.assigned_hours
+                offer_modal['button_colour'] = 'btn-warning'
+
+            app.offer_modal = offer_modal
+
             if app.offered != None:
                 filtered_offered_apps['num_offered'] += 1
             else:
@@ -1012,48 +1087,6 @@ def selected_applications(request):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['POST'])
-def reset_instructor_preference(request):
-    ''' Reset instructor preference '''
-    request = userApi.has_admin_access(request)
-
-    # Check whether a next url is valid or not
-    adminApi.can_req_parameters_access(request, 'none', ['next'], 'POST')
-
-    app_id = request.POST.get('application')
-    app = adminApi.add_app_info_into_application(adminApi.get_application(app_id), ['offered'])
-
-    # An offered appliation cannot be reset
-    if app.offered != None:
-        messages.error(request, 'An error occurred. An offered application cannot be reset.')
-        return HttpResponseRedirect(request.POST.get('next'))
-
-    instructor_preference = '0'
-
-    instructor_app_form = InstructorApplicationForm({ 'instructor_preference': instructor_preference })
-    if instructor_app_form.is_valid():
-        app_status_form = ApplicationStatusForm({ 'application': app_id, 'assigned': '0', 'assigned_hours': '0', 'has_contract_read': False })
-        if app_status_form:
-            updated_app = adminApi.update_application_instructor_preference(app_id, instructor_preference)
-            if updated_app:
-                if app_status_form.save():
-                    messages.success(request, 'Success! {0}: The Instructor Preference of an Application (ID: {1}, {2} {3} - {4} {5} {6}) has been reset. Please check in <a href="{7}">All Applications</a>'.format(updated_app.applicant.get_full_name(), updated_app.id, updated_app.job.session.year, updated_app.job.session.term.code, updated_app.job.course.code.name, updated_app.job.course.number.name, updated_app.job.course.section.name, reverse('administrators:all_applications')))
-                else:
-                    messages.error(request, 'An error occurred while updating an application status.')
-            else:
-                messages.error(request, 'An error occurred while updating an instructor_preference.')
-        else:
-            errors = app_status_form.errors.get_json_data()
-            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
-    else:
-        errors = instructor_app_form.errors.get_json_data()
-        messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
-
-    return HttpResponseRedirect(request.POST.get('next'))
-
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['POST'])
 def offer_job(request, session_slug, job_slug):
     ''' Admin can offer a job to each job '''
     request = userApi.has_admin_access(request)
@@ -1062,6 +1095,12 @@ def offer_job(request, session_slug, job_slug):
 
         # Check whether a next url is valid or not
         adminApi.can_req_parameters_access(request, 'none', ['next'], 'POST')
+
+        app = adminApi.get_application(request.POST.get('application'))
+        latest_status = adminApi.get_latest_status_in_app(app)
+        if latest_status == 'none':
+            messages.error(request, 'An error occurred. An applied application cannot be offered.')
+            return HttpResponseRedirect(request.POST.get('next'))
 
         if 'classification' not in request.POST.keys() or len(request.POST.get('classification')) == 0:
             messages.error(request, 'An error occurred. Please select classification, then try again.')
@@ -1266,8 +1305,10 @@ def declined_applications(request):
         'apps': apps,
         'num_filtered_apps': info['num_filtered_apps'],
         'admin_emails': adminApi.get_admin_emails(),
+        'app_status': APP_STATUS,
         'new_next': adminApi.build_new_next(request)
     })
+
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -1427,7 +1468,7 @@ def decline_reassign_confirmation(request):
         old_assigned_hours = request.POST.get('old_assigned_hours')
         new_assigned_hours = request.POST.get('new_assigned_hours')
         app = adminApi.get_application(app_id)
-        accepted_status = adminApi.get_accepted_status(app)
+        accepted_status = app.applicationstatus_set.filter(assigned=ApplicationStatus.ACCEPTED).last()
 
         status_form = ApplicationStatusReassignForm({
             'application': app_id,

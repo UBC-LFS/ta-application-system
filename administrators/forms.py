@@ -272,7 +272,6 @@ class InstructorJobForm(forms.ModelForm):
         }
 
 
-
 class InstructorApplicationForm(forms.ModelForm):
     class Meta:
         model = Application

@@ -85,6 +85,7 @@ class ApplicationTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, response.url)
 
+
     def delete_document(self, user, list, option='domestic'):
         ''' Delete a list of document '''
         if 'resume' in list:
@@ -239,6 +240,7 @@ class ApplicationTest(TestCase):
         print('- Test: Display a dashboard to take a look at updates')
         self.login()
 
+
     def test_all_applications(self):
         print('- Test: Display all applications')
         self.login()
@@ -248,6 +250,735 @@ class ApplicationTest(TestCase):
         self.assertEqual(response.context['loggedin_user'].username, USERS[0])
         self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
         self.assertEqual( len(response.context['apps']), 26)
+
+        apps = response.context['apps']
+
+        users = [
+            { 'id': 1, 'can_reset': False, 'num_reset': 0 }, { 'id': 2, 'can_reset': True, 'num_reset': 0 },
+            { 'id': 3, 'can_reset': False, 'num_reset': 0 }, { 'id': 4, 'can_reset': True, 'num_reset': 0 },
+            { 'id': 5, 'can_reset': True, 'num_reset': 0 }, { 'id': 6, 'can_reset': False, 'num_reset': 0 },
+            { 'id': 7, 'can_reset': False, 'num_reset': 0 }, { 'id': 8, 'can_reset': False, 'num_reset': 0 },
+            { 'id': 9, 'can_reset': False, 'num_reset': 1 }, { 'id': 10, 'can_reset': False, 'num_reset': 1 },
+            { 'id': 11, 'can_reset': False, 'num_reset': 0 }, { 'id': 12, 'can_reset': False, 'num_reset': 0 },
+            { 'id': 13, 'can_reset': True, 'num_reset': 0 }, { 'id': 14, 'can_reset': True, 'num_reset': 0 },
+            { 'id': 15, 'can_reset': True, 'num_reset': 0 }, { 'id': 16, 'can_reset': False, 'num_reset': 0 },
+            { 'id': 17, 'can_reset': True, 'num_reset': 0 }, { 'id': 18, 'can_reset': False, 'num_reset': 0 },
+            { 'id': 19, 'can_reset': False, 'num_reset': 0 }, { 'id': 20, 'can_reset': False, 'num_reset': 0 },
+            { 'id': 21, 'can_reset': True, 'num_reset': 1 }, { 'id': 22, 'can_reset': False, 'num_reset': 0 },
+            { 'id': 23, 'can_reset': False, 'num_reset': 0 }, { 'id': 24, 'can_reset': False, 'num_reset': 0 },
+            { 'id': 25, 'can_reset': True, 'num_reset': 0 }, { 'id': 26, 'can_reset': False, 'num_reset': 0 }
+        ]
+        users.reverse()
+
+        i = 0
+        for app in apps:
+            self.assertEqual(app.id, users[i]['id'])
+            self.assertEqual(app.can_reset, users[i]['can_reset'])
+            self.assertEqual(app.applicationreset_set.count(), users[i]['num_reset'])
+            i += 1
+
+    def test_reset_application_applied_app_wrong_next(self):
+        print('- Test: reset an application - wrong next')
+        self.login()
+
+        app_id = '21'
+        app = adminApi.get_application(app_id)
+        self.assertEqual(app.instructor_preference, Application.ACCEPTABLE)
+
+        data = {
+            'application': app_id,
+            'next': '/administrators/applications/selectedd/?page=2'
+        }
+        response = self.client.post(reverse('administrators:reset_application'), data=urlencode(data), content_type=ContentType)
+        self.assertEqual(response.status_code, 404)
+
+
+    def test_reset_application_applied_app_error(self):
+        print('- Test: reset an application - applied app error')
+        self.login()
+
+        app_id = '6'
+        PATH = '/administrators/applications/all/?page=2'
+
+        data = {
+            'application': app_id,
+            'next': PATH
+        }
+        response = self.client.post(reverse('administrators:reset_application'), data=urlencode(data), content_type=ContentType)
+        messages = self.messages(response)
+        self.assertTrue(messages[0], 'An error occurred. Selected or Declined applications can be reset.')
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, PATH)
+        self.assertRedirects(response, response.url)
+
+
+    def test_reset_application_offered_app_error(self):
+        print('- Test: reset an application - offered app error')
+        self.login()
+
+        app_id = '3'
+        PATH = '/administrators/applications/all/?page=2'
+
+        data = {
+            'application': app_id,
+            'next': PATH
+        }
+        response = self.client.post(reverse('administrators:reset_application'), data=urlencode(data), content_type=ContentType)
+        messages = self.messages(response)
+        self.assertTrue(messages[0], 'An error occurred. Selected or Declined applications can be reset.')
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, PATH)
+        self.assertRedirects(response, response.url)
+
+
+    def test_reset_application_accepted_app_error(self):
+        print('- Test: reset an application - accepted app error')
+        self.login()
+
+        app_id = '6'
+        PATH = '/administrators/applications/all/?page=2'
+
+        data = {
+            'application': app_id,
+            'next': PATH
+        }
+        response = self.client.post(reverse('administrators:reset_application'), data=urlencode(data), content_type=ContentType)
+        messages = self.messages(response)
+        self.assertTrue(messages[0], 'An error occurred. Selected or Declined applications can be reset.')
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, PATH)
+        self.assertRedirects(response, response.url)
+
+
+    def test_reset_application_selected_app_success(self):
+        print('- Test: reset an application - selected app success')
+        self.login()
+
+        app_id = '2'
+        PATH = '/administrators/applications/all/?page=2'
+
+        data = {
+            'application': app_id,
+            'next': PATH
+        }
+        response = self.client.post(reverse('administrators:reset_application'), data=urlencode(data), content_type=ContentType)
+        messages = self.messages(response)
+        self.assertTrue(messages[0], 'Success! User65 Test - the following information (ID: 2, 2019 W1 - APBI 200 001) have been reset. <ul><li>Instructor Preference</li><li>Assigned Status</li><li>Assigned Hours</li></ul>')
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, PATH)
+        self.assertRedirects(response, response.url)
+
+
+    def test_reset_application_declined_app_success(self):
+        print('- Test: reset an application - declined app success')
+        self.login()
+
+        app_id = '25'
+        PATH = '/administrators/applications/all/?page=2'
+
+        data = {
+            'application': app_id,
+            'next': PATH
+        }
+        response = self.client.post(reverse('administrators:reset_application'), data=urlencode(data), content_type=ContentType)
+        messages = self.messages(response)
+        self.assertTrue(messages[0], 'Success! User100 Test - the following information (ID: 25, 2019 S - APBI 200 001) have been reset. <ul><li>Instructor Preference</li><li>Assigned Status</li><li>Assigned Hours</li></ul>')
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, PATH)
+        self.assertRedirects(response, response.url)
+
+
+    def test_reset_application_terminated_app_success(self):
+        print('- Test: reset an application - terminated app success')
+
+        app_id = '22'
+
+        self.login(USERS[2], PASSWORD)
+
+        STUDENT_JOB = 'apbi-260-001-agroecology-i-introduction-to-principles-and-techniques-w1'
+        HISTORY_NEXT = '?next=' + reverse('students:history_jobs') + '?page=2'
+
+        response = self.client.get( reverse('students:terminate_job', args=[SESSION, STUDENT_JOB]) + HISTORY_NEXT )
+        self.assertEqual(response.status_code, 200)
+
+        app = response.context['app']
+        self.assertEqual(app.id, 22)
+        self.assertTrue(app.is_terminated)
+        self.assertEqual(adminApi.get_latest_status_in_app(app), 'accepted')
+
+        data = {
+            'application': app.id,
+            'assigned_hours': app.accepted.assigned_hours,
+            'assigned': ApplicationStatus.CANCELLED,
+            'parent_id': app.accepted.id,
+            'next': reverse('students:history_jobs') + '?page=2'
+        }
+
+        response = self.client.post( reverse('students:terminate_job', args=[SESSION, STUDENT_JOB]) + HISTORY_NEXT, data=urlencode(data), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue('Application of 2019 W1 - APBI 260 001 terminated.' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse('students:history_jobs') + '?page=2')
+        self.assertRedirects(response, response.url)
+
+        appl = adminApi.get_application(app_id)
+        self.assertEqual(adminApi.get_latest_status_in_app(appl), 'cancelled')
+
+        self.login()
+
+        PATH = '/administrators/applications/all/?page=2'
+
+        data = {
+            'application': app_id,
+            'next': PATH
+        }
+        response = self.client.post(reverse('administrators:reset_application'), data=urlencode(data), content_type=ContentType)
+        messages = self.messages(response)
+        self.assertTrue(messages[0], 'Success! User100 Test - the following information (ID: 1, 2019 W1 - APBI 200 001) have been reset. <ul><li>Instructor Preference</li><li>Assigned Status</li><li>Assigned Hours</li></ul>')
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, PATH)
+        self.assertRedirects(response, response.url)
+
+
+    def test_see_reset_logs(self):
+        print('- Test: see reset logs')
+        self.login()
+
+        app_id = 21
+
+        response = self.client.get( reverse('administrators:all_applications') )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['loggedin_user'].username, USERS[0])
+        self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
+
+        apps = response.context['apps']
+        self.assertEqual(len(apps), 26)
+
+        users = [
+            { 'id': 9, 'num_reset': 1, 'user': 'User2 Admin', 'created_at': '2020-09-26' },
+            { 'id': 10, 'num_reset': 1, 'user': 'User2 Admin', 'created_at': '2020-09-27' },
+            { 'id': 21, 'num_reset': 1, 'user': 'User2 Admin', 'created_at': '2020-10-15' }
+        ]
+
+        i = 0
+        for app in apps:
+            if app == users[i]['id']:
+                self.assetEqual(app.applicationreset_set.count(), users[i]['num_reset'])
+                self.assetEqual(app.applicationreset_set.first().user, users[i]['user'])
+                self.assetEqual(app.applicationreset_set.first().created_at, users[i]['created_at'])
+                i += 1
+
+
+    def test_can_reoffer(self):
+        print('- Test: can reoffer')
+        self.login()
+
+        response = self.client.get( reverse('administrators:selected_applications') )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['loggedin_user'].username, USERS[0])
+        self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
+
+        apps = response.context['apps']
+        self.assertEqual(len(apps), 20)
+
+        offer = []
+        edit = []
+        available_reoffer = []
+        cannot_reoffer = []
+        for app in apps:
+            if app.offer_modal['title'] == 'Offer':
+                offer.append(app.id)
+            elif app.offer_modal['title'] == 'Edit Job Offer':
+                edit.append(app.id)
+            elif app.offer_modal['title'] == 'Re-offer':
+                available_reoffer.append(app.id)
+                if app.applicationstatus_set.last().assigned == ApplicationStatus.NONE:
+                    cannot_reoffer.append(app.id)
+
+        self.assertEqual(offer, [17, 15, 14, 13, 5, 4, 2])
+        self.assertEqual(edit, [25, 24, 22, 20, 19, 11, 8, 7, 3, 1])
+        self.assertEqual(available_reoffer, [21, 10, 9])
+        self.assertEqual(cannot_reoffer, [10, 9])
+
+    def test_reoffer_selected_application_success(self):
+        print('- Test: reoffer a selected application - success')
+        self.login()
+
+        response = self.client.get( reverse('administrators:selected_applications') )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['loggedin_user'].username, USERS[0])
+        self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
+        self.assertEqual( len(response.context['apps']), 20)
+
+        app_id = 21
+
+        app = None
+        for appl in response.context['apps']:
+            if appl.id == app_id:
+                app = appl
+                break
+
+        self.assertIsNotNone(app)
+        self.assertIsNotNone(app.selected)
+        self.assertEqual(app.selected.id, 72)
+        self.assertEqual(app.selected.assigned, ApplicationStatus.SELECTED)
+        self.assertEqual(app.selected.created_at, datetime.date(2020, 10, 17))
+
+        FULL_PATH = reverse('administrators:selected_applications') + '?page=1'
+
+        data = {
+            'note': 'this is a note',
+            'assigned_hours': app.selected.assigned_hours,
+            'application': app.id,
+            'assigned': ApplicationStatus.OFFERED,
+            'applicant': '100',
+            'classification': '2',
+            'next': FULL_PATH
+        }
+        response = self.client.post(reverse('administrators:offer_job', args=[app.job.session.slug, app.job.course.slug]), data=urlencode(data), content_type=ContentType)
+        messages = self.messages(response)
+        self.assertEqual(messages[0], 'Success! You offered this user (User100 Test) 27 hours for this job (2019 W1 - APBI 200 002)')
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, FULL_PATH)
+        self.assertRedirects(response, response.url)
+
+        app2 = adminApi.get_application(app.id)
+        self.assertEqual(app2.instructor_preference, Application.ACCEPTABLE)
+        self.assertEqual(app2.classification.id, int(data['classification']))
+        self.assertEqual(app2.note, data['note'])
+
+        offered_app = adminApi.get_offered(app)
+        self.assertFalse(offered_app.has_contract_read)
+        self.assertTrue(offered_app.assigned, ApplicationStatus.OFFERED)
+        self.assertEqual(offered_app.assigned_hours, float(data['assigned_hours']))
+
+
+    def test_reoffer_applied_application_error(self):
+        print('- Test: reoffer an applied application - error')
+        self.login()
+
+        app_id = 10
+
+        app = adminApi.get_application(app_id)
+        applied_app = adminApi.get_applied(app)
+        self.assertIsNotNone(app)
+        self.assertIsNotNone(applied_app)
+        self.assertEqual(applied_app.id, 70)
+        self.assertEqual(applied_app.assigned, ApplicationStatus.NONE)
+        self.assertEqual(applied_app.created_at, datetime.date(2020, 9, 27))
+
+        FULL_PATH = reverse('administrators:selected_applications') + '?page=1'
+
+        data = {
+            'note': 'this is a note',
+            'assigned_hours': applied_app.assigned_hours,
+            'application': app.id,
+            'assigned': ApplicationStatus.OFFERED,
+            'applicant': '70',
+            'classification': '2',
+            'next': FULL_PATH
+        }
+        response = self.client.post(reverse('administrators:offer_job', args=[app.job.session.slug, app.job.course.slug]), data=urlencode(data), content_type=ContentType)
+        messages = self.messages(response)
+        self.assertTrue(messages[0], 'An error occurred. An applied application cannot be reset.')
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, FULL_PATH)
+        self.assertRedirects(response, response.url)
+
+
+    def test_reset_aplication_success(self):
+        print('- Test: reset an application - success')
+        self.login()
+
+        app_id = 13
+        STUDENT = 'user70.test'
+
+        # reset
+        app1 = adminApi.get_application(app_id)
+        self.assertEqual(app1.instructor_preference, Application.ACCEPTABLE)
+        self.assertFalse(app1.is_declined_reassigned)
+        self.assertFalse(app1.is_terminated)
+
+        FULL_PATH = reverse('administrators:selected_applications') + '?page=1'
+
+        data1 = {
+            'application': app1.id,
+            'next': FULL_PATH
+        }
+        response = self.client.post(reverse('administrators:reset_application'), data=urlencode(data1), content_type=ContentType)
+        messages = self.messages(response)
+        self.assertEqual(messages[0], 'Success! User70 Test - the following information (ID: 13, 2019 W2 - APBI 200 001) have been reset. <ul><li>Instructor Preference</li><li>Assigned Status</li><li>Assigned Hours</li></ul>')
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, FULL_PATH)
+        self.assertRedirects(response, response.url)
+
+        app2 = adminApi.get_application(app_id)
+        self.assertEqual(app2.instructor_preference, Application.NONE)
+        self.assertFalse(app2.is_declined_reassigned)
+        self.assertFalse(app2.is_terminated)
+
+        expected2 = [
+            {'id': 13, 'assigned': ApplicationStatus.NONE, 'created_at': datetime.date(2019, 9, 1)},
+            {'id': 36, 'assigned': ApplicationStatus.SELECTED, 'created_at': datetime.date(2019, 9, 5)},
+            {'id': 79, 'assigned': ApplicationStatus.NONE, 'created_at': datetime.date.today()},
+        ]
+
+        count2 = 0
+        for status in app2.applicationstatus_set.all():
+            self.assertEqual(expected2[count2]['id'], status.id)
+            self.assertEqual(expected2[count2]['assigned'], status.assigned)
+            self.assertEqual(expected2[count2]['created_at'], status.created_at)
+            count2 += 1
+
+
+        # re-select
+        self.login('user52.ins', PASSWORD)
+        SESSION = '2019-w2'
+        JOB = 'apbi-200-001-introduction-to-soil-science-w2'
+        JOBS_NEXT = '?next=' + reverse('instructors:show_jobs') + '?page=2'
+
+        data3 = {
+            'assigned': ApplicationStatus.SELECTED,
+            'application': app_id,
+            'instructor_preference': Application.REQUESTED,
+            'assigned_hours': 65
+        }
+        response = self.client.post( reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT, data=urlencode(data3), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue(messages[0], 'Success! User70 Test (CWL: user70.test) is selected.')
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT)
+        self.assertRedirects(response, response.url)
+
+        response = self.client.get( reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT )
+        self.assertEqual(response.status_code, 200)
+
+        this_app = None
+        for app in response.context['job'].application_set.all():
+            if app.id == app_id:
+                this_app = app
+                break
+
+        self.assertEqual(this_app.instructor_preference, Application.REQUESTED)
+
+        self.assertEqual( len(response.context['apps']) , 3 )
+        app4 = None
+        for app in response.context['apps']:
+            if app.id == app_id:
+                app4 = app
+                break
+
+        self.assertEqual(app4.id, app_id)
+        self.assertEqual(app4.applicant.username, STUDENT)
+        self.assertEqual(app4.applicationstatus_set.last().get_assigned_display(), 'Selected')
+        self.assertEqual(app4.applicationstatus_set.last().assigned_hours, 65)
+        self.assertEqual(app4.applicationstatus_set.last().created_at, datetime.date.today())
+
+
+        # offer
+        self.login()
+        response = self.client.get( reverse('administrators:selected_applications') )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['loggedin_user'].username, USERS[0])
+        self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
+        self.assertEqual( len(response.context['apps']), 20)
+
+        app5 = None
+        for app in response.context['apps']:
+            if app.id == app_id:
+                app5 = app
+                break
+
+        self.assertIsNotNone(app5)
+        self.assertIsNotNone(app5.selected)
+        self.assertEqual(app5.selected.id, 80)
+        self.assertEqual(app5.selected.assigned, ApplicationStatus.SELECTED)
+        self.assertEqual(app5.selected.created_at, datetime.date.today())
+
+        FULL_PATH = reverse('administrators:selected_applications') + '?page=1'
+
+        data5 = {
+            'note': 'this is a note',
+            'assigned_hours': app5.selected.assigned_hours,
+            'application': app5.id,
+            'assigned': ApplicationStatus.OFFERED,
+            'applicant': '70',
+            'classification': '2',
+            'next': FULL_PATH
+        }
+        response = self.client.post(reverse('administrators:offer_job', args=[app5.job.session.slug, app5.job.course.slug]), data=urlencode(data5), content_type=ContentType)
+        messages = self.messages(response)
+        self.assertEqual(messages[0], 'Success! You offered this user (User70 Test) 65 hours for this job (2019 W2 - APBI 200 001)')
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, FULL_PATH)
+        self.assertRedirects(response, response.url)
+
+        app6 = adminApi.get_application(app5.id)
+        self.assertEqual(app6.instructor_preference, Application.REQUESTED)
+        self.assertEqual(app6.classification.id, int(data5['classification']))
+        self.assertEqual(app6.note, data5['note'])
+
+        offered_app = adminApi.get_offered(app6)
+        self.assertFalse(offered_app.has_contract_read)
+        self.assertTrue(offered_app.assigned, ApplicationStatus.OFFERED)
+        self.assertEqual(offered_app.assigned_hours, float(data5['assigned_hours']))
+
+
+        # accept the offer
+        self.login(STUDENT, PASSWORD)
+
+        self.submit_confiential_information_international_complete(STUDENT)
+
+        SESSION = '2019-w2'
+        STUDENT_JOB = 'apbi-200-001-introduction-to-soil-science-w2'
+
+        data7 = {
+            'application': app6.id,
+            'assigned_hours': offered_app.assigned_hours,
+            'decision': 'accept',
+            'has_contract_read': 'true',
+            'next': reverse('students:history_jobs')
+        }
+        response = self.client.post( reverse('students:make_decision', args=[SESSION, STUDENT_JOB]), data=urlencode(data7), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue(messages[0], 'Success! You accepted the job offer - 2019 W2: APBI 200 001')
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse('students:history_jobs'))
+        self.assertRedirects(response, response.url)
+
+        final_app = adminApi.get_application(data7['application'])
+        self.assertEqual(final_app.instructor_preference, Application.REQUESTED)
+        self.assertFalse(final_app.is_declined_reassigned)
+        self.assertFalse(final_app.is_terminated)
+
+        expected7 = [
+            {'id': 13, 'assigned': ApplicationStatus.NONE, 'created_at': datetime.date(2019, 9, 1)},
+            {'id': 36, 'assigned': ApplicationStatus.SELECTED, 'created_at': datetime.date(2019, 9, 5)},
+            {'id': 79, 'assigned': ApplicationStatus.NONE, 'created_at': datetime.date.today()},
+            {'id': 80, 'assigned': ApplicationStatus.SELECTED, 'created_at': datetime.date.today()},
+            {'id': 81, 'assigned': ApplicationStatus.OFFERED, 'created_at': datetime.date.today()},
+            {'id': 82, 'assigned': ApplicationStatus.ACCEPTED, 'created_at': datetime.date.today()},
+        ]
+
+        count5 = 0
+        for status in final_app.applicationstatus_set.all():
+            self.assertEqual(expected7[count5]['id'], status.id)
+            self.assertEqual(expected7[count5]['assigned'], status.assigned)
+            self.assertEqual(expected7[count5]['created_at'], status.created_at)
+            count5 += 1
+
+        self.delete_document(STUDENT, ['sin', 'study_permit'], 'international')
+
+
+    def test_reset_application_twice(self):
+        print('- Test: reset an application twice')
+        self.login()
+
+        app_id = 25
+        STUDENT = 'user100.test'
+
+        # reset
+        app1 = adminApi.get_application(app_id)
+        self.assertEqual(app1.instructor_preference, Application.REQUESTED)
+        self.assertFalse(app1.is_declined_reassigned)
+        self.assertFalse(app1.is_terminated)
+
+        FULL_PATH = reverse('administrators:selected_applications') + '?page=1'
+
+        data1 = {
+            'application': app1.id,
+            'next': FULL_PATH
+        }
+        response = self.client.post(reverse('administrators:reset_application'), data=urlencode(data1), content_type=ContentType)
+        messages = self.messages(response)
+        self.assertEqual(messages[0], 'Success! User100 Test - the following information (ID: 25, 2019 S - APBI 200 001) have been reset. <ul><li>Instructor Preference</li><li>Assigned Status</li><li>Assigned Hours</li></ul>')
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, FULL_PATH)
+        self.assertRedirects(response, response.url)
+
+        app2 = adminApi.get_application(app_id)
+        self.assertEqual(app2.instructor_preference, Application.NONE)
+        self.assertFalse(app2.is_declined_reassigned)
+        self.assertFalse(app2.is_terminated)
+
+        expected2 = [
+            {'id': 25, 'assigned': ApplicationStatus.NONE, 'created_at': datetime.date(2019, 9, 1)},
+            {'id': 31, 'assigned': ApplicationStatus.SELECTED, 'created_at': datetime.date(2019, 9, 5)},
+            {'id': 46, 'assigned': ApplicationStatus.OFFERED, 'created_at': datetime.date(2019, 9, 10)},
+            {'id': 58, 'assigned': ApplicationStatus.DECLINED, 'created_at': datetime.date(2019, 9, 20)},
+            {'id': 87, 'assigned': ApplicationStatus.NONE, 'created_at': datetime.date.today()}
+        ]
+
+        count2 = 0
+        for status in app2.applicationstatus_set.all():
+            self.assertEqual(expected2[count2]['id'], status.id)
+            self.assertEqual(expected2[count2]['assigned'], status.assigned)
+            self.assertEqual(expected2[count2]['created_at'], status.created_at)
+            count2 += 1
+
+
+        # re-select
+        self.login('user22.ins', PASSWORD)
+        SESSION = '2019-s'
+        JOB = 'apbi-200-001-introduction-to-soil-science-s'
+        JOBS_NEXT = '?next=' + reverse('instructors:show_jobs') + '?page=2'
+
+        data3 = {
+            'assigned': ApplicationStatus.SELECTED,
+            'application': app_id,
+            'instructor_preference': Application.REQUESTED,
+            'assigned_hours': 65
+        }
+        response = self.client.post( reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT, data=urlencode(data3), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue(messages[0], 'Success! User100 Test (CWL: user100.test) is selected.')
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT)
+        self.assertRedirects(response, response.url)
+
+        response = self.client.get( reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT )
+        self.assertEqual(response.status_code, 200)
+
+        this_app = None
+        for app in response.context['job'].application_set.all():
+            if app.id == app_id:
+                this_app = app
+                break
+
+        self.assertEqual(this_app.instructor_preference, Application.REQUESTED)
+
+        self.assertEqual( len(response.context['apps']) , 2 )
+        app4 = None
+        for app in response.context['apps']:
+            if app.id == app_id:
+                app4 = app
+                break
+
+        self.assertEqual(app4.id, app_id)
+        self.assertEqual(app4.applicant.username, STUDENT)
+        self.assertEqual(app4.applicationstatus_set.last().get_assigned_display(), 'Selected')
+        self.assertEqual(app4.applicationstatus_set.last().assigned_hours, 65)
+        self.assertEqual(app4.applicationstatus_set.last().created_at, datetime.date.today())
+
+
+        # offer
+        self.login()
+        response = self.client.get( reverse('administrators:selected_applications') )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['loggedin_user'].username, USERS[0])
+        self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
+        self.assertEqual( len(response.context['apps']), 20)
+
+        app5 = None
+        for app in response.context['apps']:
+            if app.id == app_id:
+                app5 = app
+                break
+
+        self.assertIsNotNone(app5)
+        self.assertIsNotNone(app5.selected)
+        self.assertEqual(app5.selected.id, 88)
+        self.assertEqual(app5.selected.assigned, ApplicationStatus.SELECTED)
+        self.assertEqual(app5.selected.created_at, datetime.date.today())
+
+        FULL_PATH = reverse('administrators:selected_applications') + '?page=1'
+
+        data5 = {
+            'note': 'this is a note',
+            'assigned_hours': app5.selected.assigned_hours,
+            'application': app5.id,
+            'assigned': ApplicationStatus.OFFERED,
+            'applicant': '100',
+            'classification': '2',
+            'next': FULL_PATH
+        }
+        response = self.client.post(reverse('administrators:offer_job', args=[app5.job.session.slug, app5.job.course.slug]), data=urlencode(data5), content_type=ContentType)
+        messages = self.messages(response)
+        self.assertEqual(messages[0], 'Success! You offered this user (User100 Test) 65 hours for this job (2019 S - APBI 200 001)')
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, FULL_PATH)
+        self.assertRedirects(response, response.url)
+
+        app6 = adminApi.get_application(app5.id)
+        self.assertEqual(app6.instructor_preference, Application.REQUESTED)
+        self.assertEqual(app6.classification.id, int(data5['classification']))
+        self.assertEqual(app6.note, data5['note'])
+
+        offered_app = adminApi.get_offered(app6)
+        self.assertFalse(offered_app.has_contract_read)
+        self.assertTrue(offered_app.assigned, ApplicationStatus.OFFERED)
+        self.assertEqual(offered_app.assigned_hours, float(data5['assigned_hours']))
+
+
+        self.login(STUDENT, PASSWORD)
+
+        self.submit_confiential_information_international_complete(STUDENT)
+
+        SESSION = '2019-s'
+        STUDENT_JOB = 'apbi-200-001-introduction-to-soil-science-s'
+
+        data7 = {
+            'application': app6.id,
+            'assigned_hours': offered_app.assigned_hours,
+            'decision': 'decline',
+            'has_contract_read': 'true',
+            'next': reverse('students:history_jobs')
+        }
+        response = self.client.post( reverse('students:make_decision', args=[SESSION, STUDENT_JOB]), data=urlencode(data7), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue(messages[0], 'Success! You declined the job offer - 2019 W2: APBI 200 001')
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse('students:history_jobs'))
+        self.assertRedirects(response, response.url)
+
+        app7 = adminApi.get_application(data7['application'])
+        self.assertEqual(app7.instructor_preference, Application.REQUESTED)
+        self.assertFalse(app7.is_declined_reassigned)
+        self.assertFalse(app7.is_terminated)
+
+        expected7 = [
+            {'id': 25, 'assigned': ApplicationStatus.NONE, 'created_at': datetime.date(2019, 9, 1)},
+            {'id': 31, 'assigned': ApplicationStatus.SELECTED, 'created_at': datetime.date(2019, 9, 5)},
+            {'id': 46, 'assigned': ApplicationStatus.OFFERED, 'created_at': datetime.date(2019, 9, 10)},
+            {'id': 58, 'assigned': ApplicationStatus.DECLINED, 'created_at': datetime.date(2019, 9, 20)},
+            {'id': 87, 'assigned': ApplicationStatus.NONE, 'created_at': datetime.date.today()},
+            {'id': 88, 'assigned': ApplicationStatus.SELECTED, 'created_at': datetime.date.today()},
+            {'id': 89, 'assigned': ApplicationStatus.OFFERED, 'created_at': datetime.date.today()},
+            {'id': 90, 'assigned': ApplicationStatus.DECLINED, 'created_at': datetime.date.today()},
+        ]
+
+        count5 = 0
+        for status in app7.applicationstatus_set.all():
+            self.assertEqual(expected7[count5]['id'], status.id)
+            self.assertEqual(expected7[count5]['assigned'], status.assigned)
+            self.assertEqual(expected7[count5]['created_at'], status.created_at)
+            count5 += 1
+
+        self.delete_document(STUDENT, ['sin', 'study_permit'], 'international')
+
+
+        self.login()
+
+        response = self.client.get( reverse('administrators:all_applications') )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['loggedin_user'].username, USERS[0])
+        self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
+
+        apps = response.context['apps']
+        self.assertEqual(len(apps), 26)
+
+        app8 = None
+        for app in apps:
+            if app.id == app_id:
+                app8 = app
+                break
+
+        self.assertTrue(app8.can_reset)
+        self.assertEqual(app8.applicationstatus_set.last().assigned, ApplicationStatus.DECLINED)
+        self.assertEqual(app8.applicationreset_set.count(), 1)
+        self.assertEqual(app8.applicationreset_set.last().created_at, datetime.date.today())
+        self.assertEqual(app8.applicationreset_set.last().user, 'User2 Admin')
+
 
     def test_selected_applications(self):
         print('- Test: Display applications selected by instructors')
@@ -453,7 +1184,7 @@ class ApplicationTest(TestCase):
         self.assertRedirects(response, response.url)
 
         app = adminApi.get_application(app_id)
-        offered_app = adminApi.get_offered(app)[0]
+        offered_app = adminApi.get_offered(app)
         self.assertEqual(app.classification.id, int(data['classification']))
         self.assertEqual(app.note, data['note'])
         self.assertFalse(offered_app.has_contract_read)
@@ -511,7 +1242,7 @@ class ApplicationTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, USERS[0])
         self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
-        self.assertEqual( len(response.context['apps']), 10)
+        self.assertEqual( len(response.context['apps']), 11)
         self.assertEqual( len(response.context['admin_emails']), 3)
 
 
@@ -523,7 +1254,7 @@ class ApplicationTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, USERS[0])
         self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
-        self.assertEqual( len(response.context['apps']), 10)
+        self.assertEqual( len(response.context['apps']), 11)
 
         apps = response.context['apps']
         no_response = 0
@@ -531,7 +1262,7 @@ class ApplicationTest(TestCase):
             if app.accepted == None and app.declined == None:
                 no_response += 1
 
-        self.assertEqual(no_response, 2)
+        self.assertEqual(no_response, 3)
 
 
     def test_offered_applications_send_email(self):
@@ -1266,245 +1997,6 @@ class ApplicationTest(TestCase):
         self.assertEqual( len(adminApi.get_emails()), len(curr_emails) + len(user_emails) )
 
 
-    def test_reset_instructor_preference_wrong_next(self):
-        print('- Test: reset the instructor preference - wrong next')
-        self.login()
-
-        app_id = '21'
-        app = adminApi.get_application(app_id)
-        self.assertEqual(app.instructor_preference, Application.NO_PREFERENCE)
-
-        data = {
-            'application': app_id,
-            'next': '/administrators/applications/selectedd/?page=2'
-        }
-        response = self.client.post(reverse('administrators:reset_instructor_preference'), data=urlencode(data), content_type=ContentType)
-        self.assertEqual(response.status_code, 404)
-
-
-    def test_reset_instructor_preference_failure(self):
-        print("- Test: reset the instructor preference - failure when it's offered already")
-        self.login()
-
-        response = self.client.get( reverse('administrators:selected_applications') )
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context['loggedin_user'].username, USERS[0])
-        self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
-        self.assertEqual( len(response.context['apps']), 20)
-
-        app_id = 22
-        found_app = None
-        for app in response.context['apps']:
-            if app.id == app_id:
-                found_app = app
-                break
-
-        self.assertIsNotNone(found_app)
-
-        self.assertIsNotNone(found_app.selected)
-        self.assertEqual(found_app.selected.id, 33)
-        self.assertEqual(found_app.selected.assigned, ApplicationStatus.SELECTED)
-        self.assertEqual(found_app.selected.created_at, datetime.date(2019, 9, 5))
-
-        self.assertIsNotNone(found_app.offered)
-        self.assertEqual(found_app.offered.id, 48)
-        self.assertEqual(found_app.offered.assigned, ApplicationStatus.OFFERED)
-        self.assertEqual(found_app.offered.created_at, datetime.date(2019, 9, 10))
-
-
-        FULL_PATH = reverse('administrators:selected_applications') + '?page=1'
-
-        data = {
-            'application': app_id,
-            'next': FULL_PATH
-        }
-        response = self.client.post(reverse('administrators:reset_instructor_preference'), data=urlencode(data), content_type=ContentType)
-        messages = self.messages(response)
-        self.assertTrue(messages[0], 'An error occurred. An offered application cannot be reset.')
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, FULL_PATH)
-        self.assertRedirects(response, response.url)
-
-
-    def test_reset_instructor_preference_success(self):
-        print('- Test: reset the instructor preference - success')
-        self.login()
-
-        app_id = 21
-
-        # reset
-        app1 = adminApi.get_application(app_id)
-        self.assertEqual(app1.instructor_preference, Application.NO_PREFERENCE)
-        self.assertFalse(app1.is_declined_reassigned)
-        self.assertFalse(app1.is_terminated)
-
-        FULL_PATH = reverse('administrators:selected_applications') + '?page=1'
-
-        data1 = {
-            'application': app1.id,
-            'next': FULL_PATH
-        }
-        response = self.client.post(reverse('administrators:reset_instructor_preference'), data=urlencode(data1), content_type=ContentType)
-        messages = self.messages(response)
-        self.assertEqual(messages[0], 'Success! User100 Test: The Instructor Preference of an Application (ID: 21, 2019 W1 - APBI 200 002) has been reset. Please check in <a href="/administrators/applications/all/">All Applications</a>')
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, FULL_PATH)
-        self.assertRedirects(response, response.url)
-
-        app2 = adminApi.get_application(app_id)
-        self.assertEqual(app2.instructor_preference, Application.NONE)
-        self.assertFalse(app2.is_declined_reassigned)
-        self.assertFalse(app2.is_terminated)
-
-        expected2 = [
-            {'id': 21, 'assigned': ApplicationStatus.NONE, 'created_at': datetime.date(2019, 9, 1)},
-            {'id': 41, 'assigned': ApplicationStatus.SELECTED, 'created_at': datetime.date(2019, 9, 5)},
-            {'id': 74, 'assigned': ApplicationStatus.NONE, 'created_at': datetime.date.today()},
-        ]
-
-        count2 = 0
-        for status in app2.applicationstatus_set.all():
-            self.assertEqual(expected2[count2]['id'], status.id)
-            self.assertEqual(expected2[count2]['assigned'], status.assigned)
-            self.assertEqual(expected2[count2]['created_at'], status.created_at)
-            count2 += 1
-
-
-        # re-select
-        self.login('user42.ins', PASSWORD)
-        SESSION = '2019-w1'
-        JOB = 'apbi-200-002-introduction-to-soil-science-w1'
-        JOBS_NEXT = '?next=' + reverse('instructors:show_jobs') + '?page=2'
-
-        data3 = {
-            'assigned': ApplicationStatus.SELECTED,
-            'application': app_id,
-            'instructor_preference': Application.REQUESTED,
-            'assigned_hours': 65
-        }
-        response = self.client.post( reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT, data=urlencode(data3), content_type=ContentType )
-        messages = self.messages(response)
-        self.assertTrue(messages[0], 'Success! User100 Test (CWL: user100.test) is selected.')
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT)
-        self.assertRedirects(response, response.url)
-
-        response = self.client.get( reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT )
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context['job'].application_set.last().instructor_preference, Application.REQUESTED)
-
-        self.assertEqual( len(response.context['apps']) , 4 )
-
-        app4 = None
-        count = 0
-        for app in response.context['apps']:
-            if count == 3: app4 = app
-            count += 1
-
-        self.assertEqual(app4.id, app_id)
-        self.assertEqual(app4.applicant.username, USERS[2])
-        self.assertEqual(app4.applicationstatus_set.last().get_assigned_display(), 'Selected')
-        self.assertEqual(app4.applicationstatus_set.last().assigned_hours, 65)
-        self.assertEqual(app4.applicationstatus_set.last().created_at, datetime.date.today())
-
-
-        # offer
-        self.login()
-        response = self.client.get( reverse('administrators:selected_applications') )
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context['loggedin_user'].username, USERS[0])
-        self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
-        self.assertEqual( len(response.context['apps']), 20)
-
-        app5 = None
-        for app in response.context['apps']:
-            if app.id == app_id:
-                app5 = app
-                break
-
-        self.assertIsNotNone(app5)
-        self.assertIsNotNone(app5.selected)
-        self.assertEqual(app5.selected.id, 75)
-        self.assertEqual(app5.selected.assigned, ApplicationStatus.SELECTED)
-        self.assertEqual(app5.selected.created_at, datetime.date.today())
-
-        FULL_PATH = reverse('administrators:selected_applications') + '?page=1'
-
-        data5 = {
-            'note': 'this is a note',
-            'assigned_hours': app5.selected.assigned_hours,
-            'application': app5.id,
-            'assigned': ApplicationStatus.OFFERED,
-            'applicant': '100',
-            'classification': '2',
-            'next': FULL_PATH
-        }
-        response = self.client.post(reverse('administrators:offer_job', args=[app5.job.session.slug, app5.job.course.slug]), data=urlencode(data5), content_type=ContentType)
-        messages = self.messages(response)
-        self.assertEqual(messages[0], 'Success! You offered this user (User100 Test) 65 hours for this job (2019 W1 - APBI 200 002)')
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, FULL_PATH)
-        self.assertRedirects(response, response.url)
-
-        app6 = adminApi.get_application(app5.id)
-        self.assertEqual(app6.instructor_preference, Application.REQUESTED)
-        self.assertEqual(app6.classification.id, int(data5['classification']))
-        self.assertEqual(app6.note, data5['note'])
-
-        offered_app = adminApi.get_offered(app6)[0]
-        self.assertFalse(offered_app.has_contract_read)
-        self.assertTrue(offered_app.assigned, ApplicationStatus.OFFERED)
-        self.assertEqual(offered_app.assigned_hours, float(data5['assigned_hours']))
-
-
-        # accept the offer
-        STUDENT = 'user100.test'
-        self.login(STUDENT, PASSWORD)
-
-        self.submit_confiential_information_international_complete(STUDENT)
-
-        SESSION = '2019-w1'
-        STUDENT_JOB = 'apbi-200-002-introduction-to-soil-science-w1'
-
-        data7 = {
-            'application': app6.id,
-            'assigned_hours': offered_app.assigned_hours,
-            'decision': 'accept',
-            'has_contract_read': 'true',
-            'next': reverse('students:history_jobs')
-        }
-        response = self.client.post( reverse('students:make_decision', args=[SESSION, STUDENT_JOB]), data=urlencode(data7), content_type=ContentType )
-        messages = self.messages(response)
-        self.assertTrue(messages[0], 'Success! You accepted the job offer - 2019 W1: APBI 200 002')
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse('students:history_jobs'))
-        self.assertRedirects(response, response.url)
-
-        final_app = adminApi.get_application(data7['application'])
-        self.assertEqual(final_app.instructor_preference, Application.REQUESTED)
-        self.assertFalse(final_app.is_declined_reassigned)
-        self.assertFalse(final_app.is_terminated)
-
-        expected7 = [
-            {'id': 21, 'assigned': ApplicationStatus.NONE, 'created_at': datetime.date(2019, 9, 1)},
-            {'id': 41, 'assigned': ApplicationStatus.SELECTED, 'created_at': datetime.date(2019, 9, 5)},
-            {'id': 74, 'assigned': ApplicationStatus.NONE, 'created_at': datetime.date.today()},
-            {'id': 75, 'assigned': ApplicationStatus.SELECTED, 'created_at': datetime.date.today()},
-            {'id': 76, 'assigned': ApplicationStatus.OFFERED, 'created_at': datetime.date.today()},
-            {'id': 77, 'assigned': ApplicationStatus.ACCEPTED, 'created_at': datetime.date.today()},
-        ]
-
-        count5 = 0
-        for status in final_app.applicationstatus_set.all():
-            self.assertEqual(expected7[count5]['id'], status.id)
-            self.assertEqual(expected7[count5]['assigned'], status.assigned)
-            self.assertEqual(expected7[count5]['created_at'], status.created_at)
-            count5 += 1
-
-        self.delete_document(STUDENT, ['sin', 'study_permit'], 'international')
-
-
-
 class SchedulingTaskTest(TestCase):
     fixtures = DATA
 
@@ -1639,7 +2131,7 @@ class SchedulingTaskTest(TestCase):
         app_statuses = adminApi.get_today_accepted_apps()
 
         app_list = [
-            { 'app_status_id': 69, 'assigned': '3', 'assigned_hours': 15.0, 'app_id': 3, 'full_name': 'User65 Test', 'session_term': '2019 W1 - APBI 265 001' }
+            { 'app_status_id': 73, 'assigned': '3', 'assigned_hours': 15.0, 'app_id': 3, 'full_name': 'User65 Test', 'session_term': '2019 W1 - APBI 265 001' }
         ]
 
         c = 0
@@ -1664,7 +2156,7 @@ class SchedulingTaskTest(TestCase):
         app_statuses = adminApi.get_today_terminated_apps()
 
         app_list = [
-            { 'app_status_id': 70, 'assigned': '5', 'assigned_hours': 70.0, 'app_id': 22, 'full_name': 'User100 Test', 'session_term': '2019 W1 - APBI 260 001' }
+            { 'app_status_id': 74, 'assigned': '5', 'assigned_hours': 70.0, 'app_id': 22, 'full_name': 'User100 Test', 'session_term': '2019 W1 - APBI 260 001' }
         ]
 
         c = 0

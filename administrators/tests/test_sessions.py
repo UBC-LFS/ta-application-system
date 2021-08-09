@@ -31,6 +31,7 @@ DATA = [
     'ta_app/fixtures/terms.json',
     'ta_app/fixtures/trainings.json',
     'administrators/fixtures/admindocuments.json',
+    'administrators/fixtures/applicationreset.json',
     'administrators/fixtures/applications.json',
     'administrators/fixtures/applicationstatus.json',
     'administrators/fixtures/courses.json',

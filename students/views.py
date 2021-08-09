@@ -871,7 +871,8 @@ def accept_decline_job(request, session_slug, job_slug):
 
     apps = request.user.application_set.all()
     apps = apps.filter( Q(job__session__slug=session_slug) & Q(job__course__slug=job_slug) )
-    if len(apps) == 0: raise Http404
+    if len(apps) == 0:
+        raise Http404
 
     app = adminApi.add_app_info_into_application(apps.first(), ['offered', 'accepted', 'declined'])
     if app.job.session.is_archived == True or app.offered is None:
@@ -880,6 +881,7 @@ def accept_decline_job(request, session_slug, job_slug):
     return render(request, 'students/jobs/accept_decline_job.html', {
         'loggedin_user': request.user,
         'app': app,
+        'latest_status': adminApi.get_latest_status_in_app(app),
         'can_accept': userApi.add_confidentiality_validation(request.user),
         'job_offer_details': adminApi.get_job_offer_details(request.user, app, 'offered')
     })

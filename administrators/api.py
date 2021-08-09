@@ -466,6 +466,24 @@ def create_application_status(app):
     app_status = ApplicationStatus.objects.create(application=app, assigned=ApplicationStatus.NONE, assigned_hours=0.0)
     return app_status if app_status else None
 
+
+def app_can_reset(app):
+    ''' To check whether an application can be reset or not '''
+    can_reset = False
+    num_reset = app.applicationreset_set.count()
+
+    if (app.applicationstatus_set.filter(assigned=ApplicationStatus.NONE).count() > num_reset) and (app.applicationstatus_set.filter(assigned=ApplicationStatus.SELECTED).count() > num_reset):
+        last_status = app.applicationstatus_set.last()
+        if last_status.assigned == ApplicationStatus.SELECTED:
+            can_reset = True
+        elif last_status.assigned == ApplicationStatus.DECLINED and last_status.parent_id == None:
+            can_reset = True
+        elif last_status.assigned == ApplicationStatus.CANCELLED and app.is_terminated == True:
+            can_reset = True
+
+    return can_reset
+
+
 def add_app_info_into_application(app, list):
     ''' Add some information into an application given by list '''
     if 'resume' in list:
@@ -627,11 +645,13 @@ def get_applications_with_multiple_ids(ids):
     ''' Get applications with multiple ids '''
     return Application.objects.filter(id__in=ids)
 
+
 def get_applications(option=None):
     ''' Get all applications '''
     if option:
         return Application.objects.all().order_by(option)
     return Application.objects.all().order_by('-id')
+
 
 def get_applications_filter_limit(request, status):
     ''' Get filtered and limited applications '''
@@ -643,25 +663,43 @@ def get_applications_filter_limit(request, status):
     today_accepted_apps = None
     today = None
 
-    if status == 'all' or status == 'offered' or status == 'accepted' or status == 'declined':
+    if status == 'selected':
+        apps = Application.objects.filter(applicationstatus__assigned=ApplicationStatus.SELECTED).order_by('-id').distinct()
+
+        num_all_apps = apps.count()
+        count_offered_apps = Count('applicationstatus', filter=Q(applicationstatus__assigned=ApplicationStatus.OFFERED))
+        offered_apps = Application.objects.annotate(count_offered_apps=count_offered_apps).filter(count_offered_apps__gt=0)
+        num_offered_apps = offered_apps.count()
+
+    elif status == 'terminated':
+        apps = Application.objects.filter(is_terminated=True).order_by('-id').distinct()
+
+    else:
         apps = Application.objects.all().order_by('-id')
 
         if status == 'accepted':
             today = datetime.today().strftime('%Y-%m-%d')
             today_accepted_apps, today = get_accepted_apps_by_day(apps, 'today')
 
-    elif status == 'selected':
-        count_applied_apps = Count('applicationstatus', filter=Q(applicationstatus__assigned=ApplicationStatus.NONE))
-        count_selected_apps = Count('applicationstatus', filter=Q(applicationstatus__assigned=ApplicationStatus.SELECTED))
-        apps = Application.objects.annotate(count_applied_apps=count_applied_apps).annotate(count_selected_apps=count_selected_apps).filter(count_applied_apps=count_selected_apps).filter(applicationstatus__assigned=ApplicationStatus.SELECTED).order_by('-id').distinct()
-        num_all_apps = apps.count()
-
-        count_offered_apps = Count('applicationstatus', filter=Q(applicationstatus__assigned=ApplicationStatus.OFFERED))
-        offered_apps = Application.objects.annotate(count_offered_apps=count_offered_apps).filter(count_offered_apps__gt=0)
-        num_offered_apps = offered_apps.count()
-
-    elif status == 'terminated':
-        apps = Application.objects.filter(is_terminated=True).order_by('-id')
+    # if status == 'all' or status == 'offered' or status == 'accepted' or status == 'declined':
+    #     apps = Application.objects.all().order_by('-id')
+    #
+    #     if status == 'accepted':
+    #         today = datetime.today().strftime('%Y-%m-%d')
+    #         today_accepted_apps, today = get_accepted_apps_by_day(apps, 'today')
+    #
+    # elif status == 'selected':
+    #     count_applied_apps = Count('applicationstatus', filter=Q(applicationstatus__assigned=ApplicationStatus.NONE))
+    #     count_selected_apps = Count('applicationstatus', filter=Q(applicationstatus__assigned=ApplicationStatus.SELECTED))
+    #     apps = Application.objects.annotate(count_applied_apps=count_applied_apps).annotate(count_selected_apps=count_selected_apps).filter(count_applied_apps=count_selected_apps).filter(applicationstatus__assigned=ApplicationStatus.SELECTED).order_by('-id').distinct()
+    #
+    #     num_all_apps = apps.count()
+    #     count_offered_apps = Count('applicationstatus', filter=Q(applicationstatus__assigned=ApplicationStatus.OFFERED))
+    #     offered_apps = Application.objects.annotate(count_offered_apps=count_offered_apps).filter(count_offered_apps__gt=0)
+    #     num_offered_apps = offered_apps.count()
+    #
+    # elif status == 'terminated':
+    #     apps = Application.objects.filter(is_terminated=True).order_by('-id')
 
 
     # Search filter
@@ -726,29 +764,36 @@ def get_application_statuses():
     return ApplicationStatus.objects.all().order_by('-id')
 
 
+def get_applied(app):
+    ''' Get an application selected '''
+    applied_app = app.applicationstatus_set.filter(assigned=ApplicationStatus.NONE)
+    if applied_app.exists(): return applied_app.last()
+    return False
+
+
 def get_selected(app):
     ''' Get an application selected '''
     selected_app = app.applicationstatus_set.filter(assigned=ApplicationStatus.SELECTED)
-    if selected_app.exists(): return selected_app
+    if selected_app.exists(): return selected_app.last()
     return False
 
 
 def get_offered(app):
     ''' Get an application offered '''
     offered_app = app.applicationstatus_set.filter(assigned=ApplicationStatus.OFFERED)
-    if offered_app.exists(): return offered_app
+    if offered_app.exists(): return offered_app.last()
     return False
 
 def get_accepted(app):
     ''' Get an application accepted '''
     accepted_app = app.applicationstatus_set.filter(assigned=ApplicationStatus.ACCEPTED)
-    if accepted_app.exists(): return accepted_app
+    if accepted_app.exists(): return accepted_app.last()
     return False
 
 def get_declined(app):
     ''' Get an application declined '''
     declined_app = app.applicationstatus_set.filter(assigned=ApplicationStatus.DECLINED)
-    if declined_app.exists(): return declined_app
+    if declined_app.exists(): return declined_app.last()
     return False
 
 
@@ -777,17 +822,26 @@ def update_application_classification_note(app_id, data):
     )
     return True if app else False
 
+def update_reset_application(app_id, instructor_preference):
+    ''' Update a reset application '''
 
-def get_accepted_status(app):
-    ''' Get an accepted status of an application'''
-    return app.applicationstatus_set.filter(assigned=ApplicationStatus.ACCEPTED).last()
+    app = Application.objects.filter(id=app_id).update(
+        instructor_preference = instructor_preference,
+        is_terminated = False,
+        updated_at = datetime.now()
+    )
+
+    return get_object_or_404(Application, id=app_id) if app else False
+
 
 def update_application_instructor_preference(app_id, instructor_preference):
     ''' Update an instructor preference in an application '''
+
     app = Application.objects.filter(id=app_id).update(
         instructor_preference = instructor_preference,
         updated_at = datetime.now()
     )
+
     return get_object_or_404(Application, id=app_id) if app else False
 
 

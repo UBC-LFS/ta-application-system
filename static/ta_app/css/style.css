@@ -534,6 +534,10 @@ hr.dotted {
   flex: 1 1 auto;
 }
 
+.no-bullet {
+  list-style-type: none;
+}
+
 /* colors */
 .text-gray {
   color: #aba9a9;

@@ -29,6 +29,7 @@
         <th data-sortable="true">Note</th>
         <th data-sortable="true">Created at</th>
         <th data-sortable="true">Updated at</th>
+        <th>Actions</th>
       </tr>
     </thead>
     <tbody>
@@ -73,6 +74,82 @@
           <td>
             <span class="d-none">{{ app.updated_at|date:"Y m d z" }}</span>
             {{ app.updated_at }}
+          </td>
+          <td>
+            {% if app.can_reset %}
+              <button class="btn btn-xs btn-outline-danger" type="button" data-toggle="modal" data-target="#job-application-reset-modal-{{ app.id }}">
+                Reset
+                {% if app.applicationreset_set.count > 0 %}
+                  ({{ app.applicationreset_set.count }})
+                {% endif %}
+              </button>
+
+              <div class="modal fade" id="job-application-reset-modal-{{ app.id }}" tabindex="-1" role="dialog" aria-labelledby="job-application-reset-modal-label-{{ app.id }}" aria-hidden="true">
+                <div class="modal-dialog modal-lg" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title text-info" id="job-application-reset-modal-label-{{ app.id }}">Reset an application</h5>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    </div>
+                    <div class="modal-body text-left">
+                      <div class="row">
+                        <div class="col-md-7">
+                          <div class="modal-item">
+                            <h6 class="text-secondary">{{ app.job.session.year }} {{ app.job.session.term.code }} - {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</h6>
+
+                            <h4>
+                              <span class="text-primary">{{ app.applicant.get_full_name }}</span>
+
+                              <small class="text-dark-gray">({{ app.applicant.username }})</small>
+                              {% if 'MFRE' in app.applicant.profile.program.name %}
+                                <span class="badge badge-warning">MFRE</span>
+                              {% elif 'MLWS' in app.applicant.profile.program.name %}
+                                <span class="badge badge-warning">MLWS</span>
+                              {% elif 'MFS' in app.applicant.profile.program.name %}
+                                <span class="badge badge-warning">MFS</span>
+                              {% endif %}
+                            </h4>
+
+                            <ul class="no-bullet bg-light border rounded p-3">
+                              <li>Application ID: {{ app.id }}</li>
+                              <li>Current Assigned Status: {% include 'ta_app/applications/_app_status.html' with data=app.applicationstatus_set.last.get_assigned_display %}</li>
+                            </ul>
+
+                            <h6 class="my-3">Are you sure to <span class="text-danger">reset</span> this application <span class="text-secondary"></span>?</h6>
+                            
+                            <form action="{% url 'administrators:reset_application' %}" method="post">
+                              {% csrf_token %}
+
+                              <input type="hidden" name="application" value="{{ app.id }}" />
+                              <input type="hidden" name="latest_status" value="{{ app.applicationstatus_set.last.get_assigned_display }}" />
+                              <input type="hidden" name="next" value="{{ new_next }}" />
+
+                              <input class="btn btn-danger font-size-1" type="submit" value="Reset" />
+                            </form>
+                          </div>
+                        </div>
+                        <div class="col-md-5">
+                          <h6>Reset Logs</h6>
+                          {% for app_reset in app.applicationreset_set.all %}
+                            <li>Date: <span class="text-chocolate">{{ app_reset.created_at }}</span> by {{ app_reset.user }}</li>
+                          {% empty %}
+                            <li>No records found</li>
+                          {% endfor %}
+                        </div>
+                      </div>
+
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            {% else %}
+
+              {% if app.applicationreset_set.count > 0 %}
+                {% include 'ta_app/applications/_modal_reset_logs.html' with data=app %}
+              {% endif %}
+
+            {% endif %}
           </td>
         </tr>
       {% endfor %}

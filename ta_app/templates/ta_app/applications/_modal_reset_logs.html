@@ -1,0 +1,27 @@
+{% if data.applicationreset_set.count > 0 %}
+
+  <button class="btn btn-xs btn-danger mt-2" type="button" data-toggle="modal" data-target="#app-reset-logs-modal-{{ data.id }}">
+    Reset Logs
+  </button>
+
+  <div class="modal fade" id="app-reset-logs-modal-{{ data.id }}" tabindex="-1" role="dialog" aria-labelledby="app-reset-logs-modal-label-{{ data.id }}" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title text-info" id="app-reset-logs-modal-label-{{ data.id }}">Reset Logs</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        </div>
+        <div class="modal-body text-left">
+          <ul>
+            {% for app_reset in data.applicationreset_set.all %}
+              <li>Date: <span class="text-chocolate">{{ app_reset.created_at }}</span> by {{ app_reset.user }}</li>
+            {% empty %}
+              <li>No records found</li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endif %}

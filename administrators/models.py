@@ -205,6 +205,15 @@ class Application(models.Model):
         self.slug = slugify(self.job.session.slug + ' ' + self.job.course.slug + ' application by ' + self.applicant.username)
         super(Application, self).save(*args, **kwargs)
 
+
+class ApplicationReset(models.Model):
+    ''' Application Reset'''
+
+    user = models.CharField(max_length=256)
+    application = models.ForeignKey(Application, on_delete=models.CASCADE)
+    created_at = models.DateField(default=dt.date.today)
+
+
 class ApplicationStatus(models.Model):
     '''
     Application Status
@@ -253,7 +262,6 @@ class AdminDocuments(models.Model):
     processing_note = models.TextField(null=True, blank=True)
     worktag = models.CharField(max_length=35, null=True, blank=True)
     processed = models.CharField(max_length=4, null=True, blank=True)
-
 
 
 class AdminDocumentsUser(models.Model):

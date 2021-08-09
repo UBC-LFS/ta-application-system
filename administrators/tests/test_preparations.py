@@ -788,7 +788,7 @@ class PreparationTest(TestCase):
         }
         response = self.client.post( reverse('administrators:edit_admin_email', args=[slug]), data=urlencode(data), content_type=ContentType )
         messages = self.messages(response)
-        self.assertEqual(messages[0], 'Success! Type 111 updated'')
+        self.assertEqual(messages[0], 'Success! Type 111 updated')
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, response.url)
 

@@ -51,6 +51,8 @@
               <a href="{% url 'administrators:show_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}?next={{ new_next }}&p=Terminated Applications">
                 {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}
               </a>
+              <br />
+              {% include 'ta_app/applications/_modal_reset_logs.html' with data=app %}
             </td>
             <td>
               <a href="{% url 'users:show_user' username=app.applicant.username %}?next={{ new_next }}&p=Terminated Applications&t=basic">

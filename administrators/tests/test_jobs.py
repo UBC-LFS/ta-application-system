@@ -404,7 +404,7 @@ class JobTest(TestCase):
             if app.accepted is not None: num_accepted += 1
 
         total_assigned_hours = response.context['total_assigned_hours']
-        self.assertEqual( total_assigned_hours['offered'], {'2019-W1': 100.0, '2019-W2': 20.0, '2019-S': 35.0} )
+        self.assertEqual( total_assigned_hours['offered'], {'2019-W1': 100.0, '2019-W2': 20.0, '2019-S': 40.0} )
         self.assertEqual( total_assigned_hours['accepted'], {'2019-W1': 100.0, '2019-W2': 50.0} )
         self.assertEqual(len(apps), 7)
         self.assertEqual(num_offered, 4)
