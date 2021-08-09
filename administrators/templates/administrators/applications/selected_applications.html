@@ -246,7 +246,7 @@
               <div class="badge badge-light">OFFERED</div>
               <div class="text-dark-gray">{{ app.offered.created_at }}</div>
             {% endif %}
-            
+
             {% if app.applicationstatus_set.last.assigned == app_status.applied and app.offer_modal.title == 'Re-offer' %}
               <button class="btn btn-xs btn-primary" type="button" disabled>Re-Offer</button>
               <div style="width:80px; margin-left:auto; margin-right:auto; line-height:1;">
@@ -317,10 +317,15 @@
                         </div>
 
                         <input type="hidden" name="application" value="{{ app.id }}" />
-                        <input type="hidden" name="assigned" value="{{ app_status.offered }}" />
                         <input type="hidden" name="applicant" value="{{ app.applicant.id }}" />
-                        <input type="hidden" name="has_contract_read" value="false" />
                         <input type="hidden" name="next" value="{{ new_next }}" />
+
+                        {% if app.offer_modal.title == 'Edit Job Offer' %}
+                          <input type="hidden" name="applicationstatus" value="{{ app.offered.id }}" />
+                        {% else %}
+                          <input type="hidden" name="assigned" value="{{ app_status.offered }}" />
+                          <input type="hidden" name="has_contract_read" value="false" />
+                        {% endif %}
 
                         <input class="btn font-size-1 {{ app.offer_modal.button_colour }}" type="submit" value="{% if app.offer_modal.title == 'Edit Job Offer' %} Update {% else %} {{ app.offer_modal.title }} {% endif %}" />
                       </form>

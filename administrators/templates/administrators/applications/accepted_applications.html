@@ -332,7 +332,7 @@
                           <div class="field-wrapper">
                             <label for="id_processed_{{ app.id }}">Processed:</label>
                             <div class="help">This field is optional. Maximum 4 characters allowed.</div>
-                            <input id="id_processed_{{ app.id }}" type="text" name="processed" class="form-control" maxlength="6"
+                            <input id="id_processed_{{ app.id }}" type="text" name="processed" class="form-control" maxlength="4"
                               {% if app.admindocuments.processed %}
                                 value="{{ app.admindocuments.processed }}"
                               {% else %}

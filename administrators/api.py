@@ -847,6 +847,7 @@ def update_application_instructor_preference(app_id, instructor_preference):
 
 def update_job_offer(post):
     ''' Update a classification and assigned hours in Selected Apps '''
+    print('update_job_offer', post)
     cls = get_classification( post.get('classification') )
     app = Application.objects.filter(id=post.get('application')).update(
         classification = cls,
@@ -856,6 +857,7 @@ def update_job_offer(post):
     status = ApplicationStatus.objects.filter(id=post.get('applicationstatus')).update(
         assigned_hours = post.get('assigned_hours')
     )
+    print(app, status)
     return True if app and status else False
 
 
