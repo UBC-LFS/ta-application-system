@@ -20,6 +20,9 @@
             <span class="badge badge-danger">DECLINED</span> or
             <span class="badge badge-secondary">TERMINATED</span>.
           </li>
+          <li>
+            {% include 'ta_app/applications/_declined_reassigned_note.html' %}
+          </li>
         </ul>
       </div>
     </div>
@@ -69,7 +72,12 @@
             </a>
             <div class="text-dark-gray">{{ app.applicant.username }}</div>
           </td>
-          <td>{% include 'ta_app/applications/_modal_app_status.html' with data=app %}</td>
+          <td>
+            {% include 'ta_app/applications/_modal_app_status.html' with data=app %}
+            {% if app.is_declined_reassigned %}
+              <i class="fa fa-asterisk text-danger" aria-hidden="true"></i>
+            {% endif %}
+          </td>
           <td>{% include 'ta_app/applications/_app_instructor_preference.html' with data=app.get_instructor_preference_display %}</td>
           <td>
             {% if app.classification %}
