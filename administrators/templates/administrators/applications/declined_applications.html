@@ -72,7 +72,7 @@
                 {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}
               </a>
               <br />
-              {% include 'ta_app/applications/_modal_reset_logs.html' with data=app %}
+              {% include 'ta_app/applications/_modal_reset_log.html' with data=app %}
             </td>
             <td>
               <a href="{% url 'users:show_user' username=app.applicant.username %}?next={{ new_next }}&p=Declined Applications&t=basic">

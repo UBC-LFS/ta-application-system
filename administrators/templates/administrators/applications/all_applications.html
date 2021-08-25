@@ -155,7 +155,7 @@
                           </div>
                         </div>
                         <div class="col-md-5">
-                          <h6>Reset Logs</h6>
+                          <h6>Reset Log</h6>
                           {% for app_reset in app.applicationreset_set.all %}
                             <li>Date: <span class="text-chocolate">{{ app_reset.created_at }}</span> by {{ app_reset.user }}</li>
                           {% empty %}
@@ -172,7 +172,7 @@
             {% else %}
 
               {% if app.applicationreset_set.count > 0 %}
-                {% include 'ta_app/applications/_modal_reset_logs.html' with data=app %}
+                {% include 'ta_app/applications/_modal_reset_log.html' with data=app %}
               {% endif %}
 
             {% endif %}

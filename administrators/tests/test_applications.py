@@ -440,8 +440,8 @@ class ApplicationTest(TestCase):
         self.assertRedirects(response, response.url)
 
 
-    def test_see_reset_logs(self):
-        print('- Test: see reset logs')
+    def test_see_reset_log(self):
+        print('- Test: see reset log')
         self.login()
 
         app_id = 21
