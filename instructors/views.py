@@ -326,13 +326,13 @@ def status_summary_applicants(request, session_slug):
                 'accepted': None
             }
             if app.accepted:
-                if app.is_terminated == False or app.cancelled == None:
+                latest_status = adminApi.get_latest_status_in_app(app)
+                if latest_status == 'accepted':
+                    app_obj['accepted'] = app.accepted
+                else:
                     if app.is_declined_reassigned:
-                        latest_status = adminApi.get_latest_status_in_app(app)
                         if (latest_status == 'declined' and app.declined.parent_id != None) or (latest_status == 'accepted'):
                             app_obj['accepted'] = app.accepted
-                    else:
-                        app_obj['accepted'] = app.accepted
 
             applicant.apps.append(app_obj)
 

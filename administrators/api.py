@@ -263,15 +263,15 @@ def valid_accepted_app(list, application, total_accepted_applicants=0):
     app = add_app_info_into_application(application, ['applied', 'accepted', 'declined', 'cancelled'])
     valid_accepted = False
     if app.accepted:
-        if app.is_terminated == False or app.cancelled == None:
+        latest_status = get_latest_status_in_app(app)
+        if latest_status == 'accepted':
+            list.append(app)
+            valid_accepted = True
+        else:
             if app.is_declined_reassigned:
-                latest_status = get_latest_status_in_app(app)
                 if (latest_status == 'declined' and app.declined.parent_id != None) or (latest_status == 'accepted'):
                     list.append(app)
                     valid_accepted = True
-            else:
-                list.append(app)
-                valid_accepted = True
 
         if valid_accepted:
             total_accepted_applicants += 1
@@ -284,7 +284,7 @@ def get_applicant_status(year, term_code, applicant):
 
     applicant.has_applied = False
     apps = applicant.application_set.filter( Q(job__session__year=year) & Q(job__session__term__code=term_code) )
-
+    print(year, term_code, applicant, apps.count())
     if apps.count() > 0:
         applicant.has_applied = True
         applicant.accepted_apps = []
@@ -680,27 +680,6 @@ def get_applications_filter_limit(request, status):
         if status == 'accepted':
             today = datetime.today().strftime('%Y-%m-%d')
             today_accepted_apps, today = get_accepted_apps_by_day(apps, 'today')
-
-    # if status == 'all' or status == 'offered' or status == 'accepted' or status == 'declined':
-    #     apps = Application.objects.all().order_by('-id')
-    #
-    #     if status == 'accepted':
-    #         today = datetime.today().strftime('%Y-%m-%d')
-    #         today_accepted_apps, today = get_accepted_apps_by_day(apps, 'today')
-    #
-    # elif status == 'selected':
-    #     count_applied_apps = Count('applicationstatus', filter=Q(applicationstatus__assigned=ApplicationStatus.NONE))
-    #     count_selected_apps = Count('applicationstatus', filter=Q(applicationstatus__assigned=ApplicationStatus.SELECTED))
-    #     apps = Application.objects.annotate(count_applied_apps=count_applied_apps).annotate(count_selected_apps=count_selected_apps).filter(count_applied_apps=count_selected_apps).filter(applicationstatus__assigned=ApplicationStatus.SELECTED).order_by('-id').distinct()
-    #
-    #     num_all_apps = apps.count()
-    #     count_offered_apps = Count('applicationstatus', filter=Q(applicationstatus__assigned=ApplicationStatus.OFFERED))
-    #     offered_apps = Application.objects.annotate(count_offered_apps=count_offered_apps).filter(count_offered_apps__gt=0)
-    #     num_offered_apps = offered_apps.count()
-    #
-    # elif status == 'terminated':
-    #     apps = Application.objects.filter(is_terminated=True).order_by('-id')
-
 
     # Search filter
     if bool( request.GET.get('year') ):
