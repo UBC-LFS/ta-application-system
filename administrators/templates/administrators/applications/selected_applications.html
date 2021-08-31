@@ -248,18 +248,25 @@
             {% endif %}
 
             {% if app.applicationstatus_set.last.assigned == app_status.applied and app.offer_modal.title == 'Re-offer' %}
-              <button class="btn btn-xs btn-primary" type="button" disabled>Re-Offer</button>
+              <button class="btn btn-xs btn-primary" type="button" disabled>Re-offer</button>
               <div style="width:80px; margin-left:auto; margin-right:auto; line-height:1;">
                 <small class="text-secondary">An instructor has not selected yet</small>
               </div>
             {% else %}
-              <button class="btn btn-xs {{ app.offer_modal.button_colour }}" type="button" data-toggle="modal" data-target="#job-application-offer-modal-{{ app.id }}">
-                {% if app.offer_modal.title == 'Edit Job Offer' %}
-                  Edit
-                {% else %}
-                  {{ app.offer_modal.title }}
-                {% endif %}
-              </button>
+              {% if not app.offer_modal.title %}
+                <button class="btn btn-xs btn-primary" type="button" disabled>Offer</button>
+                <div style="width:80px; margin-left:auto; margin-right:auto; line-height:1;">
+                  <small class="text-secondary">An instructor has not selected yet</small>
+                </div>
+              {% else %}
+                <button class="btn btn-xs {{ app.offer_modal.button_colour }}" type="button" data-toggle="modal" data-target="#job-application-offer-modal-{{ app.id }}">
+                  {% if app.offer_modal.title == 'Edit Job Offer' %}
+                    Edit
+                  {% else %}
+                    {{ app.offer_modal.title }}
+                  {% endif %}
+                </button>
+              {% endif %}
             {% endif %}
 
             <div class="modal fade" id="job-application-offer-modal-{{ app.id }}" tabindex="-1" role="dialog" aria-labelledby="job-application-offer-modal-label-{{ app.id }}" aria-hidden="true">
