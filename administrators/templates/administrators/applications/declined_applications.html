@@ -109,6 +109,8 @@
       </tbody>
     </table>
 
+    {% include 'ta_app/pages/_table_paginator.html' with data=apps %}
+
     <div class="mt-5 mb-4">
       <h5 class="text-info">Select Email Type:</h5>
       {% for email in admin_emails %}
@@ -122,10 +124,7 @@
     </div>
 
     <input class="btn btn-primary" type="submit" value="Send Email" />
-
   </form>
-
-  {% include 'ta_app/pages/_table_paginator.html' with data=apps %}
 
 </div>
 

@@ -1209,29 +1209,20 @@ def accepted_applications(request):
 
     apps = adminApi.add_app_info_into_applications(apps, ['accepted', 'declined'])
 
-    updated_apps = []
     for app in apps:
-        app.is_visible = True
-
-        if app.is_declined_reassigned and app.declined and app.declined.parent_id == None:
-            app.is_visible = False
-
         app.salary = round(app.accepted.assigned_hours * app.classification.wage / app.job.session.term.by_month, 2)
         app.pt_percentage = round(app.accepted.assigned_hours / app.job.session.term.max_hours * 100, 2)
         if app.job.course.term.code == 'S1' or app.job.course.term.code == 'S2':
             app.pt_percentage = app.pt_percentage * 2
 
-        if app.is_visible:
-            updated_apps.append(app)
-
     return render(request, 'administrators/applications/accepted_applications.html', {
         'loggedin_user': request.user,
-        'apps': updated_apps,
-        'processed_stats': adminApi.get_processed_stats(updated_apps),
-        'num_filtered_apps': len(updated_apps),
+        'apps': apps,
+        'processed_stats': adminApi.get_processed_stats(apps),
+        'num_filtered_apps': info['num_filtered_apps'],
         'new_next': adminApi.build_new_next(request),
         'today_accepted_apps': info['today_accepted_apps'],
-        'today_processed_stats': adminApi.get_processed_stats(info['today_accepted_apps'],),
+        'today_processed_stats': adminApi.get_processed_stats(info['today_accepted_apps']),
         'today': info['today']
     })
 

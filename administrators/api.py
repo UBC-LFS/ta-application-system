@@ -284,7 +284,7 @@ def get_applicant_status(year, term_code, applicant):
 
     applicant.has_applied = False
     apps = applicant.application_set.filter( Q(job__session__year=year) & Q(job__session__term__code=term_code) )
-    print(year, term_code, applicant, apps.count())
+
     if apps.count() > 0:
         applicant.has_applied = True
         applicant.accepted_apps = []
@@ -725,6 +725,15 @@ def get_applications_filter_limit(request, status):
             apps = today_accepted_apps
         else:
             apps = apps.filter( Q(applicationstatus__assigned=ApplicationStatus.ACCEPTED) & Q(is_terminated=False) ).order_by('-id').distinct()
+            excluded_apps = apps.filter( Q(is_declined_reassigned=True) & Q(applicationstatus__assigned=ApplicationStatus.DECLINED) )
+
+            excluded_ids = []
+            for app in excluded_apps:
+                ret_app = add_app_info_into_application(app, ['declined'])
+                if ret_app.declined.parent_id == None:
+                    excluded_ids.append(ret_app.id)
+
+            apps = apps.exclude(id__in=excluded_ids)
 
     elif status == 'declined':
         apps = apps.filter(applicationstatus__assigned=ApplicationStatus.DECLINED).order_by('-id').distinct()
@@ -826,7 +835,7 @@ def update_application_instructor_preference(app_id, instructor_preference):
 
 def update_job_offer(post):
     ''' Update a classification and assigned hours in Selected Apps '''
-    print('update_job_offer', post)
+
     cls = get_classification( post.get('classification') )
     app = Application.objects.filter(id=post.get('application')).update(
         classification = cls,
@@ -836,7 +845,7 @@ def update_job_offer(post):
     status = ApplicationStatus.objects.filter(id=post.get('applicationstatus')).update(
         assigned_hours = post.get('assigned_hours')
     )
-    print(app, status)
+    
     return True if app and status else False
 
 
