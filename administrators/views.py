@@ -273,29 +273,23 @@ def show_session(request, session_slug):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
-def show_report(request, session_slug):
-    ''' Display session summary including applicant information '''
+def show_report_applicants(request, session_slug):
+    ''' Display a session report including all applicants and their accepted information '''
     request = userApi.has_admin_access(request)
-    #adminApi.can_req_parameters_access(request, 'session', ['next', 'p'])
 
     session = adminApi.get_session(session_slug, 'slug')
 
     applicants = User.objects.filter( Q(profile__roles__name='Student') & Q(application__job__session__year=session.year) & Q(application__job__session__term__code=session.term.code) ).order_by('last_name', 'first_name').distinct()
     total_applicants = applicants.count()
 
-    first_name_q = request.GET.get('first_name')
-    last_name_q = request.GET.get('last_name')
-    cwl_q = request.GET.get('cwl')
-    student_number_q = request.GET.get('student_number')
-
-    if bool(first_name_q):
-        applicants = applicants.filter(first_name__icontains=first_name_q)
-    if bool(last_name_q):
-        applicants = applicants.filter(last_name__icontains=last_name_q)
-    if bool(cwl_q):
-        applicants = applicants.filter(username__icontains=cwl_q)
-    if bool(student_number_q):
-        applicants = applicants.filter(profile__student_number__icontains=student_number_q)
+    if bool( request.GET.get('first_name') ):
+        applicants = applicants.filter(first_name__icontains=request.GET.get('first_name'))
+    if bool( request.GET.get('last_name') ):
+        applicants = applicants.filter(last_name__icontains=request.GET.get('last_name'))
+    if bool( request.GET.get('cwl') ):
+        applicants = applicants.filter(username__icontains=request.GET.get('cwl'))
+    if bool( request.GET.get('student_number') ):
+        applicants = applicants.filter(profile__student_number__icontains=request.GET.get('student_number'))
 
     page = request.GET.get('page', 1)
     paginator = Paginator(applicants, settings.PAGE_SIZE)
@@ -313,20 +307,56 @@ def show_report(request, session_slug):
 
         if apps.count() > 0:
             applicant.has_applied = True
-            applicant.accepted_apps = []
+            accepted_apps = []
             for app in apps:
-                applicant.accepted_apps, _, _ = adminApi.valid_accepted_app(applicant.accepted_apps, app, 0)
-
+                app = adminApi.add_app_info_into_application(app, ['accepted', 'declined'])
+                if adminApi.check_valid_accepted_app_or_not(app):
+                    accepted_apps.append(app)
+            applicant.accepted_apps = accepted_apps
 
     back_to_word = 'Current Sessions'
     if 'archived' in request.session.get('next_session', None):
         back_to_word = 'Archived Sessions'
 
-    return render(request, 'administrators/sessions/show_report.html', {
+    return render(request, 'administrators/sessions/show_report_applicants.html', {
         'loggedin_user': request.user,
         'session': session,
         'total_applicants': total_applicants,
         'applicants': applicants,
+        'next_session': request.session.get('next_session', None),
+        'back_to_word': back_to_word
+    })
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def show_report_summary(request, session_slug):
+    ''' Display a session summary '''
+    request = userApi.has_admin_access(request)
+
+    session = adminApi.get_session(session_slug, 'slug')
+
+    jobs = []
+    for job in session.job_set.all():
+        apps = adminApi.get_accepted_apps_not_terminated(job.application_set.all())
+        apps = adminApi.get_filtered_accepted_apps(apps)
+
+        if len(apps) > 0:
+            for app in apps:
+                app.accepted = adminApi.get_accepted(app)
+                app.salary = adminApi.calcualte_salary(app)
+            job.accepted_apps = apps
+
+        jobs.append(job)
+
+    back_to_word = 'Current Sessions'
+    if 'archived' in request.session.get('next_session', None):
+        back_to_word = 'Archived Sessions'
+
+    return render(request, 'administrators/sessions/show_report_summary.html', {
+        'loggedin_user': request.user,
+        'session': session,
+        'jobs': jobs,
         'next_session': request.session.get('next_session', None),
         'back_to_word': back_to_word
     })
@@ -662,12 +692,13 @@ def student_jobs_details(request, username):
         if app.offered:
             offered_apps.append(app)
 
-        accepted_apps, _, _ = adminApi.valid_accepted_app(accepted_apps, app)
+        if adminApi.check_valid_accepted_app_or_not(app):
+            accepted_apps.append(app)
 
     return render(request, 'administrators/jobs/student_jobs_details.html', {
         'loggedin_user': request.user,
         'user': userApi.add_avatar(user),
-        'total_assigned_hours': adminApi.get_total_assigned_hours(apps, ['offered', 'accepted']),
+        'total_assigned_hours': adminApi.get_total_assigned_hours_admin(apps),
         'apps': apps,
         'offered_apps': offered_apps,
         'accepted_apps': accepted_apps,
@@ -1210,8 +1241,10 @@ def accepted_applications(request):
     apps = adminApi.add_app_info_into_applications(apps, ['accepted', 'declined'])
 
     for app in apps:
-        app.salary = round(app.accepted.assigned_hours * app.classification.wage / app.job.session.term.by_month, 2)
+        app.salary = adminApi.calcualte_salary(app)
         app.pt_percentage = round(app.accepted.assigned_hours / app.job.session.term.max_hours * 100, 2)
+
+        # When a term is S1 or S2, pt percentage * 2
         if app.job.course.term.code == 'S1' or app.job.course.term.code == 'S2':
             app.pt_percentage = app.pt_percentage * 2
 

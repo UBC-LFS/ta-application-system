@@ -169,10 +169,10 @@ class JobTest(TestCase):
         self.login()
 
         job = adminApi.get_job_by_session_slug_job_slug(SESSION, JOB)
-        self.assertEqual( len(job.instructors.all()), 1 )
+        self.assertEqual( len(job.instructors.all()), 2 )
 
         data1 = {
-            'instructors': ['10']
+            'instructors': ['15']
         }
         response = self.client.post( reverse('administrators:add_job_instructors', args=[SESSION, JOB]), data=urlencode(data1, True), content_type=ContentType )
         self.assertEqual(response.status_code, 200)
@@ -181,7 +181,7 @@ class JobTest(TestCase):
         self.assertTrue('Success' in content['message'])
 
         job = adminApi.get_job_by_session_slug_job_slug(SESSION, JOB)
-        self.assertEqual( len(job.instructors.all()), 2 )
+        self.assertEqual( len(job.instructors.all()), 3 )
 
         data2 = {
             'instructors': ['11']
@@ -193,7 +193,7 @@ class JobTest(TestCase):
         self.assertTrue('Success' in content['message'])
 
         job = adminApi.get_job_by_session_slug_job_slug(SESSION, JOB)
-        self.assertEqual( len(job.instructors.all()), 3 )
+        self.assertEqual( len(job.instructors.all()), 4 )
 
         data3 = {
             'instructors': ['11']
@@ -205,17 +205,17 @@ class JobTest(TestCase):
         self.assertTrue('An error occurred' in content['message'])
 
         job = adminApi.get_job_by_session_slug_job_slug(SESSION, JOB)
-        self.assertEqual( len(job.instructors.all()), 3 )
+        self.assertEqual( len(job.instructors.all()), 4 )
 
 
     def test_delete_instructors(self):
         print('- Test: delete instructors')
         self.login()
         job = adminApi.get_job_by_session_slug_job_slug(SESSION, JOB)
-        self.assertEqual( len(job.instructors.all()), 1 )
+        self.assertEqual( len(job.instructors.all()), 2 )
 
         data1 = {
-            'instructors': ['10']
+            'instructors': ['15']
         }
         response = self.client.post( reverse('administrators:delete_job_instructors', args=[SESSION, JOB]), data=urlencode(data1, True), content_type=ContentType )
         self.assertEqual(response.status_code, 200)
@@ -233,7 +233,7 @@ class JobTest(TestCase):
         self.assertTrue('Success' in content['message'])
 
         job = adminApi.get_job_by_session_slug_job_slug(SESSION, JOB)
-        self.assertEqual( len(job.instructors.all()), 0 )
+        self.assertEqual( len(job.instructors.all()), 1 )
 
         data3 = {
             'instructors': ['56']
@@ -381,8 +381,8 @@ class JobTest(TestCase):
             self.assertEqual(app.id, offered_app_ids[c1])
             c1 += 1
 
-        accepted_app_ids = [1, 22, 24]
-        self.assertEqual(len(response.context['accepted_apps']), 3)
+        accepted_app_ids = [1, 24]
+        self.assertEqual(len(response.context['accepted_apps']), 2)
 
         c2 = 0
         for app in response.context['accepted_apps']:
@@ -405,7 +405,7 @@ class JobTest(TestCase):
 
         total_assigned_hours = response.context['total_assigned_hours']
         self.assertEqual( total_assigned_hours['offered'], {'2019-W1': 100.0, '2019-W2': 20.0, '2019-S': 40.0} )
-        self.assertEqual( total_assigned_hours['accepted'], {'2019-W1': 100.0, '2019-W2': 50.0} )
+        self.assertEqual( total_assigned_hours['accepted'], {'2019-W1': 30.0, '2019-W2': 50.0} )
         self.assertEqual(len(apps), 7)
         self.assertEqual(num_offered, 4)
         self.assertEqual(num_accepted, 3)

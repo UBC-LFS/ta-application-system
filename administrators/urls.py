@@ -11,7 +11,8 @@ urlpatterns = [
     path('sessions/<str:session_slug>/delete/confirmation/', views.delete_session_confirmation, name='delete_session_confirmation'),
     path('sessions/<str:session_slug>/edit/', views.edit_session, name='edit_session'),
     path('sessions/<str:session_slug>/details/', views.show_session, name='show_session'),
-    path('sessions/<str:session_slug>/report/', views.show_report, name='show_report'),
+    path('sessions/<str:session_slug>/report/summary/', views.show_report_summary, name='show_report_summary'),
+    path('sessions/<str:session_slug>/report/applicants/', views.show_report_applicants, name='show_report_applicants'),
     path('sessions/current/', views.current_sessions, name='current_sessions'),
     path('sessions/archived/', views.archived_sessions, name='archived_sessions'),
 

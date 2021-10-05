@@ -13,6 +13,7 @@ from administrators import api as adminApi
 from users import api as userApi
 
 from datetime import datetime
+from random import randint
 
 LOGIN_URL = '/accounts/local_login/'
 ContentType='application/x-www-form-urlencoded'
@@ -75,6 +76,11 @@ ALL_USER = '?next=' + reverse('administrators:all_users') + '?page=2&p=All%20Use
 DASHBOARD_USER = '?next=' + reverse('administrators:applications_dashboard') + '?page=2&p=Dashboard&t=basic'
 
 
+def random_with_N_digits(n):
+    range_start = 10**(n-1)
+    range_end = (10**n)-1
+    return randint(range_start, range_end)
+
 class SessionTest(TestCase):
     fixtures = DATA
 
@@ -82,6 +88,8 @@ class SessionTest(TestCase):
     def setUpTestData(cls):
         print('\nSession testing has started ==>')
         cls.user = userApi.get_user(USERS[0], 'username')
+        cls.testing_sin = os.path.join(settings.BASE_DIR, 'users', 'tests', 'files', 'karsten-wurth-9qvZSH_NOQs-unsplash.jpg')
+        cls.testing_study_permit = os.path.join(settings.BASE_DIR, 'users', 'tests', 'files', 'lucas-davies-3aubsNmGuLE-unsplash.jpg')
 
     def login(self, username=None, password=None):
         if username and password:
@@ -91,6 +99,55 @@ class SessionTest(TestCase):
 
     def messages(self, res):
         return [m.message for m in get_messages(res.wsgi_request)]
+
+    def submit_confiential_information_international_complete(self, username):
+        ''' Submit confidential information '''
+
+        SIN = self.testing_sin
+        STUDY_PERMIT = self.testing_study_permit
+
+        user = userApi.get_user(username, 'username')
+        data = {
+            'user': user.id,
+            'nationality': '1'
+        }
+        response = self.client.post( reverse('students:check_confidentiality'), data=urlencode(data), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue('Please submit your information' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+        data = {
+            'user': user.id,
+            'nationality': data['nationality'],
+            'date_of_birth': '2000-01-01',
+            'employee_number': random_with_N_digits(7),
+            'sin': SimpleUploadedFile('sin.jpg', open(SIN, 'rb').read(), content_type='image/jpeg'),
+            'sin_expiry_date': '2030-01-01',
+            'study_permit': SimpleUploadedFile('study_permit.jpg', open(STUDY_PERMIT, 'rb').read(), content_type='image/jpeg'),
+            'study_permit_expiry_date': '2030-01-01'
+        }
+        response = self.client.post( reverse('students:submit_confidentiality'), data=data, format='multipart' )
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+    def delete_document(self, user, list, option='domestic'):
+        ''' Delete a list of document '''
+        if 'resume' in list:
+            userApi.delete_user_resume(user)
+
+        if 'sin' in list:
+            if option == 'international':
+                userApi.delete_user_sin(user, '1')
+            else:
+                userApi.delete_user_sin(user)
+
+        if 'study_permit' in list:
+            if option == 'international':
+                userApi.delete_user_study_permit(user, '1')
+            else:
+                userApi.delete_user_study_permit(user)
 
     def test_view_url_exists_at_desired_location(self):
         self.login(USERS[1], 'password')
@@ -149,7 +206,10 @@ class SessionTest(TestCase):
         response = self.client.get( reverse('administrators:edit_session', args=[SESSION]) + '?next=/administrators/sessions/archive/&p=Archived%20Sessions' )
         self.assertEqual(response.status_code, 404)
 
-        response = self.client.get( reverse('administrators:show_report', args=[SESSION]) )
+        response = self.client.get( reverse('administrators:show_report_applicants', args=[SESSION]) )
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get( reverse('administrators:show_report_summary', args=[SESSION]) )
         self.assertEqual(response.status_code, 200)
 
     def test_show_session(self):
@@ -181,8 +241,8 @@ class SessionTest(TestCase):
         self.assertEqual(response.context['next'], CURRENT_NEXT)
 
 
-    def test_view_session_report(self):
-        print('- Test: view a session report')
+    def test_view_session_report_applicants(self):
+        print('- Test: view a session report - applicants')
         self.login()
 
         client_session = self.client.session
@@ -191,7 +251,7 @@ class SessionTest(TestCase):
 
         session = adminApi.get_session(SESSION, 'slug')
 
-        response = self.client.get(reverse('administrators:show_report', args=[session.slug]))
+        response = self.client.get(reverse('administrators:show_report_applicants', args=[session.slug]))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, USERS[0])
         self.assertEqual(response.context['session'].id, session.id)
@@ -201,7 +261,7 @@ class SessionTest(TestCase):
         self.assertEqual(response.context['back_to_word'], 'Current Sessions')
 
         applicants = [
-            { 'username': 'user100.test', 'accepted_apps': ['APBI 200 001 (30.0 hours)', 'APBI 260 001 (70.0 hours)'] },
+            { 'username': 'user100.test', 'accepted_apps': ['APBI 200 001 (30.0 hours)'] },
             { 'username': 'user65.test', 'accepted_apps': [] },
             { 'username': 'user66.test', 'accepted_apps': ['APBI 260 001 (45.0 hours)'] },
             { 'username': 'user70.test', 'accepted_apps': ['APBI 200 002 (65.0 hours)'] },
@@ -218,6 +278,61 @@ class SessionTest(TestCase):
                     self.assertEqual(accepted_app.job.course.code.name + ' ' + accepted_app.job.course.number.name + ' ' + accepted_app.job.course.section.name + ' ('+ str(accepted_app.accepted.assigned_hours) + ' hours)', applicants[c]['accepted_apps'][d])
                     d += 1
             c += 1
+
+
+    def test_view_session_report_summary(self):
+        print('- Test: view a session report - summary')
+
+        self.login(USERS[2], PASSWORD)
+        self.submit_confiential_information_international_complete(USERS[2])
+
+        self.login()
+
+        client_session = self.client.session
+        client_session['next_session'] = reverse('administrators:current_sessions') + '?page=1'
+        client_session.save()
+
+        session = adminApi.get_session(SESSION, 'slug')
+
+        response = self.client.get(reverse('administrators:show_report_summary', args=[session.slug]))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['loggedin_user'].username, USERS[0])
+        self.assertEqual(response.context['session'].id, session.id)
+        self.assertEqual(response.context['session'].slug, SESSION)
+        self.assertEqual( len(response.context['jobs']), 104)
+        self.assertEqual(response.context['next_session'], reverse('administrators:current_sessions') + '?page=1')
+        self.assertEqual(response.context['back_to_word'], 'Current Sessions')
+
+        jobs = response.context['jobs']
+
+        accepted_apps = [
+            { 'course': 'APBI 200 001', 'instructors': 'User10 Ins,User56 Ins', 'tas': 'User100 Test, 30.0, GTA I, $33.1, $248.25, International, Other Program - Master of Science in Statistics' },
+            { 'course': 'APBI 200 002', 'instructors': 'User42 Ins', 'tas': 'User70 Test, 65.0, GTA I, $33.1, $537.88, International, Doctor of Philosophy in Soil Science (PhD)' }
+        ]
+
+        for i in range(2):
+            job = jobs[i]
+
+            course = '{0} {1} {2}'.format( job.course.code.name, job.course.number.name, job.course.section.name )
+            self.assertEqual(course, accepted_apps[i]['course'])
+
+            instructors = [ins.first_name + ' ' + ins.last_name for ins in job.instructors.all()]
+            self.assertEqual(','.join(instructors), accepted_apps[i]['instructors'])
+
+            tas = ''
+            for app in job.accepted_apps:
+                str = app.applicant.first_name + ' ' + app.applicant.last_name + ', '
+                str += '{}, '.format(app.accepted.assigned_hours)
+                str += app.classification.name + ', '
+                str += '${}, '.format(app.classification.wage)
+                str += '${}, '.format(app.salary)
+                str += 'Domestic, ' if app.applicant.confidentiality.nationality == '0' else 'International, '
+                str += 'Other Program - ' + app.applicant.profile.program_others if app.applicant.profile.program.slug == 'other' else app.applicant.profile.program.name
+            tas += str
+
+            self.assertEqual(tas, accepted_apps[i]['tas'])
+
+        self.delete_document(USERS[2], ['sin', 'study_permit'], 'international')
 
 
     def test_create_session(self):

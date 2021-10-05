@@ -2,7 +2,7 @@ $(document).ready(function() {
 
   // Make a navigation header active
   const roles = window.location.pathname.split('/');
-  
+
   if (roles[1] === 'administrators') {
     $('#nav-administrator').addClass('active');
 
@@ -46,3 +46,32 @@ $(document).ready(function() {
   });
 
 });
+
+/* Helper functions */
+
+// Download data to a CSV file
+function downloadCSV(data, filename) {
+  let el = document.createElement('a');
+  const blob = new Blob([data], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  el.href = url;
+  el.setAttribute('download', filename);
+  el.click();
+}
+
+// Get today's date format
+function getToday() {
+  var d = new Date(),
+      month = '' + (d.getMonth() + 1),
+      day = '' + d.getDate(),
+      year = d.getFullYear();
+
+  if (month.length < 2) month = '0' + month;
+  if (day.length < 2) day = '0' + day;
+
+  return [year, month, day].join('-');
+}
+
+function replaceNewLine(str) {
+  return str.trim().replace(/\n/g, ' ');
+}

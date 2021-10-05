@@ -123,8 +123,8 @@
     "model": "users.program",
     "pk": 16,
     "fields": {
-      "name": "Others",
-      "slug": "others"
+      "name": "Other",
+      "slug": "other"
     }
   }
 ]

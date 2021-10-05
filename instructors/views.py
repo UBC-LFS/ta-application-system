@@ -290,19 +290,14 @@ def status_summary_applicants(request, session_slug):
     applicants = User.objects.filter( Q(profile__roles__name='Student') & Q(application__job__session__year=session.year) & Q(application__job__session__term__code=session.term.code) ).order_by('last_name', 'first_name').distinct()
     total_applicants = applicants.count()
 
-    first_name_q = request.GET.get('first_name')
-    last_name_q = request.GET.get('last_name')
-    cwl_q = request.GET.get('cwl')
-    student_number_q = request.GET.get('student_number')
-
-    if bool(first_name_q):
-        applicants = applicants.filter(first_name__icontains=first_name_q)
-    if bool(last_name_q):
-        applicants = applicants.filter(last_name__icontains=last_name_q)
-    if bool(cwl_q):
-        applicants = applicants.filter(username__icontains=cwl_q)
-    if bool(student_number_q):
-        applicants = applicants.filter(profile__student_number__icontains=student_number_q)
+    if bool( request.GET.get('first_name') ):
+        applicants = applicants.filter(first_name__icontains=request.GET.get('first_name'))
+    if bool( request.GET.get('last_name') ):
+        applicants = applicants.filter(last_name__icontains=request.GET.get('last_name'))
+    if bool( request.GET.get('cwl') ):
+        applicants = applicants.filter(username__icontains=request.GET.get('cwl'))
+    if bool( request.GET.get('student_number') ):
+        applicants = applicants.filter(profile__student_number__icontains=request.GET.get('student_number'))
 
     page = request.GET.get('page', 1)
     paginator = Paginator(applicants, settings.PAGE_SIZE)
@@ -325,14 +320,8 @@ def status_summary_applicants(request, session_slug):
                 'applied': app.applied,
                 'accepted': None
             }
-            if app.accepted:
-                latest_status = adminApi.get_latest_status_in_app(app)
-                if latest_status == 'accepted':
-                    app_obj['accepted'] = app.accepted
-                else:
-                    if app.is_declined_reassigned:
-                        if (latest_status == 'declined' and app.declined.parent_id != None) or (latest_status == 'accepted'):
-                            app_obj['accepted'] = app.accepted
+            if adminApi.check_valid_accepted_app_or_not(app):
+                app_obj['accepted'] = app.accepted
 
             applicant.apps.append(app_obj)
 

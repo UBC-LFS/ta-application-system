@@ -45,6 +45,7 @@ $(document).ready(function() {
    sortColumn(data.col, data.type, 'sessionStorage');
  }
 
+// Export accepted applications as a csv
  $('#export-accepted-apps-csv').on('click', function() {
    const table = $("#accepted-apps-table")[0];
    const rows = table.rows;
@@ -70,33 +71,12 @@ $(document).ready(function() {
       tableData += rowData.substring(0, rowData.length - 1) + '\n';
     }
 
-   exportCSV(tableData);
+    const filename = 'TA App - Accepted Applications ' + getToday() + '.csv';
+
+   downloadCSV(tableData, filename);
  });
 
 });
-
-// Get today's date format
-function getToday() {
-  var d = new Date(),
-      month = '' + (d.getMonth() + 1),
-      day = '' + d.getDate(),
-      year = d.getFullYear();
-
-  if (month.length < 2) month = '0' + month;
-  if (day.length < 2) day = '0' + day;
-
-  return [year, month, day].join('-');
-}
-
-// Export data to a csv file
-function exportCSV(data) {
-  let el = document.createElement('a');
-  const blob = new Blob([data], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  el.href = url;
-  el.setAttribute('download', 'TA App - Accepted Applications ' + getToday() + '.csv');
-  el.click();
-}
 
 
 // Get a table header
@@ -109,9 +89,6 @@ function getHeader(rows) {
   return header;
 }
 
-function replaceNewLine(str) {
-  return str.trim().replace(/\n/g, ' ');
-}
 
 // Convert a form data to json
 function formDataToJson(data) {

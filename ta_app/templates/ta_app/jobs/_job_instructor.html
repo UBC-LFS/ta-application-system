@@ -1,5 +1,7 @@
 {% for instructor in data.instructors.all %}
-  <div>{{ instructor.get_full_name }}</div>
+  <div>
+    {{ instructor.get_full_name }}{% if not forloop.last %},{% endif %}
+  </div>
 {% empty %}
   None
 {% endfor %}

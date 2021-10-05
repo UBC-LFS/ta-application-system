@@ -279,27 +279,61 @@ def valid_accepted_app(list, application, total_accepted_applicants=0):
     return list, total_accepted_applicants, valid_accepted
 
 
+def check_valid_accepted_app_or_not(app):
+    ''' Check if an application is valid accepted or not - for admin and instructor'''
+
+    if app.accepted:
+        latest_status = get_latest_status_in_app(app)
+        if latest_status == 'accepted':
+            if app.is_terminated == False:
+                return True
+        else:
+            if app.is_declined_reassigned:
+                if (latest_status == 'declined' and app.declined.parent_id != None) or (latest_status == 'accepted'):
+                    return True
+
+    return False
+
+
 def get_applicant_status(year, term_code, applicant):
     ''' Get applicant's status '''
 
-    applicant.has_applied = False
     apps = applicant.application_set.filter( Q(job__session__year=year) & Q(job__session__term__code=term_code) )
 
     if apps.count() > 0:
-        applicant.has_applied = True
-        applicant.accepted_apps = []
-
+        accepted_apps = []
         for app in apps:
             app.full_course_name = app.job.course.code.name + '_' + app.job.course.number.name + '_' + app.job.course.section.name
-            applicant.accepted_apps, _, _ = valid_accepted_app(applicant.accepted_apps, app)
+            app = add_app_info_into_application(app, ['accepted', 'declined'])
+            if check_valid_accepted_app_or_not(app):
+                accepted_apps.append(app)
+
+        applicant.accepted_apps = accepted_apps
 
     return applicant
+
+
+def get_filtered_accepted_apps(apps=None):
+    ''' Get filtered accepted applications '''
+
+    if apps == None:
+        apps = get_accepted_apps_not_terminated()
+
+    excluded_apps = apps.filter( Q(is_declined_reassigned=True) & Q(applicationstatus__assigned=ApplicationStatus.DECLINED) )
+
+    excluded_ids = []
+    for app in excluded_apps:
+        ret_app = add_app_info_into_application(app, ['declined'])
+        if ret_app.declined.parent_id == None:
+            excluded_ids.append(ret_app.id)
+
+    return apps.exclude(id__in=excluded_ids)
 
 
 def get_report_accepted_applications(request):
     ''' Get a report for accepted applications'''
 
-    apps = Application.objects.filter( Q(applicationstatus__assigned=ApplicationStatus.ACCEPTED) & Q(is_terminated=False) ).order_by('-id').distinct()
+    apps = get_filtered_accepted_apps()
 
     if bool( request.GET.get('year') ):
         apps = apps.filter(job__session__year__icontains=request.GET.get('year'))
@@ -341,7 +375,6 @@ def create_jobs(session, courses):
 
 def get_favourites(user):
     ''' Get user's favourite jobs '''
-    #return Favourite.objects.filter( Q(applicant_id=user.id) & Q(job__is_active=True) )
     return Favourite.objects.filter(applicant_id=user.id).order_by('created_at')
 
 def add_applied_jobs_to_favourites(user, favourites):
@@ -613,6 +646,35 @@ def get_total_assigned_hours(apps, list):
     return total_hours
 
 
+def get_total_assigned_hours_admin(apps):
+    ''' Get total assigend hours in list for admins '''
+
+    total_hours = {
+        'offered': {},
+        'accepted': {}
+    }
+
+    for app in apps:
+        app = add_app_info_into_application(app, ['offered', 'accepted'])
+
+        if app.offered:
+            year_term = '{0}-{1}'.format(app.job.session.year, app.job.session.term.code)
+            if year_term in total_hours['offered'].keys():
+                total_hours['offered'][year_term] += app.offered.assigned_hours
+            else:
+                total_hours['offered'][year_term] = app.offered.assigned_hours
+
+        if app.accepted:
+            if check_valid_accepted_app_or_not(app):
+                year_term = '{0}-{1}'.format(app.job.session.year, app.job.session.term.code)
+                if year_term in total_hours['accepted'].keys():
+                    total_hours['accepted'][year_term] += app.accepted.assigned_hours
+                else:
+                    total_hours['accepted'][year_term] = app.accepted.assigned_hours
+
+    return total_hours
+
+
 def get_accepted_apps_by_day(apps, when):
     ''' Get accepted apps by day '''
 
@@ -670,16 +732,17 @@ def get_applications_filter_limit(request, status):
         count_offered_apps = Count('applicationstatus', filter=Q(applicationstatus__assigned=ApplicationStatus.OFFERED))
         offered_apps = Application.objects.annotate(count_offered_apps=count_offered_apps).filter(count_offered_apps__gt=0)
         num_offered_apps = offered_apps.count()
+    elif status == 'accepted':
+        apps = get_accepted_apps_not_terminated()
+
+        today = datetime.today().strftime('%Y-%m-%d')
+        today_accepted_apps, today = get_accepted_apps_by_day(apps, 'today')
 
     elif status == 'terminated':
         apps = Application.objects.filter(is_terminated=True).order_by('-id').distinct()
 
     else:
         apps = Application.objects.all().order_by('-id')
-
-        if status == 'accepted':
-            today = datetime.today().strftime('%Y-%m-%d')
-            today_accepted_apps, today = get_accepted_apps_by_day(apps, 'today')
 
     # Search filter
     if bool( request.GET.get('year') ):
@@ -723,17 +786,9 @@ def get_applications_filter_limit(request, status):
 
         if bool( request.GET.get('accepted_in_today') ):
             apps = today_accepted_apps
+
         else:
-            apps = apps.filter( Q(applicationstatus__assigned=ApplicationStatus.ACCEPTED) & Q(is_terminated=False) ).order_by('-id').distinct()
-            excluded_apps = apps.filter( Q(is_declined_reassigned=True) & Q(applicationstatus__assigned=ApplicationStatus.DECLINED) )
-
-            excluded_ids = []
-            for app in excluded_apps:
-                ret_app = add_app_info_into_application(app, ['declined'])
-                if ret_app.declined.parent_id == None:
-                    excluded_ids.append(ret_app.id)
-
-            apps = apps.exclude(id__in=excluded_ids)
+            apps = get_filtered_accepted_apps(apps)
 
     elif status == 'declined':
         apps = apps.filter(applicationstatus__assigned=ApplicationStatus.DECLINED).order_by('-id').distinct()
@@ -777,6 +832,14 @@ def get_accepted(app):
     accepted_app = app.applicationstatus_set.filter(assigned=ApplicationStatus.ACCEPTED)
     if accepted_app.exists(): return accepted_app.last()
     return False
+
+
+def get_accepted_apps_not_terminated(apps=None):
+    ''' Get accepted applications '''
+    if apps == None:
+        return Application.objects.filter( Q(applicationstatus__assigned=ApplicationStatus.ACCEPTED) & Q(is_terminated=False) ).order_by('-id').distinct()
+    return apps.filter( Q(applicationstatus__assigned=ApplicationStatus.ACCEPTED) & Q(is_terminated=False) ).order_by('-id').distinct()
+
 
 def get_declined(app):
     ''' Get an application declined '''
@@ -845,7 +908,7 @@ def update_job_offer(post):
     status = ApplicationStatus.objects.filter(id=post.get('applicationstatus')).update(
         assigned_hours = post.get('assigned_hours')
     )
-    
+
     return True if app and status else False
 
 
@@ -1003,6 +1066,10 @@ def get_today_terminated_apps():
 
     app_statuses = ApplicationStatus.objects.filter( Q(application__is_terminated=True) & Q(assigned=ApplicationStatus.CANCELLED) & Q(created_at=date.today()) )
     return app_statuses if app_statuses.exists() else None
+
+def calcualte_salary(app):
+    ''' Calculate the salary of an application '''
+    return round(app.accepted.assigned_hours * app.classification.wage / app.job.session.term.by_month, 2)
 
 # end applications
 

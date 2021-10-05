@@ -1,0 +1,80 @@
+{% extends 'ta_app/base.html' %}
+{% block content %}
+
+{% include 'administrators/_menu.html' %}
+
+<h3 class="text-info">
+  {{ session.year }} TA Application Summary Report
+  <small class="text-secondary">Total: {{ session.job_set.count }}</small>
+</h3>
+
+<a class="btn btn-outline-primary btn-sm mt-3 mb-5" href="{{ next_session }}">Back to {{ back_to_word }}</a>
+
+<div class="float-right">
+  CSV:
+  <button id="download-summary-report-csv" class="btn btn-sm btn-outline-secondary font-size-xs" type="button" data-year="{{ session.year }}">Download</button>
+</div>
+
+<table id="summary-report-table" class="table table-sm table-bordered table-hover table-striped table-responsive-md">
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Term</th>
+      <th>Course</th>
+      <th>Course Title</th>
+      <th>Instructor(s)</th>
+      <th>Total <br /> TA Hours</th>
+      <th>Total <br /> Applications</th>
+      <th>TAs</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for job in jobs %}
+      <tr>
+        <td>{{ forloop.counter }}</td>
+        <td>{{ session.term.code }}</td>
+        <td>{{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</td>
+        <td>{{ job.course.name }}</td>
+        <td>{% include 'ta_app/jobs/_job_instructor_list.html' with data=job %}</td>
+        <td>{{ job.assigned_ta_hours }}</td>
+        <td>{{ job.application_set.count }}</td>
+        <td>
+          <ul class="m-0">
+            {% for app in job.accepted_apps %}
+              <li>
+                {{ app.applicant.get_full_name }},
+                {{ app.accepted.assigned_hours }},
+                {{ app.classification.name }},
+                ${{ app.classification.wage }},
+                ${{ app.salary }},
+                {% if app.applicant.confidentiality.nationality == '0' %}
+                  Domestic,
+                {% else %}
+                  International,
+                {% endif %}
+                {% if app.applicant.profile.program.slug == 'other' %}
+                  Other Program - {{ app.applicant.profile.program_others|striptags }}
+                {% else %}
+                  {{ app.applicant.profile.program.name }}
+                {% endif %}
+              </li>
+            {% empty %}
+              None
+            {% endfor %}
+          </ul>
+        </td>
+      </tr>
+    {% empty %}
+      <tr>
+        <td colspan="8">No courses found</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}
+
+{% block js %}
+  {% load static %}
+  <script type="text/javascript" src="{% static 'ta_app/js/summary_report.js' %}"></script>
+{% endblock %}

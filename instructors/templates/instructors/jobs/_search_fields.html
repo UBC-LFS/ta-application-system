@@ -9,7 +9,7 @@
       <button class="btn btn-sm btn-secondary" type="submit">Search</button>
 
       {% if path == 'administrators_sessions' %}
-        <a class="btn btn-sm btn-light" href="{% url 'administrators:show_report' session_slug=session_slug %}">Clear</a>
+        <a class="btn btn-sm btn-light" href="{% url 'administrators:show_report_applicants' session_slug=session_slug %}">Clear</a>
 
       {% elif path == 'instructors_applications' %}
         <a class="btn btn-sm btn-light" href="{% url 'instructors:status_summary_applicants' session_slug=session_slug %}">Clear</a>

@@ -14,8 +14,8 @@ from users import api as userApi
 
 import datetime
 
-from administrators.tests.test_sessions import LOGIN_URL, ContentType, DATA, PASSWORD, USERS, SESSION
-from students.tests.test_views import STUDENT, STUDENT_JOB, HISTORY_NEXT, random_with_N_digits
+from administrators.tests.test_sessions import LOGIN_URL, ContentType, DATA, PASSWORD, USERS, SESSION, random_with_N_digits
+from students.tests.test_views import STUDENT, STUDENT_JOB, HISTORY_NEXT
 
 
 APP = '2019-w1-apbi-200-001-introduction-to-soil-science-w1-application-by-user100test'
@@ -261,7 +261,7 @@ class ApplicationTest(TestCase):
             { 'id': 9, 'can_reset': False, 'num_reset': 1 }, { 'id': 10, 'can_reset': False, 'num_reset': 1 },
             { 'id': 11, 'can_reset': False, 'num_reset': 0 }, { 'id': 12, 'can_reset': False, 'num_reset': 0 },
             { 'id': 13, 'can_reset': True, 'num_reset': 0 }, { 'id': 14, 'can_reset': True, 'num_reset': 0 },
-            { 'id': 15, 'can_reset': True, 'num_reset': 0 }, { 'id': 16, 'can_reset': False, 'num_reset': 0 },
+            { 'id': 15, 'can_reset': False, 'num_reset': 0 }, { 'id': 16, 'can_reset': False, 'num_reset': 0 },
             { 'id': 17, 'can_reset': True, 'num_reset': 0 }, { 'id': 18, 'can_reset': False, 'num_reset': 0 },
             { 'id': 19, 'can_reset': False, 'num_reset': 0 }, { 'id': 20, 'can_reset': False, 'num_reset': 0 },
             { 'id': 21, 'can_reset': True, 'num_reset': 1 }, { 'id': 22, 'can_reset': False, 'num_reset': 0 },
@@ -276,6 +276,7 @@ class ApplicationTest(TestCase):
             self.assertEqual(app.can_reset, users[i]['can_reset'])
             self.assertEqual(app.applicationreset_set.count(), users[i]['num_reset'])
             i += 1
+
 
     def test_reset_application_applied_app_wrong_next(self):
         print('- Test: reset an application - wrong next')
@@ -495,7 +496,7 @@ class ApplicationTest(TestCase):
                 if app.applicationstatus_set.last().assigned == ApplicationStatus.NONE:
                     cannot_reoffer.append(app.id)
 
-        self.assertEqual(offer, [17, 15, 14, 13, 5, 4, 2])
+        self.assertEqual(offer, [17, 14, 13, 5, 4, 2])
         self.assertEqual(edit, [25, 24, 22, 20, 19, 11, 8, 7, 3, 1])
         self.assertEqual(available_reoffer, [21, 10, 9])
         self.assertEqual(cannot_reoffer, [10, 9])
@@ -590,8 +591,8 @@ class ApplicationTest(TestCase):
         print('- Test: reset an application - success')
         self.login()
 
-        app_id = 13
-        STUDENT = 'user70.test'
+        app_id = 5
+        STUDENT = 'user66.test'
 
         # reset
         app1 = adminApi.get_application(app_id)
@@ -607,7 +608,7 @@ class ApplicationTest(TestCase):
         }
         response = self.client.post(reverse('administrators:reset_application'), data=urlencode(data1), content_type=ContentType)
         messages = self.messages(response)
-        self.assertEqual(messages[0], 'Success! User70 Test - the following information (ID: 13, 2019 W2 - APBI 200 001) have been reset. <ul><li>Instructor Preference</li><li>Assigned Status</li><li>Assigned Hours</li></ul>')
+        self.assertEqual(messages[0], 'Success! User66 Test - the following information (ID: 5, 2019 W1 - APBI 200 001) have been reset. <ul><li>Instructor Preference</li><li>Assigned Status</li><li>Assigned Hours</li></ul>')
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, FULL_PATH)
         self.assertRedirects(response, response.url)
@@ -618,9 +619,9 @@ class ApplicationTest(TestCase):
         self.assertFalse(app2.is_terminated)
 
         expected2 = [
-            {'id': 13, 'assigned': ApplicationStatus.NONE, 'created_at': datetime.date(2019, 9, 1)},
-            {'id': 36, 'assigned': ApplicationStatus.SELECTED, 'created_at': datetime.date(2019, 9, 5)},
-            {'id': 79, 'assigned': ApplicationStatus.NONE, 'created_at': datetime.date.today()},
+            {'id': 5, 'assigned': ApplicationStatus.NONE, 'created_at': datetime.date(2019, 9, 1)},
+            {'id': 39, 'assigned': ApplicationStatus.SELECTED, 'created_at': datetime.date(2019, 9, 5)},
+            {'id': 80, 'assigned': ApplicationStatus.NONE, 'created_at': datetime.date.today()},
         ]
 
         count2 = 0
@@ -632,9 +633,9 @@ class ApplicationTest(TestCase):
 
 
         # re-select
-        self.login('user52.ins', PASSWORD)
-        SESSION = '2019-w2'
-        JOB = 'apbi-200-001-introduction-to-soil-science-w2'
+        self.login('user56.ins', PASSWORD)
+        SESSION = '2019-w1'
+        JOB = 'apbi-200-001-introduction-to-soil-science-w1'
         JOBS_NEXT = '?next=' + reverse('instructors:show_jobs') + '?page=2'
 
         data3 = {
@@ -661,7 +662,7 @@ class ApplicationTest(TestCase):
 
         self.assertEqual(this_app.instructor_preference, Application.REQUESTED)
 
-        self.assertEqual( len(response.context['apps']) , 3 )
+        self.assertEqual( len(response.context['apps']) , 4 )
         app4 = None
         for app in response.context['apps']:
             if app.id == app_id:
@@ -691,7 +692,7 @@ class ApplicationTest(TestCase):
 
         self.assertIsNotNone(app5)
         self.assertIsNotNone(app5.selected)
-        self.assertEqual(app5.selected.id, 80)
+        self.assertEqual(app5.selected.id, 81)
         self.assertEqual(app5.selected.assigned, ApplicationStatus.SELECTED)
         self.assertEqual(app5.selected.created_at, datetime.date.today())
 
@@ -702,13 +703,13 @@ class ApplicationTest(TestCase):
             'assigned_hours': app5.selected.assigned_hours,
             'application': app5.id,
             'assigned': ApplicationStatus.OFFERED,
-            'applicant': '70',
+            'applicant': '66',
             'classification': '2',
             'next': FULL_PATH
         }
         response = self.client.post(reverse('administrators:offer_job', args=[app5.job.session.slug, app5.job.course.slug]), data=urlencode(data5), content_type=ContentType)
         messages = self.messages(response)
-        self.assertEqual(messages[0], 'Success! You offered this user (User70 Test) 65 hours for this job (2019 W2 - APBI 200 001)')
+        self.assertEqual(messages[0], 'Success! You offered this user (User66 Test) 65 hours for this job (2019 W1 - APBI 200 001)')
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, FULL_PATH)
         self.assertRedirects(response, response.url)
@@ -729,8 +730,8 @@ class ApplicationTest(TestCase):
 
         self.submit_confiential_information_international_complete(STUDENT)
 
-        SESSION = '2019-w2'
-        STUDENT_JOB = 'apbi-200-001-introduction-to-soil-science-w2'
+        SESSION = '2019-w1'
+        STUDENT_JOB = 'apbi-200-001-introduction-to-soil-science-w1'
 
         data7 = {
             'application': app6.id,
@@ -741,7 +742,7 @@ class ApplicationTest(TestCase):
         }
         response = self.client.post( reverse('students:make_decision', args=[SESSION, STUDENT_JOB]), data=urlencode(data7), content_type=ContentType )
         messages = self.messages(response)
-        self.assertTrue(messages[0], 'Success! You accepted the job offer - 2019 W2: APBI 200 001')
+        self.assertTrue(messages[0], 'Success! You accepted the job offer - 2019 W1: APBI 200 001')
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse('students:history_jobs'))
         self.assertRedirects(response, response.url)
@@ -752,12 +753,12 @@ class ApplicationTest(TestCase):
         self.assertFalse(final_app.is_terminated)
 
         expected7 = [
-            {'id': 13, 'assigned': ApplicationStatus.NONE, 'created_at': datetime.date(2019, 9, 1)},
-            {'id': 36, 'assigned': ApplicationStatus.SELECTED, 'created_at': datetime.date(2019, 9, 5)},
-            {'id': 79, 'assigned': ApplicationStatus.NONE, 'created_at': datetime.date.today()},
-            {'id': 80, 'assigned': ApplicationStatus.SELECTED, 'created_at': datetime.date.today()},
-            {'id': 81, 'assigned': ApplicationStatus.OFFERED, 'created_at': datetime.date.today()},
-            {'id': 82, 'assigned': ApplicationStatus.ACCEPTED, 'created_at': datetime.date.today()},
+            {'id': 5, 'assigned': ApplicationStatus.NONE, 'created_at': datetime.date(2019, 9, 1)},
+            {'id': 39, 'assigned': ApplicationStatus.SELECTED, 'created_at': datetime.date(2019, 9, 5)},
+            {'id': 80, 'assigned': ApplicationStatus.NONE, 'created_at': datetime.date.today()},
+            {'id': 81, 'assigned': ApplicationStatus.SELECTED, 'created_at': datetime.date.today()},
+            {'id': 82, 'assigned': ApplicationStatus.OFFERED, 'created_at': datetime.date.today()},
+            {'id': 83, 'assigned': ApplicationStatus.ACCEPTED, 'created_at': datetime.date.today()},
         ]
 
         count5 = 0
@@ -806,7 +807,7 @@ class ApplicationTest(TestCase):
             {'id': 31, 'assigned': ApplicationStatus.SELECTED, 'created_at': datetime.date(2019, 9, 5)},
             {'id': 46, 'assigned': ApplicationStatus.OFFERED, 'created_at': datetime.date(2019, 9, 10)},
             {'id': 58, 'assigned': ApplicationStatus.DECLINED, 'created_at': datetime.date(2019, 9, 20)},
-            {'id': 87, 'assigned': ApplicationStatus.NONE, 'created_at': datetime.date.today()}
+            {'id': 88, 'assigned': ApplicationStatus.NONE, 'created_at': datetime.date.today()}
         ]
 
         count2 = 0
@@ -877,7 +878,7 @@ class ApplicationTest(TestCase):
 
         self.assertIsNotNone(app5)
         self.assertIsNotNone(app5.selected)
-        self.assertEqual(app5.selected.id, 88)
+        self.assertEqual(app5.selected.id, 89)
         self.assertEqual(app5.selected.assigned, ApplicationStatus.SELECTED)
         self.assertEqual(app5.selected.created_at, datetime.date.today())
 
@@ -941,10 +942,10 @@ class ApplicationTest(TestCase):
             {'id': 31, 'assigned': ApplicationStatus.SELECTED, 'created_at': datetime.date(2019, 9, 5)},
             {'id': 46, 'assigned': ApplicationStatus.OFFERED, 'created_at': datetime.date(2019, 9, 10)},
             {'id': 58, 'assigned': ApplicationStatus.DECLINED, 'created_at': datetime.date(2019, 9, 20)},
-            {'id': 87, 'assigned': ApplicationStatus.NONE, 'created_at': datetime.date.today()},
-            {'id': 88, 'assigned': ApplicationStatus.SELECTED, 'created_at': datetime.date.today()},
-            {'id': 89, 'assigned': ApplicationStatus.OFFERED, 'created_at': datetime.date.today()},
-            {'id': 90, 'assigned': ApplicationStatus.DECLINED, 'created_at': datetime.date.today()},
+            {'id': 88, 'assigned': ApplicationStatus.NONE, 'created_at': datetime.date.today()},
+            {'id': 89, 'assigned': ApplicationStatus.SELECTED, 'created_at': datetime.date.today()},
+            {'id': 90, 'assigned': ApplicationStatus.OFFERED, 'created_at': datetime.date.today()},
+            {'id': 91, 'assigned': ApplicationStatus.DECLINED, 'created_at': datetime.date.today()},
         ]
 
         count5 = 0
@@ -2131,7 +2132,7 @@ class SchedulingTaskTest(TestCase):
         app_statuses = adminApi.get_today_accepted_apps()
 
         app_list = [
-            { 'app_status_id': 73, 'assigned': '3', 'assigned_hours': 15.0, 'app_id': 3, 'full_name': 'User65 Test', 'session_term': '2019 W1 - APBI 265 001' }
+            { 'app_status_id': 74, 'assigned': '3', 'assigned_hours': 15.0, 'app_id': 3, 'full_name': 'User65 Test', 'session_term': '2019 W1 - APBI 265 001' }
         ]
 
         c = 0
@@ -2156,7 +2157,7 @@ class SchedulingTaskTest(TestCase):
         app_statuses = adminApi.get_today_terminated_apps()
 
         app_list = [
-            { 'app_status_id': 74, 'assigned': '5', 'assigned_hours': 70.0, 'app_id': 22, 'full_name': 'User100 Test', 'session_term': '2019 W1 - APBI 260 001' }
+            { 'app_status_id': 75, 'assigned': '5', 'assigned_hours': 70.0, 'app_id': 22, 'full_name': 'User100 Test', 'session_term': '2019 W1 - APBI 260 001' }
         ]
 
         c = 0
