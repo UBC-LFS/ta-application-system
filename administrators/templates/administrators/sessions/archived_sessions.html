@@ -60,11 +60,12 @@
             {{ session.created_at }}
           </td>
           <td>
-            <span class="d-none">{{ app.created_at|date:"Y m d z" }}</span>
+            <span class="d-none">{{ session.updated_at|date:"Y m d z" }}</span>
             {{ session.updated_at }}
           </td>
           <td>
-            <a href="{% url 'administrators:show_report_applicants' session_slug=session.slug %}">Applicants</a>
+            <a href="{% url 'administrators:show_report_applicants' session_slug=session.slug %}">Applicants</a> |
+            <a href="{% url 'administrators:show_report_summary' session_slug=session.slug %}">Summary</a>
           </td>
           <td>
             <div class="btn-toolbar">
