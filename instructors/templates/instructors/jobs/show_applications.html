@@ -37,7 +37,7 @@
       Number of Applications: {{ job.application_set.all|length }}
     </h5>
     <ul>
-      <li>If you would like to view a list of all applicants and their status in this term, please go to <a href="{% url 'instructors:status_summary_applicants' session_slug=job.session.slug %}">Status Summary of Applicants</a>.</li>
+      <li>If you would like to view a list of all applicants and their status in this term, please go to <a href="{% url 'instructors:summary_applicants' session_slug=job.session.slug %}">Summary of Applicants</a>.</li>
     </ul>
 
     <table

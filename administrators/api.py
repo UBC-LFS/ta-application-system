@@ -732,6 +732,7 @@ def get_applications_filter_limit(request, status):
         count_offered_apps = Count('applicationstatus', filter=Q(applicationstatus__assigned=ApplicationStatus.OFFERED))
         offered_apps = Application.objects.annotate(count_offered_apps=count_offered_apps).filter(count_offered_apps__gt=0)
         num_offered_apps = offered_apps.count()
+        
     elif status == 'accepted':
         apps = get_accepted_apps_not_terminated()
 
@@ -1070,6 +1071,15 @@ def get_today_terminated_apps():
 def calcualte_salary(app):
     ''' Calculate the salary of an application '''
     return round(app.accepted.assigned_hours * app.classification.wage / app.job.session.term.by_month, 2)
+
+
+def get_applicants_in_session(session):
+    ''' Get applicants by term '''
+    applicants = User.objects.filter( Q(profile__roles__name='Student') & Q(application__job__session__year=session.year) & Q(application__job__session__term__code=session.term.code) ).order_by('last_name', 'first_name').distinct()
+
+    return applicants
+
+
 
 # end applications
 

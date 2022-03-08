@@ -1,0 +1,107 @@
+{% extends 'ta_app/base.html' %}
+{% block content %}
+
+{% include 'instructors/_menu.html' %}
+
+<div class="row">
+  <div class="col-md-3">
+    {% include 'ta_app/pages/_left_aside_compact.html' with view_name='sessions' title='Summary of Applicants' data=session %}
+
+    <div class="left-aside-btn-groups">
+      <a class="btn btn-outline-primary" href="{{ next_second }}">Back to Applications</a>
+    </div>
+
+    <div class="board col-10 mx-auto mt-5">
+      <h5 class="text-center text-info">Statistics</h5>
+      <table class="table font-size-sm mb-0">
+        <tbody>
+          <tr>
+            <td><strong>Total Applicants</strong></td>
+            <td>{{ total_applicants }}</td>
+          </tr>
+          <tr>
+            <td><strong>Applicants with no offers</strong></td>
+            <td>{{ total_no_offers_applicants }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="border bg-light-gray col-10 mx-auto my-5 p-3">
+      <h5>Note:</h5>
+      <ul class="font-size-sm mb-0">
+        <li>This badge <span class="badge badge-warning">NO OFFERS</span> in the table means that applicants have no offers so far in this term.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="col-md-9">
+    {% include 'instructors/jobs/_search_fields.html' with data=applicants total=searched_total path='instructors_applications' session_slug=session.slug %}
+
+    <table
+      class="table table-bordered table-hover table-striped table-responsive-md text-center mt-5"
+      data-toggle="table"
+      data-sortable="true"
+      data-classes=""
+    >
+      <thead>
+        <tr>
+          <th>No Offers</th>
+          <th data-sortable="true">First Name</th>
+          <th data-sortable="true">Last Name</th>
+          <th>CWL</th>
+          <th>Email</th>
+          <th>Student <br /> Number</th>
+          <th>Curriculum <br /> Vitae (CV)</th>
+          <th>Course & Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for applicant in applicants %}
+          <tr>
+            <td>
+              {% if applicant.no_offers %}
+                <span class="badge badge-warning">NO OFFERS</span>
+              {% endif %}
+            </td>
+            <td>{{ applicant.first_name }}</td>
+            <td>{{ applicant.last_name }}</td>
+            <td>{{ applicant.username }}</td>
+            <td><a href="mailto:{{ applicant.email }}">{{ applicant.email }}</a></td>
+            <td>{{ applicant.profile.student_number }}</td>
+            <td>
+              {% include 'ta_app/users/_modal_degree_details.html' with data=applicant %}
+
+              {% if applicant.resume_filename %}
+                <a class="d-block mt-2" href="{% url 'students:download_file' username=applicant.username item='resume' filename=applicant.resume_filename %}" target="_blank">
+                  Resume
+                </a>
+              {% endif %}
+            </td>
+            <td>
+                {% for app in applicant.apps %}
+                  <div class="text-left my-1">
+                    <span class="font-weight-bold">{{ app.course }}:</span>
+                    <span class="badge badge-light font-size-xs font-weight-normal">Applied</span>
+                    {% if app.accepted %}
+                      <span class="badge badge-success font-size-xs font-weight-normal">Accepted on {{ app.accepted.created_at }}</span>{% if not forloop.last %},{% endif %}
+                    {% endif %}
+                  </div>
+                {% empty %}
+                  None
+                {% endfor %}
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="8">No applicants found</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    {% include 'instructors/jobs/_table_paginator.html' with data=applicants %}
+  </div>
+</div>
+
+{% endblock %}

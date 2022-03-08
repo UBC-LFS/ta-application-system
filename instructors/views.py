@@ -7,7 +7,7 @@ from django.http import HttpResponseRedirect, Http404
 from django.core.exceptions import PermissionDenied
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.cache import cache_control
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from urllib.parse import urlparse
 
@@ -281,13 +281,13 @@ def show_applications(request, session_slug, job_slug):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
-def status_summary_applicants(request, session_slug):
-    ''' Display the status of applicants in each session term '''
+def summary_applicants(request, session_slug):
+    ''' Display the summary of applicants in each session term '''
     request = userApi.has_user_access(request, Role.INSTRUCTOR)
 
     session = adminApi.get_session(session_slug, 'slug')
 
-    applicants = User.objects.filter( Q(profile__roles__name='Student') & Q(application__job__session__year=session.year) & Q(application__job__session__term__code=session.term.code) ).order_by('last_name', 'first_name').distinct()
+    applicants = adminApi.get_applicants_in_session(session)
     total_applicants = applicants.count()
 
     if bool( request.GET.get('first_name') ):
@@ -298,6 +298,21 @@ def status_summary_applicants(request, session_slug):
         applicants = applicants.filter(username__icontains=request.GET.get('cwl'))
     if bool( request.GET.get('student_number') ):
         applicants = applicants.filter(profile__student_number__icontains=request.GET.get('student_number'))
+
+    no_offers_applicants = []
+    for applicant in applicants:
+        appls = applicant.application_set.filter( Q(job__session__year=session.year) & Q(job__session__term__code=session.term.code) )
+
+        count_offered_apps = Count('applicationstatus', filter=Q(applicationstatus__assigned=ApplicationStatus.OFFERED))
+        offered_apps = appls.annotate(count_offered_apps=count_offered_apps).filter(count_offered_apps__gt=0)
+
+        applicant.no_offers = False
+        if len(offered_apps) == 0:
+            no_offers_applicants.append(applicant)
+            applicant.no_offers = True
+
+    if bool( request.GET.get('no_offers') ):
+        applicants = no_offers_applicants
 
     page = request.GET.get('page', 1)
     paginator = Paginator(applicants, settings.PAGE_SIZE)
@@ -310,8 +325,9 @@ def status_summary_applicants(request, session_slug):
         applicants = paginator.page(paginator.num_pages)
 
     for applicant in applicants:
-        apps = applicant.application_set.filter( Q(job__session__year=session.year) & Q(job__session__term__code=session.term.code) )
+        applicant = userApi.add_resume(applicant)
 
+        apps = applicant.application_set.filter( Q(job__session__year=session.year) & Q(job__session__term__code=session.term.code) )
         applicant.apps = []
         for app in apps:
             app = adminApi.add_app_info_into_application(app, ['applied', 'accepted', 'declined', 'cancelled'])
@@ -325,11 +341,13 @@ def status_summary_applicants(request, session_slug):
 
             applicant.apps.append(app_obj)
 
-    return render(request, 'instructors/jobs/status_summary_applicants.html', {
+    return render(request, 'instructors/jobs/summary_applicants.html', {
         'loggedin_user': request.user,
         'session': session,
         'total_applicants': total_applicants,
+        'total_no_offers_applicants': len(no_offers_applicants),
         'applicants': applicants,
+        'searched_total': len(applicants),
         'next_second': request.session.get('next_second', None)
     })
 

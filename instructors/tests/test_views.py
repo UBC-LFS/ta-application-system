@@ -99,7 +99,7 @@ class InstructorTest(TestCase):
         response = self.client.get( reverse('instructors:show_applications', args=[SESSION, JOB]) )
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get( reverse('instructors:status_summary_applicants', args=[SESSION]) )
+        response = self.client.get( reverse('instructors:summary_applicants', args=[SESSION]) )
         self.assertEqual(response.status_code, 200)
 
 
@@ -658,8 +658,8 @@ class InstructorTest(TestCase):
         self.assertIsNotNone(appl.note)
         self.assertEqual(appl.note, data['note'])
 
-    def test_status_summary_applicants(self):
-        print('- Test: display a status summary of applicants')
+    def test_summary_applicants(self):
+        print('- Test: display a summary of applicants')
         self.login()
 
         next_second = '/instructors/sessions/2019-w1/jobs/apbi-200-002-introduction-to-soil-science-w1/applications/'
@@ -667,7 +667,7 @@ class InstructorTest(TestCase):
         session['next_second'] = next_second
         session.save()
 
-        response = self.client.get( reverse('instructors:status_summary_applicants', args=[SESSION]) )
+        response = self.client.get( reverse('instructors:summary_applicants', args=[SESSION]) )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, USER)
         self.assertEqual(response.context['loggedin_user'].roles, ['Instructor'])

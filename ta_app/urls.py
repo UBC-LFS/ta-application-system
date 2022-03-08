@@ -28,9 +28,11 @@ urlpatterns = [
     path('observers/', include('observers.urls')),
     path('summernote/', include('django_summernote.urls')),
     path('impersonate/', include('impersonate.urls')),
+
     path('saml/', saml_views.saml, name='saml'),
     path('attrs/', saml_views.attrs, name='attrs'),
     path('metadata/', saml_views.metadata, name='metadata'),
+
     #path('admin/', admin.site.urls)
 ]
 

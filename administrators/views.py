@@ -279,8 +279,9 @@ def show_report_applicants(request, session_slug):
 
     session = adminApi.get_session(session_slug, 'slug')
 
-    applicants = User.objects.filter( Q(profile__roles__name='Student') & Q(application__job__session__year=session.year) & Q(application__job__session__term__code=session.term.code) ).order_by('last_name', 'first_name').distinct()
+    applicants = adminApi.get_applicants_in_session(session)
     total_applicants = applicants.count()
+    #applicants = User.objects.filter( Q(profile__roles__name='Student') & Q(application__job__session__year=session.year) & Q(application__job__session__term__code=session.term.code) ).order_by('last_name', 'first_name').distinct()
 
     if bool( request.GET.get('first_name') ):
         applicants = applicants.filter(first_name__icontains=request.GET.get('first_name'))
