@@ -40,6 +40,17 @@
           </div>
 
           <div>
+            <h6>Anticipated Graduation Date:</h6>
+            <span>
+              {% if data.profile.graduation_date %}
+                {{ data.profile.graduation_date }}
+              {% else %}
+                None
+              {% endif %}
+            </span>
+          </div>
+          
+          <div>
             <h6>Most Recent Completed Degrees:</h6>
             <ul>
               {% for degree in data.profile.degrees.all %}

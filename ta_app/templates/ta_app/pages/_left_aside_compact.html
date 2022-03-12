@@ -7,8 +7,7 @@
 
     {% if view_name == 'sessions' %}
 
-      <h6>{{ data.year }} {{ data.term.name }}</h6>
-      <p class="mb-0">{{ data.term.code }}</p>
+      <h6 class="mb-0">{{ data.year }} {{ data.term.name }} ({{ data.term.code }})</h6>
 
     {% elif view_name == 'job_applications' %}
 
