@@ -295,22 +295,22 @@ def check_valid_accepted_app_or_not(app):
     return False
 
 
-def get_applicant_status(year, term_code, applicant):
-    ''' Get applicant's status '''
-
-    apps = applicant.application_set.filter( Q(job__session__year=year) & Q(job__session__term__code=term_code) )
-
-    if apps.count() > 0:
-        accepted_apps = []
-        for app in apps:
-            app.full_course_name = app.job.course.code.name + '_' + app.job.course.number.name + '_' + app.job.course.section.name
-            app = add_app_info_into_application(app, ['accepted', 'declined'])
-            if check_valid_accepted_app_or_not(app):
-                accepted_apps.append(app)
-
-        applicant.accepted_apps = accepted_apps
-
-    return applicant
+# def get_applicant_status(year, term_code, applicant):
+#     ''' Get applicant's status '''
+#
+#     apps = applicant.application_set.filter( Q(job__session__year=year) & Q(job__session__term__code=term_code) )
+#
+#     if apps.count() > 0:
+#         accepted_apps = []
+#         for app in apps:
+#             app.full_course_name = app.job.course.code.name + '_' + app.job.course.number.name + '_' + app.job.course.section.name
+#             app = add_app_info_into_application(app, ['accepted', 'declined'])
+#             if check_valid_accepted_app_or_not(app):
+#                 accepted_apps.append(app)
+#
+#         applicant.accepted_apps = accepted_apps
+#
+#     return applicant
 
 
 def get_filtered_accepted_apps(apps=None):
@@ -732,7 +732,7 @@ def get_applications_filter_limit(request, status):
         count_offered_apps = Count('applicationstatus', filter=Q(applicationstatus__assigned=ApplicationStatus.OFFERED))
         offered_apps = Application.objects.annotate(count_offered_apps=count_offered_apps).filter(count_offered_apps__gt=0)
         num_offered_apps = offered_apps.count()
-        
+
     elif status == 'accepted':
         apps = get_accepted_apps_not_terminated()
 

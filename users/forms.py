@@ -235,7 +235,7 @@ class StudentProfileForm(forms.ModelForm):
         model = Profile
         fields = [
             'preferred_name', 'qualifications','prior_employment', 'special_considerations',
-            'status', 'program', 'program_others','graduation_date', 'degrees','degree_details',
+            'status', 'program', 'program_others', 'student_year', 'graduation_date', 'degrees','degree_details',
             'trainings', 'training_details', 'lfs_ta_training', 'lfs_ta_training_details', 'ta_experience', 'ta_experience_details'
         ]
         widgets = {
@@ -245,20 +245,22 @@ class StudentProfileForm(forms.ModelForm):
         }
         labels = {
             'program_others': 'Other Program',
+            'student_year': 'Student Year',
             'prior_employment': 'Information on Prior Employment (if any)',
             'special_considerations': 'Special Considerations'
         }
         help_texts = {
             'program_others': 'Please indicate the name of your program if you select "Other" in Current Program, above.',
+            'student_year': 'What year are you in? Please select if you are a student in UBC.',
             'prior_employment': 'This is optional. Please let any current or previous employment history you feel is relevant to the position you are applying for as a TA. Include company name, position, length of employment, supervisor\'s name and contact information (phone or email). Please indicate if you do not wish us to contact any employer for a reference.',
             'special_considerations': 'This is optional. List any qualifications, experience, special considerations which may apply to this application. For example, you might list prior teaching experience, describe any special arrangements or requests for TAing with a particular instructor or for a particular course, or include a text copy of your current resume.'
         }
 
     field_order = [
-        'preferred_name', 'status', 'program', 'program_others','graduation_date',
-        'degrees','degree_details', 'trainings', 'training_details',
-        'lfs_ta_training', 'lfs_ta_training_details', 'ta_experience','ta_experience_details',
-        'qualifications','prior_employment', 'special_considerations'
+        'preferred_name', 'status', 'program', 'program_others', 'student_year', 'graduation_date',
+        'degrees', 'degree_details', 'trainings', 'training_details',
+        'lfs_ta_training', 'lfs_ta_training_details', 'ta_experience', 'ta_experience_details',
+        'qualifications', 'prior_employment', 'special_considerations'
     ]
 
 

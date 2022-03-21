@@ -43,6 +43,17 @@
 </div>
 
 <div>
+  <h6>Student Year:</h6>
+  <span>
+    {% if data.profile.student_year %}
+      {{ data.profile.student_year }}
+    {% else %}
+      None
+    {% endif %}
+  </span>
+</div>
+
+<div>
   <h6>Anticipated Graduation Date:</h6>
   <span>
     {% if data.profile.graduation_date %}

@@ -12,36 +12,56 @@
     </div>
 
     <div class="bd-callout bd-callout-warning mt-5 col-10 mx-auto">
-      <h4>Note</h4>
+      <h4>Note:</h4>
       <ul style="margin-left:-20px;">
         <li class="mb-2">{% include 'ta_app/pages/_note_accumulated_ta_hours.html' %}</li>
         <li>
           This icon <span class="btn btn-info btn-xs font-size-xs"><i class="fa fa-file-text-o" aria-hidden="true"></i></span> will appear next to the name of applicants if applicants have accepted their job offers in this term.
+        </li>
+        <li>This <span class="badge badge-success">RE</span> badge represents that applicants accept their re-assigned job offers.</li>
+        <li>
+          Please click <span class="text-info">Write</span> on the Note column (rightmost in the table above) in order to take a note.
+        </li>
+        <li>
+          Please click on the icon <span class="btn btn-info btn-xs font-size-xs"><i class="fa fa-file-text-o" aria-hidden="true"></i></span> to see a note if exists.
         </li>
       </ul>
     </div>
   </div>
 
   <div class="col-md-9">
-    <h5 class="text-info">
-      <i class="fa fa-info-circle" aria-hidden="true"></i>
-      Summary of TA hours
-    </h5>
-    <ul>
-      <li>Total Assigned TA Hours: <span class="font-weight-bold text-danger">{{ job.assigned_ta_hours }}</span> hours</li>
-      <li>Accumulated TA hours: <span class="font-weight-bold text-danger">{{ job.accumulated_ta_hours }}</span> hours</li>
-    </ul>
 
-    <h5 class="text-info">
-      <i class="fa fa-info-circle" aria-hidden="true"></i>
-      Number of Applications: {{ job.application_set.all|length }}
-    </h5>
-    <ul>
-      <li>If you would like to view a list of all applicants and their status in this term, please go to <a href="{% url 'instructors:summary_applicants' session_slug=job.session.slug %}">Summary of Applicants</a>.</li>
-    </ul>
+    <div class="bd-callout bd-callout-info">
+
+      <div class="row mb-4">
+        <div class="col-4">
+          <h5 class="text-info">
+            <i class="fa fa-info-circle" aria-hidden="true"></i>
+            Summary of TA hours
+          </h5>
+          <ul>
+            <li>Total Assigned TA Hours: <span class="font-weight-bold text-danger">{{ job.assigned_ta_hours }}</span> hours</li>
+            <li>Accumulated TA hours: <span class="font-weight-bold text-danger">{{ job.accumulated_ta_hours }}</span> hours</li>
+          </ul>
+        </div>
+        <div class="col-8">
+          <h5 class="text-info">
+            <i class="fa fa-info-circle" aria-hidden="true"></i>
+            Number of Applications: {{ job.application_set.all|length }}
+          </h5>
+          <ul>
+            <li>If you would like to view a list of all applicants and their status in this term, please go to <a href="{% url 'instructors:summary_applicants' session_slug=job.session.slug %}">Summary of Applicants</a>.</li>
+          </ul>
+        </div>
+      </div>
+
+      <hr />
+
+      {% include 'ta_app/pages/_note_current_status_program.html' %}
+    </div>
 
     <table
-      class="table table-bordered table-hover table-striped table-responsive-md text-center font-size-sm"
+      class="table table-bordered table-responsive-md text-center font-size-sm"
       data-toggle="table"
       data-sortable="true"
       data-classes=""
@@ -52,8 +72,10 @@
     >
       <thead>
         <tr>
-          <th data-sortable="true">Applicant</th>
-          <th data-sortable="true">CWL</th>
+          <th data-sortable="true">Full Name</th>
+          <th>CWL</th>
+          <th>Student <br /> Number</th>
+          <th>Curriculum <br /> Vitae (CV)</th>
           <th>Application</th>
           <th data-sortable="true">Applied at</th>
           <th>Instructor <br />Preference</th>
@@ -63,7 +85,7 @@
       </thead>
       <tbody>
         {% for app in apps %}
-          <tr>
+          <tr class="bg-{{ app.info.highlight }}">
             <td>
               {{ app.applicant.get_full_name }}
 
@@ -129,8 +151,24 @@
             </td>
             <td>
               <a href="{% url 'users:show_user' username=app.applicant.username %}?next={{ request.get_full_path }}&p=Applications&t=basic">{{ app.applicant.username }}</a>
+
+              {% if app.info.current_status %}
+                <span class="badge d-block mt-1">{{ app.info.current_status }}</span>
+              {% endif %}
             </td>
-            <td>{% include 'ta_app/applications/_modal_app_details.html' with data=app pin_display='False' %}</td>
+            <td>{{ app.applicant.profile.student_number }}</td>
+            <td>
+              {% include 'ta_app/users/_modal_degree_details.html' with data=app.applicant %}
+
+              {% if app.applicant.resume_filename %}
+                <a class="d-block mt-2" href="{% url 'students:download_file' username=app.applicant.username item='resume' filename=app.applicant.resume_filename %}" target="_blank">
+                  Resume
+                </a>
+              {% endif %}
+            </td>
+            <td>
+              {% include 'ta_app/applications/_modal_app_details.html' with data=app pin_display='False' %}
+            </td>
             <td>
               <span class="d-none">{{ app.created_at|date:"Y m d z" }}</span>
               {{ app.created_at }}
@@ -236,23 +274,6 @@
         {% endfor %}
       </tbody>
     </table>
-
-    <div class="mt-3 font-size-sm">
-      <span class="font-weight-bold">Note: </span>
-      <ul>
-        <li>
-          Please click
-          <span class="text-info">Write</span>
-          on the Note column (rightmost in the table above) in order to take a note
-        </li>
-        <li>
-          Please click on the icon
-          <span class="btn btn-info btn-xs font-size-xs"><i class="fa fa-file-text-o" aria-hidden="true"></i></span>
-          to see a note if exists
-        </li>
-        <li>This <span class="badge badge-success">RE</span> badge represents that applicants accept their re-assigned job offers.</li>
-      </ul>
-    </div>
 
   </div>
 </div>

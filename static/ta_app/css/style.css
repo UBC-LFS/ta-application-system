@@ -566,6 +566,15 @@ hr.dotted {
   background-color: #D2691E;
 }
 
+.bg-lfs-graduate {
+  background-color: #FFF8E1;
+}
+
+.bg-undergraduate {
+  background-color: rgba(0, 0, 0, .05);
+}
+
+
 #impersonate-card {
   position: fixed;
   bottom: 20px;

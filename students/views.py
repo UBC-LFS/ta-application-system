@@ -118,6 +118,8 @@ def edit_profile(request):
 
         return redirect('students:edit_profile')
 
+    print('here')    
+
     return render(request, 'students/profile/edit_profile.html', {
         'loggedin_user': userApi.add_avatar(loggedin_user),
         'form': StudentProfileForm(data=None, instance=loggedin_user.profile, initial={

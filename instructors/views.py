@@ -265,7 +265,19 @@ def show_applications(request, session_slug, job_slug):
             if selected.exists():
                 app.selected = selected.last()
 
-            app.applicant = adminApi.get_applicant_status(app.job.session.year, app.job.session.term.code, app.applicant)
+            #app.applicant = adminApi.get_applicant_status(app.job.session.year, app.job.session.term.code, app.applicant)
+            temp_apps = app.applicant.application_set.filter( Q(job__session__year=app.job.session.year) & Q(job__session__term__code=app.job.session.term.code) )
+            if temp_apps.count() > 0:
+                accepted_apps = []
+                for temp_app in temp_apps:
+                    temp_app.full_course_name = temp_app.job.course.code.name + '_' + temp_app.job.course.number.name + '_' + temp_app.job.course.section.name
+                    temp_app = adminApi.add_app_info_into_application(temp_app, ['accepted', 'declined'])
+                    if adminApi.check_valid_accepted_app_or_not(temp_app):
+                        accepted_apps.append(temp_app)
+
+                app.applicant.accepted_apps = accepted_apps
+                app.applicant = userApi.add_resume(app.applicant)
+                app.info = userApi.get_applicant_status_program(app.applicant)
 
     return render(request, 'instructors/jobs/show_applications.html', {
         'loggedin_user': request.user,
@@ -326,6 +338,7 @@ def summary_applicants(request, session_slug):
 
     for applicant in applicants:
         applicant = userApi.add_resume(applicant)
+        applicant.info = userApi.get_applicant_status_program(applicant)
 
         apps = applicant.application_set.filter( Q(job__session__year=session.year) & Q(job__session__term__code=session.term.code) )
         applicant.apps = []

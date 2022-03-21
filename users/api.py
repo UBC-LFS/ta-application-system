@@ -404,6 +404,37 @@ def trim_profile(user):
     return False
 
 
+def get_applicant_status_program(applicant):
+    ''' Get current status and a program of an applicant '''
+
+    programs = get_programs()
+    valid_programs = [ program.slug for program in programs if program.slug.find('master-of') > -1 or program.slug.find('doctor-of-philosophy') > -1 ]
+
+    highlight = ''
+    current_status = ''
+
+    if applicant.profile.status != None and applicant.profile.program != None:
+        if applicant.profile.status.slug == 'undergraduate-student':
+            highlight = 'undergraduate'
+            current_status = 'BSc'
+        elif applicant.profile.status.slug == 'master-student':
+            current_status = 'MSc'
+            if applicant.profile.program.slug in valid_programs:
+                highlight = 'lfs-graduate'
+
+        elif applicant.profile.status.slug == 'phd-student':
+            current_status = 'PhD'
+            if applicant.profile.program.slug in valid_programs:
+                highlight = 'lfs-graduate'
+
+        if len(current_status) > 0 and applicant.profile.student_year != None:
+            current_status += '.' + applicant.profile.student_year
+
+    return {
+        'highlight': highlight,
+        'current_status': current_status
+    }
+
 # end profile
 
 

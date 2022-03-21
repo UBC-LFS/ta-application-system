@@ -118,7 +118,7 @@ class Confidentiality(models.Model):
 
     personal_data_form: no longer available
      '''
-     
+
     NATIONALITY_CHOICES = [
         ('0', 'Domestic Student'),
         ('1', 'International Student')
@@ -252,11 +252,22 @@ class Profile(models.Model):
         null=True,
         blank=True
     )
+
     program_others = models.TextField(
         null=True,
         blank=True
     )
-    graduation_date = models.DateField(null=True, blank=True)
+
+    STUDENT_YEAR_CHOICES = [
+        ('1', '1'), ('2', '2'), ('3', '3'), ('4', '4'), ('5', '5'), ('6', '6'),
+        ('7', '7'), ('8', '8'), ('9', '9'), ('10', '10'), ('11', '11'), ('12', '12')
+    ]
+    student_year = models.CharField(max_length=1, choices=STUDENT_YEAR_CHOICES, null=True, blank=True)
+
+    graduation_date = models.DateField(
+        null=True,
+        blank=True
+    )
 
     degrees = models.ManyToManyField(Degree)
 
