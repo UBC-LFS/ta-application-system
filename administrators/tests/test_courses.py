@@ -96,6 +96,94 @@ class CourseTest(TestCase):
         self.assertRedirects(response, response.url)
         self.assertEqual(response.url, reverse('administrators:create_course'))
 
+
+    def test_create_course2(self):
+        print('- Test: Create a course 2')
+        self.login()
+
+        total_courses = len(adminApi.get_courses())
+
+        data = {
+            'code': '2',
+            'number': '1',
+            'section': '23',
+            'name': 'new course',
+            'term': '2',
+            'overview': 'overview',
+            'job_description': 'description',
+            'job_note': 'note'
+        }
+        response = self.client.post( reverse('administrators:create_course'), data=urlencode(data), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+        self.assertEqual(response.url, reverse('administrators:all_courses'))
+
+        response = self.client.get(reverse('administrators:all_courses'))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['loggedin_user'].username, USERS[0])
+        self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
+        self.assertEqual( len(response.context['courses']), settings.PAGE_SIZE )
+
+        courses = adminApi.get_courses()
+        self.assertEqual( len(courses), total_courses + 1 )
+
+        latest_course = courses.last()
+        self.assertEqual(latest_course.code.name, 'FNH')
+        self.assertEqual(latest_course.number.name, '100')
+        self.assertEqual(latest_course.section.name, '001 & 002')
+        self.assertEqual(latest_course.slug, 'fnh-100-001-002-new-course-w1')
+
+        # Create a session to check this course
+
+        data2 = {
+            'year': '2020',
+            'term': '2',
+            'title': 'New TA Application',
+            'description': 'new description',
+            'note': 'new note'
+        }
+        total_sessions = len( adminApi.get_sessions() )
+        sessions = adminApi.get_sessions_by_year(data2['year'])
+        self.assertEqual( sessions.count(), 0 )
+
+        response = self.client.post(reverse('administrators:create_session'), data=urlencode(data2), content_type=ContentType)
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+        response = self.client.get(response.url)
+        self.assertEqual( len(response.context['error_messages']), 0)
+        session = self.client.session
+        self.assertEqual(session['session_form_data'], data2)
+        self.assertEqual(response.context['courses'].count(), 105)
+
+        data2['courses'] = [ str(course.id) for course in response.context['courses'] ]
+        data2['is_visible'] = False
+        data2['is_archived'] = False
+        response = self.client.post(reverse('administrators:create_session_confirmation'), data=urlencode(data2, True), content_type=ContentType)
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+        sessions = adminApi.get_sessions_by_year(data2['year'])
+        self.assertEqual( sessions.count(), 1 )
+        self.assertEqual( len(adminApi.get_sessions()), total_sessions + 1 )
+        self.assertEqual(sessions[0].year, data2['year'])
+        self.assertEqual(sessions[0].term.code, 'W1')
+        self.assertEqual(sessions[0].term.name, 'Winter Term 1')
+        self.assertEqual(sessions[0].title, data2['title'])
+        self.assertEqual(sessions[0].description, data2['description'])
+        self.assertEqual(sessions[0].is_visible, data2['is_visible'])
+        self.assertEqual(sessions[0].is_archived, data2['is_archived'])
+        self.assertEqual(sessions[0].job_set.count(), 105)
+
+        job = sessions[0].job_set.filter(course__slug=latest_course.slug)
+        self.assertTrue(job.exists())
+        self.assertEqual(job.count(), 1)
+
+
     def test_edit_course(self):
         print('- Test: Edit a course')
         self.login()

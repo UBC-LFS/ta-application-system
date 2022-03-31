@@ -3,6 +3,7 @@ from django.urls import reverse
 from django.contrib.auth.models import User
 from django.contrib.messages import get_messages
 from urllib.parse import urlencode
+from django.core import mail
 
 from administrators.models import *
 from users.models import *
@@ -99,7 +100,7 @@ class InstructorTest(TestCase):
         response = self.client.get( reverse('instructors:show_applications', args=[SESSION, JOB]) )
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get( reverse('instructors:summary_applicants', args=[SESSION]) )
+        response = self.client.get( reverse('instructors:summary_applicants', args=[SESSION, JOB]) )
         self.assertEqual(response.status_code, 200)
 
 
@@ -608,12 +609,9 @@ class InstructorTest(TestCase):
         app = adminApi.get_application(APP, 'slug')
         self.assertIsNone(app.note)
 
-        next_second = '/instructors/sessions/2019-w1/jobs/apbi-200-002-introduction-to-soil-science-w1/applications/'
-        session = self.client.session
-        session['next_second'] = next_second
-        session.save()
+        next = '/instructors/sessions/2019-w1/jobs/apbi-200-002-introduction-to-soil-science-w1/applications/'
 
-        response = self.client.get(reverse('instructors:write_note', args=[APP]))
+        response = self.client.get(reverse('instructors:write_note', args=[APP]) + '?next=' + next)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, USER)
         self.assertEqual(response.context['loggedin_user'].roles, ['Instructor'])
@@ -621,13 +619,28 @@ class InstructorTest(TestCase):
         self.assertFalse(response.context['form'].is_bound)
         self.assertEqual(response.context['form'].instance, response.context['app'])
         self.assertEqual(response.context['app_status'], {'none': '0', 'applied': '0', 'selected': '1', 'offered': '2', 'accepted': '3', 'declined': '4', 'cancelled': '5'})
-        self.assertEqual(response.context['next_second'], next_second)
+        self.assertEqual(response.context['next'], next)
+
+        next1 = '?next=/instructors/sessions/2019-w11/jobs/apbi-200-002-introduction-to-soil-science-w1/applications/'
+        next2 = '?next=/instructors/sessions/2019-w1/jobs/apbi-200-009-introduction-to-soil-science-w1/applications/'
+        next3 = '?next=/instructors/sessions/2019-w1/jobs/apbi-200-002-introduction-to-soil-science-w1/applicationsss/'
+        next4 = '?/instructors/sessions/2019-w1/jobs/apbi-200-002-introduction-to-soil-science-w1/applications/'
+
+        response1 = self.client.get( reverse('instructors:write_note', args=[APP]) + next1 )
+        self.assertEqual(response1.status_code, 404)
+        response2 = self.client.get( reverse('instructors:write_note', args=[APP]) + next2 )
+        self.assertEqual(response2.status_code, 404)
+        response3 = self.client.get( reverse('instructors:write_note', args=[APP]) + next3 )
+        self.assertEqual(response3.status_code, 404)
+        response4 = self.client.get( reverse('instructors:write_note', args=[APP]) + next4 )
+        self.assertEqual(response4.status_code, 404)
+
 
         data = {
             'note': 'new note',
-            'next_second': next_second
+            'next': next
         }
-        response = self.client.post( reverse('instructors:write_note', args=[APP]), data=urlencode(data), content_type=ContentType )
+        response = self.client.post( reverse('instructors:write_note', args=[APP]) + '?next=' + next, data=urlencode(data), content_type=ContentType )
         messages = self.messages(response)
         self.assertTrue('Success' in messages[0])
         self.assertEqual(response.status_code, 302)
@@ -667,10 +680,11 @@ class InstructorTest(TestCase):
         session['next_second'] = next_second
         session.save()
 
-        response = self.client.get( reverse('instructors:summary_applicants', args=[SESSION]) )
+        response = self.client.get( reverse('instructors:summary_applicants', args=[SESSION, JOB]) )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, USER)
         self.assertEqual(response.context['loggedin_user'].roles, ['Instructor'])
+
         session = response.context['session']
         self.assertEqual(session.year, '2019')
         self.assertEqual(session.term.code, 'W1')
@@ -679,8 +693,248 @@ class InstructorTest(TestCase):
         self.assertEqual(response.context['next_second'], next_second)
         applicants = response.context['applicants']
 
-        applicant_list = ['user100.test', 'user65.test', 'user66.test', 'user70.test', 'user80.test']
+        applicant_list = [
+            {
+                'username': 'user100.test',
+                'no_offers': False,
+                'is_sent_alertemail': False,
+                'has_applied': True
+            },
+            {
+                'username': 'user65.test',
+                'no_offers': False,
+                'is_sent_alertemail': False,
+                'has_applied': False
+            },
+            {
+                'username': 'user66.test',
+                'no_offers': False,
+                'is_sent_alertemail': False,
+                'has_applied': True
+            },
+            {
+                'username': 'user70.test',
+                'no_offers': False,
+                'is_sent_alertemail': False,
+                'has_applied': True
+            },
+            {
+                'username': 'user80.test',
+                'no_offers': True,
+                'is_sent_alertemail': False,
+                'has_applied': True
+            }
+        ]
+
         c = 0
         for applicant in applicants:
-            self.assertEqual(applicant.username, applicant_list[c])
+            self.assertEqual(applicant.username, applicant_list[c]['username'])
+            self.assertEqual(applicant.no_offers, applicant_list[c]['no_offers'])
+            self.assertEqual(applicant.is_sent_alertemail, applicant_list[c]['is_sent_alertemail'])
+            self.assertEqual(applicant.has_applied, applicant_list[c]['has_applied'])
+            c += 1
+
+        del self.client.session['next_second']
+
+
+    def test_summary_applicants2(self):
+        print('- Test: display a summary of applicants 2')
+
+        CURRENT_USER = 'user22.ins'
+        CURRENT_JOB = 'apbi-265-001-sustainable-agriculture-and-food-systems-w1'
+
+        self.login(CURRENT_USER, PASSWORD)
+
+        next_second = '/instructors/sessions/2019-w1/jobs/apbi-265-001-sustainable-agriculture-and-food-systems-w1/applicants/'
+
+        session = self.client.session
+        session['next_second'] = next_second
+        session.save()
+
+        response = self.client.get( reverse('instructors:summary_applicants', args=[SESSION, CURRENT_JOB]) )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['loggedin_user'].username, CURRENT_USER)
+        self.assertEqual(response.context['loggedin_user'].roles, ['Instructor'])
+
+        session = response.context['session']
+        self.assertEqual(session.year, '2019')
+        self.assertEqual(session.term.code, 'W1')
+        self.assertEqual(session.slug, SESSION)
+        self.assertEqual(response.context['total_applicants'], 5)
+        self.assertEqual(response.context['next_second'], next_second)
+        applicants = response.context['applicants']
+
+
+        applicant_list = [
+            {
+                'username': 'user100.test',
+                'no_offers': False,
+                'is_sent_alertemail': False,
+                'has_applied': False
+            },
+            {
+                'username': 'user65.test',
+                'no_offers': False,
+                'is_sent_alertemail': False,
+                'has_applied': True
+            },
+            {
+                'username': 'user66.test',
+                'no_offers': False,
+                'is_sent_alertemail': True,
+                'has_applied': False
+            },
+            {
+                'username': 'user70.test',
+                'no_offers': False,
+                'is_sent_alertemail': True,
+                'has_applied': False
+            },
+            {
+                'username': 'user80.test',
+                'no_offers': True,
+                'is_sent_alertemail': False,
+                'has_applied': False
+            }
+        ]
+
+        c = 0
+        for applicant in applicants:
+            self.assertEqual(applicant.username, applicant_list[c]['username'])
+            self.assertEqual(applicant.no_offers, applicant_list[c]['no_offers'])
+            self.assertEqual(applicant.is_sent_alertemail, applicant_list[c]['is_sent_alertemail'])
+            self.assertEqual(applicant.has_applied, applicant_list[c]['has_applied'])
+            c += 1
+
+        del self.client.session['next_second']
+
+
+    def test_send_email_to_students(self):
+        print('- Test: send an email to students')
+
+        CURRENT_USER = 'user22.ins'
+        CURRENT_JOB = 'apbi-265-001-sustainable-agriculture-and-food-systems-w1'
+        CURRENT_NEXT = '/instructors/sessions/2019-w1/jobs/' + CURRENT_JOB + '/applicants/summary-applicants/'
+
+        self.login(CURRENT_USER, PASSWORD)
+
+        curr_alertemails = userApi.get_alertemails()
+        self.assertEqual( len(curr_alertemails), 3 )
+
+        # empty applicants
+        data1 = {
+            'applicant': [],
+            'next': CURRENT_NEXT
+        }
+
+        response = self.client.post(reverse('instructors:applicants_send_email') + '?next=' + CURRENT_NEXT, data=urlencode(data1, True), content_type=ContentType)
+        messages = self.messages(response)
+        self.assertEqual(messages[0], 'An error occurred. Please select applicants, then try again.')
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+        data2 = {
+            'applicant': ['100', '80'],
+            'session_slug': SESSION,
+            'job_slug': CURRENT_JOB,
+            'next': CURRENT_NEXT
+        }
+
+        response = self.client.post(reverse('instructors:applicants_send_email') + '?next=' + CURRENT_NEXT, data=urlencode(data2, True), content_type=ContentType)
+        messages = self.messages(response)
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+        self.assertEqual(response.url, reverse('instructors:applicants_send_email_confirmation') + '?next=' + CURRENT_NEXT)
+
+        response = self.client.get(response.url)
+        session = self.client.session
+        self.assertEqual(session['applicants_form_data']['applicants'], data2['applicant'])
+        self.assertEqual(session['applicants_form_data']['session_slug'], SESSION)
+        self.assertEqual(session['applicants_form_data']['job_slug'], CURRENT_JOB)
+
+        next1 = '?next=/instructors/sessions/2019-w11/jobs/apbi-200-002-introduction-to-soil-science-w1/applicants/summary-applicants/'
+        next2 = '?next=/instructors/sessions/2019-w1/jobs/apbi-200-009-introduction-to-soil-science-w1/applicants/summary-applicants/'
+        next3 = '?next=/instructors/sessions/2019-w1/jobs/apbi-200-002-introduction-to-soil-science-w1/applicantsss/summary-applicants/'
+        next4 = '?nex=//instructors/sessions/2019-w1/jobs/apbi-200-002-introduction-to-soil-science-w1/applicants/summary-applicantssss/'
+        next5 = '?/instructors/sessions/2019-w1/jobs/apbi-200-002-introduction-to-soil-science-w1/applicants/summary-applicants/'
+
+        response1 = self.client.get( reverse('instructors:applicants_send_email_confirmation') + next1 )
+        self.assertEqual(response1.status_code, 404)
+        response2 = self.client.get( reverse('instructors:applicants_send_email_confirmation') + next2 )
+        self.assertEqual(response2.status_code, 404)
+        response3 = self.client.get( reverse('instructors:applicants_send_email_confirmation') + next3 )
+        self.assertEqual(response3.status_code, 404)
+        response4 = self.client.get( reverse('instructors:applicants_send_email_confirmation') + next4 )
+        self.assertEqual(response4.status_code, 404)
+        response5 = self.client.get( reverse('instructors:applicants_send_email_confirmation') + next5 )
+        self.assertEqual(response5.status_code, 404)
+
+        applicant_ids = []
+        user_emails = []
+        for applicant in response.context['applicants']:
+            applicant_ids.append( str(applicant.id) )
+            user_emails.append(applicant.email)
+
+        self.assertEqual(len(response.context['applicants']), len(data2['applicant']))
+        self.assertEqual(response.context['sender'], settings.EMAIL_FROM)
+        self.assertEqual(response.context['receiver'], ['user100.test@example.com', 'user80.test@example.com'])
+        self.assertEqual(applicant_ids, data2['applicant'])
+        self.assertEqual(response.context['email_form']['title'], 'Please contact {0} to explore potential TA role')
+        self.assertEqual(response.context['email_form']['message'], '<div>\n        <p>Hello {5},</p>\n        <p>{0} {1} would like to discuss the possibility of a TA role with you, for {4} in {3}. Please email this instructor if you are interested:</p>\n        <ul>\n            <li>Full Name: {0} {1}</li>\n            <li>Email: {2}</li>\n        </ul>\n        <p><strong>Please do not reply directly to this email.</strong></p>\n        <p>Best regards,</p>\n        <p>LFS TA Application System</p>\n        </div>')
+        self.assertEqual(response.context['sample_email']['title'], 'Please contact User22 to explore potential TA role')
+        self.assertEqual(response.context['sample_email']['message'],  '<div>\n        <p>Hello User100 Test,</p>\n        <p>User22 Ins would like to discuss the possibility of a TA role with you, for APBI 265 001 in 2019 W1. Please email this instructor if you are interested:</p>\n        <ul>\n            <li>Full Name: User22 Ins</li>\n            <li>Email: user22.ins@example.com</li>\n        </ul>\n        <p><strong>Please do not reply directly to this email.</strong></p>\n        <p>Best regards,</p>\n        <p>LFS TA Application System</p>\n        </div>')
+
+        self.assertEqual(response.context['next'], CURRENT_NEXT)
+
+        data3 = {
+            'next': CURRENT_NEXT
+        }
+        response = self.client.post(reverse('instructors:applicants_send_email_confirmation') + '?next=' + CURRENT_NEXT, data=urlencode(data3, True), content_type=ContentType)
+        messages = self.messages(response)
+        self.assertEqual(messages[0], 'Success! Email has been sent to user100.test@example.com, user80.test@example.com')
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+        self.assertEqual(len(mail.outbox), 2)
+        self.assertEqual( len(userApi.get_alertemails()), len(curr_alertemails) + len(user_emails) )
+
+
+    def test_email_history(self):
+        print('- Test: Display all of alert email sent to students')
+
+        CURRENT_USER = 'user22.ins'
+        self.login(CURRENT_USER, PASSWORD)
+
+        response = self.client.get(reverse('instructors:show_email_history'))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['loggedin_user'].username, CURRENT_USER)
+        self.assertEqual(response.context['loggedin_user'].roles, ['Instructor'])
+        self.assertEqual( len(response.context['emails']), 3 )
+
+        expect = [
+            {
+                'year': '2019',
+                'term': 'W1',
+                'job': 'APBI 428 99C',
+                'receiver': 'User66 Test <user66.test@example.com>'
+            },
+            {
+                'year': '2019',
+                'term': 'W1',
+                'job': 'APBI 265 001',
+                'receiver': 'User70 Test <user70.test@example.com>'
+            },
+            {
+                'year': '2019',
+                'term': 'W1',
+                'job': 'APBI 265 001',
+                'receiver': 'User66 Test <user66.test@example.com>'
+            }
+        ]
+        c = 0
+        for email in response.context['emails']:
+            self.assertEqual(email.year, expect[c]['year'])
+            self.assertEqual(email.term, expect[c]['term'])
+            self.assertEqual("{0} {1} {2}".format(email.job_code, email.job_number, email.job_section), expect[c]['job'])
+            self.assertEqual(email.receiver, expect[c]['receiver'])
             c += 1

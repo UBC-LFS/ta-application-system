@@ -101,7 +101,6 @@ class JobTest(TestCase):
         self.assertEqual(response.context['job'].course.slug, JOB)
 
 
-
     def test_prepare_jobs(self):
         print('- Test: display all prepare jobs')
         self.login()
@@ -112,6 +111,7 @@ class JobTest(TestCase):
         self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
         self.assertEqual( len(response.context['jobs']), settings.PAGE_SIZE )
         self.assertEqual( len(adminApi.get_jobs()), 450 )
+
 
     def test_edit_job(self):
         print('- Test: edit a job')

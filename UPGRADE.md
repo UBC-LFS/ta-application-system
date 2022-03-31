@@ -2,9 +2,15 @@
 
 ### History
 
-_2022-03-08_
-* Modified a summary of applicants on the Instructor's side.
+_2022-03-31_
+Updated a **Summary of Applicants** page on the Instructor's side
 - A **No offers** search option has been added, and CV information and resume has been placed in the data table.
+- Instructors can select multiple applicants to send alert emails
+
+On the Student's side, added a alert message to remind students to enter **Student Year** **Previous TA Experience** in March and April
+- **Student Year** is a new field in the Profile
+- If students click on the Read button, this pop-up window won't show up this year
+
 
 _2021-10-05_
 

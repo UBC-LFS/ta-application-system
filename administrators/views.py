@@ -37,7 +37,6 @@ APP_STATUS = {
 }
 
 
-
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
@@ -2281,12 +2280,13 @@ def terms(request):
             term = form.save()
             if term:
                 messages.success(request, 'Success! {0} ({1}) created'.format(term.name, term.code))
-                return redirect('administrators:terms')
             else:
-                messages.error(request, 'An error occurred.')
+                messages.error(request, 'An error occurred while saving data.')
         else:
             errors = form.errors.get_json_data()
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+
+        return redirect('administrators:terms')
 
     return render(request, 'administrators/preparation/terms.html', {
         'loggedin_user': request.user,
@@ -2344,12 +2344,13 @@ def course_codes(request):
             course_code = form.save()
             if course_code:
                 messages.success(request, 'Success! {0} created'.format(course_code.name))
-                return redirect('administrators:course_codes')
             else:
-                messages.error(request, 'An error occurred.')
+                messages.error(request, 'An error occurred while saving data.')
         else:
             errors = form.errors.get_json_data()
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+
+        return redirect('administrators:course_codes')
 
     return render(request, 'administrators/preparation/course_codes.html', {
         'loggedin_user': request.user,
@@ -2410,12 +2411,13 @@ def course_numbers(request):
             course_number = form.save()
             if course_number:
                 messages.success(request, 'Success! {0} created'.format(course_number.name))
-                return redirect('administrators:course_numbers')
             else:
-                messages.error(request, 'An error occurred.')
+                messages.error(request, 'An error occurred while saving data.')
         else:
             errors = form.errors.get_json_data()
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+
+        return redirect('administrators:course_numbers')
 
     return render(request, 'administrators/preparation/course_numbers.html', {
         'loggedin_user': request.user,
@@ -2476,12 +2478,13 @@ def course_sections(request):
             course_section = form.save()
             if course_section:
                 messages.success(request, 'Success! {0} created'.format(course_section.name))
-                return redirect('administrators:course_sections')
             else:
-                messages.error(request, 'An error occurred.')
+                messages.error(request, 'An error occurred while saving data.')
         else:
             errors = form.errors.get_json_data()
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+
+        return redirect('administrators:course_sections')
 
     return render(request, 'administrators/preparation/course_sections.html', {
         'loggedin_user': request.user,
@@ -2541,12 +2544,13 @@ def roles(request):
             role = form.save()
             if role:
                 messages.success(request, 'Success! {0} created'.format(role.name))
-                return redirect('administrators:roles')
             else:
-                messages.error(request, 'An error occurred.')
+                messages.error(request, 'An error occurred while saving data.')
         else:
             errors = form.errors.get_json_data()
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+
+        return redirect('administrators:roles')
 
     return render(request, 'administrators/preparation/roles.html', {
         'loggedin_user': request.user,
@@ -2607,12 +2611,13 @@ def statuses(request):
             status = form.save()
             if status:
                 messages.success(request, 'Success! {0} created'.format(status.name))
-                return redirect('administrators:statuses')
             else:
-                messages.error(request, 'An error occurred.')
+                messages.error(request, 'An error occurred while saving data.')
         else:
             errors = form.errors.get_json_data()
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+
+        return redirect('administrators:statuses')
 
     return render(request, 'administrators/preparation/statuses.html', {
         'loggedin_user': request.user,
@@ -2674,12 +2679,13 @@ def programs(request):
             program = form.save()
             if program:
                 messages.success(request, 'Success! {0} created'.format(program.name))
-                return redirect('administrators:programs')
             else:
-                messages.error(request, 'An error occurred.')
+                messages.error(request, 'An error occurred while saving data.')
         else:
             errors = form.errors.get_json_data()
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+
+        return redirect('administrators:programs')
 
     return render(request, 'administrators/preparation/programs.html', {
         'loggedin_user': request.user,
@@ -2741,7 +2747,7 @@ def degrees(request):
             if degree:
                 messages.success(request, 'Success! {0} created'.format(degree.name))
             else:
-                messages.error(request, 'An error occurred.')
+                messages.error(request, 'An error occurred while saving data.')
         else:
             errors = form.errors.get_json_data()
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
@@ -2808,12 +2814,13 @@ def trainings(request):
             training = form.save()
             if training:
                 messages.success(request, 'Success! {0} created'.format(training.name))
-                return redirect('administrators:trainings')
             else:
-                messages.error(request, 'An error occurred.')
+                messages.error(request, 'An error occurred while saving data.')
         else:
             errors = form.errors.get_json_data()
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+
+        return redirect('administrators:trainings')
 
     return render(request, 'administrators/preparation/trainings.html', {
         'loggedin_user': request.user,
@@ -2875,12 +2882,13 @@ def classifications(request):
             classification = form.save()
             if classification:
                 messages.success(request, 'Success! {0} {1} created'.format(classification.year, classification.name))
-                return redirect('administrators:classifications')
             else:
-                messages.error(request, 'An error occurred.')
+                messages.error(request, 'An error occurred while saving data.')
         else:
             errors = form.errors.get_json_data()
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+
+        return redirect('administrators:classifications')
 
     return render(request, 'administrators/preparation/classifications.html', {
         'loggedin_user': request.user,
@@ -2942,12 +2950,13 @@ def roles(request):
             role = form.save()
             if role:
                 messages.success(request, 'Success! {0} created'.format(role.name))
-                return redirect('administrators:roles')
             else:
-                messages.error(request, 'An error occurred.')
+                messages.error(request, 'An error occurred while saving data.')
         else:
             errors = form.errors.get_json_data()
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+
+        return redirect('administrators:roles')
 
     return render(request, 'administrators/hr/roles.html', {
         'loggedin_user': request.user,
@@ -3006,12 +3015,13 @@ def admin_emails(request):
             admin_email = form.save()
             if admin_email:
                 messages.success(request, 'Success! {0} created'.format(admin_email.type))
-                return redirect('administrators:admin_emails')
             else:
-                messages.error(request, 'An error occurred.')
+                messages.error(request, 'An error occurred while saving data.')
         else:
             errors = form.errors.get_json_data()
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+
+        return redirect('administrators:admin_emails')
 
     return render(request, 'administrators/preparation/admin_emails.html', {
         'loggedin_user': request.user,
@@ -3079,12 +3089,13 @@ def landing_pages(request):
             landing_page = form.save()
             if landing_page:
                 messages.success(request, 'Success! New landing Page (ID: {0}) created.'.format(landing_page.id))
-                return redirect('administrators:landing_pages')
             else:
-                messages.error(request, 'An error occurred.')
+                messages.error(request, 'An error occurred while saving data.')
         else:
             errors = form.errors.get_json_data()
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+
+        return redirect('administrators:landing_pages')
 
     return render(request, 'administrators/preparation/landing_pages.html', {
         'loggedin_user': request.user,

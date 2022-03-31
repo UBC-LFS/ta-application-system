@@ -1,23 +1,26 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
 
-{% include 'administrators/_menu.html' %}
+{% include 'instructors/_menu.html' %}
 <div>
   {% include 'ta_app/pages/_header.html' with title='Email History' text=emails|length %}
 
   <div class="row">
-    <div class="col-md-6">
+    <div class="col-md-12">
       <div class="search-field bg-light-gray p-3 font-size-sm">
         <form method="GET">
-          <input type="text" name="receiver" value="{{ request.GET.receiver }}" placeholder="Receiver" /> and
-          <input type="text" name="title" value="{{ request.GET.title }}" placeholder="Title" /> <br />
-          <input type="text" name="message" value="{{ request.GET.message }}" placeholder="Message" /> and
-          <input type="text" name="type" value="{{ request.GET.type }}" placeholder="Type" /> <br />
-          No response: <input type="checkbox" name="no_response" value="True" {% if request.GET.no_response %}checked{% endif %} />
+          <input type="text" name="year" value="{{ request.GET.year }}" placeholder="Year" /> and
+          <input type="text" name="term" value="{{ request.GET.term }}" placeholder="Term" /> <br />
+          <input type="text" name="code" value="{{ request.GET.code }}" placeholder="Job Code" /> and
+          <input type="text" name="number" value="{{ request.GET.number }}" placeholder="Job Number" /> and
+          <input type="text" name="section" value="{{ request.GET.section }}" placeholder="Job Section" /> <br />
+
+          <input type="text" name="receiver_name" value="{{ request.GET.receiver_name }}" placeholder="Receiver Name" /> and
+          <input type="text" name="receiver_email" value="{{ request.GET.receiver_email }}" placeholder="Receiver Email" />
 
           <div class="mt-1">
             <button class="btn btn-sm btn-secondary" type="submit">Search</button>
-            <a class="btn btn-sm btn-light" href="{% url 'administrators:email_history' %}">Clear</a>
+            <a class="btn btn-sm btn-light" href="{% url 'instructors:show_email_history' %}">Clear</a>
           </div>
         </form>
       </div>
@@ -25,45 +28,31 @@
         {{ total }} result{% if total > 1 %}s {% endif %} found. {{ emails|length }} row{% if emails|length > 1 %}s {% endif %} in this page.
       </div>
     </div>
-
-    <div class="col-md-6">
-      <div class="bg-light-gray p-4" style="height:168.6px">
-        <h5>Note:</h5>
-        <ul class="font-size-sm">
-          <li>
-            {% include 'ta_app/applications/_no_response_note.html' %}
-          </li>
-        </ul>
-      </div>
-    </div>
   </div>
 
   <table
-    class="table table-bordered table-hover table-striped table-responsive-md text-center"
+    class="table table-bordered table-hover table-striped table-responsive-md text-center mt-5"
     data-toggle="table"
     data-sortable="true"
     data-classes=""
-    data-show-export="true"
-    data-show-columns="true"
-    data-export-types="['csv']"
   >
     <thead>
       <tr>
-        <th data-sortable="true">Email<br /> ID</th>
+        <th data-sortable="true">Year</th>
+        <th data-sortable="true">Term</th>
+        <th data-sortable="true">Course/Job</th>
         <th data-sortable="true">Sender</th>
         <th data-sortable="true">Receiver</th>
-        <th data-sortable="true">Email</th>
-        <th data-sortable="true">Type</th>
-        <th data-sortable="true">Application<br /> ID</th>
-        <th>Application<br /> Status</th>
+        <th>Email</th>
         <th data-sortable="true">Created at</th>
-        <th>Actions</th>
       </tr>
     </thead>
     <tbody>
       {% for email in emails %}
         <tr>
-          <td>{{ email.id }}</td>
+          <td>{{ email.year }}</td>
+          <td>{{ email.term }}</td>
+          <td>{{ email.job_code }} {{ email.job_number }} {{ email.job_section }}</td>
           <td>{{ email.sender }}</td>
           <td>{{ email.receiver }}</td>
           <td>
@@ -74,10 +63,10 @@
             	<div class="modal-dialog modal-lg" role="document">
             	  <div class="modal-content">
               		<div class="modal-header">
-              		  <h5 class="modal-title text-info" id="email-modal-label-{{ email.id }}">Sent an email to {{ email.receiver }}</h5>
+              		  <h5 class="modal-title text-info" id="email-modal-label-{{ email.id }}">Sent an email</h5>
               		  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
               		</div>
-              		<div class="modal-body text-left">
+              		<div class="modal-body text-left font-size-1">
                     <section class="line-height-2">
                       <div>
                         <span class="font-weight-bold">Sender:</span>
@@ -92,7 +81,7 @@
                     <hr />
 
                     <section>
-                      <h5 class="text-dark-gray mb-3">{{ email.title }}</h5>
+                      <div class="mb-3"><u><span class="font-weight-bold">Title:</span> {{ email.title }}</u></div>
                       <p>{{ email.message|safe }}</p>
                     </section>
               		</div>
@@ -100,25 +89,9 @@
             	</div>
           	</div>
           </td>
-          <td>{{ email.type }}</td>
-          <td>
-            <a class="btn btn-xs btn-info" href="{% url 'administrators:show_application' app_slug=email.application.slug %}?next={{ new_next }}&p=Email History">
-              {{ email.application.id }}
-            </a>
-          </td>
-          <td>
-            {% include 'ta_app/applications/_modal_app_status.html' with data=email.application %}
-
-            {% if email.application.offered and not email.application.accepted and not email.application.declined %}
-              <i class="fa fa-question-circle text-warning font-size-1 vertical-middle" aria-hidden="true"></i>
-            {% endif %}
-          </td>
           <td>
             <span class="d-none">{{ email.created_at|date:"Y m d z" }}</span>
             {{ email.created_at }}
-          </td>
-          <td>
-            <a href="{% url 'administrators:send_reminder' email.id %}?next={{ new_next }}&p=Email History">Remind</a>
           </td>
         </tr>
       {% endfor %}
@@ -133,20 +106,24 @@
         {% if emails.has_previous %}
           <li class="page-item">
             <a class="page-link" href="?page=1
-{% if request.GET.receiver %}&receiver={{ request.GET.receiver }}{% endif %}
-{% if request.GET.title %}&title={{ request.GET.title }}{% endif %}
-{% if request.GET.message %}&message={{ request.GET.message }}{% endif %}
-{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}
-{% if request.GET.no_response %}&no_response={{ request.GET.no_response }}{% endif %}"
+{% if request.GET.year %}&year={{ request.GET.year }}{% endif %}
+{% if request.GET.term %}&term={{ request.GET.term }}{% endif %}
+{% if request.GET.job_code %}&job_code={{ request.GET.job_code }}{% endif %}
+{% if request.GET.job_number %}&job_number={{ request.GET.job_number }}{% endif %}
+{% if request.GET.job_section %}&job_section={{ request.GET.job_section }}{% endif %}
+{% if request.GET.receiver_name %}&receiver_name={{ request.GET.receiver_name }}{% endif %}
+{% if request.GET.receiver_email %}&receiver_email={{ request.GET.receiver_email }}{% endif %}"
             ><i class="fa fa-angle-double-left" aria-hidden="true"></i></a>
           </li>
           <li class="page-item">
             <a class="page-link" href="?page={{ emails.previous_page_number }}
-{% if request.GET.receiver %}&receiver={{ request.GET.receiver }}{% endif %}
-{% if request.GET.title %}&title={{ request.GET.title }}{% endif %}
-{% if request.GET.message %}&message={{ request.GET.message }}{% endif %}
-{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}
-{% if request.GET.no_response %}&no_response={{ request.GET.no_response }}{% endif %}"
+{% if request.GET.year %}&year={{ request.GET.year }}{% endif %}
+{% if request.GET.term %}&term={{ request.GET.term }}{% endif %}
+{% if request.GET.job_code %}&job_code={{ request.GET.job_code }}{% endif %}
+{% if request.GET.job_number %}&job_number={{ request.GET.job_number }}{% endif %}
+{% if request.GET.job_section %}&job_section={{ request.GET.job_section }}{% endif %}
+{% if request.GET.receiver_name %}&receiver_name={{ request.GET.receiver_name }}{% endif %}
+{% if request.GET.receiver_email %}&receiver_email={{ request.GET.receiver_email }}{% endif %}"
             ><i class="fa fa-angle-left" aria-hidden="true"></i></a>
           </li>
         {% else %}
@@ -168,11 +145,13 @@
 
               {% if i|add:"-3" <= emails.number and emails.number <= i|add:"3" %}
                 <a class="page-link" href="?page={{ i }}
-{% if request.GET.receiver %}&receiver={{ request.GET.receiver }}{% endif %}
-{% if request.GET.title %}&title={{ request.GET.title }}{% endif %}
-{% if request.GET.message %}&message={{ request.GET.message }}{% endif %}
-{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}
-{% if request.GET.no_response %}&no_response={{ request.GET.no_response }}{% endif %}"
+{% if request.GET.year %}&year={{ request.GET.year }}{% endif %}
+{% if request.GET.term %}&term={{ request.GET.term }}{% endif %}
+{% if request.GET.job_code %}&job_code={{ request.GET.job_code }}{% endif %}
+{% if request.GET.job_number %}&job_number={{ request.GET.job_number }}{% endif %}
+{% if request.GET.job_section %}&job_section={{ request.GET.job_section }}{% endif %}
+{% if request.GET.receiver_name %}&receiver_name={{ request.GET.receiver_name }}{% endif %}
+{% if request.GET.receiver_email %}&receiver_email={{ request.GET.receiver_email }}{% endif %}"
                 >{{ i }}</a>
               {% endif %}
 
@@ -183,20 +162,24 @@
         {% if emails.has_next %}
           <li class="page-item">
             <a class="page-link" href="?page={{ emails.next_page_number }}
-{% if request.GET.receiver %}&receiver={{ request.GET.receiver }}{% endif %}
-{% if request.GET.title %}&title={{ request.GET.title }}{% endif %}
-{% if request.GET.message %}&message={{ request.GET.message }}{% endif %}
-{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}
-{% if request.GET.no_response %}&no_response={{ request.GET.no_response }}{% endif %}"
+{% if request.GET.year %}&year={{ request.GET.year }}{% endif %}
+{% if request.GET.term %}&term={{ request.GET.term }}{% endif %}
+{% if request.GET.job_code %}&job_code={{ request.GET.job_code }}{% endif %}
+{% if request.GET.job_number %}&job_number={{ request.GET.job_number }}{% endif %}
+{% if request.GET.job_section %}&job_section={{ request.GET.job_section }}{% endif %}
+{% if request.GET.receiver_name %}&receiver_name={{ request.GET.receiver_name }}{% endif %}
+{% if request.GET.receiver_email %}&receiver_email={{ request.GET.receiver_email }}{% endif %}"
             ><i class="fa fa-angle-right" aria-hidden="true"></i></a>
           </li>
           <li class="page-item">
             <a class="page-link" href="?page={{ emails.paginator.num_pages }}
-{% if request.GET.receiver %}&receiver={{ request.GET.receiver }}{% endif %}
-{% if request.GET.title %}&title={{ request.GET.title }}{% endif %}
-{% if request.GET.message %}&message={{ request.GET.message }}{% endif %}
-{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}
-{% if request.GET.no_response %}&no_response={{ request.GET.no_response }}{% endif %}"
+{% if request.GET.year %}&year={{ request.GET.year }}{% endif %}
+{% if request.GET.term %}&term={{ request.GET.term }}{% endif %}
+{% if request.GET.job_code %}&job_code={{ request.GET.job_code }}{% endif %}
+{% if request.GET.job_number %}&job_number={{ request.GET.job_number }}{% endif %}
+{% if request.GET.job_section %}&job_section={{ request.GET.job_section }}{% endif %}
+{% if request.GET.receiver_name %}&receiver_name={{ request.GET.receiver_name }}{% endif %}
+{% if request.GET.receiver_email %}&receiver_email={{ request.GET.receiver_email }}{% endif %}"
             ><i class="fa fa-angle-double-right" aria-hidden="true"></i></a>
           </li>
         {% else %}

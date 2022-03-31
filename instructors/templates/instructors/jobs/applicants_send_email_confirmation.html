@@ -1,0 +1,133 @@
+{% extends 'ta_app/base.html' %}
+{% block content %}
+
+{% include 'instructors/_menu.html' %}
+
+<div class="row">
+  <div class="col-md-4">
+    {% include 'ta_app/pages/_header.html' with title='Send Email' %}
+
+    <div class="col-10 mx-auto">
+      <div class="bg-prompt">
+        <div class="prompt p-4 mb-4">
+          <h4>Email</h4>
+          <p>There are <span class="font-weight-bold">{{ applicants|length }}</span> receiver(s) selected.</p>
+
+          <a class="btn btn-outline-primary" href="{{ next }}">Back to Summary of Applicants</a>
+        </div>
+      </div>
+
+      <div class="bd-callout bd-callout-warning">
+        <h4>Note:</h4>
+        <p>Curly brackets would be replaced by actual values while sending an email.</p>
+        <ul>
+          <li>Instructor First Name: {0}</li>
+          <li>Instructor Last Name: {1}</li>
+          <li>Instructor Email: {2}</li>
+          <li>Session-Term: {3}</li>
+          <li>Course/Job: {4}</li>
+          <li>Applicant Full Name: {5}</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-8">
+    <div class="board col-11 mx-auto">
+      {% if applicants|length == 0 %}
+
+        <div class="alert alert-danger" role="alert">
+          No applicants found to send an email, and try again.
+        </div>
+
+      {% else %}
+
+        <h3>Receivers</h3>
+        <table class="table text-center font-size-1">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>First Name</th>
+              <th>Last Name</th>
+              <th>Email</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for applicant in applicants %}
+              <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ applicant.first_name }}</td>
+                <td>{{ applicant.last_name }}</td>
+                <td>{{ applicant.email }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+        <h3>Send Email Form</h3>
+
+        <button class="btn btn-xs btn-info" type="button" data-toggle="modal" data-target="#sample-email-modal">Sample Email</button>
+        <div class="modal fade" id="sample-email-modal" tabindex="-1" role="dialog" aria-labelledby="sample-email-modal-label" aria-hidden="true">
+          <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title text-info" id="sample-email-modal-label">Sample Email</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              </div>
+              <div class="modal-item text-left font-size-1">
+                <div class="board">
+                  <div>
+                    <h6>Sender:</h6>
+                    <span>{{ sample_email.sender }}</span>
+                  </div>
+                  <div>
+                    <h6>Receiver:</h6>
+                    <span>{{ sample_email.receiver }}</span>
+                  </div>
+                  <div>
+                    <h6>Title:</h6>
+                    <span>{{ sample_email.title|safe }}</span>
+                  </div>
+                  <div>
+                    <h6>Message:</h6>
+                    <p>{{ sample_email.message|safe }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <form action="" method="post">
+          {% csrf_token %}
+
+          <div class="board mt-0 p-0">
+            <div>
+              <h6>Sender:</h6>
+              <span>{{ email_form.sender }}</span>
+            </div>
+            <div>
+              <h6>Receiver:</h6>
+              <span>{{ email_form.receiver }}</span>
+            </div>
+            <div>
+              <h6>Title:</h6>
+              <span>{{ email_form.title }}</span>
+            </div>
+            <div>
+              <h6>Message:</h6>
+              <div class="bg-white px-4 pt-3 pb-2">{{ email_form.message|safe }}</div>
+            </div>
+          </div>
+
+          <input type="hidden" name="next" value="{{ next }}" />
+          <input class="btn btn-primary mt-5" type="submit" value="Confirm to send an email" />
+        </form>
+
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}

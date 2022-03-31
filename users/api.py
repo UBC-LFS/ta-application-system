@@ -855,6 +855,9 @@ def delete_training(training_id):
     return training if training else False
 
 
+def get_alertemails():
+    ''' Get all alertemails '''
+    return AlertEmail.objects.all()
 
 
 # Helper methods

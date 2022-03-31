@@ -270,6 +270,20 @@ class InstructorProfileForm(forms.ModelForm):
         fields = ['status', 'program']
 
 
+class AlertForm(forms.ModelForm):
+    ''' Students see an alert message in March and April '''
+    class Meta:
+        model = Alert
+        fields = ['student', 'has_read']
+
+
+class AlertEmailForm(forms.ModelForm):
+    ''' Instructors send an alert email to students '''
+    class Meta:
+        model = AlertEmail
+        fields = ['year', 'term', 'job_code', 'job_number', 'job_section', 'instructor', 'sender', 'receiver_name', 'receiver_email', 'title', 'message']
+
+
 class ConfidentialityCheckForm(forms.ModelForm):
     class Meta:
         model = Confidentiality

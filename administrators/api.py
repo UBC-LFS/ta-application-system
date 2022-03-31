@@ -7,12 +7,14 @@ from django.db.models import Q, Count
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from django.contrib.auth.models import User
-from django.core.mail import send_mail
-from django.core.mail import EmailMultiAlternatives
+from django.core.mail import send_mail, EmailMultiAlternatives
 from django.db import IntegrityError
 from django.core.exceptions import PermissionDenied
 from django.urls import resolve
 from urllib.parse import urlparse
+
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
 
 from administrators.models import *
 from administrators.forms import AdminDocumentsForm
@@ -113,7 +115,7 @@ def can_req_parameters_access(request, domain, params, option=None):
         elif domain == 'student-job':
             validate_url_page(request, ['Home', 'History of Jobs'])
 
-        elif domain == 'instructor-note':
+        elif domain == 'instructor-link':
             get_job_by_session_slug_job_slug(res.kwargs['session_slug'], res.kwargs['job_slug'])
 
 
@@ -362,6 +364,12 @@ def get_report_accepted_applications(request):
 def get_jobs():
     ''' Get all jobs '''
     return Job.objects.all()
+
+
+def get_job(job_id):
+    ''' Get a job '''
+    return get_object_or_404(Job, id=job_id)
+
 
 def get_job_by_session_slug_job_slug(session_slug, job_slug):
     ''' Get a job by session_slug and job_slug '''
@@ -1324,7 +1332,6 @@ def get_visible_landing_page():
     return LandingPage.objects.filter(is_visible=True).order_by('created_at', 'updated_at').last()
 
 
-
 # utils
 
 def is_valid_float(num):
@@ -1345,3 +1352,16 @@ def trim(str):
 def get_session_term_full_name(app):
     ''' Get a full name of a session term '''
     return '{0} {1} - {2} {3} {4}'.format(app.job.session.year, app.job.session.term.code, app.job.course.code.name, app.job.course.number.name, app.job.course.section.name)
+
+
+def is_valid_email(email_address):
+    ''' To check whether an email is valid or not '''
+    is_valid = False
+
+    try:
+        validate_email(email_address)
+        is_valid = True
+    except ValidationError as e:
+        print(e)
+
+    return True if is_valid else False

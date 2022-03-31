@@ -50,7 +50,7 @@
             Number of Applications: {{ job.application_set.all|length }}
           </h5>
           <ul>
-            <li>If you would like to view a list of all applicants and their status in this term, please go to <a href="{% url 'instructors:summary_applicants' session_slug=job.session.slug %}">Summary of Applicants</a>.</li>
+            <li>If you would like to view a list of all applicants and their status in this term, please go to <a href="{% url 'instructors:summary_applicants' session_slug=job.session.slug job_slug=job.course.slug %}">Summary of Applicants</a>.</li>
           </ul>
         </div>
       </div>
@@ -268,7 +268,7 @@
             </td>
             <td>
               {% include 'ta_app/applications/_modal_note.html' with data=app %}
-              <a class="btn btn-link btn-xs" href="{% url 'instructors:write_note' app_slug=app.slug %}">Write</a>
+              <a class="btn btn-link btn-xs" href="{% url 'instructors:write_note' app_slug=app.slug %}?next={{ request.get_full_path }}">Write</a>
             </td>
           </tr>
         {% endfor %}

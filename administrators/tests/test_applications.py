@@ -1274,6 +1274,7 @@ class ApplicationTest(TestCase):
         self.assertEqual( len(curr_emails), 6 )
         admin_emails = adminApi.get_admin_emails()
 
+        # empty applications
         data1 = {
             'application': [],
             'type': admin_emails.first().slug

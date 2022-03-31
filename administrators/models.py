@@ -48,7 +48,7 @@ class CourseNumber(models.Model):
 
 class CourseSection(models.Model):
     """ Create a CourseSection model """
-    name = models.CharField(max_length=5, unique=True)
+    name = models.CharField(max_length=12, unique=True)
     class Meta:
         ordering = ['name']
 

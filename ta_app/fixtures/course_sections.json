@@ -152,5 +152,12 @@
     "fields": {
       "name": "951"
     }
+  },
+  {
+    "model": "administrators.coursesection",
+    "pk": 23,
+    "fields": {
+      "name": "001 & 002"
+    }
   }
 ]

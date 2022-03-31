@@ -5,6 +5,9 @@
   <div class="dropdown">
     <a class="btn btn-sm btn-light dropdown-item" href="{% url 'instructors:show_jobs' %}">Jobs</a>
   </div>
+  <div class="dropdown">
+    <a class="btn btn-sm btn-light dropdown-item" href="{% url 'instructors:show_email_history' %}">Email History</a>
+  </div>
 </nav>
 
 {% include 'ta_app/pages/_return_messages.html' with data=messages %}

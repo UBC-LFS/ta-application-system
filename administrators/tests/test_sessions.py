@@ -41,6 +41,8 @@ DATA = [
     'administrators/fixtures/job_instructors.json',
     'administrators/fixtures/jobs.json',
     'administrators/fixtures/sessions.json',
+    'users/fixtures/alertemails.json',
+    'users/fixtures/alerts.json',
     'users/fixtures/confidentialities.json',
     'users/fixtures/profile_roles.json',
     'users/fixtures/profiles.json',

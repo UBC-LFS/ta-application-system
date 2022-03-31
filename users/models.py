@@ -18,7 +18,7 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
-from administrators.models import Course
+from administrators.models import Session, Course
 
 import datetime as dt
 
@@ -262,7 +262,7 @@ class Profile(models.Model):
         ('1', '1'), ('2', '2'), ('3', '3'), ('4', '4'), ('5', '5'), ('6', '6'),
         ('7', '7'), ('8', '8'), ('9', '9'), ('10', '10'), ('11', '11'), ('12', '12')
     ]
-    student_year = models.CharField(max_length=1, choices=STUDENT_YEAR_CHOICES, null=True, blank=True)
+    student_year = models.CharField(max_length=2, choices=STUDENT_YEAR_CHOICES, null=True, blank=True)
 
     graduation_date = models.DateField(
         null=True,
@@ -299,6 +299,35 @@ class Profile(models.Model):
 
     def __str__(self):
         return self.user.username
+
+
+class Alert(models.Model):
+    ''' To check whether students check an alert message between March and April every year '''
+
+    student = models.ForeignKey(User, on_delete=models.CASCADE)
+    has_read = models.BooleanField(default=False)
+    created_at = models.DateField(auto_now_add=True)
+
+
+class AlertEmail(models.Model):
+    ''' Instructors send an alert email to students '''
+    year = models.CharField(max_length=4)
+    term = models.CharField(max_length=20)
+    job_code = models.CharField(max_length=5)
+    job_number = models.CharField(max_length=5)
+    job_section = models.CharField(max_length=12)
+    instructor = models.ForeignKey(User, on_delete=models.CASCADE)
+    sender = models.CharField(max_length=256)
+    receiver_name = models.CharField(max_length=256)
+    receiver_email = models.CharField(max_length=256)
+    title = models.CharField(max_length=256)
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ['year', 'term', 'job_code', 'job_number', 'job_section', 'instructor', 'receiver_email']
+        ordering = ['-pk']
+
 
 def create_avatar_path(instance, filename):
     return os.path.join('users', str(instance.user.username), 'avatar', filename)

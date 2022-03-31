@@ -15,7 +15,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from administrators.forms import *
 from administrators import api as adminApi
 
-from users.models import Role
+from users.models import Role, Alert
 from users.forms import *
 from users import api as userApi
 
@@ -31,18 +31,46 @@ def index(request):
     ''' Index page of student's portal '''
     request = userApi.has_user_access(request, Role.STUDENT)
 
+    # To check whether a student has competed an additional information and resume
     can_apply = userApi.can_apply(request.user)
     if can_apply == False:
         return HttpResponseRedirect( reverse('students:show_profile') + '?next=' + reverse('students:index') + '&p=Home&t=basic' )
 
+    # To check whether a student has read an alert message
+    can_alert = True
+    if (request.user.last_login.year == datetime.now().year) and (request.user.last_login.month == 3 or request.user.last_login.month == 4):
+        alert = Alert.objects.filter( Q(student=request.user) & Q(has_read=True) & Q(created_at__year=datetime.now().year) )
+        if alert.count() > 0:
+            can_alert = False
+
     apps = request.user.application_set.all()
+
     return render(request, 'students/index.html', {
         'loggedin_user': userApi.add_avatar(request.user),
         'apps': apps,
         'total_assigned_hours': adminApi.get_total_assigned_hours(apps, ['accepted']),
         'recent_apps': apps.filter( Q(created_at__year__gte=datetime.now().year) ).order_by('-created_at'),
-        'favourites': adminApi.get_favourites(request.user)
+        'favourites': adminApi.get_favourites(request.user),
+        'can_alert': can_alert
     })
+
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['POST'])
+def read_alert(request):
+    ''' Read an alert message '''
+    request = userApi.has_user_access(request, Role.STUDENT)
+
+    if request.method == 'POST':
+        form = AlertForm(request.POST)
+        if form.is_valid():
+            if form.save():
+                messages.success(request, 'Success! You have read an alert message.')
+            else:
+                messages.error(request, 'An error occurred while saving your data. Please try again.')
+
+    return redirect("students:index")
 
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -117,8 +145,6 @@ def edit_profile(request):
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
         return redirect('students:edit_profile')
-
-    print('here')    
 
     return render(request, 'students/profile/edit_profile.html', {
         'loggedin_user': userApi.add_avatar(loggedin_user),

@@ -50,7 +50,7 @@ class CourseSectionForm(forms.ModelForm):
             'name': forms.TextInput(attrs={ 'class': 'form-control' })
         }
         help_texts = {
-            'name': 'This field is unique. Maximum characters is 5.'
+            'name': 'This field is unique. Maximum characters is 12.'
         }
 
 class TermForm(forms.ModelForm):

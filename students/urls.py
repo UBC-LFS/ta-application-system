@@ -6,6 +6,8 @@ app_name = 'students'
 urlpatterns = [
     path('', views.index, name='index'),
 
+    path('alert/read/', views.read_alert, name='read_alert'),
+
     path('profile/edit/', views.edit_profile, name='edit_profile'),
     path('profile/information/', views.show_profile, name='show_profile'),
     path('profile/resume/upload/', views.upload_resume, name='upload_resume'),

@@ -530,6 +530,47 @@ class StudentTest(TestCase):
         self.delete_document(USERS[2], ['resume'])
 
 
+    def test_alert_message(self):
+        print('- Test: Display an alert message in March and April')
+        self.login()
+
+        response = self.client.get( reverse('students:index') )
+        messages = self.messages(response)
+        self.assertEqual(messages, [])
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse('students:show_profile') + NEXT + HOME_BASIC)
+        self.assertRedirects(response, response.url)
+
+        self.submit_profile_resume(USERS[2])
+        response = self.client.get( reverse('students:index') )
+        messages = self.messages(response)
+        self.assertEqual(messages, [])
+        self.assertEqual(response.status_code, 200)
+
+        self.assertEqual(response.context['loggedin_user'].username,  USERS[2])
+        self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
+        self.assertEqual(response.context['total_assigned_hours'], {'accepted': {'2019-W1': 100.0, '2019-W2': 50.0}})
+        self.assertTrue(response.context['can_alert'])
+
+        # Click on the Read button
+        data = {
+            'student': self.user.id,
+            'has_read': 'true'
+        }
+
+        response = self.client.post( reverse('students:read_alert'), data=urlencode(data, True), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse('students:index'))
+        self.assertRedirects(response, response.url)
+
+        res = self.client.get( reverse('students:index') )
+        self.assertFalse(res.context['can_alert'])
+
+        self.delete_document(USERS[2], ['resume'])
+
+
     def test_show_profile(self):
         print('- Test: Display all lists of session terms')
         self.login()
@@ -583,6 +624,7 @@ class StudentTest(TestCase):
         self.assertEqual(response.context['loggedin_user'].username,  USERS[2])
         self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
         self.assertFalse(response.context['form'].is_bound)
+
 
     def test_edit_profile(self):
         print('- Test: Edit user profile')
@@ -759,7 +801,8 @@ class StudentTest(TestCase):
         self.assertEqual(user.profile.ta_experience, data['ta_experience'])
         self.assertEqual(user.profile.ta_experience_details, data['ta_experience_details'])
 
-    def test_edit_profile_without_program_others(self):
+
+    """def test_edit_profile_without_program_others(self):
         print('- Test: Edit profile without program others')
         self.login()
 
@@ -786,9 +829,8 @@ class StudentTest(TestCase):
         self.assertEqual( len(userApi.get_programs()), 16 )
         userApi.delete_program( userApi.get_program_others_id() )
         self.assertEqual( len(userApi.get_programs()) , 15)
-
         response = self.client.post( reverse('students:edit_profile'), data=urlencode(data, True), content_type=ContentType )
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 403)"""
 
 
     def test_upload_user_resume(self):

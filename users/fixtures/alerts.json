@@ -1,0 +1,20 @@
+[
+  {
+    "model": "users.alert",
+    "pk": 1,
+    "fields": {
+      "has_read": true,
+      "student_id": 65,
+      "created_at": "2020-03-02"
+    }
+  },
+  {
+    "model": "users.alert",
+    "pk": 2,
+    "fields": {
+      "has_read": true,
+      "student_id": 100,
+      "created_at": "2020-03-12"
+    }
+  }
+]

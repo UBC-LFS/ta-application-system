@@ -2,6 +2,44 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
 
+{% if can_alert %}
+
+<div class="modal fade" id="alert-modal" tabindex="-1" role="dialog" aria-labelledby="alert-modal-label" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title text-warning" id="alert-modal-label">
+          <i class="fa fa-bullhorn" aria-hidden="true"></i> Alert
+        </h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      </div>
+      <div class="modal-body">
+        <p>
+          Have you checked your Additional information and Resume recently? If not,
+        </p>
+        <ul>
+          <li>Keep your <strong>Resume</strong> up to date.</li>
+          <li>
+            Update your <strong>Student Year</strong> and <strong>Previous TA Experience Details</strong> fields in the Additional Information Form. <br />
+            <strong>Note:</strong> Your pay Classification is determined using Previous TA Experience Details information.
+          </li>
+        </ul>
+      </div>
+      <div class="modal-footer">
+        Please click this Read button if you DO NOT want to see this again.
+        <form action="{% url 'students:read_alert' %}" method="POST">
+          {% csrf_token %}
+          <input type="hidden" name="student" value="{{ loggedin_user.id }}" />
+          <input type="hidden" name="has_read" value="true" />
+          <button class="btn btn-primary btn-xs ml-3" type="submit">Read</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endif %}
+
 {% include 'students/_menu.html' %}
 <div class="row">
   <div class="col-md-4">
@@ -101,3 +139,18 @@
 </div>
 
 {% endblock %}
+
+
+
+{% block js%}
+
+{% if can_alert %}
+<script type="text/javascript">
+  $(document).ready(function() {
+    jQuery.noConflict();
+    $('#alert-modal').modal('show');
+  });
+</script>
+{% endif %}
+
+{% endblock%}

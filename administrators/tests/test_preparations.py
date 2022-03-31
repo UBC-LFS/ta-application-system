@@ -591,7 +591,7 @@ class PreparationTest(TestCase):
 
         response = self.client.get( reverse('administrators:course_sections') )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual( len(response.context['course_sections']), 22 )
+        self.assertEqual( len(response.context['course_sections']), 23 )
         self.assertFalse(response.context['form'].is_bound)
 
         data = { 'name': '99Z' }
@@ -603,8 +603,34 @@ class PreparationTest(TestCase):
 
         response = self.client.get( reverse('administrators:course_sections') )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual( len(response.context['course_sections']), 23 )
+        self.assertEqual( len(response.context['course_sections']), 24 )
         self.assertEqual(response.context['course_sections'].last().name, data['name'])
+
+        data2 = { 'name': '002 & 003' }
+        response = self.client.post( reverse('administrators:course_sections'), data=urlencode(data2), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertTrue('Success' in messages[0])
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+        response = self.client.get( reverse('administrators:course_sections') )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual( len(response.context['course_sections']), 25 )
+        self.assertEqual(response.context['course_sections'].last().name, data['name'])
+
+
+    def test_create_course_section_failture(self):
+        print('- Test: create a course section - failure')
+        self.login()
+
+        data = { 'name': '001 & 002 & 003' }
+        response = self.client.post( reverse('administrators:course_sections'), data=urlencode(data), content_type=ContentType )
+        messages = self.messages(response)
+        self.assertEquals(messages[0], 'An error occurred. Form is invalid. NAME: Ensure this value has at most 12 characters (it has 15).')
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+        self.assertEqual(response.url, reverse('administrators:course_sections'))
+
 
     def test_edit_course_section(self):
         print('- Test: edit course_section details')

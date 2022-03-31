@@ -160,8 +160,6 @@
       "name": "318"
     }
   },
-
-
   {
     "model": "administrators.coursenumber",
     "pk": 24,
@@ -169,9 +167,6 @@
       "name": "322"
     }
   },
-
-
-
   {
     "model": "administrators.coursenumber",
     "pk": 25,
@@ -523,7 +518,3 @@
     }
   }
 ]
-
-
-
-
