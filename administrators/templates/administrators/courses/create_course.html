@@ -37,6 +37,7 @@
         {% endfor %}
 
         <a class="btn btn-outline-secondary" href="{% url 'administrators:all_courses' %}">Cancel</a>
+        <input type="hidden" name="next" value="{{ next }}" />
         <input class="btn btn-primary" value="Create" type="submit" />
       </form>
     </div>

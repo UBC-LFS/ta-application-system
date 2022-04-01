@@ -2176,24 +2176,28 @@ def create_course(request):
     request = userApi.has_admin_access(request)
 
     if request.method == 'POST':
+        adminApi.can_req_parameters_access(request, 'none', ['next'], 'POST')
+
         form = CourseForm(request.POST)
         if form.is_valid():
             course = form.save()
             if course:
                 messages.success(request, 'Success! {0} {1} {2} {3} created'.format(course.code.name, course.number.name, course.section.name, course.term.code))
-                return redirect('administrators:all_courses')
             else:
                 messages.error(request, 'An error occurred while creating a course. Please contact administrators or try it again.')
         else:
             errors = form.errors.get_json_data()
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
-        return redirect('administrators:create_course')
+        return HttpResponseRedirect(request.POST.get('next'))
+    else:
+        adminApi.can_req_parameters_access(request, 'none', ['next'])
 
     return render(request, 'administrators/courses/create_course.html', {
         'loggedin_user': request.user,
         'courses': adminApi.get_courses(),
-        'form': CourseForm()
+        'form': CourseForm(),
+        'next': adminApi.get_next(request)
     })
 
 
@@ -2203,7 +2207,7 @@ def create_course(request):
 def edit_course(request, course_slug):
     ''' Edit a course '''
     request = userApi.has_admin_access(request)
-    adminApi.can_req_parameters_access(request, 'none', ['next'])
+
 
     course = adminApi.get_course(course_slug, 'slug')
     if request.method == 'POST':
@@ -2224,11 +2228,14 @@ def edit_course(request, course_slug):
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
         return HttpResponseRedirect(request.get_full_path())
+    else:
+        adminApi.can_req_parameters_access(request, 'none', ['next'])
 
     return render(request, 'administrators/courses/edit_course.html', {
         'loggedin_user': request.user,
         'course': course,
-        'form': CourseEditForm(data=None, instance=course)
+        'form': CourseEditForm(data=None, instance=course),
+        'next': adminApi.get_next(request)
     })
 
 @login_required(login_url=settings.LOGIN_URL)

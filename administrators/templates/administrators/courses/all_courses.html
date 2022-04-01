@@ -14,7 +14,7 @@
         <div class="prompt p-4 text-center" style="height:176.8px">
           <h4>NEW</h4>
           <p>If you would like to create a new course, please click on the botton below.</p>
-          <a class="btn btn-sm btn-outline-primary" href="{% url 'administrators:create_course' %}">Create Course</a>
+          <a class="btn btn-sm btn-outline-primary" href="{% url 'administrators:create_course' %}?next={{ request.get_full_path }}">Create Course</a>
         </div>
       </div>
     </div>
