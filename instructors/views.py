@@ -301,7 +301,7 @@ def write_note(request, app_slug):
     app = adminApi.get_application(app_slug, 'slug')
     if request.method == 'POST':
         adminApi.can_req_parameters_access(request, 'none', ['next'], 'POST')
-        
+
         form = ApplicationNoteForm(request.POST, instance=app)
         if form.is_valid():
             appl = form.save(commit=False)
@@ -450,7 +450,7 @@ def applicants_send_email(request):
         else:
             messages.error(request, 'An error occurred. Please select applicants, then try again.')
 
-    return HttpResponseRedirect(adminApi.get_next(request))
+    return HttpResponseRedirect(request.POST.get('next'))
 
 
 @login_required(login_url=settings.LOGIN_URL)
