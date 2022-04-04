@@ -195,6 +195,8 @@ def show_applications(request, session_slug, job_slug):
     ''' Display applications applied by students '''
     request = userApi.has_user_access(request, Role.INSTRUCTOR)
 
+    request.session['next_second'] = adminApi.build_new_next(request)
+
     job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
     apps = Application.objects.filter( Q(job__session__slug=session_slug) & Q(job__course__slug=job_slug) )
 
@@ -333,7 +335,6 @@ def write_note(request, app_slug):
 def summary_applicants(request, session_slug, job_slug):
     ''' Display the summary of applicants in each session term '''
     request = userApi.has_user_access(request, Role.INSTRUCTOR)
-    #adminApi.can_req_parameters_access(request, 'instructor-link', ['next'], 'GET')
 
     session = adminApi.get_session(session_slug, 'slug')
     job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
@@ -423,7 +424,7 @@ def summary_applicants(request, session_slug, job_slug):
         'total_no_offers_applicants': len(no_offers_applicants),
         'applicants': applicants,
         'searched_total': len(applicants),
-        'next': adminApi.get_next(request),
+        'next_second': request.session.get('next_second', None),
         'new_next': adminApi.build_new_next(request)
     })
 
