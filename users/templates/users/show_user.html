@@ -108,6 +108,23 @@
       <div class="board col-11 mx-auto">
         <h3>Basic Information</h3>
         {% include 'ta_app/users/_basic_info.html' with data=selected_user student_number_display='True' %}
+
+        {% if role == 'administrators' and selected_user.is_student %}
+          <h5 class="text-primary mt-5">Student's Alerts</h5>
+          <small>To view a list of whether a student has checked an alert message in March or April.</small>
+          <ul class="font-size-sm">
+            {% for alert in selected_user.alert_set.all %}
+              <li>
+                {% if alert.has_read %}
+                  <span class="badge badge-success">READ</span>
+                {% endif %}
+                {{ alert.created_at }}
+              </li>
+            {% empty %}
+              <li>No alerts found</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
       </div>
 
     {% endif %}
