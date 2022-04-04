@@ -463,7 +463,7 @@ def applicants_send_email_confirmation(request):
     receiver_list = []
     email_form = None
     sample_email = None
-
+    job = None
     form_data = request.session.get('applicants_form_data')
     if form_data:
         job = adminApi.get_job_by_session_slug_job_slug(form_data['session_slug'], form_data['job_slug'])
@@ -563,6 +563,7 @@ def applicants_send_email_confirmation(request):
 
     return render(request, 'instructors/jobs/applicants_send_email_confirmation.html', {
         'loggedin_user': request.user,
+        'job': job,
         'applicants': applicants,
         'sender': settings.EMAIL_FROM,
         'receiver': receiver_list,

@@ -325,7 +325,7 @@ class AlertEmail(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ['year', 'term', 'job_code', 'job_number', 'job_section', 'instructor', 'receiver_email']
+        unique_together = ['year', 'term', 'job_code', 'job_number', 'job_section', 'instructor', 'receiver_name', 'receiver_email']
         ordering = ['-pk']
 
 
