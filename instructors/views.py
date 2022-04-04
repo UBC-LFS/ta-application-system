@@ -333,7 +333,7 @@ def write_note(request, app_slug):
 def summary_applicants(request, session_slug, job_slug):
     ''' Display the summary of applicants in each session term '''
     request = userApi.has_user_access(request, Role.INSTRUCTOR)
-    adminApi.can_req_parameters_access(request, 'instructor-link', ['next'], 'GET')
+    #adminApi.can_req_parameters_access(request, 'instructor-link', ['next'], 'GET')
 
     session = adminApi.get_session(session_slug, 'slug')
     job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
