@@ -841,7 +841,6 @@ class InstructorTest(TestCase):
         }
 
         response = self.client.post(reverse('instructors:applicants_send_email') + '?next=' + CURRENT_NEXT, data=urlencode(data2, True), content_type=ContentType)
-        messages = self.messages(response)
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, response.url)
         self.assertEqual(response.url, reverse('instructors:applicants_send_email_confirmation') + '?next=' + CURRENT_NEXT)
@@ -897,6 +896,56 @@ class InstructorTest(TestCase):
 
         self.assertEqual(len(mail.outbox), 2)
         self.assertEqual( len(userApi.get_alertemails()), len(curr_alertemails) + len(user_emails) )
+
+
+    def test_send_email_to_students_error(self):
+        print('- Test: send an email to students - error')
+
+        CURRENT_USER = 'user22.ins'
+        CURRENT_JOB = 'apbi-265-001-sustainable-agriculture-and-food-systems-w1'
+        CURRENT_NEXT = '/instructors/sessions/2019-w1/jobs/' + CURRENT_JOB + '/applicants/summary-applicants/'
+
+        self.login(CURRENT_USER, PASSWORD)
+
+        curr_alertemails = userApi.get_alertemails()
+        self.assertEqual( len(curr_alertemails), 3 )
+
+        # empty applicants
+        data1 = {
+            'applicant': [],
+            'next': CURRENT_NEXT
+        }
+
+        response = self.client.post(reverse('instructors:applicants_send_email') + '?next=' + CURRENT_NEXT, data=urlencode(data1, True), content_type=ContentType)
+        messages = self.messages(response)
+        self.assertEqual(messages[0], 'An error occurred. Please select applicants, then try again.')
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+
+        data2 = {
+            'applicant': ['70'],
+            'session_slug': SESSION,
+            'job_slug': CURRENT_JOB,
+            'next': CURRENT_NEXT
+        }
+
+        response = self.client.post(reverse('instructors:applicants_send_email') + '?next=' + CURRENT_NEXT, data=urlencode(data2, True), content_type=ContentType)
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, response.url)
+        self.assertEqual(response.url, reverse('instructors:applicants_send_email_confirmation') + '?next=' + CURRENT_NEXT)
+
+        response = self.client.get(response.url)
+        session = self.client.session
+        self.assertEqual(session['applicants_form_data']['applicants'], data2['applicant'])
+        self.assertEqual(session['applicants_form_data']['session_slug'], SESSION)
+        self.assertEqual(session['applicants_form_data']['job_slug'], CURRENT_JOB)
+
+        data3 = {
+            'next': CURRENT_NEXT
+        }
+        response = self.client.post(reverse('instructors:applicants_send_email_confirmation') + '?next=' + CURRENT_NEXT, data=urlencode(data3, True), content_type=ContentType)
+        messages = self.messages(response)
+        self.assertEqual(messages[0], "An error occurred. Failed to send all emails. Please try again. ERROR: ['User70 Test ALL  : Alert email with this Year, Term, Job code, Job number, Job section, Instructor, Receiver name and Receiver email already exists.']")
 
 
     def test_email_history(self):
