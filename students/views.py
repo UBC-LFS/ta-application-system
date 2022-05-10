@@ -37,12 +37,12 @@ def index(request):
         return HttpResponseRedirect( reverse('students:show_profile') + '?next=' + reverse('students:index') + '&p=Home&t=basic' )
 
     # To check whether a student has read an alert message
-    can_alert = True
+    can_alert = False
     if (request.user.last_login.year == datetime.now().year) and (request.user.last_login.month == 3 or request.user.last_login.month == 4):
-        alert = Alert.objects.filter( Q(student=request.user) & Q(has_read=True) & Q(created_at__year=datetime.now().year) )
-        if alert.count() > 0:
-            can_alert = False
-
+        alert = Alert.objects.filter( Q(student_id=request.user.id) & Q(has_read=True) & Q(created_at__year=datetime.now().year) )
+        if alert.count() == 0:
+            can_alert = True
+    
     apps = request.user.application_set.all()
 
     return render(request, 'students/index.html', {
