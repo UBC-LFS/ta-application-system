@@ -620,8 +620,10 @@ table tbody td {
   color: #007bff;
 }
 
-input[type=checkbox] {
+input[type=checkbox],
+input[type=radio] {
   vertical-align: middle;
+  margin-bottom: 7px;
 }
 
 .fa.vertical-middle {

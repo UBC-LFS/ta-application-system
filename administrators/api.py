@@ -770,6 +770,12 @@ def get_applications_filter_limit(request, status):
         apps = apps.filter(applicant__last_name__icontains=request.GET.get('last_name'))
 
     if status == 'selected':
+        if bool( request.GET.get('sort_by_job') ):
+            if request.GET.get('sort_by_job') == 'asc':
+                apps = apps.order_by('job__course__code', 'job__course__number', 'job__course__section', 'job__session_term_code', 'job__session__year')
+            else:
+                apps = apps.order_by('-job__course__code', '-job__course__number', '-job__course__section', '-job__session_term_code', '-job__session__year')
+
         if bool( request.GET.get('offered') ):
             apps = apps.filter(applicationstatus__assigned=ApplicationStatus.OFFERED)
         if bool( request.GET.get('not_offered') ):

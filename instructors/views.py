@@ -370,7 +370,8 @@ def summary_applicants(request, session_slug, job_slug):
         applicants = no_offers_applicants
 
     page = request.GET.get('page', 1)
-    paginator = Paginator(applicants, settings.PAGE_SIZE)
+    #paginator = Paginator(applicants, settings.PAGE_SIZE)
+    paginator = Paginator(applicants, 25)
 
     try:
         applicants = paginator.page(page)

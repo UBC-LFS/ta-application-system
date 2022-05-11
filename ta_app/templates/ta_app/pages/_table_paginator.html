@@ -26,7 +26,8 @@
 {% if request.GET.processed %}&processed={{ request.GET.processed }}{% endif %}
 {% if request.GET.declined_reassigned %}&declined_reassigned={{ request.GET.declined_reassigned }}{% endif %}
 {% if request.GET.accepted_in_today %}&accepted_in_today={{ request.GET.accepted_in_today }}{% endif %}
-{% if request.GET.no_response %}&no_response={{ request.GET.no_response }}{% endif %}"
+{% if request.GET.no_response %}&no_response={{ request.GET.no_response }}{% endif %}
+{% if request.GET.sort_by_job %}&sort_by_job={{ request.GET.sort_by_job }}{% endif %}"
           ><i class="fa fa-angle-double-left" aria-hidden="true"></i></a>
         </li>
         <li class="page-item">
@@ -52,7 +53,8 @@
 {% if request.GET.processed %}&processed={{ request.GET.processed }}{% endif %}
 {% if request.GET.declined_reassigned %}&declined_reassigned={{ request.GET.declined_reassigned }}{% endif %}
 {% if request.GET.accepted_in_today %}&accepted_in_today={{ request.GET.accepted_in_today }}{% endif %}
-{% if request.GET.no_response %}&no_response={{ request.GET.no_response }}{% endif %}"
+{% if request.GET.no_response %}&no_response={{ request.GET.no_response }}{% endif %}
+{% if request.GET.sort_by_job %}&sort_by_job={{ request.GET.sort_by_job }}{% endif %}"
           ><i class="fa fa-angle-left" aria-hidden="true"></i></a>
         </li>
       {% else %}
@@ -95,7 +97,8 @@
 {% if request.GET.processed %}&processed={{ request.GET.processed }}{% endif %}
 {% if request.GET.declined_reassigned %}&declined_reassigned={{ request.GET.declined_reassigned }}{% endif %}
 {% if request.GET.accepted_in_today %}&accepted_in_today={{ request.GET.accepted_in_today }}{% endif %}
-{% if request.GET.no_response %}&no_response={{ request.GET.no_response }}{% endif %}"
+{% if request.GET.no_response %}&no_response={{ request.GET.no_response }}{% endif %}
+{% if request.GET.sort_by_job %}&sort_by_job={{ request.GET.sort_by_job }}{% endif %}"
               >{{ i }}</a>
             {% endif %}
 
@@ -127,7 +130,8 @@
 {% if request.GET.processed %}&processed={{ request.GET.processed }}{% endif %}
 {% if request.GET.declined_reassigned %}&declined_reassigned={{ request.GET.declined_reassigned }}{% endif %}
 {% if request.GET.accepted_in_today %}&accepted_in_today={{ request.GET.accepted_in_today }}{% endif %}
-{% if request.GET.no_response %}&no_response={{ request.GET.no_response }}{% endif %}"
+{% if request.GET.no_response %}&no_response={{ request.GET.no_response }}{% endif %}
+{% if request.GET.sort_by_job %}&sort_by_job={{ request.GET.sort_by_job }}{% endif %}"
           ><i class="fa fa-angle-right" aria-hidden="true"></i></a>
         </li>
         <li class="page-item">
@@ -153,7 +157,8 @@
 {% if request.GET.processed %}&processed={{ request.GET.processed }}{% endif %}
 {% if request.GET.declined_reassigned %}&declined_reassigned={{ request.GET.declined_reassigned }}{% endif %}
 {% if request.GET.accepted_in_today %}&accepted_in_today={{ request.GET.accepted_in_today }}{% endif %}
-{% if request.GET.no_response %}&no_response={{ request.GET.no_response }}{% endif %}"
+{% if request.GET.no_response %}&no_response={{ request.GET.no_response }}{% endif %}
+{% if request.GET.sort_by_job %}&sort_by_job={{ request.GET.sort_by_job }}{% endif %}"
           ><i class="fa fa-angle-double-right" aria-hidden="true"></i></a>
         </li>
       {% else %}
