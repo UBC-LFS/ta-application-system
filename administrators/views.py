@@ -1042,8 +1042,7 @@ def selected_applications(request):
         apps, info = adminApi.get_applications_filter_limit(request, 'selected')
 
         page = request.GET.get('page', 1)
-        #paginator = Paginator(apps, settings.PAGE_SIZE)
-        paginator = Paginator(apps, 3)
+        paginator = Paginator(apps, settings.PAGE_SIZE)
 
         try:
             apps = paginator.page(page)
