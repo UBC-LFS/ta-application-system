@@ -15,6 +15,8 @@ from users import api as userApi
 from administrators.tests.test_sessions import LOGIN_URL, ContentType, DATA, PASSWORD, USERS
 
 COURSE = 'apbi-200-001-introduction-to-soil-science-w'
+COURSE_NEXT = '/administrators/courses/all/'
+
 
 class CourseTest(TestCase):
     fixtures = DATA
@@ -40,7 +42,7 @@ class CourseTest(TestCase):
         response = self.client.get( reverse('administrators:all_courses') )
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get( reverse('administrators:create_course') )
+        response = self.client.get( reverse('administrators:create_course') + '?next=' + COURSE_NEXT )
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get( reverse('administrators:edit_course', args=[COURSE]) + '?next=' + reverse('administrators:all_users') + '?page=2' )
@@ -72,7 +74,8 @@ class CourseTest(TestCase):
             'term': '2',
             'overview': 'overview',
             'job_description': 'description',
-            'job_note': 'note'
+            'job_note': 'note',
+            'next': COURSE_NEXT
         }
         response = self.client.post( reverse('administrators:create_course'), data=urlencode(data), content_type=ContentType )
         messages = self.messages(response)
@@ -81,7 +84,7 @@ class CourseTest(TestCase):
         self.assertRedirects(response, response.url)
         self.assertEqual(response.url, reverse('administrators:all_courses'))
 
-        response = self.client.get(reverse('administrators:all_courses'))
+        response = self.client.get(reverse('administrators:all_courses') + '?next=' + COURSE_NEXT)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, USERS[0])
         self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
@@ -94,7 +97,7 @@ class CourseTest(TestCase):
         self.assertTrue('An error occurred' in messages[0])
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, response.url)
-        self.assertEqual(response.url, reverse('administrators:create_course'))
+        self.assertEqual(response.url, reverse('administrators:all_courses'))
 
 
     def test_create_course2(self):
@@ -111,7 +114,8 @@ class CourseTest(TestCase):
             'term': '2',
             'overview': 'overview',
             'job_description': 'description',
-            'job_note': 'note'
+            'job_note': 'note',
+            'next': COURSE_NEXT
         }
         response = self.client.post( reverse('administrators:create_course'), data=urlencode(data), content_type=ContentType )
         messages = self.messages(response)
@@ -120,7 +124,7 @@ class CourseTest(TestCase):
         self.assertRedirects(response, response.url)
         self.assertEqual(response.url, reverse('administrators:all_courses'))
 
-        response = self.client.get(reverse('administrators:all_courses'))
+        response = self.client.get(reverse('administrators:all_courses') + '?next=' + COURSE_NEXT)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['loggedin_user'].username, USERS[0])
         self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
@@ -311,7 +315,8 @@ class CourseTest(TestCase):
             'number': course_number.id,
             'section': course_section.id,
             'name': 'New Course',
-            'term': term.id
+            'term': term.id,
+            'next': COURSE_NEXT
         }
         response = self.client.post( reverse('administrators:create_course'), data=urlencode(data), content_type=ContentType )
         messages = self.messages(response)

@@ -11,7 +11,7 @@
         <h4>{{ course.code.name }} {{ course.number.name }} {{ course.section.name }} ({{ course.term.code }})</h4>
         <p>{{ course.name }}</p>
 
-        <a class="btn btn-sm btn-outline-primary" href="{% url 'administrators:all_courses' %}">All Courses</a>
+        <a class="btn btn-sm btn-outline-primary" href="{{ next }}">All Courses</a>
       </div>
     </div>
 
@@ -63,7 +63,7 @@
         {% endfor %}
 
         <input type="hidden" name="next" value="{{ next }}" />
-        <a class="btn btn-outline-secondary" href="{% url 'administrators:all_courses' %}">Cancel</a>
+        <a class="btn btn-outline-secondary" href="{{ next }}">Cancel</a>
         <input class="btn btn-primary" value="Update" type="submit" />
       </form>
     </div>
