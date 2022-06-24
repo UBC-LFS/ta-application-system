@@ -1,3 +1,4 @@
+import os
 from django.conf import settings
 from django.shortcuts import render, redirect
 from django.urls import reverse
@@ -8,6 +9,7 @@ from django.core.exceptions import PermissionDenied
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.cache import cache_control
 from io import StringIO
+from django.core.exceptions import SuspiciousOperation
 
 from django.db.models import Q
 from django.views.static import serve
@@ -790,8 +792,8 @@ def add_job_instructors(request, session_slug, job_slug):
         form = InstructorUpdateForm(request.POST);
         if form.is_valid():
             instructor = form.cleaned_data['instructors']
-            insturctors_ids = [ ins.id for ins in job.instructors.all() ]
-            if int(request.POST.get('instructors')) in insturctors_ids:
+            instructors_ids = [ ins.id for ins in job.instructors.all() ]
+            if int(request.POST.get('instructors')) in instructors_ids:
                 return JsonResponse({ 'status': 'error', 'message': 'An error occurred. Instructor {0} ({1})is already added int this job.'.format(instructor.first().username, instructor.first().get_full_name()) })
 
             if adminApi.add_job_instructors(job, form.cleaned_data['instructors']):
@@ -836,8 +838,8 @@ def delete_job_instructors(request, session_slug, job_slug):
         form = InstructorUpdateForm(request.POST);
         if form.is_valid():
             instructor = form.cleaned_data['instructors']
-            insturctors_ids = [ ins.id for ins in job.instructors.all() ]
-            if int(request.POST.get('instructors')) not in insturctors_ids:
+            instructors_ids = [ ins.id for ins in job.instructors.all() ]
+            if int(request.POST.get('instructors')) not in instructors_ids:
                 return JsonResponse({ 'status': 'error', 'message': 'An error occurred. No instructor {0} {1} exists.'.format(instructor.first().username, instructor.first().get_full_name()) })
 
             if adminApi.remove_job_instructors(job, instructor):
@@ -1958,16 +1960,123 @@ def edit_user(request, username):
             messages.error(request, 'An error occurred while updating an User Edit Form. {0}: This field is required.'.format( ', '.join(validation) ))
             return HttpResponseRedirect(request.get_full_path())
 
-        #user_id = request.POST.get('user')
-        #employee_number = request.POST.get('employee_number')
+
         profile_roles = user.profile.roles.all()
 
         user_form = UserForm(request.POST, instance=user)
         user_profile_edit_form = UserProfileEditForm(request.POST, instance=user.profile)
         employee_number_form = EmployeeNumberEditForm(request.POST, instance=confidentiality)
 
+        old_username = user.username
+        new_username = request.POST.get('username')
         if user_form.is_valid() and user_profile_edit_form.is_valid() and employee_number_form.is_valid():
             updated_user = user_form.save()
+
+            # Update the new username in the path of items - avatar image, resume, sin and study permit
+            if request.POST.get('username') != old_username:
+                new_dirpath = os.path.join( settings.MEDIA_ROOT, 'users', new_username )
+                if os.path.exists(new_dirpath) == False:
+                    try: os.mkdir(new_dirpath) # Create a new directory
+                    except OSError: SuspiciousOperation
+
+                # Resume
+                if userApi.has_user_resume_created(user) and bool(user.resume.uploaded):
+                    resume_path = os.path.join( settings.MEDIA_ROOT, 'users', new_username, 'resume' )
+                    if os.path.exists(resume_path) == False:
+                        try: os.mkdir(resume_path) # Create a new resume directory
+                        except OSError: SuspiciousOperation
+
+                    if os.path.exists(resume_path):
+                        file_path = user.resume.uploaded.name
+                        filename = file_path.replace(old_username, new_username)
+
+                        initial_path = user.resume.uploaded.path
+                        new_path = settings.MEDIA_ROOT + filename
+                        os.rename(initial_path, new_path)
+
+                        user.resume.uploaded = filename
+                        user.resume.save(update_fields=['uploaded'])
+
+                        # Remove an old resume directory
+                        try: os.rmdir( os.path.join( settings.MEDIA_ROOT, 'users', old_username, 'resume' ) )
+                        except OSError: SuspiciousOperation
+
+                # Avatar
+                if userApi.has_user_avatar_created(user) and bool(user.avatar.uploaded):
+                    avatar_path = os.path.join( settings.MEDIA_ROOT, 'users', new_username, 'avatar' )
+                    if os.path.exists(avatar_path) == False:
+                        try: os.mkdir(avatar_path) # Create a new avatar directory
+                        except OSError: SuspiciousOperation
+
+                    if os.path.exists(avatar_path):
+                        file_path = user.avatar.uploaded.name
+                        filename = file_path.replace(old_username, new_username)
+
+                        initial_path = user.avatar.uploaded.path
+                        new_path = settings.MEDIA_ROOT + filename
+                        os.rename(initial_path, new_path)
+
+                        user.avatar.uploaded = filename
+                        user.avatar.save(update_fields=['uploaded'])
+
+                        # Remove an old avatar directory
+                        try: os.rmdir( os.path.join( settings.MEDIA_ROOT, 'users', old_username, 'avatar' ) )
+                        except OSError: SuspiciousOperation
+
+                if userApi.has_user_confidentiality_created(user):
+                    update_fields = []
+                    if bool(user.confidentiality.sin):
+                        sin_path = os.path.join( settings.MEDIA_ROOT, 'users', new_username, 'sin' )
+                        if os.path.exists(sin_path) == False:
+                            try: os.mkdir(sin_path) # Create a new sin directory
+                            except OSError: SuspiciousOperation
+
+                        if os.path.exists(sin_path):
+                            file_path = user.confidentiality.sin.name
+                            filename = file_path.replace(old_username, new_username)
+
+                            initial_path = user.confidentiality.sin.path
+                            new_path = settings.MEDIA_ROOT + filename
+                            os.rename(initial_path, new_path)
+
+                            user.confidentiality.sin = filename
+
+                            # Remove an old sin directory
+                            try: os.rmdir( os.path.join( settings.MEDIA_ROOT, 'users', old_username, 'sin' ) )
+                            except OSError: SuspiciousOperation
+
+                            update_fields.append('sin')
+
+                    if bool(user.confidentiality.study_permit):
+                        study_permit_path = os.path.join( settings.MEDIA_ROOT, 'users', new_username, 'study_permit' )
+                        if os.path.exists(study_permit_path) == False:
+                            try: os.mkdir(study_permit_path) # Create a new study_permit directory
+                            except OSError: SuspiciousOperation
+
+                        if os.path.exists(study_permit_path) and os.path.isdir(study_permit_path):
+                            file_path = user.confidentiality.study_permit.name
+                            filename = file_path.replace(old_username, new_username)
+
+                            initial_path = user.confidentiality.study_permit.path
+                            new_path = settings.MEDIA_ROOT + filename
+                            os.rename(initial_path, new_path)
+
+                            user.confidentiality.study_permit = filename
+
+                            # Remove an old sin directory
+                            try: os.rmdir( os.path.join( settings.MEDIA_ROOT, 'users', old_username, 'study_permit' ) )
+                            except OSError: SuspiciousOperation
+
+                            update_fields.append('study_permit')
+
+                    if len(update_fields) > 0:
+                        user.confidentiality.save(update_fields=update_fields)
+
+                # If an old folder is empty, delete it
+                old_dirpath = os.path.join( settings.MEDIA_ROOT, 'users', old_username )
+                if len( os.listdir(old_dirpath) ) == 0:
+                    try: os.rmdir(old_dirpath)
+                    except OSError: SuspiciousOperation
 
             updated_profile = user_profile_edit_form.save(commit=False)
             updated_profile.updated_at = datetime.now()
@@ -2207,7 +2316,6 @@ def create_course(request):
 def edit_course(request, course_slug):
     ''' Edit a course '''
     request = userApi.has_admin_access(request)
-
 
     course = adminApi.get_course(course_slug, 'slug')
     if request.method == 'POST':

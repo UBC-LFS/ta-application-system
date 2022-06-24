@@ -1,7 +1,7 @@
 import os
 from django.conf import settings
 from django.shortcuts import get_object_or_404
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, SuspiciousOperation
 from django.http import Http404
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
@@ -330,29 +330,52 @@ def get_profile(user):
     except Profile.DoesNotExist:
         return None
 
+def check_two_querysets_equal(qs1, qs2):
+    ''' Helper funtion: To check whether two querysets are equal or not '''
+    if len(qs1) != len(qs2):
+        return False
+    
+    d = dict()
+    for qs in qs1:
+        item = qs.name.lower()
+        if item in d.keys(): d[item] += 1
+        else: d[item] = 1
+    
+    for qs in qs2:
+        item = qs.name.lower()
+        if item in d.keys(): d[item] += 1
+        else: d[item] = 1
+
+    for k, v in d.items():
+        if v != 2: return False
+    return True
+
 
 def update_student_profile_degrees_trainings(profile, old_degrees, old_trainings, data):
     ''' Update degrees and trainings of a student profile '''
 
-    # Remove current degrees and trainings
-    profile.degrees.remove( *old_degrees )
-    profile.trainings.remove( *old_trainings )
+    if check_two_querysets_equal( old_degrees, data.get('degrees') ) == False:
+        profile.degrees.remove( *old_degrees ) # Remove current degrees
+        new_degrees = list( data.get('degrees') )
+        profile.degrees.add( *list(new_degrees) ) # Add new degrees
 
-    new_degrees = list( data.get('degrees') )
-    new_trainings = list( data.get('trainings') )
+    if check_two_querysets_equal( old_trainings, data.get('trainings') ) == False:
+        profile.trainings.remove( *old_trainings ) # Remove current trainings
+        new_trainings = list( data.get('trainings') )
+        profile.trainings.add( *list(new_trainings) ) # Add new trainings
 
-    # Add new degrees and trainings
-    profile.degrees.add( *list(new_degrees) )
-    profile.trainings.add( *list(new_trainings) )
-
-    return True if profile else None
+    return True if profile.degrees and profile.trainings else False
 
 
 def update_user_profile_roles(profile, old_roles, data):
-    profile.roles.remove( *old_roles )
-    new_roles = list( data.get('roles') )
-    profile.roles.add( *new_roles )
-    return True if profile else False
+    ''' Update roles of a user '''
+    
+    if check_two_querysets_equal( old_roles, data.get('roles') ) == False:
+        profile.roles.remove( *old_roles ) # Remove current roles
+        new_roles = list( data.get('roles') )
+        profile.roles.add( *new_roles )  # Add new roles
+    
+    return True if profile.roles else False
 
 
 def get_user_roles(user):
@@ -673,8 +696,8 @@ def delete_user_sin(username, option=None):
                 else:
                     return False
             except OSError:
-                print('sin OSError')
-                return False
+                # return False
+                raise SuspiciousOperation
         else:
             return False
     return True
@@ -703,8 +726,8 @@ def delete_user_study_permit(username, option=None):
                 else:
                     return False
             except OSError:
-                print('study permit OSError')
-                return False
+                # return False
+                raise SuspiciousOperation
         else:
             return False
     return True
@@ -717,17 +740,26 @@ def create_expiry_date(year, month, day):
     if not bool(year) or not bool(month) or not bool(day): return False
     return datetime( int(year), int(month), int(day) )
 
+def match_active_trainings(profile):
+    ''' To check a user has required trainings clicked '''
+    profile_trainings = [ tr.name for tr in profile.trainings.all() ]
+    flag = True
+    for tr in get_active_trainings():
+        if tr.name not in profile_trainings:
+            flag = False
+            break
+    return flag
+
 
 def can_apply(user):
     ''' Check whether students can apply or not '''
     profile = has_user_profile_created(user)
-    trainings = get_trainings()
 
     if has_user_resume_created(user) is not None and profile is not None:
         if profile.graduation_date is not None and profile.status is not None and profile.program is not None and \
             profile.degree_details is not None and profile.training_details is not None and profile.lfs_ta_training is not None and \
             profile.lfs_ta_training_details is not None and profile.ta_experience is not None and \
-            profile.ta_experience_details is not None and profile.qualifications is not None and profile.trainings.count() == len(trainings) and profile.degrees.count() > 0:
+            profile.ta_experience_details is not None and profile.qualifications is not None and match_active_trainings(profile) == True and profile.degrees.count() > 0:
             if len(profile.degree_details) > 0 and len(profile.training_details) > 0 and \
                 len(profile.lfs_ta_training_details) > 0 and len(profile.ta_experience_details) > 0 and \
                 len(profile.qualifications) > 0:
@@ -839,6 +871,10 @@ def delete_degree(degree_id):
 def get_trainings():
     ''' Get all trainings '''
     return Training.objects.all()
+
+def get_active_trainings():
+    ''' Get active trainings '''
+    return Training.objects.filter(is_active=True)
 
 def get_training(training_id):
     ''' Get a training by id '''

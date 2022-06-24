@@ -73,6 +73,7 @@ class Degree(models.Model):
 
 class Training(models.Model):
     name = models.CharField(max_length=256, unique=True)
+    is_active = models.BooleanField(default=True)
     slug = models.SlugField(max_length=256, unique=True)
 
     class Meta: ordering = ['pk']
@@ -175,10 +176,14 @@ class Confidentiality(models.Model):
 
     def save(self, *args, **kwargs):
         if 'update_fields' in kwargs:
-            if 'sin' in kwargs['update_fields']:
-                self.sin = encrypt_image(self.sin)
-            if 'study_permit' in kwargs['update_fields']:
-                self.study_permit = encrypt_image(self.study_permit)
+
+            # To check where update fields are coming from
+            # Note: administrators/edit_user doesn't need it
+            if 'updated_at' in kwargs['update_fields']:
+                if 'sin' in kwargs['update_fields']:
+                    self.sin = encrypt_image(self.sin)
+                if 'study_permit' in kwargs['update_fields']:
+                    self.study_permit = encrypt_image(self.study_permit)
         else:
             if bool(self.sin): self.sin = encrypt_image(self.sin)
             if bool(self.study_permit): self.study_permit = encrypt_image(self.study_permit)
@@ -202,6 +207,9 @@ class Resume(models.Model):
         blank=True
     )
     created_at = models.DateField(default=dt.date.today)
+
+    def save(self, *args, **kwargs):
+        super(Resume, self).save(*args, **kwargs)
 
 
 class Profile(models.Model):
@@ -346,32 +354,32 @@ class Avatar(models.Model):
 
     def save(self, *args, **kwargs):
         ''' Reduce a size and quality of the image '''
+        if 'update_fields' not in kwargs:
+            if bool(self.uploaded):
+                file_split = os.path.splitext(self.uploaded.name)
+                file_name = file_split[0]
+                file_extension = file_split[1]
 
-        if bool(self.uploaded):
-            file_split = os.path.splitext(self.uploaded.name)
-            file_name = file_split[0]
-            file_extension = file_split[1]
+                if self.uploaded and file_extension.lower() in ['.jpg', '.jpeg', '.png']:
+                    img = PILImage.open( self.uploaded )
+                    if img.mode == 'P':
+                        img = img.convert('RGB')
 
-            if self.uploaded and file_extension.lower() in ['.jpg', '.jpeg', '.png']:
-                img = PILImage.open( self.uploaded )
-                if img.mode == 'P':
-                    img = img.convert('RGB')
+                    if img.mode in ['RGBA']:
+                        background = PILImage.new( img.mode[:-1], img.size, (255,255,255) )
+                        background.paste(img, img.split()[-1])
+                        img = background
 
-                if img.mode in ['RGBA']:
-                    background = PILImage.new( img.mode[:-1], img.size, (255,255,255) )
-                    background.paste(img, img.split()[-1])
-                    img = background
+                    width, height = compress_image(img)
 
-                width, height = compress_image(img)
+                    img.thumbnail( (width, height), PILImage.ANTIALIAS )
+                    output = BytesIO()
+                    img.save(output, format='JPEG', quality=70) # Reduce a quality by 70%
+                    output.seek(0)
 
-                img.thumbnail( (width, height), PILImage.ANTIALIAS )
-                output = BytesIO()
-                img.save(output, format='JPEG', quality=70) # Reduce a quality by 70%
-                output.seek(0)
+                    img.close()
 
-                img.close()
-
-                self.uploaded = InMemoryUploadedFile(output,'ImageField', "%s.jpg" % file_name, 'image/jpeg', sys.getsizeof(output), None)
+                    self.uploaded = InMemoryUploadedFile(output,'ImageField', "%s.jpg" % file_name, 'image/jpeg', sys.getsizeof(output), None)
 
         super(Avatar, self).save(*args, **kwargs)
 

@@ -40,6 +40,7 @@
         <tr>
           <th>ID</th>
           <th>Name</th>
+          <th>Is Active</th>
           <th>Actions</th>
         </tr>
       </thead>
@@ -48,6 +49,7 @@
           <tr>
             <td>{{ training.id }}</td>
             <td class="text-left">{{ training.name }}</td>
+            <td>{% include 'ta_app/jobs/_job_is_active.html' with data=training %}</td>
             <td>
               <div class="btn-toolbar">
                 <button class="btn btn-xs btn-primary mr-2" type="button" data-toggle="modal" data-target="#training-edit-modal-{{ training.id }}">Edit</button>
@@ -59,14 +61,19 @@
                         <h5 class="modal-title text-info" id="training-edit-modal-label-{{ training.id }}">Edit Training</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                       </div>
-                      <div class="modal-body text-left">
-                        <div class="modal-item">
+                      <div class="modal-body text-left pt-0">
+                        <div class="modal-item font-size-1 pt-0">
                           <form action="{% url 'administrators:edit_training' training.slug %}" method="post">
                             {% csrf_token %}
 
                             <div class="field-wrapper">
                               <label for="id_name_{{ training.id }}">Name:</label>
                               <input id="id_name_{{ training.id }}" type="text" name="name" value="{{ training.name }}" class="form-control" />
+                            </div>
+
+                            <div class="field-wrapper">
+                              <label for="id_is_active_{{ training.id }}">Is active:</label>
+                              <input id="id_is_active_{{ training.id }}" type="checkbox" name="is_active" {% if training.is_active%}checked{% endif %}>
                             </div>
 
                             <input class="btn btn-primary" type="submit" value="Update" />

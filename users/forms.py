@@ -12,7 +12,7 @@ DATE = datetime.now()
 class TrainingForm(forms.ModelForm):
     class Meta:
         model = Training
-        fields = ['name']
+        fields = ['name', 'is_active']
         widgets = {
             'name': forms.TextInput(attrs={ 'class':'form-control' })
         }
@@ -68,7 +68,7 @@ class UserForm(forms.ModelForm):
             'username': forms.TextInput(attrs={ 'required': True, 'class': 'form-control' })
         }
         help_texts = {
-            'first_name': 'Maximum length is 30 characters.',
+            'first_name': 'Maximum length is 150 characters.',
             'last_name': 'Maximum length is 150 characters.',
             'email': 'Maximum length is 254 characters.',
             'username': 'Maximum length is 150 characters.',
@@ -92,7 +92,7 @@ class UserInstructorForm(forms.ModelForm):
             'email': forms.EmailInput(attrs={ 'required': True, 'class': 'form-control' })
         }
         help_texts = {
-            'first_name': 'Maximum length is 30 characters.',
+            'first_name': 'Maximum length is 150 characters.',
             'last_name': 'Maximum length is 150 characters.',
             'email': 'Maximum length is 254 characters.'
         }
@@ -190,9 +190,9 @@ class StudentProfileForm(forms.ModelForm):
     )
     trainings = forms.ModelMultipleChoiceField(
         required=False,
-        queryset=Training.objects.all(),
+        queryset=Training.objects.filter(is_active=True),
         widget=forms.CheckboxSelectMultiple(),
-        label='Training',
+        label='Trainings',
         help_text='I acknowledge that I have completed or will be completing these training requirements as listed below prior to the start date of any TA appointment I may receive. (You must check all fields to proceed).'
     )
     training_details = forms.CharField(
@@ -222,7 +222,7 @@ class StudentProfileForm(forms.ModelForm):
         required=True,
         widget=SummernoteWidget(),
         label='Previous TA Experience Details',
-        help_text='If yes, please list course name & session (example: FHN 350 002, 2010W Term 2)'
+        help_text='If yes, please list course name, session and total hours worked in each course (example: FNH 350 002, 2010W Term 2, 120h)'
     )
     qualifications = forms.CharField(
         required=True,

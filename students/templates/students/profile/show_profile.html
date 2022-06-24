@@ -48,7 +48,7 @@
     <div class="board col-11 mx-auto">
       <h3>Resume</h3>
 
-      {% if user.resume_filename %}
+      {% if loggedin_user.resume_filename %}
         <div>
           <a class="btn btn-link" href="{% url 'students:download_file' username=loggedin_user.username item='resume' filename=loggedin_user.resume_filename %}" target="_blank">
             <i class="fa fa-cloud-download" aria-hidden="true"></i> {{ loggedin_user.resume_filename }}

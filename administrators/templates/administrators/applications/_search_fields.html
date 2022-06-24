@@ -11,29 +11,29 @@
     {% if path == 'selected' %}
       <div>
         <span class="mr-3">
-          Offered: <input type="checkbox" name="offered" value="True" {% if request.GET.offered %}checked{% endif %} /> or
-          Not offered: <input type="checkbox" name="not_offered" value="True" {% if request.GET.not_offered %}checked{% endif %} />
+          Offered: <input class="custom-input-mb-7" type="checkbox" name="offered" value="True" {% if request.GET.offered %}checked{% endif %} /> or
+          Not offered: <input class="custom-input-mb-7" type="checkbox" name="not_offered" value="True" {% if request.GET.not_offered %}checked{% endif %} />
         </span>
         |
         <span class="ml-3">
           Sort by Job in
-          <input type="radio" name="sort_by_job" value="asc" {% if request.GET.sort_by_job == 'asc' %}checked{% endif %} />
+          <input class="custom-input-mb-7" type="radio" name="sort_by_job" value="asc" {% if request.GET.sort_by_job == 'asc' %}checked{% endif %} />
           <label for="asc">ASC</label>
           or
-          <input type="radio" name="sort_by_job" value="desc" {% if request.GET.sort_by_job == 'desc' %}checked{% endif %} />
+          <input class="custom-input-mb-7" type="radio" name="sort_by_job" value="desc" {% if request.GET.sort_by_job == 'desc' %}checked{% endif %} />
           <label for="desc">DESC</label>
         </span>
       </div>
 
     {% elif path == 'offered' %}
       <br />
-      No response: <input type="checkbox" name="no_response" value="True" {% if request.GET.no_response %}checked{% endif %} />
+      No response: <input class="custom-input-mb-7" type="checkbox" name="no_response" value="True" {% if request.GET.no_response %}checked{% endif %} />
 
     {% elif path == 'accepted' %}
       <br />
       <input type="text" name="processed" value="{{ request.GET.processed }}" placeholder="Processed" /> and
-      Declined & re-assigned: <input type="checkbox" name="declined_reassigned" value="True" {% if request.GET.declined_reassigned %}checked{% endif %} /> and
-      Accepted in today: <input type="checkbox" name="accepted_in_today" value="True" {% if request.GET.accepted_in_today %}checked{% endif %} />
+      Declined & re-assigned: <input class="custom-input-mb-7" type="checkbox" name="declined_reassigned" value="True" {% if request.GET.declined_reassigned %}checked{% endif %} /> and
+      Accepted in today: <input class="custom-input-mb-7" type="checkbox" name="accepted_in_today" value="True" {% if request.GET.accepted_in_today %}checked{% endif %} />
 
     {% endif %}
 

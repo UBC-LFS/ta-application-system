@@ -29,8 +29,7 @@
         {% csrf_token %}
 
         <div class="field-wrapper">
-          <label for="id_instructors">Insturctors:</label>
-          <div class="help mb-3">This field is optional.</div>
+          <label for="id_instructors">Instructors:</label>
 
           <div id="job-instructors">
             {% for instructor in instructors %}

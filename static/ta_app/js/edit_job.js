@@ -14,12 +14,12 @@ $(document).ready(function() {
         success: function(res) {
           if (res.status === 'success') {
             if (res.data.length > 0) {
-              let insturctors = '<ul class="search-result instructors">';
+              let instructors = '<ul class="search-result instructors">';
               for (let ins of res.data) {
-                insturctors += '<li data-select-instructor="' + ins.id + '">' + ins.username + ' ('+ ins.first_name + ' ' + ins.last_name + ')</li>';
+                instructors += '<li data-select-instructor="' + ins.id + '">' + ins.username + ' ('+ ins.first_name + ' ' + ins.last_name + ')</li>';
               }
-              insturctors += '</ul>';
-              $("#edit-job-form #display-instructors").html(insturctors);
+              instructors += '</ul>';
+              $("#edit-job-form #display-instructors").html(instructors);
             } else {
               $("#edit-job-form #display-instructors").html('<div class="search-result"><p>No instructors found</p></div>');
             }

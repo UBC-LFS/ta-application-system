@@ -623,7 +623,11 @@ table tbody td {
 input[type=checkbox],
 input[type=radio] {
   vertical-align: middle;
-  margin-bottom: 7px;
+  margin-bottom: 4px;
+}
+
+.custom-input-mb-7 {
+  margin-bottom: 7px !important;
 }
 
 .fa.vertical-middle {

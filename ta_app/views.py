@@ -21,3 +21,8 @@ def page_not_found(request, exception, template_name='404.html'):
     ''' Exception handlder for page not found '''
     loggedin_user = userApi.loggedin_user(request.user)
     return render(request, 'ta_app/pages/404.html', { 'loggedin_user': loggedin_user }, status=404)
+
+
+def internal_server_error(request, template_name='500.html'):
+    ''' Exception handlder for internal server error '''
+    return render(request, 'ta_app/pages/500.html', { 'loggedin_user': loggedin_user }, status=500)
