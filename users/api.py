@@ -533,7 +533,7 @@ def add_avatar(user):
 
 
 def delete_user_avatar(data):
-    ''' Delete user's resume '''
+    ''' Delete user's avatar for testing '''
     user = get_user(data, 'username')
 
     if has_user_avatar_created(user) and bool(user.avatar.uploaded):

@@ -1,3 +1,4 @@
+import os
 from django.conf import settings
 from django.shortcuts import render
 from django.urls import reverse, resolve
@@ -10,7 +11,7 @@ from django.views.decorators.http import require_http_methods
 from django.core.exceptions import PermissionDenied
 
 from administrators import api as adminApi
-from users.models import Role
+from users.models import Role, Avatar
 from users.forms import AvatarForm
 from users import api as userApi
 
@@ -101,10 +102,26 @@ def delete_avatar(request):
     request = userApi.has_users_view_access(request, role)
 
     if request.method == 'POST':
-        username = request.POST.get('user')
-        if userApi.delete_user_avatar(username):
-            messages.success(request, 'Success! Profile Photo deleted.')
+        user = userApi.get_user( request.POST.get('user') )
+        if userApi.has_user_avatar_created(user) and bool(user.avatar.uploaded):
+            user.avatar.delete()
+            if not Avatar.objects.filter(user__id=user.id).exists():
+                dirpath = os.path.join( settings.MEDIA_ROOT, 'users', user.username, 'avatar' )
+                
+                # Remove an avatar directory
+                if os.path.exists(dirpath) and os.path.isdir(dirpath) and len(os.listdir(dirpath)) == 0:
+                    os.rmdir(dirpath)
+                
+                if not os.path.exists(dirpath):
+                    messages.success(request, 'Success! Profile Photo deleted.')
+            else:
+                messages.error(request, 'An error occurred while deleting an image file.')
         else:
-            messages.error(request, 'An error occurred.')
+            messages.error(request, 'An error occurred because no avatar object found.')
+
+        # if userApi.delete_user_avatar(username):
+        #     messages.success(request, 'Success! Profile Photo deleted.')
+        # else:
+        #     messages.error(request, 'An error occurred.')
 
     return HttpResponseRedirect(reverse('users:upload_avatar') + '?next=' + request.GET.get('next'))

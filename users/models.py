@@ -6,6 +6,7 @@ from django.utils.text import slugify
 from django.core.validators import FileExtensionValidator, MinLengthValidator, MaxLengthValidator
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
+from django.core.files.storage import default_storage
 
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.core.files.base import ContentFile
@@ -380,8 +381,12 @@ class Avatar(models.Model):
                     img.close()
 
                     self.uploaded = InMemoryUploadedFile(output,'ImageField', "%s.jpg" % file_name, 'image/jpeg', sys.getsizeof(output), None)
-
         super(Avatar, self).save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        # Delete actual files
+        default_storage.delete(self.uploaded.path)
+        super(Avatar, self).delete(*args, **kwargs)
 
 
 def compress_image(img):
