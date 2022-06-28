@@ -212,6 +212,11 @@ class Resume(models.Model):
     def save(self, *args, **kwargs):
         super(Resume, self).save(*args, **kwargs)
 
+    def delete(self, *args, **kwargs):
+        # Delete actual files
+        default_storage.delete(self.uploaded.path)
+        super(Resume, self).delete(*args, **kwargs)
+
 
 class Profile(models.Model):
     ''' This is a model for a user profile '''

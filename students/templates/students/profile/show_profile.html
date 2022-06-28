@@ -60,7 +60,7 @@
         <div>
           <form action="{% url 'students:delete_resume' %}?next={{ request.GET.next }}&p={{ request.GET.p }}&t=resume" method="post" onsubmit="return confirm('Are you sure to delete this resume?')">
             {% csrf_token %}
-            <input type="hidden" name="user" value="{{ loggedin_user.username }}">
+            <input type="hidden" name="user" value="{{ loggedin_user.id }}">
             <input class="btn btn-sm btn-danger" type="submit" value="Delete" />
           </form>
         </div>
@@ -87,7 +87,7 @@
           <form action="{% url 'students:upload_resume' %}?next={{ request.GET.next }}&p={{ request.GET.p }}&t=resume" method="post" enctype="multipart/form-data">
             {% csrf_token %}
             <table>{{ form.as_table }}</table>
-            <input class="btn btn-primary mt-4" type="submit" value="Upload" />
+            <input class="btn btn-primary mt-4" type="submit" value="Upload" {% if loggedin_user.resume_filename %}disabled{% endif %} />
           </form>
         </div>
       </div>

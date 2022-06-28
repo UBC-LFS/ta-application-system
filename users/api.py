@@ -479,21 +479,31 @@ def add_resume(user):
     return user
 
 
-def delete_user_resume(data):
+def delete_user_resume(user_id):
     ''' Delete user's resume '''
-    user = get_user(data, 'username')
 
+    user = get_user(user_id)
     if has_user_resume_created(user) and bool(user.resume.uploaded):
-        user.resume.uploaded.delete()
-        deleted = user.resume.delete()
-        if deleted and not bool(user.resume.uploaded):
+        user.resume.delete()
+        if not Resume.objects.filter(user__id=user.id).exists():
             dirpath = os.path.join( settings.MEDIA_ROOT, 'users', user.username, 'resume' )
-            if os.path.exists(dirpath) and os.path.isdir(dirpath):
+            
+            # Remove a resume directory
+            if os.path.exists(dirpath) and os.path.isdir(dirpath) and len(os.listdir(dirpath)) == 0:
                 os.rmdir(dirpath)
-                return True
-        else:
-            return False
-    return True
+            
+            if not os.path.exists(dirpath):
+                return { 'status': 'success' }
+            else:
+                return { 'status': 'warning' }
+        return {
+            'status': 'error',
+            'message': "The file of this resume hasn't been deleted"
+        }
+    return {
+            'status': 'success',
+            'message': 'No resume found'
+        }
 
 
 def resume_exists(user):
@@ -532,21 +542,31 @@ def add_avatar(user):
     return user
 
 
-def delete_user_avatar(data):
-    ''' Delete user's avatar for testing '''
-    user = get_user(data, 'username')
-
+def delete_user_avatar(user_id):
+    ''' Delete user's avatar '''
+    
+    user = get_user(user_id)
     if has_user_avatar_created(user) and bool(user.avatar.uploaded):
-        user.avatar.uploaded.delete()
-        deleted = user.avatar.delete()
-        if deleted and not bool(user.avatar.uploaded):
+        user.avatar.delete()
+        if not Avatar.objects.filter(user__id=user.id).exists():
             dirpath = os.path.join( settings.MEDIA_ROOT, 'users', user.username, 'avatar' )
-            if os.path.exists(dirpath) and os.path.isdir(dirpath):
+            
+            # Remove a avatar directory
+            if os.path.exists(dirpath) and os.path.isdir(dirpath) and len(os.listdir(dirpath)) == 0:
                 os.rmdir(dirpath)
-                return True
-        else:
-            return False
-    return True
+            
+            if not os.path.exists(dirpath):
+                return { 'status': 'success' }
+            else:
+                return { 'status': 'warning' }
+        return {
+            'status': 'error',
+            'message': "The file of this avatar hasn't been deleted"
+        }
+    return {
+            'status': 'success',
+            'message': 'No avatar found'
+        }
 
 
 # Confidentiality
@@ -671,7 +691,7 @@ def delete_confidential_information(data):
             if confidentiality.update(study_permit_expiry_date=None) == False:
                 errors.append('Study Permit Expiry Date')
 
-    return True if len(errors) == 0 else ', '.join(errors)
+    return True if len(errors) == 0 else ', '.join(errors)    
 
 
 def delete_user_sin(username, option=None):
@@ -696,8 +716,8 @@ def delete_user_sin(username, option=None):
                 else:
                     return False
             except OSError:
-                # return False
-                raise SuspiciousOperation
+                return False
+                # raise SuspiciousOperation
         else:
             return False
     return True
@@ -726,8 +746,8 @@ def delete_user_study_permit(username, option=None):
                 else:
                     return False
             except OSError:
-                # return False
-                raise SuspiciousOperation
+                return False
+                # raise SuspiciousOperation
         else:
             return False
     return True

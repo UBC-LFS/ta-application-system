@@ -48,7 +48,7 @@
         {% endfor %}
 
         <a class="btn btn-outline-secondary" href="{{ request.GET.next }}">Cancel</a>
-        <input class="btn btn-primary" type="submit" value="Upload" />
+        <input class="btn btn-primary" type="submit" value="Upload" {% if loggedin_user.avatar_filename %}disabled{% endif %}/>
       </form>
 
       <hr class="mt-5" />
@@ -63,7 +63,7 @@
             <span class="mb-3 d-block">Created at: {{ loggedin_user.avatar_file.created_at }}</span>
           </div>
 
-          <form action="{% url 'users:delete_avatar' %}?next={{ request.GET.next }}" method="post">
+          <form action="{% url 'users:delete_avatar' %}?next={{ request.GET.next }}" method="post" onsubmit="return confirm('Are you sure to delete this profile photo?')">
             {% csrf_token %}
 
             <input type="hidden" name="user" value="{{ loggedin_user.id }}" />

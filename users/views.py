@@ -102,26 +102,12 @@ def delete_avatar(request):
     request = userApi.has_users_view_access(request, role)
 
     if request.method == 'POST':
-        user = userApi.get_user( request.POST.get('user') )
-        if userApi.has_user_avatar_created(user) and bool(user.avatar.uploaded):
-            user.avatar.delete()
-            if not Avatar.objects.filter(user__id=user.id).exists():
-                dirpath = os.path.join( settings.MEDIA_ROOT, 'users', user.username, 'avatar' )
-                
-                # Remove an avatar directory
-                if os.path.exists(dirpath) and os.path.isdir(dirpath) and len(os.listdir(dirpath)) == 0:
-                    os.rmdir(dirpath)
-                
-                if not os.path.exists(dirpath):
-                    messages.success(request, 'Success! Profile Photo deleted.')
-            else:
-                messages.error(request, 'An error occurred while deleting an image file.')
+        res = userApi.delete_user_avatar(request.POST.get('user'))
+        if res['status'] == 'success':
+            messages.success(request, 'Success! Profile Photo deleted')
+        elif res['status'] == 'warning':
+            messages.warning(request, "Warning! The folder of this avatar hasn't been deleted")
         else:
-            messages.error(request, 'An error occurred because no avatar object found.')
-
-        # if userApi.delete_user_avatar(username):
-        #     messages.success(request, 'Success! Profile Photo deleted.')
-        # else:
-        #     messages.error(request, 'An error occurred.')
+            messages.error(request, 'An error occurred. {0}'.format(res['message']))
 
     return HttpResponseRedirect(reverse('users:upload_avatar') + '?next=' + request.GET.get('next'))

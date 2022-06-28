@@ -53,7 +53,7 @@
                 <div class="field-wrapper">
                   <label for="{{ field.id_for_label }}">
                     {{ field.label }}
-                    {% if field.name != 'employee_number' %}
+                    {% if field.name != 'employee_number' and field.name != 'date_of_birth' %}
                       <small class="text-danger"><i class="fa fa-asterisk" aria-hidden="true"></i></small>
                     {% endif %}
                   </label>

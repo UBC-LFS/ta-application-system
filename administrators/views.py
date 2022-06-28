@@ -1986,7 +1986,7 @@ def edit_user(request, username):
                         try: os.mkdir(resume_path) # Create a new resume directory
                         except OSError: SuspiciousOperation
 
-                    if os.path.exists(resume_path):
+                    if os.path.exists(resume_path) and os.path.isdir(resume_path):
                         file_path = user.resume.uploaded.name
                         filename = file_path.replace(old_username, new_username)
 
@@ -2008,7 +2008,7 @@ def edit_user(request, username):
                         try: os.mkdir(avatar_path) # Create a new avatar directory
                         except OSError: SuspiciousOperation
 
-                    if os.path.exists(avatar_path):
+                    if os.path.exists(avatar_path) and os.path.isdir(avatar_path):
                         file_path = user.avatar.uploaded.name
                         filename = file_path.replace(old_username, new_username)
 
@@ -2031,7 +2031,7 @@ def edit_user(request, username):
                             try: os.mkdir(sin_path) # Create a new sin directory
                             except OSError: SuspiciousOperation
 
-                        if os.path.exists(sin_path):
+                        if os.path.exists(sin_path) and os.path.isdir(sin_path):
                             file_path = user.confidentiality.sin.name
                             filename = file_path.replace(old_username, new_username)
 
@@ -2198,14 +2198,15 @@ def destroy_user_contents(request):
             if userApi.has_user_confidentiality_created(user):
                 user.confidentiality.delete()
 
-            resume = userApi.delete_user_resume(user)
+            resume = userApi.delete_user_resume(user.id)
+            avatar = userApi.delete_user_avatar(user.id)
             profile = userApi.trim_profile(user)
 
             dirpath = os.path.join( settings.MEDIA_ROOT, 'users', user.username )
             if os.path.exists(dirpath) and os.path.isdir(dirpath):
                 os.rmdir(dirpath)
 
-            if profile and resume and userApi.resume_exists(user) == False and userApi.confidentiality_exists(user) == False:
+            if profile and resume['status'] == 'success' and avatar['status'] == 'success' and userApi.resume_exists(user) == False and userApi.confidentiality_exists(user) == False:
                 deleted_users.append(user.get_full_name())
                 count += 1
 

@@ -419,6 +419,7 @@ main {
   display: inline-block;
 }
 
+/* bd-callout came from Bootstrap 4 */
 .bd-callout {
     padding: 1.25rem;
     margin-top: 1.25rem;

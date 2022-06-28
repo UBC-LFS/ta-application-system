@@ -15,7 +15,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from administrators.forms import *
 from administrators import api as adminApi
 
-from users.models import Role, Alert
+from users.models import Role, Alert, Resume
 from users.forms import *
 from users import api as userApi
 
@@ -198,12 +198,13 @@ def delete_resume(request):
     adminApi.can_req_parameters_access(request, 'student', ['next', 'p'])
 
     if request.method == 'POST':
-        username = request.POST.get('user')
-        deleted_resume = userApi.delete_user_resume(username)
-        if deleted_resume:
-            messages.success(request, 'Success! {0} - Resume deleted'.format(username))
+        res = userApi.delete_user_resume(request.POST.get('user'))
+        if res['status'] == 'success':
+            messages.success(request, 'Success! Resume deleted')
+        elif res['status'] == 'warning':
+            messages.warning(request, "Warning! The folder of this resume hasn't been deleted")
         else:
-            messages.error(request, 'An error occurred. Failed to delete your resume.')
+            messages.error(request, 'An error occurred. {0}'.format(res['message']))
     else:
         messages.error(request, 'An error occurred. Request is not POST.')
 
