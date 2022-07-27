@@ -1976,15 +1976,19 @@ def edit_user(request, username):
             if request.POST.get('username') != old_username:
                 new_dirpath = os.path.join( settings.MEDIA_ROOT, 'users', new_username )
                 if os.path.exists(new_dirpath) == False:
-                    try: os.mkdir(new_dirpath) # Create a new directory
-                    except OSError: SuspiciousOperation
+                    try: 
+                        os.mkdir(new_dirpath) # Create a new directory
+                    except OSError: 
+                        SuspiciousOperation
 
                 # Resume
                 if userApi.has_user_resume_created(user) and bool(user.resume.uploaded):
                     resume_path = os.path.join( settings.MEDIA_ROOT, 'users', new_username, 'resume' )
                     if os.path.exists(resume_path) == False:
-                        try: os.mkdir(resume_path) # Create a new resume directory
-                        except OSError: SuspiciousOperation
+                        try: 
+                            os.mkdir(resume_path) # Create a new resume directory
+                        except OSError: 
+                            SuspiciousOperation
 
                     if os.path.exists(resume_path) and os.path.isdir(resume_path):
                         file_path = user.resume.uploaded.name
@@ -1998,15 +2002,19 @@ def edit_user(request, username):
                         user.resume.save(update_fields=['uploaded'])
 
                         # Remove an old resume directory
-                        try: os.rmdir( os.path.join( settings.MEDIA_ROOT, 'users', old_username, 'resume' ) )
-                        except OSError: SuspiciousOperation
+                        try: 
+                            os.rmdir( os.path.join( settings.MEDIA_ROOT, 'users', old_username, 'resume' ) )
+                        except OSError: 
+                            SuspiciousOperation
 
                 # Avatar
                 if userApi.has_user_avatar_created(user) and bool(user.avatar.uploaded):
                     avatar_path = os.path.join( settings.MEDIA_ROOT, 'users', new_username, 'avatar' )
                     if os.path.exists(avatar_path) == False:
-                        try: os.mkdir(avatar_path) # Create a new avatar directory
-                        except OSError: SuspiciousOperation
+                        try: 
+                            os.mkdir(avatar_path) # Create a new avatar directory
+                        except OSError: 
+                            SuspiciousOperation
 
                     if os.path.exists(avatar_path) and os.path.isdir(avatar_path):
                         file_path = user.avatar.uploaded.name
@@ -2020,16 +2028,20 @@ def edit_user(request, username):
                         user.avatar.save(update_fields=['uploaded'])
 
                         # Remove an old avatar directory
-                        try: os.rmdir( os.path.join( settings.MEDIA_ROOT, 'users', old_username, 'avatar' ) )
-                        except OSError: SuspiciousOperation
+                        try: 
+                            os.rmdir( os.path.join( settings.MEDIA_ROOT, 'users', old_username, 'avatar' ) )
+                        except OSError: 
+                            SuspiciousOperation
 
                 if userApi.has_user_confidentiality_created(user):
                     update_fields = []
                     if bool(user.confidentiality.sin):
                         sin_path = os.path.join( settings.MEDIA_ROOT, 'users', new_username, 'sin' )
                         if os.path.exists(sin_path) == False:
-                            try: os.mkdir(sin_path) # Create a new sin directory
-                            except OSError: SuspiciousOperation
+                            try: 
+                                os.mkdir(sin_path) # Create a new sin directory
+                            except OSError: 
+                                SuspiciousOperation
 
                         if os.path.exists(sin_path) and os.path.isdir(sin_path):
                             file_path = user.confidentiality.sin.name
@@ -2042,16 +2054,20 @@ def edit_user(request, username):
                             user.confidentiality.sin = filename
 
                             # Remove an old sin directory
-                            try: os.rmdir( os.path.join( settings.MEDIA_ROOT, 'users', old_username, 'sin' ) )
-                            except OSError: SuspiciousOperation
+                            try: 
+                                os.rmdir( os.path.join( settings.MEDIA_ROOT, 'users', old_username, 'sin' ) )
+                            except OSError: 
+                                SuspiciousOperation
 
                             update_fields.append('sin')
 
                     if bool(user.confidentiality.study_permit):
                         study_permit_path = os.path.join( settings.MEDIA_ROOT, 'users', new_username, 'study_permit' )
                         if os.path.exists(study_permit_path) == False:
-                            try: os.mkdir(study_permit_path) # Create a new study_permit directory
-                            except OSError: SuspiciousOperation
+                            try: 
+                                os.mkdir(study_permit_path) # Create a new study_permit directory
+                            except OSError: 
+                                SuspiciousOperation
 
                         if os.path.exists(study_permit_path) and os.path.isdir(study_permit_path):
                             file_path = user.confidentiality.study_permit.name
@@ -2064,8 +2080,10 @@ def edit_user(request, username):
                             user.confidentiality.study_permit = filename
 
                             # Remove an old sin directory
-                            try: os.rmdir( os.path.join( settings.MEDIA_ROOT, 'users', old_username, 'study_permit' ) )
-                            except OSError: SuspiciousOperation
+                            try: 
+                                os.rmdir( os.path.join( settings.MEDIA_ROOT, 'users', old_username, 'study_permit' ) )
+                            except OSError: 
+                                SuspiciousOperation
 
                             update_fields.append('study_permit')
 
@@ -2075,8 +2093,10 @@ def edit_user(request, username):
                 # If an old folder is empty, delete it
                 old_dirpath = os.path.join( settings.MEDIA_ROOT, 'users', old_username )
                 if len( os.listdir(old_dirpath) ) == 0:
-                    try: os.rmdir(old_dirpath)
-                    except OSError: SuspiciousOperation
+                    try: 
+                        os.rmdir(old_dirpath)
+                    except OSError: 
+                        print("The folder hasn't been deleted")
 
             updated_profile = user_profile_edit_form.save(commit=False)
             updated_profile.updated_at = datetime.now()
