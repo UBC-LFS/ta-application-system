@@ -61,7 +61,7 @@ def send_terminated_apps():
 
 def run():
     print('Scheduling tasks running...')
-    scheduler = BackgroundScheduler()
+    scheduler = BackgroundScheduler(timezone=settings.TIME_ZONE)
 
     scheduler.add_job(send_accepted_apps, 'cron', day_of_week='mon-fri', hour='9-17')
     scheduler.add_job(send_terminated_apps, 'cron', day_of_week='mon-fri', hour='9-17', minute=5)
