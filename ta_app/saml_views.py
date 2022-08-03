@@ -145,8 +145,10 @@ def saml(request, action=None):
                         print('%s ==> %s' % (attr_name, '|| '.join(request.session['samlUserdata'][attr_name])))
             else:
              print('Not authenticated')
-        else:
-            print("Error when processing SAML Response: %s" % (', '.join(errors)))
+             
+        elif auth.get_settings().is_debug_active():
+            error_reason = auth.get_last_error_reason()
+            print( 'Error when processing SAML Response: {0}. {1}'.format(', '.join(errors), error_reason) )
 
     elif 'sls' in req['get_data']:
         #dscb = lambda: request.session.flush()
@@ -162,7 +164,7 @@ def saml(request, action=None):
 
     return render(request, 'accounts/login.html', {
         'landing_page': adminApi.get_visible_landing_page(),
-        'errors': errors,
+        'errors': ', '.join(errors) + '. ' + error_reason,
         #'error_reason': error_reason,
         #'not_auth_warn': not_auth_warn,
         #'success_slo': success_slo,

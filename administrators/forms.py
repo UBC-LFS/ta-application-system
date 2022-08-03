@@ -100,18 +100,16 @@ class CourseForm(forms.ModelForm):
             'job_note': SummernoteWidget()
         }
         labels = {
+            'overview': 'Course Overview',
             'job_description': 'Job Description',
-            'job_note': 'Job Note'
+            'job_note': 'Note'
         }
         help_texts = {
             'term': 'This field is required.',
             'code': 'This field is required.',
             'number': 'This field is required.',
             'section': 'This field is required.',
-            'name': 'This field is required. Maximum 256 characters allowed.',
-            'overview': 'This field is optional.',
-            'job_description': 'This field is optional.',
-            'job_note': 'This field is optional.'
+            'name': 'This field is required. Maximum 256 characters allowed.'
         }
 
     field_order = ['term', 'code', 'number','section', 'name', 'overview', 'job_description', 'job_note']
@@ -129,8 +127,8 @@ class CourseEditForm(forms.ModelForm):
             'job_note': SummernoteWidget()
         }
         labels = {
-            'job_description': 'Job Description',
             'overview': 'Course Overview',
+            'job_description': 'Job Description',
             'job_note': 'Note'
         }
         help_texts = {
