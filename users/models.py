@@ -431,6 +431,9 @@ def encrypt_image(obj):
     file_extension = file_split[1]
 
     img = PILImage.open(obj)
+    if img.mode == 'P':
+        img = img.convert('RGB')
+    
     if img.mode in ['RGBA']:
         background = PILImage.new( img.mode[:-1], img.size, (255,255,255) )
         background.paste(img, img.split()[-1])
