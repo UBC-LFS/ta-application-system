@@ -1062,30 +1062,52 @@ def selected_applications(request):
                 'form_url': reverse('administrators:offer_job', args=[app.job.session.slug, app.job.course.slug]),
                 'classification_id': app.classification.id if app.classification != None else -1,
                 'assigned_hours': app.selected.assigned_hours,
-                'button_colour': 'btn-primary'
+                'button_colour': 'btn-primary',
+                'button_disabled': False,
+                'button_disabled_message': False
             }
+
             latest_status = adminApi.get_latest_status_in_app(app)
-            num_reset = app.applicationreset_set.count()
-            if latest_status == 'none':
-                if num_reset > 0 and app.applicationstatus_set.filter(assigned=ApplicationStatus.NONE).count() > num_reset:
-                    offer_modal['title'] = 'Re-offer'
-            elif latest_status == 'selected':
-                if num_reset > 0 and app.applicationstatus_set.filter(assigned=ApplicationStatus.SELECTED).count() > num_reset:
-                    offer_modal['title'] = 'Re-offer'
-                else:
-                    offer_modal['title'] = 'Offer'
+            num_offers = app.applicationstatus_set.filter(assigned=ApplicationStatus.OFFERED).count()
+            # num_resets = app.applicationreset_set.count()
+            
+            if latest_status == 'selected' or latest_status == 'none':
+                if num_offers == 0: offer_modal['title'] = 'Offer'
+                else: offer_modal['title'] = 'Re-offer'
+
+                filtered_offered_apps['num_not_offered'] += 1
+
+                if latest_status == 'none':
+                    offer_modal['button_disabled'] = True
+                    offer_modal['button_disabled_message'] = True
+
+                    filtered_offered_apps['num_not_offered'] -= 1
+                    filtered_offered_apps['num_offered'] += 1
             else:
-                offer_modal['title'] = 'Edit Job Offer'
-                offer_modal['form_url'] = ''
-                offer_modal['assigned_hours'] = app.offered.assigned_hours
+                offer_modal['title'] = 'Edit'
                 offer_modal['button_colour'] = 'btn-warning'
+                filtered_offered_apps['num_offered'] += 1
+            
+            # if latest_status == 'none':
+            #     if num_resets > 0 and app.applicationstatus_set.filter(assigned=ApplicationStatus.NONE).count() > num_resets:
+            #         offer_modal['title'] = 'Re-offer'
+            # elif latest_status == 'selected':
+            #     if num_resets > 0 and app.applicationstatus_set.filter(assigned=ApplicationStatus.SELECTED).count() > num_resets:
+            #         offer_modal['title'] = 'Re-offer'
+            #     else:
+            #         offer_modal['title'] = 'Offer'
+            # else:
+            #     offer_modal['title'] = 'Edit Job Offer'
+            #     offer_modal['form_url'] = ''
+            #     offer_modal['assigned_hours'] = app.offered.assigned_hours
+            #     offer_modal['button_colour'] = 'btn-warning'
 
             app.offer_modal = offer_modal
 
-            if app.offered != None:
-                filtered_offered_apps['num_offered'] += 1
-            else:
-                filtered_offered_apps['num_not_offered'] += 1
+            # if app.offered != None:
+            #     filtered_offered_apps['num_offered'] += 1
+            # else:
+            #     filtered_offered_apps['num_not_offered'] += 1
 
             if app.job.assigned_ta_hours == app.job.accumulated_ta_hours:
                 app.ta_hour_progress = 'done'
@@ -1109,7 +1131,7 @@ def selected_applications(request):
         },
         'all_offered_apps_stats': {
             'num_offered': info['num_offered_apps'],
-            'num_not_offered': info['num_all_apps'] - info['num_offered_apps']
+            'num_not_offered': info['num_not_offered_apps']
         },
         'classification_choices': adminApi.get_classifications(),
         'app_status': APP_STATUS,

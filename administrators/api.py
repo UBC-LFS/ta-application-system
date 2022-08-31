@@ -3,7 +3,8 @@ from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django.http import Http404
 from django.forms.models import model_to_dict
-from django.db.models import Q, Count
+from django.db.models import Q, Count, OuterRef, Subquery
+
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from django.contrib.auth.models import User
@@ -737,9 +738,14 @@ def get_applications_filter_limit(request, status):
         apps = Application.objects.filter(applicationstatus__assigned=ApplicationStatus.SELECTED).order_by('-id').distinct()
 
         num_all_apps = apps.count()
-        count_offered_apps = Count('applicationstatus', filter=Q(applicationstatus__assigned=ApplicationStatus.OFFERED))
-        offered_apps = Application.objects.annotate(count_offered_apps=count_offered_apps).filter(count_offered_apps__gt=0)
-        num_offered_apps = offered_apps.count()
+        # adminApi.get_latest_status_in_app(app)
+        # count_offered_apps = Count('applicationstatus', filter=Q(applicationstatus__assigned=ApplicationStatus.OFFERED))
+        # offered_apps = Application.objects.annotate(count_offered_apps=count_offered_apps).filter(count_offered_apps__gt=0)
+        # num_offered_apps = offered_apps.count()
+        
+        latest = ApplicationStatus.objects.filter(application=OuterRef('pk')).order_by('-id')
+        not_offered_apps = apps.annotate(latest_app_status=Subquery(latest.values('assigned')[:1])).filter(latest_app_status=ApplicationStatus.SELECTED).order_by('-id')
+        num_not_offered_apps = not_offered_apps.count()
 
     elif status == 'accepted':
         apps = get_accepted_apps_not_terminated()
@@ -776,10 +782,16 @@ def get_applications_filter_limit(request, status):
             else:
                 apps = apps.order_by('-job__course__code', '-job__course__number', '-job__course__section', '-job__session_term_code', '-job__session__year')
 
-        if bool( request.GET.get('offered') ):
-            apps = apps.filter(applicationstatus__assigned=ApplicationStatus.OFFERED)
-        if bool( request.GET.get('not_offered') ):
-            apps = apps.filter( ~Q(applicationstatus__assigned=ApplicationStatus.OFFERED) )
+        offer_status = request.GET.get('offer_status')
+        if bool(offer_status):
+            if offer_status == 'offered':
+                # apps = apps.filter(applicationstatus__assigned=ApplicationStatus.OFFERED)
+                apps = apps.annotate(latest_app_status=Subquery(latest.values('assigned')[:1]))
+                apps = apps.difference(not_offered_apps).order_by('-id')
+
+            if offer_status == 'not_offered':
+                # apps = apps.filter( ~Q(applicationstatus__assigned=ApplicationStatus.OFFERED) )
+                apps = apps.annotate(latest_app_status=Subquery(latest.values('assigned')[:1])).filter(latest_app_status=ApplicationStatus.SELECTED).order_by('-id')
 
     elif status == 'offered':
         if bool( request.GET.get('no_response') ):
@@ -811,7 +823,8 @@ def get_applications_filter_limit(request, status):
     return apps, {
         'num_all_apps': num_all_apps,
         'num_filtered_apps': apps.count(),
-        'num_offered_apps': num_offered_apps,
+        'num_offered_apps': num_all_apps - num_not_offered_apps,
+        'num_not_offered_apps': num_not_offered_apps,
         'today_accepted_apps': today_accepted_apps,
         'today': today
     }

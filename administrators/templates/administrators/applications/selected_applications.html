@@ -12,7 +12,7 @@
 
     <div class="col-md-6">
 
-      <div class="bg-light-gray p-3 text-center" style="height:204.6px">
+      <div class="bg-light-gray p-3 text-center" style="height:212px">
         <p class="h4 font-weight-normal mt-2 mb-4">
           <i class="fa fa-bell-o" aria-hidden="true"></i> Statistics
         </p>
@@ -244,9 +244,26 @@
           <td>
             {% if app.offered %}
               <div class="badge badge-light">OFFERED</div>
-              <div class="text-dark-gray">{{ app.offered.created_at }}</div>
+              <div class="text-dark-gray mb-1">{{ app.offered.created_at }}</div>
+            {% endif %}
+            
+            {% if app.offer_modal.button_disabled %}
+              <button class="btn btn-xs {{ app.offer_modal.button_colour }}" type="button" disabled>
+                {{ app.offer_modal.title }}
+              </button>
+            {% else %}
+              <button class="btn btn-xs {{ app.offer_modal.button_colour }}" type="button" data-toggle="modal" data-target="#job-application-offer-modal-{{ app.id }}">
+                {{ app.offer_modal.title }}
+              </button>
+            {% endif %}
+            
+            {% if app.offer_modal.button_disabled_message %}
+              <div style="width:80px; margin-left:auto; margin-right:auto; line-height:1;">
+                <small class="text-secondary">An instructor has not selected yet</small>
+              </div>
             {% endif %}
 
+            {% comment %}
             {% if app.applicationstatus_set.last.assigned == app_status.applied and app.offer_modal.title == 'Re-offer' %}
               <button class="btn btn-xs btn-primary" type="button" disabled>Re-offer</button>
               <div style="width:80px; margin-left:auto; margin-right:auto; line-height:1;">
@@ -268,6 +285,7 @@
                 </button>
               {% endif %}
             {% endif %}
+            {% endcomment %}
 
             <div class="modal fade" id="job-application-offer-modal-{{ app.id }}" tabindex="-1" role="dialog" aria-labelledby="job-application-offer-modal-label-{{ app.id }}" aria-hidden="true">
               <div class="modal-dialog modal-lg" role="document">
@@ -327,14 +345,14 @@
                         <input type="hidden" name="applicant" value="{{ app.applicant.id }}" />
                         <input type="hidden" name="next" value="{{ new_next }}" />
 
-                        {% if app.offer_modal.title == 'Edit Job Offer' %}
+                        {% if app.offer_modal.title == 'Edit' %}
                           <input type="hidden" name="applicationstatus" value="{{ app.offered.id }}" />
                         {% else %}
                           <input type="hidden" name="assigned" value="{{ app_status.offered }}" />
                           <input type="hidden" name="has_contract_read" value="false" />
                         {% endif %}
 
-                        <input class="btn font-size-1 {{ app.offer_modal.button_colour }}" type="submit" value="{% if app.offer_modal.title == 'Edit Job Offer' %} Update {% else %} {{ app.offer_modal.title }} {% endif %}" />
+                        <input class="btn font-size-1 {{ app.offer_modal.button_colour }}" type="submit" value="{% if app.offer_modal.title == 'Edit' %} Update {% else %} {{ app.offer_modal.title }} {% endif %}" />
                       </form>
                     </div>
                   </div>
