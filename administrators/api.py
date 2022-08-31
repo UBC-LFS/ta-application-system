@@ -729,8 +729,7 @@ def get_applications_filter_limit(request, status):
 
     apps = None
     num_all_apps = 0
-    num_filtered_apps = 0
-    num_offered_apps = 0
+    num_not_offered_apps = 0
     today_accepted_apps = None
     today = None
 
