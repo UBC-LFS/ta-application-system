@@ -891,14 +891,6 @@ def get_applications_with_multiple_ids_by_path(ids, path):
 
     return apps
 
-def update_application_classification_note(app_id, data):
-    ''' Update classification and note in an application '''
-    app = Application.objects.filter(id=app_id).update(
-        classification = data.get('classification'),
-        note = data.get('note'),
-        updated_at = datetime.now()
-    )
-    return True if app else False
 
 def update_reset_application(app_id, instructor_preference):
     ''' Update a reset application '''

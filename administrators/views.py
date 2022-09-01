@@ -1057,11 +1057,15 @@ def selected_applications(request):
 
         filtered_offered_apps = { 'num_offered': 0, 'num_not_offered': 0 }
         for app in apps:
+            assigned_hours = app.selected.assigned_hours
+            if app.offered and app.offered.id > app.selected.id:
+                assigned_hours = app.offered.assigned_hours
+            
             offer_modal = {
                 'title': '',
                 'form_url': reverse('administrators:offer_job', args=[app.job.session.slug, app.job.course.slug]),
                 'classification_id': app.classification.id if app.classification != None else -1,
-                'assigned_hours': app.selected.assigned_hours,
+                'assigned_hours': assigned_hours,
                 'button_colour': 'btn-primary',
                 'button_disabled': False,
                 'button_disabled_message': False
@@ -1069,7 +1073,6 @@ def selected_applications(request):
 
             latest_status = adminApi.get_latest_status_in_app(app)
             num_offers = app.applicationstatus_set.filter(assigned=ApplicationStatus.OFFERED).count()
-            # num_resets = app.applicationreset_set.count()
             
             if latest_status == 'selected' or latest_status == 'none':
                 if num_offers == 0: offer_modal['title'] = 'Offer'
@@ -1087,27 +1090,8 @@ def selected_applications(request):
                 offer_modal['title'] = 'Edit'
                 offer_modal['button_colour'] = 'btn-warning'
                 filtered_offered_apps['num_offered'] += 1
-            
-            # if latest_status == 'none':
-            #     if num_resets > 0 and app.applicationstatus_set.filter(assigned=ApplicationStatus.NONE).count() > num_resets:
-            #         offer_modal['title'] = 'Re-offer'
-            # elif latest_status == 'selected':
-            #     if num_resets > 0 and app.applicationstatus_set.filter(assigned=ApplicationStatus.SELECTED).count() > num_resets:
-            #         offer_modal['title'] = 'Re-offer'
-            #     else:
-            #         offer_modal['title'] = 'Offer'
-            # else:
-            #     offer_modal['title'] = 'Edit Job Offer'
-            #     offer_modal['form_url'] = ''
-            #     offer_modal['assigned_hours'] = app.offered.assigned_hours
-            #     offer_modal['button_colour'] = 'btn-warning'
 
             app.offer_modal = offer_modal
-
-            # if app.offered != None:
-            #     filtered_offered_apps['num_offered'] += 1
-            # else:
-            #     filtered_offered_apps['num_not_offered'] += 1
 
             if app.job.assigned_ta_hours == app.job.accumulated_ta_hours:
                 app.ta_hour_progress = 'done'
@@ -1182,17 +1166,30 @@ def offer_job(request, session_slug, job_slug):
             messages.error(request, 'An error occurred. Please you cannot assign {0} hours Total Assigned TA Hours is {1}, then try again.'.format( assigned_hours, int(job.assigned_ta_hours) ))
             return HttpResponseRedirect(request.POST.get('next'))
 
+
+        print('offer job', app.id, assigned_hours, request.POST)
+        errors = []
+
         admin_app_form = AdminApplicationForm(request.POST)
-        app_status_form = ApplicationStatusForm(request.POST)
+        if request.POST.get('offer_type') == 'edit':
+            ApplicationStatus.objects.filter(id=request.POST.get('applicationstatus')).update(assigned_hours=assigned_hours)
 
-        if admin_app_form.is_valid() and app_status_form.is_valid():
-            updated_app = adminApi.update_application_classification_note(request.POST.get('application'), admin_app_form.cleaned_data)
-            status = app_status_form.save()
+        elif request.POST.get('offer_type') == 'offer':
+            app_status_form = ApplicationStatusForm(request.POST)
+            if app_status_form.is_valid():
+                app_status_form.save()
+            else:
+                app_status_errors = app_status_form.errors.get_json_data()
+                if app_status_errors: 
+                    errors.append( userApi.get_error_messages(app_status_errors) )
 
-            errors = []
-            if not updated_app: errors.append('An error occurred. Failed to update classification and note.')
-            if not status: errors.append('An error occurred. Failed to update the application status.')
-
+        if admin_app_form.is_valid():
+            Application.objects.filter(id=app.id).update(
+                classification = request.POST.get('classification'),
+                note = request.POST.get('note'),
+                updated_at = datetime.now()
+            )
+            
             if len(errors) > 0:
                 messages.error(request, 'An error occurred while sending a job offer. {0}'.format( ' '.join(errors) ))
                 return HttpResponseRedirect(request.POST.get('next'))
@@ -1200,15 +1197,12 @@ def offer_job(request, session_slug, job_slug):
             applicant = userApi.get_user(request.POST.get('applicant'))
             messages.success(request, 'Success! You offered this user ({0} {1}) {2} hours for this job ({3} {4} - {5} {6} {7})'.format(applicant.first_name, applicant.last_name, assigned_hours, job.session.year, job.session.term.code, job.course.code.name, job.course.number.name, job.course.section.name))
         else:
-            errors = []
-
             admin_app_errors = admin_app_form.errors.get_json_data()
-            app_status_errors = app_status_form.errors.get_json_data()
-
-            if admin_app_errors: errors.append( userApi.get_error_messages(admin_app_errors) )
-            if app_status_errors: errors.append( userApi.get_error_messages(app_status_errors) )
-
-            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+            if admin_app_errors: 
+                errors.append( userApi.get_error_messages(admin_app_errors) )
+            
+        if len(errors) > 0:
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format(' '.join(errors)))
 
     return HttpResponseRedirect(request.POST.get('next'))
 
