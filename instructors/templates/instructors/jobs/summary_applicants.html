@@ -40,7 +40,7 @@
   </div>
 
   <div class="col-md-9">
-    {% include 'instructors/jobs/_search_fields.html' with data=applicants total=searched_total path='instructors_applications' session_slug=session.slug job_slug=job.course.slug %}
+    {% include 'instructors/jobs/_search_fields.html' with data=applicants total=searched_total_applicants path='instructors_applications' session_slug=session.slug job_slug=job.course.slug %}
 
     <div class="mt-4">
       <form action="{% url 'instructors:applicants_send_email' %}" method="post">

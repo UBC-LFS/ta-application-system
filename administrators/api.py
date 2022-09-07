@@ -57,7 +57,7 @@ def can_req_parameters_access(request, domain, params, option=None):
                 'Offered Applications', 'Accepted Applications',
                 'Declined Applications', 'Terminated Applications',
                 'Email History']
-    USER_PATH = ['All Users', 'Jobs by Instructor', 'Jobs by Student', 'Applications'] + APP_PATH
+    USER_PATH = ['All Users', 'Jobs by Instructor', 'Jobs by Student', 'Job Applications', 'Applications'] + APP_PATH
     STUDENT_PATH = ['Home', 'Edit Profile','Confidential Information']
 
     # True if parameters are in the params list
@@ -296,24 +296,6 @@ def check_valid_accepted_app_or_not(app):
                     return True
 
     return False
-
-
-# def get_applicant_status(year, term_code, applicant):
-#     ''' Get applicant's status '''
-#
-#     apps = applicant.application_set.filter( Q(job__session__year=year) & Q(job__session__term__code=term_code) )
-#
-#     if apps.count() > 0:
-#         accepted_apps = []
-#         for app in apps:
-#             app.full_course_name = app.job.course.code.name + '_' + app.job.course.number.name + '_' + app.job.course.section.name
-#             app = add_app_info_into_application(app, ['accepted', 'declined'])
-#             if check_valid_accepted_app_or_not(app):
-#                 accepted_apps.append(app)
-#
-#         applicant.accepted_apps = accepted_apps
-#
-#     return applicant
 
 
 def get_filtered_accepted_apps(apps=None):
@@ -741,7 +723,7 @@ def get_applications_filter_limit(request, status):
         # count_offered_apps = Count('applicationstatus', filter=Q(applicationstatus__assigned=ApplicationStatus.OFFERED))
         # offered_apps = Application.objects.annotate(count_offered_apps=count_offered_apps).filter(count_offered_apps__gt=0)
         # num_offered_apps = offered_apps.count()
-        
+
         latest = ApplicationStatus.objects.filter(application=OuterRef('pk')).order_by('-id')
         not_offered_apps = apps.annotate(latest_app_status=Subquery(latest.values('assigned')[:1])).filter(latest_app_status=ApplicationStatus.SELECTED).order_by('-id')
         num_not_offered_apps = not_offered_apps.count()
@@ -828,6 +810,19 @@ def get_applications_filter_limit(request, status):
         'today': today
     }
 
+
+def get_acceted_apps_in_applicant(app):
+    ''' Get accepted applications in an applicant '''
+    accepted_apps = []
+    apps = app.applicant.application_set.filter( Q(job__session__year=app.job.session.year) & Q(job__session__term__code=app.job.session.term.code) )
+    if apps.count() > 0:
+        for app in apps:
+            app.full_course_name = app.job.course.code.name + '_' + app.job.course.number.name + '_' + app.job.course.section.name
+            app = add_app_info_into_application(app, ['accepted', 'declined'])
+            if check_valid_accepted_app_or_not(app):
+                accepted_apps.append(app)
+
+    return accepted_apps
 
 def get_application_statuses():
     ''' Get all statuses of an application '''
@@ -1086,6 +1081,7 @@ def get_today_terminated_apps():
     app_statuses = ApplicationStatus.objects.filter( Q(application__is_terminated=True) & Q(assigned=ApplicationStatus.CANCELLED) & Q(created_at=date.today()) )
     return app_statuses if app_statuses.exists() else None
 
+
 def calcualte_salary(app):
     ''' Calculate the salary of an application '''
     return round(app.accepted.assigned_hours * app.classification.wage / app.job.session.term.by_month, 2)
@@ -1097,6 +1093,93 @@ def get_applicants_in_session(session):
 
     return applicants
 
+
+def get_summary_applicants(request, session_slug, job_slug):
+    ''' Get a view for summary applicants '''
+
+    session = get_session(session_slug, 'slug')
+    job = get_job_by_session_slug_job_slug(session_slug, job_slug)
+
+    session_term = session.year + '_' + session.term.code
+    course = job.course.code.name + '_' + job.course.number.name + '_' + job.course.section.name
+
+    applicants = get_applicants_in_session(session)
+    total_applicants = applicants.count()
+
+    if bool( request.GET.get('first_name') ):
+        applicants = applicants.filter(first_name__icontains=request.GET.get('first_name'))
+    if bool( request.GET.get('last_name') ):
+        applicants = applicants.filter(last_name__icontains=request.GET.get('last_name'))
+    if bool( request.GET.get('cwl') ):
+        applicants = applicants.filter(username__icontains=request.GET.get('cwl'))
+    if bool( request.GET.get('student_number') ):
+        applicants = applicants.filter(profile__student_number__icontains=request.GET.get('student_number'))
+
+    no_offers_applicants = []
+    for applicant in applicants:
+        appls = applicant.application_set.filter( Q(job__session__year=session.year) & Q(job__session__term__code=session.term.code) )
+
+        count_offered_apps = Count('applicationstatus', filter=Q(applicationstatus__assigned=ApplicationStatus.OFFERED))
+        offered_apps = appls.annotate(count_offered_apps=count_offered_apps).filter(count_offered_apps__gt=0)
+
+        applicant.no_offers = False
+        if len(offered_apps) == 0:
+            no_offers_applicants.append(applicant)
+            applicant.no_offers = True
+
+    if bool( request.GET.get('no_offers') ):
+        applicants = no_offers_applicants
+    
+    searched_total_applicants = len(applicants)
+
+    page = request.GET.get('page', 1)
+    paginator = Paginator(applicants, 25)
+
+    try:
+        applicants = paginator.page(page)
+    except PageNotAnInteger:
+        applicants = paginator.page(1)
+    except EmptyPage:
+        applicants = paginator.page(paginator.num_pages)
+
+    for applicant in applicants:
+        applicant = userApi.add_resume(applicant)
+        applicant.info = userApi.get_applicant_status_program(applicant)
+
+        # To check whether an alert email has been sent to an applicant
+        applicant.is_sent_alertemail = False
+        is_sent_alertemail = request.user.alertemail_set.filter(
+            Q(year=job.session.year) & Q(term=job.session.term.code) &
+            Q(job_code=job.course.code.name) & Q(job_number=job.course.number.name) & Q(job_section=job.course.section.name) &
+            Q(receiver_name=applicant.get_full_name()) & Q(receiver_email=applicant.email)
+        )
+        if is_sent_alertemail.count() > 0:
+            applicant.is_sent_alertemail = True
+
+        has_applied = False
+        apps = applicant.application_set.filter( Q(job__session__year=session.year) & Q(job__session__term__code=session.term.code) )
+        applicant.apps = []
+        for app in apps:
+            app = add_app_info_into_application(app, ['applied', 'accepted', 'declined', 'cancelled'])
+            app_obj = {
+                'course': app.job.course.code.name + ' ' + app.job.course.number.name + ' ' + app.job.course.section.name,
+                'applied': app.applied,
+                'accepted': None,
+                'has_applied': False
+            }
+            if check_valid_accepted_app_or_not(app):
+                app_obj['accepted'] = app.accepted
+
+            applicant.apps.append(app_obj)
+
+            # To check whether an application of this user has been applied already
+            if (app.job.course.code.name == job.course.code.name) and (app.job.course.number.name == job.course.number.name) and (app.job.course.section.name == job.course.section.name):
+                has_applied = True
+                app_obj['has_applied'] = True
+
+            applicant.has_applied = has_applied
+
+    return session, job, total_applicants, no_offers_applicants, applicants, searched_total_applicants
 
 
 # end applications

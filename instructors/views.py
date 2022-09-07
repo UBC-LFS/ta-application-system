@@ -234,7 +234,6 @@ def show_applications(request, session_slug, job_slug):
             messages.error(request, 'An error occurred. Please assign TA hours, then try again.')
             return HttpResponseRedirect(request.get_full_path())
 
-
         instructor_app_form = InstructorApplicationForm(request.POST)
         if instructor_app_form.is_valid():
             app_status_form = ApplicationStatusForm(request.POST)
@@ -266,19 +265,9 @@ def show_applications(request, session_slug, job_slug):
             if selected.exists():
                 app.selected = selected.last()
 
-            #app.applicant = adminApi.get_applicant_status(app.job.session.year, app.job.session.term.code, app.applicant)
-            temp_apps = app.applicant.application_set.filter( Q(job__session__year=app.job.session.year) & Q(job__session__term__code=app.job.session.term.code) )
-            if temp_apps.count() > 0:
-                accepted_apps = []
-                for temp_app in temp_apps:
-                    temp_app.full_course_name = temp_app.job.course.code.name + '_' + temp_app.job.course.number.name + '_' + temp_app.job.course.section.name
-                    temp_app = adminApi.add_app_info_into_application(temp_app, ['accepted', 'declined'])
-                    if adminApi.check_valid_accepted_app_or_not(temp_app):
-                        accepted_apps.append(temp_app)
-
-                app.applicant.accepted_apps = accepted_apps
-                app.applicant = userApi.add_resume(app.applicant)
-                app.info = userApi.get_applicant_status_program(app.applicant)
+            app.applicant = userApi.add_resume(app.applicant)
+            app.applicant.accepted_apps = adminApi.get_acceted_apps_in_applicant(app)
+            app.info = userApi.get_applicant_status_program(app.applicant)
 
     return render(request, 'instructors/jobs/show_applications.html', {
         'loggedin_user': request.user,
@@ -334,88 +323,10 @@ def write_note(request, app_slug):
 @require_http_methods(['GET'])
 def summary_applicants(request, session_slug, job_slug):
     ''' Display the summary of applicants in each session term '''
+
     request = userApi.has_user_access(request, Role.INSTRUCTOR)
 
-    session = adminApi.get_session(session_slug, 'slug')
-    job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
-
-    session_term = session.year + '_' + session.term.code
-    course = job.course.code.name + '_' + job.course.number.name + '_' + job.course.section.name
-
-    applicants = adminApi.get_applicants_in_session(session)
-    total_applicants = applicants.count()
-
-    if bool( request.GET.get('first_name') ):
-        applicants = applicants.filter(first_name__icontains=request.GET.get('first_name'))
-    if bool( request.GET.get('last_name') ):
-        applicants = applicants.filter(last_name__icontains=request.GET.get('last_name'))
-    if bool( request.GET.get('cwl') ):
-        applicants = applicants.filter(username__icontains=request.GET.get('cwl'))
-    if bool( request.GET.get('student_number') ):
-        applicants = applicants.filter(profile__student_number__icontains=request.GET.get('student_number'))
-
-    no_offers_applicants = []
-    for applicant in applicants:
-        appls = applicant.application_set.filter( Q(job__session__year=session.year) & Q(job__session__term__code=session.term.code) )
-
-        count_offered_apps = Count('applicationstatus', filter=Q(applicationstatus__assigned=ApplicationStatus.OFFERED))
-        offered_apps = appls.annotate(count_offered_apps=count_offered_apps).filter(count_offered_apps__gt=0)
-
-        applicant.no_offers = False
-        if len(offered_apps) == 0:
-            no_offers_applicants.append(applicant)
-            applicant.no_offers = True
-
-    if bool( request.GET.get('no_offers') ):
-        applicants = no_offers_applicants
-
-    page = request.GET.get('page', 1)
-    #paginator = Paginator(applicants, settings.PAGE_SIZE)
-    paginator = Paginator(applicants, 25)
-
-    try:
-        applicants = paginator.page(page)
-    except PageNotAnInteger:
-        applicants = paginator.page(1)
-    except EmptyPage:
-        applicants = paginator.page(paginator.num_pages)
-
-    for applicant in applicants:
-        applicant = userApi.add_resume(applicant)
-        applicant.info = userApi.get_applicant_status_program(applicant)
-
-        # To check whether an alert email has been sent to an applicant
-        applicant.is_sent_alertemail = False
-        is_sent_alertemail = request.user.alertemail_set.filter(
-            Q(year=job.session.year) & Q(term=job.session.term.code) &
-            Q(job_code=job.course.code.name) & Q(job_number=job.course.number.name) & Q(job_section=job.course.section.name) &
-            Q(receiver_name=applicant.get_full_name()) & Q(receiver_email=applicant.email)
-        )
-        if is_sent_alertemail.count() > 0:
-            applicant.is_sent_alertemail = True
-
-        has_applied = False
-        apps = applicant.application_set.filter( Q(job__session__year=session.year) & Q(job__session__term__code=session.term.code) )
-        applicant.apps = []
-        for app in apps:
-            app = adminApi.add_app_info_into_application(app, ['applied', 'accepted', 'declined', 'cancelled'])
-            app_obj = {
-                'course': app.job.course.code.name + ' ' + app.job.course.number.name + ' ' + app.job.course.section.name,
-                'applied': app.applied,
-                'accepted': None,
-                'has_applied': False
-            }
-            if adminApi.check_valid_accepted_app_or_not(app):
-                app_obj['accepted'] = app.accepted
-
-            applicant.apps.append(app_obj)
-
-            # To check whether an application of this user has been applied already
-            if (app.job.course.code.name == job.course.code.name) and (app.job.course.number.name == job.course.number.name) and (app.job.course.section.name == job.course.section.name):
-                has_applied = True
-                app_obj['has_applied'] = True
-
-            applicant.has_applied = has_applied
+    session, job, total_applicants, no_offers_applicants, applicants, searched_total_applicants = adminApi.get_summary_applicants(request, session_slug, job_slug)
 
     return render(request, 'instructors/jobs/summary_applicants.html', {
         'loggedin_user': request.user,
@@ -424,7 +335,7 @@ def summary_applicants(request, session_slug, job_slug):
         'total_applicants': total_applicants,
         'total_no_offers_applicants': len(no_offers_applicants),
         'applicants': applicants,
-        'searched_total': len(applicants),
+        'searched_total_applicants': searched_total_applicants,
         'next_second': request.session.get('next_second', None),
         'new_next': adminApi.build_new_next(request)
     })

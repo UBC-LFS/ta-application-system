@@ -11,6 +11,11 @@
       <h6>{{ data.course.code.name }} {{ data.course.number.name }} {{ data.course.section.name }}</h6>
       <p>{{ data.course.name }}</p>
 
+      <hr />
+
+      <h6>Instructors:</h6>
+      {% include 'ta_app/jobs/_job_instructor_list.html' with data=data %}
+
     {% elif view_name == 'history_jobs' %}
       <h6>
         <i class="fa fa-bell-o" aria-hidden="true"></i> Get a glance

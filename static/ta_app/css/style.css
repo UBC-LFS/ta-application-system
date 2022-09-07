@@ -234,6 +234,11 @@ main {
   color: #28a745;
 }
 
+.list-no-ml {
+  margin-left: -20px;
+  margin-bottom: 0 !important;
+}
+
 
 /* utils */
 .btn-toolbar {

@@ -11,7 +11,7 @@ from django.views.decorators.cache import cache_control
 from io import StringIO
 from django.core.exceptions import SuspiciousOperation
 
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.views.static import serve
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
@@ -551,12 +551,72 @@ def progress_jobs(request):
     except EmptyPage:
         jobs = paginator.page(paginator.num_pages)
 
+    request.session['progress_jobs_next'] = request.get_full_path()
+
     return render(request, 'administrators/jobs/progress_jobs.html', {
         'loggedin_user': request.user,
         'jobs': jobs,
         'total_jobs': len(job_list),
         'new_next': adminApi.build_new_next(request)
     })
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def show_job_applications(request, session_slug, job_slug):
+    ''' Display a job's applications '''
+    request = userApi.has_admin_access(request)
+
+    job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
+
+    apps = []
+    for app in job.application_set.all():
+        app.selected = None
+        selected = app.applicationstatus_set.filter(assigned=ApplicationStatus.SELECTED)
+        if selected.exists():
+            app.selected = selected.last()
+
+        app.applicant = userApi.add_resume(app.applicant)
+        app.applicant.accepted_apps = adminApi.get_acceted_apps_in_applicant(app)
+        app.info = userApi.get_applicant_status_program(app.applicant)
+        
+        apps.append(app)
+    
+    request.session['summary_applicants_next'] = request.get_full_path()
+
+    return render(request, 'administrators/jobs/show_job_applications.html', {
+        'loggedin_user': request.user,
+        'job': adminApi.add_job_with_applications_statistics(job),
+        'apps': apps,
+        'app_status': APP_STATUS,
+        'next': request.session.get('progress_jobs_next'),
+        'new_next': adminApi.build_new_next(request)
+    })
+
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def summary_applicants(request, session_slug, job_slug):
+    ''' Display the summary of applicants in each session term '''
+
+    request = userApi.has_admin_access(request)
+
+    session, job, total_applicants, no_offers_applicants, applicants, searched_total_applicants = adminApi.get_summary_applicants(request, session_slug, job_slug)
+
+    return render(request, 'administrators/jobs/summary_applicants.html', {
+        'loggedin_user': request.user,
+        'session': session,
+        'job': job,
+        'total_applicants': total_applicants,
+        'total_no_offers_applicants': len(no_offers_applicants),
+        'applicants': applicants,
+        'searched_total_applicants': searched_total_applicants,
+        'next': request.session.get('summary_applicants_next')
+    })
+
+
+
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -640,22 +700,6 @@ def student_jobs(request):
         'total_users': len(user_list),
         'new_next': adminApi.build_new_next(request)
     })
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
-def show_job_applications(request, session_slug, job_slug):
-    ''' Display a job's applications '''
-    request = userApi.has_admin_access(request)
-
-    job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
-    return render(request, 'administrators/jobs/show_job_applications.html', {
-        'loggedin_user': request.user,
-        'job': adminApi.add_job_with_applications_statistics(job),
-        'app_status': APP_STATUS,
-        'next': adminApi.get_next(request)
-    })
-
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)

@@ -105,7 +105,7 @@ def has_user_access(request, role):
         request.user.roles = get_user_roles(request.user)
     else:
         request.user.roles = request.session['loggedin_user']['roles']
-
+    print(request.user.roles, role)
     if role not in request.user.roles:
         raise PermissionDenied
 
@@ -334,13 +334,13 @@ def check_two_querysets_equal(qs1, qs2):
     ''' Helper funtion: To check whether two querysets are equal or not '''
     if len(qs1) != len(qs2):
         return False
-    
+
     d = dict()
     for qs in qs1:
         item = qs.name.lower()
         if item in d.keys(): d[item] += 1
         else: d[item] = 1
-    
+
     for qs in qs2:
         item = qs.name.lower()
         if item in d.keys(): d[item] += 1
@@ -369,12 +369,12 @@ def update_student_profile_degrees_trainings(profile, old_degrees, old_trainings
 
 def update_user_profile_roles(profile, old_roles, data):
     ''' Update roles of a user '''
-    
+
     if check_two_querysets_equal( old_roles, data.get('roles') ) == False:
         profile.roles.remove( *old_roles ) # Remove current roles
         new_roles = list( data.get('roles') )
         profile.roles.add( *new_roles )  # Add new roles
-    
+
     return True if profile.roles else False
 
 
@@ -487,11 +487,11 @@ def delete_user_resume(user_id):
         user.resume.delete()
         if not Resume.objects.filter(user__id=user.id).exists():
             dirpath = os.path.join( settings.MEDIA_ROOT, 'users', user.username, 'resume' )
-            
+
             # Remove a resume directory
             if os.path.exists(dirpath) and os.path.isdir(dirpath) and len(os.listdir(dirpath)) == 0:
                 os.rmdir(dirpath)
-            
+
             if not os.path.exists(dirpath):
                 return { 'status': 'success' }
             else:
@@ -544,17 +544,17 @@ def add_avatar(user):
 
 def delete_user_avatar(user_id):
     ''' Delete user's avatar '''
-    
+
     user = get_user(user_id)
     if has_user_avatar_created(user) and bool(user.avatar.uploaded):
         user.avatar.delete()
         if not Avatar.objects.filter(user__id=user.id).exists():
             dirpath = os.path.join( settings.MEDIA_ROOT, 'users', user.username, 'avatar' )
-            
+
             # Remove a avatar directory
             if os.path.exists(dirpath) and os.path.isdir(dirpath) and len(os.listdir(dirpath)) == 0:
                 os.rmdir(dirpath)
-            
+
             if not os.path.exists(dirpath):
                 return { 'status': 'success' }
             else:
@@ -691,7 +691,7 @@ def delete_confidential_information(data):
             if confidentiality.update(study_permit_expiry_date=None) == False:
                 errors.append('Study Permit Expiry Date')
 
-    return True if len(errors) == 0 else ', '.join(errors)    
+    return True if len(errors) == 0 else ', '.join(errors)
 
 
 def delete_user_sin(username, option=None):
