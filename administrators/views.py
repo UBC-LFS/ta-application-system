@@ -1091,6 +1091,9 @@ def selected_applications(request):
 
     if request.method == 'POST':
 
+        # TODO: check this function
+        # Edit application - not using anymore
+
         # Check whether a next url is valid or not
         adminApi.can_req_parameters_access(request, 'none', ['next'], 'POST')
 
@@ -1252,12 +1255,12 @@ def offer_job(request, session_slug, job_slug):
             return HttpResponseRedirect(request.POST.get('next'))
 
         errors = []
-
+        offer_type = request.POST.get('offer_type')
         admin_app_form = AdminApplicationForm(request.POST)
-        if request.POST.get('offer_type') == 'edit':
+        if offer_type == 'edit':
             ApplicationStatus.objects.filter(id=request.POST.get('applicationstatus')).update(assigned_hours=assigned_hours)
 
-        elif request.POST.get('offer_type') == 'offer':
+        elif offer_type == 'offer':
             app_status_form = ApplicationStatusForm(request.POST)
             if app_status_form.is_valid():
                 app_status_form.save()
@@ -1278,7 +1281,11 @@ def offer_job(request, session_slug, job_slug):
                 return HttpResponseRedirect(request.POST.get('next'))
 
             applicant = userApi.get_user(request.POST.get('applicant'))
-            messages.success(request, 'Success! You offered this user ({0} {1}) {2} hours for this job ({3} {4} - {5} {6} {7})'.format(applicant.first_name, applicant.last_name, assigned_hours, job.session.year, job.session.term.code, job.course.code.name, job.course.number.name, job.course.section.name))
+
+            if offer_type == 'edit':
+                messages.success(request, 'Success! Updated this application (ID: {0})'.format(app.id))
+            elif offer_type == 'offer':
+                messages.success(request, 'Success! You offered this user ({0} {1}) {2} hours for this job ({3} {4} - {5} {6} {7})'.format(applicant.first_name, applicant.last_name, assigned_hours, job.session.year, job.session.term.code, job.course.code.name, job.course.number.name, job.course.section.name))
         else:
             admin_app_errors = admin_app_form.errors.get_json_data()
             if admin_app_errors:
