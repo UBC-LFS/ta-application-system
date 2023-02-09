@@ -51,6 +51,8 @@ DATA = [
 
 
 USERS = [ 'user2.admin', 'user56.ins', 'user100.test']
+USER_IDS = [2, 56, 100]
+
 PASSWORD = 'password'
 
 SESSION = '2019-w1'

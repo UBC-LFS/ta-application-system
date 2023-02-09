@@ -3,19 +3,47 @@
 
 {% include 'administrators/_menu.html' %}
 
-<h3 class="text-info">
-  {{ session.year }} TA Application Summary Report
-  <small class="text-secondary">Total: {{ session.job_set.count }}</small>
-</h3>
+<div class="row">
+  <div class="col-md-6">
+    <h3 class="text-info">
+      {{ session.year }} TA Application Summary Report
+      <small class="text-secondary">Total: {{ session.job_set.count }}</small>
+    </h3>
 
-<a class="btn btn-outline-primary btn-sm mt-3 mb-5" href="{{ next_session }}">Back to {{ back_to_word }}</a>
+    <a class="btn btn-outline-primary btn-sm mt-3 mb-5" href="{{ next_session }}">Back to {{ back_to_word }}</a>
+  </div>
+  <div class="col-md-6">
+    <table class="table text-center">
+      <tr>
+        <th>Total <br/> LFS Students</th>
+        <th>Total <br/> Non-LFS Students</th>
+        <th>Total <br/> Gradudate Students</th>
+        <th>Total <br/> Undergraduate Students</th>
+      </tr>
+      <tr class="font-size-1 font-weight-bold">
+        <td>
+          <span class="text-primary">{{ ta_hours_stat.total_lfs }}</span>
+        </td>
+        <td>
+          <span class="text-primary">{{ ta_hours_stat.total_non_lfs }}</span>
+        </td>
+        <td>
+          <span class="text-success">{{ ta_hours_stat.total_grad }}</span>
+          </td>
+        <td>
+          <span class="text-success">{{ ta_hours_stat.total_undergrad }}</span>
+        </td>
+      </tr>
+    </table>
+  </div>
+</div>
 
 <div class="float-right">
   CSV:
-  <button id="download-summary-report-csv" class="btn btn-sm btn-outline-secondary font-size-xs" type="button" data-year="{{ session.year }}">Download</button>
+  <button id="download-summary-report-csv" class="btn btn-sm btn-secondary font-size-xs mb-2" type="button" data-year="{{ session.year }}">Download</button>
 </div>
 
-<table id="summary-report-table" class="table table-sm table-bordered table-hover table-striped table-responsive-md">
+<table id="summary-report-table" class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center">
   <thead>
     <tr>
       <th>#</th>
@@ -25,6 +53,10 @@
       <th>Instructor(s)</th>
       <th>Total <br /> TA Hours</th>
       <th>Total <br /> Applications</th>
+      <th># of <br /> LFS</th>
+      <th># of <br /> Non-LFS</th>
+      <th># of <br /> Gradudate</th>
+      <th># of <br /> Undergrad</th>
       <th>TAs</th>
     </tr>
   </thead>
@@ -34,12 +66,16 @@
         <td>{{ forloop.counter }}</td>
         <td>{{ session.term.code }}</td>
         <td>{{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</td>
-        <td>{{ job.course.name }}</td>
-        <td>{% include 'ta_app/jobs/_job_instructor_list.html' with data=job %}</td>
+        <td class="text-left">{{ job.course.name }}</td>
+        <td class="text-left">{% include 'ta_app/jobs/_job_instructor_list.html' with data=job %}</td>
         <td>{{ job.assigned_ta_hours }}</td>
         <td>{{ job.application_set.count }}</td>
-        <td>
-          <ul class="m-0">
+        <td>{{ job.stat.num_lfs }}</td>
+        <td>{{ job.stat.num_non_lfs }}</td>
+        <td>{{ job.stat.num_grad }}</td>
+        <td>{{ job.stat.num_undergrad }}</td>
+        <td class="text-left">
+          <ul class="list-no-ml">
             {% for app in job.accepted_apps %}
               <li>
                 {{ app.applicant.get_full_name }},

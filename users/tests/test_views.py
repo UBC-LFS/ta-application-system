@@ -9,7 +9,7 @@ from users.models import *
 from administrators import api as adminApi
 from users import api as userApi
 
-from administrators.tests.test_sessions import LOGIN_URL, ContentType, DATA, USERS, SESSION, JOB, APP, COURSE, PASSWORD
+from administrators.tests.test_sessions import LOGIN_URL, ContentType, DATA, USERS, USER_IDS, SESSION, JOB, APP, COURSE, PASSWORD
 from django.core.files.uploadedfile import SimpleUploadedFile
 import datetime
 
@@ -92,7 +92,7 @@ class UserTest(TestCase):
         avatar = userApi.has_user_avatar_created(userApi.get_user(USERS[0], 'username'))
         self.assertIsNotNone(avatar)
 
-        userApi.delete_user_avatar(USERS[0])
+        userApi.delete_user_avatar(USER_IDS[0])
 
 
     def test_upload_avatar_instructor(self):
@@ -115,7 +115,7 @@ class UserTest(TestCase):
         avatar = userApi.has_user_avatar_created(userApi.get_user(USERS[1], 'username'))
         self.assertIsNotNone(avatar)
 
-        userApi.delete_user_avatar(USERS[1])
+        userApi.delete_user_avatar(USER_IDS[1])
 
     def test_upload_avatar_student(self):
         print('- Test: upload user avatar in a student view')
@@ -137,7 +137,7 @@ class UserTest(TestCase):
         avatar = userApi.has_user_avatar_created(userApi.get_user(USERS[2], 'username'))
         self.assertIsNotNone(avatar)
 
-        userApi.delete_user_avatar(USERS[2])
+        userApi.delete_user_avatar(USER_IDS[2])
 
 
     def test_delete_avatar_administrator(self):
@@ -159,7 +159,7 @@ class UserTest(TestCase):
         avatar = userApi.has_user_avatar_created(userApi.get_user(USERS[0], 'username'))
         self.assertIsNotNone(avatar)
 
-        response = self.client.post( reverse('users:delete_avatar') + ADMINISTRATOR_NEXT, data=urlencode({ 'user': USERS[0] }), content_type=ContentType )
+        response = self.client.post( reverse('users:delete_avatar') + ADMINISTRATOR_NEXT, data=urlencode({ 'user': USER_IDS[0] }), content_type=ContentType )
         messages = self.messages(response)
         self.assertTrue('Success' in messages[0])
         self.assertEqual(response.status_code, 302)
@@ -186,7 +186,7 @@ class UserTest(TestCase):
         avatar = userApi.has_user_avatar_created(userApi.get_user(USERS[1], 'username'))
         self.assertIsNotNone(avatar)
 
-        response = self.client.post( reverse('users:delete_avatar') + INSTRUCTOR_NEXT, data=urlencode({ 'user': USERS[1] }), content_type=ContentType )
+        response = self.client.post( reverse('users:delete_avatar') + INSTRUCTOR_NEXT, data=urlencode({ 'user': USER_IDS[1] }), content_type=ContentType )
         messages = self.messages(response)
         self.assertTrue('Success' in messages[0])
         self.assertEqual(response.status_code, 302)
@@ -213,7 +213,7 @@ class UserTest(TestCase):
         avatar = userApi.has_user_avatar_created(userApi.get_user(USERS[2], 'username'))
         self.assertIsNotNone(avatar)
 
-        response = self.client.post( reverse('users:delete_avatar') + STUDENT_NEXT, data=urlencode({ 'user': USERS[2] }), content_type=ContentType )
+        response = self.client.post( reverse('users:delete_avatar') + STUDENT_NEXT, data=urlencode({ 'user': USER_IDS[2] }), content_type=ContentType )
         messages = self.messages(response)
         self.assertTrue('Success' in messages[0])
         self.assertEqual(response.status_code, 302)

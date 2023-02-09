@@ -420,6 +420,15 @@ class HRTest(TestCase):
         response = self.client.post(reverse('administrators:edit_user', args=[ USERS[2] ]) + ALL_USER, data=urlencode(data0, True), content_type=ContentType)
         self.assertEqual(response.status_code, 404)
 
+
+    def test_edit_user1(self):
+        print('- Test: edit an user1')
+        self.login()
+
+        user = userApi.get_user(USERS[2], 'username')
+        user_first_role = user.profile.roles.all()[0]
+        self.assertEqual(user_first_role.name, Role.STUDENT)
+
         # Missing first name, last name, email, username
         data1 = {
             'user': user.id,
@@ -436,6 +445,15 @@ class HRTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse('administrators:edit_user', args=[ USERS[2] ]) + ALL_USER)
         self.assertRedirects(response, response.url)
+
+
+    def test_edit_user2(self):
+        print('- Test: edit an user2')
+        self.login()
+
+        user = userApi.get_user(USERS[2], 'username')
+        user_first_role = user.profile.roles.all()[0]
+        self.assertEqual(user_first_role.name, Role.STUDENT)
 
         # Missing last name, username, email
         data2 = {
@@ -455,6 +473,14 @@ class HRTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse('administrators:edit_user', args=[ USERS[2] ]) + ALL_USER)
         self.assertRedirects(response, response.url)
+
+    def test_edit_user3(self):
+        print('- Test: edit an user3')
+        self.login()
+
+        user = userApi.get_user(USERS[2], 'username')
+        user_first_role = user.profile.roles.all()[0]
+        self.assertEqual(user_first_role.name, Role.STUDENT)
 
         # Missing email and username
         data3 = {
@@ -476,6 +502,14 @@ class HRTest(TestCase):
         self.assertEqual(response.url, reverse('administrators:edit_user', args=[ USERS[2] ]) + ALL_USER)
         self.assertRedirects(response, response.url)
 
+    def test_edit_user4(self):
+        print('- Test: edit an user4')
+        self.login()
+
+        user = userApi.get_user(USERS[2], 'username')
+        user_first_role = user.profile.roles.all()[0]
+        self.assertEqual(user_first_role.name, Role.STUDENT)
+
         # Missing username
         data4 = {
             'user': user.id,
@@ -496,6 +530,15 @@ class HRTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse('administrators:edit_user', args=[ USERS[2] ]) + ALL_USER)
         self.assertRedirects(response, response.url)
+
+
+    def test_edit_user5(self):
+        print('- Test: edit an user5')
+        self.login()
+
+        user = userApi.get_user(USERS[2], 'username')
+        user_first_role = user.profile.roles.all()[0]
+        self.assertEqual(user_first_role.name, Role.STUDENT)
 
         # Wrong employee number
         data5 = {
@@ -519,6 +562,15 @@ class HRTest(TestCase):
         self.assertEqual(response.url, reverse('administrators:edit_user', args=[ USERS[2] ]) + ALL_USER)
         self.assertRedirects(response, response.url)
 
+
+    def test_edit_user6(self):
+        print('- Test: edit an user6')
+        self.login()
+
+        user = userApi.get_user(USERS[2], 'username')
+        user_first_role = user.profile.roles.all()[0]
+        self.assertEqual(user_first_role.name, Role.STUDENT)
+
         # Wrong employee number
         data6 = {
             'user': user.id,
@@ -540,6 +592,15 @@ class HRTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse('administrators:edit_user', args=[ USERS[2] ]) + ALL_USER)
         self.assertRedirects(response, response.url)
+
+
+    def test_edit_user7(self):
+        print('- Test: edit an user7')
+        self.login()
+
+        user = userApi.get_user(USERS[2], 'username')
+        user_first_role = user.profile.roles.all()[0]
+        self.assertEqual(user_first_role.name, Role.STUDENT)
 
         # Wrong employee number
         data7 = {
@@ -563,6 +624,15 @@ class HRTest(TestCase):
         self.assertEqual(response.url, reverse('administrators:edit_user', args=[ USERS[2] ]) + ALL_USER)
         self.assertRedirects(response, response.url)
 
+
+    def test_edit_user8(self):
+        print('- Test: edit an user8')
+        self.login()
+
+        user = userApi.get_user(USERS[2], 'username')
+        user_first_role = user.profile.roles.all()[0]
+        self.assertEqual(user_first_role.name, Role.STUDENT)
+
         # Wrong student number
         data8 = {
             'user': user.id,
@@ -585,6 +655,15 @@ class HRTest(TestCase):
         self.assertEqual(response.url, reverse('administrators:edit_user', args=[ USERS[2] ]) + ALL_USER)
         self.assertRedirects(response, response.url)
 
+
+    def test_edit_user9(self):
+        print('- Test: edit an user9')
+        self.login()
+
+        user = userApi.get_user(USERS[2], 'username')
+        user_first_role = user.profile.roles.all()[0]
+        self.assertEqual(user_first_role.name, Role.STUDENT)
+
         # Wrong student number
         data9 = {
             'user': user.id,
@@ -606,6 +685,15 @@ class HRTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse('administrators:edit_user', args=[ USERS[2] ]) + ALL_USER)
         self.assertRedirects(response, response.url)
+
+
+    def test_edit_user10(self):
+        print('- Test: edit an user10')
+        self.login()
+
+        user = userApi.get_user(USERS[2], 'username')
+        user_first_role = user.profile.roles.all()[0]
+        self.assertEqual(user_first_role.name, Role.STUDENT)
 
         data10 = {
             'user': user.id,

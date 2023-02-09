@@ -105,7 +105,7 @@ def has_user_access(request, role):
         request.user.roles = get_user_roles(request.user)
     else:
         request.user.roles = request.session['loggedin_user']['roles']
-    print(request.user.roles, role)
+    
     if role not in request.user.roles:
         raise PermissionDenied
 

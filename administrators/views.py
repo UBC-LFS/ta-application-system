@@ -338,16 +338,51 @@ def show_report_summary(request, session_slug):
 
     session = adminApi.get_session(session_slug, 'slug')
 
+    undergrad = userApi.get_status_by_slug('undergraduate-student')
+    other_program = userApi.get_program_by_slug('other')
+
     jobs = []
+    total_grad = set()
+    total_undergrad = set()
+    total_lfs = set()
+    total_non_lfs = set()
     for job in session.job_set.all():
         apps = adminApi.get_accepted_apps_not_terminated(job.application_set.all())
         apps = adminApi.get_filtered_accepted_apps(apps)
 
+        num_grad = set()
+        num_undergrad = set()
+        num_lfs = set()
+        num_non_lfs = set()
         if len(apps) > 0:
             for app in apps:
                 app.accepted = adminApi.get_accepted(app)
                 app.salary = adminApi.calcualte_salary(app)
+
+                if app.applicant.profile.status.id == undergrad.id:
+                    num_undergrad.add(app.applicant.id)
+                    total_undergrad.add(app.applicant.id)
+                else:
+                    num_grad.add(app.applicant.id)
+                    total_grad.add(app.applicant.id)
+
+                if app.applicant.profile.program.id == other_program.id:
+                    num_non_lfs.add(app.applicant.id)
+                    total_non_lfs.add(app.applicant.id)
+                else:
+                    num_lfs.add(app.applicant.id)
+                    total_lfs.add(app.applicant.id)
+
+                app.accepted.assigned_hours
+
             job.accepted_apps = apps
+
+        job.stat = {
+            'num_grad': len(num_grad),
+            'num_undergrad': len(num_undergrad),
+            'num_lfs': len(num_lfs),
+            'num_non_lfs': len(num_non_lfs)
+        }
 
         jobs.append(job)
 
@@ -359,6 +394,12 @@ def show_report_summary(request, session_slug):
         'loggedin_user': request.user,
         'session': session,
         'jobs': jobs,
+        'ta_hours_stat': {
+            'total_grad': len(total_grad),
+            'total_undergrad': len(total_undergrad),
+            'total_lfs': len(total_lfs),
+            'total_non_lfs': len(total_non_lfs)
+        },
         'next_session': request.session.get('next_session', None),
         'back_to_word': back_to_word
     })
@@ -579,9 +620,9 @@ def show_job_applications(request, session_slug, job_slug):
         app.applicant = userApi.add_resume(app.applicant)
         app.applicant.accepted_apps = adminApi.get_acceted_apps_in_applicant(app)
         app.info = userApi.get_applicant_status_program(app.applicant)
-        
+
         apps.append(app)
-    
+
     request.session['summary_applicants_next'] = request.get_full_path()
 
     return render(request, 'administrators/jobs/show_job_applications.html', {
@@ -1104,7 +1145,7 @@ def selected_applications(request):
             assigned_hours = app.selected.assigned_hours
             if app.offered and app.offered.id > app.selected.id:
                 assigned_hours = app.offered.assigned_hours
-            
+
             offer_modal = {
                 'title': '',
                 'form_url': reverse('administrators:offer_job', args=[app.job.session.slug, app.job.course.slug]),
@@ -1117,7 +1158,7 @@ def selected_applications(request):
 
             latest_status = adminApi.get_latest_status_in_app(app)
             num_offers = app.applicationstatus_set.filter(assigned=ApplicationStatus.OFFERED).count()
-            
+
             if latest_status == 'selected' or latest_status == 'none':
                 if num_offers == 0: offer_modal['title'] = 'Offer'
                 else: offer_modal['title'] = 'Re-offer'
@@ -1210,8 +1251,6 @@ def offer_job(request, session_slug, job_slug):
             messages.error(request, 'An error occurred. Please you cannot assign {0} hours Total Assigned TA Hours is {1}, then try again.'.format( assigned_hours, int(job.assigned_ta_hours) ))
             return HttpResponseRedirect(request.POST.get('next'))
 
-
-        print('offer job', app.id, assigned_hours, request.POST)
         errors = []
 
         admin_app_form = AdminApplicationForm(request.POST)
@@ -1224,7 +1263,7 @@ def offer_job(request, session_slug, job_slug):
                 app_status_form.save()
             else:
                 app_status_errors = app_status_form.errors.get_json_data()
-                if app_status_errors: 
+                if app_status_errors:
                     errors.append( userApi.get_error_messages(app_status_errors) )
 
         if admin_app_form.is_valid():
@@ -1233,7 +1272,7 @@ def offer_job(request, session_slug, job_slug):
                 note = request.POST.get('note'),
                 updated_at = datetime.now()
             )
-            
+
             if len(errors) > 0:
                 messages.error(request, 'An error occurred while sending a job offer. {0}'.format( ' '.join(errors) ))
                 return HttpResponseRedirect(request.POST.get('next'))
@@ -1242,9 +1281,9 @@ def offer_job(request, session_slug, job_slug):
             messages.success(request, 'Success! You offered this user ({0} {1}) {2} hours for this job ({3} {4} - {5} {6} {7})'.format(applicant.first_name, applicant.last_name, assigned_hours, job.session.year, job.session.term.code, job.course.code.name, job.course.number.name, job.course.section.name))
         else:
             admin_app_errors = admin_app_form.errors.get_json_data()
-            if admin_app_errors: 
+            if admin_app_errors:
                 errors.append( userApi.get_error_messages(admin_app_errors) )
-            
+
         if len(errors) > 0:
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format(' '.join(errors)))
 
@@ -2036,18 +2075,18 @@ def edit_user(request, username):
             if request.POST.get('username') != old_username:
                 new_dirpath = os.path.join( settings.MEDIA_ROOT, 'users', new_username )
                 if os.path.exists(new_dirpath) == False:
-                    try: 
+                    try:
                         os.mkdir(new_dirpath) # Create a new directory
-                    except OSError: 
+                    except OSError:
                         SuspiciousOperation
 
                 # Resume
                 if userApi.has_user_resume_created(user) and bool(user.resume.uploaded):
                     resume_path = os.path.join( settings.MEDIA_ROOT, 'users', new_username, 'resume' )
                     if os.path.exists(resume_path) == False:
-                        try: 
+                        try:
                             os.mkdir(resume_path) # Create a new resume directory
-                        except OSError: 
+                        except OSError:
                             SuspiciousOperation
 
                     if os.path.exists(resume_path) and os.path.isdir(resume_path):
@@ -2062,18 +2101,18 @@ def edit_user(request, username):
                         user.resume.save(update_fields=['uploaded'])
 
                         # Remove an old resume directory
-                        try: 
+                        try:
                             os.rmdir( os.path.join( settings.MEDIA_ROOT, 'users', old_username, 'resume' ) )
-                        except OSError: 
+                        except OSError:
                             SuspiciousOperation
 
                 # Avatar
                 if userApi.has_user_avatar_created(user) and bool(user.avatar.uploaded):
                     avatar_path = os.path.join( settings.MEDIA_ROOT, 'users', new_username, 'avatar' )
                     if os.path.exists(avatar_path) == False:
-                        try: 
+                        try:
                             os.mkdir(avatar_path) # Create a new avatar directory
-                        except OSError: 
+                        except OSError:
                             SuspiciousOperation
 
                     if os.path.exists(avatar_path) and os.path.isdir(avatar_path):
@@ -2088,9 +2127,9 @@ def edit_user(request, username):
                         user.avatar.save(update_fields=['uploaded'])
 
                         # Remove an old avatar directory
-                        try: 
+                        try:
                             os.rmdir( os.path.join( settings.MEDIA_ROOT, 'users', old_username, 'avatar' ) )
-                        except OSError: 
+                        except OSError:
                             SuspiciousOperation
 
                 if userApi.has_user_confidentiality_created(user):
@@ -2098,9 +2137,9 @@ def edit_user(request, username):
                     if bool(user.confidentiality.sin):
                         sin_path = os.path.join( settings.MEDIA_ROOT, 'users', new_username, 'sin' )
                         if os.path.exists(sin_path) == False:
-                            try: 
+                            try:
                                 os.mkdir(sin_path) # Create a new sin directory
-                            except OSError: 
+                            except OSError:
                                 SuspiciousOperation
 
                         if os.path.exists(sin_path) and os.path.isdir(sin_path):
@@ -2114,9 +2153,9 @@ def edit_user(request, username):
                             user.confidentiality.sin = filename
 
                             # Remove an old sin directory
-                            try: 
+                            try:
                                 os.rmdir( os.path.join( settings.MEDIA_ROOT, 'users', old_username, 'sin' ) )
-                            except OSError: 
+                            except OSError:
                                 SuspiciousOperation
 
                             update_fields.append('sin')
@@ -2124,9 +2163,9 @@ def edit_user(request, username):
                     if bool(user.confidentiality.study_permit):
                         study_permit_path = os.path.join( settings.MEDIA_ROOT, 'users', new_username, 'study_permit' )
                         if os.path.exists(study_permit_path) == False:
-                            try: 
+                            try:
                                 os.mkdir(study_permit_path) # Create a new study_permit directory
-                            except OSError: 
+                            except OSError:
                                 SuspiciousOperation
 
                         if os.path.exists(study_permit_path) and os.path.isdir(study_permit_path):
@@ -2140,9 +2179,9 @@ def edit_user(request, username):
                             user.confidentiality.study_permit = filename
 
                             # Remove an old sin directory
-                            try: 
+                            try:
                                 os.rmdir( os.path.join( settings.MEDIA_ROOT, 'users', old_username, 'study_permit' ) )
-                            except OSError: 
+                            except OSError:
                                 SuspiciousOperation
 
                             update_fields.append('study_permit')
@@ -2152,10 +2191,10 @@ def edit_user(request, username):
 
                 # If an old folder is empty, delete it
                 old_dirpath = os.path.join( settings.MEDIA_ROOT, 'users', old_username )
-                if len( os.listdir(old_dirpath) ) == 0:
-                    try: 
+                if os.path.exists(old_dirpath) and os.path.isdir(dirpath) and len( os.listdir(old_dirpath) ) == 0:
+                    try:
                         os.rmdir(old_dirpath)
-                    except OSError: 
+                    except OSError:
                         print("The folder hasn't been deleted")
 
             updated_profile = user_profile_edit_form.save(commit=False)

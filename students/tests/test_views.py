@@ -18,14 +18,15 @@ from users.models import *
 from administrators import api as adminApi
 from users import api as userApi
 
-from administrators.tests.test_sessions import LOGIN_URL, ContentType, DATA, USERS, SESSION, JOB, APP, COURSE, PASSWORD, random_with_N_digits
+from administrators.tests.test_sessions import LOGIN_URL, ContentType, DATA, USERS, USER_IDS, SESSION, JOB, APP, COURSE, PASSWORD, random_with_N_digits
 
 
 STUDENT = 'user65.test'
+STUDENT_ID = 65
 STUDENT_JOB = 'apbi-265-001-sustainable-agriculture-and-food-systems-w1'
 
 STUDENT2 = 'user66.test'
-
+STUDENT2_ID = 66
 
 NEXT = '?next=/students/'
 HOME_BASIC = '&p=Home&t=basic'
@@ -369,22 +370,22 @@ class StudentTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, response.url)
 
-    def delete_document(self, user, list, option='domestic'):
+    def delete_document(self, username, user_id, list, option='domestic'):
         ''' Delete a list of document '''
         if 'resume' in list:
-            userApi.delete_user_resume(user)
+            userApi.delete_user_resume(user_id)
 
         if 'sin' in list:
             if option == 'international':
-                userApi.delete_user_sin(user, '1')
+                userApi.delete_user_sin(username, '1')
             else:
-                userApi.delete_user_sin(user)
+                userApi.delete_user_sin(username)
 
         if 'study_permit' in list:
             if option == 'international':
-                userApi.delete_user_study_permit(user, '1')
+                userApi.delete_user_study_permit(username, '1')
             else:
-                userApi.delete_user_study_permit(user)
+                userApi.delete_user_study_permit(username)
 
 
     def test_view_url_exists_at_desired_location_admin(self):
@@ -495,7 +496,7 @@ class StudentTest(TestCase):
         response = self.client.get( reverse('students:show_application', args=[APP]) + HISTORY_NEXT )
         self.assertEqual(response.status_code, 200)
 
-        self.delete_document(USERS[2], ['resume'])
+        self.delete_document(USERS[2], USER_IDS[2], ['resume'])
 
 
     def test_view_url_exists_at_desired_location_student2(self):
@@ -507,7 +508,7 @@ class StudentTest(TestCase):
         response = self.client.get( reverse('students:accept_decline_job', args=[SESSION, STUDENT_JOB]) + HISTORY_NEXT )
         self.assertEqual(response.status_code, 200)
 
-        self.delete_document(STUDENT, ['sin', 'study_permit'], 'international')
+        self.delete_document(STUDENT, STUDENT_ID, ['sin', 'study_permit'], 'international')
 
 
     def test_home_page(self):
@@ -527,7 +528,7 @@ class StudentTest(TestCase):
         self.assertEqual(messages, [])
         self.assertEqual(response.status_code, 200)
 
-        self.delete_document(USERS[2], ['resume'])
+        self.delete_document(USERS, USER_IDS[2], ['resume'])
 
     # It works in March or April
     """def test_alert_message(self):
@@ -743,7 +744,7 @@ class StudentTest(TestCase):
 
         response = self.client.post( reverse('students:edit_profile'), data=urlencode(data5, True), content_type=ContentType )
         messages = self.messages(response)
-        self.assertTrue('An error occurred. Training: You must check all fields to proceed.' in messages[0])
+        self.assertEqual('An error occurred. Trainings: You must check all fields to proceed.', messages[0])
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse('students:edit_profile'))
         self.assertRedirects(response, response.url)
@@ -862,7 +863,7 @@ class StudentTest(TestCase):
         self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
         self.assertIsNotNone(response.context['loggedin_user'].resume)
 
-        self.delete_document(USERS[2], ['resume'])
+        self.delete_document(USERS[2], USER_IDS[2], ['resume'])
 
 
     def test_delete_user_resume(self):
@@ -903,7 +904,7 @@ class StudentTest(TestCase):
         response = self.client.post(reverse('students:delete_resume') + '?next=/students/&p=Hom&t=resumE', data={ 'user': USERS[2] }, format='multipart')
         self.assertEqual(response.status_code, 404)
 
-        response = self.client.post( reverse('students:delete_resume') + NEXT + HOME_RESUME, data=urlencode({ 'user': USERS[2] }), content_type=ContentType )
+        response = self.client.post( reverse('students:delete_resume') + NEXT + HOME_RESUME, data=urlencode({ 'user': USER_IDS[2] }), content_type=ContentType )
         messages = self.messages(response)
         self.assertTrue('Success' in messages[0])
         self.assertEqual(response.status_code, 302)
@@ -1057,7 +1058,7 @@ class StudentTest(TestCase):
         self.assertEqual(loggedin_user.confidentiality.sin_expiry_date, datetime.date(2020, 1, 1))
         self.assertEqual(loggedin_user.confidentiality.study_permit_expiry_date, datetime.date(2020, 5, 5))
 
-        self.delete_document(USERS[2], ['sin', 'study_permit'], 'international')
+        self.delete_document(USERS[2], USER_IDS[2], ['sin', 'study_permit'], 'international')
 
         data5 = {
             'user': user.id,
@@ -1085,7 +1086,7 @@ class StudentTest(TestCase):
         self.assertEqual(loggedin_user.confidentiality.sin_expiry_date, datetime.date(2020, 1, 1))
         self.assertEqual(loggedin_user.confidentiality.study_permit_expiry_date, datetime.date(2020, 5, 5))
 
-        self.delete_document(USERS[2], ['sin', 'study_permit'], 'international')
+        self.delete_document(USERS[2], USER_IDS[2], ['sin', 'study_permit'], 'international')
 
 
     def test_edit_confidentiality(self):
@@ -1246,7 +1247,7 @@ class StudentTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, response.url)
 
-        self.delete_document(USERS[2], ['sin', 'study_permit'], 'international')
+        self.delete_document(USERS[2], USER_IDS[2], ['sin', 'study_permit'], 'international')
 
     def test_delete_confidential_information(self):
         print('- Test: delete confidential information')
@@ -1323,7 +1324,7 @@ class StudentTest(TestCase):
         self.assertEqual(user.confidentiality.sin, 'users/user100.test/sin/sin.jpg')
         self.assertEqual(user.confidentiality.study_permit, 'users/user100.test/study_permit/study_permit.jpg')
 
-        self.delete_document(USERS[2], ['sin', 'study_permit'], 'international')
+        self.delete_document(USERS[2], USER_IDS[2], ['sin', 'study_permit'], 'international')
 
 
     def test_explore_jobs(self):
@@ -1346,7 +1347,7 @@ class StudentTest(TestCase):
         self.assertEqual( len(response.context['visible_current_sessions']), 3 )
         self.assertEqual( len(response.context['favourites']), 3 )
 
-        self.delete_document(USERS[2], ['resume'])
+        self.delete_document(USERS[2], USER_IDS[2], ['resume'])
 
 
     def test_favrouite_jobs(self):
@@ -1440,7 +1441,7 @@ class StudentTest(TestCase):
 
         self.assertEqual( len(response.context['favourites']), 4 )
 
-        self.delete_document(USERS[2], ['resume'])
+        self.delete_document(USERS[2], USER_IDS[2], ['resume'])
 
 
     def test_available_jobs(self):
@@ -1458,7 +1459,7 @@ class StudentTest(TestCase):
         self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
         self.assertEqual( len(response.context['jobs']), 50 )
 
-        self.delete_document(USERS[2], ['resume'])
+        self.delete_document(USERS[2], USER_IDS[2], ['resume'])
 
 
     def test_apply_job_undergraduate(self):
@@ -1502,7 +1503,7 @@ class StudentTest(TestCase):
         self.assertTrue(response.context['has_applied_job'])
         self.assertFalse(response.context['form'].is_bound)
 
-        self.delete_document(USERS[2], ['resume'])
+        self.delete_document(USERS[2], USER_IDS[2], ['resume'])
 
 
     def test_apply_job_no_supervisor_approval(self):
@@ -1543,7 +1544,7 @@ class StudentTest(TestCase):
         self.assertFalse(response.context['has_applied_job'])
         self.assertFalse(response.context['form'].is_bound)
 
-        self.delete_document(USERS[2], ['resume'])
+        self.delete_document(USERS[2], USER_IDS[2], ['resume'])
 
 
     def test_apply_job(self):
@@ -1701,7 +1702,7 @@ class StudentTest(TestCase):
         self.assertTrue(response.context['has_applied_job'])
         self.assertFalse(response.context['form'].is_bound)
 
-        self.delete_document(USERS[2], ['resume'])
+        self.delete_document(USERS[2], USER_IDS[2], ['resume'])
 
 
     def test_cannot_apply_jobs(self):
@@ -1747,7 +1748,7 @@ class StudentTest(TestCase):
         response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) + AVAILABLE_NEXT )
         self.assertEqual(response.status_code, 403)
 
-        self.delete_document(USERS[2], ['resume'])
+        self.delete_document(USERS[2], USER_IDS[2], ['resume'])
 
 
     def test_apply_jobs_without_undergraduate(self):
@@ -1795,7 +1796,7 @@ class StudentTest(TestCase):
         self.assertEqual(available2['status'], False)
         self.assertEqual(available2['message'], 'Please check the following information, and update required documents. <ul><li>SIN</li></ul>')
 
-        self.delete_document(STUDENT, [])
+        self.delete_document(STUDENT, STUDENT_ID, [])
 
 
     def test_accept_decline_job_domestic_incomplete_employee_number(self):
@@ -1825,7 +1826,7 @@ class StudentTest(TestCase):
         self.assertFalse(available3['status'])
         self.assertEqual(available3['message'], 'Please check the following information, and update required documents. <ul><li>Employee Number</li></ul>')
 
-        self.delete_document(STUDENT, ['sin'])
+        self.delete_document(STUDENT, STUDENT_ID, ['sin'])
 
 
     def test_accept_decline_job_international_incomplete(self):
@@ -1861,7 +1862,7 @@ class StudentTest(TestCase):
         self.assertFalse(available4['status'])
         self.assertEqual(available4['message'], 'Please check the following information, and update required documents. <ul><li>Employee Number</li><li>Date of Birth</li><li>Study Permit Expiry Date</li></ul>')
 
-        self.delete_document(STUDENT, ['sin', 'study_permit'], 'international')
+        self.delete_document(STUDENT, STUDENT_ID, ['sin', 'study_permit'], 'international')
 
 
     def test_accept_decline_job(self):
@@ -1914,7 +1915,7 @@ class StudentTest(TestCase):
         self.assertFalse(response.context['app'].accepted)
         self.assertFalse( response.context['app'].declined )
 
-        self.delete_document(STUDENT, ['sin', 'study_permit'], 'international')
+        self.delete_document(STUDENT, STUDENT_ID, ['sin', 'study_permit'], 'international')
 
 
     def test_accept_offer(self):
@@ -2005,7 +2006,7 @@ class StudentTest(TestCase):
         total_hours = adminApi.get_total_assigned_hours(apps, ['accepted'])
         self.assertEqual(total_hours['accepted'], {'2019-W1': appl.accepted.assigned_hours})
 
-        self.delete_document(STUDENT, ['sin', 'study_permit'], 'international')
+        self.delete_document(STUDENT, STUDENT_ID, ['sin', 'study_permit'], 'international')
 
 
     def test_today_accepted_application_student(self):
@@ -2099,7 +2100,7 @@ class StudentTest(TestCase):
         self.assertEqual(today_processed_stats['not_processed'], 0)
         self.assertEqual(today.strftime('%Y-%m-%d'), datetime.date.today().strftime('%Y-%m-%d'))
 
-        self.delete_document(STUDENT, ['sin', 'study_permit'], 'international')
+        self.delete_document(STUDENT, STUDENT_ID, ['sin', 'study_permit'], 'international')
 
 
         # 2nd student
@@ -2199,7 +2200,7 @@ class StudentTest(TestCase):
         self.assertEqual(today_processed_stats['not_processed'], 0)
         self.assertEqual(today.strftime('%Y-%m-%d'), datetime.date.today().strftime('%Y-%m-%d'))
 
-        self.delete_document(STUDENT2, ['resume', 'sin', 'study_permit'], 'international')
+        self.delete_document(STUDENT2, STUDENT2_ID, ['resume', 'sin', 'study_permit'], 'international')
 
 
     def test_cannot_accept_offer(self):
@@ -2231,7 +2232,7 @@ class StudentTest(TestCase):
         self.assertEqual(response.url, reverse('students:accept_decline_job', args=[SESSION, STUDENT_JOB]) + HISTORY_NEXT)
         self.assertRedirects(response, response.url)
 
-        self.delete_document(STUDENT, ['sin', 'study_permit'], 'international')
+        self.delete_document(STUDENT, STUDENT_ID, ['sin', 'study_permit'], 'international')
 
 
     def test_decline_offer(self):
@@ -2314,7 +2315,7 @@ class StudentTest(TestCase):
         total_hours = adminApi.get_total_assigned_hours(apps, ['accepted'])
         self.assertEqual(total_hours['accepted'], {})
 
-        self.delete_document(STUDENT, ['sin', 'study_permit'], 'international')
+        self.delete_document(STUDENT, STUDENT_ID, ['sin', 'study_permit'], 'international')
 
 
     def test_decline_offer_with_incomplete_confidentiality(self):
@@ -2347,7 +2348,7 @@ class StudentTest(TestCase):
         self.assertEqual(response.url, reverse('students:history_jobs') + '?page=2')
         self.assertRedirects(response, response.url)
 
-        self.delete_document(STUDENT, ['sin', 'study_permit'], 'international')
+        self.delete_document(STUDENT, STUDENT_ID, ['sin', 'study_permit'], 'international')
 
 
     def test_reaccept_application_not_ready(self):
@@ -2362,7 +2363,7 @@ class StudentTest(TestCase):
         app = adminApi.get_application(APP_SLUG, 'slug')
         self.assertFalse(app.is_declined_reassigned)
 
-        self.delete_document(STUDENT, ['sin', 'study_permit'], 'international')
+        self.delete_document(STUDENT, STUDENT_ID, ['sin', 'study_permit'], 'international')
 
 
     def test_reaccept_application_success(self):
@@ -2490,7 +2491,7 @@ class StudentTest(TestCase):
         total_hours = adminApi.get_total_assigned_hours(apps, ['accepted'])
         self.assertEqual(total_hours['accepted'], {'2019-W1': 45.0 + diff, '2019-W2': 30.0})
 
-        self.delete_document(STUDENT2, ['resume', 'sin', 'study_permit'], 'international')
+        self.delete_document(STUDENT2, STUDENT2_ID, ['resume', 'sin', 'study_permit'], 'international')
 
 
     def test_reaccept_application_with_incomplete_confidentiality_not_ready(self):
@@ -2504,7 +2505,7 @@ class StudentTest(TestCase):
         app = adminApi.get_application(APP_SLUG, 'slug')
         self.assertFalse(app.is_declined_reassigned)
 
-        self.delete_document(STUDENT, ['sin', 'study_permit'], 'international')
+        self.delete_document(STUDENT_ID, ['sin', 'study_permit'], 'international')
 
 
     def test_reaccept_application_with_incomplete_confidentiality_success(self):
@@ -2536,7 +2537,7 @@ class StudentTest(TestCase):
         self.assertEqual(response.url, reverse('students:reaccept_application', args=[SLUG]) + HISTORY_NEXT)
         self.assertRedirects(response, response.url)
 
-        self.delete_document(STUDENT2, ['resume', 'sin', 'study_permit'], 'international')
+        self.delete_document(STUDENT2, STUDENT2_ID, ['resume', 'sin', 'study_permit'], 'international')
 
 
     def test_redecline_application_not_ready(self):
@@ -2550,7 +2551,7 @@ class StudentTest(TestCase):
         app = adminApi.get_application(APP_SLUG, 'slug')
         self.assertFalse(app.is_declined_reassigned)
 
-        self.delete_document(STUDENT, ['sin', 'study_permit'], 'international')
+        self.delete_document(STUDENT, STUDENT_ID, ['sin', 'study_permit'], 'international')
 
 
     def test_redecline_application_success(self):
@@ -2654,7 +2655,7 @@ class StudentTest(TestCase):
         self.assertEqual(appl.job.assigned_ta_hours, app.job.assigned_ta_hours)
         self.assertEqual(appl.job.accumulated_ta_hours, app.job.accumulated_ta_hours - 45.0) # accepted hours was 45.0
 
-        self.delete_document(STUDENT2, ['resume', 'sin', 'study_permit'], 'international')
+        self.delete_document(STUDENT2, STUDENT2_ID, ['resume', 'sin', 'study_permit'], 'international')
 
 
     def test_redecline_application_with_incomplete_confidentiality(self):
@@ -2714,7 +2715,7 @@ class StudentTest(TestCase):
         self.assertEqual(appl.job.assigned_ta_hours, app.job.assigned_ta_hours)
         self.assertEqual(appl.job.accumulated_ta_hours, app.job.accumulated_ta_hours - 45.0) # accepted hours was 45.0
 
-        self.delete_document(STUDENT2, ['resume', 'sin', 'study_permit'], 'international')
+        self.delete_document(STUDENT2, STUDENT2_ID, ['resume', 'sin', 'study_permit'], 'international')
 
 
     def test_terminate_job(self):
