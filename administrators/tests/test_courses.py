@@ -165,7 +165,7 @@ class CourseTest(TestCase):
         data2['courses'] = [ str(course.id) for course in response.context['courses'] ]
         data2['is_visible'] = False
         data2['is_archived'] = False
-        response = self.client.post(reverse('administrators:create_session_confirmation'), data=urlencode(data2, True), content_type=ContentType)
+        response = self.client.post(reverse('administrators:create_session_setup_courses'), data=urlencode(data2, True), content_type=ContentType)
         messages = self.messages(response)
         self.assertTrue('Success' in messages[0])
         self.assertEqual(response.status_code, 302)

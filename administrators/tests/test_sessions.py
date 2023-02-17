@@ -189,7 +189,7 @@ class SessionTest(TestCase):
         response = self.client.get( reverse('administrators:create_session') )
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get( reverse('administrators:create_session_confirmation') )
+        response = self.client.get( reverse('administrators:create_session_setup_courses') )
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get( reverse('administrators:show_session', args=[SESSION]) + CURRENT_SESSION )
@@ -366,7 +366,7 @@ class SessionTest(TestCase):
         data['courses'] = [ str(course.id) for course in response.context['courses'] ]
         data['is_visible'] = False
         data['is_archived'] = False
-        response = self.client.post(reverse('administrators:create_session_confirmation'), data=urlencode(data, True), content_type=ContentType)
+        response = self.client.post(reverse('administrators:create_session_setup_courses'), data=urlencode(data, True), content_type=ContentType)
         messages = self.messages(response)
         self.assertTrue('Success' in messages[0])
         self.assertEqual(response.status_code, 302)

@@ -4,17 +4,18 @@ from . import views
 app_name = 'administrators'
 
 urlpatterns = [
-    path('', views.index, name='index'),
+    path('', views.Index.as_view(), name='index'),
 
-    path('sessions/create/confirmation/', views.create_session_confirmation, name='create_session_confirmation'),
-    path('sessions/create/', views.create_session, name='create_session'),
+    path('sessions/create/confirmation/', views.CreateSessionConfirmation.as_view(), name='create_session_confirmation'),
+    path('sessions/create/setup-jobs/', views.CreateSessionSetupCourses.as_view(), name='create_session_setup_courses'),
+    path('sessions/create/', views.CreateSession.as_view(), name='create_session'),
     path('sessions/<str:session_slug>/delete/confirmation/', views.delete_session_confirmation, name='delete_session_confirmation'),
     path('sessions/<str:session_slug>/edit/', views.edit_session, name='edit_session'),
-    path('sessions/<str:session_slug>/details/', views.show_session, name='show_session'),
+    path('sessions/<str:session_slug>/details/', views.ShowSession.as_view(), name='show_session'),
     path('sessions/<str:session_slug>/report/summary/', views.show_report_summary, name='show_report_summary'),
     path('sessions/<str:session_slug>/report/applicants/', views.show_report_applicants, name='show_report_applicants'),
-    path('sessions/current/', views.current_sessions, name='current_sessions'),
-    path('sessions/archived/', views.archived_sessions, name='archived_sessions'),
+    path('sessions/current/', views.CurrentSessions.as_view(), name='current_sessions'),
+    path('sessions/archived/', views.ArchivedSessions.as_view(), name='archived_sessions'),
 
     path('jobs/prepare/', views.prepare_jobs, name='prepare_jobs'),
     path('jobs/progress/', views.progress_jobs, name='progress_jobs'),

@@ -167,7 +167,6 @@ def get_course(data, option=None):
     if option == 'slug': return get_object_or_404(Course, slug=data)
     return get_object_or_404(Course, id=data)
 
-
 def get_courses_by_term(term_id):
     ''' Get courses by term '''
     try:
@@ -258,6 +257,21 @@ def add_num_instructors(sessions):
             if job.instructors.count() > 0: count += 1
         session.num_instructors = count
     return sessions
+
+def make_session_info(data, term):
+    session = []
+    session.append( ('Tear', data['year']) )
+    session.append( ('Term', '{0} ({1})'.format(term.name, term.code)) )
+    session.append( ('Title', data['title']) )
+    session.append( ('Description', data['description']) )
+    session.append( ('Note', data['note']) )
+    session.append( ('Is visible', data['is_visible']) )
+    session.append( ('Is archived', data['is_archived']) )
+    return session
+
+
+
+
 
 
 def valid_accepted_app(list, application, total_accepted_applicants=0):

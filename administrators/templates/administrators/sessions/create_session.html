@@ -4,8 +4,8 @@
 {% include 'administrators/_menu.html' %}
 <div class="row">
   <div class="col-md-4">
-    <aside class="col-10 mx-auto">
-      {% include 'ta_app/pages/_header.html' with title=title %}
+    <aside class="col-11 mx-auto">
+      {% include 'ta_app/pages/_header.html' with title='Create Session' %}
 
       <div class="bg-prompt text-center">
         <div class="prompt p-4 mb-4">
@@ -20,6 +20,8 @@
           <a class="btn btn-outline-primary" href="{% url 'administrators:current_sessions' %}">Back to Archived Sessions</a>
         </div>
       </div>
+
+      {% include 'ta_app/pages/_session_note.html' %}
     </aside>
   </div>
 
@@ -27,24 +29,37 @@
     <div class="board col-11 mx-auto">
       <h3>New Session Form</h3>
 
+      <div class="bg-white border p-3 mb-3">
+        <ul class="text-dark mb-0">
+          <li>
+            {% include 'ta_app/pages/_field_required.html' %}
+          </li>
+        </ul>
+      </div>
+
       <form action="" method="post">
         {% csrf_token %}
 
-        {% for field in form.visible_fields  %}
-          <div class="field-wrapper">
-            {{ field.label_tag }}
-            {% if field.help_text %}
-              <div class="help">{{ field.help_text|safe }}</div>
-            {% endif %}
-            {{ field }}
-          </div>
-        {% endfor %}
+        <table class="form-table table table-borderless font-size-1">
+          {% for field in form.visible_fields  %}
+            <tr>
+              <td class="col-md-4">
+                <label class="form-label" for="{{ field.id_for_label }}">
+                  {{ field.label }}
+                  {% if field.name == 'year' or field.name == 'term' or field.name == 'title' %}
+                    {% include 'ta_app/icons/asterisk.html' %}
+                  {% endif %}
+                </label>
+                {% if field.help_text %}
+                  <div class="help">{{ field.help_text|safe }}</div>
+                {% endif %}
+              </td>
+              <td class="col-md-8">{{ field }}</td>
+            </tr>
+          {% endfor %}
+        </table>
 
-        {% for field in form.hidden_fields %}
-          {{ field }}
-        {% endfor %}
-
-        <input class="btn btn-primary" type="submit" value="Create" />
+        <input class="btn btn-primary mt-3" type="submit" name="path" value="Save and Setup Courses" />
       </form>
     </div>
   </div>

@@ -3,78 +3,102 @@
 
 {% include 'administrators/_menu.html' %}
 <div class="row">
-  <div class="col-md-4">
-    {% include 'ta_app/pages/_header.html' with title='Create Session' %}
+  <div class="col-md-3">
+    {% include 'ta_app/pages/_header.html' with title='Create Session - Confirmation' %}
 
     <div class="bg-prompt">
-      <div class="prompt p-4 mb-4">
-        <h4>Current Sessions</h4>
-        <p>
-          There are <span class="font-weight-bold">{{ current_sessions|length }}</span> current sessions.
-        </p>
-        <h4>Archived Sessions</h4>
-        <p>
-          There are <span class="font-weight-bold">{{ archived_sessions|length }}</span> archived sessions.
-        </p>
-
-        <a class="btn btn-outline-primary" href="{% url 'administrators:create_session' %}">Back to Create Session</a>
+      <div class="prompt p-3">
+        <h5 class="text-primary text-center">New Session</h5>
+        <table>
+          {% for name, value in session %}
+            <tr>
+              <td class="col-md-4 font-weight-bold">{{ name }}</td>
+              <td class="col-md-8">
+                {% if name == 'Is visible' or name == 'Is archived' %}
+                  {% include 'ta_app/icons/true_or_false.html' with data=value %}
+                {% elif name == 'Description' or name == 'Note' %}
+                  {{ value|safe }}
+                {% else %}
+                  {{ value }}
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </table>
       </div>
     </div>
 
-    <div class="col-11 mx-auto">
-      {% include 'ta_app/pages/_session_note.html' %}
+    <div class="left-aside-btn-groups">
+      <a class="btn btn-outline-primary" href="{% url 'administrators:create_session_setup_courses' %}">Back to Setup Courses</a>
     </div>
 
   </div>
 
-  <div class="col-md-8">
+  <div class="col-md-9">
+    {% if num_course_ids == 0 %}
 
-    {% if error_messages %}
-
-      <div class="alert alert-danger" role="alert">
-        A Session form is not available for following reasons.
-        <ol>
-          {% for error in error_messages %}
-            <li>{{ error }}</li>
-          {% endfor %}
-        </ol>
-        Please try again.
+      <div class="alert alert-danger my-4" role="alert">
+        Oops! No courses found. Please try again.
       </div>
 
     {% else %}
 
-      <div class="board col-11 mx-auto">
-        <h3>Confirmation Form</h3>
+      <div>
+        <h3 class="text-primary">Confirmation Form</h3>
 
-        <div>
-          <h5>Year:</h5>
-          <span>{{ session.year }}</span>
-        </div>
+        <ul class="text-secondary">
+          <li>Selected: <span class="font-weight-bold text-danger">{{ num_courses }}</span> course(s)</li>
+          <li>Copied: <span class="font-weight-bold text-danger">{{ num_copied_ids }}</span> course(s)</li>
+        </ul>
 
-        <div>
-          <h5>Term:</h5>
-          <span>{{ session.term.code }}</span>
-        </div>
+        <p>Please review the information carefully, and click on the button<span class="bg-primary">Confirm Create</span> button</p>
 
         <form action="" method="post">
           {% csrf_token %}
 
-          {% for field in form.visible_fields  %}
-            <div class="field-wrapper">
-              {{ field.label_tag }}
-              {% if field.help_text %}
-                <div class="help">{{ field.help_text|safe }}</div>
-              {% endif %}
-              {{ field }}
-            </div>
-          {% endfor %}
+          <table
+            class="table table-bordered table-striped table-hover table-responsive-md text-center font-size-sm"
+            data-toggle="table"
+            data-search="true"
+          >
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Course</th>
+                <th>Instructors</th>
+                <th>Total Assigned <br /> TA Hours</th>
+                <th>Job Details</th>
+                <th>Is active</th>
+                <th>Copied</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for course in courses %}
+                <tr>
+                  <td>{{ forloop.counter }} | {{ course.id }}</td>
+                  <td>{{ course }}</td>
+                  <td class="text-left">{% include 'ta_app/jobs/_job_instructor_list.html' with data=course.prev_job %}</td>
+                  <td>{{ course.prev_job.assigned_ta_hours }}</td>
+                  <td>
+                    {% if course.prev_job.course_overview or course.prev_job.description or course.prev_job.note %}
+                      {% include 'ta_app/jobs/_modal_prev_job_info.html' with data=course.prev_job %}
+                    {% else %}
+                      None
+                    {% endif %}
+                  </td>
+                  <td>{% include 'ta_app/jobs/_job_is_active.html' with data=course.prev_job %}</td>
+                  <td>
+                    {% include 'ta_app/icons/true_only.html' with data=course.is_copied %}
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
 
-          {% for field in form.hidden_fields %}
-            {{ field }}
-          {% endfor %}
-
-          <a class="btn btn-outline-secondary" href="{% url 'administrators:create_session' %}">Cancel</a>
-          <input class="btn btn-primary" type="submit" value="Confirm to create" />
+          <div class="my-5">
+            <a class="btn btn-outline-secondary mr-3" href="{% url 'administrators:create_session_setup_courses' %}">Cancel</a>
+            <input class="btn btn-primary" type="submit" value="Confirm Create" />
+          </div>
         </form>
       </div>
 

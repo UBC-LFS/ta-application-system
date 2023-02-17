@@ -6,10 +6,13 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect, Http404, JsonResponse
 from django.core.exceptions import PermissionDenied
-from django.views.decorators.http import require_http_methods
-from django.views.decorators.cache import cache_control
+from django.views.decorators.cache import cache_control, never_cache
 from io import StringIO
 from django.core.exceptions import SuspiciousOperation
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views import View
+from django.utils.decorators import method_decorator
+from django.views.decorators.http import require_http_methods, require_GET, require_POST
 
 from django.db.models import Q, Count
 from django.views.static import serve
@@ -25,7 +28,7 @@ from users.models import *
 from users.forms import *
 from users import api as userApi
 
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 
 
 APP_STATUS = {
@@ -39,81 +42,344 @@ APP_STATUS = {
 }
 
 
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
-def index(request):
+@method_decorator([never_cache], name='dispatch')
+class Index(LoginRequiredMixin, View):
     ''' Index page of Administrator's portal '''
-    request = userApi.has_admin_access(request, Role.HR)
+    
+    @method_decorator(require_GET)
+    def get(self, request, *args, **kwargs):
+        request = userApi.has_admin_access(request, Role.HR)
 
-    apps = adminApi.get_applications()
+        apps = adminApi.get_applications()
 
-    today_accepted_apps, today = adminApi.get_accepted_apps_by_day(apps, 'today')
-    yesterday_accepted_apps, yesterday = adminApi.get_accepted_apps_by_day(apps, 'yesterday')
-    week_ago_accepted_apps, week_ago = adminApi.get_accepted_apps_by_day(apps, 'week_ago')
+        today_accepted_apps, today = adminApi.get_accepted_apps_by_day(apps, 'today')
+        yesterday_accepted_apps, yesterday = adminApi.get_accepted_apps_by_day(apps, 'yesterday')
+        week_ago_accepted_apps, week_ago = adminApi.get_accepted_apps_by_day(apps, 'week_ago')
 
-    context = {
-        'loggedin_user': userApi.add_avatar(request.user),
-        'accepted_apps': apps.filter(applicationstatus__assigned=ApplicationStatus.ACCEPTED).exclude(applicationstatus__assigned=ApplicationStatus.CANCELLED).order_by('-id').distinct(),
-        'today_accepted_apps': today_accepted_apps,
-        'today_processed_stats': adminApi.get_processed_stats(today_accepted_apps),
-        'yesterday_accepted_apps': yesterday_accepted_apps,
-        'yesterday_processed_stats': adminApi.get_processed_stats(yesterday_accepted_apps),
-        'week_ago_accepted_apps': week_ago_accepted_apps,
-        'week_ago_processed_stats': adminApi.get_processed_stats(week_ago_accepted_apps),
-        'today': today,
-        'yesterday': yesterday,
-        'week_ago': week_ago
-    }
-    if Role.ADMIN in request.user.roles or Role.SUPERADMIN in request.user.roles:
-        sessions = adminApi.get_sessions()
-        context['current_sessions'] = sessions.filter(is_archived=False)
-        context['archived_sessions'] = sessions.filter(is_archived=True)
-        context['apps'] = adminApi.get_applications()
-        context['instructors'] = userApi.get_users_by_role(Role.INSTRUCTOR)
-        context['students'] = userApi.get_users_by_role(Role.STUDENT)
-        context['users'] = userApi.get_users()
+        context = {
+            'loggedin_user': userApi.add_avatar(request.user),
+            'accepted_apps': apps.filter(applicationstatus__assigned=ApplicationStatus.ACCEPTED).exclude(applicationstatus__assigned=ApplicationStatus.CANCELLED).order_by('-id').distinct(),
+            'today_accepted_apps': today_accepted_apps,
+            'today_processed_stats': adminApi.get_processed_stats(today_accepted_apps),
+            'yesterday_accepted_apps': yesterday_accepted_apps,
+            'yesterday_processed_stats': adminApi.get_processed_stats(yesterday_accepted_apps),
+            'week_ago_accepted_apps': week_ago_accepted_apps,
+            'week_ago_processed_stats': adminApi.get_processed_stats(week_ago_accepted_apps),
+            'today': today,
+            'yesterday': yesterday,
+            'week_ago': week_ago
+        }
+        if Role.ADMIN in request.user.roles or Role.SUPERADMIN in request.user.roles:
+            sessions = adminApi.get_sessions()
+            context['current_sessions'] = sessions.filter(is_archived=False)
+            context['archived_sessions'] = sessions.filter(is_archived=True)
+            context['apps'] = adminApi.get_applications()
+            context['instructors'] = userApi.get_users_by_role(Role.INSTRUCTOR)
+            context['students'] = userApi.get_users_by_role(Role.STUDENT)
+            context['users'] = userApi.get_users()
 
-    return render(request, 'administrators/index.html', context)
+        return render(request, 'administrators/index.html', context)
 
 
 # Sessions
 
 
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET', 'POST'])
-def create_session(request):
-    ''' Create a session '''
-    request = userApi.has_admin_access(request)
+@method_decorator([never_cache], name='dispatch')
+class CurrentSessions(LoginRequiredMixin, View):
+    ''' Display all information of sessions and create a session '''
 
-    if request.method == 'POST':
-        request.session['session_form_data'] = request.POST
+    @method_decorator(require_GET)
+    def get(self, request, *args, **kwargs):
+        request = userApi.has_admin_access(request)
+
+        request.session['next_session'] = adminApi.build_new_next(request)
+
+        year_q = request.GET.get('year')
+        term_q = request.GET.get('term')
+
+        session_list = adminApi.get_sessions()
+        if bool(year_q):
+            session_list = session_list.filter(year__icontains=year_q)
+        if bool(term_q):
+            session_list = session_list.filter(term__code__icontains=term_q)
+
+        session_list = session_list.filter(is_archived=False)
+        session_list = adminApi.add_num_instructors(session_list)
+
+        page = request.GET.get('page', 1)
+        paginator = Paginator(session_list, settings.PAGE_SIZE)
+
+        try:
+            sessions = paginator.page(page)
+        except PageNotAnInteger:
+            sessions = paginator.page(1)
+        except EmptyPage:
+            sessions = paginator.page(paginator.num_pages)
+
+        return render(request, 'administrators/sessions/current_sessions.html', {
+            'loggedin_user': request.user,
+            'sessions': sessions,
+            'total_sessions': len(session_list),
+            'new_next': adminApi.build_new_next(request)
+        })
+
+
+@method_decorator([never_cache], name='dispatch')
+class ArchivedSessions(LoginRequiredMixin, View):
+    ''' Display all information of sessions and create a session '''
+
+    @method_decorator(require_GET)
+    def get(self, request, *args, **kwargs):
+        request = userApi.has_admin_access(request)
+
+        request.session['next_session'] = adminApi.build_new_next(request)
+
+        year_q = request.GET.get('year')
+        term_q = request.GET.get('term')
+
+        session_list = adminApi.get_sessions()
+        if bool(year_q):
+            session_list = session_list.filter(year__icontains=year_q)
+        if bool(term_q):
+            session_list = session_list.filter(term__code__icontains=term_q)
+
+        session_list = session_list.filter(is_archived=True)
+        session_list = adminApi.add_num_instructors(session_list)
+
+        page = request.GET.get('page', 1)
+        paginator = Paginator(session_list, settings.PAGE_SIZE)
+
+        try:
+            sessions = paginator.page(page)
+        except PageNotAnInteger:
+            sessions = paginator.page(1)
+        except EmptyPage:
+            sessions = paginator.page(paginator.num_pages)
+
+        return render(request, 'administrators/sessions/archived_sessions.html', {
+            'loggedin_user': request.user,
+            'sessions': sessions,
+            'total_sessions': len(session_list),
+            'new_next': adminApi.build_new_next(request)
+        })
+
+
+@method_decorator([never_cache], name='dispatch')
+class ShowSession(LoginRequiredMixin, View):
+    ''' Display session details '''
+
+    @method_decorator(require_GET)
+    def get(self, request, *args, **kwargs):
+        session_slug = kwargs['session_slug']
+
+        request = userApi.has_admin_access(request)
+        adminApi.can_req_parameters_access(request, 'session', ['next', 'p'])
+
+        return render(request, 'administrators/sessions/show_session.html', {
+            'loggedin_user': request.user,
+            'session': adminApi.get_session(session_slug, 'slug'),
+            'next': adminApi.get_next(request)
+        })
+
+from django.forms.models import model_to_dict
+
+@method_decorator([never_cache], name='dispatch')
+class CreateSession(LoginRequiredMixin, View):
+    ''' Create a session '''
+
+    form_class = SessionForm
+
+    @method_decorator(require_GET)
+    def get(self, request, *args, **kwargs):
+        request = userApi.has_admin_access(request)
+        
+        sessions = adminApi.get_sessions()
+        return render(request, 'administrators/sessions/create_session.html', {
+            'loggedin_user': request.user,
+            'current_sessions': sessions.filter(is_archived=False),
+            'archived_sessions': sessions.filter(is_archived=True),
+            'form': self.form_class(initial={
+                'year': date.today().year,
+                'title': 'TA Application'
+            })
+        })
+
+    @method_decorator(require_POST)
+    def post(self, request, *args, **kwargs):
+        print(request.POST)
+        
+        form = self.form_class(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            data['term'] = data['term'].id
+            data['is_visible'] = False if data['is_archived'] == True else data['is_visible']
+            
+            request.session['session_form_data'] = data
+        else:
+            errors = form.errors.get_json_data()
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+            return redirect('administrators:create_session')
+
+        return redirect('administrators:create_session_setup_courses')
+        #return redirect('administrators:create_session_confirmation')
+        #return redirect('administrators:create_session')
+
+
+@method_decorator([never_cache], name='dispatch')
+class CreateSessionSetupCourses(LoginRequiredMixin, View):
+    form_class = SessionConfirmationForm
+
+    @method_decorator(require_GET)
+    def get(self, request, *args, **kwargs):
+        request = userApi.has_admin_access(request)
+        data = request.session.get('session_form_data', None)
+
+        if not data:
+            messages.error(request, 'Oops! Something went wrong for some reason. No data found.')
+            return redirect('administrators:create_session')
+        
+        year = data['year']
+        term = adminApi.get_term(data['term'])
+        courses = adminApi.get_courses_by_term(data['term'])
+
+        for course in courses:
+            job = course.job_set.filter(session__year=int(year)-1)
+            course.prev_job = job.first() if job.exists() else None
+        
+        return render(request, 'administrators/sessions/create_session_setup_courses.html', {
+            'loggedin_user': request.user,
+            'session': adminApi.make_session_info(data, term),
+            'term': term,
+            'courses': courses
+        })
+
+    @method_decorator(require_POST)
+    def post(self, request, *args, **kwargs):
+        #print(request.POST)
+        path = request.POST['submit_path']
+
+        data = request.session['session_form_data']
+        data['selected_course_ids'] = request.POST.getlist('is_course_selected')
+        data['copied_ids'] = request.POST.getlist('can_copy') if path == 'Save Changes' else []
+
+        request.session['session_form_data'] = data
+
         return redirect('administrators:create_session_confirmation')
 
-    sessions = adminApi.get_sessions()
-    return render(request, 'administrators/sessions/create_session.html', {
-        'loggedin_user': request.user,
-        'current_sessions': sessions.filter(is_archived=False),
-        'archived_sessions': sessions.filter(is_archived=True),
-        'form': SessionForm()
-    })
+        """form = self.form_class(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            courses = data.get('courses')
 
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET', 'POST'])
-def create_session_confirmation(request):
+            if len(courses) == 0:
+                messages.error(request, 'An error occurred. Please select courses in this session.')
+                return redirect('administrators:create_session_setup_courses')
+
+            session = form.save(commit=False)
+
+            if data['is_archived']:
+                session.is_visible = False
+
+            session.save()
+
+            if session:
+                jobs = adminApi.create_jobs(session, courses)
+                if jobs:
+                    del request.session['session_form_data'] # remove session form data
+                    messages.success(request, 'Success! {0} {1} - {2} created'.format(session.year, session.term.code, session.title))
+                    if data['is_archived']:
+                        return redirect('administrators:archived_sessions')
+                    else:
+                        return redirect('administrators:current_sessions')
+                else:
+                    messages.error(request, 'An error occurred. Failed to create jobs')
+            else:
+                messages.error(request, 'An error occurred. Failed to create a session')
+        else:
+            errors = form.errors.get_json_data()
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+
+        return redirect('administrators:create_session_setup_courses')"""
+
+
+
+@method_decorator([never_cache], name='dispatch')
+class CreateSessionConfirmation(LoginRequiredMixin, View):
     ''' Confirm all the inforamtion to create a session '''
-    request = userApi.has_admin_access(request)
 
-    sessions = adminApi.get_sessions()
-    error_messages = []
-    form = None
-    data = None
-    courses = None
-    year = None
-    term = None
-    if request.method == 'POST':
+    @method_decorator(require_GET)
+    def get(self, request, *args, **kwargs):
+        request = userApi.has_admin_access(request)
+
+        data = request.session.get('session_form_data', None)
+        print(data)
+
+        if not data:
+            messages.error(request, 'Oops! Something went wrong for some reason. No data found.')
+            return redirect('administrators:create_session_setup_courses')
+        
+        year = data['year']
+        term = adminApi.get_term(data['term'])
+        course_ids = data['selected_course_ids']
+        copied_ids = data['copied_ids']
+        
+        print(copied_ids)
+
+        courses = []
+        for id in course_ids:
+            course = adminApi.get_course(id)
+            
+            if id in copied_ids:
+                course.is_copied = True
+                job = course.job_set.filter(session__year=int(year)-1)
+                course.prev_job = job.first() if job.exists() else None
+            else:
+                course.is_copied = False
+                course.prev_job = {
+                    'instructors': None,
+                    'assigned_ta_hours': 0.0,
+                    'course_overview': None,
+                    'description': None,
+                    'note': None
+                }
+
+            courses.append(course)
+
+        return render(request, 'administrators/sessions/create_session_confirmation.html', {
+            'loggedin_user': request.user,
+            'session': adminApi.make_session_info(data, term),
+            'term': term,
+            'courses': courses,
+            'num_courses': len(courses),
+            'num_copied_ids': len(copied_ids)
+        })
+    
+    @method_decorator(require_POST)
+    def post(self, request, *args, **kwargs):
+        pass
+
+    """@method_decorator(require_GET)
+    def get(self, request, *args, **kwargs):
+        request = userApi.has_admin_access(request)
+
+        data = request.session.get('session_form_data', None)
+        
+        if not data:
+            messages.error(request, 'Oops! Something went wrong for some reason. No data found.')
+            return redirect('administrators:create_session')
+
+        term = adminApi.get_term(data['term'])
+        courses = adminApi.get_courses_by_term(term.id)
+        data['courses'] = courses
+        return render(request, 'administrators/sessions/create_session_confirmation.html', {
+            'loggedin_user': request.user,
+            'session': adminApi.make_session_info(data, term),
+            'courses': adminApi.get_courses_by_term(term.id),
+            'form': SessionConfirmationForm(data=data, initial={ 'term': term })
+        })
+    
+    @method_decorator(require_POST)
+    def post(self, request, *args, **kwargs):
         form = SessionConfirmationForm(request.POST)
         if form.is_valid():
             data = form.cleaned_data
@@ -147,128 +413,7 @@ def create_session_confirmation(request):
             errors = form.errors.get_json_data()
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
-        return redirect('administrators:create_session_confirmation')
-
-    else:
-        data = request.session.get('session_form_data')
-        if data:
-            year = data['year']
-            term = adminApi.get_term(data['term'])
-            courses = adminApi.get_courses_by_term(data['term'])
-            if len(courses) > 0:
-                data['courses'] = courses
-                form = SessionConfirmationForm(data=data, initial={ 'term': term })
-                errors = form.errors.get_json_data()
-                if len(errors.keys()) > 0:
-                    form = None
-                    for key, value in errors.items(): error_messages.append(value[0]['message'])
-            else:
-                form = None
-                error_messages.append('No courses found in a session term.')
-        else:
-            form = None
-            error_messages.append('No data found.')
-
-    return render(request, 'administrators/sessions/create_session_confirmation.html', {
-        'loggedin_user': request.user,
-        'current_sessions': sessions.filter(is_archived=False),
-        'archived_sessions': sessions.filter(is_archived=True),
-        'session': { 'year': year, 'term': term },
-        'courses': courses,
-        'form': form,
-        'error_messages': error_messages
-    })
-
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
-def current_sessions(request):
-    ''' Display all information of sessions and create a session '''
-    request = userApi.has_admin_access(request)
-
-    request.session['next_session'] = adminApi.build_new_next(request)
-
-    year_q = request.GET.get('year')
-    term_q = request.GET.get('term')
-
-    session_list = adminApi.get_sessions()
-    if bool(year_q):
-        session_list = session_list.filter(year__icontains=year_q)
-    if bool(term_q):
-        session_list = session_list.filter(term__code__icontains=term_q)
-
-    session_list = session_list.filter(is_archived=False)
-    session_list = adminApi.add_num_instructors(session_list)
-
-    page = request.GET.get('page', 1)
-    paginator = Paginator(session_list, settings.PAGE_SIZE)
-
-    try:
-        sessions = paginator.page(page)
-    except PageNotAnInteger:
-        sessions = paginator.page(1)
-    except EmptyPage:
-        sessions = paginator.page(paginator.num_pages)
-
-    return render(request, 'administrators/sessions/current_sessions.html', {
-        'loggedin_user': request.user,
-        'sessions': sessions,
-        'total_sessions': len(session_list),
-        'new_next': adminApi.build_new_next(request)
-    })
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
-def archived_sessions(request):
-    ''' Display all information of sessions and create a session '''
-    request = userApi.has_admin_access(request)
-
-    request.session['next_session'] = adminApi.build_new_next(request)
-
-    year_q = request.GET.get('year')
-    term_q = request.GET.get('term')
-
-    session_list = adminApi.get_sessions()
-    if bool(year_q):
-        session_list = session_list.filter(year__icontains=year_q)
-    if bool(term_q):
-        session_list = session_list.filter(term__code__icontains=term_q)
-
-    session_list = session_list.filter(is_archived=True)
-    session_list = adminApi.add_num_instructors(session_list)
-
-    page = request.GET.get('page', 1)
-    paginator = Paginator(session_list, settings.PAGE_SIZE)
-
-    try:
-        sessions = paginator.page(page)
-    except PageNotAnInteger:
-        sessions = paginator.page(1)
-    except EmptyPage:
-        sessions = paginator.page(paginator.num_pages)
-
-    return render(request, 'administrators/sessions/archived_sessions.html', {
-        'loggedin_user': request.user,
-        'sessions': sessions,
-        'total_sessions': len(session_list),
-        'new_next': adminApi.build_new_next(request)
-    })
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
-def show_session(request, session_slug):
-    ''' Display session details '''
-    request = userApi.has_admin_access(request)
-    adminApi.can_req_parameters_access(request, 'session', ['next', 'p'])
-
-    return render(request, 'administrators/sessions/show_session.html', {
-        'loggedin_user': request.user,
-        'session': adminApi.get_session(session_slug, 'slug'),
-        'next': adminApi.get_next(request)
-    })
+        return redirect('administrators:create_session_confirmation')"""
 
 
 @login_required(login_url=settings.LOGIN_URL)

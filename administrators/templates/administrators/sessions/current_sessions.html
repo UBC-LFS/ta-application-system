@@ -12,8 +12,8 @@
     <div class="col-md-6">
       <div class="bg-prompt">
         <div class="prompt p-3 text-center" style="height:104.8px">
-          <p>If you would like to see the newly created jobs, please click on the botton below.</p>
-          <a class="btn btn-outline-primary btn-xs" href="{% url 'administrators:prepare_jobs' %}">Prepare Jobs</a>
+          <p class="font-size-sm">If you would like to see the newly created jobs, please click on the botton below.</p>
+          <a class="btn btn-outline-primary btn-sm" href="{% url 'administrators:prepare_jobs' %}">Prepare Jobs</a>
         </div>
       </div>
     </div>
@@ -64,7 +64,7 @@
             {{ session.updated_at }}
           </td>
           <td>
-            <a href="{% url 'administrators:show_report_applicants' session_slug=session.slug %}">Applicants</a> | 
+            <a href="{% url 'administrators:show_report_applicants' session_slug=session.slug %}">Applicants</a> |
             <a href="{% url 'administrators:show_report_summary' session_slug=session.slug %}">Summary</a>
           </td>
           <td>

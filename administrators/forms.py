@@ -138,43 +138,31 @@ class CourseEditForm(forms.ModelForm):
     field_order = ['name', 'overview', 'job_description', 'job_note']
 
 
-
-
 class SessionForm(forms.ModelForm):
     ''' Create a model form for a Session '''
-    year = forms.CharField(
-        max_length=4,
-        initial=current_year(),
-        widget=forms.TextInput(attrs={ 'class': 'form-control' }),
-        help_text='This field is required.'
-    )
-    title = forms.CharField(
-        max_length=256,
-        initial='TA Application',
-        widget=forms.TextInput(attrs={ 'class': 'form-control' }),
-        help_text='This field is required. Maximum 256 characters allowed.'
-    )
-
+    
     class Meta:
         model = Session
-        fields = ['year', 'term', 'title', 'description', 'note']
+        fields = ['year', 'term', 'title', 'description', 'note', 'is_visible', 'is_archived']
         widgets = {
+            'year': forms.TextInput(attrs={ 'class': 'form-control' }),
             'term': forms.Select(attrs={ 'class': 'form-control' }),
+            'title': forms.TextInput(attrs={ 'class': 'form-control' }),
             'description': SummernoteWidget(),
             'note': SummernoteWidget()
         }
         help_texts = {
-            'term': 'This field is required.',
+            'year': 'Maximum 4 characters allowed.',
+            'title': 'Maximum 256 characters allowed.',
             'description': 'This field is optional.',
             'note': 'This field is optional.'
         }
 
-    field_order = ['year', 'term', 'title', 'description', 'note']
+    field_order = ['year', 'term', 'title', 'description', 'note', 'is_visible', 'is_archived']
 
 class SessionConfirmationForm(forms.ModelForm):
     ''' Create a model form for a Session '''
 
-    this_year = current_year()
     title = forms.CharField(
         initial='TA Application',
         widget=forms.TextInput(attrs={ 'class': 'form-control' })

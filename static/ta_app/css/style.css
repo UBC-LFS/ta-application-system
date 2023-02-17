@@ -580,6 +580,8 @@ hr.dotted {
   background-color: rgba(0, 0, 0, .05);
 }
 
+.fw-600 { font-weight: 600 !important; }
+
 
 #impersonate-card {
   position: fixed;
@@ -624,6 +626,22 @@ table tbody td {
 .sortable-table > thead .sortable .fa-sort-numeric-desc,
 .sortable-table > thead .sortable .fa-sort-alpha-desc {
   color: #007bff;
+}
+
+.form-table td:first-child label {
+  font-weight: 600;
+  margin: 0;
+}
+
+.asterisk {
+  color: red;
+  font-size: 1.3rem;
+  font-weight: bold;
+  position: absolute;
+}
+
+.asterisk-left-3 {
+  margin-left: 3px;
 }
 
 input[type=checkbox],
