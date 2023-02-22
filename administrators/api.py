@@ -260,7 +260,7 @@ def add_num_instructors(sessions):
 
 def make_session_info(data, term):
     session = []
-    session.append( ('Tear', data['year']) )
+    session.append( ('Year', data['year']) )
     session.append( ('Term', '{0} ({1})'.format(term.name, term.code)) )
     session.append( ('Title', data['title']) )
     session.append( ('Description', data['description']) )
@@ -268,10 +268,6 @@ def make_session_info(data, term):
     session.append( ('Is visible', data['is_visible']) )
     session.append( ('Is archived', data['is_archived']) )
     return session
-
-
-
-
 
 
 def valid_accepted_app(list, application, total_accepted_applicants=0):
@@ -362,15 +358,16 @@ def get_jobs():
     ''' Get all jobs '''
     return Job.objects.all()
 
-
 def get_job(job_id):
     ''' Get a job '''
     return get_object_or_404(Job, id=job_id)
 
-
 def get_job_by_session_slug_job_slug(session_slug, job_slug):
     ''' Get a job by session_slug and job_slug '''
     return get_object_or_404(Job, Q(session__slug=session_slug) & Q(course__slug=job_slug) )
+
+def get_job_by_session_id_and_course_id(session_id, course_id):
+    return get_object_or_404(Job, Q(session__id=session_id) & Q(course__id=course_id) )
 
 def create_jobs(session, courses):
     ''' Create jobs in a session '''

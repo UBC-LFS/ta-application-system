@@ -29,7 +29,7 @@ from users.forms import *
 from users import api as userApi
 
 from datetime import date, datetime, timedelta, timezone
-
+import copy
 
 APP_STATUS = {
     'none': ApplicationStatus.NONE,
@@ -116,7 +116,7 @@ class CurrentSessions(LoginRequiredMixin, View):
         except EmptyPage:
             sessions = paginator.page(paginator.num_pages)
 
-        return render(request, 'administrators/sessions/current_sessions.html', {
+        return render(request, 'administrators/sessions/current_sessions.html', context={
             'loggedin_user': request.user,
             'sessions': sessions,
             'total_sessions': len(session_list),
@@ -156,7 +156,7 @@ class ArchivedSessions(LoginRequiredMixin, View):
         except EmptyPage:
             sessions = paginator.page(paginator.num_pages)
 
-        return render(request, 'administrators/sessions/archived_sessions.html', {
+        return render(request, 'administrators/sessions/archived_sessions.html', context={
             'loggedin_user': request.user,
             'sessions': sessions,
             'total_sessions': len(session_list),
@@ -175,7 +175,7 @@ class ShowSession(LoginRequiredMixin, View):
         request = userApi.has_admin_access(request)
         adminApi.can_req_parameters_access(request, 'session', ['next', 'p'])
 
-        return render(request, 'administrators/sessions/show_session.html', {
+        return render(request, 'administrators/sessions/show_session.html', context={
             'loggedin_user': request.user,
             'session': adminApi.get_session(session_slug, 'slug'),
             'next': adminApi.get_next(request)
@@ -194,7 +194,7 @@ class CreateSession(LoginRequiredMixin, View):
         request = userApi.has_admin_access(request)
         
         sessions = adminApi.get_sessions()
-        return render(request, 'administrators/sessions/create_session.html', {
+        return render(request, 'administrators/sessions/create_session.html', context={
             'loggedin_user': request.user,
             'current_sessions': sessions.filter(is_archived=False),
             'archived_sessions': sessions.filter(is_archived=True),
@@ -206,8 +206,6 @@ class CreateSession(LoginRequiredMixin, View):
 
     @method_decorator(require_POST)
     def post(self, request, *args, **kwargs):
-        print(request.POST)
-        
         form = self.form_class(request.POST)
         if form.is_valid():
             data = form.cleaned_data
@@ -221,8 +219,6 @@ class CreateSession(LoginRequiredMixin, View):
             return redirect('administrators:create_session')
 
         return redirect('administrators:create_session_setup_courses')
-        #return redirect('administrators:create_session_confirmation')
-        #return redirect('administrators:create_session')
 
 
 @method_decorator([never_cache], name='dispatch')
@@ -246,7 +242,7 @@ class CreateSessionSetupCourses(LoginRequiredMixin, View):
             job = course.job_set.filter(session__year=int(year)-1)
             course.prev_job = job.first() if job.exists() else None
         
-        return render(request, 'administrators/sessions/create_session_setup_courses.html', {
+        return render(request, 'administrators/sessions/create_session_setup_courses.html', context={
             'loggedin_user': request.user,
             'session': adminApi.make_session_info(data, term),
             'term': term,
@@ -255,52 +251,18 @@ class CreateSessionSetupCourses(LoginRequiredMixin, View):
 
     @method_decorator(require_POST)
     def post(self, request, *args, **kwargs):
-        #print(request.POST)
-        path = request.POST['submit_path']
+        path = request.POST.get('submit_path', None)
+
+        if path != 'Save Changes' and path != 'Save without Copy':
+            messages.error(request, 'Oops! Something went wrong for some reason. No valid path found.')
+            return redirect('administrators:create_session')
 
         data = request.session['session_form_data']
         data['selected_course_ids'] = request.POST.getlist('is_course_selected')
-        data['copied_ids'] = request.POST.getlist('can_copy') if path == 'Save Changes' else []
+        data['copied_ids'] = request.POST.getlist('is_copied') if path == 'Save Changes' else []
 
         request.session['session_form_data'] = data
-
         return redirect('administrators:create_session_confirmation')
-
-        """form = self.form_class(request.POST)
-        if form.is_valid():
-            data = form.cleaned_data
-            courses = data.get('courses')
-
-            if len(courses) == 0:
-                messages.error(request, 'An error occurred. Please select courses in this session.')
-                return redirect('administrators:create_session_setup_courses')
-
-            session = form.save(commit=False)
-
-            if data['is_archived']:
-                session.is_visible = False
-
-            session.save()
-
-            if session:
-                jobs = adminApi.create_jobs(session, courses)
-                if jobs:
-                    del request.session['session_form_data'] # remove session form data
-                    messages.success(request, 'Success! {0} {1} - {2} created'.format(session.year, session.term.code, session.title))
-                    if data['is_archived']:
-                        return redirect('administrators:archived_sessions')
-                    else:
-                        return redirect('administrators:current_sessions')
-                else:
-                    messages.error(request, 'An error occurred. Failed to create jobs')
-            else:
-                messages.error(request, 'An error occurred. Failed to create a session')
-        else:
-            errors = form.errors.get_json_data()
-            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
-
-        return redirect('administrators:create_session_setup_courses')"""
-
 
 
 @method_decorator([never_cache], name='dispatch')
@@ -312,7 +274,6 @@ class CreateSessionConfirmation(LoginRequiredMixin, View):
         request = userApi.has_admin_access(request)
 
         data = request.session.get('session_form_data', None)
-        print(data)
 
         if not data:
             messages.error(request, 'Oops! Something went wrong for some reason. No data found.')
@@ -322,30 +283,50 @@ class CreateSessionConfirmation(LoginRequiredMixin, View):
         term = adminApi.get_term(data['term'])
         course_ids = data['selected_course_ids']
         copied_ids = data['copied_ids']
-        
-        print(copied_ids)
 
         courses = []
+        selected_jobs = []
         for id in course_ids:
             course = adminApi.get_course(id)
-            
-            if id in copied_ids:
-                course.is_copied = True
-                job = course.job_set.filter(session__year=int(year)-1)
-                course.prev_job = job.first() if job.exists() else None
-            else:
-                course.is_copied = False
-                course.prev_job = {
-                    'instructors': None,
+            course.is_copied = False
+            selected_job = {
+                    'id': course.id,
+                    'instructors': [],
                     'assigned_ta_hours': 0.0,
-                    'course_overview': None,
-                    'description': None,
-                    'note': None
+                    'course_overview': course.overview,
+                    'description': course.job_description,
+                    'note': course.job_note,
+                    'is_active': True
                 }
 
+            if id in copied_ids:
+                course.is_copied = True
+                jobs = course.job_set.filter(session__year=int(year)-1)
+                job = jobs.first() if jobs.exists() else None
+                if job:
+                    selected_job = {
+                        'id': course.id,
+                        'instructors': job.instructors.all(),
+                        'assigned_ta_hours': job.assigned_ta_hours,
+                        'course_overview': job.course_overview,
+                        'description': job.description,
+                        'note': job.note,
+                        'is_active': job.is_active
+                    }
+
+            course.selected_job = selected_job
             courses.append(course)
 
-        return render(request, 'administrators/sessions/create_session_confirmation.html', {
+            copied_job = copy.deepcopy(selected_job)
+            if len(copied_job['instructors']) > 0:
+                copied_job = copy.deepcopy(selected_job)
+                copied_job['instructors'] = [ instructor.id for instructor in job.instructors.all() ]
+            selected_jobs.append(copied_job)
+
+        data['selected_jobs'] = selected_jobs
+        request.session['session_form_data'] = data
+
+        return render(request, 'administrators/sessions/create_session_confirmation.html', context={
             'loggedin_user': request.user,
             'session': adminApi.make_session_info(data, term),
             'term': term,
@@ -356,64 +337,68 @@ class CreateSessionConfirmation(LoginRequiredMixin, View):
     
     @method_decorator(require_POST)
     def post(self, request, *args, **kwargs):
-        pass
-
-    """@method_decorator(require_GET)
-    def get(self, request, *args, **kwargs):
-        request = userApi.has_admin_access(request)
-
         data = request.session.get('session_form_data', None)
+        selected_jobs = data.get('selected_jobs', None)
         
-        if not data:
+        if not data or not selected_jobs:
             messages.error(request, 'Oops! Something went wrong for some reason. No data found.')
+            return redirect('administrators:create_session_setup_courses')
+
+        year = data['year']
+        term = adminApi.get_term(data['term'])
+
+        # Create a session
+        session_obj = Session.objects.filter(year=year, term=term)
+        if session_obj.exists():
+            messages.error(request, 'Oops! Something went wrong. The session already exists!')
             return redirect('administrators:create_session')
 
-        term = adminApi.get_term(data['term'])
-        courses = adminApi.get_courses_by_term(term.id)
-        data['courses'] = courses
-        return render(request, 'administrators/sessions/create_session_confirmation.html', {
-            'loggedin_user': request.user,
-            'session': adminApi.make_session_info(data, term),
-            'courses': adminApi.get_courses_by_term(term.id),
-            'form': SessionConfirmationForm(data=data, initial={ 'term': term })
-        })
-    
-    @method_decorator(require_POST)
-    def post(self, request, *args, **kwargs):
-        form = SessionConfirmationForm(request.POST)
-        if form.is_valid():
-            data = form.cleaned_data
-            courses = data.get('courses')
+        session = Session.objects.create(
+            year = year,
+            term = term,
+            title = data['title'],
+            description = data['description'],
+            note = data['note'],
+            is_visible = data['is_visible'],
+            is_archived = data['is_archived']
+        )
 
-            if len(courses) == 0:
-                messages.error(request, 'An error occurred. Please select courses in this session.')
-                return redirect('administrators:create_session_confirmation')
+        jobs = []
+        job_instructors = {}
+        for selected_job in selected_jobs:
+            course = adminApi.get_course(selected_job['id'])
 
-            session = form.save(commit=False)
+            # Create a job
+            created_job = Job(
+                session = session, 
+                course = course, 
+                assigned_ta_hours = selected_job['assigned_ta_hours'],
+                course_overview = selected_job['course_overview'], 
+                description = selected_job['description'], 
+                note = selected_job['note'],
+                is_active = selected_job['is_active']
+            )
+            jobs.append(created_job)
+            
+            job_instructors[course.id] = selected_job['instructors']
 
-            if data['is_archived']:
-                session.is_visible = False
+        created_jobs = Job.objects.bulk_create(jobs)
+        
+        # Add instructors
+        for course_id, instructors in job_instructors.items():
+            instructors = [ userApi.get_user(iid) for iid in instructors ]
 
-            session.save()
+            job = adminApi.get_job_by_session_id_and_course_id(session.id, course_id)
+            job.instructors.add( *list(instructors) )
 
-            if session:
-                jobs = adminApi.create_jobs(session, courses)
-                if jobs:
-                    del request.session['session_form_data'] # remove session form data
-                    messages.success(request, 'Success! {0} {1} - {2} created'.format(session.year, session.term.code, session.title))
-                    if data['is_archived']:
-                        return redirect('administrators:archived_sessions')
-                    else:
-                        return redirect('administrators:current_sessions')
-                else:
-                    messages.error(request, 'An error occurred. Failed to create jobs')
-            else:
-                messages.error(request, 'An error occurred. Failed to create a session')
-        else:
-            errors = form.errors.get_json_data()
-            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+        # Remove session form data
+        del request.session['session_form_data']
 
-        return redirect('administrators:create_session_confirmation')"""
+        messages.success(request, 'Success! {0} {1} - {2} created'.format(session.year, session.term.code, session.title))
+
+        if data['is_archived']:
+            return redirect('administrators:archived_sessions')
+        return redirect('administrators:current_sessions')
 
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -474,80 +459,84 @@ def show_report_applicants(request, session_slug):
         'back_to_word': back_to_word
     })
 
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
-def show_report_summary(request, session_slug):
+
+@method_decorator([never_cache], name='dispatch')
+class ShowReportSummary(LoginRequiredMixin, View):
     ''' Display a session summary '''
-    request = userApi.has_admin_access(request)
 
-    session = adminApi.get_session(session_slug, 'slug')
+    @method_decorator(require_GET)
+    def get(self, request, *args, **kwargs):
+        session_slug = kwargs['session_slug']
 
-    undergrad = userApi.get_status_by_slug('undergraduate-student')
-    other_program = userApi.get_program_by_slug('other')
+        request = userApi.has_admin_access(request)
 
-    jobs = []
-    total_grad = set()
-    total_undergrad = set()
-    total_lfs = set()
-    total_non_lfs = set()
-    for job in session.job_set.all():
-        apps = adminApi.get_accepted_apps_not_terminated(job.application_set.all())
-        apps = adminApi.get_filtered_accepted_apps(apps)
+        session = adminApi.get_session(session_slug, 'slug')
 
-        num_grad = set()
-        num_undergrad = set()
-        num_lfs = set()
-        num_non_lfs = set()
-        if len(apps) > 0:
-            for app in apps:
-                app.accepted = adminApi.get_accepted(app)
-                app.salary = adminApi.calcualte_salary(app)
+        undergrad = userApi.get_status_by_slug('undergraduate-student')
+        master = userApi.get_status_by_slug('master-student')
+        phd = userApi.get_status_by_slug('phd-student')
+        other_program = userApi.get_program_by_slug('other')
 
-                if app.applicant.profile.status.id == undergrad.id:
-                    num_undergrad.add(app.applicant.id)
-                    total_undergrad.add(app.applicant.id)
-                else:
-                    num_grad.add(app.applicant.id)
-                    total_grad.add(app.applicant.id)
+        jobs = []
 
-                if app.applicant.profile.program.id == other_program.id:
-                    num_non_lfs.add(app.applicant.id)
-                    total_non_lfs.add(app.applicant.id)
-                else:
-                    num_lfs.add(app.applicant.id)
-                    total_lfs.add(app.applicant.id)
+        total_lfs_grad = set()
+        total_lfs_grad_ta_hours = 0.0
+        total_others = set()
+        total_others_ta_hours = 0.0
+        for job in session.job_set.all():
+            apps = adminApi.get_accepted_apps_not_terminated(job.application_set.all())
+            apps = adminApi.get_filtered_accepted_apps(apps)
 
-                app.accepted.assigned_hours
+            lfs_grad = set()
+            lfs_grad_ta_hours = 0.0
+            others = set()
+            others_ta_hours = 0.0
+            if len(apps) > 0:
+                for app in apps:
+                    app.accepted = adminApi.get_accepted(app)
+                    app.salary = adminApi.calcualte_salary(app)
 
-            job.accepted_apps = apps
+                    if userApi.profile_exists(app.applicant) and app.applicant.profile.status and app.applicant.profile.program:
+                        if (app.applicant.profile.status.id == master.id or app.applicant.profile.status.id == phd.id) and app.applicant.profile.program.id != other_program.id:
+                            lfs_grad.add(app.applicant.id)
+                            lfs_grad_ta_hours += app.accepted.assigned_hours
+                            
+                            total_lfs_grad.add(app.applicant.id)
+                            total_lfs_grad_ta_hours += app.accepted.assigned_hours
+                        else:
+                            others.add(app.applicant.id)
+                            others_ta_hours += app.accepted.assigned_hours
+                            
+                            total_others.add(app.applicant.id)
+                            total_others_ta_hours += app.accepted.assigned_hours
+                
+                job.accepted_apps = apps
+            
+            job.stat = {
+                'lfs_grad': len(lfs_grad),
+                'lfs_grad_ta_hours': lfs_grad_ta_hours,
+                'others': len(others),
+                'others_ta_hours': others_ta_hours
+            }
+            jobs.append(job)
 
-        job.stat = {
-            'num_grad': len(num_grad),
-            'num_undergrad': len(num_undergrad),
-            'num_lfs': len(num_lfs),
-            'num_non_lfs': len(num_non_lfs)
-        }
+        back_to_word = 'Current Sessions'
+        if 'archived' in request.session.get('next_session', None):
+            back_to_word = 'Archived Sessions'
 
-        jobs.append(job)
-
-    back_to_word = 'Current Sessions'
-    if 'archived' in request.session.get('next_session', None):
-        back_to_word = 'Archived Sessions'
-
-    return render(request, 'administrators/sessions/show_report_summary.html', {
-        'loggedin_user': request.user,
-        'session': session,
-        'jobs': jobs,
-        'ta_hours_stat': {
-            'total_grad': len(total_grad),
-            'total_undergrad': len(total_undergrad),
-            'total_lfs': len(total_lfs),
-            'total_non_lfs': len(total_non_lfs)
-        },
-        'next_session': request.session.get('next_session', None),
-        'back_to_word': back_to_word
-    })
+        return render(request, 'administrators/sessions/show_report_summary.html', {
+            'loggedin_user': request.user,
+            'session': session,
+            'jobs': jobs,
+            'ta_hours_stat': {
+                'total_lfs_grad': len(total_lfs_grad),
+                'total_lfs_grad_ta_hours': total_lfs_grad_ta_hours,
+                'total_others': len(total_others),
+                'total_others_ta_hours': total_others_ta_hours
+            },
+            'next_session': request.session.get('next_session', None),
+            'back_to_word': back_to_word
+        })
 
 
 @login_required(login_url=settings.LOGIN_URL)

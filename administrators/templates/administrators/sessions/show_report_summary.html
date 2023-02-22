@@ -15,32 +15,40 @@
   <div class="col-md-6">
     <table class="table text-center">
       <tr>
-        <th>Total <br/> LFS Students</th>
-        <th>Total <br/> Non-LFS Students</th>
-        <th>Total <br/> Gradudate Students</th>
-        <th>Total <br/> Undergraduate Students</th>
+        <th colspan="2">LFS Graduate</th>
+        <th colspan="2">Others</th>
+      </tr>
+      <tr>
+        <th>Total</th>
+        <th>Total TA Hours</th>
+        <th>Total</th>
+        <th>Total TA Hours</th>
       </tr>
       <tr class="font-size-1 font-weight-bold">
         <td>
-          <span class="text-primary">{{ ta_hours_stat.total_lfs }}</span>
+          <span class="text-primary">{{ ta_hours_stat.total_lfs_grad }}</span>
         </td>
         <td>
-          <span class="text-primary">{{ ta_hours_stat.total_non_lfs }}</span>
+          <span class="text-primary">{{ ta_hours_stat.total_lfs_grad_ta_hours }}</span>
         </td>
         <td>
-          <span class="text-success">{{ ta_hours_stat.total_grad }}</span>
+          <span class="text-success">{{ ta_hours_stat.total_others }}</span>
           </td>
         <td>
-          <span class="text-success">{{ ta_hours_stat.total_undergrad }}</span>
+          <span class="text-success">{{ ta_hours_stat.total_others_ta_hours }}</span>
         </td>
       </tr>
     </table>
+    <ul class="font-size-xs text-secondary">
+      <li><span class="font-weight-bold">LFS Graduate:</span> LFS MSc and LFS PhD</li>
+      <li><span class="font-weight-bold">Others:</span> LFS BSc and students are not in LFS</li>
+    </ul>
+
   </div>
 </div>
 
 <div class="float-right">
-  CSV:
-  <button id="download-summary-report-csv" class="btn btn-sm btn-secondary font-size-xs mb-2" type="button" data-year="{{ session.year }}">Download</button>
+  <button id="download-summary-report-csv" class="btn btn-sm btn-info font-size-xs mb-2" type="button" data-year="{{ session.year }}">Download as CSV</button>
 </div>
 
 <table id="summary-report-table" class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center">
@@ -53,10 +61,10 @@
       <th>Instructor(s)</th>
       <th>Total <br /> TA Hours</th>
       <th>Total <br /> Applications</th>
-      <th># of <br /> LFS</th>
-      <th># of <br /> Non-LFS</th>
-      <th># of <br /> Gradudate</th>
-      <th># of <br /> Undergrad</th>
+      <th># of <br /> LFS Grad</th>
+      <th>LFS Grad <br /> TA Hours</th>
+      <th># of <br /> Others</th>
+      <th>Others <br /> TA Hours</th>
       <th>TAs</th>
     </tr>
   </thead>
@@ -70,10 +78,10 @@
         <td class="text-left">{% include 'ta_app/jobs/_job_instructor_list.html' with data=job %}</td>
         <td>{{ job.assigned_ta_hours }}</td>
         <td>{{ job.application_set.count }}</td>
-        <td>{{ job.stat.num_lfs }}</td>
-        <td>{{ job.stat.num_non_lfs }}</td>
-        <td>{{ job.stat.num_grad }}</td>
-        <td>{{ job.stat.num_undergrad }}</td>
+        <td>{{ job.stat.lfs_grad }}</td>
+        <td>{{ job.stat.lfs_grad_ta_hours }}</td>
+        <td>{{ job.stat.others }}</td>
+        <td>{{ job.stat.others_ta_hours }}</td>
         <td class="text-left">
           <ul class="list-no-ml">
             {% for app in job.accepted_apps %}
@@ -83,11 +91,15 @@
                 {{ app.classification.name }},
                 ${{ app.classification.wage }},
                 ${{ app.salary }},
+
                 {% if app.applicant.confidentiality.nationality == '0' %}
                   Domestic,
                 {% else %}
                   International,
                 {% endif %}
+
+                {{ app.applicant.profile.status.name }},
+
                 {% if app.applicant.profile.program.slug == 'other' %}
                   Other Program - {{ app.applicant.profile.program_others|striptags }}
                 {% else %}

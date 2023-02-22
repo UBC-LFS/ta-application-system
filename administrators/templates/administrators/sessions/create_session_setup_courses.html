@@ -32,16 +32,6 @@
       <a class="btn btn-outline-primary" href="{% url 'administrators:create_session' %}">Back to Create Session</a>
     </div>
 
-    <div class="bd-callout bd-callout-warning">
-      <h4><i class="fa fa-info-circle" aria-hidden="true"></i> Note</h4>
-      <p>If the following job information can be found in last year's session term, the information will show up in the table; otherwise, no information found.</p>
-      <ul>
-        <li>Instructors</li>
-        <li>Total Assigned TA Hours</li>
-        <li>Job Details - Course Overview, Job Description, Note</li>
-      </ul>
-    </div>
-
   </div>
 
   <div class="col-md-9">
@@ -55,8 +45,19 @@
     {% else %}
 
       <div class="">
-        <h4 class="text-primary fw-600">Jobs in {{ term.name }} ({{ term.code }})</h4>
+        <h4 class="text-primary fw-600">Courses in {{ term.name }} ({{ term.code }})</h4>
         <p class="text-secondary font-size-sm">Note: there are <span class="font-weight-bold text-chocolate">{{ courses.count }}</span> courses available in this term.</p>
+
+        <div class="bd-callout bd-callout-warning font-size-sm">
+          <p class="mb-0">If the following job information can be found in last year's session term, the information will show up in the table; otherwise, no information found.</p>
+          <ul class="font-weight-bold mt-0">
+            <li>Instructors</li>
+            <li>Total Assigned TA Hours</li>
+            <li>Job Details - Course Overview, Job Description, Note</li>
+            <li>Is active</li>
+          </ul>
+          <p>Also, if you would like to copy the job information from last year's, please select the checkbox in the <span class="font-weight-bold">Copy Job Info</span> column.</p>
+        </div>
 
         <form action="" method="post">
           {% csrf_token %}
@@ -74,14 +75,13 @@
                 <th>Total Assigned <br /> TA Hours</th>
                 <th>Job Details</th>
                 <th>Is active</th>
-                <th>Copy</th>
+                <th>Copy <br /> Job Info</th>
               </tr>
             </thead>
             <tbody>
               {% for course in courses %}
                 <tr>
                   <td>
-                    {{ course.id }}
                     <input name="is_course_selected" value="{{ course.id }}" type="checkbox" checked />
                   </td>
                   <td>{{ course }}</td>
@@ -102,7 +102,7 @@
                   {% endif %}
 
                   <td>
-                    <input name="can_copy" value="{{ course.id }}" type="checkbox" {% if course.prev_job %}checked{% else %}disabled{% endif %} />
+                    <input name="is_copied" value="{{ course.id }}" type="checkbox" {% if course.prev_job %}checked{% else %}disabled{% endif %} />
                   </td>
                 </tr>
               {% endfor %}
@@ -110,11 +110,22 @@
           </table>
 
           <div class="my-5">
-            <input class="btn btn-primary mr-3" type="submit" name="submit_path" value="Save Changes" />
+            <input class="btn btn-primary" type="submit" name="submit_path" value="Save Changes" />
             <input class="btn btn-warning" type="submit" name="submit_path" value="Save without Copy" />
           </div>
 
         </form>
+      </div>
+
+      <div class="bd-callout bd-callout-warning">
+        <ul>
+          <li>
+            <span class="font-weight-bold">Save Changes:</span> the job information would be copied from last year's.
+          </li>
+          <li>
+            <span class="font-weight-bold">Save with Copy:</span> the job information would be coming from an initial course under the Course tab.
+          </li>
+        </ul>
       </div>
 
     {% endif %}

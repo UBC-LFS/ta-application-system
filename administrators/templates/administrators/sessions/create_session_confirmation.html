@@ -51,52 +51,52 @@
           <li>Copied: <span class="font-weight-bold text-danger">{{ num_copied_ids }}</span> course(s)</li>
         </ul>
 
-        <p>Please review the information carefully, and click on the button<span class="bg-primary">Confirm Create</span> button</p>
+        <p>Please review the information carefully, and click on the <span class="text-primary fw-600">Confirm Create</span> button below.</p>
+
+        <table
+          class="table table-bordered table-striped table-hover table-responsive-md text-center font-size-sm"
+          data-toggle="table"
+          data-search="true"
+        >
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Course</th>
+              <th>Instructors</th>
+              <th>Total Assigned <br /> TA Hours</th>
+              <th>Job Details</th>
+              <th>Is active</th>
+              <th>Copied</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for course in courses %}
+              <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ course }}</td>
+                <td class="text-left">{% include 'ta_app/jobs/_job_instructor_list.html' with data=course.selected_job %}</td>
+                <td>{{ course.selected_job.assigned_ta_hours }}</td>
+                <td>
+                  {% if course.selected_job.course_overview or course.selected_job.description or course.selected_job.note %}
+                    {% include 'ta_app/jobs/_modal_prev_job_info.html' with data=course.selected_job %}
+                  {% else %}
+                    None
+                  {% endif %}
+                </td>
+                <td>{% include 'ta_app/jobs/_job_is_active.html' with data=course.selected_job %}</td>
+                <td>
+                  {% include 'ta_app/icons/true_only.html' with data=course.is_copied %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
 
         <form action="" method="post">
           {% csrf_token %}
 
-          <table
-            class="table table-bordered table-striped table-hover table-responsive-md text-center font-size-sm"
-            data-toggle="table"
-            data-search="true"
-          >
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Course</th>
-                <th>Instructors</th>
-                <th>Total Assigned <br /> TA Hours</th>
-                <th>Job Details</th>
-                <th>Is active</th>
-                <th>Copied</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for course in courses %}
-                <tr>
-                  <td>{{ forloop.counter }} | {{ course.id }}</td>
-                  <td>{{ course }}</td>
-                  <td class="text-left">{% include 'ta_app/jobs/_job_instructor_list.html' with data=course.prev_job %}</td>
-                  <td>{{ course.prev_job.assigned_ta_hours }}</td>
-                  <td>
-                    {% if course.prev_job.course_overview or course.prev_job.description or course.prev_job.note %}
-                      {% include 'ta_app/jobs/_modal_prev_job_info.html' with data=course.prev_job %}
-                    {% else %}
-                      None
-                    {% endif %}
-                  </td>
-                  <td>{% include 'ta_app/jobs/_job_is_active.html' with data=course.prev_job %}</td>
-                  <td>
-                    {% include 'ta_app/icons/true_only.html' with data=course.is_copied %}
-                  </td>
-                </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-
           <div class="my-5">
-            <a class="btn btn-outline-secondary mr-3" href="{% url 'administrators:create_session_setup_courses' %}">Cancel</a>
+            <a class="btn btn-outline-secondary" href="{% url 'administrators:create_session_setup_courses' %}">Cancel</a>
             <input class="btn btn-primary" type="submit" value="Confirm Create" />
           </div>
         </form>
