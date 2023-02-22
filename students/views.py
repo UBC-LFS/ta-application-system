@@ -38,7 +38,7 @@ def index(request):
 
     # To check whether a student has read an alert message
     can_alert = False
-    if (request.user.last_login.year == datetime.now().year) and (request.user.last_login.month == 3 or request.user.last_login.month == 4):
+    if request.user.last_login and (request.user.last_login.year == datetime.now().year) and (request.user.last_login.month == 3 or request.user.last_login.month == 4):
         alert = Alert.objects.filter( Q(student_id=request.user.id) & Q(has_read=True) & Q(created_at__year=datetime.now().year) )
         if alert.count() == 0:
             can_alert = True

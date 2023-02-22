@@ -306,7 +306,7 @@ class CreateSessionConfirmation(LoginRequiredMixin, View):
                 if job:
                     selected_job = {
                         'id': course.id,
-                        'instructors': job.instructors.all(),
+                        'instructors': job.instructors.all() if job.instructors.count() > 0 else [],
                         'assigned_ta_hours': job.assigned_ta_hours,
                         'course_overview': job.course_overview,
                         'description': job.description,
@@ -319,7 +319,6 @@ class CreateSessionConfirmation(LoginRequiredMixin, View):
 
             copied_job = copy.deepcopy(selected_job)
             if len(copied_job['instructors']) > 0:
-                copied_job = copy.deepcopy(selected_job)
                 copied_job['instructors'] = [ instructor.id for instructor in job.instructors.all() ]
             selected_jobs.append(copied_job)
 
