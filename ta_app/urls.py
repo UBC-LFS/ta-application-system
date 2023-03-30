@@ -15,8 +15,9 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.conf import settings
 from django.conf.urls import handler400, handler403, handler404, handler500
-from ta_app import views, saml_views
+from ta_app import views
 
 urlpatterns = [
     path('', views.index, name='index'),
@@ -27,14 +28,13 @@ urlpatterns = [
     path('students/', include('students.urls')),
     path('observers/', include('observers.urls')),
     path('summernote/', include('django_summernote.urls')),
-    path('impersonate/', include('impersonate.urls')),
-
-    path('saml/', saml_views.saml, name='saml'),
-    path('attrs/', saml_views.attrs, name='attrs'),
-    path('metadata/', saml_views.metadata, name='metadata'),
-
-    #path('admin/', admin.site.urls)
+    path('impersonate/', include('impersonate.urls'))
 ]
+
+if settings.DEBUG:
+    urlpatterns += [
+        path('admin/', admin.site.urls)
+    ]
 
 handler400 = views.bad_request
 handler403 = views.permission_denied
