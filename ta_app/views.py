@@ -10,7 +10,7 @@ from administrators import api as adminApi
 from users import api as userApi
 
 def landing_page(request):
-    return render(request, 'ta_app/landing_page.html', {
+    return render(request, 'accounts/landing_page.html', {
         'landing_page': adminApi.get_visible_landing_page()
     })
 
@@ -45,6 +45,7 @@ def permission_denied(request, exception, template_name='403.html'):
 def page_not_found(request, exception, template_name='404.html'):
     ''' Exception handlder for page not found '''
     loggedin_user = userApi.loggedin_user(request.user)
+    print('page_not_found =============')
     return render(request, 'ta_app/errors/404.html', { 'loggedin_user': loggedin_user }, status=404)
 
 
