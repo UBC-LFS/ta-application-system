@@ -26,6 +26,21 @@ from datetime import datetime, timedelta, date
 import math
 import csv
 
+
+def redirect_to_index_page(roles):
+    ''' Redirect to an index page given roles '''
+    if 'Admin' in roles or 'Superadmin' in roles or 'HR' in roles:
+        return '/app/administrators/'
+    elif 'Instructor' in roles:
+        return '/app/instructors/'
+    elif 'Student' in roles:
+        return '/app/students/'
+    elif 'Observer' in roles:
+        return '/app/observers/'
+
+    return '/app/students/'
+
+
 # Request parameter validation
 
 def validate_parameters(request, params, option=None):

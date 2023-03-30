@@ -2,32 +2,32 @@ $(document).ready(function() {
 
   // Make a navigation header active
   const roles = window.location.pathname.split('/');
-
-  if (roles[1] === 'administrators') {
+console.log(roles);
+  if (roles[2] === 'administrators') {
     $('#nav-administrator').addClass('active');
 
-  } else if (roles[1] === 'instructors') {
+  } else if (roles[2] === 'instructors') {
     $('#nav-instructor').addClass('active');
 
-  } else if (roles[1] === 'students') {
+  } else if (roles[2] === 'students') {
     $('#nav-student').addClass('active');
 
-  } else if (roles[1] === 'observers') {
+  } else if (roles[2] === 'observers') {
     $('#nav-observer').addClass('active');
 
-  } else if (roles[1] === 'users') {
+  } else if (roles[2] === 'users') {
 
     const parameters = window.location.href.split('?');
-    if ( parameters[1].includes('administrators') ) {
+    if ( parameters[2].includes('administrators') ) {
       $('#nav-administrator').addClass('active');
 
-    } else if ( parameters[1].includes('instructors') ) {
+    } else if ( parameters[2].includes('instructors') ) {
       $('#nav-instructor').addClass('active');
 
-    } else if ( parameters[1].includes('students') ) {
+    } else if ( parameters[2].includes('students') ) {
       $('#nav-student').addClass('active');
 
-    } else if ( parameters[1].includes('observers') ) {
+    } else if ( parameters[2].includes('observers') ) {
       $('#nav-observer').addClass('active');
     }
   }

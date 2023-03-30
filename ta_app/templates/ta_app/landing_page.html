@@ -64,7 +64,7 @@
         <div class="prompt text-center p-4 mb-4">
           <h4 class="text-primary">User login</h4>
           <p>To log in, click on the CWL button below.<br /> You will be redirected to a secure CWL login.</p>
-          <a href="{% url 'saml' %}?sso">
+          <a href="{{ site_url }}/app/">
             <img src="{% static 'ta_app/images/cwl_login_button.gif' %}" alt="cwl login button"/>
           </a>
         </div>

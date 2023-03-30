@@ -20,20 +20,26 @@ from django.conf.urls import handler400, handler403, handler404, handler500
 from ta_app import views
 
 urlpatterns = [
-    path('', views.index, name='index'),
-    path('accounts/', include('accounts.urls')),
-    path('users/', include('users.urls')),
-    path('administrators/', include('administrators.urls')),
-    path('instructors/', include('instructors.urls')),
-    path('students/', include('students.urls')),
-    path('observers/', include('observers.urls')),
-    path('summernote/', include('django_summernote.urls')),
-    path('impersonate/', include('impersonate.urls'))
+    path('app/users/', include('users.urls')),
+    path('app/administrators/', include('administrators.urls')),
+    path('app/instructors/', include('instructors.urls')),
+    path('app/students/', include('students.urls')),
+    path('app/observers/', include('observers.urls')),
+    path('app/summernote/', include('django_summernote.urls')),
+    path('app/impersonate/', include('impersonate.urls')),
+
+    path('app/', views.app_home, name='app_home'),
+    path('', views.landing_page, name='landing_page')
 ]
 
 if settings.DEBUG:
     urlpatterns += [
         path('admin/', admin.site.urls)
+    ]
+
+if settings.LOCAL_LOGIN:
+    urlpatterns += [
+        path('accounts/', include('accounts.urls'))
     ]
 
 handler400 = views.bad_request

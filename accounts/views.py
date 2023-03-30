@@ -9,25 +9,11 @@ from users import api as userApi
 from administrators import api as adminApi
 
 
-def redirect_to_index_page(roles):
-    ''' Redirect to an index page given roles '''
-    if 'Admin' in roles or 'Superadmin' in roles or 'HR' in roles:
-        return '/administrators/'
-    elif 'Instructor' in roles:
-        return '/instructors/'
-    elif 'Student' in roles:
-        return '/students/'
-    elif 'Observer' in roles:
-        return '/observers/'
-
-    return '/students/'
-
-
 def login(request):
     ''' Login page '''
     if 'loggedin_user' in request.session.keys():
         roles = request.session['loggedin_user']['roles']
-        redirect_to = redirect_to_index_page(roles)
+        redirect_to = adminApi.redirect_to_index_page(roles)
         return HttpResponseRedirect(redirect_to)
 
     return render(request, 'accounts/login.html', {
@@ -52,7 +38,7 @@ def local_login(request):
                         'username': user.username,
                         'roles': roles
                     }
-                    redirect_to = redirect_to_index_page(roles)
+                    redirect_to = adminApi.redirect_to_index_page(roles)
                     return HttpResponseRedirect(redirect_to)
             else:
                 messages.error(request, 'An error occurred. Please check your username and password, then try again.')
@@ -64,7 +50,7 @@ def local_login(request):
     else:
         if 'loggedin_user' in request.session.keys():
             roles = request.session['loggedin_user']['roles']
-            redirect_to = redirect_to_index_page(roles)
+            redirect_to = adminApi.redirect_to_index_page(roles)
             return HttpResponseRedirect(redirect_to)
 
     return render(request, 'accounts/local_login.html', {

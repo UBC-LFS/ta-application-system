@@ -4,11 +4,9 @@ from . import views
 
 app_name = 'accounts'
 
-urlpatterns = [
-    path('login/', views.login, name='login')
-]
+urlpatterns = []
 
 if settings.LOCAL_LOGIN:
     urlpatterns += [
-        path('local_login/', views.local_login, name='local_login')
+        path('local-login/', views.local_login, name='local_login')
     ]
