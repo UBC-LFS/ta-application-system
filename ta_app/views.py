@@ -10,7 +10,7 @@ from administrators import api as adminApi
 from users import api as userApi
 
 def landing_page(request):
-    return render(request, 'accounts/landing_page.html', {
+    return render(request, 'ta_app/landing_page.html', {
         'landing_page': adminApi.get_visible_landing_page()
     })
 
