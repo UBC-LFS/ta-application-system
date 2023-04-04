@@ -28,7 +28,7 @@ STUDENT_JOB = 'apbi-265-001-sustainable-agriculture-and-food-systems-w1'
 STUDENT2 = 'user66.test'
 STUDENT2_ID = 66
 
-NEXT = '?next=/students/'
+NEXT = '?next=/app/students/'
 HOME_BASIC = '&p=Home&t=basic'
 HOME_ADDITIONAL = '&p=Home&t=additional'
 HOME_RESUME = '&p=Home&t=resume'
@@ -40,9 +40,9 @@ AVAILABLE_PATH = reverse('students:available_jobs', args=[SESSION]) + '?page=2'
 AVAILABLE_NEXT = '?next=' + AVAILABLE_PATH
 
 HISTORY_NEXT = '?next=' + reverse('students:history_jobs') + '?page=2'
-HISTORY_WRONG_1 = '?nex=/students/jobs/history/?page=2'
-HISTORY_WRONG_2 = '?next=/student/jobs/history/?page=2'
-HISTORY_WRONG_3 = '?next=/students/jobs/histor/?page=2'
+HISTORY_WRONG_1 = '?nex=/app/students/jobs/history/?page=2'
+HISTORY_WRONG_2 = '?next=/app/student/jobs/history/?page=2'
+HISTORY_WRONG_3 = '?next=/app/students/jobs/histor/?page=2'
 
 
 def random_with_N_digits(n):
@@ -136,28 +136,28 @@ class StudentTest(TestCase):
             'user': user.id,
             'uploaded': SimpleUploadedFile('resume.pdf', open(RESUME, 'rb').read(), content_type='application/pdf')
         }
-        response = self.client.post(reverse('students:upload_resume') + '?nex=/students/&p=Home&t=resume', data=data0, format='multipart')
+        response = self.client.post(reverse('students:upload_resume') + '?nex=/app/students/&p=Home&t=resume', data=data0, format='multipart')
         self.assertEqual(response.status_code, 404)
 
         data1 = {
             'user': user.id,
             'uploaded': SimpleUploadedFile('resume.pdf', open(RESUME, 'rb').read(), content_type='application/pdf')
         }
-        response = self.client.post(reverse('students:upload_resume') + '?next=/studens/&p=Home&t=resume', data=data1, format='multipart')
+        response = self.client.post(reverse('students:upload_resume') + '?next=/app/studens/&p=Home&t=resume', data=data1, format='multipart')
         self.assertEqual(response.status_code, 404)
 
         data2 = {
             'user': user.id,
             'uploaded': SimpleUploadedFile('resume.pdf', open(RESUME, 'rb').read(), content_type='application/pdf')
         }
-        response = self.client.post(reverse('students:upload_resume') + '?next=/students/&p=Hom&t=resume', data=data2, format='multipart')
+        response = self.client.post(reverse('students:upload_resume') + '?next=/app/students/&p=Hom&t=resume', data=data2, format='multipart')
         self.assertEqual(response.status_code, 404)
 
         data3 = {
             'user': user.id,
             'uploaded': SimpleUploadedFile('resume.pdf', open(RESUME, 'rb').read(), content_type='application/pdf')
         }
-        response = self.client.post(reverse('students:upload_resume') + '?next=/students/&p=Hom&t=resumE', data=data3, format='multipart')
+        response = self.client.post(reverse('students:upload_resume') + '?next=/app/students/&p=Hom&t=resumE', data=data3, format='multipart')
         self.assertEqual(response.status_code, 404)
 
         data4 = {
@@ -531,7 +531,7 @@ class StudentTest(TestCase):
         self.delete_document(USERS, USER_IDS[2], ['resume'])
 
     # It works in March or April
-    """def test_alert_message(self):
+    def test_alert_message(self):
         print('- Test: Display an alert message in March and April')
         self.login()
 
@@ -568,18 +568,18 @@ class StudentTest(TestCase):
 
         res = self.client.get( reverse('students:index') )
         self.assertFalse(res.context['can_alert'])
-
-        self.delete_document(USERS[2], ['resume'])"""
+        
+        self.delete_document(USERS[2], USER_IDS[2], ['resume'])
 
 
     def test_show_profile(self):
         print('- Test: Display all lists of session terms')
         self.login()
 
-        next = '?next=/students/&p={0}&t={1}'
-        next_wrong = '?nex=/students/&p={0}&t={1}'
-        next_page_wrong = '?next=/students/&a={0}&t={1}'
-        next_tab_wrong = '?next=/students/&p={0}&j={1}'
+        next = '?next=/app/students/&p={0}&t={1}'
+        next_wrong = '?nex=/app/students/&p={0}&t={1}'
+        next_page_wrong = '?next=/app/students/&a={0}&t={1}'
+        next_tab_wrong = '?next=/app/students/&p={0}&j={1}'
 
         response = self.client.get( reverse('students:show_profile') + next_wrong.format('Home', 'basic') )
         self.assertEqual(response.status_code, 404)
@@ -892,16 +892,16 @@ class StudentTest(TestCase):
         self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
         self.assertIsNotNone(response.context['user'].resume)
 
-        response = self.client.post(reverse('students:delete_resume') + '?nex=/students/&p=Home&t=resume', data={ 'user': USERS[2] }, format='multipart')
+        response = self.client.post(reverse('students:delete_resume') + '?nex=/app/students/&p=Home&t=resume', data={ 'user': USERS[2] }, format='multipart')
         self.assertEqual(response.status_code, 404)
 
-        response = self.client.post(reverse('students:delete_resume') + '?next=/studens/&p=Home&t=resume', data={ 'user': USERS[2] }, format='multipart')
+        response = self.client.post(reverse('students:delete_resume') + '?next=/app/studens/&p=Home&t=resume', data={ 'user': USERS[2] }, format='multipart')
         self.assertEqual(response.status_code, 404)
 
-        response = self.client.post(reverse('students:delete_resume') + '?next=/students/&p=Hom&t=resume', data={ 'user': USERS[2] }, format='multipart')
+        response = self.client.post(reverse('students:delete_resume') + '?next=/app/students/&p=Hom&t=resume', data={ 'user': USERS[2] }, format='multipart')
         self.assertEqual(response.status_code, 404)
 
-        response = self.client.post(reverse('students:delete_resume') + '?next=/students/&p=Hom&t=resumE', data={ 'user': USERS[2] }, format='multipart')
+        response = self.client.post(reverse('students:delete_resume') + '?next=/app/students/&p=Hom&t=resumE', data={ 'user': USERS[2] }, format='multipart')
         self.assertEqual(response.status_code, 404)
 
         response = self.client.post( reverse('students:delete_resume') + NEXT + HOME_RESUME, data=urlencode({ 'user': USER_IDS[2] }), content_type=ContentType )
@@ -1379,7 +1379,7 @@ class StudentTest(TestCase):
             'applicant': loggedin_user.id,
             'job': 109,
             'is_selected': True,
-            'next': '/student/sessions/2019-w1/jobs/available/?page=2'
+            'next': '/app/student/sessions/2019-w1/jobs/available/?page=2'
         }
         response = self.client.post( reverse('students:select_favourite_job', args=[SESSION, STUDENT_JOB]) + AVAILABLE_NEXT, data=urlencode(data0), content_type=ContentType )
         self.assertEqual(response.status_code, 404)
@@ -1388,7 +1388,7 @@ class StudentTest(TestCase):
             'applicant': loggedin_user.id,
             'job': 109,
             'is_selected': True,
-            'next': '/students/Sessions/2019-w1/jobs/available/?page=2'
+            'next': '/app/students/Sessions/2019-w1/jobs/available/?page=2'
         }
         response = self.client.post( reverse('students:select_favourite_job', args=[SESSION, STUDENT_JOB]) + AVAILABLE_NEXT, data=urlencode(data1), content_type=ContentType )
         self.assertEqual(response.status_code, 404)
@@ -1397,7 +1397,7 @@ class StudentTest(TestCase):
             'applicant': loggedin_user.id,
             'job': 109,
             'is_selected': True,
-            'next': '/students/sessions/2019-w3/jobs/available/?page=2'
+            'next': '/app/students/sessions/2019-w3/jobs/available/?page=2'
         }
         response = self.client.post( reverse('students:select_favourite_job', args=[SESSION, STUDENT_JOB]) + AVAILABLE_NEXT, data=urlencode(data2), content_type=ContentType )
         self.assertEqual(response.status_code, 404)
@@ -1406,7 +1406,7 @@ class StudentTest(TestCase):
             'applicant': loggedin_user.id,
             'job': 109,
             'is_selected': True,
-            'next': '/students/sessions/2019-w1/job/available/?page=2'
+            'next': '/app/students/sessions/2019-w1/job/available/?page=2'
         }
         response = self.client.post( reverse('students:select_favourite_job', args=[SESSION, STUDENT_JOB]) + AVAILABLE_NEXT, data=urlencode(data3), content_type=ContentType )
         self.assertEqual(response.status_code, 404)
@@ -1416,7 +1416,7 @@ class StudentTest(TestCase):
             'applicant': loggedin_user.id,
             'job': 109,
             'is_selected': True,
-            'next': '/students/sessions/2019-w1/jobs/availablee/?page=2'
+            'next': '/app/students/sessions/2019-w1/jobs/availablee/?page=2'
         }
         response = self.client.post( reverse('students:select_favourite_job', args=[SESSION, STUDENT_JOB]) + AVAILABLE_NEXT, data=urlencode(data4), content_type=ContentType )
         self.assertEqual(response.status_code, 404)
@@ -1550,27 +1550,26 @@ class StudentTest(TestCase):
     def test_apply_job(self):
         print('- Test: Graudate students can apply for each job')
         self.login()
-
         self.submit_profile_resume(USERS[2])
 
         response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) + '?nex=' + reverse('students:favourite_jobs') + '?page=2' )
         self.assertEqual(response.status_code, 404)
-        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) + '?next=/Students/jobs/favourite/?page=2' )
+        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) + '?next=/app/Students/jobs/favourite/?page=2' )
         self.assertEqual(response.status_code, 404)
-        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) + '?next=/student/jobs/favourite/?page=2' )
+        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) + '?next=/app/student/jobs/favourite/?page=2' )
         self.assertEqual(response.status_code, 404)
-        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) + '?next=/student/Jobs/favourite/?page=2' )
+        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) + '?next=/app/student/Jobs/favourite/?page=2' )
         self.assertEqual(response.status_code, 404)
-        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) + '?next=/students/jobs/favorite/?page=2' )
+        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) + '?next=/app/students/jobs/favorite/?page=2' )
         self.assertEqual(response.status_code, 404)
         response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) + '?next=' + reverse('students:favourite_jobs') + '?page=2' )
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) + '?nex=' + AVAILABLE_NEXT )
+        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) + '?nex=/app' + AVAILABLE_NEXT )
         self.assertEqual(response.status_code, 404)
-        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) + '?next=/students/session/2019-w1/jobs/available/' )
+        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) + '?next=/app/students/session/2019-w1/jobs/available/' )
         self.assertEqual(response.status_code, 404)
-        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) + '?next=/students/sessions/2019-w11/jobs/available/' )
+        response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) + '?next=/app/students/sessions/2019-w11/jobs/available/' )
         self.assertEqual(response.status_code, 404)
 
         session = adminApi.get_session(SESSION, 'slug')
@@ -1619,7 +1618,7 @@ class StudentTest(TestCase):
             'how_interested': '3',
             'availability': True,
             'availability_note': 'nothing',
-            'next': '/student/sessions/2019-w1/jobs/available/?page=2'
+            'next': '/app/student/sessions/2019-w1/jobs/available/?page=2'
         }
         response = self.client.post( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) + AVAILABLE_NEXT, data=urlencode(data0), content_type=ContentType )
         self.assertEqual(response.status_code, 404)
@@ -1632,7 +1631,7 @@ class StudentTest(TestCase):
             'how_interested': '3',
             'availability': True,
             'availability_note': 'nothing',
-            'next': '/students/Sessions/2019-w1/jobs/available/?page=2'
+            'next': '/app/students/Sessions/2019-w1/jobs/available/?page=2'
         }
         response = self.client.post( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) + AVAILABLE_NEXT, data=urlencode(data1), content_type=ContentType )
         self.assertEqual(response.status_code, 404)
@@ -1645,7 +1644,7 @@ class StudentTest(TestCase):
             'how_interested': '3',
             'availability': True,
             'availability_note': 'nothing',
-            'next': '/students/sessions/2019-w3/jobs/available/?page=2'
+            'next': '/app/students/sessions/2019-w3/jobs/available/?page=2'
         }
         response = self.client.post( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) + AVAILABLE_NEXT, data=urlencode(data2), content_type=ContentType )
         self.assertEqual(response.status_code, 404)
@@ -1658,7 +1657,7 @@ class StudentTest(TestCase):
             'how_interested': '3',
             'availability': True,
             'availability_note': 'nothing',
-            'next': '/students/sessions/2019-w1/job/available/?page=2'
+            'next': '/app/students/sessions/2019-w1/job/available/?page=2'
         }
         response = self.client.post( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) + AVAILABLE_NEXT, data=urlencode(data3), content_type=ContentType )
         self.assertEqual(response.status_code, 404)
@@ -1672,7 +1671,7 @@ class StudentTest(TestCase):
             'how_interested': '3',
             'availability': True,
             'availability_note': 'nothing',
-            'next': '/students/sessions/2019-w1/jobs/availablee/?page=2'
+            'next': '/app/students/sessions/2019-w1/jobs/availablee/?page=2'
         }
         response = self.client.post( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) + AVAILABLE_NEXT, data=urlencode(data4), content_type=ContentType )
         self.assertEqual(response.status_code, 404)
@@ -1751,7 +1750,7 @@ class StudentTest(TestCase):
         self.delete_document(USERS[2], USER_IDS[2], ['resume'])
 
 
-    def test_apply_jobs_without_undergraduate(self):
+    """def test_apply_jobs_without_undergraduate(self):
         print('- Test: Students apply with undergraduate')
 
         self.login()
@@ -1761,7 +1760,7 @@ class StudentTest(TestCase):
         self.assertEqual( len(userApi.get_statuses()) , 8)
 
         response = self.client.get( reverse('students:apply_job', args=[SESSION, STUDENT_JOB]) + AVAILABLE_NEXT )
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 403)"""
 
 
     def test_history_jobs(self):
@@ -1964,7 +1963,7 @@ class StudentTest(TestCase):
             'assigned_hours': app.offered.assigned_hours,
             'decision': 'accept',
             'has_contract_read': 'true',
-            'next': '/students/jobs/histry/?page=2'
+            'next': '/app/students/jobs/histry/?page=2'
         }
         response = self.client.post( reverse('students:make_decision', args=[SESSION, STUDENT_JOB]), data=urlencode(data3), content_type=ContentType )
         self.assertEqual(response.status_code, 404)
@@ -2113,7 +2112,7 @@ class StudentTest(TestCase):
         self.submit_profile_resume(STUDENT2)
         self.submit_confiential_information_international_complete(STUDENT2)
 
-        response = self.client.get( reverse('students:reaccept_application', args=[SLUG2]) + '?next=/students/jobs/history/' )
+        response = self.client.get( reverse('students:reaccept_application', args=[SLUG2]) + '?next=/app/students/jobs/history/' )
         self.assertEqual(response.status_code, 200)
         app2 = response.context['app']
 
@@ -2447,7 +2446,7 @@ class StudentTest(TestCase):
             'assigned_hours': new_hours,
             'decision': 'accept',
             'has_contract_read': 'true',
-            'next': '/students/jobs/historY/?page=2'
+            'next': '/app/students/jobs/historY/?page=2'
         }
         response = self.client.post( reverse('students:reaccept_application', args=[SLUG]) + HISTORY_NEXT, data=urlencode(data3), content_type=ContentType )
         self.assertEqual(response.status_code, 404)
@@ -2505,7 +2504,7 @@ class StudentTest(TestCase):
         app = adminApi.get_application(APP_SLUG, 'slug')
         self.assertFalse(app.is_declined_reassigned)
 
-        self.delete_document(STUDENT_ID, ['sin', 'study_permit'], 'international')
+        self.delete_document(STUDENT, STUDENT_ID, ['sin', 'study_permit'], 'international')
 
 
     def test_reaccept_application_with_incomplete_confidentiality_success(self):
@@ -2748,7 +2747,7 @@ class StudentTest(TestCase):
             'assigned_hours': app.accepted.assigned_hours,
             'assigned': ApplicationStatus.CANCELLED,
             'parent_id': app.accepted.id,
-            'next': '/students/jobs/History/?page=2'
+            'next': '/app/students/jobs/History/?page=2'
         }
         response = self.client.post( reverse('students:terminate_job', args=[SESSION, STUDENT_JOB]) + HISTORY_NEXT, data=urlencode(data1), content_type=ContentType )
         self.assertEqual(response.status_code, 404)

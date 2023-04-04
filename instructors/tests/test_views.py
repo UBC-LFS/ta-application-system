@@ -19,9 +19,9 @@ JOB = 'apbi-200-002-introduction-to-soil-science-w1'
 STUDENT = 'user66.test'
 
 JOBS_NEXT = '?next=' + reverse('instructors:show_jobs') + '?page=2'
-JOBS_WRONG_1 = '?nex=/instructors/jobs/?page=2'
-JOBS_WRONG_2 = '?next=/Instructors/jobs/?page=2'
-JOBS_WRONG_3 = '?next=/instructors/Jobs/?page=2'
+JOBS_WRONG_1 = '?nex=/app/instructors/jobs/?page=2'
+JOBS_WRONG_2 = '?next=/app/Instructors/jobs/?page=2'
+JOBS_WRONG_3 = '?next=/app/instructors/Jobs/?page=2'
 
 APP_PATH = reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT
 
@@ -41,8 +41,8 @@ class InstructorTest(TestCase):
     def messages(self, res):
         return [m.message for m in get_messages(res.wsgi_request)]
 
-    def test_view_url_exists_at_desired_location(self):
-        print('- Test: view url exists at desired location')
+    def test_view_url_exists_at_desired_location_admin2(self):
+        print('- Test: view url exists at desired location - admin2')
 
         self.login(USERS[0], 'password')
 
@@ -58,6 +58,9 @@ class InstructorTest(TestCase):
         response = self.client.get( reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT )
         self.assertEqual(response.status_code, 403)
 
+    def test_view_url_exists_at_desired_location_student100(self):
+        print('- Test: view url exists at desired location - student 100')
+
         self.login(USERS[2], 'password')
 
         response = self.client.get( reverse('instructors:index') )
@@ -72,6 +75,8 @@ class InstructorTest(TestCase):
         response = self.client.get( reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT )
         self.assertEqual(response.status_code, 403)
 
+    def test_view_url_exists_at_desired_location_admin3(self):
+        print('- Test: view url exists at desired location - admin3')
         self.login('user3.admin', 'password')
 
         response = self.client.get( reverse('instructors:index') )
@@ -86,6 +91,8 @@ class InstructorTest(TestCase):
         response = self.client.get( reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT )
         self.assertEqual(response.status_code, 403)
 
+    def test_view_url_exists_at_desired_location_ins42(self):
+        print('- Test: view url exists at desired location - ins42')
         self.login()
 
         response = self.client.get( reverse('instructors:index') )
@@ -188,6 +195,7 @@ class InstructorTest(TestCase):
         self.assertEqual(response.url, reverse('instructors:edit_user'))
         self.assertRedirects(response, response.url)
 
+
     def test_edit_user_missing_values3(self):
         print('- Test to edit the information of an user with missing values - email')
         self.login()
@@ -285,10 +293,10 @@ class InstructorTest(TestCase):
 
         SESSION = '2019-w1'
 
-        next = '?next=/instructors/sessions/{0}/jobs/{1}/applications/&p={2}&t={3}'
-        next_wrong = '?nex=/instructors/sessions/{0}/jobs/{1}/applications/&p={2}&t={3}'
-        next_page_wrong = '?next=/instructors/sessions/{0}/jobs/{1}/applications/&a={2}&t={3}'
-        next_tab_wrong = '?next=/instructors/sessions/{0}/jobs/{1}/applications/&p={2}&j={3}'
+        next = '?next=/app/instructors/sessions/{0}/jobs/{1}/applications/&p={2}&t={3}'
+        next_wrong = '?nex=/app/instructors/sessions/{0}/jobs/{1}/applications/&p={2}&t={3}'
+        next_page_wrong = '?next=/app/instructors/sessions/{0}/jobs/{1}/applications/&a={2}&t={3}'
+        next_tab_wrong = '?next=/app/instructors/sessions/{0}/jobs/{1}/applications/&p={2}&j={3}'
 
         response = self.client.get( reverse('users:show_user', args=[STUDENT]) + next_wrong.format(SESSION, JOB, 'Applications', 'basic') )
         self.assertEqual(response.status_code, 404)
@@ -351,7 +359,7 @@ class InstructorTest(TestCase):
         self.assertFalse(response.context['form'].is_bound)
         self.assertEqual(response.context['form'].instance, response.context['job'])
         self.assertEqual( len(response.context['jobs']), 6 )
-        self.assertEqual(response.context['next_first'], '/instructors/jobs/?page=1')
+        self.assertEqual(response.context['next_first'], '/app/instructors/jobs/?page=1')
 
         next_first = response.context['next_first']
 
@@ -392,7 +400,7 @@ class InstructorTest(TestCase):
         self.assertEqual(job.session.term.code, 'W1')
         self.assertEqual(job.session.slug, SESSION)
         self.assertEqual(job.course.slug, JOB)
-        self.assertEqual(response.context['next_first'], '/instructors/jobs/?page=1')
+        self.assertEqual(response.context['next_first'], '/app/instructors/jobs/?page=1')
 
     def test_show_applications(self):
         print('- Display applications applied by students')
@@ -415,7 +423,7 @@ class InstructorTest(TestCase):
 
         self.assertEqual(response.context['full_job_name'], 'APBI_200_002')
         self.assertEqual(response.context['app_status'], {'none': '0', 'applied': '0', 'selected': '1', 'offered': '2', 'accepted': '3', 'declined': '4', 'cancelled': '5'})
-        self.assertEqual(response.context['next_first'], '/instructors/jobs/?page=1')
+        self.assertEqual(response.context['next_first'], '/app/instructors/jobs/?page=1')
 
         applications = [
             { 'id': 6, 'accepted_apps': ['APBI 260 001 (45.0 hours)'] },
@@ -453,6 +461,7 @@ class InstructorTest(TestCase):
         self.assertEqual(response.url, reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT)
         self.assertRedirects(response, response.url)
 
+
     def test_select_instructor_preference_failure2(self):
         print('- select instructor preference failure 2 - Minus assigned hours')
         self.login()
@@ -470,6 +479,7 @@ class InstructorTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT)
         self.assertRedirects(response, response.url)
+
 
     def test_select_instructor_preference_failure3(self):
         print('- select instructor preference failure 3 - no select for a preference')
@@ -508,6 +518,7 @@ class InstructorTest(TestCase):
         self.assertEqual(response.url, reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT)
         self.assertRedirects(response, response.url)
 
+
     def test_select_instructor_preference_failure5(self):
         print('- select instructor preference failure 5 - yes selection, 0 hours')
         self.login()
@@ -536,11 +547,11 @@ class InstructorTest(TestCase):
             'application': '6',
             'has_contract_read': False,
             'instructor_preference': Application.ACCEPTABLE,
-            'assigned_hours': '201'
+            'assigned_hours': '151'
         }
         response = self.client.post( reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT, data=urlencode(data6), content_type=ContentType )
         messages = self.messages(response)
-        self.assertTrue('You cannot assign 201 hours because Total Assigned TA Hours is 200. then try again' in messages[0])
+        self.assertEqual(messages[0], 'An error occurred. You cannot assign 151 hours because Total Assigned TA Hours is 150. then try again.')
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse('instructors:show_applications', args=[SESSION, JOB]) + JOBS_NEXT)
         self.assertRedirects(response, response.url)
@@ -609,7 +620,7 @@ class InstructorTest(TestCase):
         app = adminApi.get_application(APP, 'slug')
         self.assertIsNone(app.note)
 
-        next = '/instructors/sessions/2019-w1/jobs/apbi-200-002-introduction-to-soil-science-w1/applications/'
+        next = '/app/instructors/sessions/2019-w1/jobs/apbi-200-002-introduction-to-soil-science-w1/applications/'
 
         response = self.client.get(reverse('instructors:write_note', args=[APP]) + '?next=' + next)
         self.assertEqual(response.status_code, 200)
@@ -621,10 +632,10 @@ class InstructorTest(TestCase):
         self.assertEqual(response.context['app_status'], {'none': '0', 'applied': '0', 'selected': '1', 'offered': '2', 'accepted': '3', 'declined': '4', 'cancelled': '5'})
         self.assertEqual(response.context['next'], next)
 
-        next1 = '?next=/instructors/sessions/2019-w11/jobs/apbi-200-002-introduction-to-soil-science-w1/applications/'
-        next2 = '?next=/instructors/sessions/2019-w1/jobs/apbi-200-009-introduction-to-soil-science-w1/applications/'
-        next3 = '?next=/instructors/sessions/2019-w1/jobs/apbi-200-002-introduction-to-soil-science-w1/applicationsss/'
-        next4 = '?/instructors/sessions/2019-w1/jobs/apbi-200-002-introduction-to-soil-science-w1/applications/'
+        next1 = '?next=/app/instructors/sessions/2019-w11/jobs/apbi-200-002-introduction-to-soil-science-w1/applications/'
+        next2 = '?next=/app/instructors/sessions/2019-w1/jobs/apbi-200-009-introduction-to-soil-science-w1/applications/'
+        next3 = '?next=/app/instructors/sessions/2019-w1/jobs/apbi-200-002-introduction-to-soil-science-w1/applicationsss/'
+        next4 = '?/app/instructors/sessions/2019-w1/jobs/apbi-200-002-introduction-to-soil-science-w1/applications/'
 
         response1 = self.client.get( reverse('instructors:write_note', args=[APP]) + next1 )
         self.assertEqual(response1.status_code, 404)
@@ -675,7 +686,7 @@ class InstructorTest(TestCase):
         print('- Test: display a summary of applicants')
         self.login()
 
-        next_second = '/instructors/sessions/2019-w1/jobs/apbi-200-002-introduction-to-soil-science-w1/applications/'
+        next_second = '/app/instructors/sessions/2019-w1/jobs/apbi-200-002-introduction-to-soil-science-w1/applications/'
         session = self.client.session
         session['next_second'] = next_second
         session.save()
@@ -745,7 +756,7 @@ class InstructorTest(TestCase):
 
         self.login(CURRENT_USER, PASSWORD)
 
-        next_second = '/instructors/sessions/2019-w1/jobs/apbi-265-001-sustainable-agriculture-and-food-systems-w1/applicants/'
+        next_second = '/app/instructors/sessions/2019-w1/jobs/apbi-265-001-sustainable-agriculture-and-food-systems-w1/applicants/'
 
         session = self.client.session
         session['next_second'] = next_second
@@ -814,7 +825,7 @@ class InstructorTest(TestCase):
 
         CURRENT_USER = 'user22.ins'
         CURRENT_JOB = 'apbi-265-001-sustainable-agriculture-and-food-systems-w1'
-        CURRENT_NEXT = '/instructors/sessions/2019-w1/jobs/' + CURRENT_JOB + '/applicants/summary-applicants/'
+        CURRENT_NEXT = '/app/instructors/sessions/2019-w1/jobs/' + CURRENT_JOB + '/applicants/summary-applicants/'
 
         self.login(CURRENT_USER, PASSWORD)
 
@@ -851,11 +862,11 @@ class InstructorTest(TestCase):
         self.assertEqual(session['applicants_form_data']['session_slug'], SESSION)
         self.assertEqual(session['applicants_form_data']['job_slug'], CURRENT_JOB)
 
-        next1 = '?next=/instructors/sessions/2019-w11/jobs/apbi-200-002-introduction-to-soil-science-w1/applicants/summary-applicants/'
-        next2 = '?next=/instructors/sessions/2019-w1/jobs/apbi-200-009-introduction-to-soil-science-w1/applicants/summary-applicants/'
+        next1 = '?next=/app/instructors/sessions/2019-w11/jobs/apbi-200-002-introduction-to-soil-science-w1/applicants/summary-applicants/'
+        next2 = '?next=/app/instructors/sessions/2019-w1/jobs/apbi-200-009-introduction-to-soil-science-w1/applicants/summary-applicants/'
         next3 = '?next=/instructors/sessions/2019-w1/jobs/apbi-200-002-introduction-to-soil-science-w1/applicantsss/summary-applicants/'
-        next4 = '?nex=//instructors/sessions/2019-w1/jobs/apbi-200-002-introduction-to-soil-science-w1/applicants/summary-applicantssss/'
-        next5 = '?/instructors/sessions/2019-w1/jobs/apbi-200-002-introduction-to-soil-science-w1/applicants/summary-applicants/'
+        next4 = '?nex=//app/instructors/sessions/2019-w1/jobs/apbi-200-002-introduction-to-soil-science-w1/applicants/summary-applicantssss/'
+        next5 = '?/app/instructors/sessions/2019-w1/jobs/apbi-200-002-introduction-to-soil-science-w1/applicants/summary-applicants/'
 
         response1 = self.client.get( reverse('instructors:applicants_send_email_confirmation') + next1 )
         self.assertEqual(response1.status_code, 404)
@@ -903,7 +914,7 @@ class InstructorTest(TestCase):
 
         CURRENT_USER = 'user22.ins'
         CURRENT_JOB = 'apbi-265-001-sustainable-agriculture-and-food-systems-w1'
-        CURRENT_NEXT = '/instructors/sessions/2019-w1/jobs/' + CURRENT_JOB + '/applicants/summary-applicants/'
+        CURRENT_NEXT = '/app/instructors/sessions/2019-w1/jobs/' + CURRENT_JOB + '/applicants/summary-applicants/'
 
         self.login(CURRENT_USER, PASSWORD)
 

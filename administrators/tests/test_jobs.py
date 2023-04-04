@@ -389,12 +389,12 @@ class JobTest(TestCase):
             self.assertEqual(app.id, accepted_app_ids[c2])
             c2 += 1
 
-        self.assertEqual(response.context['tab_urls']['all'], '/administrators/students/user100.test/jobs/?next=/administrators/jobs/student/?page=2&p=Jobs by Student&t=all')
-        self.assertEqual(response.context['tab_urls']['offered'], '/administrators/students/user100.test/jobs/?next=/administrators/jobs/student/?page=2&p=Jobs by Student&t=offered')
-        self.assertEqual(response.context['tab_urls']['accepted'], '/administrators/students/user100.test/jobs/?next=/administrators/jobs/student/?page=2&p=Jobs by Student&t=accepted')
+        self.assertEqual(response.context['tab_urls']['all'], '/app/administrators/students/user100.test/jobs/?next=/app/administrators/jobs/student/?page=2&p=Jobs by Student&t=all')
+        self.assertEqual(response.context['tab_urls']['offered'], '/app/administrators/students/user100.test/jobs/?next=/app/administrators/jobs/student/?page=2&p=Jobs by Student&t=offered')
+        self.assertEqual(response.context['tab_urls']['accepted'], '/app/administrators/students/user100.test/jobs/?next=/app/administrators/jobs/student/?page=2&p=Jobs by Student&t=accepted')
         self.assertEqual(response.context['current_tab'], 'all')
         self.assertEqual(response.context['app_status'], {'none': '0', 'applied': '0', 'selected': '1', 'offered': '2', 'accepted': '3', 'declined': '4', 'cancelled': '5'})
-        self.assertEqual(response.context['next'], '/administrators/jobs/student/?page=2')
+        self.assertEqual(response.context['next'], '/app/administrators/jobs/student/?page=2')
 
         apps = response.context['apps']
         num_offered = 0
@@ -439,12 +439,12 @@ class JobTest(TestCase):
             self.assertEqual(app.id, accepted_app_ids[c2])
             c2 += 1
 
-        self.assertEqual(response.context['tab_urls']['all'], '/administrators/students/user66.test/jobs/?next=/administrators/jobs/student/?page=2&p=Jobs by Student&t=all')
-        self.assertEqual(response.context['tab_urls']['offered'], '/administrators/students/user66.test/jobs/?next=/administrators/jobs/student/?page=2&p=Jobs by Student&t=offered')
-        self.assertEqual(response.context['tab_urls']['accepted'], '/administrators/students/user66.test/jobs/?next=/administrators/jobs/student/?page=2&p=Jobs by Student&t=accepted')
+        self.assertEqual(response.context['tab_urls']['all'], '/app/administrators/students/user66.test/jobs/?next=/app/administrators/jobs/student/?page=2&p=Jobs by Student&t=all')
+        self.assertEqual(response.context['tab_urls']['offered'], '/app/administrators/students/user66.test/jobs/?next=/app/administrators/jobs/student/?page=2&p=Jobs by Student&t=offered')
+        self.assertEqual(response.context['tab_urls']['accepted'], '/app/administrators/students/user66.test/jobs/?next=/app/administrators/jobs/student/?page=2&p=Jobs by Student&t=accepted')
         self.assertEqual(response.context['current_tab'], 'all')
         self.assertEqual(response.context['app_status'], {'none': '0', 'applied': '0', 'selected': '1', 'offered': '2', 'accepted': '3', 'declined': '4', 'cancelled': '5'})
-        self.assertEqual(response.context['next'], '/administrators/jobs/student/?page=2')
+        self.assertEqual(response.context['next'], '/app/administrators/jobs/student/?page=2')
 
         apps = response.context['apps']
         num_offered = 0

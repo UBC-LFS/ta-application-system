@@ -15,7 +15,7 @@ from users import api as userApi
 from administrators.tests.test_sessions import LOGIN_URL, ContentType, DATA, PASSWORD, USERS
 
 COURSE = 'apbi-200-001-introduction-to-soil-science-w'
-COURSE_NEXT = '/administrators/courses/all/'
+COURSE_NEXT = '/app/administrators/courses/all/'
 
 
 class CourseTest(TestCase):
@@ -58,7 +58,7 @@ class CourseTest(TestCase):
         self.assertEqual(response.context['loggedin_user'].username, USERS[0])
         self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
         self.assertEqual( len(response.context['courses']), settings.PAGE_SIZE )
-        self.assertEqual( len(adminApi.get_courses()), 709 )
+        self.assertEqual( len(adminApi.get_courses()), 711 )
 
     def test_create_course(self):
         print('- Test: Create a course')
@@ -140,13 +140,16 @@ class CourseTest(TestCase):
         self.assertEqual(latest_course.slug, 'fnh-100-001-002-new-course-w1')
 
         # Create a session to check this course
+        # create_session_confirmation_without_copy_success
 
         data2 = {
             'year': '2020',
-            'term': '2',
+            'term': 2,
             'title': 'New TA Application',
             'description': 'new description',
-            'note': 'new note'
+            'note': 'new note',
+            'is_visible': False,
+            'is_archived': False
         }
         total_sessions = len( adminApi.get_sessions() )
         sessions = adminApi.get_sessions_by_year(data2['year'])
@@ -154,22 +157,68 @@ class CourseTest(TestCase):
 
         response = self.client.post(reverse('administrators:create_session'), data=urlencode(data2), content_type=ContentType)
         self.assertEqual(response.status_code, 302)
+        res = self.client.get(response.url)
+        self.assertEqual(response.url, reverse('administrators:create_session_setup_courses'))
         self.assertRedirects(response, response.url)
+        self.assertEqual(res.context['courses'].count(), 107)
 
-        response = self.client.get(response.url)
-        self.assertEqual( len(response.context['error_messages']), 0)
         session = self.client.session
         self.assertEqual(session['session_form_data'], data2)
-        self.assertEqual(response.context['courses'].count(), 105)
-
-        data2['courses'] = [ str(course.id) for course in response.context['courses'] ]
+        
+        data2['courses'] = [ str(course.id) for course in res.context['courses'] ]
         data2['is_visible'] = False
         data2['is_archived'] = False
-        response = self.client.post(reverse('administrators:create_session_setup_courses'), data=urlencode(data2, True), content_type=ContentType)
-        messages = self.messages(response)
-        self.assertTrue('Success' in messages[0])
-        self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, response.url)
+
+        is_course_selected = []
+        is_copied = []
+        for course in res.context['courses']:
+            is_course_selected.append(course.id)
+            is_copied.append(course.id)
+
+        self.assertEqual(len(is_course_selected), 107)
+        self.assertEqual(len(is_copied), 107)
+
+        data3 = {
+            'is_course_selected': is_course_selected,
+            'is_copied': is_copied,
+            'submit_path': 'Save without Copy'
+        }
+
+        res3 = self.client.post(reverse('administrators:create_session_setup_courses'), data=urlencode(data3, True), content_type=ContentType)
+        self.assertEqual(res3.status_code, 302)
+
+        session3 = self.client.session
+        self.assertEqual(session3['session_form_data']['year'], data2['year'])
+        self.assertEqual(session3['session_form_data']['term'], data2['term'])
+        self.assertEqual(session3['session_form_data']['title'], data2['title'])
+        self.assertEqual(session3['session_form_data']['description'], data2['description'])
+        self.assertEqual(session3['session_form_data']['note'], data2['note'])
+        self.assertFalse(session3['session_form_data']['is_visible'])
+        self.assertFalse(session3['session_form_data']['is_archived'])
+
+        self.assertEqual(res3.url, reverse('administrators:create_session_confirmation'))
+        self.assertRedirects(res3, res3.url)
+
+        res4 = self.client.get( reverse('administrators:create_session_confirmation') )
+        self.assertEqual(res4.context['session'], [('Year', '2020'), ('Term', 'Winter Term 1 (W1)'), ('Title', 'New TA Application'), ('Description', 'new description'), ('Note', 'new note'), ('Is visible', False), ('Is archived', False)])
+        self.assertEqual(res4.context['term'].id, data2['term'])
+        self.assertEqual(len(res4.context['courses']), 107)
+        self.assertEqual(res4.context['num_courses'], 107)
+        self.assertEqual(res4.context['num_copied_ids'], 0)
+
+        session4 = self.client.session
+        self.assertTrue('selected_jobs' in session4['session_form_data'])
+        self.assertEqual(len(session4['session_form_data']['selected_jobs']), 107)
+
+        selected_jobs = session4['session_form_data']['selected_jobs']
+
+        data5 = {}
+        res5 = self.client.post( reverse('administrators:create_session_confirmation'), data=urlencode(data5), content_type=ContentType)
+        messages5 = self.messages(res5)
+        self.assertEqual(messages5[0], 'Success! 2020 W1 - New TA Application created')
+        self.assertEqual(res5.status_code, 302)
+        self.assertEqual(res5.url, reverse('administrators:current_sessions'))
+        self.assertRedirects(res5, res5.url)
 
         sessions = adminApi.get_sessions_by_year(data2['year'])
         self.assertEqual( sessions.count(), 1 )
@@ -181,11 +230,14 @@ class CourseTest(TestCase):
         self.assertEqual(sessions[0].description, data2['description'])
         self.assertEqual(sessions[0].is_visible, data2['is_visible'])
         self.assertEqual(sessions[0].is_archived, data2['is_archived'])
-        self.assertEqual(sessions[0].job_set.count(), 105)
+        self.assertEqual(sessions[0].job_set.count(), 107)
 
         job = sessions[0].job_set.filter(course__slug=latest_course.slug)
         self.assertTrue(job.exists())
         self.assertEqual(job.count(), 1)
+
+        session5 = self.client.session
+        self.assertFalse('session_form_data' in session5)
 
 
     def test_edit_course(self):

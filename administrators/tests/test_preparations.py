@@ -423,7 +423,7 @@ class PreparationTest(TestCase):
 
         total_statuses = len(userApi.get_statuses())
 
-        status_id = 1
+        status_id = 4
         response = self.client.post( reverse('administrators:delete_status'), data=urlencode({ 'status': status_id }), content_type=ContentType )
         messages = self.messages(response)
         self.assertTrue('Success' in messages[0])

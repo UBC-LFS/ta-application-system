@@ -14,9 +14,9 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 import datetime
 
 
-ADMINISTRATOR_NEXT = '?next=/administrators/'
-INSTRUCTOR_NEXT = '?next=/instructors/'
-STUDENT_NEXT = '?next=/students/'
+ADMINISTRATOR_NEXT = '?next=/app/administrators/'
+INSTRUCTOR_NEXT = '?next=/app/instructors/'
+STUDENT_NEXT = '?next=/app/students/'
 
 
 class UserTest(TestCase):
@@ -36,8 +36,8 @@ class UserTest(TestCase):
     def messages(self, res):
         return [m.message for m in get_messages(res.wsgi_request)]
 
-    def test_view_url_exists_at_desired_location(self):
-        print('- Test: view url exists at desired location')
+    def test_view_upload_avatar_student(self):
+        print('- Test: view upload_avatar - student')
 
         self.login(USERS[2], 'password')
 
@@ -50,6 +50,8 @@ class UserTest(TestCase):
         response = self.client.get( reverse('users:upload_avatar') + ADMINISTRATOR_NEXT )
         self.assertEqual(response.status_code, 403)
 
+    def test_view_upload_avatar_instructor(self):
+        print('- Test: view upload_avatar - instructor')
         self.login(USERS[1], 'password')
 
         response = self.client.get( reverse('users:upload_avatar') + STUDENT_NEXT )
@@ -61,6 +63,8 @@ class UserTest(TestCase):
         response = self.client.get( reverse('users:upload_avatar') + ADMINISTRATOR_NEXT )
         self.assertEqual(response.status_code, 403)
 
+    def test_view_upload_avatar_admin(self):
+        print('- Test: view upload_avatar - admin')
         self.login(USERS[0], 'password')
 
         response = self.client.get( reverse('users:upload_avatar') + STUDENT_NEXT )

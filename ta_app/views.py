@@ -21,10 +21,10 @@ def app_home(request):
     roles = userApi.get_user_roles(request.user)
     if roles == None:
         raise SuspiciousOperation
-    
+
     request.session['loggedin_user'] = {
-        'id': user.id,
-        'username': user.username,
+        'id': request.user.id,
+        'username': request.user.username,
         'roles': roles
     }
     redirect_to = adminApi.redirect_to_index_page(roles)
@@ -35,19 +35,15 @@ def bad_request(request, exception, template_name='400.html'):
     ''' Exception handlder for bad request '''
     return render(request, 'ta_app/errors/400.html', { 'loggedin_user': None }, status=400)
 
-
 def permission_denied(request, exception, template_name='403.html'):
     ''' Exception handlder for permission denied '''
     loggedin_user = userApi.loggedin_user(request.user)
     return render(request, 'ta_app/errors/403.html', { 'loggedin_user': loggedin_user }, status=403)
 
-
 def page_not_found(request, exception, template_name='404.html'):
     ''' Exception handlder for page not found '''
     loggedin_user = userApi.loggedin_user(request.user)
-    print('page_not_found =============')
     return render(request, 'ta_app/errors/404.html', { 'loggedin_user': loggedin_user }, status=404)
-
 
 def internal_server_error(request, template_name='500.html'):
     ''' Exception handlder for internal server error '''

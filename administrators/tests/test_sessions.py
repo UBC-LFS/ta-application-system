@@ -15,7 +15,7 @@ from users import api as userApi
 from datetime import datetime
 from random import randint
 
-LOGIN_URL = '/accounts/local_login/'
+LOGIN_URL = '/accounts/local-login/'
 ContentType='application/x-www-form-urlencoded'
 
 DATA = [
@@ -153,7 +153,7 @@ class SessionTest(TestCase):
             else:
                 userApi.delete_user_study_permit(user)
 
-    def test_view_url_exists_at_desired_location(self):
+    def test_view_url_exists_at_desired_location_ins(self):
         self.login(USERS[1], 'password')
 
         response = self.client.get( reverse('administrators:current_sessions') )
@@ -162,6 +162,7 @@ class SessionTest(TestCase):
         response = self.client.get( reverse('administrators:show_session', args=[SESSION]) + CURRENT_SESSION )
         self.assertEqual(response.status_code, 403)
 
+    def test_view_url_exists_at_desired_location_student(self):
         self.login(USERS[2], 'password')
 
         response = self.client.get( reverse('administrators:current_sessions') )
@@ -170,6 +171,7 @@ class SessionTest(TestCase):
         response = self.client.get( reverse('administrators:show_session', args=[SESSION]) + CURRENT_SESSION )
         self.assertEqual(response.status_code, 403)
 
+    def test_view_url_exists_at_desired_location_admin3(self):
         self.login('user3.admin', 'password')
 
         response = self.client.get( reverse('administrators:current_sessions') )
@@ -178,6 +180,7 @@ class SessionTest(TestCase):
         response = self.client.get( reverse('administrators:show_session', args=[SESSION]) + CURRENT_SESSION )
         self.assertEqual(response.status_code, 403)
 
+    def test_view_url_exists_at_desired_location_admin(self):
         self.login()
 
         response = self.client.get( reverse('administrators:current_sessions') )
@@ -204,10 +207,10 @@ class SessionTest(TestCase):
         response = self.client.get( reverse('administrators:edit_session', args=[SESSION]) + ARCHIVED_SESSION )
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get( reverse('administrators:show_session', args=[SESSION]) + '?next=/administrators/sessions/currentt/&p=Current%20Sessions' )
+        response = self.client.get( reverse('administrators:show_session', args=[SESSION]) + '?next=/app/administrators/sessions/currentt/&p=Current%20Sessions' )
         self.assertEqual(response.status_code, 404)
 
-        response = self.client.get( reverse('administrators:edit_session', args=[SESSION]) + '?next=/administrators/sessions/archive/&p=Archived%20Sessions' )
+        response = self.client.get( reverse('administrators:edit_session', args=[SESSION]) + '?next=/app/administrators/sessions/archive/&p=Archived%20Sessions' )
         self.assertEqual(response.status_code, 404)
 
         response = self.client.get( reverse('administrators:show_report_applicants', args=[SESSION]) )
@@ -371,7 +374,7 @@ class SessionTest(TestCase):
         self.delete_document('user66.test', ['sin', 'study_permit'], 'international')
 
 
-    """def test_create_session_check_form_1(self):
+    def test_create_session_check_form_1(self):
         print('- Test: create a session - check form 1')
         self.login()
 
@@ -1017,7 +1020,7 @@ class SessionTest(TestCase):
         self.assertEqual(job_470.is_active, selected_job_470['is_active'])
 
         session4 = self.client.session
-        self.assertFalse('session_form_data' in session4)"""
+        self.assertFalse('session_form_data' in session4)
 
 
     def test_create_session_confirmation_without_copy_success(self):
@@ -1033,6 +1036,7 @@ class SessionTest(TestCase):
             'is_visible': False,
             'is_archived': False
         }
+
         total_sessions = len( adminApi.get_sessions() )
         sessions = adminApi.get_sessions_by_year(data['year'])
         self.assertEqual( sessions.count(), 0 )
@@ -1093,13 +1097,13 @@ class SessionTest(TestCase):
 
         selected_jobs = session3['session_form_data']['selected_jobs']
 
-        data4 = {}
-        res4 = self.client.post( reverse('administrators:create_session_confirmation'), data=urlencode(data4), content_type=ContentType)
-        messages = self.messages(res4)
-        self.assertEqual(messages[0], 'Success! 2020 W1 - New TA Application created')
-        self.assertEqual(res4.status_code, 302)
-        self.assertEqual(res4.url, reverse('administrators:current_sessions'))
-        self.assertRedirects(res4, res4.url)
+        data5 = {}
+        res5 = self.client.post( reverse('administrators:create_session_confirmation'), data=urlencode(data5), content_type=ContentType)
+        messages5 = self.messages(res5)
+        self.assertEqual(messages5[0], 'Success! 2020 W1 - New TA Application created')
+        self.assertEqual(res5.status_code, 302)
+        self.assertEqual(res5.url, reverse('administrators:current_sessions'))
+        self.assertRedirects(res5, res5.url)
 
         sessions = adminApi.get_sessions_by_year(data['year'])
         self.assertEqual( sessions.count(), 1 )
@@ -1202,7 +1206,6 @@ class SessionTest(TestCase):
         self.assertEqual(job_711.instructors.count(), 0)
         self.assertEqual(job_711.assigned_ta_hours, 0.0)
         self.assertTrue(job_711.is_active)
-
 
         session4 = self.client.session
         self.assertFalse('session_form_data' in session4)

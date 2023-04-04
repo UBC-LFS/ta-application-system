@@ -57,11 +57,11 @@ class HRTest(TestCase):
             'user': user.id,
             'uploaded': SimpleUploadedFile('resume.pdf', open(RESUME, 'rb').read(), content_type='application/pdf')
         }
-        response = self.client.post( reverse('students:upload_resume') + '?next=/students/&p=Edit%20Profile&t=resume', data=data, format='multipart')
+        response = self.client.post( reverse('students:upload_resume') + '?next=/app/students/&p=Edit%20Profile&t=resume', data=data, format='multipart')
         messages = self.messages(response)
         self.assertTrue('Success' in messages[0])
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse('students:show_profile') + '?next=/students/&p=Edit%20Profile&t=resume')
+        self.assertEqual(response.url, reverse('students:show_profile') + '?next=/app/students/&p=Edit%20Profile&t=resume')
         self.assertRedirects(response, response.url)
 
         resume = userApi.has_user_resume_created(user)
@@ -144,16 +144,16 @@ class HRTest(TestCase):
         response = self.client.get( reverse('users:show_user', args=[USERS[2]]) + ALL_USER )
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get( reverse('users:show_user', args=[USERS[2]]) + '?next=/administrators/hr/users/all/?page=2&p=all%20Users&t=basic' )
+        response = self.client.get( reverse('users:show_user', args=[USERS[2]]) + '?next=/app/administrators/hr/users/all/?page=2&p=all%20Users&t=basic' )
         self.assertEqual(response.status_code, 404)
 
-        response = self.client.get( reverse('users:show_user', args=[USERS[2]]) + '?next=/administrators/hr/users/all/?page=2&p=All%20User&t=basic' )
+        response = self.client.get( reverse('users:show_user', args=[USERS[2]]) + '?next=/app/administrators/hr/users/all/?page=2&p=All%20User&t=basic' )
         self.assertEqual(response.status_code, 404)
 
-        response = self.client.get( reverse('users:show_user', args=[USERS[2]]) + '?next=/administrators/applications/dashboard/&p=Dashboardd&t=basic' )
+        response = self.client.get( reverse('users:show_user', args=[USERS[2]]) + '?next=/app/administrators/applications/dashboard/&p=Dashboardd&t=basic' )
         self.assertEqual(response.status_code, 404)
 
-        response = self.client.get( reverse('users:show_user', args=[USERS[2]]) + '?next=/administrators/applications/dashboard/&p=Dashboard&t=basicd' )
+        response = self.client.get( reverse('users:show_user', args=[USERS[2]]) + '?next=/app/sadministrators/applications/dashboard/&p=Dashboard&t=basicd' )
         self.assertEqual(response.status_code, 404)
 
     def test_all_users(self):
@@ -168,10 +168,10 @@ class HRTest(TestCase):
         print('- Test: show a user')
         self.login()
 
-        next = '?next=/administrators/{0}/&p={1}&t={2}'
-        next_wrong = '?nex=/administrators/{0}/&p={1}&t={2}'
-        next_page_wrong = '?next=/administrators/{0}/&a={1}&t={2}'
-        next_tab_wrong = '?next=/administrators/{0}/&p={1}&j={2}'
+        next = '?next=/app/administrators/{0}/&p={1}&t={2}'
+        next_wrong = '?nex=/app/administrators/{0}/&p={1}&t={2}'
+        next_page_wrong = '?next=/app/administrators/{0}/&a={1}&t={2}'
+        next_tab_wrong = '?next=/app/administrators/{0}/&p={1}&j={2}'
 
         # Dashboard
         response = self.client.get( reverse('users:show_user', args=[USERS[2]]) + next_wrong.format('applications/dashboard', 'Dashboard', 'basic') )

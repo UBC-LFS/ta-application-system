@@ -148,9 +148,9 @@ class ApplicationTest(TestCase):
         print('- Test: Display an application details')
         self.login()
 
-        next = '?next=/administrators/applications/{0}/?page=2&p={1}'
-        next_wrong = '?nex=/administrators/applications/{0}/?page=2&p={1}'
-        next_page_wrong = '?administrators/applications/{0}/?page=2&a={1}'
+        next = '?next=/app/administrators/applications/{0}/?page=2&p={1}'
+        next_wrong = '?nex=/app/administrators/applications/{0}/?page=2&p={1}'
+        next_page_wrong = '?app/administrators/applications/{0}/?page=2&a={1}'
 
         response = self.client.get( reverse('administrators:show_application', args=[APP]) + next_wrong.format('dashboard', 'Dashboard') )
         self.assertEqual(response.status_code, 404)
@@ -215,13 +215,13 @@ class ApplicationTest(TestCase):
         response = self.client.get( reverse('administrators:show_application', args=[APP]) + next.format('terminated', 'Terminated Applicatios') )
         self.assertEqual(response.status_code, 404)
 
-        response = self.client.get( reverse('administrators:show_application', args=[APP]) + '?nex=/administrators/applications/?page=2&p=Email%20History' )
+        response = self.client.get( reverse('administrators:show_application', args=[APP]) + '?nex=/app/administrators/applications/?page=2&p=Email%20History' )
         self.assertEqual(response.status_code, 404)
-        response = self.client.get( reverse('administrators:show_application', args=[APP]) + '?next=/administrator/applications/?page=2&p=Email%20History' )
+        response = self.client.get( reverse('administrators:show_application', args=[APP]) + '?next=/app/administrator/applications/?page=2&p=Email%20History' )
         self.assertEqual(response.status_code, 404)
-        response = self.client.get( reverse('administrators:show_application', args=[APP]) + '?next=/administrators/applications/?page=2&l=Email%20History' )
+        response = self.client.get( reverse('administrators:show_application', args=[APP]) + '?next=/app/administrators/applications/?page=2&l=Email%20History' )
         self.assertEqual(response.status_code, 404)
-        response = self.client.get( reverse('administrators:show_application', args=[APP]) + '?next=/administrators/applications/?page=2&p=Email%20Histor' )
+        response = self.client.get( reverse('administrators:show_application', args=[APP]) + '?next=/app/administrators/applications/?page=2&p=Email%20Histor' )
         self.assertEqual(response.status_code, 404)
 
 
@@ -288,7 +288,7 @@ class ApplicationTest(TestCase):
 
         data = {
             'application': app_id,
-            'next': '/administrators/applications/selectedd/?page=2'
+            'next': '/app/administrators/applications/selectedd/?page=2'
         }
         response = self.client.post(reverse('administrators:reset_application'), data=urlencode(data), content_type=ContentType)
         self.assertEqual(response.status_code, 404)
@@ -299,7 +299,7 @@ class ApplicationTest(TestCase):
         self.login()
 
         app_id = '6'
-        PATH = '/administrators/applications/all/?page=2'
+        PATH = '/app/administrators/applications/all/?page=2'
 
         data = {
             'application': app_id,
@@ -318,7 +318,7 @@ class ApplicationTest(TestCase):
         self.login()
 
         app_id = '3'
-        PATH = '/administrators/applications/all/?page=2'
+        PATH = '/app/administrators/applications/all/?page=2'
 
         data = {
             'application': app_id,
@@ -337,7 +337,7 @@ class ApplicationTest(TestCase):
         self.login()
 
         app_id = '6'
-        PATH = '/administrators/applications/all/?page=2'
+        PATH = '/app/administrators/applications/all/?page=2'
 
         data = {
             'application': app_id,
@@ -356,7 +356,7 @@ class ApplicationTest(TestCase):
         self.login()
 
         app_id = '2'
-        PATH = '/administrators/applications/all/?page=2'
+        PATH = '/app/administrators/applications/all/?page=2'
 
         data = {
             'application': app_id,
@@ -375,7 +375,7 @@ class ApplicationTest(TestCase):
         self.login()
 
         app_id = '25'
-        PATH = '/administrators/applications/all/?page=2'
+        PATH = '/app/administrators/applications/all/?page=2'
 
         data = {
             'application': app_id,
@@ -427,7 +427,7 @@ class ApplicationTest(TestCase):
 
         self.login()
 
-        PATH = '/administrators/applications/all/?page=2'
+        PATH = '/app/administrators/applications/all/?page=2'
 
         data = {
             'application': app_id,
@@ -1017,7 +1017,7 @@ class ApplicationTest(TestCase):
             'applicant': '65',
             'classification': '2',
             'offer_type': 'offer',
-            'next': '/administrators/applications/selectedd/?page=2'
+            'next': '/app/administrators/applications/selectedd/?page=2'
         }
         response = self.client.post(reverse('administrators:offer_job', args=[app.job.session.slug, app.job.course.slug]), data=urlencode(data), content_type=ContentType)
         self.assertEqual(response.status_code, 404)
@@ -1161,7 +1161,7 @@ class ApplicationTest(TestCase):
         }
         response = self.client.post(reverse('administrators:offer_job', args=[app.job.session.slug, app.job.course.slug]), data=urlencode(data), content_type=ContentType)
         messages = self.messages(response)
-        self.assertEqual(messages[0], 'An error occurred. Please you cannot assign 210 hours Total Assigned TA Hours is 200, then try again.')
+        self.assertEqual(messages[0], 'An error occurred. Please you cannot assign 210 hours Total Assigned TA Hours is 100, then try again.')
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, FULL_PATH)
         self.assertRedirects(response, response.url)
@@ -1423,7 +1423,7 @@ class ApplicationTest(TestCase):
             'type': email.type,
             'title': email.title,
             'message': email.message,
-            'next': '/administrators/application/email_history/?page=2'
+            'next': '/app/administrators/application/email_history/?page=2'
         }
         response = self.client.post( reverse('administrators:send_reminder', args=[email_id]) + NEXT, data=urlencode(data0), content_type=ContentType )
         self.assertEqual(response.status_code, 404)
@@ -1702,7 +1702,7 @@ class ApplicationTest(TestCase):
             'application': str(application.id),
             'new_assigned_hours': '20.0',
             'old_assigned_hours': str(application.accepted.assigned_hours),
-            'next' : 'administrator/applications/accepted/?page=2'
+            'next' : 'app/administrator/applications/accepted/?page=2'
         }
         response = self.client.post( reverse('administrators:decline_reassign_confirmation') + NEXT, data=urlencode(data6), content_type=ContentType )
         self.assertEqual(response.status_code, 404)
@@ -1929,7 +1929,7 @@ class ApplicationTest(TestCase):
 
         data2 = {
             'note': 'terminated note',
-            'next': '/Administrators/applications/accepted/?page=2'
+            'next': '/app/Administrators/applications/accepted/?page=2'
         }
         response = self.client.post(reverse('administrators:terminate', args=[appl.slug]) + NEXT, data=urlencode(data2), content_type=ContentType)
         self.assertEqual(response.status_code, 404)
@@ -2032,7 +2032,7 @@ class ApplicationTest(TestCase):
             'title': 'You are terminated!',
             'message': 'You are terminated an job offer',
             'type': email.type,
-            'next': '/administrators/applications/terminatted/?page=2'
+            'next': '/app/administrators/applications/terminatted/?page=2'
         }
         response = self.client.post(reverse('administrators:applications_send_email_confirmation') + TERMINATED_APP, data=urlencode(data3), content_type=ContentType)
         self.assertEqual(response.status_code, 404)
