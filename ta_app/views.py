@@ -20,19 +20,19 @@ def landing_page(request):
 def app_home(request):
     ''' App Home '''
 
-    employee_number = meta[settings.SHIBBOLETH_ATTRIBUTE_MAP['employee_number']]
+    employee_number = request.META[settings.SHIBBOLETH_ATTRIBUTE_MAP['employee_number']]
     if len(employee_number) == 0:
         employee_number = None
     
-    student_number = meta[settings.SHIBBOLETH_ATTRIBUTE_MAP['student_number']]
+    student_number = request.META[settings.SHIBBOLETH_ATTRIBUTE_MAP['student_number']]
     if len(student_number) == 0:
         student_number = None
     
     data = {
-        'first_name': meta[settings.SHIBBOLETH_ATTRIBUTE_MAP['first_name']],
-        'last_name': meta[settings.SHIBBOLETH_ATTRIBUTE_MAP['last_name']],
-        'email': meta[settings.SHIBBOLETH_ATTRIBUTE_MAP['email']],
-        'username': meta[settings.SHIBBOLETH_ATTRIBUTE_MAP['username']],
+        'first_name': request.META[settings.SHIBBOLETH_ATTRIBUTE_MAP['first_name']],
+        'last_name': request.META[settings.SHIBBOLETH_ATTRIBUTE_MAP['last_name']],
+        'email': request.META[settings.SHIBBOLETH_ATTRIBUTE_MAP['email']],
+        'username': request.META[settings.SHIBBOLETH_ATTRIBUTE_MAP['username']],
         'employee_number': employee_number,
         'student_number': student_number
     }
