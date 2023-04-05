@@ -169,21 +169,33 @@ def user_exists_username(username):
 def user_exists(data):
     ''' Check user exists '''
 
-    user = User.objects.filter(username=data['username'])
-    if user.exists():
-        u = user.first()
-        if has_user_profile_created(u) == None:
+    u = User.objects.filter(username=data['username'])
+    if u.exists():
+        user = u.first()
+
+        # Update user information if different
+        if user.first_name != data['first_name'] or user.last_name != data['last_name'] or user.email != data['email']:
+            u.update(
+                first_name = data['first_name'],
+                last_name = data['last_name'],
+                email = data['email']
+            )
+        
+        if has_user_profile_created(user) == None:
             user_profile_form = UserProfileForm({
                 'student_number': data['student_number'],
                 'preferred_name': None,
                 'roles': [ ROLES['Student'] ]
             })
-
+            
             if user_profile_form.is_valid():
-                profile = Profile.objects.create(user_id=u.id, student_number=data['student_number'])
+                profile = Profile.objects.create(
+                    user_id=user.id, 
+                    student_number=data['student_number']
+                )
                 profile.roles.add( *user_profile_form.cleaned_data['roles'] )
         else:
-            profile = get_profile(u)
+            profile = get_profile(user)
             if profile.student_number is None:
                 if data['student_number'] is not None:
                     profile.student_number = data['student_number']
@@ -193,11 +205,11 @@ def user_exists(data):
                     profile.student_number = data['student_number']
                     profile.save(update_fields=['student_number'])
 
-        confi = has_user_confidentiality_created(u)
+        confi = has_user_confidentiality_created(user)
         if confi == None:
             if data['employee_number'] is not None:
                 Confidentiality.objects.create(
-                    user_id=u.id,
+                    user_id=user.id,
                     employee_number=data['employee_number'],
                     created_at=datetime.now(),
                     updated_at=datetime.now()
@@ -205,7 +217,7 @@ def user_exists(data):
         else:
             if confi.employee_number == None:
                 if data['employee_number'] is not None:
-                    Confidentiality.objects.filter(user_id=u.id).update(
+                    Confidentiality.objects.filter(user_id=user.id).update(
                         is_new_employee = False,
                         employee_number = data['employee_number']
                     )
@@ -222,9 +234,42 @@ def user_exists(data):
                     if len(update_fields) > 0:
                         confi.save(update_fields=update_fields)
 
-        return User.objects.get(id=u.id)
+        return User.objects.get(id=user.id)
 
     return None
+
+from django.conf import settings
+
+def check_user(user, data):
+    ''' Update user information for new users '''
+    first_name = data[settings.SHIBBOLETH_ATTRIBUTE_MAP['first_name']]
+    last_name = data[settings.SHIBBOLETH_ATTRIBUTE_MAP['last_name']]
+    email = data[settings.SHIBBOLETH_ATTRIBUTE_MAP['email']]
+    username = data[settings.SHIBBOLETH_ATTRIBUTE_MAP['username']]
+    employee_number = data[settings.SHIBBOLETH_ATTRIBUTE_MAP['employee_number']]
+    student_number = data[settings.SHIBBOLETH_ATTRIBUTE_MAP['student_number']]
+
+    print(first_name, last_name, email, username, employee_number, student_number)
+
+    update_fields = []
+    if not user.first_name:
+        user.first_name = first_name
+        update_fields.append('first_name')
+    if not user.last_name:
+        user.last_name = last_name
+        update_fields.append('last_name')
+    if not user.email:
+        user.email = email
+        update_fields.append('email')
+    
+    if len(update_fields) > 0:
+        #user.set_unusable_password()
+        #user.save(update_fields=update_fields)
+        print('save user')
+
+    if not profile_exists(user):
+        print(employee_number, student_number)
+
 
 
 def create_user(data):
@@ -573,7 +618,11 @@ def delete_user_avatar(user_id):
 
 
 def create_confidentiality(user):
-    return Confidentiality.objects.create(user_id=user.id, created_at=datetime.now(), updated_at=datetime.now())
+    return Confidentiality.objects.create(
+        user_id = user.id, 
+        created_at = datetime.now(), 
+        updated_at = datetime.now()
+    )
 
 
 def confidentiality_exists(user):

@@ -18,8 +18,28 @@ def landing_page(request):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
 def app_home(request):
-    roles = userApi.get_user_roles(request.user)
-    if roles == None:
+    ''' App Home '''
+
+    employee_number = meta[settings.SHIBBOLETH_ATTRIBUTE_MAP['employee_number']]
+    if len(employee_number) == 0:
+        employee_number = None
+    
+    student_number = meta[settings.SHIBBOLETH_ATTRIBUTE_MAP['student_number']]
+    if len(student_number) == 0:
+        student_number = None
+    
+    data = {
+        'first_name': meta[settings.SHIBBOLETH_ATTRIBUTE_MAP['first_name']],
+        'last_name': meta[settings.SHIBBOLETH_ATTRIBUTE_MAP['last_name']],
+        'email': meta[settings.SHIBBOLETH_ATTRIBUTE_MAP['email']],
+        'username': meta[settings.SHIBBOLETH_ATTRIBUTE_MAP['username']],
+        'employee_number': employee_number,
+        'student_number': student_number
+    }
+
+    user = userApi.user_exists(data)
+    roles = userApi.get_user_roles(user)
+    if not user or not roles:
         raise SuspiciousOperation
 
     request.session['loggedin_user'] = {

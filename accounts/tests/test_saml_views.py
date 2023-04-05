@@ -42,8 +42,7 @@ class LoginTest(TestCase):
             'email': 'user600.test@example.com',
             'username': 'user600.test',
             'student_number': None,
-            'employee_number': None,
-            #'puid': 'TEST00000600'
+            'employee_number': None
         })
         self.assertIsNotNone(created_user)
         self.assertIsNotNone( userApi.has_user_profile_created(created_user) )
@@ -57,8 +56,7 @@ class LoginTest(TestCase):
                 'email': created_user.email,
                 'username': created_user.username,
                 'student_number': None,
-                'employee_number': None,
-                #'puid': 'TEST00000600'
+                'employee_number': None
             }
         }
         user = self.saml_authenticate(saml_data)
@@ -69,7 +67,6 @@ class LoginTest(TestCase):
         self.assertEqual(user.last_name, saml_data['attrs']['last_name'])
         self.assertIsNotNone(user.profile)
         self.assertIsNone(user.profile.student_number)
-        #self.assertEqual(user.profile.puid, saml_data['attrs']['puid'])
 
         roles = userApi.get_user_roles(user)
         self.assertEqual(roles, ['Student'])
@@ -87,8 +84,7 @@ class LoginTest(TestCase):
             'email': 'user600.test@example.com',
             'username': 'user600.test',
             'student_number': None,
-            'employee_number': None,
-            #'puid': 'TEST00000600'
+            'employee_number': None
         })
         self.assertIsNotNone(created_user)
         self.assertIsNotNone( userApi.has_user_profile_created(created_user) )
@@ -102,8 +98,7 @@ class LoginTest(TestCase):
                 'email': created_user.email,
                 'username': created_user.username,
                 'student_number': '58684563',
-                'employee_number': None,
-                #'puid': 'TEST00000600'
+                'employee_number': None
             }
         }
         user = self.saml_authenticate(saml_data)
@@ -114,7 +109,6 @@ class LoginTest(TestCase):
         self.assertEqual(user.last_name, saml_data['attrs']['last_name'])
         self.assertIsNotNone(user.profile)
         self.assertEqual(user.profile.student_number,  saml_data['attrs']['student_number'])
-        #self.assertEqual(user.profile.puid, saml_data['attrs']['puid'])
 
         roles = userApi.get_user_roles(user)
         self.assertEqual(roles, ['Student'])
@@ -132,8 +126,7 @@ class LoginTest(TestCase):
             'email': 'user600.test@example.com',
             'username': 'user600.test',
             'student_number': None,
-            'employee_number': None,
-            #'puid': 'TEST00000600'
+            'employee_number': None
         })
         self.assertIsNotNone(created_user)
         self.assertIsNotNone( userApi.has_user_profile_created(created_user) )
@@ -147,8 +140,7 @@ class LoginTest(TestCase):
                 'email': created_user.email,
                 'username': created_user.username,
                 'student_number': '58684563',
-                'employee_number': '8456345',
-                #'puid': 'TEST00000600'
+                'employee_number': '8456345'
             }
         }
         user = self.saml_authenticate(saml_data)
@@ -159,7 +151,6 @@ class LoginTest(TestCase):
         self.assertEqual(user.last_name, saml_data['attrs']['last_name'])
         self.assertIsNotNone(user.profile)
         self.assertEqual(user.profile.student_number, saml_data['attrs']['student_number'])
-        #self.assertEqual(user.profile.puid, saml_data['attrs']['puid'])
 
         roles = userApi.get_user_roles(user)
         self.assertEqual(roles, ['Student'])
@@ -177,8 +168,7 @@ class LoginTest(TestCase):
             'email': 'user600.test@example.com',
             'username': 'user600.test',
             'student_number': None,
-            'employee_number': None,
-            #'puid': 'TEST00000600'
+            'employee_number': None
         })
         self.assertIsNotNone(created_user)
         self.assertIsNotNone( userApi.has_user_profile_created(created_user) )
@@ -192,8 +182,7 @@ class LoginTest(TestCase):
                 'email': created_user.email,
                 'username': created_user.username,
                 'student_number': '58684500',
-                'employee_number': '8456300',
-                #'puid': 'TEST00000600'
+                'employee_number': '8456300'
             }
         }
         user = self.saml_authenticate(saml_data)
@@ -204,7 +193,6 @@ class LoginTest(TestCase):
         self.assertEqual(user.last_name, saml_data['attrs']['last_name'])
         self.assertIsNotNone(user.profile)
         self.assertEqual(user.profile.student_number, saml_data['attrs']['student_number'])
-        #self.assertEqual(user.profile.puid, saml_data['attrs']['puid'])
 
         roles = userApi.get_user_roles(user)
         self.assertEqual(roles, ['Student'])
@@ -225,8 +213,7 @@ class LoginTest(TestCase):
                 'email': 'user700.test@example.com',
                 'username': 'user700.test',
                 'student_number': None,
-                'employee_number': None,
-                #'puid': 'TEST00000700'
+                'employee_number': None
             }
         }
         user = self.saml_authenticate(saml_data)
@@ -237,7 +224,6 @@ class LoginTest(TestCase):
         self.assertEqual(user.last_name, saml_data['attrs']['last_name'])
         self.assertIsNotNone(user.profile)
         self.assertIsNone(user.profile.student_number)
-        #self.assertEqual(user.profile.puid, saml_data['attrs']['puid'])
 
         roles = userApi.get_user_roles(user)
         self.assertEqual(roles, ['Student'])
@@ -254,8 +240,7 @@ class LoginTest(TestCase):
                 'email': user.email,
                 'username': user.username,
                 'student_number': None,
-                'employee_number': '6997879',
-                #'puid': user.profile.puid
+                'employee_number': '6997879'
             }
         }
         user2 = self.saml_authenticate(saml_data2)
@@ -266,7 +251,6 @@ class LoginTest(TestCase):
         self.assertEqual(user2.last_name, saml_data2['attrs']['last_name'])
         self.assertIsNotNone(user2.profile)
         self.assertIsNone(user2.profile.student_number)
-        #self.assertEqual(user2.profile.puid, saml_data2['attrs']['puid'])
 
         roles2 = userApi.get_user_roles(user2)
         self.assertEqual(roles2, ['Student'])
@@ -286,8 +270,7 @@ class LoginTest(TestCase):
                 'email': 'test.user600@example.com',
                 'username': None,
                 'student_number': None,
-                'employee_number': None,
-                #'puid': 'TEST00000600'
+                'employee_number': None
             }
         }
         user = self.saml_authenticate(saml_data)
@@ -306,8 +289,7 @@ class LoginTest(TestCase):
                 'email': 'test.user600@example.com',
                 'username': 'test.user600',
                 'student_number': '55443322',
-                'employee_number': None,
-                #'puid': 'TEST00000600'
+                'employee_number': None
             }
         }
         user = self.saml_authenticate(saml_data)
@@ -318,7 +300,6 @@ class LoginTest(TestCase):
         self.assertEqual(user.last_name, saml_data['attrs']['last_name'])
         self.assertIsNotNone(user.profile)
         self.assertEqual(user.profile.student_number, saml_data['attrs']['student_number'])
-        #self.assertEqual(user.profile.puid, saml_data['attrs']['puid'])
 
         roles = userApi.get_user_roles(user)
         self.assertEqual(roles, ['Student'])
@@ -335,8 +316,7 @@ class LoginTest(TestCase):
                 'email': user.email,
                 'username': user.username,
                 'student_number': user.profile.student_number,
-                'employee_number': None,
-                #'puid': user.profile.puid
+                'employee_number': None
             }
         }
         user2 = self.saml_authenticate(saml_data2)
@@ -347,7 +327,6 @@ class LoginTest(TestCase):
         self.assertEqual(user2.last_name, saml_data2['attrs']['last_name'])
         self.assertIsNotNone(user2.profile)
         self.assertEqual(user2.profile.student_number, saml_data2['attrs']['student_number'])
-        #self.assertEqual(user2.profile.puid, saml_data2['attrs']['puid'])
 
         roles2 = userApi.get_user_roles(user2)
         self.assertEqual(roles2, ['Student'])
@@ -364,8 +343,7 @@ class LoginTest(TestCase):
                 'email': 'test2.user6002@example.com',
                 'username': 'test2.user6002',
                 'student_number': '55443322',
-                'employee_number': None,
-                #'puid': 'TEST00000602'
+                'employee_number': None
             }
         }
         user3 = self.saml_authenticate(saml_data3)
@@ -380,8 +358,7 @@ class LoginTest(TestCase):
                 'email': 'test2.user6002@example.com',
                 'username': 'test2.user6002',
                 'student_number': '15443321',
-                'employee_number': None,
-                #'puid': 'TEST00000602'
+                'employee_number': None
             }
         }
         user4 = self.saml_authenticate(saml_data4)
@@ -392,7 +369,6 @@ class LoginTest(TestCase):
         self.assertEqual(user4.last_name, saml_data4['attrs']['last_name'])
         self.assertIsNotNone(user4.profile)
         self.assertEqual(user4.profile.student_number, saml_data4['attrs']['student_number'])
-        #self.assertEqual(user4.profile.puid, saml_data4['attrs']['puid'])
 
         roles4 = userApi.get_user_roles(user4)
         self.assertEqual(roles4, ['Student'])
@@ -413,8 +389,7 @@ class LoginTest(TestCase):
                 'email': 'test.user600@example.com',
                 'username': 'test.user600',
                 'student_number': None,
-                'employee_number': '5544332',
-                #'puid': 'TEST00000600'
+                'employee_number': '5544332'
             }
         }
         user = self.saml_authenticate(saml_data)
@@ -425,7 +400,6 @@ class LoginTest(TestCase):
         self.assertEqual(user.last_name, saml_data['attrs']['last_name'])
         self.assertIsNotNone(user.profile)
         self.assertIsNone(user.profile.student_number)
-        #self.assertEqual(user.profile.puid, saml_data['attrs']['puid'])
 
         roles = userApi.get_user_roles(user)
         self.assertEqual(roles, ['Student'])
@@ -442,8 +416,7 @@ class LoginTest(TestCase):
                 'email': user.email,
                 'username': user.username,
                 'student_number': None,
-                'employee_number': '5544332',
-                #'puid': user.profile.puid
+                'employee_number': '5544332'
             }
         }
         user2 = self.saml_authenticate(saml_data2)
@@ -454,7 +427,6 @@ class LoginTest(TestCase):
         self.assertEqual(user2.last_name, saml_data2['attrs']['last_name'])
         self.assertIsNotNone(user2.profile)
         self.assertIsNone(user.profile.student_number)
-        #self.assertEqual(user.profile.puid, saml_data['attrs']['puid'])
 
         roles2 = userApi.get_user_roles(user2)
         self.assertEqual(roles2, ['Student'])
@@ -471,8 +443,7 @@ class LoginTest(TestCase):
                 'email': 'test2.user6002@example.com',
                 'username': 'test2.user6002',
                 'student_number': None,
-                'employee_number': '5544332',
-                #'puid': 'TEST00000602'
+                'employee_number': '5544332'
             }
         }
         user3 = self.saml_authenticate(saml_data3)
@@ -487,8 +458,7 @@ class LoginTest(TestCase):
                 'email': 'test2.user6002@example.com',
                 'username': 'test2.user6002',
                 'student_number': None,
-                'employee_number': '1544331',
-                #'puid': 'TEST00000602'
+                'employee_number': '1544331'
             }
         }
         user4 = self.saml_authenticate(saml_data4)
@@ -499,122 +469,9 @@ class LoginTest(TestCase):
         self.assertEqual(user4.last_name, saml_data4['attrs']['last_name'])
         self.assertIsNotNone(user4.profile)
         self.assertIsNone(user4.profile.student_number)
-        #self.assertEqual(user4.profile.puid, saml_data4['attrs']['puid'])
 
         roles4 = userApi.get_user_roles(user4)
         self.assertEqual(roles4, ['Student'])
         self.assertIsNotNone(user4.confidentiality)
         self.assertEqual(user.confidentiality.employee_number, saml_data['attrs']['employee_number'])
         self.assertFalse(user4.confidentiality.is_new_employee)
-
-
-    """def test_login_none_puid(self):
-        print('- Test: login - none puid')
-        # TODO
-
-
-    def test_login_duplicated_puid(self):
-        print('- Test: login - duplicated puid')
-
-        # create and login
-        saml_data = {
-            'auth': True,
-            'attrs': {
-                'first_name': 'Test',
-                'last_name': 'User600',
-                'email': 'test.user600@example.com',
-                'username': 'test.user600',
-                'student_number': '96665541',
-                'employee_number': '5544332',
-                'puid': 'TEST00000600'
-            }
-        }
-        user = self.saml_authenticate(saml_data)
-        self.assertIsNotNone(user)
-        self.assertEqual(user.username, saml_data['attrs']['username'])
-        self.assertEqual(user.email, saml_data['attrs']['email'])
-        self.assertEqual(user.first_name, saml_data['attrs']['first_name'])
-        self.assertEqual(user.last_name, saml_data['attrs']['last_name'])
-        self.assertIsNotNone(user.profile)
-        self.assertEqual(user.profile.student_number, saml_data['attrs']['student_number'])
-        self.assertEqual(user.profile.puid, saml_data['attrs']['puid'])
-
-        roles = userApi.get_user_roles(user)
-        self.assertEqual(roles, ['Student'])
-        self.assertIsNotNone(user.confidentiality)
-        self.assertEqual(user.confidentiality.employee_number, saml_data['attrs']['employee_number'])
-        self.assertFalse(user.confidentiality.is_new_employee)
-
-        # login - success
-        saml_data2 = {
-            'auth': True,
-            'attrs': {
-                'first_name': user.first_name,
-                'last_name': user.last_name,
-                'email': user.email,
-                'username': user.username,
-                'student_number': user.profile.student_number,
-                'employee_number': user.confidentiality.employee_number,
-                'puid': user.profile.puid
-            }
-        }
-        user2 = self.saml_authenticate(saml_data2)
-        self.assertIsNotNone(user2)
-        self.assertEqual(user2.username, saml_data2['attrs']['username'])
-        self.assertEqual(user2.email, saml_data2['attrs']['email'])
-        self.assertEqual(user2.first_name, saml_data2['attrs']['first_name'])
-        self.assertEqual(user2.last_name, saml_data2['attrs']['last_name'])
-        self.assertIsNotNone(user2.profile)
-        self.assertEqual(user.profile.student_number, saml_data['attrs']['student_number'])
-        self.assertEqual(user.profile.puid, saml_data['attrs']['puid'])
-
-        roles2 = userApi.get_user_roles(user2)
-        self.assertEqual(roles2, ['Student'])
-        self.assertIsNotNone(user2.confidentiality)
-        self.assertEqual(user.confidentiality.employee_number, saml_data['attrs']['employee_number'])
-        self.assertFalse(user2.confidentiality.is_new_employee)
-
-        # login - failure with same puid
-        saml_data3 = {
-            'auth': True,
-            'attrs': {
-                'first_name': 'Test2',
-                'last_name': 'User6002',
-                'email': 'test2.user6002@example.com',
-                'username': 'test2.user6002',
-                'student_number': '11111113',
-                'employee_number': '5544332',
-                'puid': 'TEST00000600'
-            }
-        }
-        user3 = self.saml_authenticate(saml_data3)
-        self.assertEqual(user3, 'SuspiciousOperation')
-
-        # login - success with different puid
-        saml_data4 = {
-            'auth': True,
-            'attrs': {
-                'first_name': 'Test2',
-                'last_name': 'User6002',
-                'email': 'test2.user6002@example.com',
-                'username': 'test2.user6002',
-                'student_number': '71111119',
-                'employee_number': '1544331',
-                'puid': 'TEST00000602'
-            }
-        }
-        user4 = self.saml_authenticate(saml_data4)
-        self.assertIsNotNone(user4)
-        self.assertEqual(user4.username, saml_data4['attrs']['username'])
-        self.assertEqual(user4.email, saml_data4['attrs']['email'])
-        self.assertEqual(user4.first_name, saml_data4['attrs']['first_name'])
-        self.assertEqual(user4.last_name, saml_data4['attrs']['last_name'])
-        self.assertIsNotNone(user4.profile)
-        self.assertEqual(user4.profile.student_number, saml_data4['attrs']['student_number'])
-        self.assertEqual(user4.profile.puid, saml_data4['attrs']['puid'])
-
-        roles4 = userApi.get_user_roles(user4)
-        self.assertEqual(roles4, ['Student'])
-        self.assertIsNotNone(user4.confidentiality)
-        self.assertEqual(user.confidentiality.employee_number, saml_data['attrs']['employee_number'])
-        self.assertFalse(user4.confidentiality.is_new_employee)"""

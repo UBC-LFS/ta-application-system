@@ -138,7 +138,7 @@ TIME_ZONE = 'America/Vancouver'
 
 15. Test
 ```
-$ python manage.py test accounts
+$ python manage.py test accounts.tests.shib_login
 $ python manage.py test users
 $ python manage.py test instructors
 $ python manage.py test students
