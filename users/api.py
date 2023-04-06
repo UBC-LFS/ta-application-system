@@ -175,15 +175,15 @@ def user_exists(data):
 
         # Update user information if it's None
         update_fields = []
-        if user.first_name == None and data['first_name'] != None:
+        if not user.first_name and data['first_name']:
             user.first_name = data['first_name']
             update_fields.append('first_name')
         
-        if user.last_name == None and data['last_name'] != None:
+        if not user.last_name and data['last_name']:
             user.last_name = data['last_name']
             update_fields.append('last_name')
             
-        if user.email == None and user.email != data['email']:
+        if not user.email and data['email']:
             user.email = data['email']
             update_fields.append('email')
         

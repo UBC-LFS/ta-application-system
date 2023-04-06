@@ -20,29 +20,12 @@ def landing_page(request):
 def app_home(request):
     ''' App Home '''
 
-    first_name = None
-    if settings.SHIBBOLETH_ATTRIBUTE_MAP['first_name'] in request.META:
-        first_name = request.META[settings.SHIBBOLETH_ATTRIBUTE_MAP['first_name']]
-
-    last_name = None
-    if settings.SHIBBOLETH_ATTRIBUTE_MAP['last_name'] in request.META:
-        last_name = request.META[settings.SHIBBOLETH_ATTRIBUTE_MAP['last_name']]
-
-    email = None
-    if settings.SHIBBOLETH_ATTRIBUTE_MAP['email'] in request.META:
-        email = request.META[settings.SHIBBOLETH_ATTRIBUTE_MAP['email']]
-
-    username = None
-    if settings.SHIBBOLETH_ATTRIBUTE_MAP['username'] in request.META:
-        username = request.META[settings.SHIBBOLETH_ATTRIBUTE_MAP['username']]
-
-    employee_number = None
-    if settings.SHIBBOLETH_ATTRIBUTE_MAP['employee_number'] in request.META:
-        employee_number = request.META[settings.SHIBBOLETH_ATTRIBUTE_MAP['employee_number']]
-
-    student_number = None
-    if settings.SHIBBOLETH_ATTRIBUTE_MAP['student_number'] in request.META:
-        student_number = request.META[settings.SHIBBOLETH_ATTRIBUTE_MAP['student_number']]
+    first_name = request.META[settings.SHIB_ATTR_MAP['first_name']] if settings.SHIB_ATTR_MAP['first_name'] in request.META else None
+    last_name = request.META[settings.SHIB_ATTR_MAP['last_name']] if settings.SHIB_ATTR_MAP['last_name'] in request.META else None
+    email = request.META[settings.SHIB_ATTR_MAP['email']] if settings.SHIB_ATTR_MAP['email'] in request.META else None
+    username = request.META[settings.SHIB_ATTR_MAP['username']] if settings.SHIB_ATTR_MAP['username'] in request.META else None
+    employee_number = request.META[settings.SHIB_ATTR_MAP['employee_number']] if settings.SHIB_ATTR_MAP['employee_number'] in request.META else None
+    student_number = request.META[settings.SHIB_ATTR_MAP['student_number']] if settings.SHIB_ATTR_MAP['student_number'] in request.META else None
 
     data = {
         'first_name': first_name,

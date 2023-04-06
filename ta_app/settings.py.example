@@ -216,7 +216,7 @@ PAGE_SIZE = 50
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-SHIBBOLETH_ATTRIBUTE_MAP = {
+SHIB_ATTR_MAP = {
     'first_name': '',
     'last_name': '',
     'email': '',
