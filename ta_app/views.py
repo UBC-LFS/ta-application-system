@@ -37,9 +37,15 @@ def app_home(request):
         'student_number': student_number
     }
 
+    if data['username'] == None or len(data['username']) == 0 or userApi.contain_user_duplicated_info(data) == True:
+        raise SuspiciousOperation
+
     user = userApi.user_exists(data)
+    if user == None:
+        user = userApi.create_user(data)
+
     roles = userApi.get_user_roles(user)
-    if not user or not roles:
+    if not roles:
         raise SuspiciousOperation
 
     request.session['loggedin_user'] = {

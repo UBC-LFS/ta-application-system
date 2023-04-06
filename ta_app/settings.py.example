@@ -214,3 +214,13 @@ PAGE_SIZE = 50
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+SHIBBOLETH_ATTRIBUTE_MAP = {
+    'first_name': '',
+    'last_name': '',
+    'email': '',
+    'username': '',
+    'student_number': '',
+    'employee_number': ''
+}
