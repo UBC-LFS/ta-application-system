@@ -173,13 +173,22 @@ def user_exists(data):
     if u.exists():
         user = u.first()
 
-        # Update user information if different
-        if user.first_name != data['first_name'] or user.last_name != data['last_name'] or user.email != data['email']:
-            u.update(
-                first_name = data['first_name'],
-                last_name = data['last_name'],
-                email = data['email']
-            )
+        # Update user information if it's None
+        update_fields = []
+        if user.first_name == None and data['first_name'] != None:
+            user.first_name = data['first_name']
+            update_fields.append('first_name')
+        
+        if user.last_name == None and data['last_name'] != None:
+            user.last_name = data['last_name']
+            update_fields.append('last_name')
+            
+        if user.email == None and user.email != data['email']:
+            user.email = data['email']
+            update_fields.append('email')
+        
+        if len(update_fields) > 0:
+            user.save(update_fields=update_fields)
         
         if has_user_profile_created(user) == None:
             user_profile_form = UserProfileForm({

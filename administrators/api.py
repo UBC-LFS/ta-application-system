@@ -1484,3 +1484,6 @@ def is_valid_email(email_address):
         print(e)
 
     return True if is_valid else False
+
+def trim(data):
+    return None if not data or data.isspace() else data.strip()

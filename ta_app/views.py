@@ -20,28 +20,20 @@ def landing_page(request):
 def app_home(request):
     ''' App Home '''
 
-    employee_number = request.META[settings.SHIBBOLETH_ATTRIBUTE_MAP['employee_number']]
-    if len(employee_number) == 0:
-        employee_number = None
-    
-    student_number = request.META[settings.SHIBBOLETH_ATTRIBUTE_MAP['student_number']]
-    if len(student_number) == 0:
-        student_number = None
-    
     data = {
-        'first_name': request.META[settings.SHIBBOLETH_ATTRIBUTE_MAP['first_name']],
-        'last_name': request.META[settings.SHIBBOLETH_ATTRIBUTE_MAP['last_name']],
-        'email': request.META[settings.SHIBBOLETH_ATTRIBUTE_MAP['email']],
-        'username': request.META[settings.SHIBBOLETH_ATTRIBUTE_MAP['username']],
-        'employee_number': employee_number,
-        'student_number': student_number
+        'first_name': adminApi.trim(request.META[settings.SHIBBOLETH_ATTRIBUTE_MAP['first_name']]),
+        'last_name': adminApi.trim(request.META[settings.SHIBBOLETH_ATTRIBUTE_MAP['last_name']]),
+        'email': adminApi.trim(request.META[settings.SHIBBOLETH_ATTRIBUTE_MAP['email']]),
+        'username': adminApi.trim(request.META[settings.SHIBBOLETH_ATTRIBUTE_MAP['username']]),
+        'employee_number': adminApi.trim(request.META[settings.SHIBBOLETH_ATTRIBUTE_MAP['employee_number']]),
+        'student_number': adminApi.trim(request.META[settings.SHIBBOLETH_ATTRIBUTE_MAP['student_number']])
     }
 
-    if data['username'] == None or len(data['username']) == 0 or userApi.contain_user_duplicated_info(data) == True:
+    if not data['username'] or userApi.contain_user_duplicated_info(data):
         raise SuspiciousOperation
 
     user = userApi.user_exists(data)
-    if user == None:
+    if not user:
         user = userApi.create_user(data)
 
     roles = userApi.get_user_roles(user)
