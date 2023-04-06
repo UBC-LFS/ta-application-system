@@ -247,39 +247,6 @@ def user_exists(data):
 
     return None
 
-from django.conf import settings
-
-def check_user(user, data):
-    ''' Update user information for new users '''
-    first_name = data[settings.SHIBBOLETH_ATTRIBUTE_MAP['first_name']]
-    last_name = data[settings.SHIBBOLETH_ATTRIBUTE_MAP['last_name']]
-    email = data[settings.SHIBBOLETH_ATTRIBUTE_MAP['email']]
-    username = data[settings.SHIBBOLETH_ATTRIBUTE_MAP['username']]
-    employee_number = data[settings.SHIBBOLETH_ATTRIBUTE_MAP['employee_number']]
-    student_number = data[settings.SHIBBOLETH_ATTRIBUTE_MAP['student_number']]
-
-    print(first_name, last_name, email, username, employee_number, student_number)
-
-    update_fields = []
-    if not user.first_name:
-        user.first_name = first_name
-        update_fields.append('first_name')
-    if not user.last_name:
-        user.last_name = last_name
-        update_fields.append('last_name')
-    if not user.email:
-        user.email = email
-        update_fields.append('email')
-    
-    if len(update_fields) > 0:
-        #user.set_unusable_password()
-        #user.save(update_fields=update_fields)
-        print('save user')
-
-    if not profile_exists(user):
-        print(employee_number, student_number)
-
-
 
 def create_user(data):
     ''' Create a user when receiving data from SAML '''

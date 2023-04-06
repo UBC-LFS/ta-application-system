@@ -20,16 +20,40 @@ def landing_page(request):
 def app_home(request):
     ''' App Home '''
 
+    first_name = None
+    if settings.SHIBBOLETH_ATTRIBUTE_MAP['first_name'] in request.META:
+        first_name = request.META[settings.SHIBBOLETH_ATTRIBUTE_MAP['first_name']]
+
+    last_name = None
+    if settings.SHIBBOLETH_ATTRIBUTE_MAP['last_name'] in request.META:
+        last_name = request.META[settings.SHIBBOLETH_ATTRIBUTE_MAP['last_name']]
+
+    email = None
+    if settings.SHIBBOLETH_ATTRIBUTE_MAP['email'] in request.META:
+        email = request.META[settings.SHIBBOLETH_ATTRIBUTE_MAP['email']]
+
+    username = None
+    if settings.SHIBBOLETH_ATTRIBUTE_MAP['username'] in request.META:
+        username = request.META[settings.SHIBBOLETH_ATTRIBUTE_MAP['username']]
+
+    employee_number = None
+    if settings.SHIBBOLETH_ATTRIBUTE_MAP['employee_number'] in request.META:
+        employee_number = request.META[settings.SHIBBOLETH_ATTRIBUTE_MAP['employee_number']]
+
+    student_number = None
+    if settings.SHIBBOLETH_ATTRIBUTE_MAP['student_number'] in request.META:
+        student_number = request.META[settings.SHIBBOLETH_ATTRIBUTE_MAP['student_number']]
+
     data = {
-        'first_name': adminApi.trim(request.META[settings.SHIBBOLETH_ATTRIBUTE_MAP['first_name']]),
-        'last_name': adminApi.trim(request.META[settings.SHIBBOLETH_ATTRIBUTE_MAP['last_name']]),
-        'email': adminApi.trim(request.META[settings.SHIBBOLETH_ATTRIBUTE_MAP['email']]),
-        'username': adminApi.trim(request.META[settings.SHIBBOLETH_ATTRIBUTE_MAP['username']]),
-        'employee_number': adminApi.trim(request.META[settings.SHIBBOLETH_ATTRIBUTE_MAP['employee_number']]),
-        'student_number': adminApi.trim(request.META[settings.SHIBBOLETH_ATTRIBUTE_MAP['student_number']])
+        'first_name': first_name,
+        'last_name': last_name,
+        'email': email,
+        'username': username,
+        'employee_number': employee_number,
+        'student_number': student_number
     }
 
-    if not data['username'] or userApi.contain_user_duplicated_info(data):
+    if not username or userApi.contain_user_duplicated_info(data):
         raise SuspiciousOperation
 
     user = userApi.user_exists(data)
