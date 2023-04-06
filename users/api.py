@@ -190,6 +190,7 @@ def user_exists(data):
         if len(update_fields) > 0:
             user.save(update_fields=update_fields)
         
+        # To check if profile information exists or not
         if has_user_profile_created(user) == None:
             user_profile_form = UserProfileForm({
                 'student_number': data['student_number'],
@@ -214,24 +215,11 @@ def user_exists(data):
                     profile.student_number = data['student_number']
                     profile.save(update_fields=['student_number'])
 
+        # To check if confidential information exists or not
         confi = has_user_confidentiality_created(user)
-        if confi == None:
-            if data['employee_number'] is not None:
-                Confidentiality.objects.create(
-                    user_id=user.id,
-                    employee_number=data['employee_number'],
-                    created_at=datetime.now(),
-                    updated_at=datetime.now()
-                )
-        else:
-            if confi.employee_number == None:
-                if data['employee_number'] is not None:
-                    Confidentiality.objects.filter(user_id=user.id).update(
-                        is_new_employee = False,
-                        employee_number = data['employee_number']
-                    )
-            else:
-                if data['employee_number'] is not None:
+        if confi:
+            if confi.employee_number:
+                if data['employee_number']:
                     update_fields = []
                     if confi.employee_number != data['employee_number']:
                         confi.employee_number = data['employee_number']
@@ -242,6 +230,21 @@ def user_exists(data):
 
                     if len(update_fields) > 0:
                         confi.save(update_fields=update_fields)
+            else:
+                if data['employee_number']:
+                    Confidentiality.objects.filter(user_id=user.id).update(
+                        is_new_employee = False,
+                        employee_number = data['employee_number']
+                    )
+        else:
+            if data['employee_number']:
+                Confidentiality.objects.create(
+                    user_id=user.id,
+                    is_new_employee = False,
+                    employee_number=data['employee_number'],
+                    created_at=datetime.now(),
+                    updated_at=datetime.now()
+                )
 
         return User.objects.get(id=user.id)
 
