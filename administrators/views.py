@@ -2331,7 +2331,7 @@ def edit_user(request, username):
 
                 # If an old folder is empty, delete it
                 old_dirpath = os.path.join( settings.MEDIA_ROOT, 'users', old_username )
-                if os.path.exists(old_dirpath) and os.path.isdir(dirpath) and len( os.listdir(old_dirpath) ) == 0:
+                if os.path.exists(old_dirpath) and os.path.isdir(old_dirpath) and len( os.listdir(old_dirpath) ) == 0:
                     try:
                         os.rmdir(old_dirpath)
                     except OSError:

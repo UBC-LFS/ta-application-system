@@ -1,6 +1,6 @@
 # TA Application System
 
-This project is a web-based TA hiring process system.
+This project is a web-based TA hiring process system, and running on Django and Apache with PostgreSQL.
 
 Wiki: https://github.com/UBC-LFS/ta-application-system/wiki
 
@@ -9,16 +9,63 @@ Wiki: https://github.com/UBC-LFS/ta-application-system/wiki
 - Enable Masquerade mode
 - Email sending services
 - Used 6 different badges to display the status of job applications: **Applied**, **Selected**, **Accepted**, **Offered**, **Declined** and **Terminated**
+- Shibboleth login technology
 
-### Install prerequisites for Alpine
-```
-RUN apk update && apk add build-base libressl-dev postgresql-dev libffi-dev gcc python3-dev musl-dev libxml2-dev libxslt-dev xmlsec-dev jpeg-dev
-```
+# Installation Guide
+
+### Linux Container's Environment
+- Ubuntu 22.04
+- Python 3.10.6
+- Django 4.2 or greater
+- Apache 2.4.52
+- Shibboleth: libapache2-mod-shib (3.3.0+dfsg1-1)
 
 ### Install prerequisites for Ubuntu
+
+#### 1. Install the latest stable version of Git first if it does not exist
+
 ```
-$ sudo apt-get install python3-pip python3-setuptools python3-dev libxml2-dev libxmlsec1-dev libxmlsec1-openssl
+# https://git-scm.com/download/linux
+$ sudo apt install software-properties-common
+$ sudo add-apt-repository ppa:git-core/ppa
+$ sudo apt update
+$ sudo apt install git
 ```
+
+#### 2. Clone this repository
+
+```
+$ git clone https://github.com/UBC-LFS/ta-application-system.git
+```
+
+#### 3. Install the python3 virtual environment and activate it
+
+```
+$ sudo apt update
+$ sudo apt install python3-venv
+
+$ python3 -m venv venv
+$ source venv/bin/activate
+```
+
+#### 4. Install pip3
+
+```
+$ sudo apt update
+$ sudo apt install python3-pip
+$ pip3 install --upgrade pip
+```
+
+#### 5. Install requirements
+
+```
+$ cd ta-application-system
+$ pip3 install -r requirements.txt
+
+# errors might occur in some packages, then install the following packages
+$ sudo apt-get install python3-setuptools python3-dev libxml2-dev libxmlsec1-dev libxmlsec1-openssl
+```
+
 
 ## Summary of Deployment
 0. Rename *ta_app/settings.py.example* to *ta_app/settings.py*
