@@ -2234,7 +2234,7 @@ def edit_user(request, username):
                         filename = file_path.replace(old_username, new_username)
 
                         initial_path = user.resume.uploaded.path
-                        new_path = settings.MEDIA_ROOT + filename
+                        new_path = os.path.join(settings.MEDIA_ROOT, filename)
                         os.rename(initial_path, new_path)
 
                         user.resume.uploaded = filename
@@ -2260,7 +2260,7 @@ def edit_user(request, username):
                         filename = file_path.replace(old_username, new_username)
 
                         initial_path = user.avatar.uploaded.path
-                        new_path = settings.MEDIA_ROOT + filename
+                        new_path = os.path.join(settings.MEDIA_ROOT, filename)
                         os.rename(initial_path, new_path)
 
                         user.avatar.uploaded = filename
@@ -2287,7 +2287,7 @@ def edit_user(request, username):
                             filename = file_path.replace(old_username, new_username)
 
                             initial_path = user.confidentiality.sin.path
-                            new_path = settings.MEDIA_ROOT + filename
+                            new_path = os.path.join(settings.MEDIA_ROOT, filename)
                             os.rename(initial_path, new_path)
 
                             user.confidentiality.sin = filename
@@ -2313,7 +2313,7 @@ def edit_user(request, username):
                             filename = file_path.replace(old_username, new_username)
 
                             initial_path = user.confidentiality.study_permit.path
-                            new_path = settings.MEDIA_ROOT + filename
+                            new_path = os.path.join(settings.MEDIA_ROOT, filename)
                             os.rename(initial_path, new_path)
 
                             user.confidentiality.study_permit = filename
