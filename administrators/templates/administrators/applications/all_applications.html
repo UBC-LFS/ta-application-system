@@ -23,6 +23,9 @@
           <li>
             {% include 'ta_app/applications/_declined_reassigned_note.html' %}
           </li>
+          <li>
+            {% include 'ta_app/users/_note_confi_info_will_expire.html' %}
+          </li>
         </ul>
       </div>
     </div>
@@ -67,10 +70,11 @@
             </a>
           </td>
           <td>
-            <a href="{% url 'users:show_user' username=app.applicant.username %}?next={{ new_next }}&p=All Applications&t=basic">
+            <a class="d-block" href="{% url 'users:show_user' username=app.applicant.username %}?next={{ new_next }}&p=All Applications&t=basic">
               {{ app.applicant.get_full_name }}
             </a>
-            <div class="text-dark-gray">{{ app.applicant.username }}</div>
+
+            {% include 'ta_app/users/_modal_confi_info_will_expire.html' with data=app items=app.confi_info_will_expire this_year=this_year %}
           </td>
           <td>
             {% include 'ta_app/applications/_modal_app_status.html' with data=app %}

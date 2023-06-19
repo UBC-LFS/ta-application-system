@@ -10,6 +10,7 @@ from django.views.decorators.cache import cache_control
 from django.views.decorators.http import require_http_methods
 from django.core.exceptions import PermissionDenied
 
+from ta_app import utils
 from administrators import api as adminApi
 from users.models import Role, Avatar
 from users.forms import AvatarForm
@@ -52,7 +53,9 @@ def show_user(request, username):
             'resume': adminApi.build_url(request.path, next, page, 'resume') if user.is_student else None
         },
         'role': resolve(urlparse_next.path).app_name,
-        'current_tab': tab
+        'current_tab': tab,
+        'will_expire': userApi.confidential_info_will_expire(user),
+        'this_year': utils.THIS_YEAR
     })
 
 

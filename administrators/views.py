@@ -20,6 +20,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from django.contrib.auth.models import User
 
+from ta_app import utils
 from administrators.models import Session, Job, Application, ApplicationStatus, Course
 from administrators.forms import *
 from administrators import api as adminApi
@@ -1159,13 +1160,15 @@ def all_applications(request):
 
     for app in apps:
         app.can_reset = adminApi.app_can_reset(app)
+        app.confi_info_will_expire = userApi.confidential_info_will_expire(app.applicant)
 
     return render(request, 'administrators/applications/all_applications.html', {
         'loggedin_user': request.user,
         'apps': apps,
         'num_filtered_apps': info['num_filtered_apps'],
         'app_status': APP_STATUS,
-        'new_next': adminApi.build_new_next(request)
+        'new_next': adminApi.build_new_next(request),
+        'this_year': utils.THIS_YEAR
     })
 
 

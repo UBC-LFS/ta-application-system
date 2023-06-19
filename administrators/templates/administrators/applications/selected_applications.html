@@ -79,10 +79,10 @@
             {% include 'ta_app/applications/_modal_reset_log.html' with data=app %}
           </td>
           <td>
-            <a href="{% url 'users:show_user' username=app.applicant.username %}?next={{ new_next }}&p=Selected Applications&t=basic">
+            <a class="d-block" href="{% url 'users:show_user' username=app.applicant.username %}?next={{ new_next }}&p=Selected Applications&t=basic">
               {{ app.applicant.get_full_name }}
             </a>
-            <br />
+
             {% if 'MFRE' in app.applicant.profile.program.name %}
               <span class="badge badge-warning">MFRE</span>
             {% elif 'MLWS' in app.applicant.profile.program.name %}
@@ -90,6 +90,8 @@
             {% elif 'MFS' in app.applicant.profile.program.name %}
               <span class="badge badge-warning">MFS</span>
             {% endif %}
+
+            {% include 'ta_app/users/_modal_confi_info_will_expire.html' with data=app items=app.confi_info_will_expire this_year=this_year %}
           </td>
           <td>
             {% if app.resume_filename %}

@@ -1,0 +1,19 @@
+{% if items %}
+  <button class="btn btn-xs btn-warning mt-1" type="button" data-toggle="modal" data-target="#confi-into-will-expire-modal-{{ data.id }}">
+    Confidential Info
+  </button>
+
+  <div class="modal fade" id="confi-into-will-expire-modal-{{ data.id }}" tabindex="-1" role="dialog" aria-labelledby="confi-into-will-expire-modal-label-{{ data.id }}" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title text-info" id="confi-into-will-expire-modal-label-{{ data.id }}">Alert: Confidential Information</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        </div>
+        <div class="modal-body text-left font-size-1">
+          {% include 'ta_app/users/_confi_info_will_expire.html' with items=items this_year=this_year %}
+        </div>
+      </div>
+    </div>
+  </div>
+{% endif %}

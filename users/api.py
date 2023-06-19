@@ -8,6 +8,7 @@ from django.contrib.auth.models import User
 from django.db.models import Q
 import base64
 
+from ta_app import utils
 from users.models import *
 from users.forms import *
 from administrators.models import *
@@ -813,6 +814,33 @@ def can_apply(user):
                 len(profile.qualifications) > 0:
                 return True
     return False
+
+
+def confidential_info_will_expire(user):
+    confi = has_user_confidentiality_created(user)
+    
+    docs = { 'expired': [], 'will_expire': [] }
+    
+    # Nationality == 1: International Student
+    if confi and confi.nationality == utils.NATIONALITY['international']:
+        if utils.THIS_YEAR == confi.sin_expiry_date.year:
+            if utils.THIS_MONTH < confi.sin_expiry_date.month:
+                docs.append({ 'doc': 'SIN', 'date': confi.sin_expiry_date })
+            else:
+                if utils.THIS_DAY < confi.sin_expiry_date.day:
+                    docs.append({ 'doc': 'SIN', 'date': confi.sin_expiry_date })
+
+        if utils.THIS_YEAR == confi.study_permit_expiry_date.year:
+            if utils.THIS_MONTH < confi.study_permit_expiry_date.month:
+                docs.append({ 'doc': 'Study Permit', 'date': confi.study_permit_expiry_date })
+            else:
+                if utils.THIS_DAY < confi.study_permit_expiry_date.day:
+                    docs.append({ 'doc': 'Study Permit', 'date': confi.study_permit_expiry_date })
+    
+    return docs
+
+
+
 
 # Roles
 

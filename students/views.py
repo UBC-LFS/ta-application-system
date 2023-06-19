@@ -7,11 +7,17 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect, Http404, HttpResponse
 from django.core.exceptions import PermissionDenied
 from django.views.decorators.http import require_http_methods
-from django.views.decorators.cache import cache_control
+from django.views.decorators.cache import cache_control, never_cache
 from django.views.static import serve
 from django.db.models import Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
+from django.views import View
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.utils.decorators import method_decorator
+from django.views.decorators.http import require_http_methods, require_GET, require_POST
+
+from ta_app import utils
 from administrators.forms import *
 from administrators import api as adminApi
 
@@ -23,46 +29,44 @@ from datetime import datetime
 
 IMPORTANT_MESSAGE = '<strong>Important:</strong> Please complete all items in your Additional Information tab. If you have not already done so, also upload your Resume. <br />When these tabs are complete, you will be able to Explore Jobs when the TA Application is open.<br />No official TA offer can be sent to you unless these two sections are completed.  Thanks.'
 
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
-def index(request):
-    ''' Index page of student's portal '''
-    request = userApi.has_user_access(request, Role.STUDENT)
-
-    # To check whether a student has competed an additional information and resume
-    can_apply = userApi.can_apply(request.user)
-    if can_apply == False:
-        return HttpResponseRedirect( reverse('students:show_profile') + '?next=' + reverse('students:index') + '&p=Home&t=basic' )
-
-    # To check whether a student has read an alert message
-    can_alert = False
-    if request.user.last_login and (request.user.last_login.year == datetime.now().year) and (request.user.last_login.month == 3 or request.user.last_login.month == 4):
-        alert = Alert.objects.filter( Q(student_id=request.user.id) & Q(has_read=True) & Q(created_at__year=datetime.now().year) )
-        if alert.count() == 0:
-            can_alert = True
+@method_decorator([never_cache], name='dispatch')
+class Index(LoginRequiredMixin, View):
+    ''' Index page of Stusent's portal '''
     
-    apps = request.user.application_set.all()
+    @method_decorator(require_GET)
+    def get(self, request, *args, **kwargs):
+        request = userApi.has_user_access(request, Role.STUDENT)
 
-    return render(request, 'students/index.html', {
-        'loggedin_user': userApi.add_avatar(request.user),
-        'apps': apps,
-        'total_assigned_hours': adminApi.get_total_assigned_hours(apps, ['accepted']),
-        'recent_apps': apps.filter( Q(created_at__year__gte=datetime.now().year) ).order_by('-created_at'),
-        'favourites': adminApi.get_favourites(request.user),
-        'can_alert': can_alert
-    })
+        # To check whether a student has competed an additional information and resume
+        can_apply = userApi.can_apply(request.user)
+        if can_apply == False:
+            return HttpResponseRedirect( reverse('students:show_profile') + '?next=' + reverse('students:index') + '&p=Home&t=basic' )
 
+        # To check whether a student has read an alert message
+        can_alert = False
+        if utils.THIS_MONTH == 3 or utils.THIS_MONTH == 4:
+            alert = Alert.objects.filter( Q(student_id=request.user.id) & Q(has_read=True) & Q(created_at__year=utils.THIS_YEAR) )
+            if alert.count() == 0:
+                can_alert = True
+        
+        apps = request.user.application_set.all()
 
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['POST'])
-def read_alert(request):
-    ''' Read an alert message '''
-    request = userApi.has_user_access(request, Role.STUDENT)
+        return render(request, 'students/index.html', {
+            'loggedin_user': userApi.add_avatar(request.user),
+            'apps': apps,
+            'total_assigned_hours': adminApi.get_total_assigned_hours(apps, ['accepted']),
+            'recent_apps': apps.filter( Q(created_at__year__gte=datetime.now().year) ).order_by('-created_at'),
+            'favourites': adminApi.get_favourites(request.user),
+            'can_alert': can_alert,
+            'will_expire': userApi.confidential_info_will_expire(request.user),
+            'this_year': utils.THIS_YEAR
+        })
+    
+    @method_decorator(require_POST)
+    def post(self, request, *args, **kwargs):
+        ''' Read an alert message '''
+        request = userApi.has_user_access(request, Role.STUDENT)
 
-    if request.method == 'POST':
         form = AlertForm(request.POST)
         if form.is_valid():
             if form.save():
@@ -70,7 +74,7 @@ def read_alert(request):
             else:
                 messages.error(request, 'An error occurred while saving your data. Please try again.')
 
-    return redirect("students:index")
+        return redirect("students:index")
 
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -79,7 +83,7 @@ def read_alert(request):
 def show_profile(request):
     ''' Display user profile '''
     request = userApi.has_user_access(request, Role.STUDENT)
-    adminApi.can_req_parameters_access(request, 'student', ['next', 'p','t'])
+    adminApi.can_req_parameters_access(request, 'student', ['next', 'p', 't'])
 
     loggedin_user = userApi.add_resume(request.user)
 
@@ -539,7 +543,9 @@ def explore_jobs(request):
         'loggedin_user': userApi.add_avatar(request.user),
         'visible_current_sessions': sessions.filter( Q(is_visible=True) & Q(is_archived=False) ),
         'favourites': adminApi.get_favourites(request.user),
-        'can_apply': can_apply
+        'can_apply': can_apply,
+        'will_expire': userApi.confidential_info_will_expire(request.user),
+        'this_year': utils.THIS_YEAR
     })
 
 @login_required(login_url=settings.LOGIN_URL)

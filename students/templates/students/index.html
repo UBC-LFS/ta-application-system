@@ -24,15 +24,18 @@
             <strong>Note:</strong> Your pay Classification is determined using Previous TA Experience Details information.
           </li>
         </ul>
-      </div>
-      <div class="modal-footer">
-        Please click this Read button if you DO NOT want to see this again.
-        <form action="{% url 'students:read_alert' %}" method="POST">
-          {% csrf_token %}
-          <input type="hidden" name="student" value="{{ loggedin_user.id }}" />
-          <input type="hidden" name="has_read" value="true" />
-          <button class="btn btn-primary btn-xs ml-3" type="submit">Read</button>
-        </form>
+
+        <hr />
+
+        <div class="text-center mb-2">
+          <p>Please click the <span class="text-primary">Read</span> button below if you <span class="text-danger font-weight-bold">DO NOT</span> want to see this message again.</p>
+          <form action="" method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="student" value="{{ loggedin_user.id }}" />
+            <input type="hidden" name="has_read" value="true" />
+            <button class="btn btn-primary btn-lg" type="submit">Read</button>
+          </form>
+        </div>
       </div>
     </div>
   </div>
@@ -66,7 +69,7 @@
                   <a href="{% url 'students:show_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}?next={{ request.get_full_path }}&p=Home">{{ app.job.session.year }} {{ app.job.session.term.code }} - {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</a>
                 {% endif %}
                 <br />
-                <small class="text-dark-gray">Created at {{ app.created_at }}</small>
+                <small class="text-dark-gray">Created on {{ app.created_at }}</small>
               </li>
             {% empty %}
               <li>No applied jobs found</li>
@@ -107,6 +110,8 @@
         <div class="alert alert-warning mt-5 text-left" role="alert">
           <strong>Update:</strong> A new <code>Date of Birth</code> field is in the <strong>Confidential Information</strong> tab, replacing the Personal Data Form. All TA candidates, please complete this field. Previously uploaded Personal Data Forms are no longer accessible.
         </div>
+
+        {% include 'ta_app/users/_confi_info_will_expire.html' with items=will_expire path='students' %}
       </div>
     </div>
 

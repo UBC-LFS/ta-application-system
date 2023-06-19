@@ -19,6 +19,8 @@
 		<div class="board col-11 mx-auto">
 			<h3 class="text-info">Current Openings Available</h3>
 
+			{% include 'ta_app/users/_confi_info_will_expire.html' with items=will_expire path='students' %}
+
       {% if not can_apply %}
         {% include 'ta_app/pages/_apply_important_message.html' %}
       {% endif %}
