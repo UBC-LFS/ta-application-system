@@ -1,6 +1,10 @@
 {% if items %}
   <div class="alert alert-warning text-left" role="alert">
-    <strong>Alert:</strong> The following confidential information will expire in the next few months of {{ this_year }}.
+    {% if path == 'students' %}
+      <strong>Alert:</strong>
+    {% endif %}
+
+    The following confidential information has already been expired or will expire in the next few months of {{ this_year }}.
 
     {% if path == 'students' %}
       Please go to <a href="{% url 'students:show_confidentiality' %}">Confidential Information</a> and update your SIN, Study Permit or both.
@@ -8,7 +12,7 @@
 
     <ul class="mt-2">
       {% for item in items %}
-        <li><strong>{{ item.doc }}</strong> - Expiry Date: {{ item.date }}</li>
+        <li><strong class="text-dark-gray">{{ item.status }}</strong>: <span class="font-weight-bold">{{ item.doc }}</span> (Expiry Date: {{ item.date }})</li>
       {% endfor %}
     </ul>
   </div>

@@ -1160,7 +1160,7 @@ def all_applications(request):
 
     for app in apps:
         app.can_reset = adminApi.app_can_reset(app)
-        app.confi_info_will_expire = userApi.confidential_info_will_expire(app.applicant)
+        app.confi_info_expiry_status = userApi.get_confidential_info_expiry_status(app.applicant)
 
     return render(request, 'administrators/applications/all_applications.html', {
         'loggedin_user': request.user,
@@ -1281,6 +1281,8 @@ def selected_applications(request):
 
         filtered_offered_apps = { 'num_offered': 0, 'num_not_offered': 0 }
         for app in apps:
+            app.confi_info_expiry_status = userApi.get_confidential_info_expiry_status(app.applicant)
+
             assigned_hours = app.selected.assigned_hours
             if app.offered and app.offered.id > app.selected.id:
                 assigned_hours = app.offered.assigned_hours
@@ -1343,7 +1345,8 @@ def selected_applications(request):
         },
         'classification_choices': adminApi.get_classifications(),
         'app_status': APP_STATUS,
-        'new_next': adminApi.build_new_next(request)
+        'new_next': adminApi.build_new_next(request),
+        'this_year': utils.THIS_YEAR
     })
 
 
@@ -1453,13 +1456,16 @@ def offered_applications(request):
         apps = paginator.page(paginator.num_pages)
 
     apps = adminApi.add_app_info_into_applications(apps, ['offered', 'accepted', 'declined'])
+    for app in apps:
+        app.confi_info_expiry_status = userApi.get_confidential_info_expiry_status(app.applicant)
 
     return render(request, 'administrators/applications/offered_applications.html', {
         'loggedin_user': request.user,
         'apps': apps,
         'num_filtered_apps': info['num_filtered_apps'],
         'admin_emails': adminApi.get_admin_emails(),
-        'new_next': adminApi.build_new_next(request)
+        'new_next': adminApi.build_new_next(request),
+        'this_year': utils.THIS_YEAR
     })
 
 

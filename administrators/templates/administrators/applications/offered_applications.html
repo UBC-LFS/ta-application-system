@@ -17,6 +17,9 @@
           <li>
             {% include 'ta_app/applications/_no_response_note.html' %}
           </li>
+          <li>
+            {% include 'ta_app/users/_note_confi_info_expiry_status.html' %}
+          </li>
         </ul>
       </div>
     </div>
@@ -46,9 +49,9 @@
           <th data-sortable="true">Instructor<br /> Preference</th>
           <th data-sortable="true">Classification</th>
           <th data-sortable="true">Note</th>
-          <th data-sortable="true">Created at</th>
-          <th data-sortable="true">Updated at</th>
+          <th data-sortable="true">Confidential <br /> Info </th>
           <th data-sortable="true">Offered at</th>
+          <th data-sortable="true">Created at <br /> Updated at </th>
         </tr>
       </thead>
       <tbody>
@@ -88,16 +91,22 @@
             <td>{{ app.classification.year }} {{ app.classification.name }}</td>
             <td>{% include 'ta_app/applications/_modal_note.html' with data=app %}</td>
             <td>
-              <span class="d-none">{{ app.created_at|date:"Y m d z" }}</span>
-              {{ app.created_at }}
-            </td>
-            <td>
-              <span class="d-none">{{ app.updated_at|date:"Y m d z" }}</span>
-              {{ app.updated_at }}
+              {% include 'ta_app/users/_modal_confi_info_expiry_status.html' with data=app status=app.confi_info_expiry_status this_year=this_year %}
             </td>
             <td>
               <span class="d-none">{{ app.offered.created_at|date:"Y m d z" }}</span>
               {{ app.offered.created_at }}
+            </td>
+            <td>
+              <span class="d-none">{{ app.created_at|date:"Y m d z" }}</span>
+              {{ app.created_at }}
+
+              {% if app.created_at != app.updated_at %}
+                <div>
+                  <span class="d-none">{{ app.updated_at|date:"Y m d z" }}</span>
+                  {{ app.updated_at }}
+                </div>
+              {% endif %}
             </td>
           </tr>
         {% endfor %}

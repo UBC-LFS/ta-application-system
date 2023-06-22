@@ -58,8 +58,8 @@
         <th data-sortable="true">Status</th>
         <th data-sortable="true">Classification</th>
         <th>Note</th>
-        <th data-sortable="true">Created at</th>
-        <th data-sortable="true">Updated at</th>
+        <th data-sortable="true">Confidential <br /> Info </th>
+        <th data-sortable="true">Created at <br /> Updated at </th>
         <th>Actions</th>
       </tr>
     </thead>
@@ -90,8 +90,6 @@
             {% elif 'MFS' in app.applicant.profile.program.name %}
               <span class="badge badge-warning">MFS</span>
             {% endif %}
-
-            {% include 'ta_app/users/_modal_confi_info_will_expire.html' with data=app items=app.confi_info_will_expire this_year=this_year %}
           </td>
           <td>
             {% if app.resume_filename %}
@@ -236,12 +234,18 @@
           </td>
           <td>{% include 'ta_app/applications/_modal_note.html' with data=app %}</td>
           <td>
-            <span class="d-none">{{ app.created_at|date:"Y m d z" }}</span>
-            {{ app.created_at }}
+            {% include 'ta_app/users/_modal_confi_info_expiry_status.html' with data=app status=app.confi_info_expiry_status this_year=this_year %}
           </td>
           <td>
-            <span class="d-none">{{ app.updated_at|date:"Y m d z" }}</span>
-            {{ app.updated_at }}
+            <span class="d-none">{{ app.created_at|date:"Y m d z" }}</span>
+            {{ app.created_at }}
+
+            {% if app.created_at != app.updated_at %}
+              <div>
+                <span class="d-none">{{ app.updated_at|date:"Y m d z" }}</span>
+                {{ app.updated_at }}
+              </div>
+            {% endif %}
           </td>
           <td>
             {% if app.offered %}
@@ -348,9 +352,12 @@
 
   {% include 'ta_app/pages/_table_paginator.html' with data=apps %}
 
-  <div class="font-size-xs mt-5">
-    <h6>Note for icons:</h6>
+  <div class="font-size-sm mt-5">
+    <h5>Note:</h5>
     <ul>
+      <li>
+        {% include 'ta_app/users/_note_confi_info_expiry_status.html' %}
+      </li>
       <li>
         Total Assigned TA Hours == Accumulated TA Hours:
         <i class="fa fa-check text-success" aria-hidden="true"></i>

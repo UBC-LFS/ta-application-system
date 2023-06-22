@@ -816,26 +816,29 @@ def can_apply(user):
     return False
 
 
-def confidential_info_will_expire(user):
+def get_confidential_info_expiry_status(user):
     confi = has_user_confidentiality_created(user)
     
-    docs = { 'expired': [], 'will_expire': [] }
+    docs = []
     
     # Nationality == 1: International Student
     if confi and confi.nationality == utils.NATIONALITY['international']:
-        if utils.THIS_YEAR == confi.sin_expiry_date.year:
-            if utils.THIS_MONTH < confi.sin_expiry_date.month:
-                docs.append({ 'doc': 'SIN', 'date': confi.sin_expiry_date })
-            else:
-                if utils.THIS_DAY < confi.sin_expiry_date.day:
-                    docs.append({ 'doc': 'SIN', 'date': confi.sin_expiry_date })
+        sin = { 'doc': 'SIN', 'date': confi.sin_expiry_date }
+        study_permit = { 'doc': 'Study Permit', 'date': confi.study_permit_expiry_date }
 
-        if utils.THIS_YEAR == confi.study_permit_expiry_date.year:
-            if utils.THIS_MONTH < confi.study_permit_expiry_date.month:
-                docs.append({ 'doc': 'Study Permit', 'date': confi.study_permit_expiry_date })
-            else:
-                if utils.THIS_DAY < confi.study_permit_expiry_date.day:
-                    docs.append({ 'doc': 'Study Permit', 'date': confi.study_permit_expiry_date })
+        if confi.sin_expiry_date < utils.TODAY:
+            sin['status'] = 'Expired'
+            docs.append(sin)
+        elif (confi.sin_expiry_date.year == utils.THIS_YEAR) and (confi.sin_expiry_date > utils.TODAY):
+            sin['status'] = 'Will expire'
+            docs.append(sin)
+
+        if confi.study_permit_expiry_date < utils.TODAY:
+            study_permit['status'] = 'Expired'
+            docs.append(study_permit)
+        elif (confi.study_permit_expiry_date.year == utils.THIS_YEAR) and (confi.study_permit_expiry_date > utils.TODAY):
+            study_permit['status'] = 'Will expire'
+            docs.append(study_permit)
     
     return docs
 

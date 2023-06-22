@@ -58,7 +58,7 @@ class Index(LoginRequiredMixin, View):
             'recent_apps': apps.filter( Q(created_at__year__gte=datetime.now().year) ).order_by('-created_at'),
             'favourites': adminApi.get_favourites(request.user),
             'can_alert': can_alert,
-            'will_expire': userApi.confidential_info_will_expire(request.user),
+            'will_expire': userApi.get_confidential_info_expiry_status(request.user),
             'this_year': utils.THIS_YEAR
         })
     
@@ -544,7 +544,7 @@ def explore_jobs(request):
         'visible_current_sessions': sessions.filter( Q(is_visible=True) & Q(is_archived=False) ),
         'favourites': adminApi.get_favourites(request.user),
         'can_apply': can_apply,
-        'will_expire': userApi.confidential_info_will_expire(request.user),
+        'will_expire': userApi.get_confidential_info_expiry_status(request.user),
         'this_year': utils.THIS_YEAR
     })
 

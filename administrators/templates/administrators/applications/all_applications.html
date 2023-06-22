@@ -24,7 +24,7 @@
             {% include 'ta_app/applications/_declined_reassigned_note.html' %}
           </li>
           <li>
-            {% include 'ta_app/users/_note_confi_info_will_expire.html' %}
+            {% include 'ta_app/users/_note_confi_info_expiry_status.html' %}
           </li>
         </ul>
       </div>
@@ -48,11 +48,11 @@
         <th data-sortable="true">Job</th>
         <th data-sortable="true">Applicant</th>
         <th data-sortable="true">Status</th>
-        <th data-sortable="true">Instructor<br /> Preference</th>
+        <th data-sortable="true">Instructor <br /> Preference</th>
         <th data-sortable="true">Classification</th>
         <th data-sortable="true">Note</th>
-        <th data-sortable="true">Created at</th>
-        <th data-sortable="true">Updated at</th>
+        <th data-sortable="true">Confidential <br /> Info </th>
+        <th data-sortable="true">Created at <br /> Updated at </th>
         <th>Actions</th>
       </tr>
     </thead>
@@ -73,8 +73,7 @@
             <a class="d-block" href="{% url 'users:show_user' username=app.applicant.username %}?next={{ new_next }}&p=All Applications&t=basic">
               {{ app.applicant.get_full_name }}
             </a>
-
-            {% include 'ta_app/users/_modal_confi_info_will_expire.html' with data=app items=app.confi_info_will_expire this_year=this_year %}
+            <div class="text-dark-gray">{{ app.applicant.username }}</div>
           </td>
           <td>
             {% include 'ta_app/applications/_modal_app_status.html' with data=app %}
@@ -98,12 +97,18 @@
             {% endif %}
           </td>
           <td>
-            <span class="d-none">{{ app.created_at|date:"Y m d z" }}</span>
-            {{ app.created_at }}
+            {% include 'ta_app/users/_modal_confi_info_expiry_status.html' with data=app status=app.confi_info_expiry_status this_year=this_year %}
           </td>
           <td>
-            <span class="d-none">{{ app.updated_at|date:"Y m d z" }}</span>
-            {{ app.updated_at }}
+            <span class="d-none">{{ app.created_at|date:"Y m d z" }}</span>
+            {{ app.created_at }}
+
+            {% if app.created_at != app.updated_at %}
+              <div>
+                <span class="d-none">{{ app.updated_at|date:"Y m d z" }}</span>
+                {{ app.updated_at }}
+              </div>
+            {% endif %}
           </td>
           <td>
             {% if app.can_reset %}
