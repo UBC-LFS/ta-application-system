@@ -370,14 +370,14 @@ class ConfidentialityInternationalForm(forms.ModelForm):
 
     sin_expiry_date = forms.DateField(
         required=False,
-        widget=forms.SelectDateWidget(years=range(DATE.year, DATE.year + 20)),
+        widget=forms.SelectDateWidget(years=range(DATE.year - 20, DATE.year + 20)),
         label='SIN Expiry Date:',
         help_text='Format: Month-Day-Year'
     )
 
     study_permit_expiry_date = forms.DateField(
         required=False,
-        widget=forms.SelectDateWidget(years=range(DATE.year, DATE.year + 20)),
+        widget=forms.SelectDateWidget(years=range(DATE.year - 20, DATE.year + 20)),
         label='Study Permit Expiry Date:',
         help_text='Format: Month-Day-Year'
     )
