@@ -1,0 +1,149 @@
+{% extends 'ta_app/base.html' %}
+{% block content %}
+
+{% include 'administrators/_menu.html' %}
+
+<div>
+  <div id="download-csv-message" class="container"></div>
+
+  {% include 'ta_app/pages/_header.html' with title='Report for Admin - Accepted Applications' %}
+
+  <div class="row">
+    <div class="col-md-6">
+      {% include 'observers/_search_fields.html' with data=apps total=total_apps path='admin_report' %}
+    </div>
+
+    <div class="col-md-6">
+      <div class="bg-light-gray p-4" style="height:180.8px">
+        <h5>Note:</h5>
+        <ul class="font-size-sm">
+          <li>
+            {% include 'ta_app/applications/_declined_reassigned_note.html' %}
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="mb-5">
+    <small class="float-right">Search first before download all</small>
+    <br />
+
+    <div class="float-right">
+      <button id="download-all-accepted-apps-report-admin" class="btn btn-sm btn-info font-size-xs" type="button" data-url='{{ download_all_accepted_apps_report_admin_url }}' data-next='{{ request.get_full_path }}'>
+        Download All as CSV
+      </button>
+    </div>
+  </div>
+
+  <table id="accepted-apps-table" class="sortable-table table table-sm table-bordered table-hover table-striped table-responsive-md text-center">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Year</th>
+        <th>Term</th>
+        <th>Job</th>
+        <th>First Name</th>
+        <th>Last Name</th>
+        <th>CWL</th>
+        <th>Student <br /> Number</th>
+        <th>Employee <br /> Number</th>
+        <th>Domestic or <br /> International <br /> Student?</th>
+        <th>SIN <br /> Expiry Date</th>
+        <th>Study Permit <br /> Expiry Date</th>
+        <th>Previous <br /> TA Experience</th>
+        <th>Previous <br /> TA Experience <br /> Details</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for app in apps %}
+        <tr>
+          <td>
+            {{ app.id }}
+            {% if app.is_declined_reassigned %}
+              <i class="fa fa-asterisk text-danger" aria-hidden="true"></i>
+            {% endif %}
+          </td>
+          <td>{{ app.job.session.year }}</td>
+          <td>{{ app.job.session.term.code }}</td>
+          <td>{{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</td>
+          <td>{{ app.applicant.first_name }}</td>
+          <td>{{ app.applicant.last_name }}</td>
+          <td>{{ app.applicant.username }}</td>
+          <td>{{ app.applicant.profile.student_number }}</td>
+          <td>
+            {% if app.applicant.confidentiality.employee_number %}
+              {{ app.applicant.confidentiality.employee_number }}
+            {% else %}
+              <span class="badge badge-danger">NEW</span>
+            {% endif %}
+          </td>
+          <td>
+            {{ app.applicant.confidentiality.get_nationality_display }}
+          </td>
+          <td>
+            {% if app.applicant.confidentiality.get_nationality_display == 'International Student' %}
+              {{ app.applicant.confidentiality.sin_expiry_date }}
+              {% if app.confi_info_expiry_status.sin %}
+                <br />
+                <span class="badge badge-{% if app.confi_info_expiry_status.sin == 'EXPIRED' %}secondary{% elif app.confi_info_expiry_status.sin == 'WILL EXPIRE' %}warning{% endif %} fs-1">{{ app.confi_info_expiry_status.sin }}</span>
+              {% endif %}
+            {% endif %}
+          </td>
+          <td>
+            {% if app.applicant.confidentiality.get_nationality_display == 'International Student' %}
+              {{ app.applicant.confidentiality.study_permit_expiry_date }}
+              {% if app.confi_info_expiry_status.study_permit %}
+                <br />
+                <span class="badge badge-{% if app.confi_info_expiry_status.study_permit == 'EXPIRED' %}secondary{% elif app.confi_info_expiry_status.study_permit == 'WILL EXPIRE' %}warning{% endif %} fs-1">{{ app.confi_info_expiry_status.study_permit }}</span>
+              {% endif %}
+            {% endif %}
+          </td>
+          <td>
+            {% if app.applicant.profile.get_ta_experience_display == 'Yes' %}
+              <span class="badge badge-success">YES <i class="fa fa-check-circle" aria-hidden="true"></i></span>
+            {% elif app.applicant.profile.get_ta_experience_display == 'No' %}
+              <span class="badge badge-danger">NO <i class="fa fa-stop-circle" aria-hidden="true"></i></span>
+            {% else %}
+              <span class="badge badge-secondary">N/A <i class="fa fa-stop-circle" aria-hidden="true"></i></span>
+            {% endif %}
+          </td>
+          <td>
+            {% if app.applicant.profile.get_ta_experience_display == 'Yes' %}
+              <button class="btn btn-xs btn-info" type="button" data-toggle="modal" data-target="#prev-ta-experience-modal-{{ app.id }}">
+                Details
+              </button>
+
+              <div class="modal fade" id="prev-ta-experience-modal-{{ app.id }}" tabindex="-1" role="dialog" aria-labelledby="prev-ta-experience-modal-label-{{ app.id }}" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title text-info" id="prev-ta-experience-modal-label-{{ app.id }}">Info: Previous TA Experience</h5>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    </div>
+                    <div class="modal-body text-left font-size-1">
+                      {{ app.applicant.profile.ta_experience_details|safe }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {% endif %}
+          </td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="100%">No accepted applications found</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% include 'ta_app/pages/_table_paginator.html' with data=apps %}
+</div>
+
+{% endblock %}
+
+{% block js %}
+  {% load static %}
+  <script type="text/javascript" src="{% static 'ta_app/js/accepted_apps_report_admin.js' %}"></script>
+{% endblock %}

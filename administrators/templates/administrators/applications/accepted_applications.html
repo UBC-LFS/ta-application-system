@@ -5,6 +5,7 @@
 
 <div>
   <div id="admin-docs-form-message" class="container"></div>
+  <div id="download-csv-message" class="container"></div>
 
   {% include 'ta_app/pages/_header.html' with title='Accepted Applications' %}
 
@@ -41,11 +42,26 @@
     </div>
   </div>
 
-  <div class="my-3">
-    <div class="float-right">
-      CSV:
-      <button id="export-accepted-apps-csv" class="btn btn-sm btn-outline-secondary font-size-xs" type="button">Export</button>
-      <button class="btn btn-sm btn-outline-secondary font-size-xs" type="button" data-toggle="modal" data-target="#import-accepted-apps-modal">Import</button>
+  <div class="d-inline-block mt-4-4rem">
+    <button id="btn-default-table" class="btn btn-sm btn-secondary font-size-xs" type="button">
+      Turn sorting off
+      <i class="fa fa-sort" aria-hidden="true"></i>
+    </button>
+  </div>
+
+  <div class="float-right mb-3 text-right">
+    <div class="mb-3">
+      <small>Search first before download all</small>
+      <br />
+      <button id="download-all-accepted-apps" class="btn btn-sm btn-info font-size-xs" type="button" data-url='{{ download_all_accepted_apps_url }}' data-next='{{ request.get_full_path }}'>
+        Download All as CSV
+      </button>
+    </div>
+
+    <div>
+      <small>Current Page</small>:
+      <button id="export-accepted-apps-csv" class="btn btn-sm btn-outline-secondary font-size-xs" type="button">Export as CSV</button>
+      <button class="btn btn-sm btn-outline-secondary font-size-xs" type="button" data-toggle="modal" data-target="#import-accepted-apps-modal">Import as CSV</button>
 
       <div class="modal fade" id="import-accepted-apps-modal" tabindex="-1" aria-labelledby="import-accepted-apps-modal-label" aria-hidden="true">
         <div class="modal-dialog">
@@ -73,11 +89,6 @@
         </div>
       </div>
     </div>
-
-    <button id="btn-default-table" class="btn btn-sm btn-secondary font-size-xs" type="button">
-      Turn sorting off
-      <i class="fa fa-sort" aria-hidden="true"></i>
-    </button>
   </div>
 
 
@@ -117,7 +128,7 @@
           <div class="sort-icon"><i class="fa fa-sort" aria-hidden="true"></i></div>
         </th>
         <th class="sortable" onclick="sortColumn(8, 'dollar')">
-          <div class="sort-field"> Monthly<br /> Salary</div>
+          <div class="sort-field">Monthly<br /> Salary</div>
           <div class="sort-icon"><i class="fa fa-sort" aria-hidden="true"></i></div>
         </th>
         <th class="sortable" onclick="sortColumn(9, 'numeric')">
@@ -225,7 +236,7 @@
             {% endif %}
           </td>
           <td>
-            {% if 'Admin' in loggedin_user.roles or 'Superadmin' in loggedin_user.roles %}
+            {% if 'Admin' in request.user.roles or 'Superadmin' in request.user.roles %}
 
               {% if app.is_declined_reassigned %}
                 <button class="btn btn-xs btn-info mb-2" type="button" data-toggle="modal" data-target="#job-application-modal-{{ app.id }}">

@@ -14,15 +14,15 @@
 
       {% if path == 'observers' %}
         <a class="btn btn-sm btn-light" href="{% url 'observers:report_accepted_applications' %}">Clear</a>
-
-      {% elif path == 'administrators' %}
-        <a class="btn btn-sm btn-light" href="{% url 'administrators:report_accepted_applications' %}">Clear</a>
-
+      {% elif path == 'admin_report' %}
+        <a class="btn btn-sm btn-light" href="{% url 'administrators:accepted_apps_report_admin' %}">Clear</a>
+      {% elif path == 'admin_report_observer' %}
+        <a class="btn btn-sm btn-light" href="{% url 'administrators:accepted_apps_report_observer' %}">Clear</a>
       {% endif %}
     </div>
   </form>
 </div>
 
 <div class="text-dark-gray font-size-sm">
-  {{ total_apps }} result{% if total_apps > 1 %}s {% endif %} found. {{ apps|length }} row{% if apps|length > 1 %}s {% endif %} in this page.
+  {{ total }} result{% if total > 1 %}s {% endif %} found. {{ data|length }} row{% if data|length > 1 %}s {% endif %} in this page.
 </div>

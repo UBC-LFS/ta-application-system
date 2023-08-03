@@ -45,15 +45,19 @@ urlpatterns = [
     path('applications/all/', views.all_applications, name='all_applications'),
     path('applications/selected/', views.selected_applications, name='selected_applications'),
     path('applications/offered/', views.offered_applications, name='offered_applications'),
-    path('applications/accepted/', views.accepted_applications, name='accepted_applications'),
+    path('applications/accepted/report/admin/', views.AcceptedAppsReportAdmin.as_view(), name='accepted_apps_report_admin'),
+    path('applications/accepted/', views.AcceptedApplications.as_view(), name='accepted_applications'),
     path('applications/declined/', views.declined_applications, name='declined_applications'),
     path('applications/terminated/', views.terminated_applications, name='terminated_applications'),
-    path('applications/accepted/report/', views.report_accepted_applications, name='report_accepted_applications'),
+    path('applications/accepted/report/observer/', views.AcceptedAppsReportObserver.as_view(), name='accepted_apps_report_observer'),
     path('applications/admin_docs/update/', views.update_admin_docs, name='update_admin_docs'),
     path('applications/accepted/import/', views.import_accepted_apps, name='import_accepted_apps'),
     path('applications/reset/', views.reset_application, name='reset_application'),
 
     path('applications/<str:app_slug>/details/', views.show_application, name='show_application'),
+
+    path('api/applications/accepted/download/all/', views.download_all_accepted_apps, name='download_all_accepted_apps'),
+    path('api/applications/accepted/report/admin/download/all/', views.download_all_accepted_apps_report_admin, name='download_all_accepted_apps_report_admin'),
 
     path('hr/users/<str:username>/edit/', views.edit_user, name='edit_user'),
     path('hr/users/<str:username>/delete/confirmation/', views.delete_user_confirmation, name='delete_user_confirmation'),

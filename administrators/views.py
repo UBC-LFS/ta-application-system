@@ -5,7 +5,6 @@ from django.urls import reverse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect, Http404, JsonResponse
-from django.core.exceptions import PermissionDenied
 from django.views.decorators.cache import cache_control, never_cache
 from io import StringIO
 from django.core.exceptions import SuspiciousOperation
@@ -14,22 +13,20 @@ from django.views import View
 from django.utils.decorators import method_decorator
 from django.views.decorators.http import require_http_methods, require_GET, require_POST
 
-from django.db.models import Q, Count
-from django.views.static import serve
+from django.db.models import Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
-from django.contrib.auth.models import User
-
 from ta_app import utils
-from administrators.models import Session, Job, Application, ApplicationStatus, Course
+from administrators.models import Session, Job, Application, ApplicationStatus
 from administrators.forms import *
 from administrators import api as adminApi
+from administrators.mixins import AcceptedAppsReportMixin
 
 from users.models import *
 from users.forms import *
 from users import api as userApi
 
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, datetime
 import copy
 
 APP_STATUS = {
@@ -46,7 +43,7 @@ APP_STATUS = {
 @method_decorator([never_cache], name='dispatch')
 class Index(LoginRequiredMixin, View):
     ''' Index page of Administrator's portal '''
-    
+
     @method_decorator(require_GET)
     def get(self, request, *args, **kwargs):
         request = userApi.has_admin_access(request, Role.HR)
@@ -193,7 +190,7 @@ class CreateSession(LoginRequiredMixin, View):
     @method_decorator(require_GET)
     def get(self, request, *args, **kwargs):
         request = userApi.has_admin_access(request)
-        
+
         sessions = adminApi.get_sessions()
         return render(request, 'administrators/sessions/create_session.html', context={
             'loggedin_user': request.user,
@@ -212,7 +209,7 @@ class CreateSession(LoginRequiredMixin, View):
             data = form.cleaned_data
             data['term'] = data['term'].id
             data['is_visible'] = False if data['is_archived'] == True else data['is_visible']
-            
+
             request.session['session_form_data'] = data
         else:
             errors = form.errors.get_json_data()
@@ -234,7 +231,7 @@ class CreateSessionSetupCourses(LoginRequiredMixin, View):
         if not data:
             messages.error(request, 'Oops! Something went wrong for some reason. No data found.')
             return redirect('administrators:create_session')
-        
+
         year = data['year']
         term = adminApi.get_term(data['term'])
         courses = adminApi.get_courses_by_term(data['term'])
@@ -242,7 +239,7 @@ class CreateSessionSetupCourses(LoginRequiredMixin, View):
         for course in courses:
             job = course.job_set.filter(session__year=int(year)-1)
             course.prev_job = job.first() if job.exists() else None
-        
+
         return render(request, 'administrators/sessions/create_session_setup_courses.html', context={
             'loggedin_user': request.user,
             'session': adminApi.make_session_info(data, term),
@@ -279,7 +276,7 @@ class CreateSessionConfirmation(LoginRequiredMixin, View):
         if not data:
             messages.error(request, 'Oops! Something went wrong for some reason. No data found.')
             return redirect('administrators:create_session_setup_courses')
-        
+
         year = data['year']
         term = adminApi.get_term(data['term'])
         course_ids = data['selected_course_ids']
@@ -334,12 +331,12 @@ class CreateSessionConfirmation(LoginRequiredMixin, View):
             'num_courses': len(courses),
             'num_copied_ids': len(copied_ids)
         })
-    
+
     @method_decorator(require_POST)
     def post(self, request, *args, **kwargs):
         data = request.session.get('session_form_data', None)
         selected_jobs = data.get('selected_jobs', None)
-        
+
         if not data or not selected_jobs:
             messages.error(request, 'Oops! Something went wrong for some reason. No data found.')
             return redirect('administrators:create_session_setup_courses')
@@ -370,20 +367,20 @@ class CreateSessionConfirmation(LoginRequiredMixin, View):
 
             # Create a job
             created_job = Job(
-                session = session, 
-                course = course, 
+                session = session,
+                course = course,
                 assigned_ta_hours = selected_job['assigned_ta_hours'],
-                course_overview = selected_job['course_overview'], 
-                description = selected_job['description'], 
+                course_overview = selected_job['course_overview'],
+                description = selected_job['description'],
                 note = selected_job['note'],
                 is_active = selected_job['is_active']
             )
             jobs.append(created_job)
-            
+
             job_instructors[course.id] = selected_job['instructors']
 
         created_jobs = Job.objects.bulk_create(jobs)
-        
+
         # Add instructors
         for course_id, instructors in job_instructors.items():
             instructors = [ userApi.get_user(iid) for iid in instructors ]
@@ -412,7 +409,6 @@ def show_report_applicants(request, session_slug):
 
     applicants = adminApi.get_applicants_in_session(session)
     total_applicants = applicants.count()
-    #applicants = User.objects.filter( Q(profile__roles__name='Student') & Q(application__job__session__year=session.year) & Q(application__job__session__term__code=session.term.code) ).order_by('last_name', 'first_name').distinct()
 
     if bool( request.GET.get('first_name') ):
         applicants = applicants.filter(first_name__icontains=request.GET.get('first_name'))
@@ -500,18 +496,18 @@ class ShowReportSummary(LoginRequiredMixin, View):
                         if (app.applicant.profile.status.id == master.id or app.applicant.profile.status.id == phd.id) and app.applicant.profile.program.id != other_program.id:
                             lfs_grad.add(app.applicant.id)
                             lfs_grad_ta_hours += app.accepted.assigned_hours
-                            
+
                             total_lfs_grad.add(app.applicant.id)
                             total_lfs_grad_ta_hours += app.accepted.assigned_hours
                         else:
                             others.add(app.applicant.id)
                             others_ta_hours += app.accepted.assigned_hours
-                            
+
                             total_others.add(app.applicant.id)
                             total_others_ta_hours += app.accepted.assigned_hours
-                
+
                 job.accepted_apps = apps
-            
+
             job.stat = {
                 'lfs_grad': len(lfs_grad),
                 'lfs_grad_ta_hours': lfs_grad_ta_hours,
@@ -1212,7 +1208,7 @@ def reset_application(request):
             errors = app_status_form.errors.get_json_data()
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
     else:
-        errors = instructor_app_form.errors.get_json_data()
+        errors = reset_app_form.errors.get_json_data()
         messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
     return HttpResponseRedirect(request.POST.get('next'))
@@ -1469,45 +1465,45 @@ def offered_applications(request):
     })
 
 
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
-def accepted_applications(request):
-    ''' Display applications accepted by students '''
-    request = userApi.has_admin_access(request, Role.HR)
+@method_decorator([never_cache], name='dispatch')
+class AcceptedApplications(LoginRequiredMixin, View):
 
-    apps, info = adminApi.get_applications_filter_limit(request, 'accepted')
+    @method_decorator(require_GET)
+    def get(self, request, *args, **kwargs):
+        request = userApi.has_admin_access(request, Role.HR)
 
-    page = request.GET.get('page', 1)
-    paginator = Paginator(apps, settings.PAGE_SIZE)
+        apps, info = adminApi.get_applications_filter_limit(request, 'accepted')
 
-    try:
-        apps = paginator.page(page)
-    except PageNotAnInteger:
-        apps = paginator.page(1)
-    except EmptyPage:
-        apps = paginator.page(paginator.num_pages)
+        page = request.GET.get('page', 1)
+        paginator = Paginator(apps, settings.PAGE_SIZE)
 
-    apps = adminApi.add_app_info_into_applications(apps, ['accepted', 'declined'])
+        try:
+            apps = paginator.page(page)
+        except PageNotAnInteger:
+            apps = paginator.page(1)
+        except EmptyPage:
+            apps = paginator.page(paginator.num_pages)
 
-    for app in apps:
-        app.salary = adminApi.calcualte_salary(app)
-        app.pt_percentage = round(app.accepted.assigned_hours / app.job.session.term.max_hours * 100, 2)
+        apps = adminApi.add_app_info_into_applications(apps, ['accepted', 'declined'])
 
-        # When a term is S1 or S2, pt percentage * 2
-        if app.job.course.term.code == 'S1' or app.job.course.term.code == 'S2':
-            app.pt_percentage = app.pt_percentage * 2
+        for app in apps:
+            app.salary = adminApi.calcualte_salary(app)
+            app.pt_percentage = round(app.accepted.assigned_hours / app.job.session.term.max_hours * 100, 2)
 
-    return render(request, 'administrators/applications/accepted_applications.html', {
-        'loggedin_user': request.user,
-        'apps': apps,
-        'processed_stats': adminApi.get_processed_stats(apps),
-        'num_filtered_apps': info['num_filtered_apps'],
-        'new_next': adminApi.build_new_next(request),
-        'today_accepted_apps': info['today_accepted_apps'],
-        'today_processed_stats': adminApi.get_processed_stats(info['today_accepted_apps']),
-        'today': info['today']
-    })
+            # When a term is S1 or S2, pt percentage * 2
+            if app.job.course.term.code == 'S1' or app.job.course.term.code == 'S2':
+                app.pt_percentage = app.pt_percentage * 2
+
+        return render(request, 'administrators/applications/accepted_applications.html', {
+            'apps': apps,
+            'processed_stats': adminApi.get_processed_stats(apps),
+            'num_filtered_apps': info['num_filtered_apps'],
+            'new_next': adminApi.build_new_next(request),
+            'today_accepted_apps': info['today_accepted_apps'],
+            'today_processed_stats': adminApi.get_processed_stats(info['today_accepted_apps']),
+            'today': info['today'],
+            'download_all_accepted_apps_url': reverse('administrators:download_all_accepted_apps')
+        })
 
 
 @require_http_methods(['POST'])
@@ -1799,11 +1795,11 @@ def decline_reassign_confirmation(request):
             return HttpResponseRedirect(request.POST.get('next'))
 
         else:
-            errors = form.errors.get_json_data()
-            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
-
-            errors = form.errors.get_json_data()
-            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+            errors = [
+                userApi.get_error_messages(status_form.errors.get_json_data()),
+                userApi.get_error_messages(reassign_form.errors.get_json_data())
+            ]
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format(', '.join(errors)))
 
         return HttpResponseRedirect(request.get_full_path())
 
@@ -2028,30 +2024,148 @@ def applications_send_email_confirmation(request):
     })
 
 
+@method_decorator([never_cache], name='dispatch')
+class AcceptedAppsReportAdmin(LoginRequiredMixin, View, AcceptedAppsReportMixin):
+    ''' Display a report of applications accepted by students for Admin '''
+    pass
+
+@method_decorator([never_cache], name='dispatch')
+class AcceptedAppsReportObserver(LoginRequiredMixin, View, AcceptedAppsReportMixin):
+    ''' Display a report of applications accepted by students for Observer '''
+    pass
+
+
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
-def report_accepted_applications(request):
-    ''' Display a report of applications accepted by students '''
-    request = userApi.has_admin_access(request)
+def download_all_accepted_apps(request):
+    ''' Download all accepted applications as CSV '''
 
-    apps, total_apps = adminApi.get_report_accepted_applications(request)
+    apps, info = adminApi.get_applications_filter_limit(request, 'accepted')
+    apps = adminApi.add_app_info_into_applications(apps, ['accepted'])
 
-    page = request.GET.get('page', 1)
-    paginator = Paginator(apps, settings.PAGE_SIZE)
+    result = 'ID,Year,Term,Job,Applicant,CWL,Student Number,Employee Number,Classification,Monthly Salary,P/T (%),PIN,TASM,Processed,Worktag,Processing Note,Accepted at\n'
+    for app in apps:
+        year = app.job.session.year
+        term = app.job.session.term.code
+        job = '{0} {1} {2}'.format(app.job.course.code.name, app.job.course.number.name, app.job.course.section.name)
+        applicant = app.applicant.get_full_name()
+        cwl = app.applicant.username
 
-    try:
-    	apps = paginator.page(page)
-    except PageNotAnInteger:
-    	apps = paginator.page(1)
-    except EmptyPage:
-    	apps = paginator.page(paginator.num_pages)
+        student_number = ''
+        if hasattr(app.applicant, 'profile'):
+            student_number = app.applicant.profile.student_number
 
-    return render(request, 'administrators/applications/report_accepted_applications.html', {
-        'loggedin_user': request.user,
-        'apps': apps,
-        'total_apps': total_apps
-    })
+        employee_number = 'NEW'
+        if hasattr(app.applicant, 'confidentiality'):
+            if app.applicant.confidentiality.employee_number:
+                employee_number = app.applicant.confidentiality.employee_number
+        
+        classification = '{0} {1} (${2})'.format(app.classification.year, app.classification.name, round(app.classification.wage, 2))
+        monthly_salary = '${0}'.format(adminApi.calcualte_salary(app))
+        pt = adminApi.calculate_pt_percentage(app)
+        
+        pin = ''
+        tasm = ''
+        processed = ''
+        worktag = ''
+        processing_note = ''
+        if hasattr(app, 'admindocuments'):
+            pin = app.admindocuments.pin
+            if app.admindocuments.tasm:
+                tasm = 'Yes' 
+            processed = app.admindocuments.processed
+            worktag = app.admindocuments.worktag
+            processing_note = app.admindocuments.processing_note
+        
+        accepted_at = '{0} ({1} hours)'.format(app.accepted.created_at, app.accepted.assigned_hours)
+
+
+        result += '{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15},{16}\n'.format(
+            app.id,
+            year,
+            term,
+            job,
+            applicant,
+            cwl,
+            student_number,
+            employee_number,
+            classification,
+            monthly_salary,
+            pt,
+            pin,
+            tasm,
+            processed,
+            worktag,
+            processing_note,
+            accepted_at
+        )
+
+    return JsonResponse({ 'status': 'success', 'data': result })
+
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def download_all_accepted_apps_report_admin(request):
+    ''' Download accepted applications as CSV for admin '''
+
+    apps, total_apps = adminApi.get_accepted_app_report(request)
+    result = 'ID,Year,Term,Job,First Name,Last Name,CWL,Student Number,Employee Number,Domestic or International Student?,SIN Expiry Date,Study Permit Expiry Date,Previous TA Experience,Previous TA Experience Details\n'
+
+    for app in apps:
+        year = app.job.session.year
+        term = app.job.session.term.code
+        job = '{0} {1} {2}'.format(app.job.course.code.name, app.job.course.number.name, app.job.course.section.name)
+        first_name = app.applicant.first_name
+        last_name = app.applicant.last_name
+        cwl = app.applicant.username
+        
+        student_number = ''
+        ta_experience = ''
+        ta_experience_details = ''
+        if userApi.profile_exists(app.applicant):
+            if app.applicant.profile.student_number:
+                student_number = app.applicant.profile.student_number
+            
+            if app.applicant.profile.ta_experience:
+                ta_experience = app.applicant.profile.get_ta_experience_display()
+
+            if ta_experience == 'Yes':
+                ta_experience_details = '"' + app.applicant.profile.ta_experience_details + '"'
+
+        employee_number = 'NEW'
+        nationality = ''
+        sin_expiry_date = ''
+        study_permit_expiry_date = ''
+        if userApi.confidentiality_exists(app.applicant):
+            if app.applicant.confidentiality.employee_number:
+                employee_number = app.applicant.confidentiality.employee_number
+
+            if app.applicant.confidentiality.nationality:
+                nationality = app.applicant.confidentiality.get_nationality_display()
+                
+            if nationality == 'International Student':
+                sin_expiry_date = app.applicant.confidentiality.sin_expiry_date
+                study_permit_expiry_date = app.applicant.confidentiality.study_permit_expiry_date
+
+        result += '{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13}\n'.format(
+            app.id,
+            year,
+            term,
+            job,
+            first_name,
+            last_name,
+            cwl,
+            student_number,
+            employee_number,
+            nationality,
+            sin_expiry_date,
+            study_permit_expiry_date,
+            ta_experience,
+            ta_experience_details
+        )
+    return JsonResponse({ 'status': 'success', 'data': result })
 
 
 # HR
@@ -2460,8 +2574,8 @@ def destroy_user_contents(request):
         for user_id in request.POST.getlist('user'):
             user = userApi.get_user(user_id)
 
-            sin = userApi.delete_user_sin(user.username)
-            study_permit = userApi.delete_user_study_permit(user.username)
+            userApi.delete_user_sin(user.username)
+            userApi.delete_user_study_permit(user.username)
 
             if userApi.has_user_confidentiality_created(user):
                 user.confidentiality.delete()
@@ -2483,7 +2597,7 @@ def destroy_user_contents(request):
         elif len(deleted_users)> 0:
             messages.warning(request, 'Warning! The contents of users ({0}) are destroyed partially'.format( ', '.join(deleted_users) ))
         else:
-            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+            messages.error(request, 'An error occurred. Form is invalid. {0}')
 
         return redirect('administrators:destroy_user_contents')
 

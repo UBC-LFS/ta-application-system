@@ -32,7 +32,7 @@ def report_accepted_applications(request):
     ''' Display a report of applications accepted by students '''
     request = userApi.has_user_access(request, Role.OBSERVER)
 
-    apps, total_apps = adminApi.get_report_accepted_applications(request)
+    apps, total_apps = adminApi.get_accepted_app_report(request)
 
     page = request.GET.get('page', 1)
     paginator = Paginator(apps, settings.PAGE_SIZE)

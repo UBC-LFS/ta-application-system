@@ -1,6 +1,6 @@
 <nav class="container menu">
 
-  {% if 'Admin' in loggedin_user.roles or 'Superadmin' in loggedin_user.roles %}
+  {% if 'Admin' in request.user.roles or 'Superadmin' in request.user.roles %}
     <div class="dropdown">
       <button class="btn btn-sm btn-light dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
         Sessions
@@ -37,7 +37,11 @@
         <a class="dropdown-item" href="{% url 'administrators:declined_applications' %}">Declined</a>
         <a class="dropdown-item" href="{% url 'administrators:terminated_applications' %}">Terminated</a>
         <a class="dropdown-item" href="{% url 'administrators:email_history' %}">Email History</a>
-        <a class="dropdown-item" href="{% url 'administrators:report_accepted_applications' %}">Report</a>
+
+        <hr />
+
+        <a class="dropdown-item" href="{% url 'administrators:accepted_apps_report_admin' %}">Report for Admin - Accepted</a>
+        <a class="dropdown-item" href="{% url 'administrators:accepted_apps_report_observer' %}">Report for Observer - Accepted</a>
       </div>
     </div>
 
@@ -82,13 +86,14 @@
       </div>
     </div>
 
-  {% elif 'HR' in loggedin_user.roles %}
+  {% elif 'HR' in request.user.roles %}
     <div class="dropdown">
       <button class="btn btn-sm btn-light dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
         Applications
       </button>
       <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
         <a class="dropdown-item" href="{% url 'administrators:accepted_applications' %}">Accepted</a>
+        <a class="dropdown-item" href="{% url 'administrators:accepted_apps_report_admin' %}">Accepted - Report for Admin</a>
       </div>
     </div>
   {% endif %}

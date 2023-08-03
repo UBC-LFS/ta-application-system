@@ -340,9 +340,8 @@ def get_filtered_accepted_apps(apps=None):
     return apps.exclude(id__in=excluded_ids)
 
 
-def get_report_accepted_applications(request):
-    ''' Get a report for accepted applications'''
-
+def get_accepted_app_report(request):
+    ''' Get a report of accepted applications for observers '''
     apps = get_filtered_accepted_apps()
 
     if bool( request.GET.get('year') ):
@@ -821,8 +820,7 @@ def get_applications_filter_limit(request, status):
         if bool( request.GET.get('accepted_in_today') ):
             apps = today_accepted_apps
 
-        else:
-            apps = get_filtered_accepted_apps(apps)
+        apps = get_filtered_accepted_apps(apps)
 
     elif status == 'declined':
         apps = apps.filter(applicationstatus__assigned=ApplicationStatus.DECLINED).order_by('-id').distinct()
@@ -1112,6 +1110,16 @@ def calcualte_salary(app):
     ''' Calculate the salary of an application '''
     return round(app.accepted.assigned_hours * app.classification.wage / app.job.session.term.by_month, 2)
 
+def calculate_pt_percentage(app):
+    ''' Calculate the P/T (%) of an application '''
+    pt_percentage = round(app.accepted.assigned_hours / app.job.session.term.max_hours * 100, 2)
+
+    # When a term is S1 or S2, pt percentage * 2
+    if app.job.course.term.code == 'S1' or app.job.course.term.code == 'S2':
+        pt_percentage = pt_percentage * 2
+    
+    return pt_percentage
+
 
 def get_applicants_in_session(session):
     ''' Get applicants by term '''
@@ -1155,7 +1163,7 @@ def get_summary_applicants(request, session_slug, job_slug):
 
     if bool( request.GET.get('no_offers') ):
         applicants = no_offers_applicants
-    
+
     searched_total_applicants = len(applicants)
 
     page = request.GET.get('page', 1)

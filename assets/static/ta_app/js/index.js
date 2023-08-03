@@ -2,7 +2,7 @@ $(document).ready(function() {
 
   // Make a navigation header active
   const roles = window.location.pathname.split('/');
-console.log(roles);
+
   if (roles[2] === 'administrators') {
     $('#nav-administrator').addClass('active');
 

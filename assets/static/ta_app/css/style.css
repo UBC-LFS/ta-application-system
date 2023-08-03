@@ -581,6 +581,7 @@ hr.dotted {
 }
 
 .fw-600 { font-weight: 600 !important; }
+.fw-700 { font-weight: 700 !important; }
 
 
 #impersonate-card {
@@ -668,6 +669,14 @@ input[type=radio] {
   padding-left: .1rem;
   padding-right: .1rem;
 }
+
+.mt-4-4rem {
+  margin-top: 4.4rem !important;
+}
+
+
+
+
 
 /* Extra small devices (portrait phones, less than 576px) */
 @media (max-width: 575.98px) {

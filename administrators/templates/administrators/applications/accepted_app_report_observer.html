@@ -1,13 +1,14 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
+
 {% include 'administrators/_menu.html' %}
 
 <div>
-  {% include 'ta_app/pages/_header.html' with title='Report - Accepted Applications' %}
+  {% include 'ta_app/pages/_header.html' with title='Report for Observer - Accepted Applications' %}
 
   <div class="row">
     <div class="col-md-6">
-      {% include 'observers/_search_fields.html' with data=apps total=total_apps path='administrators' %}
+      {% include 'observers/_search_fields.html' with data=apps total=total_apps path='admin_report_observer' %}
     </div>
 
     <div class="col-md-6">
