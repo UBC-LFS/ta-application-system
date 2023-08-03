@@ -14,9 +14,10 @@
       <th data-sortable="true">Term</th>
       <th data-sortable="true">Job (Course)</th>
       <th data-sortable="true">Instructor</th>
-      <th data-sortable="true">Applicant Name</th>
-      <th data-sortable="true">Applicant CWL</th>
-      <th data-sortable="true">Applicant Email</th>
+      <th data-sortable="true">Frist Name</th>
+      <th data-sortable="true">Last Name</th>
+      <th data-sortable="true">CWL</th>
+      <th data-sortable="true">Email</th>
       <th data-sortable="true">Student Number</th>
     </tr>
   </thead>
@@ -37,13 +38,16 @@
         </td>
         <td>
           {% for instructor in app.job.instructors.all %}
-            <span>{{ instructor.get_full_name }}</span>
-            {% if not forloop.last %} <span class="mr-1">,</span> {% endif %}
+            <span>
+              {{ instructor.get_full_name }}{% if not forloop.last %}<span class="mr-1">,</span>{% endif %}
+            </span>
+
           {% empty %}
             None
           {% endfor %}
         </td>
-        <td>{{ app.applicant.get_full_name }}</td>
+        <td>{{ app.applicant.first_name }}</td>
+        <td>{{ app.applicant.last_name }}</td>
         <td>{{ app.applicant.username }}</td>
         <td>{{ app.applicant.email }}</td>
         <td>{{ app.applicant.profile.student_number }}</td>

@@ -1488,11 +1488,7 @@ class AcceptedApplications(LoginRequiredMixin, View):
 
         for app in apps:
             app.salary = adminApi.calcualte_salary(app)
-            app.pt_percentage = round(app.accepted.assigned_hours / app.job.session.term.max_hours * 100, 2)
-
-            # When a term is S1 or S2, pt percentage * 2
-            if app.job.course.term.code == 'S1' or app.job.course.term.code == 'S2':
-                app.pt_percentage = app.pt_percentage * 2
+            app.pt_percentage = adminApi.calculate_pt_percentage(app)
 
         return render(request, 'administrators/applications/accepted_applications.html', {
             'apps': apps,
