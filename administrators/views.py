@@ -2044,13 +2044,12 @@ def download_all_accepted_apps(request):
     apps, info = adminApi.get_applications_filter_limit(request, 'accepted')
     apps = adminApi.add_app_info_into_applications(apps, ['accepted'])
 
-    result = 'ID,Year,Term,Job,Applicant,CWL,Student Number,Employee Number,Classification,Monthly Salary,P/T (%),PIN,TASM,Processed,Worktag,Processing Note,Accepted at\n'
+    result = 'ID,Year,Term,Job,Applicant,Student Number,Employee Number,Classification,Monthly Salary,P/T (%),PIN,TASM,Processed,Worktag,Processing Note,Accepted at\n'
     for app in apps:
         year = app.job.session.year
         term = app.job.session.term.code
         job = '{0} {1} {2}'.format(app.job.course.code.name, app.job.course.number.name, app.job.course.section.name)
-        applicant = app.applicant.get_full_name()
-        cwl = app.applicant.username
+        applicant = '{0} ({1})'.format(app.applicant.get_full_name(), app.applicant.username)
 
         student_number = ''
         if hasattr(app.applicant, 'profile'):
@@ -2061,9 +2060,9 @@ def download_all_accepted_apps(request):
             if app.applicant.confidentiality.employee_number:
                 employee_number = app.applicant.confidentiality.employee_number
         
-        classification = '{0} {1} (${2})'.format(app.classification.year, app.classification.name, round(app.classification.wage, 2))
-        monthly_salary = '${0}'.format(adminApi.calcualte_salary(app))
-        pt = adminApi.calculate_pt_percentage(app)
+        classification = '{0} {1} (${2})'.format(app.classification.year, app.classification.name, format(round(app.classification.wage, 2), '.2f'))
+        monthly_salary = '${0}'.format( format(adminApi.calcualte_salary(app), '.2f') )
+        pt = format( adminApi.calculate_pt_percentage(app), '.2f' )
         
         pin = ''
         tasm = ''
@@ -2071,23 +2070,25 @@ def download_all_accepted_apps(request):
         worktag = ''
         processing_note = ''
         if hasattr(app, 'admindocuments'):
-            pin = app.admindocuments.pin
+            if app.admindocuments.pin:
+                pin = app.admindocuments.pin
             if app.admindocuments.tasm:
                 tasm = 'Yes' 
-            processed = app.admindocuments.processed
-            worktag = app.admindocuments.worktag
-            processing_note = app.admindocuments.processing_note
+            if app.admindocuments.processed:
+                processed = app.admindocuments.processed
+            if app.admindocuments.worktag:
+                worktag = app.admindocuments.worktag
+            if app.admindocuments.processing_note:
+                processing_note = app.admindocuments.processing_note
         
         accepted_at = '{0} ({1} hours)'.format(app.accepted.created_at, app.accepted.assigned_hours)
 
-
-        result += '{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15},{16}\n'.format(
+        result += '{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15}\n'.format(
             app.id,
             year,
             term,
             job,
             applicant,
-            cwl,
             student_number,
             employee_number,
             classification,
