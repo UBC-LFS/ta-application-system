@@ -45,17 +45,3 @@ def local_login(request):
     return render(request, 'accounts/local_login.html', {
         'form': LocalLoginForm()
     })
-
-
-"""
-def login(request):
-    if 'loggedin_user' in request.session.keys():
-        roles = request.session['loggedin_user']['roles']
-        redirect_to = adminApi.redirect_to_index_page(roles)
-        return HttpResponseRedirect(redirect_to)
-
-    return render(request, 'accounts/login.html', {
-        'landing_page': adminApi.get_visible_landing_page()
-    })
-"""
-

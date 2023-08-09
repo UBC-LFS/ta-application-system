@@ -294,12 +294,12 @@ def create_user(data):
 def contain_user_duplicated_info(data):
     ''' Chceck whether student numbers, employee numbers exist in DB '''
 
-    if data['student_number'] != None:
+    if data['student_number']:
         sn = Profile.objects.filter(student_number=data['student_number']).exclude(user__username=data['username'])
         if sn.exists():
             return True
 
-    if data['employee_number'] != None:
+    if data['employee_number']:
         en = Confidentiality.objects.filter(employee_number=data['employee_number']).exclude(user__username=data['username'])
         if en.exists():
             return True
