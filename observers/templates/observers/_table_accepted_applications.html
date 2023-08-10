@@ -39,7 +39,7 @@
         <td>
           {% for instructor in app.job.instructors.all %}
             <span>
-              {{ instructor.get_full_name }}{% if not forloop.last %}<span class="mr-1">,</span>{% endif %}
+              {{ instructor.get_full_name }}{% if not forloop.last %},{% endif %}
             </span>
 
           {% empty %}
