@@ -21,7 +21,7 @@ from ta_app import utils
 from administrators.forms import *
 from administrators import api as adminApi
 
-from users.models import Role, Alert, Resume
+from users.models import Role, Alert
 from users.forms import *
 from users import api as userApi
 
@@ -498,6 +498,7 @@ def delete_confidential_information(request):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def download_file(request, username, item, filename):
     ''' Download user' uploaded files '''
+    print( list(request.session.keys()) )
     if userApi.is_valid_user(request.user) == False:
         raise PermissionDenied
 

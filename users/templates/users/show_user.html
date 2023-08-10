@@ -22,7 +22,7 @@
             <a href="{% url 'students:download_file' username=selected_user.username item='resume' filename=selected_user.resume_filename %}" target="_blank">
               {{ selected_user.resume_filename }}
             </a><br />
-            <small class="text-dark-gray">Uploaded at {{ selected_user.resume.created_at }}</small>
+            <small class="text-dark-gray">Uploaded on {{ selected_user.resume.created_at }}</small>
           {% else %}
             None
           {% endif %}

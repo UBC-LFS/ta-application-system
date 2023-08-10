@@ -14,11 +14,11 @@
       <th data-sortable="true">Term</th>
       <th data-sortable="true">Job (Course)</th>
       <th data-sortable="true">Instructor</th>
-      <th data-sortable="true">Frist Name</th>
+      <th data-sortable="true">First Name</th>
       <th data-sortable="true">Last Name</th>
       <th data-sortable="true">CWL</th>
-      <th data-sortable="true">Email</th>
       <th data-sortable="true">Student Number</th>
+      <th data-sortable="true">Email</th>
     </tr>
   </thead>
   <tbody>
@@ -49,8 +49,8 @@
         <td>{{ app.applicant.first_name }}</td>
         <td>{{ app.applicant.last_name }}</td>
         <td>{{ app.applicant.username }}</td>
-        <td>{{ app.applicant.email }}</td>
         <td>{{ app.applicant.profile.student_number }}</td>
+        <td>{{ app.applicant.email }}</td>
       </tr>
     {% endfor %}
   </tbody>

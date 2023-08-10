@@ -93,7 +93,11 @@
       </button>
       <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
         <a class="dropdown-item" href="{% url 'administrators:accepted_applications' %}">Accepted</a>
-        <a class="dropdown-item" href="{% url 'administrators:accepted_apps_report_admin' %}">Accepted - Report for Admin</a>
+
+        <hr />
+
+        <a class="dropdown-item" href="{% url 'administrators:accepted_apps_report_admin' %}">Report for Admin - Accepted</a>
+        <a class="dropdown-item" href="{% url 'administrators:accepted_apps_report_observer' %}">Report for Observer - Accepted</a>
       </div>
     </div>
   {% endif %}
