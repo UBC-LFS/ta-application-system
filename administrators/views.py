@@ -468,7 +468,6 @@ class ShowReportSummary(LoginRequiredMixin, View):
 
         session = adminApi.get_session(session_slug, 'slug')
 
-        undergrad = userApi.get_status_by_slug('undergraduate-student')
         master = userApi.get_status_by_slug('master-student')
         phd = userApi.get_status_by_slug('phd-student')
         other_program = userApi.get_program_by_slug('other')

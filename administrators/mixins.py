@@ -13,6 +13,8 @@ from users.models import Role
 from administrators import api as adminApi
 from users import api as userApi
 
+from datetime import date
+
 
 class AcceptedAppsReportMixin:
 
@@ -44,8 +46,38 @@ class AcceptedAppsReportMixin:
         except EmptyPage:
             apps = paginator.page(paginator.num_pages)
 
+        master = userApi.get_status_by_slug('master-student')
+        phd = userApi.get_status_by_slug('phd-student')
+        other_program = userApi.get_program_by_slug('other')
+
         for app in apps:
             if url_name == 'accepted_apps_report_admin':
+                app = adminApi.add_app_info_into_application(app, ['accepted'])
+                app.salary = adminApi.calcualte_salary(app)
+                pt_percentage = adminApi.calculate_pt_percentage(app)
+                app.pt_percentage = pt_percentage
+                app.weekly_hours = pt_percentage / 100 * 12
+
+                app.prev_accepted_apps = None
+                prev_apps = app.applicant.application_set.filter(job__session__year__lt=app.job.session.year).exclude(id=app.id)
+                total_assigned_hours = 0
+                if prev_apps.exists():
+                    prev_accepted_apps = adminApi.get_accepted_apps_not_terminated(prev_apps)
+                    prev_accepted_apps = adminApi.get_filtered_accepted_apps(prev_accepted_apps)
+                    for ap in prev_accepted_apps:
+                        ap = adminApi.add_app_info_into_application(ap, ['accepted'])
+                        total_assigned_hours += ap.accepted.assigned_hours
+                    
+                    app.prev_accepted_apps = prev_accepted_apps
+                    app.total_assigned_hours = total_assigned_hours
+                
+                app.lfs_grad_or_others = None
+                if userApi.profile_exists(app.applicant) and app.applicant.profile.status and app.applicant.profile.program:
+                    if (app.applicant.profile.status.id == master.id or app.applicant.profile.status.id == phd.id) and app.applicant.profile.program.id != other_program.id:    
+                        app.lfs_grad_or_others = 'LFS GRAD'
+                    else:
+                        app.lfs_grad_or_others = 'OTHERS'
+                
                 status = { 'sin': None, 'study_permit': None }
                 for st in userApi.get_confidential_info_expiry_status(app.applicant):
                     if st['doc'] == 'SIN':
