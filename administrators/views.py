@@ -20,7 +20,6 @@ from ta_app import utils
 from administrators.models import Session, Job, Application, ApplicationStatus
 from administrators.forms import *
 from administrators import api as adminApi
-from administrators.mixins import AcceptedAppsReportMixin
 
 from users.models import *
 from users.forms import *
@@ -99,7 +98,7 @@ class CurrentSessions(LoginRequiredMixin, View):
         if bool(year_q):
             session_list = session_list.filter(year__icontains=year_q)
         if bool(term_q):
-            session_list = session_list.filter(term__code__icontains=term_q)
+            session_list = session_list.filter(term__code__iexact=term_q)
 
         session_list = session_list.filter(is_archived=False)
         session_list = adminApi.add_num_instructors(session_list)
@@ -139,7 +138,7 @@ class ArchivedSessions(LoginRequiredMixin, View):
         if bool(year_q):
             session_list = session_list.filter(year__icontains=year_q)
         if bool(term_q):
-            session_list = session_list.filter(term__code__icontains=term_q)
+            session_list = session_list.filter(term__code__iexact=term_q)
 
         session_list = session_list.filter(is_archived=True)
         session_list = adminApi.add_num_instructors(session_list)
@@ -657,7 +656,7 @@ def prepare_jobs(request):
     if bool(year_q):
         job_list = job_list.filter(session__year__icontains=year_q)
     if bool(term_q):
-        job_list = job_list.filter(session__term__code__icontains=term_q)
+        job_list = job_list.filter(session__term__code__iexact=term_q)
     if bool(code_q):
         job_list = job_list.filter(course__code__name__icontains=code_q)
     if bool(number_q):
@@ -703,7 +702,7 @@ def progress_jobs(request):
     if bool(year_q):
         job_list = job_list.filter(session__year__icontains=year_q)
     if bool(term_q):
-        job_list = job_list.filter(session__term__code__icontains=term_q)
+        job_list = job_list.filter(session__term__code__iexact=term_q)
     if bool(code_q):
         job_list = job_list.filter(course__code__name__icontains=code_q)
     if bool(number_q):
@@ -1104,7 +1103,7 @@ def applications_dashboard(request):
     if bool(year_q):
         status_list = status_list.filter(application__job__session__year__icontains=year_q)
     if bool(term_q):
-        status_list = status_list.filter(application__job__session__term__code__icontains=term_q)
+        status_list = status_list.filter(application__job__session__term__code__iexact=term_q)
     if bool(code_q):
         status_list = status_list.filter(application__job__course__code__name__icontains=code_q)
     if bool(number_q):
@@ -2026,12 +2025,11 @@ class AcceptedAppsReportAdmin(LoginRequiredMixin, View):
     @method_decorator(require_GET)
     def get(self, request, *args, **kwargs):
         request = userApi.has_admin_access(request, Role.HR)
-        
+
         apps, total_apps = adminApi.get_accepted_app_report(request)
-        
+
         page = request.GET.get('page', 1)
-        #paginator = Paginator(apps, settings.PAGE_SIZE)
-        paginator = Paginator(apps, 20)
+        paginator = Paginator(apps, settings.PAGE_SIZE)
 
         try:
             apps = paginator.page(page)
@@ -2057,17 +2055,17 @@ class AcceptedAppsReportAdmin(LoginRequiredMixin, View):
                 for ap in prev_accepted_apps:
                     ap = adminApi.add_app_info_into_application(ap, ['accepted'])
                     total_assigned_hours += ap.accepted.assigned_hours
-                
+
                 app.prev_accepted_apps = prev_accepted_apps
                 app.total_assigned_hours = total_assigned_hours
-            
+
             lfs_grad_or_others = userApi.get_lfs_grad_or_others(app.applicant)
             app.lfs_grad_or_others = lfs_grad_or_others
 
             is_preferred_student = False
             if total_assigned_hours > 0 and lfs_grad_or_others == 'LFS GRAD':
                 is_preferred_student = True
-            
+
             app.is_preferred_student = is_preferred_student
 
             confi_info_expiry_status = { 'sin': None, 'study_permit': None }
@@ -2076,19 +2074,41 @@ class AcceptedAppsReportAdmin(LoginRequiredMixin, View):
                     confi_info_expiry_status['sin'] = st['status'].upper()
                 elif st['doc'] == 'Study Permit':
                     confi_info_expiry_status['study_permit'] = st['status'].upper()
-            
+
             app.confi_info_expiry_status = confi_info_expiry_status
-    
+
         return render(request, 'administrators/applications/accepted_app_report_admin.html', context={
             'total_apps': total_apps,
             'apps': apps,
             'download_all_accepted_apps_report_admin_url': reverse('administrators:download_all_accepted_apps_report_admin')
         })
 
+
 @method_decorator([never_cache], name='dispatch')
-class AcceptedAppsReportObserver(LoginRequiredMixin, View, AcceptedAppsReportMixin):
+class AcceptedAppsReportObserver(LoginRequiredMixin, View):
     ''' Display a report of applications accepted by students for Observer '''
-    pass
+
+    @method_decorator(require_GET)
+    def get(self, request, *args, **kwargs):
+        request = userApi.has_admin_access(request, Role.HR)
+
+        apps, total_apps = adminApi.get_accepted_app_report(request)
+
+        page = request.GET.get('page', 1)
+        paginator = Paginator(apps, settings.PAGE_SIZE)
+
+        try:
+            apps = paginator.page(page)
+        except PageNotAnInteger:
+            apps = paginator.page(1)
+        except EmptyPage:
+            apps = paginator.page(paginator.num_pages)
+
+        return render(request, 'administrators/applications/accepted_app_report_observer.html', context={
+            'total_apps': total_apps,
+            'apps': apps
+        })
+
 
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -2100,7 +2120,7 @@ def download_all_accepted_apps(request):
     apps, info = adminApi.get_applications_filter_limit(request, 'accepted')
     apps = adminApi.add_app_info_into_applications(apps, ['accepted'])
 
-    result = 'ID,Year,Term,Job,First Name,Last Name,CWL,Student Number,Employee Number,Classification,Monthly Salary,P/T (%),PIN,TASM,Processed,Worktag,Processing Note,Accepted at\n'
+    result = 'ID,Year,Term,Job,First Name,Last Name,CWL,Student Number,Employee Number,Classification,Monthly Salary,P/T (%),PIN,TASM,Processed,Worktag,Processing Note,Accepted on,Assigned Hours\n'
     for app in apps:
         year = app.job.session.year
         term = app.job.session.term.code
@@ -2110,18 +2130,18 @@ def download_all_accepted_apps(request):
         cwl = app.applicant.username
 
         student_number = ''
-        if hasattr(app.applicant, 'profile'):
+        if userApi.profile_exists(app.applicant):
             student_number = app.applicant.profile.student_number
 
         employee_number = 'NEW'
-        if hasattr(app.applicant, 'confidentiality'):
+        if userApi.confidentiality_exists(app.applicant):
             if app.applicant.confidentiality.employee_number:
                 employee_number = app.applicant.confidentiality.employee_number
-        
+
         classification = '{0} {1} (${2})'.format(app.classification.year, app.classification.name, format(round(app.classification.wage, 2), '.2f'))
         salary = '${0}'.format( format(adminApi.calcualte_salary(app), '.2f') )
         pt = format( adminApi.calculate_pt_percentage(app), '.2f' )
-        
+
         pin = ''
         tasm = ''
         processed = ''
@@ -2131,17 +2151,21 @@ def download_all_accepted_apps(request):
             if app.admindocuments.pin:
                 pin = app.admindocuments.pin
             if app.admindocuments.tasm:
-                tasm = 'Yes' 
+                tasm = 'YES'
             if app.admindocuments.processed:
                 processed = app.admindocuments.processed
             if app.admindocuments.worktag:
                 worktag = app.admindocuments.worktag
             if app.admindocuments.processing_note:
-                processing_note = app.admindocuments.processing_note
-        
-        accepted_at = '{0} ({1} hours)'.format(app.accepted.created_at, app.accepted.assigned_hours)
+                processing_note = adminApi.strip_html_tags(app.admindocuments.processing_note)
 
-        result += '{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15},{16},{17}\n'.format(
+        accepted_on = ''
+        assigned_hours = ''
+        if app.accepted:
+            accepted_on = app.accepted.created_at
+            assigned_hours = app.accepted.assigned_hours
+
+        result += '{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15},{16},{17},{18}\n'.format(
             app.id,
             year,
             term,
@@ -2157,17 +2181,13 @@ def download_all_accepted_apps(request):
             pin,
             tasm,
             processed,
-            worktag,
-            processing_note,
-            accepted_at
+            '\"' + worktag + '\"',
+            '\"' + processing_note + '\"',
+            accepted_on,
+            assigned_hours
         )
 
     return JsonResponse({ 'status': 'success', 'data': result })
-
-
-from django.utils.safestring import mark_safe
-from django.utils.html import escape
-from django.utils.html import strip_tags
 
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -2179,7 +2199,7 @@ def download_all_accepted_apps_report_admin(request):
     apps, total_apps = adminApi.get_accepted_app_report(request)
     apps = adminApi.add_app_info_into_applications(apps, ['accepted'])
 
-    result = 'ID,Year,Term,Job,Instructor(s),First Name,Last Name,CWL,Student Number,Employee Number,Domestic or International Student,Status,LFS Grad or Others,SIN Expiry Date,Study Permit Expiry Date,Previous TA Experience in UBC,Total Assgined Hours - Previous TA Experience in UBC,Previous TA Experience Details,Monthly Salary,P/T (%),Weekly Hours,PIN,TASM,Processed,Worktag,Processing Note,Accepted on,Assigned Hours,Preferred Student\n'
+    result = 'ID,Preferred Student,Year,Term,Job,Instructor(s),First Name,Last Name,CWL,Student Number,Employee Number,Domestic or International Student,Status,LFS Grad or Others,SIN Expiry Date,Study Permit Expiry Date,Previous TA Experience in UBC,Total Assgined Hours - Previous TA Experience in UBC,Previous TA Experience Details,Monthly Salary,P/T (%),Weekly Hours,PIN,TASM,Processed,Worktag,Processing Note,Accepted on,Assigned Hours\n'
 
     for app in apps:
         year = app.job.session.year
@@ -2190,25 +2210,24 @@ def download_all_accepted_apps_report_admin(request):
             for i, ins in enumerate(app.job.instructors.all()):
                 instructors += ins.get_full_name()
                 if i < app.job.instructors.count() - 1:
-                    instructors += ', '
+                    instructors += '\n'
 
         first_name = app.applicant.first_name
         last_name = app.applicant.last_name
         cwl = app.applicant.username
-        
+
         student_number = ''
         status = ''
         ta_experience_details = ''
         if userApi.profile_exists(app.applicant):
             if app.applicant.profile.student_number:
                 student_number = app.applicant.profile.student_number
-             
+
             if app.applicant.profile.status:
                 status = app.applicant.profile.status.name
-            
+
             if app.applicant.profile.ta_experience_details:
-                s = app.applicant.profile.ta_experience_details.replace('<br>', '\n').replace('</p>', '\n').replace('&nbsp;', ' ').replace('&amp;', '&').replace('"', "'")
-                ta_experience_details = strip_tags(s)
+                ta_experience_details = adminApi.strip_html_tags(app.applicant.profile.ta_experience_details)
 
         employee_number = 'NEW'
         nationality = ''
@@ -2222,11 +2241,11 @@ def download_all_accepted_apps_report_admin(request):
 
             if app.applicant.confidentiality.nationality:
                 nationality = app.applicant.confidentiality.get_nationality_display()
-                
+
             if nationality == 'International Student':
                 sin_expiry_date = app.applicant.confidentiality.sin_expiry_date
                 study_permit_expiry_date = app.applicant.confidentiality.study_permit_expiry_date
-        
+
         salary = '${0}'.format(format(adminApi.calcualte_salary(app), '.2f'))
         pt = format(adminApi.calculate_pt_percentage(app), '.2f')
         weekly_hours = format(adminApi.calculate_weekly_hours(pt), '.2f')
@@ -2239,26 +2258,25 @@ def download_all_accepted_apps_report_admin(request):
         if adminApi.has_admin_docs_created(app):
             if app.admindocuments.pin:
                 pin = app.admindocuments.pin
-            
+
             if app.admindocuments.tasm:
                 tasm = 'YES'
-            
+
             if app.admindocuments.processed:
                 processed = app.admindocuments.processed
-            
+
             if app.admindocuments.worktag:
                 worktag = app.admindocuments.worktag
-            
+
             if app.admindocuments.processing_note:
-                s = app.admindocuments.processing_note.replace('<br>', '\n').replace('</p>', '\n').replace('&nbsp;', ' ').replace('&amp;', '&').replace('"', "'")
-                processing_note = strip_tags(s)
-        
+                processing_note = adminApi.strip_html_tags(app.admindocuments.processing_note)
+
         accepted_on = ''
         assigned_hours = ''
         if app.accepted:
             accepted_on = app.accepted.created_at
             assigned_hours = app.accepted.assigned_hours
-        
+
         prev_apps = app.applicant.application_set.filter(job__session__year__lt=app.job.session.year).exclude(id=app.id)
         total_assigned_hours = 0
 
@@ -2271,18 +2289,18 @@ def download_all_accepted_apps_report_admin(request):
                 total_assigned_hours += ap.accepted.assigned_hours
 
                 prev_accepted_apps_ubc += '{0} {1}, {2} {3} {4}, {5} {6} (${7}), {8} hours, {9}\n'.format(
-                    ap.job.session.year, 
-                    ap.job.session.term.code, 
-                    ap.job.course.code.name, 
-                    ap.job.course.number.name, 
-                    ap.job.course.section.name, 
-                    ap.classification.year, 
-                    ap.classification.name, 
+                    ap.job.session.year,
+                    ap.job.session.term.code,
+                    ap.job.course.code.name,
+                    ap.job.course.number.name,
+                    ap.job.course.section.name,
+                    ap.classification.year,
+                    ap.classification.name,
                     format(ap.classification.wage, '.2f'),
-                    ap.accepted.assigned_hours, 
+                    ap.accepted.assigned_hours,
                     ap.accepted.created_at
                 )
-            
+
             app.prev_accepted_apps = prev_accepted_apps
             app.total_assigned_hours = total_assigned_hours
 
@@ -2292,10 +2310,11 @@ def download_all_accepted_apps_report_admin(request):
 
         result += '{0},{1},{2},{3},"{4}",{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15},{16},{17},{18},{19},{20},{21},{22},{23},{24},{25},{26},{27},{28}\n'.format(
             app.id,
+            preferred_student,
             year,
             term,
             job,
-            instructors,
+            '\"' + instructors + '\"',
             first_name,
             last_name,
             cwl,
@@ -2315,11 +2334,10 @@ def download_all_accepted_apps_report_admin(request):
             pin,
             tasm,
             processed,
-            worktag,
+            '\"' + worktag + '\"',
             '\"' + processing_note + '\"',
             accepted_on,
-            assigned_hours,
-            preferred_student
+            assigned_hours
         )
     return JsonResponse({ 'status': 'success', 'data': result })
 
@@ -2790,7 +2808,7 @@ def all_courses(request):
 
     course_list = adminApi.get_courses()
     if bool(term_q):
-        course_list = course_list.filter(term__code__icontains=term_q)
+        course_list = course_list.filter(term__code__iexact=term_q)
     if bool(code_q):
         course_list = course_list.filter(code__name__icontains=code_q)
     if bool(number_q):

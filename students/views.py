@@ -32,7 +32,7 @@ IMPORTANT_MESSAGE = '<strong>Important:</strong> Please complete all items in yo
 @method_decorator([never_cache], name='dispatch')
 class Index(LoginRequiredMixin, View):
     ''' Index page of Stusent's portal '''
-    
+
     @method_decorator(require_GET)
     def get(self, request, *args, **kwargs):
         request = userApi.has_user_access(request, Role.STUDENT)
@@ -48,7 +48,7 @@ class Index(LoginRequiredMixin, View):
             alert = Alert.objects.filter( Q(student_id=request.user.id) & Q(has_read=True) & Q(created_at__year=utils.THIS_YEAR) )
             if alert.count() == 0:
                 can_alert = True
-        
+
         apps = request.user.application_set.all()
 
         return render(request, 'students/index.html', {
@@ -61,7 +61,7 @@ class Index(LoginRequiredMixin, View):
             'will_expire': userApi.get_confidential_info_expiry_status(request.user),
             'this_year': utils.THIS_YEAR
         })
-    
+
     @method_decorator(require_POST)
     def post(self, request, *args, **kwargs):
         ''' Read an alert message '''
@@ -586,7 +586,7 @@ def favourite_jobs(request):
         if bool(year_q):
             favourite_list = favourite_list.filter(job__session__year__icontains=year_q)
         if bool(term_q):
-            favourite_list = favourite_list.filter(job__session__term__code__icontains=term_q)
+            favourite_list = favourite_list.filter(job__session__term__code__iexact=term_q)
         if bool(code_q):
             favourite_list = favourite_list.filter(job__course__code__name__icontains=code_q)
         if bool(number_q):
@@ -796,7 +796,7 @@ def history_jobs(request):
     if bool(year_q):
         app_list = app_list.filter(job__session__year__icontains=year_q)
     if bool(term_q):
-        app_list = app_list.filter(job__session__term__code__icontains=term_q)
+        app_list = app_list.filter(job__session__term__code__iexact=term_q)
     if bool(code_q):
         app_list = app_list.filter(job__course__code__name__icontains=code_q)
     if bool(number_q):

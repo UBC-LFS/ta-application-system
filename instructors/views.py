@@ -116,7 +116,7 @@ def show_jobs(request):
     if bool(year_q):
         job_list = job_list.filter(session__year__icontains=year_q)
     if bool(term_q):
-        job_list = job_list.filter(session__term__code__icontains=term_q)
+        job_list = job_list.filter(session__term__code__iexact=term_q)
     if bool(code_q):
         job_list = job_list.filter(course__code__name__icontains=code_q)
     if bool(number_q):
@@ -496,7 +496,7 @@ def show_email_history(request):
     if bool(request.GET.get('year')):
         email_list = email_list.filter(year__icontains=request.GET.get('year'))
     if bool(request.GET.get('term')):
-        email_list = email_list.filter(term__icontains=request.GET.get('term'))
+        email_list = email_list.filter(term__iexact=request.GET.get('term'))
     if bool( request.GET.get('code') ):
         email_list = email_list.filter(job_code__icontains=request.GET.get('code'))
     if bool( request.GET.get('number') ):

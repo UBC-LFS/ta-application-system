@@ -10,10 +10,12 @@
     <input type="text" name="last_name" value="{{ request.GET.last_name }}" placeholder="Applicant Last Name" /> and
     <input type="text" name="student_number" value="{{ request.GET.student_number }}" placeholder="Student Number" />
 
+    {% comment %}
     {% if path == 'admin_report' %}
       <br />
       Preferred Student: <input class="custom-input-mb-7" type="checkbox" name="preferred_student" value="True" {% if request.GET.preferred_student %}checked{% endif %} />
     {% endif %}
+    {% endcomment %}
 
     <div class="mt-1">
       <button class="btn btn-sm btn-secondary" type="submit">Search</button>

@@ -2,7 +2,6 @@ import os
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django.http import Http404
-from django.forms.models import model_to_dict
 from django.db.models import Q, Count, OuterRef, Subquery
 
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -13,6 +12,8 @@ from django.db import IntegrityError
 from django.core.exceptions import PermissionDenied
 from django.urls import resolve
 from urllib.parse import urlparse
+from django.utils.html import strip_tags
+from django.db.models import BooleanField, Case, Value, When, F
 
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
@@ -360,9 +361,6 @@ def get_accepted_app_report(request):
         apps = apps.filter(applicant__last_name__icontains=request.GET.get('last_name'))
     if bool( request.GET.get('student_number') ):
         apps = apps.filter(applicant__profile__student_number__icontains=request.GET.get('student_number'))
-
-    if bool( request.GET.get('preferred_student') ):
-        pass
 
     return apps, apps.count()
 
@@ -734,19 +732,16 @@ def get_applications(option=None):
     return Application.objects.all().order_by('-id')
 
 
-from django.db.models import BooleanField, Case, Value, When
-
-
 def annotate_lfs_grad(apps):
     master = userApi.get_status_by_slug('master-student')
     phd = userApi.get_status_by_slug('phd-student')
     other_program = userApi.get_program_by_slug('other')
 
     return apps.annotate(
-        is_lfs_grad=Case( 
-            When( (Q(applicant__profile__status_id=master.id) | Q(applicant__profile__status_id=phd.id)) & (~Q(applicant__profile__program_id=other_program.id)), then=Value(True) ), 
-            default = Value(False), 
-            output_field = BooleanField() 
+        is_lfs_grad=Case(
+            When( (Q(applicant__profile__status_id=master.id) | Q(applicant__profile__status_id=phd.id)) & (~Q(applicant__profile__program_id=other_program.id)), then=Value(True) ),
+            default = Value(False),
+            output_field = BooleanField()
         )
     )
 
@@ -789,7 +784,7 @@ def get_applications_filter_limit(request, status):
     if bool( request.GET.get('year') ):
         apps = apps.filter(job__session__year__icontains=request.GET.get('year'))
     if bool( request.GET.get('term') ):
-        apps = apps.filter(job__session__term__code__icontains=request.GET.get('term'))
+        apps = apps.filter(job__session__term__code__iexact=request.GET.get('term'))
     if bool( request.GET.get('code') ):
         apps = apps.filter(job__course__code__name__icontains=request.GET.get('code'))
     if bool( request.GET.get('number') ):
@@ -1137,7 +1132,7 @@ def calculate_pt_percentage(app):
     # When a term is S1 or S2, pt percentage * 2
     if app.job.course.term.code == 'S1' or app.job.course.term.code == 'S2':
         pt_percentage = pt_percentage * 2
-    
+
     return pt_percentage
 
 def calculate_weekly_hours(pt_percentage):
@@ -1525,3 +1520,7 @@ def is_valid_email(email_address):
 
 def trim(data):
     return None if not data or data.isspace() else data.strip()
+
+def strip_html_tags(text):
+    text_replaced = text.replace('<br>', '\n').replace('</p>', '\n').replace('&nbsp;', ' ').replace('&amp;', '&').replace('"', "'")
+    return strip_tags(text_replaced)
