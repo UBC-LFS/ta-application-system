@@ -1003,7 +1003,7 @@ def add_job_instructors(request, session_slug, job_slug):
     if request.method == 'POST':
         job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
 
-        form = InstructorUpdateForm(request.POST);
+        form = InstructorUpdateForm(request.POST)
         if form.is_valid():
             instructor = form.cleaned_data['instructors']
             instructors_ids = [ ins.id for ins in job.instructors.all() ]
@@ -2020,9 +2020,70 @@ def applications_send_email_confirmation(request):
 
 
 @method_decorator([never_cache], name='dispatch')
-class AcceptedAppsReportAdmin(LoginRequiredMixin, View, AcceptedAppsReportMixin):
+class AcceptedAppsReportAdmin(LoginRequiredMixin, View):
     ''' Display a report of applications accepted by students for Admin '''
-    pass
+
+    @method_decorator(require_GET)
+    def get(self, request, *args, **kwargs):
+        request = userApi.has_admin_access(request, Role.HR)
+        
+        apps, total_apps = adminApi.get_accepted_app_report(request)
+        
+        page = request.GET.get('page', 1)
+        #paginator = Paginator(apps, settings.PAGE_SIZE)
+        paginator = Paginator(apps, 20)
+
+        try:
+            apps = paginator.page(page)
+        except PageNotAnInteger:
+            apps = paginator.page(1)
+        except EmptyPage:
+            apps = paginator.page(paginator.num_pages)
+
+        for app in apps:
+            app = adminApi.add_app_info_into_application(app, ['accepted'])
+
+            app.salary = adminApi.calcualte_salary(app)
+            pt_percentage = adminApi.calculate_pt_percentage(app)
+            app.pt_percentage = pt_percentage
+            app.weekly_hours = pt_percentage / 100 * 12
+
+            app.prev_accepted_apps = None
+            prev_apps = app.applicant.application_set.filter(job__session__year__lt=app.job.session.year).exclude(id=app.id)
+            total_assigned_hours = 0
+            if prev_apps.exists():
+                prev_accepted_apps = adminApi.get_accepted_apps_not_terminated(prev_apps)
+                prev_accepted_apps = adminApi.get_filtered_accepted_apps(prev_accepted_apps)
+                for ap in prev_accepted_apps:
+                    ap = adminApi.add_app_info_into_application(ap, ['accepted'])
+                    total_assigned_hours += ap.accepted.assigned_hours
+                
+                app.prev_accepted_apps = prev_accepted_apps
+                app.total_assigned_hours = total_assigned_hours
+            
+            lfs_grad_or_others = userApi.get_lfs_grad_or_others(app.applicant)
+            app.lfs_grad_or_others = lfs_grad_or_others
+
+            is_preferred_student = False
+            if total_assigned_hours > 0 and lfs_grad_or_others == 'LFS GRAD':
+                is_preferred_student = True
+            
+            app.is_preferred_student = is_preferred_student
+
+            confi_info_expiry_status = { 'sin': None, 'study_permit': None }
+            for st in userApi.get_confidential_info_expiry_status(app.applicant):
+                if st['doc'] == 'SIN':
+                    confi_info_expiry_status['sin'] = st['status'].upper()
+                elif st['doc'] == 'Study Permit':
+                    confi_info_expiry_status['study_permit'] = st['status'].upper()
+            
+            app.confi_info_expiry_status = confi_info_expiry_status
+    
+        return render(request, 'administrators/applications/accepted_app_report_admin.html', context={
+            'total_apps': total_apps,
+            'apps': apps,
+            'download_all_accepted_apps_report_admin_url': reverse('administrators:download_all_accepted_apps_report_admin')
+        })
 
 @method_decorator([never_cache], name='dispatch')
 class AcceptedAppsReportObserver(LoginRequiredMixin, View, AcceptedAppsReportMixin):
@@ -2058,7 +2119,7 @@ def download_all_accepted_apps(request):
                 employee_number = app.applicant.confidentiality.employee_number
         
         classification = '{0} {1} (${2})'.format(app.classification.year, app.classification.name, format(round(app.classification.wage, 2), '.2f'))
-        monthly_salary = '${0}'.format( format(adminApi.calcualte_salary(app), '.2f') )
+        salary = '${0}'.format( format(adminApi.calcualte_salary(app), '.2f') )
         pt = format( adminApi.calculate_pt_percentage(app), '.2f' )
         
         pin = ''
@@ -2066,7 +2127,7 @@ def download_all_accepted_apps(request):
         processed = ''
         worktag = ''
         processing_note = ''
-        if hasattr(app, 'admindocuments'):
+        if adminApi.has_admin_docs_created(app):
             if app.admindocuments.pin:
                 pin = app.admindocuments.pin
             if app.admindocuments.tasm:
@@ -2091,7 +2152,7 @@ def download_all_accepted_apps(request):
             student_number,
             employee_number,
             classification,
-            monthly_salary,
+            salary,
             pt,
             pin,
             tasm,
@@ -2104,6 +2165,11 @@ def download_all_accepted_apps(request):
     return JsonResponse({ 'status': 'success', 'data': result })
 
 
+from django.utils.safestring import mark_safe
+from django.utils.html import escape
+from django.utils.html import strip_tags
+
+
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
@@ -2111,31 +2177,43 @@ def download_all_accepted_apps_report_admin(request):
     ''' Download accepted applications as CSV for admin '''
 
     apps, total_apps = adminApi.get_accepted_app_report(request)
-    result = 'ID,Year,Term,Job,First Name,Last Name,CWL,Student Number,Employee Number,Domestic or International Student?,SIN Expiry Date,Study Permit Expiry Date,Previous TA Experience,Previous TA Experience Details\n'
+    apps = adminApi.add_app_info_into_applications(apps, ['accepted'])
+
+    result = 'ID,Year,Term,Job,Instructor(s),First Name,Last Name,CWL,Student Number,Employee Number,Domestic or International Student,Status,LFS Grad or Others,SIN Expiry Date,Study Permit Expiry Date,Previous TA Experience in UBC,Total Assgined Hours - Previous TA Experience in UBC,Previous TA Experience Details,Monthly Salary,P/T (%),Weekly Hours,PIN,TASM,Processed,Worktag,Processing Note,Accepted on,Assigned Hours,Preferred Student\n'
 
     for app in apps:
         year = app.job.session.year
         term = app.job.session.term.code
         job = '{0} {1} {2}'.format(app.job.course.code.name, app.job.course.number.name, app.job.course.section.name)
+        instructors = ''
+        if app.job.instructors.count() > 0:
+            for i, ins in enumerate(app.job.instructors.all()):
+                instructors += ins.get_full_name()
+                if i < app.job.instructors.count() - 1:
+                    instructors += ', '
+
         first_name = app.applicant.first_name
         last_name = app.applicant.last_name
         cwl = app.applicant.username
         
         student_number = ''
-        ta_experience = ''
+        status = ''
         ta_experience_details = ''
         if userApi.profile_exists(app.applicant):
             if app.applicant.profile.student_number:
                 student_number = app.applicant.profile.student_number
+             
+            if app.applicant.profile.status:
+                status = app.applicant.profile.status.name
             
-            if app.applicant.profile.ta_experience:
-                ta_experience = app.applicant.profile.get_ta_experience_display()
-
-            if ta_experience == 'Yes':
-                ta_experience_details = '"' + app.applicant.profile.ta_experience_details + '"'
+            if app.applicant.profile.ta_experience_details:
+                s = app.applicant.profile.ta_experience_details.replace('<br>', '\n').replace('</p>', '\n').replace('&nbsp;', ' ').replace('&amp;', '&').replace('"', "'")
+                ta_experience_details = strip_tags(s)
 
         employee_number = 'NEW'
         nationality = ''
+        lfs_grad_or_others = userApi.get_lfs_grad_or_others(app.applicant)
+
         sin_expiry_date = ''
         study_permit_expiry_date = ''
         if userApi.confidentiality_exists(app.applicant):
@@ -2148,22 +2226,100 @@ def download_all_accepted_apps_report_admin(request):
             if nationality == 'International Student':
                 sin_expiry_date = app.applicant.confidentiality.sin_expiry_date
                 study_permit_expiry_date = app.applicant.confidentiality.study_permit_expiry_date
+        
+        salary = '${0}'.format(format(adminApi.calcualte_salary(app), '.2f'))
+        pt = format(adminApi.calculate_pt_percentage(app), '.2f')
+        weekly_hours = format(adminApi.calculate_weekly_hours(pt), '.2f')
 
-        result += '{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13}\n'.format(
+        pin = ''
+        tasm = ''
+        processed = ''
+        worktag = ''
+        processing_note = ''
+        if adminApi.has_admin_docs_created(app):
+            if app.admindocuments.pin:
+                pin = app.admindocuments.pin
+            
+            if app.admindocuments.tasm:
+                tasm = 'YES'
+            
+            if app.admindocuments.processed:
+                processed = app.admindocuments.processed
+            
+            if app.admindocuments.worktag:
+                worktag = app.admindocuments.worktag
+            
+            if app.admindocuments.processing_note:
+                s = app.admindocuments.processing_note.replace('<br>', '\n').replace('</p>', '\n').replace('&nbsp;', ' ').replace('&amp;', '&').replace('"', "'")
+                processing_note = strip_tags(s)
+        
+        accepted_on = ''
+        assigned_hours = ''
+        if app.accepted:
+            accepted_on = app.accepted.created_at
+            assigned_hours = app.accepted.assigned_hours
+        
+        prev_apps = app.applicant.application_set.filter(job__session__year__lt=app.job.session.year).exclude(id=app.id)
+        total_assigned_hours = 0
+
+        prev_accepted_apps_ubc = ''
+        if prev_apps.exists():
+            prev_accepted_apps = adminApi.get_accepted_apps_not_terminated(prev_apps)
+            prev_accepted_apps = adminApi.get_filtered_accepted_apps(prev_accepted_apps)
+            for ap in prev_accepted_apps:
+                ap = adminApi.add_app_info_into_application(ap, ['accepted'])
+                total_assigned_hours += ap.accepted.assigned_hours
+
+                prev_accepted_apps_ubc += '{0} {1}, {2} {3} {4}, {5} {6} (${7}), {8} hours, {9}\n'.format(
+                    ap.job.session.year, 
+                    ap.job.session.term.code, 
+                    ap.job.course.code.name, 
+                    ap.job.course.number.name, 
+                    ap.job.course.section.name, 
+                    ap.classification.year, 
+                    ap.classification.name, 
+                    format(ap.classification.wage, '.2f'),
+                    ap.accepted.assigned_hours, 
+                    ap.accepted.created_at
+                )
+            
+            app.prev_accepted_apps = prev_accepted_apps
+            app.total_assigned_hours = total_assigned_hours
+
+        preferred_student = ''
+        if total_assigned_hours > 0 and lfs_grad_or_others == 'LFS GRAD':
+            preferred_student = 'YES'
+
+        result += '{0},{1},{2},{3},"{4}",{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15},{16},{17},{18},{19},{20},{21},{22},{23},{24},{25},{26},{27},{28}\n'.format(
             app.id,
             year,
             term,
             job,
+            instructors,
             first_name,
             last_name,
             cwl,
             student_number,
             employee_number,
             nationality,
+            status,
+            lfs_grad_or_others,
             sin_expiry_date,
             study_permit_expiry_date,
-            ta_experience,
-            ta_experience_details
+            '\"' + prev_accepted_apps_ubc + '\"',
+            total_assigned_hours,
+            '\"' + ta_experience_details + '\"',
+            salary,
+            pt,
+            weekly_hours,
+            pin,
+            tasm,
+            processed,
+            worktag,
+            '\"' + processing_note + '\"',
+            accepted_on,
+            assigned_hours,
+            preferred_student
         )
     return JsonResponse({ 'status': 'success', 'data': result })
 

@@ -20,6 +20,7 @@
           <li>
             {% include 'ta_app/applications/_declined_reassigned_note.html' %}
           </li>
+          <li><span class="font-weight-bold">Preferred Students</span> (<i class="fa fa-star text-warning" aria-hidden="true"></i>) indicate applicants have both <strong>LFS Graduate</strong> and <strong>Previous TA Experience in UBC</strong></li>
           <li><span class="font-weight-bold">LFS Graduate:</span> includes LFS Master’s and LFS PhD students</li>
           <li><span class="font-weight-bold">Others:</span> includes non-LFS Graduate students and all Undergraduate students</li>
         </ul>
@@ -44,16 +45,16 @@
         <th>ID</th>
         <th>Year Term /<br /> Job</th>
         <th>Instructor(s)</th>
-        <th>Applicant Name <br /> (CWL) </th>
+        <th>Applicant <br /> (CWL) </th>
         <th>Student <br /> Number</th>
         <th>Employee <br /> Number</th>
-        <th>Domestic or <br /> International <br /> Student?</th>
+        <th>Domestic or <br /> International <br /> Student</th>
         <th>Status / <br /> LFS Grad or Others</th>
         <th>SIN / Study Permit <br /> Expiry Date</th>
-        <th>Previous <br /> TA Experience</th>
         <th>Previous <br /> TA Experience <br /> in UBC</th>
         <th>Previous <br /> TA Experience <br /> Details</th>
         <th>Admin <br /> Docs</th>
+        <th>Accepted on</th>
       </tr>
     </thead>
     <tbody>
@@ -61,8 +62,9 @@
         <tr>
           <td>
             {{ app.id }}
-            {% if app.is_declined_reassigned %}
-              <i class="fa fa-asterisk text-danger" aria-hidden="true"></i>
+            {% if app.is_preferred_student %}
+              <br />
+              <i class="fa fa-star text-warning" aria-hidden="true"></i>
             {% endif %}
           </td>
           <td>
@@ -71,10 +73,12 @@
           </td>
           <td class="text-left">{% include 'ta_app/jobs/_job_instructor_list.html' with data=app.job %}</td>
           <td>
-            <div>
-              {{ app.applicant.first_name }} <br />{{ app.applicant.last_name }}
-            </div>
-            <div class="text-dark-gray">({{ app.applicant.username }})</div>
+            <div>{{ app.applicant.first_name }} <br /> {{ app.applicant.last_name }}</div>
+            <span class="text-dark-gray">({{ app.applicant.username }})</span>
+
+            {% if app.is_declined_reassigned %}
+              <i class="fa fa-asterisk text-danger" aria-hidden="true"></i>
+            {% endif %}
           </td>
           <td>{{ app.applicant.profile.student_number }}</td>
           <td>
@@ -91,7 +95,7 @@
             {{ app.applicant.profile.status.name }}
             {% if app.lfs_grad_or_others %}
               <br />
-              {% if app.lfs_grad_or_others == 'LFS Grad' %}
+              {% if app.lfs_grad_or_others == 'LFS GRAD' %}
                 <span class="badge badge-primary">{{ app.lfs_grad_or_others }}</span>
               {% else %}
                 <span class="badge badge-secondary">{{ app.lfs_grad_or_others }}</span>
@@ -116,19 +120,12 @@
             {% endif %}
           </td>
           <td>
-            {% if app.applicant.profile.get_ta_experience_display == 'Yes' %}
-              <span class="badge badge-success">YES <i class="fa fa-check-circle" aria-hidden="true"></i></span>
-            {% elif app.applicant.profile.get_ta_experience_display == 'No' %}
-              <span class="badge badge-danger">NO <i class="fa fa-stop-circle" aria-hidden="true"></i></span>
-            {% else %}
-              <span class="badge badge-secondary">N/A <i class="fa fa-stop-circle" aria-hidden="true"></i></span>
-            {% endif %}
-          </td>
-          <td>
             {% if app.prev_accepted_apps %}
               <button class="btn btn-xs btn-info" type="button" data-toggle="modal" data-target="#prev-accepted-apps-modal-{{ app.id }}">
                 Details
               </button>
+
+              <div class="mt-1">Total: <strong class="text-danger">{{ app.total_assigned_hours }}</strong></div>
 
               <div class="modal fade" id="prev-accepted-apps-modal-{{ app.id }}" tabindex="-1" role="dialog" aria-labelledby="prev-accepted-apps-modal-label-{{ app.id }}" aria-hidden="true">
                 <div class="modal-dialog modal-lg" role="document">
@@ -138,6 +135,8 @@
                       <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                     </div>
                     <div class="modal-body">
+                      <h5 class="text-left">Applicant: <span class="text-primary">{{ app.applicant.get_full_name }}</span></h5>
+
                       <h5 class="text-left mb-3">
                         Total Assigned Hours: <span class="text-danger">{{ app.total_assigned_hours }}</span>
                       </h5>
@@ -178,19 +177,21 @@
             {% endif %}
           </td>
           <td>
-            {% if app.applicant.profile.get_ta_experience_display == 'Yes' %}
-              <button class="btn btn-xs btn-info" type="button" data-toggle="modal" data-target="#prev-ta-experience-modal-{{ app.id }}">
+            {% if app.applicant.profile.ta_experience_details %}
+              <button class="btn btn-xs btn-info" type="button" data-toggle="modal" data-target="#ta-experience-details-modal-{{ app.id }}">
                 Details
               </button>
 
-              <div class="modal fade" id="prev-ta-experience-modal-{{ app.id }}" tabindex="-1" role="dialog" aria-labelledby="prev-ta-experience-modal-label-{{ app.id }}" aria-hidden="true">
-                <div class="modal-dialog" role="document">
+              <div class="modal fade" id="ta-experience-details-modal-{{ app.id }}" tabindex="-1" role="dialog" aria-labelledby="ta-experience-details-modal-label-{{ app.id }}" aria-hidden="true">
+                <div class="modal-dialog modal-lg" role="document">
                   <div class="modal-content">
                     <div class="modal-header">
-                      <h5 class="modal-title text-info" id="prev-ta-experience-modal-label-{{ app.id }}">Previous TA Experience</h5>
+                      <h5 class="modal-title text-info" id="ta-experience-details-modal-label-{{ app.id }}">Previous TA Experience Details</h5>
                       <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                     </div>
                     <div class="modal-body text-left font-size-1">
+                      <h5 class="text-left mb-3">Applicant: <span class="text-primary">{{ app.applicant.get_full_name }}</span></h5>
+
                       {{ app.applicant.profile.ta_experience_details|safe }}
                     </div>
                   </div>
@@ -213,12 +214,15 @@
                       <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                     </div>
                     <div class="modal-body">
+                      <h5 class="text-left mb-3">Applicant: <span class="text-primary">{{ app.applicant.get_full_name }}</span></h5>
+
                       <table class="modal-table table">
                         <thead>
                           <tr>
+                            <th>Classification</th>
                             <th>Monthly <br /> Salary</th>
-                            <th>P/T (%)</th>
-                            <th>Weekly Hours</th>
+                            <th>P/T <br /> (%)</th>
+                            <th>Weekly <br /> Hours</th>
                             <th>PIN</th>
                             <th>TASM</th>
                             <th>Processed</th>
@@ -228,6 +232,10 @@
                         </thead>
                         <tbody>
                           <tr>
+                            <td>
+                              <div>{% include 'ta_app/applications/_app_classification.html' with data=app %}</div>
+                              <div class="text-dark-gray">(${{ app.classification.wage|floatformat:2 }})</div>
+                            </td>
                             <td>${{ app.salary|floatformat:2 }}</td>
                             <td>{{ app.pt_percentage|floatformat:2 }}</td>
                             <td>{{ app.weekly_hours|floatformat:2 }}</td>
@@ -265,6 +273,15 @@
               </div>
             {% endif %}
           </td>
+          <td>
+            <div>{{ app.accepted.created_at }}</div>
+            <div>
+              (<span class="font-weight-bold text-chocolate">{{ app.accepted.assigned_hours }}</span> hours)
+            </div>
+            {% if app.accepted.has_contract_read %}
+              <span class="badge badge-success">READ</span>
+            {% endif %}
+          </td>
         </tr>
       {% empty %}
         <tr>
@@ -274,7 +291,7 @@
     </tbody>
   </table>
 
-  {% include 'ta_app/pages/_table_paginator.html' with data=apps %}
+  {% include 'administrators/applications/_admin_report_table_paginator.html' with data=apps %}
 </div>
 
 {% endblock %}

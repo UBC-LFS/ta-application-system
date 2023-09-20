@@ -227,7 +227,7 @@
             {% include 'ta_app/applications/_modal_processing_note.html' with data=app %}
           </td>
           <td>
-            <div class="text-dark-gray">{{ app.accepted.created_at }}</div>
+            <div>{{ app.accepted.created_at }}</div>
             <div>
               (<span class="font-weight-bold text-chocolate">{{ app.accepted.assigned_hours }}</span> hours)
             </div>
@@ -407,7 +407,7 @@
         </tr>
       {% empty %}
         <tr>
-          <td colspan="17">No accepted applications found</td>
+          <td colspan="100%">No accepted applications found</td>
         </tr>
       {% endfor %}
     </tbody>

@@ -975,6 +975,21 @@ def get_alertemails():
     return AlertEmail.objects.all()
 
 
+def get_lfs_grad_or_others(user):
+    master = get_status_by_slug('master-student')
+    phd = get_status_by_slug('phd-student')
+    other_program = get_program_by_slug('other')
+
+    lfs_grad_or_others = ''
+    if profile_exists(user) and user.profile.status and user.profile.program:
+        if (user.profile.status.id == master.id or user.profile.status.id == phd.id) and user.profile.program.id != other_program.id:
+            lfs_grad_or_others = 'LFS GRAD'
+        else:
+            lfs_grad_or_others = 'OTHERS'
+    
+    return lfs_grad_or_others
+
+
 # Helper methods
 def validate_post(post, list):
     errors = []

@@ -37,7 +37,8 @@ class AcceptedAppsReportMixin:
         apps, total_apps = adminApi.get_accepted_app_report(request)
         
         page = request.GET.get('page', 1)
-        paginator = Paginator(apps, settings.PAGE_SIZE)
+        #paginator = Paginator(apps, settings.PAGE_SIZE)
+        paginator = Paginator(apps, 20)
 
         try:
             apps = paginator.page(page)
@@ -45,10 +46,6 @@ class AcceptedAppsReportMixin:
             apps = paginator.page(1)
         except EmptyPage:
             apps = paginator.page(paginator.num_pages)
-
-        master = userApi.get_status_by_slug('master-student')
-        phd = userApi.get_status_by_slug('phd-student')
-        other_program = userApi.get_program_by_slug('other')
 
         for app in apps:
             if url_name == 'accepted_apps_report_admin':
@@ -71,13 +68,16 @@ class AcceptedAppsReportMixin:
                     app.prev_accepted_apps = prev_accepted_apps
                     app.total_assigned_hours = total_assigned_hours
                 
-                app.lfs_grad_or_others = None
-                if userApi.profile_exists(app.applicant) and app.applicant.profile.status and app.applicant.profile.program:
-                    if (app.applicant.profile.status.id == master.id or app.applicant.profile.status.id == phd.id) and app.applicant.profile.program.id != other_program.id:    
-                        app.lfs_grad_or_others = 'LFS GRAD'
-                    else:
-                        app.lfs_grad_or_others = 'OTHERS'
+                lfs_grad_or_others = userApi.get_lfs_grad_or_others(app.applicant)
+                app.lfs_grad_or_others = lfs_grad_or_others
+
+                is_preferred_student = False
+                if total_assigned_hours > 0 and lfs_grad_or_others == 'LFS GRAD':
+                    is_preferred_student = True
                 
+                app.is_preferred_student = is_preferred_student
+
+
                 status = { 'sin': None, 'study_permit': None }
                 for st in userApi.get_confidential_info_expiry_status(app.applicant):
                     if st['doc'] == 'SIN':

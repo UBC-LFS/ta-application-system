@@ -347,7 +347,7 @@ def get_accepted_app_report(request):
     if bool( request.GET.get('year') ):
         apps = apps.filter(job__session__year__icontains=request.GET.get('year'))
     if bool( request.GET.get('term') ):
-        apps = apps.filter(job__session__term__code__icontains=request.GET.get('term'))
+        apps = apps.filter(job__session__term__code__iexact=request.GET.get('term'))
     if bool( request.GET.get('code') ):
         apps = apps.filter(job__course__code__name__icontains=request.GET.get('code'))
     if bool( request.GET.get('number') ):
@@ -360,6 +360,9 @@ def get_accepted_app_report(request):
         apps = apps.filter(applicant__last_name__icontains=request.GET.get('last_name'))
     if bool( request.GET.get('student_number') ):
         apps = apps.filter(applicant__profile__student_number__icontains=request.GET.get('student_number'))
+
+    if bool( request.GET.get('preferred_student') ):
+        pass
 
     return apps, apps.count()
 
@@ -729,6 +732,23 @@ def get_applications(option=None):
     if option:
         return Application.objects.all().order_by(option)
     return Application.objects.all().order_by('-id')
+
+
+from django.db.models import BooleanField, Case, Value, When
+
+
+def annotate_lfs_grad(apps):
+    master = userApi.get_status_by_slug('master-student')
+    phd = userApi.get_status_by_slug('phd-student')
+    other_program = userApi.get_program_by_slug('other')
+
+    return apps.annotate(
+        is_lfs_grad=Case( 
+            When( (Q(applicant__profile__status_id=master.id) | Q(applicant__profile__status_id=phd.id)) & (~Q(applicant__profile__program_id=other_program.id)), then=Value(True) ), 
+            default = Value(False), 
+            output_field = BooleanField() 
+        )
+    )
 
 
 def get_applications_filter_limit(request, status):
@@ -1120,6 +1140,10 @@ def calculate_pt_percentage(app):
     
     return pt_percentage
 
+def calculate_weekly_hours(pt_percentage):
+    return float(pt_percentage) / 100 * 12
+
+
 
 def get_applicants_in_session(session):
     ''' Get applicants by term '''
@@ -1232,6 +1256,12 @@ def add_admin_docs_user(admin_docs, user):
     ''' Insert an user into admin docs '''
     admin_docs_user = AdminDocumentsUser.objects.create(document=admin_docs, user=user.get_full_name())
     return admin_docs_user if admin_docs_user else False
+
+def has_admin_docs_created(app):
+    try:
+        return app.admindocuments
+    except AdminDocuments.DoesNotExist:
+        return None
 
 
 # end admin documents
