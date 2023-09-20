@@ -2029,7 +2029,8 @@ class AcceptedAppsReportAdmin(LoginRequiredMixin, View):
         apps, total_apps = adminApi.get_accepted_app_report(request)
 
         page = request.GET.get('page', 1)
-        paginator = Paginator(apps, settings.PAGE_SIZE)
+        #paginator = Paginator(apps, settings.PAGE_SIZE)
+        paginator = Paginator(apps, 10)
 
         try:
             apps = paginator.page(page)
