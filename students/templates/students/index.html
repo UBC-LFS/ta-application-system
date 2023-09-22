@@ -107,7 +107,7 @@
 
         <a class="btn btn-sm btn-outline-primary mb-5" href="{% url 'students:explore_jobs' %}">Explore Jobs</a>
 
-        {% include 'ta_app/users/_confi_info_expiry_status.html' with items=will_expire path='students' %}
+        {% include 'ta_app/users/_confi_info_expiry_status.html' with items=expiry_status path='students' %}
       </div>
     </div>
 

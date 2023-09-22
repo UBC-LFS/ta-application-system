@@ -13,7 +13,11 @@
     <ul class="mt-2">
       {% for item in items %}
         <li>
-          <strong class="text-dark-gray">{{ item.doc }}</strong>: <strong class="text-danger">{{ item.status }}</strong> ({{ item.date }})
+          <strong class="text-dark-gray">{{ item.doc }}</strong>:
+          <strong class="text-danger">{{ item.status }}</strong>
+          {% if item.date %}
+            ({{ item.date }})
+          {% endif %}
         </li>
       {% endfor %}
     </ul>

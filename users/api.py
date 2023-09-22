@@ -840,6 +840,9 @@ def get_confidential_info_expiry_status(user):
             elif (confi.sin_expiry_date.year == utils.THIS_YEAR) and (confi.sin_expiry_date > utils.TODAY):
                 sin['status'] = 'Will expire'
                 docs.append(sin)
+        else:
+            sin['status'] = 'Missing'
+            docs.append(sin)
 
         if confi.study_permit_expiry_date:
             if confi.study_permit_expiry_date < utils.TODAY:
@@ -848,6 +851,9 @@ def get_confidential_info_expiry_status(user):
             elif (confi.study_permit_expiry_date.year == utils.THIS_YEAR) and (confi.study_permit_expiry_date > utils.TODAY):
                 study_permit['status'] = 'Will expire'
                 docs.append(study_permit)
+        else:
+            study_permit['status'] = 'Missing'
+            docs.append(study_permit)
     
     return docs
 
