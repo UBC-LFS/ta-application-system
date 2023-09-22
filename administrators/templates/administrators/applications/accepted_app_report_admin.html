@@ -121,77 +121,75 @@
             {% endif %}
           </td>
           <td>
-            {% if app.admindocuments %}
-              <button class="btn btn-xs btn-info" type="button" data-toggle="modal" data-target="#admin-docs-modal-{{ app.id }}">
-                <i class="fa fa-file-text-o" aria-hidden="true"></i>
-              </button>
+            <button class="btn btn-xs btn-info" type="button" data-toggle="modal" data-target="#admin-docs-modal-{{ app.id }}">
+              <i class="fa fa-file-text-o" aria-hidden="true"></i>
+            </button>
 
-              <div class="modal fade" id="admin-docs-modal-{{ app.id }}" tabindex="-1" role="dialog" aria-labelledby="admin-docs-modal-label-{{ app.id }}" aria-hidden="true">
-                <div class="modal-dialog modal-lg" role="document">
-                  <div class="modal-content">
-                    <div class="modal-header">
-                      <h5 class="modal-title text-info" id="admin-docs-modal-label-{{ app.id }}">Admin Documents</h5>
-                      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    </div>
-                    <div class="modal-body">
-                      <h5 class="text-left mb-3">Applicant: <span class="text-primary">{{ app.applicant.get_full_name }}</span></h5>
+            <div class="modal fade" id="admin-docs-modal-{{ app.id }}" tabindex="-1" role="dialog" aria-labelledby="admin-docs-modal-label-{{ app.id }}" aria-hidden="true">
+              <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title text-info" id="admin-docs-modal-label-{{ app.id }}">Admin Documents</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                  </div>
+                  <div class="modal-body">
+                    <h5 class="text-left mb-3">Applicant: <span class="text-primary">{{ app.applicant.get_full_name }}</span></h5>
 
-                      <table class="modal-table table">
-                        <thead>
-                          <tr>
-                            <th>Classification</th>
-                            <th>Monthly <br /> Salary</th>
-                            <th>P/T <br /> (%)</th>
-                            <th>Weekly <br /> Hours</th>
-                            <th>PIN</th>
-                            <th>TASM</th>
-                            <th>Processed</th>
-                            <th>Worktag</th>
-                            <th>Processing <br /> Note</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr>
-                            <td>
-                              <div>{% include 'ta_app/applications/_app_classification.html' with data=app %}</div>
-                              <div class="text-dark-gray">(${{ app.classification.wage|floatformat:2 }})</div>
-                            </td>
-                            <td>${{ app.salary|floatformat:2 }}</td>
-                            <td>{{ app.pt_percentage|floatformat:2 }}</td>
-                            <td>{{ app.weekly_hours|floatformat:2 }}</td>
-                            <td>
-                              {% if app.admindocuments.pin %}
-                                {{ app.admindocuments.pin }}
-                              {% endif %}
-                            </td>
-                            <td>
-                              {% if app.admindocuments.tasm == True %}
-                                <span class="badge badge-orange">YES</span>
-                              {% endif %}
-                            </td>
-                            <td>
-                              {% if app.admindocuments.processed %}
-                                {{ app.admindocuments.processed }}
-                              {% endif %}
-                            </td>
-                            <td>
-                              {% if app.admindocuments.worktag %}
-                                {{ app.admindocuments.worktag }}
-                              {% endif %}
-                            </td>
-                            <td>
-                              {% if app.admindocuments.processing_note %}
-                                {{ app.admindocuments.processing_note|safe }}
-                              {% endif %}
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
+                    <table class="modal-table table">
+                      <thead>
+                        <tr>
+                          <th>Classification</th>
+                          <th>Monthly <br /> Salary</th>
+                          <th>P/T <br /> (%)</th>
+                          <th>Weekly <br /> Hours</th>
+                          <th>PIN</th>
+                          <th>TASM</th>
+                          <th>Processed</th>
+                          <th>Worktag</th>
+                          <th>Processing <br /> Note</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>
+                            <div>{% include 'ta_app/applications/_app_classification.html' with data=app %}</div>
+                            <div class="text-dark-gray">(${{ app.classification.wage|floatformat:2 }})</div>
+                          </td>
+                          <td>${{ app.salary|floatformat:2 }}</td>
+                          <td>{{ app.pt_percentage|floatformat:2 }}</td>
+                          <td>{{ app.weekly_hours|floatformat:2 }}</td>
+                          <td>
+                            {% if app.admindocuments.pin %}
+                              {{ app.admindocuments.pin }}
+                            {% endif %}
+                          </td>
+                          <td>
+                            {% if app.admindocuments.tasm == True %}
+                              <span class="badge badge-orange">YES</span>
+                            {% endif %}
+                          </td>
+                          <td>
+                            {% if app.admindocuments.processed %}
+                              {{ app.admindocuments.processed }}
+                            {% endif %}
+                          </td>
+                          <td>
+                            {% if app.admindocuments.worktag %}
+                              {{ app.admindocuments.worktag }}
+                            {% endif %}
+                          </td>
+                          <td>
+                            {% if app.admindocuments.processing_note %}
+                              {{ app.admindocuments.processing_note|safe }}
+                            {% endif %}
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
                   </div>
                 </div>
               </div>
-            {% endif %}
+            </div>
           </td>
           <td>
             {% if app.applicant.profile.ta_experience_details %}

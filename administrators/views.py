@@ -2212,7 +2212,7 @@ def download_all_accepted_apps_report_admin(request):
     apps, total_apps = adminApi.get_accepted_app_report(request)
     apps = adminApi.add_app_info_into_applications(apps, ['accepted'])
 
-    result = 'ID,Preferred Student,Year,Term,Job,Instructor(s),First Name,Last Name,CWL,Student Number,Employee Number,Domestic or International Student,Status,LFS Grad or Others,SIN Expiry Date,Study Permit Expiry Date,Monthly Salary,P/T (%),Weekly Hours,PIN,TASM,Processed,Worktag,Processing Note,Previous TA Experience Details,Previous TA Experience in UBC,Total Assgined Hours - Previous TA Experience in UBC,Previous Year TA Experience in Same Term,Total Previous Year Assigned Hours in Same Term,Accepted on,Assigned Hours\n'
+    result = 'ID,Preferred Student,Year,Term,Job,Instructor(s),First Name,Last Name,CWL,Student Number,Employee Number,Domestic or International Student,Status,LFS Grad or Others,SIN Expiry Date,Study Permit Expiry Date,Accepted on,Assigned Hours,Classification,Monthly Salary,P/T (%),Weekly Hours,PIN,TASM,Processed,Worktag,Processing Note,Previous TA Experience Details,Previous TA Experience in UBC,Total Assgined Hours - Previous TA Experience in UBC,Previous Year TA Experience in Same Term,Total Previous Year Assigned Hours in Same Term\n'
 
     for app in apps:
         year = app.job.session.year
@@ -2262,6 +2262,12 @@ def download_all_accepted_apps_report_admin(request):
         salary = '${0}'.format(format(adminApi.calcualte_salary(app), '.2f'))
         pt = format(adminApi.calculate_pt_percentage(app), '.2f')
         weekly_hours = format(adminApi.calculate_weekly_hours(pt), '.2f')
+
+        classification = '{0} {1} ({2})'.format(
+            app.classification.year,
+            app.classification.name,
+            format(app.classification.wage, '.2f'),
+        )
 
         pin = ''
         tasm = ''
@@ -2340,7 +2346,7 @@ def download_all_accepted_apps_report_admin(request):
         if total_assigned_hours > 0 and lfs_grad_or_others == 'LFS GRAD':
             preferred_student = 'YES'
 
-        result += '{0},{1},{2},{3},"{4}",{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15},{16},{17},{18},{19},{20},{21},{22},{23},{24},{25},{26},{27},{28},{29},{30}\n'.format(
+        result += '{0},{1},{2},{3},"{4}",{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15},{16},{17},{18},{19},{20},{21},{22},{23},{24},{25},{26},{27},{28},{29},{30},{31}\n'.format(
             app.id,
             preferred_student,
             year,
@@ -2357,6 +2363,9 @@ def download_all_accepted_apps_report_admin(request):
             lfs_grad_or_others,
             sin_expiry_date,
             study_permit_expiry_date,
+            accepted_on,
+            assigned_hours,
+            classification,
             salary,
             pt,
             weekly_hours,
@@ -2369,9 +2378,7 @@ def download_all_accepted_apps_report_admin(request):
             '\"' + prev_accepted_apps_ubc + '\"',
             total_assigned_hours,
             '\"' + prev_year_accepted_apps_ubc + '\"',
-            total_prev_year_assigned_hours,
-            accepted_on,
-            assigned_hours
+            total_prev_year_assigned_hours
         )
     return JsonResponse({ 'status': 'success', 'data': result })
 
