@@ -2059,7 +2059,7 @@ class AcceptedAppsReportAdmin(LoginRequiredMixin, View):
 
                 app.prev_accepted_apps = prev_accepted_apps
                 app.total_assigned_hours = total_assigned_hours
-            
+
             prev_year_apps = app.applicant.application_set.filter(job__session__year=int(app.job.session.year)-1, job__session__term__code=app.job.session.term.code)
             app.prev_year_accepted_apps = None
             total_prev_year_assigned_hours = 0
@@ -2069,7 +2069,7 @@ class AcceptedAppsReportAdmin(LoginRequiredMixin, View):
                 for ap in prev_year_accepted_apps:
                     ap = adminApi.add_app_info_into_application(ap, ['accepted'])
                     total_prev_year_assigned_hours += ap.accepted.assigned_hours
-                
+
                 app.prev_year_accepted_apps = prev_year_accepted_apps
                 app.total_prev_year_assigned_hours = total_prev_year_assigned_hours
 
@@ -2212,7 +2212,7 @@ def download_all_accepted_apps_report_admin(request):
     apps, total_apps = adminApi.get_accepted_app_report(request)
     apps = adminApi.add_app_info_into_applications(apps, ['accepted'])
 
-    result = 'ID,Preferred Student,Year,Term,Job,Instructor(s),First Name,Last Name,CWL,Student Number,Employee Number,Domestic or International Student,Status,LFS Grad or Others,SIN Expiry Date,Study Permit Expiry Date,Accepted on,Assigned Hours,Classification,Monthly Salary,P/T (%),Weekly Hours,PIN,TASM,Processed,Worktag,Processing Note,Previous TA Experience Details,Previous TA Experience in UBC,Total Assgined Hours - Previous TA Experience in UBC,Previous Year TA Experience in Same Term,Total Previous Year Assigned Hours in Same Term\n'
+    result = 'ID,Preferred Student,Year,Term,Job,Instructor(s),First Name,Last Name,CWL,Student Number,Employee Number,Domestic or International Student,Status,LFS Grad or Others,SIN Expiry Date,Study Permit Expiry Date,Accepted on,Assigned Hours,Classification,Monthly Salary,P/T (%),Weekly Hours,PIN,TASM,Processed,Worktag,Processing Note,Previous TA Experience Details,Previous TA Experience in UBC,Total Assigned Hours - Previous TA Experience in UBC,Previous Year TA Experience in Same Term,Total Previous Year Assigned Hours in Same Term\n'
 
     for app in apps:
         year = app.job.session.year
@@ -2341,7 +2341,7 @@ def download_all_accepted_apps_report_admin(request):
                     ap.accepted.assigned_hours,
                     ap.accepted.created_at
                 )
-                
+
         preferred_student = ''
         if total_assigned_hours > 0 and lfs_grad_or_others == 'LFS GRAD':
             preferred_student = 'YES'
