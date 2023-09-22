@@ -46,14 +46,14 @@
         <th>Year Term /<br /> Job</th>
         <th>Instructor(s)</th>
         <th>Applicant <br /> (CWL) </th>
-        <th>Student <br /> Number</th>
-        <th>Employee <br /> Number</th>
+        <th>Student Number / <br /> Employee Number</th>
         <th>Domestic or <br /> International <br /> Student</th>
         <th>Status / <br /> LFS Grad or Others</th>
         <th>SIN / Study Permit <br /> Expiry Date</th>
-        <th>Previous <br /> TA Experience <br /> in UBC</th>
-        <th>Previous <br /> TA Experience <br /> Details</th>
         <th>Admin <br /> Docs</th>
+        <th>Previous <br /> TA Experience <br /> Details</th>
+        <th>Previous <br /> TA Experience <br /> in UBC</th>
+        <th>Previous Year <br /> TA Experience<br /> in Same Term</th>
         <th>Accepted on</th>
       </tr>
     </thead>
@@ -80,8 +80,9 @@
               <i class="fa fa-asterisk text-danger" aria-hidden="true"></i>
             {% endif %}
           </td>
-          <td>{{ app.applicant.profile.student_number }}</td>
           <td>
+            {{ app.applicant.profile.student_number }} <br />
+
             {% if app.applicant.confidentiality.employee_number %}
               {{ app.applicant.confidentiality.employee_number }}
             {% else %}
@@ -120,90 +121,9 @@
             {% endif %}
           </td>
           <td>
-            {% if app.prev_accepted_apps %}
-              <button class="btn btn-xs btn-info" type="button" data-toggle="modal" data-target="#prev-accepted-apps-modal-{{ app.id }}">
-                Details
-              </button>
-
-              <div class="mt-1">Total: <strong class="text-danger">{{ app.total_assigned_hours }}</strong></div>
-
-              <div class="modal fade" id="prev-accepted-apps-modal-{{ app.id }}" tabindex="-1" role="dialog" aria-labelledby="prev-accepted-apps-modal-label-{{ app.id }}" aria-hidden="true">
-                <div class="modal-dialog modal-lg" role="document">
-                  <div class="modal-content">
-                    <div class="modal-header">
-                      <h5 class="modal-title text-info" id="prev-accepted-apps-modal-label-{{ app.id }}">Previous TA Experience in UBC</h5>
-                      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    </div>
-                    <div class="modal-body">
-                      <h5 class="text-left">Applicant: <span class="text-primary">{{ app.applicant.get_full_name }}</span></h5>
-
-                      <h5 class="text-left mb-3">
-                        Total Assigned Hours: <span class="text-danger">{{ app.total_assigned_hours }}</span>
-                      </h5>
-                      <table class="modal-table table">
-                        <thead>
-                          <tr>
-                            <th>ID</th>
-                            <th>Year</th>
-                            <th>Term</th>
-                            <th>Job</th>
-                            <th>Classification</th>
-                            <th>Assigned Hours</th>
-                            <th>Accepted on</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {% for ap in app.prev_accepted_apps %}
-                            <tr>
-                              <td>{{ ap.id }}</td>
-                              <td>{{ ap.job.session.year }}</td>
-                              <td>{{ ap.job.session.term.code }}</td>
-                              <td>{{ ap.job.course.code.name }} {{ ap.job.course.number.name }} {{ ap.job.course.section.name }}</td>
-                              <td>
-                                <div>{% include 'ta_app/applications/_app_classification.html' with data=ap %}</div>
-                                <div class="text-dark-gray">(${{ ap.classification.wage|floatformat:2 }})</div>
-                              </td>
-                              <td>{{ ap.accepted.assigned_hours }}</td>
-                              <td>{{ ap.accepted.created_at }}</td>
-                            </tr>
-                          {% endfor %}
-                        </tbody>
-                      </table>
-
-                    </div>
-                  </div>
-                </div>
-              </div>
-            {% endif %}
-          </td>
-          <td>
-            {% if app.applicant.profile.ta_experience_details %}
-              <button class="btn btn-xs btn-info" type="button" data-toggle="modal" data-target="#ta-experience-details-modal-{{ app.id }}">
-                Details
-              </button>
-
-              <div class="modal fade" id="ta-experience-details-modal-{{ app.id }}" tabindex="-1" role="dialog" aria-labelledby="ta-experience-details-modal-label-{{ app.id }}" aria-hidden="true">
-                <div class="modal-dialog modal-lg" role="document">
-                  <div class="modal-content">
-                    <div class="modal-header">
-                      <h5 class="modal-title text-info" id="ta-experience-details-modal-label-{{ app.id }}">Previous TA Experience Details</h5>
-                      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    </div>
-                    <div class="modal-body text-left font-size-1">
-                      <h5 class="text-left mb-3">Applicant: <span class="text-primary">{{ app.applicant.get_full_name }}</span></h5>
-
-                      {{ app.applicant.profile.ta_experience_details|safe }}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            {% endif %}
-          </td>
-
-          <td>
             {% if app.admindocuments %}
               <button class="btn btn-xs btn-info" type="button" data-toggle="modal" data-target="#admin-docs-modal-{{ app.id }}">
-                Details
+                <i class="fa fa-file-text-o" aria-hidden="true"></i>
               </button>
 
               <div class="modal fade" id="admin-docs-modal-{{ app.id }}" tabindex="-1" role="dialog" aria-labelledby="admin-docs-modal-label-{{ app.id }}" aria-hidden="true">
@@ -267,6 +187,143 @@
                           </tr>
                         </tbody>
                       </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {% endif %}
+          </td>
+          <td>
+            {% if app.applicant.profile.ta_experience_details %}
+              <button class="btn btn-xs btn-info" type="button" data-toggle="modal" data-target="#ta-experience-details-modal-{{ app.id }}">
+                <i class="fa fa-file-text-o" aria-hidden="true"></i>
+              </button>
+
+              <div class="modal fade" id="ta-experience-details-modal-{{ app.id }}" tabindex="-1" role="dialog" aria-labelledby="ta-experience-details-modal-label-{{ app.id }}" aria-hidden="true">
+                <div class="modal-dialog modal-lg" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title text-info" id="ta-experience-details-modal-label-{{ app.id }}">Previous TA Experience Details</h5>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    </div>
+                    <div class="modal-body text-left font-size-1">
+                      <h5 class="text-left mb-3">Applicant: <span class="text-primary">{{ app.applicant.get_full_name }}</span></h5>
+
+                      {{ app.applicant.profile.ta_experience_details|safe }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {% endif %}
+          </td>
+          <td>
+            {% if app.prev_accepted_apps %}
+              <button class="btn btn-xs btn-info" type="button" data-toggle="modal" data-target="#prev-accepted-apps-modal-{{ app.id }}">
+                <i class="fa fa-file-text-o" aria-hidden="true"></i>
+              </button>
+
+              <div class="mt-1">Total: <strong class="text-danger">{{ app.total_assigned_hours }}</strong></div>
+
+              <div class="modal fade" id="prev-accepted-apps-modal-{{ app.id }}" tabindex="-1" role="dialog" aria-labelledby="prev-accepted-apps-modal-label-{{ app.id }}" aria-hidden="true">
+                <div class="modal-dialog modal-lg" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title text-info" id="prev-accepted-apps-modal-label-{{ app.id }}">Previous TA Experience in UBC</h5>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    </div>
+                    <div class="modal-body">
+                      <h5 class="text-left">Applicant: <span class="text-primary">{{ app.applicant.get_full_name }}</span></h5>
+
+                      <h5 class="text-left mb-3">
+                        Total Assigned Hours: <span class="text-danger">{{ app.total_assigned_hours }}</span>
+                      </h5>
+                      <table class="modal-table table">
+                        <thead>
+                          <tr>
+                            <th>ID</th>
+                            <th>Year</th>
+                            <th>Term</th>
+                            <th>Job</th>
+                            <th>Classification</th>
+                            <th>Assigned Hours</th>
+                            <th>Accepted on</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {% for ap in app.prev_accepted_apps %}
+                            <tr>
+                              <td>{{ ap.id }}</td>
+                              <td>{{ ap.job.session.year }}</td>
+                              <td>{{ ap.job.session.term.code }}</td>
+                              <td>{{ ap.job.course.code.name }} {{ ap.job.course.number.name }} {{ ap.job.course.section.name }}</td>
+                              <td>
+                                <div>{% include 'ta_app/applications/_app_classification.html' with data=ap %}</div>
+                                <div class="text-dark-gray">(${{ ap.classification.wage|floatformat:2 }})</div>
+                              </td>
+                              <td>{{ ap.accepted.assigned_hours }}</td>
+                              <td>{{ ap.accepted.created_at }}</td>
+                            </tr>
+                          {% endfor %}
+                        </tbody>
+                      </table>
+
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {% endif %}
+          </td>
+          <td>
+            {% if app.prev_year_accepted_apps %}
+              <button class="btn btn-xs btn-info" type="button" data-toggle="modal" data-target="#prev-year-accepted-apps-modal-{{ app.id }}">
+                <i class="fa fa-file-text-o" aria-hidden="true"></i>
+              </button>
+
+              <div class="mt-1">Total: <strong class="text-danger">{{ app.total_prev_year_assigned_hours }}</strong></div>
+
+              <div class="modal fade" id="prev-year-accepted-apps-modal-{{ app.id }}" tabindex="-1" role="dialog" aria-labelledby="prev-year-accepted-apps-modal-label-{{ app.id }}" aria-hidden="true">
+                <div class="modal-dialog modal-lg" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title text-info" id="prev-year-accepted-apps-modal-label-{{ app.id }}">Previous Year TA Experience in Same Term</h5>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    </div>
+                    <div class="modal-body">
+                      <h5 class="text-left">Applicant: <span class="text-primary">{{ app.applicant.get_full_name }}</span></h5>
+
+                      <h5 class="text-left mb-3">
+                        Total Previous Year Assigned Hours: <span class="text-danger">{{ app.total_prev_year_assigned_hours }}</span>
+                      </h5>
+                      <table class="modal-table table">
+                        <thead>
+                          <tr>
+                            <th>ID</th>
+                            <th>Year</th>
+                            <th>Term</th>
+                            <th>Job</th>
+                            <th>Classification</th>
+                            <th>Assigned Hours</th>
+                            <th>Accepted on</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {% for ap in app.prev_year_accepted_apps %}
+                            <tr>
+                              <td>{{ ap.id }}</td>
+                              <td>{{ ap.job.session.year }}</td>
+                              <td>{{ ap.job.session.term.code }}</td>
+                              <td>{{ ap.job.course.code.name }} {{ ap.job.course.number.name }} {{ ap.job.course.section.name }}</td>
+                              <td>
+                                <div>{% include 'ta_app/applications/_app_classification.html' with data=ap %}</div>
+                                <div class="text-dark-gray">(${{ ap.classification.wage|floatformat:2 }})</div>
+                              </td>
+                              <td>{{ ap.accepted.assigned_hours }}</td>
+                              <td>{{ ap.accepted.created_at }}</td>
+                            </tr>
+                          {% endfor %}
+                        </tbody>
+                      </table>
+
                     </div>
                   </div>
                 </div>
