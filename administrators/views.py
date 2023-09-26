@@ -98,7 +98,7 @@ class CurrentSessions(LoginRequiredMixin, View):
         if bool(year_q):
             session_list = session_list.filter(year__icontains=year_q)
         if bool(term_q):
-            session_list = session_list.filter(term__code__iexact=term_q)
+            session_list = session_list.filter(term__code__icontains=term_q)
 
         session_list = session_list.filter(is_archived=False)
         session_list = adminApi.add_num_instructors(session_list)
@@ -138,7 +138,7 @@ class ArchivedSessions(LoginRequiredMixin, View):
         if bool(year_q):
             session_list = session_list.filter(year__icontains=year_q)
         if bool(term_q):
-            session_list = session_list.filter(term__code__iexact=term_q)
+            session_list = session_list.filter(term__code__icontains=term_q)
 
         session_list = session_list.filter(is_archived=True)
         session_list = adminApi.add_num_instructors(session_list)
@@ -656,7 +656,7 @@ def prepare_jobs(request):
     if bool(year_q):
         job_list = job_list.filter(session__year__icontains=year_q)
     if bool(term_q):
-        job_list = job_list.filter(session__term__code__iexact=term_q)
+        job_list = job_list.filter(session__term__code__icontains=term_q)
     if bool(code_q):
         job_list = job_list.filter(course__code__name__icontains=code_q)
     if bool(number_q):
@@ -702,7 +702,7 @@ def progress_jobs(request):
     if bool(year_q):
         job_list = job_list.filter(session__year__icontains=year_q)
     if bool(term_q):
-        job_list = job_list.filter(session__term__code__iexact=term_q)
+        job_list = job_list.filter(session__term__code__icontains=term_q)
     if bool(code_q):
         job_list = job_list.filter(course__code__name__icontains=code_q)
     if bool(number_q):
@@ -1103,7 +1103,7 @@ def applications_dashboard(request):
     if bool(year_q):
         status_list = status_list.filter(application__job__session__year__icontains=year_q)
     if bool(term_q):
-        status_list = status_list.filter(application__job__session__term__code__iexact=term_q)
+        status_list = status_list.filter(application__job__session__term__code__icontains=term_q)
     if bool(code_q):
         status_list = status_list.filter(application__job__course__code__name__icontains=code_q)
     if bool(number_q):
@@ -2849,7 +2849,7 @@ def all_courses(request):
 
     course_list = adminApi.get_courses()
     if bool(term_q):
-        course_list = course_list.filter(term__code__iexact=term_q)
+        course_list = course_list.filter(term__code__icontains=term_q)
     if bool(code_q):
         course_list = course_list.filter(code__name__icontains=code_q)
     if bool(number_q):

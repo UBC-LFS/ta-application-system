@@ -784,7 +784,7 @@ def get_applications_filter_limit(request, status):
     if bool( request.GET.get('year') ):
         apps = apps.filter(job__session__year__icontains=request.GET.get('year'))
     if bool( request.GET.get('term') ):
-        apps = apps.filter(job__session__term__code__iexact=request.GET.get('term'))
+        apps = apps.filter(job__session__term__code__icontains=request.GET.get('term'))
     if bool( request.GET.get('code') ):
         apps = apps.filter(job__course__code__name__icontains=request.GET.get('code'))
     if bool( request.GET.get('number') ):
