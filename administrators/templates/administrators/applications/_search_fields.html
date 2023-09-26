@@ -1,5 +1,6 @@
 <div class="search-field bg-light-gray p-3 font-size-sm">
   <form method="GET">
+    <input type="hidden" name="page" value="{% if request.GET.page %}{{ request.GET.page }}{% else %}1{% endif %}" />
     <input type="text" name="year" value="{{ request.GET.year }}" placeholder="Year" /> and
     <input type="text" name="term" value="{{ request.GET.term }}" placeholder="Term" /> <br />
     <input type="text" name="code" value="{{ request.GET.code }}" placeholder="Job Code" /> and
@@ -8,26 +9,28 @@
     <input type="text" name="first_name" value="{{ request.GET.first_name }}" placeholder="Applicant First Name" /> and
     <input type="text" name="last_name" value="{{ request.GET.last_name }}" placeholder="Applicant Last Name" />
 
-    {% if path == 'selected' %}
-      <div>
-        <span class="mr-3">
-          <label for="offered">Offered</label>
-          <input class="custom-input-mb-7" type="radio" id="offered" name="offer_status" value="offered" {% if request.GET.offer_status == 'offered' %}checked{% endif %} />
-           or
-          <label for="not_offered">Not offered</label>
-          <input class="custom-input-mb-7" type="radio" id="not_offered" name="offer_status" value="not_offered" {% if request.GET.offer_status == 'not_offered' %}checked{% endif %} />
-        </span>
-        |
-        <span class="ml-3">
-          Sort by Job in
-          <label for="asc">ASC</label>
-          <input class="custom-input-mb-7" type="radio" name="sort_by_job" value="asc" {% if request.GET.sort_by_job == 'asc' %}checked{% endif %} />
-          or
-          <label for="desc">DESC</label>
-          <input class="custom-input-mb-7" type="radio" name="sort_by_job" value="desc" {% if request.GET.sort_by_job == 'desc' %}checked{% endif %} />
+    and Exact Search: <input class="custom-input-mb-7" type="checkbox" name="exact_search" value="True" {% if request.GET.exact_search %}checked{% endif %} />
 
-        </span>
-      </div>
+    {% if path == 'selected' %}
+
+      <br />
+      <span class="mr-3">
+        <label for="offered">Offered</label>
+        <input class="custom-input-mb-7" type="radio" id="offered" name="offer_status" value="offered" {% if request.GET.offer_status == 'offered' %}checked{% endif %} />
+         or
+        <label for="not_offered">Not offered</label>
+        <input class="custom-input-mb-7" type="radio" id="not_offered" name="offer_status" value="not_offered" {% if request.GET.offer_status == 'not_offered' %}checked{% endif %} />
+      </span>
+      |
+      <span class="ml-3">
+        Sort by Job in
+        <label for="asc">ASC</label>
+        <input class="custom-input-mb-7" type="radio" name="sort_by_job" value="asc" {% if request.GET.sort_by_job == 'asc' %}checked{% endif %} />
+        or
+        <label for="desc">DESC</label>
+        <input class="custom-input-mb-7" type="radio" name="sort_by_job" value="desc" {% if request.GET.sort_by_job == 'desc' %}checked{% endif %} />
+      </span>
+
 
     {% elif path == 'offered' %}
       <br />

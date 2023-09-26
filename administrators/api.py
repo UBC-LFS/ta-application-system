@@ -781,20 +781,44 @@ def get_applications_filter_limit(request, status):
         apps = Application.objects.all().order_by('-id')
 
     # Search filter
+
+    exact_search_q = request.GET.get('exact_search')
+
     if bool( request.GET.get('year') ):
-        apps = apps.filter(job__session__year__icontains=request.GET.get('year'))
+        if bool(exact_search_q):
+            apps = apps.filter(job__session__year__iexact=request.GET.get('year'))
+        else:
+            apps = apps.filter(job__session__year__icontains=request.GET.get('year'))
     if bool( request.GET.get('term') ):
-        apps = apps.filter(job__session__term__code__icontains=request.GET.get('term'))
+        if bool(exact_search_q):
+            apps = apps.filter(job__session__term__code__iexact=request.GET.get('term'))
+        else:
+            apps = apps.filter(job__session__term__code__icontains=request.GET.get('term'))
     if bool( request.GET.get('code') ):
-        apps = apps.filter(job__course__code__name__icontains=request.GET.get('code'))
+        if bool(exact_search_q):
+            apps = apps.filter(job__course__code__name__iexact=request.GET.get('code'))
+        else:
+            apps = apps.filter(job__course__code__name__icontains=request.GET.get('code'))
     if bool( request.GET.get('number') ):
-        apps = apps.filter(job__course__number__name__icontains=request.GET.get('number'))
+        if bool(exact_search_q):
+            apps = apps.filter(job__course__number__name__iexact=request.GET.get('number'))
+        else:
+            apps = apps.filter(job__course__number__name__icontains=request.GET.get('number'))
     if bool( request.GET.get('section') ):
-        apps = apps.filter(job__course__section__name__icontains=request.GET.get('section'))
+        if bool(exact_search_q):
+            apps = apps.filter(job__course__section__name__iexact=request.GET.get('section'))
+        else:
+            apps = apps.filter(job__course__section__name__icontains=request.GET.get('section'))
     if bool( request.GET.get('first_name') ):
-        apps = apps.filter(applicant__first_name__icontains=request.GET.get('first_name'))
+        if bool(exact_search_q):
+            apps = apps.filter(applicant__first_name__iexact=request.GET.get('first_name'))
+        else:
+            apps = apps.filter(applicant__first_name__icontains=request.GET.get('first_name'))
     if bool( request.GET.get('last_name') ):
-        apps = apps.filter(applicant__last_name__icontains=request.GET.get('last_name'))
+        if bool(exact_search_q):
+            apps = apps.filter(applicant__last_name__iexact=request.GET.get('last_name'))
+        else:
+            apps = apps.filter(applicant__last_name__icontains=request.GET.get('last_name'))
 
     if status == 'selected':
         if bool( request.GET.get('sort_by_job') ):
