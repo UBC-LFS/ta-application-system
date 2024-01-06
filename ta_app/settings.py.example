@@ -85,7 +85,8 @@ MIDDLEWARE = [
 ]
 
 AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.RemoteUserBackend',
+    # 'django.contrib.auth.backends.RemoteUserBackend',
+    'ta_app.backends.CustomRemoteUserBackend'
 ]
 
 

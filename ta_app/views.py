@@ -1,8 +1,8 @@
 from django.conf import settings
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
-from django.views.decorators.cache import cache_control, never_cache
+from django.views.decorators.cache import cache_control
 from django.http import HttpResponseRedirect
 from django.core.exceptions import SuspiciousOperation
 
@@ -20,30 +20,7 @@ def landing_page(request):
 def app_home(request):
     ''' App Home '''
 
-    first_name = request.META[settings.SHIB_ATTR_MAP['first_name']] if settings.SHIB_ATTR_MAP['first_name'] in request.META else None
-    last_name = request.META[settings.SHIB_ATTR_MAP['last_name']] if settings.SHIB_ATTR_MAP['last_name'] in request.META else None
-    email = request.META[settings.SHIB_ATTR_MAP['email']] if settings.SHIB_ATTR_MAP['email'] in request.META else None
-    username = request.META[settings.SHIB_ATTR_MAP['username']] if settings.SHIB_ATTR_MAP['username'] in request.META else None
-    employee_number = request.META[settings.SHIB_ATTR_MAP['employee_number']] if settings.SHIB_ATTR_MAP['employee_number'] in request.META else None
-    student_number = request.META[settings.SHIB_ATTR_MAP['student_number']] if settings.SHIB_ATTR_MAP['student_number'] in request.META else None
-
-    data = {
-        'first_name': first_name,
-        'last_name': last_name,
-        'email': email,
-        'username': username,
-        'employee_number': employee_number,
-        'student_number': student_number
-    }
-
-    if not username or userApi.contain_user_duplicated_info(data):
-        raise SuspiciousOperation
-
-    user = userApi.user_exists(data)
-    if not user:
-        user = userApi.create_user(data)
-
-    roles = userApi.get_user_roles(user)
+    roles = userApi.get_user_roles(request.user)
     if not roles:
         raise SuspiciousOperation
 
