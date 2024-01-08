@@ -29,6 +29,7 @@ urlpatterns = [
     path('app/impersonate/', include('impersonate.urls')),
 
     path('app/', views.app_home, name='app_home'),
+    path('logout/', views.site_logout, name='logout'),
     path('', views.landing_page, name='landing_page')
 ]
 

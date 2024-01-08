@@ -5,14 +5,17 @@ from django.views.decorators.http import require_http_methods
 from django.views.decorators.cache import cache_control
 from django.http import HttpResponseRedirect
 from django.core.exceptions import SuspiciousOperation
+from django.contrib.auth import logout
 
 from administrators import api as adminApi
 from users import api as userApi
+
 
 def landing_page(request):
     return render(request, 'ta_app/landing_page.html', {
         'landing_page': adminApi.get_visible_landing_page()
     })
+
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -31,6 +34,14 @@ def app_home(request):
     }
     redirect_to = adminApi.redirect_to_index_page(roles)
     return HttpResponseRedirect(redirect_to)
+
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def site_logout(request):
+    logout(request)
+    return HttpResponseRedirect('/Shibboleth.sso/Logout')
 
 
 def bad_request(request, exception, template_name='400.html'):
