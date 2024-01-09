@@ -1496,7 +1496,8 @@ class AcceptedApplications(LoginRequiredMixin, View):
             'today_accepted_apps': info['today_accepted_apps'],
             'today_processed_stats': adminApi.get_processed_stats(info['today_accepted_apps']),
             'today': info['today'],
-            'download_all_accepted_apps_url': reverse('administrators:download_all_accepted_apps')
+            'download_all_accepted_apps_url': reverse('administrators:download_all_accepted_apps'),
+            'worktag_options': settings.WORKTAGS
         })
 
 
@@ -2029,7 +2030,6 @@ class AcceptedAppsReportAdmin(LoginRequiredMixin, View):
         apps, total_apps = adminApi.get_accepted_app_report(request)
 
         page = request.GET.get('page', 1)
-        #paginator = Paginator(apps, settings.PAGE_SIZE)
         paginator = Paginator(apps, 10)
 
         try:
@@ -2109,7 +2109,8 @@ class AcceptedAppsReportObserver(LoginRequiredMixin, View):
         apps, total_apps = adminApi.get_accepted_app_report(request)
 
         page = request.GET.get('page', 1)
-        paginator = Paginator(apps, settings.PAGE_SIZE)
+        #paginator = Paginator(apps, settings.PAGE_SIZE)
+        paginator = Paginator(apps, 1)
 
         try:
             apps = paginator.page(page)

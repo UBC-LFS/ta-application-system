@@ -297,86 +297,94 @@
 
             <button class="btn btn-xs btn-warning mt-2" type="button" data-toggle="modal" data-target="#admin-docs-modal-{{ app.id }}">Admin Docs</button>
             <div class="modal fade" id="admin-docs-modal-{{ app.id }}" tabindex="-1" role="dialog" aria-labelledby="admin-docs-modal-label-{{ app.id }}" aria-hidden="true">
-              <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-dialog modal-xl" role="document">
                 <div class="modal-content">
                   <div class="modal-header">
                     <h5 class="modal-title text-info" id="admin-docs-label-{{ app.id }}">Admin Documents</h5>
                     <button type="button" class="close btn-close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                   </div>
-                  <div class="modal-body text-left">
+                  <div class="modal-body text-left font-size-1">
+                    <h6>{{ app.job.session.year }} {{ app.job.session.term.code }} - {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</h6>
+                    <h5>
+                      <span class="text-primary">{{ app.applicant.get_full_name }}</span>
+                      <small>(CWL: {{ app.applicant.username }})</small>
+                    </h5>
 
                     <div class="row p-3">
-                      <div class="col-md-7">
-                        <h6 class="text-secondary">{{ app.job.session.year }} {{ app.job.session.term.code }} - {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</h6>
-
-                        <h5>
-                          <span class="text-primary">{{ app.applicant.get_full_name }}</span>
-                          <small>(CWL: {{ app.applicant.username }})</small>
-                        </h5>
-
-
+                      <div class="col-md-8">
                         <form id="admin-docs-form-{{ app.id }}" action="" method="post">
                           {% csrf_token %}
 
-                          <div class="field-wrapper">
-                            <label for="id_pin_{{ app.id }}">PIN:</label>
-                            <div class="help">This field is optional. Maximum 4 characters allowed.</div>
-                            <input id="id_pin_{{ app.id }}" type="text" name="pin" class="form-control" maxlength="4"
-                              {% if app.admindocuments.pin %}
-                                value="{{ app.admindocuments.pin }}"
-                              {% else %}
-                                value=""
-                              {% endif %}
-                            />
-                          </div>
+                          <div class="two-columns">
+                            <div class="column left-50">
+                              <div class="field-wrapper">
+                                <label for="id_pin_{{ app.id }}">PIN:</label>
+                                <div class="help">This field is optional. Maximum 4 characters allowed.</div>
+                                <input id="id_pin_{{ app.id }}" type="text" name="pin" class="form-control" maxlength="4"
+                                  {% if app.admindocuments.pin %}
+                                    value="{{ app.admindocuments.pin }}"
+                                  {% else %}
+                                    value=""
+                                  {% endif %}
+                                />
+                              </div>
 
-                          <div class="field-wrapper">
-                            <label for="id_tasm_{{ app.id }}">TASM:</label>
-                            <div class="help">This field is optional.</div>
-                            <input id="id_tasm_{{ app.id }}" type="checkbox" name="tasm"
-                              {% if app.admindocuments.tasm %}
-                                checked
-                              {% endif %}
-                            />
-                          </div>
+                              <div class="field-wrapper">
+                                <label for="id_tasm_{{ app.id }}">TASM:</label>
+                                <div class="help">This field is optional.</div>
+                                <input id="id_tasm_{{ app.id }}" type="checkbox" name="tasm"
+                                  {% if app.admindocuments.tasm %}
+                                    checked
+                                  {% endif %}
+                                />
+                              </div>
 
-                          <div class="field-wrapper">
-                            <label for="id_processed_{{ app.id }}">Processed:</label>
-                            <div class="help">This field is optional. Maximum 4 characters allowed.</div>
-                            <input id="id_processed_{{ app.id }}" type="text" name="processed" class="form-control" maxlength="4"
-                              {% if app.admindocuments.processed %}
-                                value="{{ app.admindocuments.processed }}"
-                              {% else %}
-                                value=""
-                              {% endif %}
-                            />
-                          </div>
+                              <div class="field-wrapper">
+                                <label for="id_processed_{{ app.id }}">Processed:</label>
+                                <div class="help">This field is optional. Maximum 4 characters allowed.</div>
+                                <input id="id_processed_{{ app.id }}" type="text" name="processed" class="form-control" maxlength="4"
+                                  {% if app.admindocuments.processed %}
+                                    value="{{ app.admindocuments.processed }}"
+                                  {% else %}
+                                    value=""
+                                  {% endif %}
+                                />
+                              </div>
+                            </div>
+                            <div class="column right-50">
+                              <div class="field-wrapper">
+                                <label for="id_worktag_{{ app.id }}">Worktag:</label>
+                                <div class="help">This field is optional. Maximum 35 characters allowed.</div>
+                                <input id="id_worktag_{{ app.id }}" type="text" name="worktag" class="form-control" maxlength="35"
+                                  {% if app.admindocuments.worktag %}
+                                    value="{{ app.admindocuments.worktag }}"
+                                  {% else %}
+                                    value=""
+                                  {% endif %}
+                                />
 
-                          <div class="field-wrapper">
-                            <label for="id_worktag_{{ app.id }}">Worktag:</label>
-                            <div class="help">This field is optional. Maximum 35 characters allowed.</div>
-                            <input id="id_worktag_{{ app.id }}" type="text" name="worktag" class="form-control" maxlength="35"
-                              {% if app.admindocuments.worktag %}
-                                value="{{ app.admindocuments.worktag }}"
-                              {% else %}
-                                value=""
-                              {% endif %}
-                            />
-                          </div>
+                                <div class="mt-2">
+                                  {% for name, value in worktag_options.items %}
+                                    <input id="{{ name }}_{{ app.id }}" type="checkbox" value="{{ value }}" onclick="select_worktag(this.id)" {% if value in app.admindocuments.worktag %}checked{% endif %} /> {{ value }} <br />
+                                  {% endfor %}
+                                </div>
+                              </div>
 
-                          <div class="field-wrapper">
-                            <label for="id_processing_note_{{ app.id }}">Processing Note:</label>
-                            <div class="help">This field is optional. Only administrators can see this processing note.</div>
-                            <textarea id="id_processing_note_{{ app.id }}" name="processing_note" class="summernote">{{ app.admindocuments.processing_note|default_if_none:"" }}</textarea>
+                              <div class="field-wrapper">
+                                <label for="id_processing_note_{{ app.id }}">Processing Note:</label>
+                                <div class="help">This field is optional. Only administrators can see this processing note.</div>
+                                <textarea id="id_processing_note_{{ app.id }}" name="processing_note" class="summernote">{{ app.admindocuments.processing_note|default_if_none:"" }}</textarea>
+                              </div>
+                            </div>
                           </div>
 
                           <input type="hidden" name="application" value="{{ app.id }}" />
-                          <input class="btn btn-primary font-size-1 btn-submit" type="button" value="Update" data-app-id="{{ app.id }}" data-url="{% url 'administrators:update_admin_docs' %}" />
+                          <input class="btn btn-warning font-size-1 btn-submit" type="button" value="Confirm Update" data-app-id="{{ app.id }}" data-url="{% url 'administrators:update_admin_docs' %}" />
                           <div id="admin-docs-form-{{ app.id }}-error" class="mt-3"></div>
                         </form>
                       </div>
-                      <div class="col-md-5">
-                        <div class="border p-3 mb-4">
+                      <div class="col-md-4">
+                        <div class="border p-3 mb-4 font-size-sm">
                           <div class="mb-2"><strong>Note:</strong> If eForm or Speed Chart (or both) exists, it will appear here.</div>
 
                           {% if app.admindocuments.eform %}
@@ -388,7 +396,7 @@
                           {% endif %}
                         </div>
 
-                        <h6 class="text-success">Update History</h6>
+                        <h6 class="bg-success text-white text-center p-2">UPDATE HISTORY</h6>
                         {% for adminuser in app.admindocuments.admindocumentsuser_set.all %}
                           <div>- Updated at <span class="text-chocolate">{{ adminuser.created_at }}</span> by <span class="text-info">{{ adminuser.user }}</span></div>
                         {% empty %}

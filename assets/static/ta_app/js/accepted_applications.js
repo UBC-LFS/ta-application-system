@@ -100,7 +100,7 @@ $(document).ready(function() {
       },
       error: function(err) {
         $(self).text('Download All as CSV');
-        
+
         const message = '<div class="alert alert-danger alert-dismissible fade show" role="alert">' +
                           'Error: ' + err.statusText + ' (' + err.status + '). ' + err.responseJSON.message +
                           '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>' +
@@ -253,4 +253,33 @@ function getValue(item, col, type) {
   }
 
   return value;
+}
+
+// Select worktag options
+function select_worktag(option_id) {
+  const sp = option_id.split('_');
+  const id = sp[1];
+  const select_value = $('#' + option_id).val();
+  let worktag = $('#id_worktag_' + id).val().trim();
+  let is_checked = $('#' + option_id).is(':checked');
+
+  if (is_checked) {
+    if (worktag.length > 0) {
+      worktag += ', ' + select_value
+    } else {
+      worktag = select_value
+    }
+    $('#id_worktag_' + id).val(worktag);
+  } else {
+    const worktag_sp = worktag.split(',');
+    let new_worktag = [];
+    for (let i = 0; i < worktag_sp.length; i++) {
+      const item = worktag_sp[i].trim();
+      if (item !== select_value) {
+        new_worktag.push(item);
+      }
+    }
+    $('#id_worktag_' + id).val(new_worktag.join(', '));
+  }
+
 }
