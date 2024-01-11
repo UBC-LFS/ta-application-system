@@ -256,7 +256,7 @@ function getValue(item, col, type) {
 }
 
 // Select worktag options
-function select_worktag(option_id) {
+function selectWorktag(option_id) {
   const sp = option_id.split('_');
   const id = sp[1];
   const select_value = $('#' + option_id).val();

@@ -365,7 +365,7 @@
 
                                 <div class="mt-2">
                                   {% for name, value in worktag_options.items %}
-                                    <input id="{{ name }}_{{ app.id }}" type="checkbox" value="{{ value }}" onclick="select_worktag(this.id)" {% if value in app.admindocuments.worktag %}checked{% endif %} /> {{ value }} <br />
+                                    <input id="{{ name }}_{{ app.id }}" type="checkbox" value="{{ value }}" onclick="selectWorktag(this.id)" {% if value in app.admindocuments.worktag %}checked{% endif %} /> {{ value }} <br />
                                   {% endfor %}
                                 </div>
                               </div>

@@ -1,24 +1,19 @@
-<table
-  class="table table-bordered table-hover table-striped table-responsive-md text-center"
-  data-toggle="table"
-  data-sortable="true"
-  data-classes=""
-  data-show-export="true"
-  data-show-columns="true"
-  data-export-types="['csv']"
->
+<table id="sortable-table" class="table table-bordered table-hover table-striped table-responsive-md text-center mt-4">
   <thead>
     <tr>
-      <th data-sortable="true">ID</th>
-      <th data-sortable="true">Year</th>
-      <th data-sortable="true">Term</th>
-      <th data-sortable="true">Job (Course)</th>
-      <th data-sortable="true">Instructor</th>
-      <th data-sortable="true">First Name</th>
-      <th data-sortable="true">Last Name</th>
-      <th data-sortable="true">CWL</th>
-      <th data-sortable="true">Student Number</th>
-      <th data-sortable="true">Email</th>
+      <th>ID</th>
+      {% for col in table_columns %}
+        {% if col.name == 'Instructors' %}
+          <th>{{ col.name }}</th>
+        {% else %}
+          <th>
+            <a class="{% if col.sort_name == request.GET.sort_column %}{% if request.GET.sort_order == 'asc' %}text-danger{% elif request.GET.sort_order == 'desc' %}text-primary{% endif %}{% else %}text-dark{% endif %}" href="?page={{ page }}&sort_column={{ col.sort_name }}&sort_order={{ col.sort_order }}">
+              {{ col.name }}
+              {% include 'observers/_sort_table_icons.html' with column=col.sort_name %}
+            </a>
+          </th>
+        {% endif %}
+      {% endfor %}
     </tr>
   </thead>
   <tbody>
@@ -36,15 +31,16 @@
         <td>
           {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}
         </td>
-        <td>
-          {% for instructor in app.job.instructors.all %}
-            <span>
-              {{ instructor.get_full_name }}{% if not forloop.last %},{% endif %}
-            </span>
-
-          {% empty %}
-            None
-          {% endfor %}
+        <td class="text-left">
+          <ul class="mb-0 pl-4">
+            {% for instructor in app.job.instructors.all %}
+              <li>
+                {{ instructor.get_full_name }}
+              </li>
+            {% empty %}
+              None
+            {% endfor %}
+          </ul>
         </td>
         <td>{{ app.applicant.first_name }}</td>
         <td>{{ app.applicant.last_name }}</td>

@@ -25,7 +25,12 @@
 
   {% include 'observers/_table_accepted_applications.html' with data=apps %}
 
-  {% include 'ta_app/pages/_table_paginator.html' with data=apps %}
+  {% include 'observers/_table_paginator.html' with data=apps %}
 </div>
 
+{% endblock %}
+
+{% block js %}
+  {% load static %}
+  <script type="text/javascript" src="{% static 'ta_app/js/accepted_apps_report_observer.js' %}"></script>
 {% endblock %}

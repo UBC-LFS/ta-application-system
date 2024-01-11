@@ -1462,6 +1462,8 @@ def offered_applications(request):
         'this_year': utils.THIS_YEAR
     })
 
+from django.urls import resolve
+from urllib.parse import urlparse
 
 @method_decorator([never_cache], name='dispatch')
 class AcceptedApplications(LoginRequiredMixin, View):
@@ -2106,11 +2108,32 @@ class AcceptedAppsReportObserver(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         request = userApi.has_admin_access(request, Role.HR)
 
-        apps, total_apps = adminApi.get_accepted_app_report(request)
+        app_list = adminApi.get_filtered_accepted_apps()
+        total_apps = len(app_list)
+
+        sort_column = request.GET.get('sort_column', None)
+        sort_order = request.GET.get('sort_order', None)
+    
+        if sort_column and sort_order:
+            request.session['sort_column'] = sort_column
+            field = 'applicant__' + sort_column
+            if sort_column == 'year' or sort_column == 'term':
+                field = 'job__session__' + sort_column
+            elif sort_column == 'course':
+                field = 'job__' + sort_column
+            elif sort_column == 'student_number':
+                field = 'applicant__profile__' + sort_column
+            
+            if sort_order == 'desc':
+                field = '-' + field
+
+            if sort_order == 'asc':
+                app_list = app_list.order_by(field, 'id')
+            elif sort_order == 'desc':
+                app_list = app_list.order_by(field, '-id')
 
         page = request.GET.get('page', 1)
-        #paginator = Paginator(apps, settings.PAGE_SIZE)
-        paginator = Paginator(apps, 1)
+        paginator = Paginator(app_list, settings.PAGE_SIZE)
 
         try:
             apps = paginator.page(page)
@@ -2119,9 +2142,36 @@ class AcceptedAppsReportObserver(LoginRequiredMixin, View):
         except EmptyPage:
             apps = paginator.page(paginator.num_pages)
 
+        table_columns = [
+            {'name': 'Year', 'sort_name': 'year'},
+            {'name': 'Term', 'sort_name': 'term'},
+            {'name': 'Course (Job)', 'sort_name': 'course'},
+            {'name': 'Instructors', 'sort_name': 'instructors'},
+            {'name': 'First Name', 'sort_name': 'first_name'},
+            {'name': 'Last Name', 'sort_name': 'last_name'},
+            {'name': 'CWL', 'sort_name': 'username'},
+            {'name': 'Student Number', 'sort_name': 'student_number'},
+            {'name': 'Email', 'sort_name': 'email'}
+        ]
+
+        for col in table_columns:
+            order = None
+            if sort_column == col['sort_name']:
+                if sort_order:
+                    order = 'desc' if sort_order == 'asc' else 'asc'
+                else:
+                    order = 'asc'
+            else:
+                order = 'asc'
+            col['sort_order'] = order
+        
         return render(request, 'administrators/applications/accepted_app_report_observer.html', context={
             'total_apps': total_apps,
-            'apps': apps
+            'apps': apps,
+            'table_columns': table_columns,
+            'page': page,
+            'sort_order': sort_order,
+            'sessions': adminApi.get_sessions().filter(year__gte=date.today().year - 4)
         })
 
 
