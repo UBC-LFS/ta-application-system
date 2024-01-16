@@ -4,6 +4,6 @@ from . import views
 app_name = 'observers'
 
 urlpatterns = [
-    path('report/accepted-applications/', views.report_accepted_applications, name='report_accepted_applications'),
+    path('applications/accepted/report', views.AcceptedAppsReportObserver.as_view(), name='accepted_apps_report_observer'),
     path('', views.index, name='index')
 ]

@@ -1,9 +1,7 @@
-from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.text import slugify
 from django.core.validators import MaxValueValidator, MinValueValidator
-from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
 import datetime as dt
@@ -72,7 +70,7 @@ class Course(models.Model):
         ordering = ['code', 'number', 'term', 'section']
 
     def __str__(self):
-        return '{0} {1} {2}'.format(self.code, self.number, self.section, self.term.code)
+        return '{0} {1} {2}'.format(self.code, self.number, self.section)
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.code.name  + ' ' + self.number.name + ' ' + self.section.name + ' ' + self.name + ' ' + self.term.code)

@@ -5,12 +5,24 @@
       {% if data.has_previous %}
         <li class="page-item">
           <a class="page-link" href="?page=1
+{% if request.GET.year_term %}&year_term={{ request.GET.year_term }}{% endif %}
+{% if request.GET.course %}&course={{ request.GET.course }}{% endif %}
+{% if request.GET.instructor %}&instructor={{ request.GET.instructor }}{% endif %}
+{% if request.GET.first_name %}&first_name={{ request.GET.first_name }}{% endif %}
+{% if request.GET.last_name %}&last_name={{ request.GET.last_name }}{% endif %}
+{% if request.GET.student_number %}&student_number={{ request.GET.student_number }}{% endif %}
 {% if request.GET.sort_column %}&sort_column={{ request.GET.sort_column }}{% endif %}
 {% if request.GET.sort_order %}&sort_order={{ request.GET.sort_order }}{% endif %}"
           ><i class="fa fa-angle-double-left" aria-hidden="true"></i></a>
         </li>
         <li class="page-item">
           <a class="page-link" href="?page={{ data.previous_page_number }}
+{% if request.GET.year_term %}&year_term={{ request.GET.year_term }}{% endif %}
+{% if request.GET.course %}&course={{ request.GET.course }}{% endif %}
+{% if request.GET.instructor %}&instructor={{ request.GET.instructor }}{% endif %}
+{% if request.GET.first_name %}&first_name={{ request.GET.first_name }}{% endif %}
+{% if request.GET.last_name %}&last_name={{ request.GET.last_name }}{% endif %}
+{% if request.GET.student_number %}&student_number={{ request.GET.student_number }}{% endif %}
 {% if request.GET.sort_column %}&sort_column={{ request.GET.sort_column }}{% endif %}
 {% if request.GET.sort_order %}&sort_order={{ request.GET.sort_order }}{% endif %}"
           ><i class="fa fa-angle-left" aria-hidden="true"></i></a>
@@ -34,6 +46,12 @@
 
             {% if i|add:"-3" <= data.number and data.number <= i|add:"3" %}
               <a class="page-link" href="?page={{ i }}
+{% if request.GET.year_term %}&year_term={{ request.GET.year_term }}{% endif %}
+{% if request.GET.course %}&course={{ request.GET.course }}{% endif %}
+{% if request.GET.instructor %}&instructor={{ request.GET.instructor }}{% endif %}
+{% if request.GET.first_name %}&first_name={{ request.GET.first_name }}{% endif %}
+{% if request.GET.last_name %}&last_name={{ request.GET.last_name }}{% endif %}
+{% if request.GET.student_number %}&student_number={{ request.GET.student_number }}{% endif %}
 {% if request.GET.sort_column %}&sort_column={{ request.GET.sort_column }}{% endif %}
 {% if request.GET.sort_order %}&sort_order={{ request.GET.sort_order }}{% endif %}"
               >{{ i }}</a>
@@ -46,12 +64,24 @@
       {% if data.has_next %}
         <li class="page-item">
           <a class="page-link" href="?page={{ data.next_page_number }}
+{% if request.GET.year_term %}&year_term={{ request.GET.year_term }}{% endif %}
+{% if request.GET.course %}&course={{ request.GET.course }}{% endif %}
+{% if request.GET.instructor %}&instructor={{ request.GET.instructor }}{% endif %}
+{% if request.GET.first_name %}&first_name={{ request.GET.first_name }}{% endif %}
+{% if request.GET.last_name %}&last_name={{ request.GET.last_name }}{% endif %}
+{% if request.GET.student_number %}&student_number={{ request.GET.student_number }}{% endif %}
 {% if request.GET.sort_column %}&sort_column={{ request.GET.sort_column }}{% endif %}
 {% if request.GET.sort_order %}&sort_order={{ request.GET.sort_order }}{% endif %}"
           ><i class="fa fa-angle-right" aria-hidden="true"></i></a>
         </li>
         <li class="page-item">
           <a class="page-link" href="?page={{ data.paginator.num_pages }}
+{% if request.GET.year_term %}&year_term={{ request.GET.year_term }}{% endif %}
+{% if request.GET.course %}&course={{ request.GET.course }}{% endif %}
+{% if request.GET.instructor %}&instructor={{ request.GET.instructor }}{% endif %}
+{% if request.GET.first_name %}&first_name={{ request.GET.first_name }}{% endif %}
+{% if request.GET.last_name %}&last_name={{ request.GET.last_name }}{% endif %}
+{% if request.GET.student_number %}&student_number={{ request.GET.student_number }}{% endif %}
 {% if request.GET.sort_column %}&sort_column={{ request.GET.sort_column }}{% endif %}
 {% if request.GET.sort_order %}&sort_order={{ request.GET.sort_order }}{% endif %}"
           ><i class="fa fa-angle-double-right" aria-hidden="true"></i></a>

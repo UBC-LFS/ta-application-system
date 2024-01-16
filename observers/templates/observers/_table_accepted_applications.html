@@ -1,18 +1,14 @@
-<table id="sortable-table" class="table table-bordered table-hover table-striped table-responsive-md text-center mt-4">
+<table class="table table-bordered table-hover table-striped table-responsive-md text-center mt-4 observer-sort-table">
   <thead>
     <tr>
       <th>ID</th>
       {% for col in table_columns %}
-        {% if col.name == 'Instructors' %}
-          <th>{{ col.name }}</th>
-        {% else %}
-          <th>
-            <a class="{% if col.sort_name == request.GET.sort_column %}{% if request.GET.sort_order == 'asc' %}text-danger{% elif request.GET.sort_order == 'desc' %}text-primary{% endif %}{% else %}text-dark{% endif %}" href="?page={{ page }}&sort_column={{ col.sort_name }}&sort_order={{ col.sort_order }}">
-              {{ col.name }}
-              {% include 'observers/_sort_table_icons.html' with column=col.sort_name %}
-            </a>
-          </th>
-        {% endif %}
+        <th>
+          <a class="{% if col.sort_name == request.GET.sort_column %}{% if request.GET.sort_order == 'asc' %}text-danger{% elif request.GET.sort_order == 'desc' %}text-primary{% endif %}{% else %}text-dark{% endif %}" href="{{ url }}&sort_column={{ col.sort_name }}&sort_order={{ col.sort_order }}">
+            {{ col.name }}
+            {% include 'observers/_sort_table_icons.html' with column=col.sort_name %}
+          </a>
+        </th>
       {% endfor %}
     </tr>
   </thead>

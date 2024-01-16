@@ -12,14 +12,7 @@
     </div>
 
     <div class="col-md-6">
-      <div class="bg-light-gray p-4" style="height:180.8px">
-        <h5>Note:</h5>
-        <ul class="font-size-sm">
-          <li>
-            {% include 'ta_app/applications/_declined_reassigned_note.html' %}
-          </li>
-        </ul>
-      </div>
+      {% include 'observers/_note.html' %}
     </div>
   </div>
 
@@ -28,9 +21,4 @@
   {% include 'observers/_table_paginator.html' with data=apps %}
 </div>
 
-{% endblock %}
-
-{% block js %}
-  {% load static %}
-  <script type="text/javascript" src="{% static 'ta_app/js/accepted_apps_report_observer.js' %}"></script>
 {% endblock %}

@@ -697,9 +697,10 @@ input[type=radio] {
   clear: both;
 }
 
-.two-columns .field-wrapper {
-  margin: 0 0 2rem 0;
-}
+.two-columns .field-wrapper { margin: 0 0 2rem 0; }
+
+
+.observer-sort-table tr th a:hover { text-decoration: none; }
 
 /* Extra small devices (portrait phones, less than 576px) */
 @media (max-width: 575.98px) {
