@@ -6,8 +6,11 @@ app_name = 'students'
 urlpatterns = [
     path('', views.Index.as_view(), name='index'),
 
-    path('profile/edit/', views.edit_profile, name='edit_profile'),
-    path('profile/information/', views.show_profile, name='show_profile'),
+    #path('profile/edit/', views.edit_profile, name='edit_profile'),
+    path('profile/edit/', views.EditProfile.as_view(), name='edit_profile'),
+    #path('profile/information/', views.show_profile, name='show_profile'),
+    path('profile/information/general/save/', views.save_profile_general_changes, name='save_profile_general_changes'),
+    path('profile/information/', views.ShowProfile.as_view(), name='show_profile'),
     path('profile/resume/upload/', views.upload_resume, name='upload_resume'),
     path('profile/resume/delete/', views.delete_resume, name='delete_resume'),
 

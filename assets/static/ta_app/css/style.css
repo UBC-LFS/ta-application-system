@@ -699,8 +699,16 @@ input[type=radio] {
 
 .two-columns .field-wrapper { margin: 0 0 2rem 0; }
 
-
 .observer-sort-table tr th a:hover { text-decoration: none; }
+
+
+.student-profile-form-table { font-size: 1rem; }
+.student-profile-form-table tr td { vertical-align:top !important;  }
+.student-profile-form-table tr td:nth-child(1) label { font-weight: 600; }
+.student-profile-form-table tr td {
+
+}
+.student-profile-form-table label { margin-bottom: 0; }
 
 /* Extra small devices (portrait phones, less than 576px) */
 @media (max-width: 575.98px) {

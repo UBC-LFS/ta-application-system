@@ -22,7 +22,6 @@ class AcceptedAppsReportMixin:
     def get(self, request, *args, **kwargs):
         parsed_full_path = urlparse(request.get_full_path())
         app_name = resolve(parsed_full_path.path).app_names[0]
-        print('app_name', app_name)
 
         template = '/accepted_app_report_observer.html'
         if app_name == 'observers':

@@ -7,7 +7,7 @@
     {% include 'ta_app/pages/_left_aside.html' with view_name='users' title='View Profile' data=loggedin_user %}
 
     <div class="left-aside-btn-groups">
-      <a class="btn btn-primary" href="{% url 'students:edit_profile' %}">Edit Additional Info.</a>
+      <a class="btn btn-primary" href="{% url 'students:edit_profile' %}?t=general">Edit Additional Info.</a>
       <br />
       {% if request.GET.p != 'Edit Profile' %}
         <a class="btn btn-outline-primary mt-4" href="{{ request.GET.next }}">Back to {{ request.GET.p }}</a>
@@ -19,17 +19,17 @@
 
     <nav class="mb-4">
       <div class="nav nav-tabs">
-        <a class="nav-item nav-link {% if current_tab == 'basic' %} active {% endif %}" href="{% url 'students:show_profile' %}?next={{ request.GET.next }}&p={{ request.GET.p }}&t=basic">
+        <a class="nav-item nav-link {% if current_tab == 'basic' %}active{% endif %}" href="{% url 'students:show_profile' %}?next={{ request.GET.next }}&p={{ request.GET.p }}&t=basic">
           <span class="mobile-hide-xs"><i class="fa fa-user-circle-o" aria-hidden="true"></i></span>
           Basic
           <span class="mobile-hide">Information</span>
         </a>
-        <a class="nav-item nav-link {% if current_tab == 'additional' %} active {% endif %}" href="{% url 'students:show_profile' %}?next={{ request.GET.next }}&p={{ request.GET.p }}&t=additional">
+        <a class="nav-item nav-link {% if current_tab == 'additional' %}active{% endif %}" href="{% url 'students:show_profile' %}?next={{ request.GET.next }}&p={{ request.GET.p }}&t=additional">
           <span class="mobile-hide-xs"><i class="fa fa-id-card-o" aria-hidden="true"></i></span>
           Additional
           <span class="mobile-hide">Information</span>
         </a>
-        <a class="nav-item nav-link {% if current_tab == 'resume' %} active {% endif %}" href="{% url 'students:show_profile' %}?next={{ request.GET.next }}&p={{ request.GET.p }}&t=resume">
+        <a class="nav-item nav-link {% if current_tab == 'resume' %}active{% endif %}" href="{% url 'students:show_profile' %}?next={{ request.GET.next }}&p={{ request.GET.p }}&t=resume">
           <span class="mobile-hide-xs"><i class="fa fa-file-text-o" aria-hidden="true"></i></span>
           Resume
         </a>

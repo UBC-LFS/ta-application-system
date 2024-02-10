@@ -36,7 +36,8 @@ class Role(models.Model):
     slug = models.SlugField(max_length=256, unique=True)
 
     class Meta: ordering = ['pk']
-    def __str__(self): return self.name
+    def __str__(self): 
+        return self.name
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)
         super(Role, self).save(*args, **kwargs)
@@ -47,30 +48,48 @@ class Status(models.Model):
     slug = models.SlugField(max_length=256, unique=True)
 
     class Meta: ordering = ['pk']
-    def __str__(self): return self.name
+    def __str__(self): 
+        return self.name
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)
         super(Status, self).save(*args, **kwargs)
+
+
+class Faculty(models.Model):
+    name = models.CharField(max_length=256, unique=True)
+    slug = models.SlugField(max_length=256, unique=True)
+
+    class Meta: ordering = ['pk']
+    def __str__(self): 
+        return self.name
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.name)
+        super(Faculty, self).save(*args, **kwargs)
+
 
 class Program(models.Model):
     name = models.CharField(max_length=256, unique=True)
     slug = models.SlugField(max_length=256, unique=True)
 
     class Meta: ordering = ['pk']
-    def __str__(self): return self.name
+    def __str__(self): 
+        return self.name
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)
         super(Program, self).save(*args, **kwargs)
+
 
 class Degree(models.Model):
     name = models.CharField(max_length=256, unique=True)
     slug = models.SlugField(max_length=256, unique=True)
 
     class Meta: ordering = ['pk']
-    def __str__(self): return self.name
+    def __str__(self): 
+        return self.name
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)
         super(Degree, self).save(*args, **kwargs)
+
 
 class Training(models.Model):
     name = models.CharField(max_length=256, unique=True)
@@ -78,10 +97,12 @@ class Training(models.Model):
     slug = models.SlugField(max_length=256, unique=True)
 
     class Meta: ordering = ['pk']
-    def __str__(self): return self.name
+    def __str__(self): 
+        return self.name
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)
         super(Training, self).save(*args, **kwargs)
+
 
 def create_sin_path(instance, filename):
     return os.path.join('users', str(instance.user.username), 'sin', filename)
@@ -195,6 +216,7 @@ class Confidentiality(models.Model):
 def create_resume_path(instance, filename):
     return os.path.join('users', str(instance.user.username), 'resume', filename)
 
+
 class Resume(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
     uploaded = models.FileField(
@@ -221,11 +243,12 @@ class Resume(models.Model):
 class Profile(models.Model):
     ''' This is a model for a user profile '''
 
-    LFS_TA_TRAINING_CHOICES = [
-        ('0', 'N/A'),
-        ('1', 'Yes'),
-        ('2', 'No')
+    LFS_TA_TRAINING_CHOICES = [ ('0', 'N/A'), ('1', 'Yes'), ('2', 'No') ]
+    STUDENT_YEAR_CHOICES = [
+        ('1', '1'), ('2', '2'), ('3', '3'), ('4', '4'), ('5', '5'), ('6', '6'),
+        ('7', '7'), ('8', '8'), ('9', '9')
     ]
+    HAS_GRADUATED_CHOICES = [ ('1', 'Yes'), ('2', 'No') ]
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
     student_number = models.CharField(
@@ -239,73 +262,31 @@ class Profile(models.Model):
             MaxLengthValidator(8)
         ]
     )
-    preferred_name = models.CharField(
-        max_length=256,
-        null=True,
-        blank=True
-    )
+    preferred_name = models.CharField(max_length=256, null=True, blank=True)
     roles = models.ManyToManyField(Role)
-
-    qualifications = models.TextField(
-        null=True,
-        blank=True
-    )
-    prior_employment = models.TextField(
-        null=True,
-        blank=True
-    )
-    special_considerations = models.TextField(
-        null=True,
-        blank=True
-    )
-
+    
     status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, null=True, blank=True)
-    program = models.ForeignKey(
-        Program,
-        on_delete=models.DO_NOTHING,
-        null=True,
-        blank=True
-    )
-
-    program_others = models.TextField(
-        null=True,
-        blank=True
-    )
-
-    STUDENT_YEAR_CHOICES = [
-        ('1', '1'), ('2', '2'), ('3', '3'), ('4', '4'), ('5', '5'), ('6', '6'),
-        ('7', '7'), ('8', '8'), ('9', '9'), ('10', '10'), ('11', '11'), ('12', '12')
-    ]
+    faculty = models.ForeignKey(Faculty, on_delete=models.DO_NOTHING, null=True, blank=True)
+    program = models.ForeignKey(Program, on_delete=models.DO_NOTHING, null=True, blank=True)
+    program_others = models.TextField(null=True, blank=True)
     student_year = models.CharField(max_length=2, choices=STUDENT_YEAR_CHOICES, null=True, blank=True)
-
-    graduation_date = models.DateField(
-        null=True,
-        blank=True
-    )
-
+    has_graduated = models.CharField(max_length=1, choices=HAS_GRADUATED_CHOICES, null=True, blank=True)
+    graduation_date = models.DateField(null=True, blank=True)
     degrees = models.ManyToManyField(Degree)
-
-    degree_details = models.TextField(
-        null=True,
-        blank=True
-    )
+    degree_details = models.TextField(null=True, blank=True)
     trainings = models.ManyToManyField(Training)
-    training_details = models.TextField(
-        null=True,
-        blank=True
-    )
-
+    training_details = models.TextField(null=True, blank=True)
     lfs_ta_training = models.CharField(max_length=1, choices=LFS_TA_TRAINING_CHOICES, null=True, blank=True)
-    lfs_ta_training_details = models.TextField(
-        null=True,
-        blank=True
-    )
+    lfs_ta_training_details = models.TextField(null=True, blank=True)
 
+    total_academic_years = models.PositiveIntegerField(null=True, blank=True)
+    total_terms = models.PositiveIntegerField(null=True, blank=True)
+    total_ta_hours = models.PositiveIntegerField(null=True, blank=True)
     ta_experience = models.CharField(max_length=1, choices=LFS_TA_TRAINING_CHOICES, null=True, blank=True)
-    ta_experience_details = models.TextField(
-        null=True,
-        blank=True
-    )
+    ta_experience_details = models.TextField(null=True, blank=True)
+    qualifications = models.TextField(null=True, blank=True)
+    prior_employment = models.TextField(null=True, blank=True)
+    special_considerations = models.TextField(null=True, blank=True)
 
     is_trimmed = models.BooleanField(default=False)
     created_at = models.DateField(default=dt.date.today)
@@ -345,6 +326,7 @@ class AlertEmail(models.Model):
 
 def create_avatar_path(instance, filename):
     return os.path.join('users', str(instance.user.username), 'avatar', filename)
+
 
 class Avatar(models.Model):
     ''' This is a user profile picture '''

@@ -1,0 +1,16 @@
+<tr>
+  <td class="col-md-4">
+    <label for="{{ field.id_for_label }}">
+      {{ field.label }}
+      {% if field.name == 'preferred_name' or field.name == 'program_others' or field.name == 'special_considerations' or field.name == 'prior_employment' %}
+        <small></small>
+      {% else %}
+        <small class="text-danger"><i class="fa fa-asterisk" aria-hidden="true"></i></small>
+      {% endif %}
+    </label>
+    {% if field.help_text %}
+      <div class="help">{{ field.help_text|safe }}</div>
+    {% endif %}
+  </td>
+  <td class="col-md-8">{{ field }}</td>
+</tr>

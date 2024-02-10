@@ -4,8 +4,8 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseRedirect, Http404, HttpResponse
-from django.core.exceptions import PermissionDenied
+from django.http import HttpResponseRedirect, Http404, HttpResponse, JsonResponse
+from django.core.exceptions import PermissionDenied, SuspiciousOperation
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.cache import cache_control, never_cache
 from django.views.static import serve
@@ -77,6 +77,32 @@ class Index(LoginRequiredMixin, View):
         return redirect("students:index")
 
 
+
+@method_decorator([never_cache], name='dispatch')
+class ShowProfile(LoginRequiredMixin, View):
+    ''' Display user profile '''
+
+    form_class = ResumeForm
+
+    @method_decorator(require_GET)
+    def get(self, request, *args, **kwargs):
+        request = userApi.has_user_access(request, Role.STUDENT)
+        adminApi.can_req_parameters_access(request, 'student', ['next', 'p', 't'])
+
+        loggedin_user = userApi.add_resume(request.user)
+
+        can_apply = userApi.can_apply(request.user)
+        if can_apply == False:
+            messages.warning(request, IMPORTANT_MESSAGE)
+
+        return render(request, 'students/profile/show_profile.html', {
+            'loggedin_user': userApi.add_avatar(loggedin_user),
+            'form': self.form_class(initial={ 'user': loggedin_user }),
+            'current_tab': request.GET.get('t'),
+            'can_apply': can_apply
+        })
+
+"""
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
@@ -97,8 +123,105 @@ def show_profile(request):
         'current_tab': request.GET.get('t'),
         'can_apply': can_apply
     })
+"""
+
+@method_decorator([never_cache], name='dispatch')
+class EditProfile(LoginRequiredMixin, View):
+    ''' Edit user's profile '''
+
+    def setup(self, request, *args, **kwargs):
+        """ model and form cannot be specified in private fields since
+        target model is determined at runtime
+        """
+        setup = super().setup(request, *args, **kwargs)
+        request = userApi.has_user_access(request, Role.STUDENT)
+
+        tab = request.GET.get('t', None)
+        if not tab or tab not in ['general', 'graduate', 'undergraduate']:
+            raise Http404
+
+        self.tab = tab
+
+        self.user = request.user
+        return setup
+    
+    @method_decorator(require_GET)
+    def get(self, request, *args, **kwargs):
+        
+        context = { 
+            'loggedin_user': userApi.add_avatar(self.user),
+            'current_tab': self.tab
+        }
+        
+        print(request.session['save_general_changes'])
+
+        if self.tab == 'general':
+            profile_degrees = self.user.profile.degrees.all()
+            profile_trainings = self.user.profile.trainings.all()
+            context['general_form'] = StudentProfileGeneralForm(data=None, instance=self.user.profile, initial={
+                'degrees': profile_degrees,
+                'trainings': profile_trainings
+            })
+        elif self.tab == 'graduate':
+            context['grad_form'] = StudentProfileGraduateForm()
+        elif self.tab == 'undergraduate':
+            context['undergrad_form'] = StudentProfileUndergraduateForm()
+
+        return render(request, 'students/profile/edit_profile.html', context=context)
+
+    @method_decorator(require_POST)
+    def post(self, request, *args, **kwargs):
+        path = None
+
+        """grad_form = StudentProfileGraduateForm(request.POST, instance=self.user.profile)
+        
+
+        if grad_form.is_valid():
+            print(grad_form.cleaned_data)
+        else:
+            #print(userApi.display_error_messages(grad_form.errors.get_json_data()))
+            messages.error(request, userApi.display_error_messages(grad_form.errors.get_json_data()))"""
+
+        next = request.POST.get('next', None)
+        if next:
+            return HttpResponseRedirect(next)
+        
+        return HttpResponseRedirect(reverse('students:edit_profile') + '?t=general')
 
 
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['POST'])
+def save_profile_general_changes(request):
+    print('save_changes =========', request.POST)
+    form = StudentProfileGeneralForm(request.POST, instance=request.user.profile)
+    print(form.is_valid())
+    if form.is_valid():
+        print(form.cleaned_data)
+        
+        
+
+        return JsonResponse({ 
+            'status': 'success', 
+            'message': ''
+        }, safe=False)
+    else:
+        request.session['save_general_changes'] = {
+            'degrees': request.POST
+        }
+        
+        print(request.session['save_general_changes'])
+        
+
+        return JsonResponse({ 
+            'status': 'error', 
+            'message': 'An error occurred. ' + userApi.display_error_messages(form.errors.get_json_data()) 
+        }, safe=False)
+    
+    return JsonResponse({ 'status': 'error' }, safe=False)
+
+
+"""
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET', 'POST'])
@@ -157,6 +280,8 @@ def edit_profile(request):
             'trainings': profile_trainings
         })
     })
+"""
+
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)

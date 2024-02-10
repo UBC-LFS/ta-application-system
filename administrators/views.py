@@ -3360,6 +3360,74 @@ def delete_status(request):
     return redirect("administrators:statuses")
 
 
+# Faculties
+
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET', 'POST'])
+def faculties(request):
+    ''' Display all faculties and create a faculty '''
+    request = userApi.has_admin_access(request)
+
+    if request.method == 'POST':
+        form = FacultyForm(request.POST)
+        if form.is_valid():
+            faculty = form.save()
+            if faculty:
+                messages.success(request, 'Success! {0} created'.format(faculty.name))
+            else:
+                messages.error(request, 'An error occurred while saving data.')
+        else:
+            errors = form.errors.get_json_data()
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+
+        return redirect('administrators:faculties')
+
+    return render(request, 'administrators/preparation/faculties.html', {
+        'loggedin_user': request.user,
+        'faculties': userApi.get_faculties(),
+        'form': FacultyForm()
+    })
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['POST'])
+def edit_faculty(request, slug):
+    ''' Edit a faculty '''
+    request = userApi.has_admin_access(request)
+
+    if request.method == 'POST':
+        faculty = userApi.get_faculty_by_slug(slug)
+        form = FacultyForm(request.POST, instance=faculty)
+        if form.is_valid():
+            updated_faculty = form.save()
+            if updated_faculty:
+                messages.success(request, 'Success! {0} updated'.format(updated_faculty.name))
+            else:
+                messages.error(request, 'An error occurred.')
+        else:
+            errors = form.errors.get_json_data()
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+    return redirect("administrators:faculties")
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['POST'])
+def delete_faculty(request):
+    ''' Delete a faculty '''
+    request = userApi.has_admin_access(request)
+
+    if request.method == 'POST':
+        faculty_id = request.POST.get('faculty')
+        deleted_faculty = userApi.delete_faculty(faculty_id)
+        if deleted_faculty:
+            messages.success(request, 'Success! {0} deleted'.format(deleted_faculty.name))
+        else:
+            messages.error(request, 'An error occurred.')
+    return redirect("administrators:faculties")
+
+
 # Programs
 
 

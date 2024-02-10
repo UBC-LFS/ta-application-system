@@ -1,0 +1,103 @@
+{% extends 'ta_app/base.html' %}
+{% block content %}
+
+{% include 'administrators/_menu.html' %}
+<div class="row">
+  <div class="col-md-5">
+    {% include 'ta_app/pages/_header.html' with title='Faculties' text=faculties|length %}
+
+    <div class="bg-prompt">
+      <div class="prompt p-4 mb-4">
+        <h4>Create Faculty</h4>
+
+        <form action="{% url 'administrators:faculties' %}" method="post">
+          {% csrf_token %}
+
+          {% for field in form.visible_fields  %}
+            <div class="field-wrapper">
+              {{ field.label_tag }}
+              {% if field.help_text %}
+                <div class="help">{{ field.help_text|safe }}</div>
+              {% endif %}
+              {{ field }}
+            </div>
+          {% endfor %}
+
+          {% for field in form.hidden_fields %}
+            {{ field }}
+          {% endfor %}
+
+          <input class="btn btn-primary mt-3" type="submit" value="Create" />
+        </form>
+      </div>
+    </div>
+
+    <div class="mt-4">
+      <span class="font-weight-bold">Note:</span> <code>Other</code> must be created because this system checks the ID of <code>Other</code> when students submit their profile.
+    </div>
+  </div>
+
+  <div class="col-md-7">
+
+    <table class="table table-bordered table-hover table-striped table-responsive-md">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for faculty in faculties %}
+          <tr>
+            <td>{{ faculty.id }}</td>
+            <td>{{ faculty.name }}</td>
+            <td>
+              <div class="btn-toolbar">
+                <button class="btn btn-xs btn-primary mr-2" type="button" data-toggle="modal" data-target="#faculty-edit-modal-{{ faculty.id }}">Edit</button>
+
+                <div class="modal fade" id="faculty-edit-modal-{{ faculty.id }}" tabindex="-1" role="dialog" aria-labelledby="faculty-edit-modal-label-{{ faculty.id }}" aria-hidden="true">
+                  <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title text-info" id="faculty-edit-modal-label-{{ faculty.id }}">Edit Faculty</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                      </div>
+                      <div class="modal-body text-left pt-0">
+                        <div class="modal-item font-size-1 pt-0">
+                          <form action="{% url 'administrators:edit_faculty' faculty.slug %}" method="post">
+                            {% csrf_token %}
+
+                            <div class="field-wrapper">
+                              <label for="id_name_{{ faculty.id }}">Name:</label>
+                              <input id="id_name_{{ faculty.id }}" type="text" name="name" value="{{ faculty.name }}" class="form-control" />
+                            </div>
+
+                            <input class="btn btn-primary" type="submit" value="Update" />
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <form action="{% url 'administrators:delete_faculty' %}" method="post" onsubmit="return confirm('Are you sure to delete this faculty - {{ faculty.name }} ?')">
+                  {% csrf_token %}
+                  <input type="hidden" name="faculty" value="{{ faculty.id }}" />
+                  <input class="btn btn-xs btn-danger" type="submit" value="Delete" />
+                </form>
+              </div>
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="3">No faculties found.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+  </div>
+</div>
+
+{% endblock %}

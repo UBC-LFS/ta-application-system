@@ -21,41 +21,92 @@
           <li>All required fields must be filled. (<small class="text-danger"><i class="fa fa-asterisk" aria-hidden="true"></i></small>: This field is required)</li>
           <li>If a field doesn't apply to you, please enter <span class="font-weight-bold">N/A</span>.</li>
           <li>COVID-related <span class="font-weight-bold">trainings</span> are no longer mandatory, and are not being offered.</li>
+          <li>
+            There are two tabs related to TA information.
+            If you're a <span class="font-weight-bold text-danger">undergraduate</span> student, click <a href="{% url 'students:edit_profile' %}?t=undergraduate">Undergraduate Student</a>,
+            otherwise click <a href="{% url 'students:edit_profile' %}?t=graduate">Graduate Student</a>
+          </li>
         </ul>
       </div>
 
-      <form action="" method="post">
+      <nav class="my-4">
+        <div class="nav nav-tabs">
+          <a class="nav-item nav-link {% if current_tab == 'general' %}active{% endif %}" href="{% url 'students:edit_profile' %}?t=general">
+            General
+          </a>
+          <a class="nav-item nav-link {% if current_tab == 'graduate' %}active{% endif %}" href="{% url 'students:edit_profile' %}?t=graduate">
+            Graduate
+            <span class="mobile-hide">Student</span>
+          </a>
+          <a class="nav-item nav-link {% if current_tab == 'undergraduate' %}active{% endif %}" href="{% url 'students:edit_profile' %}?t=undergraduate">
+            Undergraduate
+            <span class="mobile-hide">Student</span>
+          </a>
+        </div>
+      </nav>
+
+      <form id="student-profile-form" action="" method="post">
         {% csrf_token %}
 
-        {% for field in form.visible_fields %}
+        <table class="table table-borderless student-profile-form-table">
+          {% if current_tab == 'general' %}
+            {% for field in general_form.visible_fields %}
+              {% include 'students/profile/_form.html' %}
+            {% endfor %}
+          {% elif current_tab == 'graduate' %}
+            {% for field in grad_form.visible_fields %}
+              {% include 'students/profile/_form.html' %}
+            {% endfor %}
+          {% elif current_tab == 'undergraduate' %}
+            {% for field in undergrad_form.visible_fields %}
+              {% include 'students/profile/_form.html' %}
+            {% endfor %}
+          {% else %}
+            <p>No forms exist</p>
+          {% endif %}
+        </table>
 
-          <div class="field-wrapper">
-            <label for="{{ field.id_for_label }}">
-              {{ field.label }}:
-              {% if field.name == 'preferred_name' or field.name == 'program_others' or field.name == 'student_year' or field.name == 'special_considerations' or field.name == 'prior_employment' %}
-                <small></small>
-              {% else %}
-                <small class="text-danger"><i class="fa fa-asterisk" aria-hidden="true"></i></small>
-              {% endif %}
-            </label>
-            {% if field.help_text %}
-              <div class="help">{{ field.help_text|safe }}</div>
-            {% endif %}
-            {{ field }}
-          </div>
+        <div class="bg-white text-center p-4">
+          {% if current_tab == 'general' %}
+            <p>
+              After clicking on the <strong>Save Changes</strong> button, please choose
+              <strong>Graduate Student</strong> or <strong>Undergraduate Student</strong> below.
+            </p>
+            <div class="border-bottom mb-4">
+              <a class="btn btn-outline-secondary mb-4" href="{% url 'students:show_profile' %}?next={{ request.get_full_path }}&p=Edit Profile&t=basic">Cancel</a>
+              <input id="save-changes" class="btn btn-warning mb-4" name="{{ current_tab }}_path" type="button" value="Save Changes" data-url="{% url 'students:save_profile_general_changes' %}" />
 
-        {% endfor %}
+              <div id="save-changes-message"></div>
+            </div>
 
-        {% for field in form.hidden_fields %}
-          {{ field }}
-        {% endfor %}
+            <div class="two-columns">
+              <div class="column left-50">
+                If you are a <span class="font-weight-bold text-chocolate">Graduate Student</span>, please click
+                <a class="btn btn-primary mt-3" href="{% url 'students:edit_profile' %}?t=graduate">Graduate Student</a>
+              </div>
+              <div class="column right-50">
+                If you are a <span class="font-weight-bold text-chocolate">Undergraduate Student</span>, please click
+                <a class="btn btn-primary mt-3" href="{% url 'students:edit_profile' %}?t=undergraduate">Undergraduate Student</a>
+              </div>
+            </div>
 
-        <a class="btn btn-outline-secondary" href="{% url 'students:show_profile' %}?next={{ request.get_full_path }}&p=Edit Profile&t=basic">Cancel</a>
-        <input class="btn btn-primary" type="submit" value="Update" />
+          {% elif current_tab == 'graduate' or current_tab == 'undergraduate' %}
+            <a class="btn btn-outline-secondary" href="{% url 'students:edit_profile' %}?t=general">Back to General</a>
+            <input class="btn btn-primary" name="{{ current_tab }}_path" type="submit" value="Confirm Update" />
+          {% endif %}
+        </div>
+
+        <input type="hidden" name="next" value="{{ request.get_full_path }}" />
       </form>
     </div>
 
   </div>
 </div>
 
+{% endblock %}
+
+
+{% block js %}
+  {% load static %}
+  <script type="text/javascript" src="{% static 'ta_app/js/edit_profile.js' %}"></script>
 {% endblock %}

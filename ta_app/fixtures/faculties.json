@@ -1,0 +1,50 @@
+[
+    {
+      "model": "users.faculty",
+      "pk": 1,
+      "fields": {
+        "name": "Land and Food Systems",
+        "slug": "land-and-food-systems"
+      }
+    },
+    {
+      "model": "users.faculty",
+      "pk": 2,
+      "fields": {
+        "name": "Forestry",
+        "slug": "forestry"
+      }
+    },
+    {
+      "model": "users.faculty",
+      "pk": 3,
+      "fields": {
+        "name": "Science",
+        "slug": "science"
+      }
+    },
+    {
+      "model": "users.faculty",
+      "pk": 4,
+      "fields": {
+        "name": "Applied Science",
+        "slug": "applied-science"
+      }
+    },
+    {
+      "model": "users.faculty",
+      "pk": 5,
+      "fields": {
+        "name": "Engineering",
+        "slug": "engineering"
+      }
+    },
+    {
+      "model": "users.faculty",
+      "pk": 6,
+      "fields": {
+        "name": "Sauder School of Business",
+        "slug": "sauder-school-of-business"
+      }
+    }
+]

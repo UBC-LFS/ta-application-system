@@ -911,6 +911,37 @@ def get_undergraduate_status_id():
     else:
         return None
 
+
+# faculties
+
+def get_faculties():
+    ''' Get all faculties '''
+    return Faculty.objects.all()
+
+def get_faculty(faculty_id):
+    ''' Get a faculty by id '''
+    return get_object_or_404(Faculty, id=faculty_id)
+
+def get_faculty_by_slug(slug):
+    ''' Get a faculty by code '''
+    return get_object_or_404(Faculty, slug=slug)
+
+def delete_faculty(faculty_id):
+    ''' Delete a faculty '''
+    faculty = get_faculty(faculty_id)
+    faculty.delete()
+    return faculty if faculty else False
+
+def get_faculty_others_id():
+    ''' Get id of others in program '''
+    faculty = Faculty.objects.filter(name__icontains='other')
+    if faculty.exists():
+        return faculty.first().id
+    else:
+        return None
+
+
+
 # programs
 
 def get_programs():
@@ -1006,6 +1037,7 @@ def get_lfs_grad_or_others(user):
 
 
 # Helper methods
+
 def validate_post(post, list):
     errors = []
     for field in list:
@@ -1013,12 +1045,22 @@ def validate_post(post, list):
             errors.append(field.upper().replace('_', ' '))
     return errors
 
+
 def get_error_messages(errors):
     messages = ''
     for key in errors.keys():
         value = errors[key]
         messages += key.replace('_', ' ').upper() + ': ' + value[0]['message'] + ' '
     return messages.strip()
+
+
+def display_error_messages(errors):
+    messages = []
+    for key, value in errors.items():
+        for item in value:
+            messages.append(item['message'])
+    return ' '.join(messages)
+
 
 def password_generator():
     return ''.join(random.choices(string.ascii_lowercase + string.digits, k=50))

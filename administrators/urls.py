@@ -94,6 +94,10 @@ urlpatterns = [
     path('preparation/statuses/<str:slug>/edit/', views.edit_status, name='edit_status'),
     path('preparation/statuses/', views.statuses, name='statuses'),
 
+    path('preparation/faculties/delete/', views.delete_faculty, name='delete_faculty'),
+    path('preparation/faculties/<str:slug>/edit/', views.edit_faculty, name='edit_faculty'),
+    path('preparation/faculties/', views.faculties, name='faculties'),
+
     path('preparation/programs/delete/', views.delete_program, name='delete_program'),
     path('preparation/programs/<str:slug>/edit/', views.edit_program, name='edit_program'),
     path('preparation/programs/', views.programs, name='programs'),
