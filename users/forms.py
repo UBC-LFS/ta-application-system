@@ -13,7 +13,6 @@ required_error = '<strong>{0}</strong>: This field is required.'
 invalid_numeric_error = '<strong>{0}</strong>: Only positive numbers allowed.'
 
 
-
 class RoleForm(forms.ModelForm):
     class Meta:
         model = Role
@@ -190,6 +189,7 @@ class StudentProfileGeneralForm(forms.ModelForm):
             'student_year': 'Student Year',
             'has_graduated': 'Have you graduated?',
             'graduation_date': '(Anticipated) Graduation Date',
+            'program': 'Current Program',
             'program_others': 'Other Program',
             'degrees': 'Most Recent Completed Degrees',
             'degree_details': 'Degree Details',
@@ -226,7 +226,7 @@ class StudentProfileGeneralForm(forms.ModelForm):
                 'required': required_error.format('Faculty')
             },
             'program': {
-                'required': required_error.format('Program')
+                'required': required_error.format('Current Program')
             },
             'degrees': {
                 'required': required_error.format('Most Recent Completed Degrees')
@@ -256,9 +256,9 @@ class StudentProfileGeneralForm(forms.ModelForm):
         self.fields['graduation_date'].required = True
         self.fields['faculty'].required = True
         self.fields['program'].required = True
-        self.fields['degrees'].required = True
+        self.fields['degrees'].required = False
         self.fields['degree_details'].required = True
-        self.fields['trainings'].required = True
+        self.fields['trainings'].required = False
         self.fields['training_details'].required = True
         self.fields['lfs_ta_training'].required = True
         self.fields['lfs_ta_training_details'].required = True
@@ -313,9 +313,19 @@ ta_total_ta_hours = {
     'total_ta_hours': 'Only positive numbers allowed'
 }
 
+ta_error_messages = {
+    'ta_experience': {
+        'required': required_error.format('Previous TA Experience')
+    },
+    'ta_experience_details': {
+        'required': required_error.format('Previous TA Experience Details')
+    },
+    'qualifications': {
+        'required': required_error.format('Explanation of Qualifications')
+    }
+}
 
 class StudentProfileGraduateForm(forms.ModelForm):
-
     class Meta:
         model = Profile
         fields = ['total_academic_years', 'total_terms', 'total_ta_hours'] + student_profile_ta_fields
@@ -335,6 +345,7 @@ class StudentProfileGraduateForm(forms.ModelForm):
                 'required': required_error.format('Total number of TA hours'),
                 'invalid': invalid_numeric_error.format('Total number of TA hours')
             },
+            **ta_error_messages
         }
     
     def __init__(self, *args, **kwargs):
@@ -342,14 +353,9 @@ class StudentProfileGraduateForm(forms.ModelForm):
         self.fields['total_academic_years'].required = True
         self.fields['total_terms'].required = True
         self.fields['total_ta_hours'].required = True
-
-
-    """def clean_total_academic_years(self):
-        print('clean_total_academic_years======')
-        data = self.cleaned_data['total_academic_years']
-        if not data:
-            raise ValidationError('Only positive numbers allowed.')
-        return data"""
+        self.fields['ta_experience'].required = True
+        self.fields['ta_experience_details'].required = True
+        self.fields['qualifications'].required = True
 
 
 class StudentProfileUndergraduateForm(forms.ModelForm):
@@ -359,126 +365,13 @@ class StudentProfileUndergraduateForm(forms.ModelForm):
         widgets = student_profile_ta_widgets
         labels = student_profile_ta_labels
         help_texts = student_profile_ta_help_texts
-
-"""
-class StudentProfileForm(forms.ModelForm):
-    ''' This is a model form for student profile '''
-    date = datetime.now()
-    TA_CHOICES = [('', 'Select')] + Profile.LFS_TA_TRAINING_CHOICES
-
-    preferred_name = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={ 'class':'form-control' }),
-        label='Preferred Name',
-        help_text='This field is optional. Maximum length is 256 characters.'
-    )
-    status = forms.ModelChoiceField(
-        required=True,
-        queryset=Status.objects.all(),
-        label='Status',
-        empty_label='Select'
-    )
-    program = forms.ModelChoiceField(
-        required=True,
-        queryset=Program.objects.all(),
-        label='Current Program',
-        help_text='What program will you be registered in during the next Session?',
-        empty_label='Select'
-    )
-    graduation_date = forms.DateField(
-        required=False,
-        widget=forms.SelectDateWidget(years=range(date.year, date.year + 20)),
-        label='Anticipated Graduation Date',
-        help_text='Format: Month-Day-Year'
-    )
-    degrees = forms.ModelMultipleChoiceField(
-        required=True,
-        queryset=Degree.objects.all(),
-        widget=forms.CheckboxSelectMultiple(),
-        label='Most Recent Completed Degrees',
-        help_text='Please select your most recent completed degrees.'
-    )
-    degree_details = forms.CharField(
-        required=True,
-        widget=SummernoteWidget(),
-        label='Degree Details',
-        help_text='Please indicate your degree details: most recent completed or conferred degree (e.g., BSc - Biochemistry - U of T, November 24, 2014).'
-    )
-    trainings = forms.ModelMultipleChoiceField(
-        required=False,
-        queryset=Training.objects.filter(is_active=True),
-        widget=forms.CheckboxSelectMultiple(),
-        label='Trainings',
-        help_text='I acknowledge that I have completed or will be completing these training requirements as listed below prior to the start date of any TA appointment I may receive. (You must check all fields to proceed).'
-    )
-    training_details = forms.CharField(
-        required=True,
-        widget=SummernoteWidget(),
-        label='Training Details',
-        help_text='If you have completed TA and/or PBL training, please provide some details (name of workshop, dates of workshop, etc) in the text box.'
-    )
-
-    lfs_ta_training = forms.ChoiceField(
-        required=True,
-        choices=TA_CHOICES,
-        label='LFS TA Training'
-    )
-    lfs_ta_training_details = forms.CharField(
-        required=True,
-        widget=SummernoteWidget(),
-        label='LFS TA Training Details',
-        help_text='Have you completed any LFS TA training sessions? If yes, please provide details (name of session/workshop, dates, etc).'
-    )
-    ta_experience = forms.ChoiceField(
-        required=True,
-        choices=TA_CHOICES,
-        label='Previous TA Experience'
-    )
-    ta_experience_details = forms.CharField(
-        required=True,
-        widget=SummernoteWidget(),
-        label='Previous TA Experience Details',
-        help_text='If yes, please list course name, session and total hours worked in each course (example: FNH 350 002, 2010W Term 2, 120h)'
-    )
-    qualifications = forms.CharField(
-        required=True,
-        widget=SummernoteWidget(),
-        label='Explanation of Qualifications',
-        help_text="List and give a 2-3 sentence description of your qualifications for your top three preferred courses. If you list fewer than three courses, describe qualifications for all of them. Qualifications might include coursework experience, TA experience, work in the area, contact with the course's instructor, etc. List any special arrangements you have made with regard to TAing here."
-    )
-
-    class Meta:
-        model = Profile
-        fields = [
-            'preferred_name', 'qualifications','prior_employment', 'special_considerations',
-            'status', 'program', 'program_others', 'student_year', 'graduation_date', 'degrees','degree_details',
-            'trainings', 'training_details', 'lfs_ta_training', 'lfs_ta_training_details', 'ta_experience', 'ta_experience_details'
-        ]
-        widgets = {
-            'program_others': SummernoteWidget(),
-            'prior_employment': SummernoteWidget(),
-            'special_considerations': SummernoteWidget(),
-        }
-        labels = {
-            'program_others': 'Other Program',
-            'student_year': 'Student Year',
-            'prior_employment': 'Information on Prior Employment (if any)',
-            'special_considerations': 'Special Considerations'
-        }
-        help_texts = {
-            'program_others': 'Please indicate the name of your program if you select "Other" in Current Program, above.',
-            'student_year': 'What year of your UBC degree program are you in?',
-            'prior_employment': 'This is optional. Please let any current or previous employment history you feel is relevant to the position you are applying for as a TA. Include company name, position, length of employment, supervisor\'s name and contact information (phone or email). Please indicate if you do not wish us to contact any employer for a reference.',
-            'special_considerations': 'This is optional. List any qualifications, experience, special considerations which may apply to this application. For example, you might list prior teaching experience, describe any special arrangements or requests for TAing with a particular instructor or for a particular course, or include a text copy of your current resume.'
-        }
-
-    field_order = [
-        'preferred_name', 'status', 'program', 'program_others', 'student_year', 'graduation_date',
-        'degrees', 'degree_details', 'trainings', 'training_details',
-        'lfs_ta_training', 'lfs_ta_training_details', 'ta_experience', 'ta_experience_details',
-        'qualifications', 'prior_employment', 'special_considerations'
-    ]
-"""
+        error_messages = ta_error_messages
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['ta_experience'].required = True
+        self.fields['ta_experience_details'].required = True
+        self.fields['qualifications'].required = True
 
 
 class InstructorProfileForm(forms.ModelForm):
@@ -703,3 +596,125 @@ class AvatarForm(forms.ModelForm):
         widgets = {
             'user': forms.HiddenInput()
         }
+
+
+
+"""
+class StudentProfileForm(forms.ModelForm):
+    ''' This is a model form for student profile '''
+    date = datetime.now()
+    TA_CHOICES = [('', 'Select')] + Profile.LFS_TA_TRAINING_CHOICES
+
+    preferred_name = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={ 'class':'form-control' }),
+        label='Preferred Name',
+        help_text='This field is optional. Maximum length is 256 characters.'
+    )
+    status = forms.ModelChoiceField(
+        required=True,
+        queryset=Status.objects.all(),
+        label='Status',
+        empty_label='Select'
+    )
+    program = forms.ModelChoiceField(
+        required=True,
+        queryset=Program.objects.all(),
+        label='Current Program',
+        help_text='What program will you be registered in during the next Session?',
+        empty_label='Select'
+    )
+    graduation_date = forms.DateField(
+        required=False,
+        widget=forms.SelectDateWidget(years=range(date.year, date.year + 20)),
+        label='Anticipated Graduation Date',
+        help_text='Format: Month-Day-Year'
+    )
+    degrees = forms.ModelMultipleChoiceField(
+        required=True,
+        queryset=Degree.objects.all(),
+        widget=forms.CheckboxSelectMultiple(),
+        label='Most Recent Completed Degrees',
+        help_text='Please select your most recent completed degrees.'
+    )
+    degree_details = forms.CharField(
+        required=True,
+        widget=SummernoteWidget(),
+        label='Degree Details',
+        help_text='Please indicate your degree details: most recent completed or conferred degree (e.g., BSc - Biochemistry - U of T, November 24, 2014).'
+    )
+    trainings = forms.ModelMultipleChoiceField(
+        required=False,
+        queryset=Training.objects.filter(is_active=True),
+        widget=forms.CheckboxSelectMultiple(),
+        label='Trainings',
+        help_text='I acknowledge that I have completed or will be completing these training requirements as listed below prior to the start date of any TA appointment I may receive. (You must check all fields to proceed).'
+    )
+    training_details = forms.CharField(
+        required=True,
+        widget=SummernoteWidget(),
+        label='Training Details',
+        help_text='If you have completed TA and/or PBL training, please provide some details (name of workshop, dates of workshop, etc) in the text box.'
+    )
+
+    lfs_ta_training = forms.ChoiceField(
+        required=True,
+        choices=TA_CHOICES,
+        label='LFS TA Training'
+    )
+    lfs_ta_training_details = forms.CharField(
+        required=True,
+        widget=SummernoteWidget(),
+        label='LFS TA Training Details',
+        help_text='Have you completed any LFS TA training sessions? If yes, please provide details (name of session/workshop, dates, etc).'
+    )
+    ta_experience = forms.ChoiceField(
+        required=True,
+        choices=TA_CHOICES,
+        label='Previous TA Experience'
+    )
+    ta_experience_details = forms.CharField(
+        required=True,
+        widget=SummernoteWidget(),
+        label='Previous TA Experience Details',
+        help_text='If yes, please list course name, session and total hours worked in each course (example: FNH 350 002, 2010W Term 2, 120h)'
+    )
+    qualifications = forms.CharField(
+        required=True,
+        widget=SummernoteWidget(),
+        label='Explanation of Qualifications',
+        help_text="List and give a 2-3 sentence description of your qualifications for your top three preferred courses. If you list fewer than three courses, describe qualifications for all of them. Qualifications might include coursework experience, TA experience, work in the area, contact with the course's instructor, etc. List any special arrangements you have made with regard to TAing here."
+    )
+
+    class Meta:
+        model = Profile
+        fields = [
+            'preferred_name', 'qualifications','prior_employment', 'special_considerations',
+            'status', 'program', 'program_others', 'student_year', 'graduation_date', 'degrees','degree_details',
+            'trainings', 'training_details', 'lfs_ta_training', 'lfs_ta_training_details', 'ta_experience', 'ta_experience_details'
+        ]
+        widgets = {
+            'program_others': SummernoteWidget(),
+            'prior_employment': SummernoteWidget(),
+            'special_considerations': SummernoteWidget(),
+        }
+        labels = {
+            'program_others': 'Other Program',
+            'student_year': 'Student Year',
+            'prior_employment': 'Information on Prior Employment (if any)',
+            'special_considerations': 'Special Considerations'
+        }
+        help_texts = {
+            'program_others': 'Please indicate the name of your program if you select "Other" in Current Program, above.',
+            'student_year': 'What year of your UBC degree program are you in?',
+            'prior_employment': 'This is optional. Please let any current or previous employment history you feel is relevant to the position you are applying for as a TA. Include company name, position, length of employment, supervisor\'s name and contact information (phone or email). Please indicate if you do not wish us to contact any employer for a reference.',
+            'special_considerations': 'This is optional. List any qualifications, experience, special considerations which may apply to this application. For example, you might list prior teaching experience, describe any special arrangements or requests for TAing with a particular instructor or for a particular course, or include a text copy of your current resume.'
+        }
+
+    field_order = [
+        'preferred_name', 'status', 'program', 'program_others', 'student_year', 'graduation_date',
+        'degrees', 'degree_details', 'trainings', 'training_details',
+        'lfs_ta_training', 'lfs_ta_training_details', 'ta_experience', 'ta_experience_details',
+        'qualifications', 'prior_employment', 'special_considerations'
+    ]
+"""

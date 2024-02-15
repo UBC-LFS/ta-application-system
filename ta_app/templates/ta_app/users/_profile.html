@@ -21,6 +21,50 @@
 </div>
 
 <div>
+  <h6>Student Year:</h6>
+  <span>
+    {% if data.profile.student_year %}
+      {{ data.profile.student_year }}
+    {% else %}
+      None
+    {% endif %}
+  </span>
+</div>
+
+<div>
+  <h6>Have you graduated?</h6>
+  <span>
+    {% if data.profile.get_has_graduated_display %}
+      {{ data.profile.get_has_graduated_display }}
+    {% else %}
+      None
+    {% endif %}
+  </span>
+</div>
+
+<div>
+  <h6>(Anticipated) Graduation Date:</h6>
+  <span>
+    {% if data.profile.graduation_date %}
+      {{ data.profile.graduation_date }}
+    {% else %}
+      None
+    {% endif %}
+  </span>
+</div>
+
+<div>
+  <h6>Faculty:</h6>
+  <span>
+    {% if data.profile.faculty %}
+      {{ data.profile.faculty }}
+    {% else %}
+      None
+    {% endif %}
+  </span>
+</div>
+
+<div>
   <h6>Current Program:</h6>
   <span>
     {% if data.profile.program %}
@@ -36,28 +80,6 @@
   <span>
     {% if data.profile.program_others %}
       {{ data.profile.program_others|safe }}
-    {% else %}
-      None
-    {% endif %}
-  </span>
-</div>
-
-<div>
-  <h6>Student Year:</h6>
-  <span>
-    {% if data.profile.student_year %}
-      {{ data.profile.student_year }}
-    {% else %}
-      None
-    {% endif %}
-  </span>
-</div>
-
-<div>
-  <h6>Anticipated Graduation Date:</h6>
-  <span>
-    {% if data.profile.graduation_date %}
-      {{ data.profile.graduation_date }}
     {% else %}
       None
     {% endif %}

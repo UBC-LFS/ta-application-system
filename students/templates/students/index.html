@@ -28,7 +28,7 @@
         <hr />
 
         <div class="text-center mb-2">
-          <p>Please click the <span class="text-primary">Read</span> button below if you <span class="text-danger font-weight-bold">DO NOT</span> want to see this message again.</p>
+          <p>Please click on the <span class="text-primary">Read</span> button below if you <span class="text-danger font-weight-bold">DO NOT</span> want to see this message again.</p>
           <form action="" method="POST">
             {% csrf_token %}
             <input type="hidden" name="student" value="{{ loggedin_user.id }}" />

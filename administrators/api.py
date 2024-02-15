@@ -308,13 +308,26 @@ def valid_accepted_app(list, application, total_accepted_applicants=0):
     return list, total_accepted_applicants, valid_accepted
 
 
+def get_accepted_apps_in_user(user):
+    apps = add_app_info_into_applications(user.application_set.all(), ['accepted'])
+
+    accepted_apps = []
+    total_assigned_hours = 0
+    for app in apps:
+        if check_valid_accepted_app_or_not(app):
+            accepted_apps.append(app)
+            total_assigned_hours += app.accepted.assigned_hours
+
+    return accepted_apps, total_assigned_hours
+
+
 def check_valid_accepted_app_or_not(app):
     ''' Check if an application is valid accepted or not - for admin and instructor'''
 
     if app.accepted:
         latest_status = get_latest_status_in_app(app)
         if latest_status == 'accepted':
-            if app.is_terminated == False:
+            if not app.is_terminated:
                 return True
         else:
             if app.is_declined_reassigned:
@@ -331,13 +344,13 @@ def get_filtered_accepted_apps(apps=None):
         apps = get_accepted_apps_not_terminated()
 
     excluded_apps = apps.filter( Q(is_declined_reassigned=True) & Q(applicationstatus__assigned=ApplicationStatus.DECLINED) )
-
+    print('excluded_apps', excluded_apps)
     excluded_ids = []
     for app in excluded_apps:
         ret_app = add_app_info_into_application(app, ['declined'])
         if ret_app.declined.parent_id == None:
             excluded_ids.append(ret_app.id)
-
+    print('excluded_ids', excluded_ids)
     return apps.exclude(id__in=excluded_ids)
 
 

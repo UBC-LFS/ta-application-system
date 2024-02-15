@@ -4,11 +4,10 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseRedirect, Http404, HttpResponse, JsonResponse
+from django.http import HttpResponseRedirect, Http404, HttpResponse
 from django.core.exceptions import PermissionDenied, SuspiciousOperation
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.cache import cache_control, never_cache
-from django.views.static import serve
 from django.db.models import Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
@@ -28,6 +27,7 @@ from users import api as userApi
 from datetime import datetime
 
 IMPORTANT_MESSAGE = '<strong>Important:</strong> Please complete all items in your Additional Information tab. If you have not already done so, also upload your Resume. <br />When these tabs are complete, you will be able to Explore Jobs when the TA Application is open.<br />No official TA offer can be sent to you unless these two sections are completed.  Thanks.'
+
 
 @method_decorator([never_cache], name='dispatch')
 class Index(LoginRequiredMixin, View):
@@ -77,7 +77,6 @@ class Index(LoginRequiredMixin, View):
         return redirect("students:index")
 
 
-
 @method_decorator([never_cache], name='dispatch')
 class ShowProfile(LoginRequiredMixin, View):
     ''' Display user profile '''
@@ -102,185 +101,161 @@ class ShowProfile(LoginRequiredMixin, View):
             'can_apply': can_apply
         })
 
-"""
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
-def show_profile(request):
-    ''' Display user profile '''
-    request = userApi.has_user_access(request, Role.STUDENT)
-    adminApi.can_req_parameters_access(request, 'student', ['next', 'p', 't'])
-
-    loggedin_user = userApi.add_resume(request.user)
-
-    can_apply = userApi.can_apply(request.user)
-    if can_apply == False:
-        messages.warning(request, IMPORTANT_MESSAGE)
-
-    return render(request, 'students/profile/show_profile.html', {
-        'loggedin_user': userApi.add_avatar(loggedin_user),
-        'form': ResumeForm(initial={ 'user': loggedin_user }),
-        'current_tab': request.GET.get('t'),
-        'can_apply': can_apply
-    })
-"""
 
 @method_decorator([never_cache], name='dispatch')
 class EditProfile(LoginRequiredMixin, View):
     ''' Edit user's profile '''
 
     def setup(self, request, *args, **kwargs):
-        """ model and form cannot be specified in private fields since
-        target model is determined at runtime
-        """
         setup = super().setup(request, *args, **kwargs)
         request = userApi.has_user_access(request, Role.STUDENT)
 
         tab = request.GET.get('t', None)
-        if not tab or tab not in ['general', 'graduate', 'undergraduate']:
+        if not tab or tab not in ['general', 'graduate', 'undergraduate', 'summary']:
             raise Http404
-
+        
         self.tab = tab
-
         self.user = request.user
+
+        profile = userApi.has_user_profile_created(request.user)
+        if not profile:
+            raise SuspiciousOperation
+        
+        undergrad_status_id = userApi.get_undergraduate_status_id()
+
+        path = None
+        if getattr(profile, 'status'):
+            if profile.status.id == undergrad_status_id:
+                path = 'undergraduate'
+            else:
+                path = 'graduate'
+
+        if not path and tab in ['graduate', 'undergraduate']:
+            raise Http404
+        
+        self.path = path
+        self.profile = profile
+        self.undergrad_status_id = undergrad_status_id
+        
         return setup
     
     @method_decorator(require_GET)
     def get(self, request, *args, **kwargs):
-        
+        accepted_apps, total_assigned_hours = adminApi.get_accepted_apps_in_user(self.user)
         context = { 
             'loggedin_user': userApi.add_avatar(self.user),
-            'current_tab': self.tab
+            'accepted_apps': accepted_apps,
+            'total_assigned_hours': total_assigned_hours,
+            'path': self.path,
+            'current_tab': self.tab,
+            'submit_url': reverse('students:edit_profile') + '?t=general' if self.tab == 'general' else reverse('students:update_profile_ta'),
+            #'profile_reminder': self.user.profilereminder_set.filter(session=request.GET.get('session', '')).exists()
+            'confirm_profile_reminder': userApi.confirm_profile_reminder(self.user, session=request.GET.get('session', None))
         }
         
-        print(request.session['save_general_changes'])
-
         if self.tab == 'general':
-            profile_degrees = self.user.profile.degrees.all()
-            profile_trainings = self.user.profile.trainings.all()
-            context['general_form'] = StudentProfileGeneralForm(data=None, instance=self.user.profile, initial={
-                'degrees': profile_degrees,
-                'trainings': profile_trainings
-            })
-        elif self.tab == 'graduate':
-            context['grad_form'] = StudentProfileGraduateForm()
-        elif self.tab == 'undergraduate':
-            context['undergrad_form'] = StudentProfileUndergraduateForm()
+            context['form'] = StudentProfileGeneralForm(instance=self.profile)
+        elif self.path == 'graduate' and self.tab == 'graduate':
+            context['form'] = StudentProfileGraduateForm(instance=self.profile)
+        elif self.path == 'undergraduate' and self.tab == 'undergraduate':
+            context['form'] = StudentProfileUndergraduateForm(instance=self.profile)
 
         return render(request, 'students/profile/edit_profile.html', context=context)
 
     @method_decorator(require_POST)
     def post(self, request, *args, **kwargs):
-        path = None
+        ''' Save profile general changes '''
 
-        """grad_form = StudentProfileGraduateForm(request.POST, instance=self.user.profile)
+        PROGRAM_OTHERS = userApi.get_program_others_id()
+        if not PROGRAM_OTHERS:
+            raise SuspiciousOperation
+
+        profile_degrees = self.profile.degrees.all()
+        profile_trainings = self.profile.trainings.all()
         
+        form = StudentProfileGeneralForm(request.POST, instance=self.profile)
+        if form.is_valid():
+            data = form.cleaned_data
 
-        if grad_form.is_valid():
-            print(grad_form.cleaned_data)
+            errors = []
+            if data['program'].id == PROGRAM_OTHERS and not bool(data['program_others']):
+                errors.append('<strong>Program</strong>: Please indicate the name of your program if you select "Other" in Current Program.')
+
+            if len(data['degrees']) == 0:
+                errors.append('<strong>Most Recent Completed Degrees</strong>: This field is required.')
+
+            if len(data['trainings']) == 0 or len(data['trainings']) != len(userApi.get_active_trainings()):
+                errors.append('<strong>Trainings</strong>: You must check all fields to proceed.')
+
+            if len(errors) > 0:
+                messages.error(request, 'An error occurred. Form is invalid. {0}'.format(' '.join(errors)))
+                return HttpResponseRedirect(reverse('students:edit_profile') + '?t=general')
+            
+            if form.save():
+                # Update degrees and trainings
+                userApi.update_student_profile_degrees_trainings(self.profile, profile_degrees, profile_trainings, data)
+                messages.success(request, 'Success! {0} - General information has been updated.'.format(request.user.get_full_name()))
+                status = data['status']
+                if status.id == self.undergrad_status_id:
+                    return HttpResponseRedirect(reverse('students:edit_profile') + '?t=undergraduate')
+                else:
+                    return HttpResponseRedirect(reverse('students:edit_profile') + '?t=graduate')
+            else:
+                messages.error(request, "An error occurred while updating student's profile.")
         else:
-            #print(userApi.display_error_messages(grad_form.errors.get_json_data()))
-            messages.error(request, userApi.display_error_messages(grad_form.errors.get_json_data()))"""
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.display_error_messages(form.errors.get_json_data()) ))
 
-        next = request.POST.get('next', None)
-        if next:
-            return HttpResponseRedirect(next)
-        
         return HttpResponseRedirect(reverse('students:edit_profile') + '?t=general')
 
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['POST'])
-def save_profile_general_changes(request):
-    print('save_changes =========', request.POST)
-    form = StudentProfileGeneralForm(request.POST, instance=request.user.profile)
-    print(form.is_valid())
-    if form.is_valid():
-        print(form.cleaned_data)
-        
-        
+def update_profile_ta(request):
+    ''' Update profile ta information '''
 
-        return JsonResponse({ 
-            'status': 'success', 
-            'message': ''
-        }, safe=False)
-    else:
-        request.session['save_general_changes'] = {
-            'degrees': request.POST
-        }
-        
-        print(request.session['save_general_changes'])
-        
-
-        return JsonResponse({ 
-            'status': 'error', 
-            'message': 'An error occurred. ' + userApi.display_error_messages(form.errors.get_json_data()) 
-        }, safe=False)
+    path = request.POST.get('path', None)
+    if not path:
+        raise SuspiciousOperation
     
-    return JsonResponse({ 'status': 'error' }, safe=False)
+    form = None
+    if path == 'graduate':
+        form = StudentProfileGraduateForm(request.POST, instance=request.user.profile)
+    elif path == 'undergraduate':
+        form = StudentProfileUndergraduateForm(request.POST, instance=request.user.profile)
+    
+    if not form:
+        raise SuspiciousOperation
+    
+    if form.is_valid():
+        if form.save():
+            messages.success(request, 'Success! {0} - TA information has been updated.'.format(request.user.get_full_name()))
+            return HttpResponseRedirect( reverse('students:show_profile') + '?next=' + reverse('students:edit_profile') + '&p=Edit Profile&t=additional' )
+        else:
+            messages.error(request, "An error occurred while updating student's profile.")
+    else:
+        messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.display_error_messages(form.errors.get_json_data()) ))
+
+    return HttpResponseRedirect(reverse('students:edit_profile') + '?t=' + path)
 
 
-"""
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET', 'POST'])
-def edit_profile(request):
-    ''' Edit user's profile '''
-    request = userApi.has_user_access(request, Role.STUDENT)
+@require_http_methods(['POST'])
+def confirm_profile_reminder(request):
+    ''' Confirm profile reminder '''
+    user_id = request.POST.get('user', None)
+    session_slug = request.POST.get('session', None)
+    if not user_id or not session_slug:
+        raise SuspiciousOperation
+    
+    created = ProfileReminder.objects.create(user_id=user_id, session=session_slug)
+    if created:
+        messages.success(request, 'Success! Apply Now!')
+        return HttpResponseRedirect(reverse('students:available_jobs', args=[session_slug]))
 
-    PROGRAM_OTHERS = userApi.get_program_others_id()
-    if PROGRAM_OTHERS == None:
-        raise PermissionDenied
-
-    loggedin_user = request.user
-    profile_degrees = loggedin_user.profile.degrees.all()
-    profile_trainings = loggedin_user.profile.trainings.all()
-    if request.method == 'POST':
-        form = StudentProfileForm(request.POST, instance=loggedin_user.profile)
-        if form.is_valid():
-            data = form.cleaned_data
-
-            errors = []
-            if data['program'].id == PROGRAM_OTHERS and bool(data['program_others']) == False:
-                errors.append('Please indicate the name of your program if you select "Other" in Current Program.')
-
-            if data['graduation_date'] == None:
-                errors.append('Anticipated Graduation Date: This field is required.')
-
-            if len(data['trainings']) != len(userApi.get_active_trainings()):
-                errors.append('Trainings: You must check all fields to proceed.')
-
-            if len(errors) > 0:
-                messages.error(request, 'An error occurred. {0}'.format(' '.join(errors)))
-                return redirect('students:edit_profile')
-
-            updated_profile = form.save(commit=False)
-            updated_profile.updated_at = datetime.now()
-            updated_profile.save()
-            if updated_profile:
-                updated = userApi.update_student_profile_degrees_trainings(updated_profile, profile_degrees, profile_trainings, data)
-                if updated:
-                    messages.success(request, 'Success! {0} - additional information updated'.format(loggedin_user.username))
-                    return HttpResponseRedirect( reverse('students:show_profile') + '?next=' + reverse('students:edit_profile') + '&p=Edit Profile&t=additional' )
-                else:
-                    messages.error(request, 'An error occurred while degrees and trainings of a profile.')
-            else:
-                messages.error(request, "An error occurred while updating student's profile.")
-        else:
-            errors = form.errors.get_json_data()
-            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
-
-        return redirect('students:edit_profile')
-
-    return render(request, 'students/profile/edit_profile.html', {
-        'loggedin_user': userApi.add_avatar(loggedin_user),
-        'form': StudentProfileForm(data=None, instance=loggedin_user.profile, initial={
-            'degrees': profile_degrees,
-            'trainings': profile_trainings
-        })
-    })
-"""
+    next = request.POST.get('next', reverse('students:edit_profile') + '?t=general')
+    return HttpResponseRedirect(next)
 
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -652,27 +627,35 @@ def download_file(request, username, item, filename):
 
 # Jobs
 
+@method_decorator([never_cache], name='dispatch')
+class ExploreJobs(LoginRequiredMixin, View):
+    ''' Index page of Stusent's portal '''
 
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
-def explore_jobs(request):
-    ''' Display all lists of session terms '''
-    request = userApi.has_user_access(request, Role.STUDENT)
+    @method_decorator(require_GET)
+    def get(self, request, *args, **kwargs):
+        ''' Display all lists of session terms '''
+        request = userApi.has_user_access(request, Role.STUDENT)
 
-    can_apply = userApi.can_apply(request.user)
-    if can_apply == False:
-        messages.warning(request, IMPORTANT_MESSAGE)
+        can_apply = userApi.can_apply(request.user)
+        if not can_apply:
+            messages.warning(request, IMPORTANT_MESSAGE)
 
-    sessions = adminApi.get_sessions()
-    return render(request, 'students/jobs/explore_jobs.html', {
-        'loggedin_user': userApi.add_avatar(request.user),
-        'visible_current_sessions': sessions.filter( Q(is_visible=True) & Q(is_archived=False) ),
-        'favourites': adminApi.get_favourites(request.user),
-        'can_apply': can_apply,
-        'expiry_status': userApi.get_confidential_info_expiry_status(request.user),
-        'this_year': utils.THIS_YEAR
-    })
+        sessions = Session.objects.filter( Q(is_visible=True) & Q(is_archived=False) )
+        for session in sessions:
+            session.available = False
+            found = ProfileReminder.objects.filter(session=session.slug)
+            if found.exists():
+                session.available = True
+
+        return render(request, 'students/jobs/explore_jobs.html', {
+            'loggedin_user': userApi.add_avatar(request.user),
+            'visible_current_sessions': sessions,
+            'favourites': adminApi.get_favourites(request.user),
+            'can_apply': can_apply,
+            'expiry_status': userApi.get_confidential_info_expiry_status(request.user),
+            'this_year': utils.THIS_YEAR
+        })
+
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -747,126 +730,166 @@ def favourite_jobs(request):
     })
 
 
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
-def available_jobs(request, session_slug):
-    ''' Display jobs available to apply '''
-    request = userApi.has_user_access(request, Role.STUDENT)
+@method_decorator([never_cache], name='dispatch')
+class AvailableJobs(LoginRequiredMixin, View):
 
-    can_apply = userApi.can_apply(request.user)
-    if can_apply == False:
-        raise PermissionDenied
+    def setup(self, request, *args, **kwargs):
+        setup = super().setup(request, *args, **kwargs)
 
-    adminApi.available_session(session_slug)
+        session_slug = kwargs.get('session_slug', None)
+        if not session_slug:
+            raise Http404
 
-    code_q = request.GET.get('code')
-    number_q = request.GET.get('number')
-    section_q = request.GET.get('section')
-    instructor_first_name_q = request.GET.get('instructor_first_name')
-    instructor_last_name_q = request.GET.get('instructor_last_name')
-    exclude_applied_jobs_q = request.GET.get('exclude_applied_jobs')
-    exclude_inactive_jobs_q = request.GET.get('exclude_inactive_jobs')
+        confirm_profile_reminder = userApi.confirm_profile_reminder(request.user, session_slug)
+        if not confirm_profile_reminder:
+            raise PermissionDenied
 
-    job_list = adminApi.get_jobs().filter(session__slug=session_slug)
-    if bool(code_q):
-        job_list = job_list.filter(course__code__name__icontains=code_q)
-    if bool(number_q):
-        job_list = job_list.filter(course__number__name__icontains=number_q)
-    if bool(section_q):
-        job_list = job_list.filter(course__section__name__icontains=section_q)
-    if bool(instructor_first_name_q):
-        job_list = job_list.filter(instructors__first_name__icontains=instructor_first_name_q)
-    if bool(instructor_last_name_q):
-        job_list = job_list.filter(instructors__last_name__icontains=instructor_last_name_q)
-    if exclude_applied_jobs_q == '1':
-        job_list = job_list.exclude(application__applicant__id=request.user.id)
-    if exclude_inactive_jobs_q == '1':
-        job_list = job_list.exclude(is_active=False)
+        request = userApi.has_user_access(request, Role.STUDENT)
 
-    page = request.GET.get('page', 1)
-    paginator = Paginator(job_list, settings.PAGE_SIZE)
+        can_apply = userApi.can_apply(request.user)
+        if can_apply == False:
+            raise PermissionDenied
+        
+        adminApi.available_session(session_slug) # raise PermissionDenied
+        
+        self.session_slug = session_slug
+        self.can_apply = can_apply
 
-    try:
-        jobs = paginator.page(page)
-    except PageNotAnInteger:
-        jobs = paginator.page(1)
-    except EmptyPage:
-        jobs = paginator.page(paginator.num_pages)
+        return setup
+    
+    @method_decorator(require_GET)
+    def get(self, request, *args, **kwargs):
+        ''' Display jobs available to apply '''
 
-    return render(request, 'students/jobs/available_jobs.html', {
-        'loggedin_user': userApi.add_avatar(request.user),
-        'session_slug': session_slug,
-        'jobs': adminApi.add_applied_favourite_jobs(request.user, jobs),
-        'total_jobs': len(job_list),
-        'can_apply': can_apply,
-        'new_next': adminApi.build_new_next(request)
-    })
+        code_q = request.GET.get('code')
+        number_q = request.GET.get('number')
+        section_q = request.GET.get('section')
+        instructor_first_name_q = request.GET.get('instructor_first_name')
+        instructor_last_name_q = request.GET.get('instructor_last_name')
+        exclude_applied_jobs_q = request.GET.get('exclude_applied_jobs')
+        exclude_inactive_jobs_q = request.GET.get('exclude_inactive_jobs')
 
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET', 'POST'])
-def apply_job(request, session_slug, job_slug):
-    ''' Students can apply for each job '''
-    request = userApi.has_user_access(request, Role.STUDENT)
-    adminApi.can_req_parameters_access(request, 'none', ['next'])
-    next = adminApi.get_next(request)
+        job_list = adminApi.get_jobs().filter(session__slug=self.session_slug)
+        if bool(code_q):
+            job_list = job_list.filter(course__code__name__icontains=code_q)
+        if bool(number_q):
+            job_list = job_list.filter(course__number__name__icontains=number_q)
+        if bool(section_q):
+            job_list = job_list.filter(course__section__name__icontains=section_q)
+        if bool(instructor_first_name_q):
+            job_list = job_list.filter(instructors__first_name__icontains=instructor_first_name_q)
+        if bool(instructor_last_name_q):
+            job_list = job_list.filter(instructors__last_name__icontains=instructor_last_name_q)
+        if exclude_applied_jobs_q == '1':
+            job_list = job_list.exclude(application__applicant__id=request.user.id)
+        if exclude_inactive_jobs_q == '1':
+            job_list = job_list.exclude(is_active=False)
 
-    # There are two paths to apply a job
-    # If the path doesn't contian favourite, then check session in the path
-    if 'favourite' not in next:
-        adminApi.validate_next(next, ['session'])
+        page = request.GET.get('page', 1)
+        paginator = Paginator(job_list, settings.PAGE_SIZE)
 
-    session = adminApi.get_session(session_slug, 'slug')
-    job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
-    can_apply = userApi.can_apply(request.user)
-    UNDERGRADUATE_STUDENT = userApi.get_undergraduate_status_id()
+        try:
+            jobs = paginator.page(page)
+        except PageNotAnInteger:
+            jobs = paginator.page(1)
+        except EmptyPage:
+            jobs = paginator.page(paginator.num_pages)
 
-    if session.is_visible == False or session.is_archived == True or job.is_active == False or can_apply == False or UNDERGRADUATE_STUDENT == None:
-        raise PermissionDenied
+        return render(request, 'students/jobs/available_jobs.html', {
+            'loggedin_user': userApi.add_avatar(request.user),
+            'session_slug': self.session_slug,
+            'jobs': adminApi.add_applied_favourite_jobs(request.user, jobs),
+            'total_jobs': len(job_list),
+            'can_apply': self.can_apply,
+            'new_next': adminApi.build_new_next(request)
+        })
 
-    if request.method == 'POST':
 
-        # Check whether a next url is valid or not
-        adminApi.can_req_parameters_access(request, 'none', ['next'], 'POST')
+@method_decorator([never_cache], name='dispatch')
+class ApplyJob(LoginRequiredMixin, View):
 
-        if request.user.profile.status is not None and request.user.profile.status.id != UNDERGRADUATE_STUDENT and request.POST.get('supervisor_approval') == None:
-            messages.error(request, 'An error occurred. You must check "Yes" in the box under "Supervisor Approval" if you are a graduate student. Undergraduate students should leave this box blank.')
-            return HttpResponseRedirect(request.get_full_path())
+    def setup(self, request, *args, **kwargs):
+        setup = super().setup(request, *args, **kwargs)
 
-        if request.POST.get('availability') == None:
-            messages.error(request, 'An error occurred. You must check "I understand" in the box under "Availability requirements". Please read through it.')
-            return HttpResponseRedirect(request.get_full_path())
+        session_slug = kwargs.get('session_slug', None)
+        job_slug = kwargs.get('job_slug', None)
+        if not session_slug or not job_slug:
+            raise Http404
 
-        if request.POST.get('how_qualified') == '0' or request.POST.get('how_interested') == '0':
-            messages.error(request, 'An error occurred. Please select both "How qualifed are you?" and "How interested are you?".')
-            return HttpResponseRedirect(request.get_full_path())
+        confirm_profile_reminder = userApi.confirm_profile_reminder(request.user, session_slug)
+        if not confirm_profile_reminder:
+            raise PermissionDenied
+        
+        request = userApi.has_user_access(request, Role.STUDENT)
+        adminApi.can_req_parameters_access(request, 'none', ['next'])
 
-        form = ApplicationForm(request.POST)
-        if form.is_valid():
-            app = form.save()
-            if app:
-                app_status = adminApi.create_application_status(app)
-                if app_status:
-                    messages.success(request, 'Success! {0} {1} - {2} {3} {4} applied'.format(job.session.year, job.session.term.code, job.course.code.name, job.course.number.name, job.course.section.name))
-                    return HttpResponseRedirect(request.POST.get('next'))
+        next = adminApi.get_next(request)
+
+        # There are two paths to apply a job
+        # If the path doesn't contian favourite, then check session in the path
+        if 'favourite' not in next:
+            adminApi.validate_next(next, ['session'])
+
+        self.session_slug = session_slug
+        self.job_slug = job_slug
+
+        return setup
+
+    @method_decorator(require_GET)
+    def get(self, request, *args, **kwargs):
+        ''' Students can apply for each job '''
+
+        session = adminApi.get_session(self.session_slug, 'slug')
+        job = adminApi.get_job_by_session_slug_job_slug(self.session_slug, self.job_slug)
+        can_apply = userApi.can_apply(request.user)
+        UNDERGRADUATE_STUDENT = userApi.get_undergraduate_status_id()
+
+        if session.is_visible == False or session.is_archived == True or job.is_active == False or can_apply == False or UNDERGRADUATE_STUDENT == None:
+            raise PermissionDenied
+
+        if request.method == 'POST':
+
+            # Check whether a next url is valid or not
+            adminApi.can_req_parameters_access(request, 'none', ['next'], 'POST')
+
+            if request.user.profile.status is not None and request.user.profile.status.id != UNDERGRADUATE_STUDENT and request.POST.get('supervisor_approval') == None:
+                messages.error(request, 'An error occurred. You must check "Yes" in the box under "Supervisor Approval" if you are a graduate student. Undergraduate students should leave this box blank.')
+                return HttpResponseRedirect(request.get_full_path())
+
+            if request.POST.get('availability') == None:
+                messages.error(request, 'An error occurred. You must check "I understand" in the box under "Availability requirements". Please read through it.')
+                return HttpResponseRedirect(request.get_full_path())
+
+            if request.POST.get('how_qualified') == '0' or request.POST.get('how_interested') == '0':
+                messages.error(request, 'An error occurred. Please select both "How qualifed are you?" and "How interested are you?".')
+                return HttpResponseRedirect(request.get_full_path())
+
+            form = ApplicationForm(request.POST)
+            if form.is_valid():
+                app = form.save()
+                if app:
+                    app_status = adminApi.create_application_status(app)
+                    if app_status:
+                        messages.success(request, 'Success! {0} {1} - {2} {3} {4} applied'.format(job.session.year, job.session.term.code, job.course.code.name, job.course.number.name, job.course.section.name))
+                        return HttpResponseRedirect(request.POST.get('next'))
+                    else:
+                        messages.error(request, 'An error occurred while creating a status of an application.')
                 else:
-                    messages.error(request, 'An error occurred while creating a status of an application.')
+                    messages.error(request, 'An error occurred while saving an application.')
             else:
-                messages.error(request, 'An error occurred while saving an application.')
-        else:
-            errors = form.errors.get_json_data()
-            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+                errors = form.errors.get_json_data()
+                messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
-        return HttpResponseRedirect(request.get_full_path())
+            return HttpResponseRedirect(request.get_full_path())
 
-    return render(request, 'students/jobs/apply_job.html', {
-        'loggedin_user': request.user,
-        'job': adminApi.add_favourite_job(request.user, job),
-        'has_applied_job': job.application_set.filter(applicant__id=request.user.id).exists(),
-        'form': ApplicationForm(initial={ 'applicant': request.user.id, 'job': job.id }),
-        'next':next
-    })
+        return render(request, 'students/jobs/apply_job.html', {
+            'loggedin_user': request.user,
+            'job': adminApi.add_favourite_job(request.user, job),
+            'has_applied_job': job.application_set.filter(applicant__id=request.user.id).exists(),
+            'form': ApplicationForm(initial={ 'applicant': request.user.id, 'job': job.id }),
+            'next':next
+        })
+
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -974,6 +997,7 @@ def history_jobs(request):
         'total_apps': len(app_list)
     })
 
+
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET', 'POST'])
@@ -1021,6 +1045,7 @@ def terminate_job(request, session_slug, job_slug):
         'loggedin_user': request.user,
         'app': app
     })
+
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -1251,3 +1276,348 @@ def show_application(request, app_slug):
         'loggedin_user': request.user,
         'app': adminApi.get_application(app_slug, 'slug')
     })
+
+
+
+
+"""
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET', 'POST'])
+def apply_job(request, session_slug, job_slug):
+    ''' Students can apply for each job '''
+    request = userApi.has_user_access(request, Role.STUDENT)
+    adminApi.can_req_parameters_access(request, 'none', ['next'])
+    next = adminApi.get_next(request)
+
+    # There are two paths to apply a job
+    # If the path doesn't contian favourite, then check session in the path
+    if 'favourite' not in next:
+        adminApi.validate_next(next, ['session'])
+
+    session = adminApi.get_session(session_slug, 'slug')
+    job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
+    can_apply = userApi.can_apply(request.user)
+    UNDERGRADUATE_STUDENT = userApi.get_undergraduate_status_id()
+
+    if session.is_visible == False or session.is_archived == True or job.is_active == False or can_apply == False or UNDERGRADUATE_STUDENT == None:
+        raise PermissionDenied
+
+    if request.method == 'POST':
+
+        # Check whether a next url is valid or not
+        adminApi.can_req_parameters_access(request, 'none', ['next'], 'POST')
+
+        if request.user.profile.status is not None and request.user.profile.status.id != UNDERGRADUATE_STUDENT and request.POST.get('supervisor_approval') == None:
+            messages.error(request, 'An error occurred. You must check "Yes" in the box under "Supervisor Approval" if you are a graduate student. Undergraduate students should leave this box blank.')
+            return HttpResponseRedirect(request.get_full_path())
+
+        if request.POST.get('availability') == None:
+            messages.error(request, 'An error occurred. You must check "I understand" in the box under "Availability requirements". Please read through it.')
+            return HttpResponseRedirect(request.get_full_path())
+
+        if request.POST.get('how_qualified') == '0' or request.POST.get('how_interested') == '0':
+            messages.error(request, 'An error occurred. Please select both "How qualifed are you?" and "How interested are you?".')
+            return HttpResponseRedirect(request.get_full_path())
+
+        form = ApplicationForm(request.POST)
+        if form.is_valid():
+            app = form.save()
+            if app:
+                app_status = adminApi.create_application_status(app)
+                if app_status:
+                    messages.success(request, 'Success! {0} {1} - {2} {3} {4} applied'.format(job.session.year, job.session.term.code, job.course.code.name, job.course.number.name, job.course.section.name))
+                    return HttpResponseRedirect(request.POST.get('next'))
+                else:
+                    messages.error(request, 'An error occurred while creating a status of an application.')
+            else:
+                messages.error(request, 'An error occurred while saving an application.')
+        else:
+            errors = form.errors.get_json_data()
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+
+        return HttpResponseRedirect(request.get_full_path())
+
+    return render(request, 'students/jobs/apply_job.html', {
+        'loggedin_user': request.user,
+        'job': adminApi.add_favourite_job(request.user, job),
+        'has_applied_job': job.application_set.filter(applicant__id=request.user.id).exists(),
+        'form': ApplicationForm(initial={ 'applicant': request.user.id, 'job': job.id }),
+        'next':next
+    })
+"""
+
+
+"""
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def available_jobs(request, session_slug):
+    ''' Display jobs available to apply '''
+    request = userApi.has_user_access(request, Role.STUDENT)
+
+    can_apply = userApi.can_apply(request.user)
+    if can_apply == False:
+        raise PermissionDenied
+
+    adminApi.available_session(session_slug)
+
+    code_q = request.GET.get('code')
+    number_q = request.GET.get('number')
+    section_q = request.GET.get('section')
+    instructor_first_name_q = request.GET.get('instructor_first_name')
+    instructor_last_name_q = request.GET.get('instructor_last_name')
+    exclude_applied_jobs_q = request.GET.get('exclude_applied_jobs')
+    exclude_inactive_jobs_q = request.GET.get('exclude_inactive_jobs')
+
+    job_list = adminApi.get_jobs().filter(session__slug=session_slug)
+    if bool(code_q):
+        job_list = job_list.filter(course__code__name__icontains=code_q)
+    if bool(number_q):
+        job_list = job_list.filter(course__number__name__icontains=number_q)
+    if bool(section_q):
+        job_list = job_list.filter(course__section__name__icontains=section_q)
+    if bool(instructor_first_name_q):
+        job_list = job_list.filter(instructors__first_name__icontains=instructor_first_name_q)
+    if bool(instructor_last_name_q):
+        job_list = job_list.filter(instructors__last_name__icontains=instructor_last_name_q)
+    if exclude_applied_jobs_q == '1':
+        job_list = job_list.exclude(application__applicant__id=request.user.id)
+    if exclude_inactive_jobs_q == '1':
+        job_list = job_list.exclude(is_active=False)
+
+    page = request.GET.get('page', 1)
+    paginator = Paginator(job_list, settings.PAGE_SIZE)
+
+    try:
+        jobs = paginator.page(page)
+    except PageNotAnInteger:
+        jobs = paginator.page(1)
+    except EmptyPage:
+        jobs = paginator.page(paginator.num_pages)
+
+    return render(request, 'students/jobs/available_jobs.html', {
+        'loggedin_user': userApi.add_avatar(request.user),
+        'session_slug': session_slug,
+        'jobs': adminApi.add_applied_favourite_jobs(request.user, jobs),
+        'total_jobs': len(job_list),
+        'can_apply': can_apply,
+        'new_next': adminApi.build_new_next(request)
+    })
+"""
+
+"""
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def show_profile(request):
+    ''' Display user profile '''
+    request = userApi.has_user_access(request, Role.STUDENT)
+    adminApi.can_req_parameters_access(request, 'student', ['next', 'p', 't'])
+
+    loggedin_user = userApi.add_resume(request.user)
+
+    can_apply = userApi.can_apply(request.user)
+    if can_apply == False:
+        messages.warning(request, IMPORTANT_MESSAGE)
+
+    return render(request, 'students/profile/show_profile.html', {
+        'loggedin_user': userApi.add_avatar(loggedin_user),
+        'form': ResumeForm(initial={ 'user': loggedin_user }),
+        'current_tab': request.GET.get('t'),
+        'can_apply': can_apply
+    })
+"""
+
+
+"""
+
+update_fields = []
+
+next = request.POST.get('next', reverse('students:edit_profile') + '?t=general')
+path = request.POST.get('path', None)
+if not path:
+    raise SuspiciousOperation
+
+# TODO
+saved_general_data = None
+if 'save_general_changes' in request.session:
+    saved_general_data = request.session['save_general_changes']
+
+#if saved_general_data:
+has_changed = False
+general_form = StudentProfileGeneralForm(saved_general_data, instance=self.profile)            
+if general_form.is_valid():
+
+    if general_form.has_changed():
+        has_changed = True
+        for field in general_form.changed_data:
+            if field == 'degrees':
+                self.profile.degrees.add( *[obj.id for obj in general_form.cleaned_data['degrees']] )
+            elif field == 'trainings':
+                self.profile.trainings.add( *[obj.id for obj in general_form.cleaned_data['trainings']] )
+            else:
+                setattr(self.profile, field, general_form.cleaned_data[field])
+                update_fields.append(field)
+            
+else:
+    messages.error(request, 'An error occurred. Form is invalid. ' + userApi.display_error_messages(general_form.errors.get_json_data()))
+    return HttpResponseRedirect(next)
+
+# else:
+#     messages.error(request, 'An error occurred. Please Make sure to save changes after making any changes.fill out the <strong>General</strong> form first.')
+#     return HttpResponseRedirect(next)
+
+form = None
+if path == 'graduate':
+    form = StudentProfileGraduateForm(request.POST, instance=self.profile)
+elif path == 'undergraduate':
+    form = StudentProfileUndergraduateForm(request.POST, instance=self.profile)
+
+if form.is_valid():
+    if form.has_changed():
+        has_changed = True
+        for field in form.changed_data:
+            setattr(self.profile, field, form.cleaned_data[field])
+            update_fields.append(field)
+
+    if len(update_fields) > 0:
+        self.profile.save(update_fields=update_fields)
+        del request.session['save_general_changes']
+    
+    if len(update_fields) > 0 or has_changed:
+        messages.success(request, 'Success! {0} - additional information updated'.format(self.user.get_full_name()))
+    else:
+        messages.warning(request, 'Warning! No information changed.')
+else:
+    messages.error(request, 'An error occurred. Form is invalid. ' + userApi.display_error_messages(form.errors.get_json_data()))
+
+return HttpResponseRedirect(next)
+"""
+
+
+"""
+form = StudentProfileGeneralForm(request.POST, instance=request.user.profile)
+
+degrees = request.POST.getlist('degrees[]')
+trainings = request.POST.getlist('trainings[]')
+if len(degrees) == 0:
+    return JsonResponse({ 
+        'status': 'error', 
+        'message': 'An error occurred. <strong>Most Recent Completed Degrees</strong>: This field is required.'
+    }, safe=False)
+
+if len(trainings) == 0:
+    return JsonResponse({ 
+        'status': 'error', 
+        'message': 'An error occurred. <strong>Trainings</strong>: This field is required.'
+    }, safe=False)
+
+if form.is_valid():
+    data = {}
+    for key, value in request.POST.items():
+        if key == 'degrees[]':
+            data['degrees'] = degrees
+        elif key == 'trainings[]':
+            data['trainings'] = trainings
+        else:
+            data[key] = value
+
+    # Save data in session
+    request.session['save_general_changes'] = data
+
+    return JsonResponse({ 
+        'status': 'success', 
+        'message': 'Your information has been saved successfully.'
+    }, safe=False)
+
+return JsonResponse({ 
+    'status': 'error', 
+    'message': 'An error occurred. ' + userApi.display_error_messages(form.errors.get_json_data()) 
+}, safe=False)
+"""
+
+
+"""
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET', 'POST'])
+def edit_profile(request):
+    ''' Edit user's profile '''
+    request = userApi.has_user_access(request, Role.STUDENT)
+
+    PROGRAM_OTHERS = userApi.get_program_others_id()
+    if PROGRAM_OTHERS == None:
+        raise PermissionDenied
+
+    loggedin_user = request.user
+    profile_degrees = loggedin_user.profile.degrees.all()
+    profile_trainings = loggedin_user.profile.trainings.all()
+    if request.method == 'POST':
+        form = StudentProfileForm(request.POST, instance=loggedin_user.profile)
+        if form.is_valid():
+            data = form.cleaned_data
+
+            errors = []
+            if data['program'].id == PROGRAM_OTHERS and bool(data['program_others']) == False:
+                errors.append('Please indicate the name of your program if you select "Other" in Current Program.')
+
+            if data['graduation_date'] == None:
+                errors.append('Anticipated Graduation Date: This field is required.')
+
+            if len(data['trainings']) != len(userApi.get_active_trainings()):
+                errors.append('Trainings: You must check all fields to proceed.')
+
+            if len(errors) > 0:
+                messages.error(request, 'An error occurred. {0}'.format(' '.join(errors)))
+                return redirect('students:edit_profile')
+
+            updated_profile = form.save(commit=False)
+            updated_profile.updated_at = datetime.now()
+            updated_profile.save()
+            if updated_profile:
+                updated = userApi.update_student_profile_degrees_trainings(updated_profile, profile_degrees, profile_trainings, data)
+                if updated:
+                    messages.success(request, 'Success! {0} - additional information updated'.format(loggedin_user.username))
+                    return HttpResponseRedirect( reverse('students:show_profile') + '?next=' + reverse('students:edit_profile') + '&p=Edit Profile&t=additional' )
+                else:
+                    messages.error(request, 'An error occurred while degrees and trainings of a profile.')
+            else:
+                messages.error(request, "An error occurred while updating student's profile.")
+        else:
+            errors = form.errors.get_json_data()
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+
+        return redirect('students:edit_profile')
+
+    return render(request, 'students/profile/edit_profile.html', {
+        'loggedin_user': userApi.add_avatar(loggedin_user),
+        'form': StudentProfileForm(data=None, instance=loggedin_user.profile, initial={
+            'degrees': profile_degrees,
+            'trainings': profile_trainings
+        })
+    })
+"""
+
+"""
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def explore_jobs(request):
+    ''' Display all lists of session terms '''
+    request = userApi.has_user_access(request, Role.STUDENT)
+
+    can_apply = userApi.can_apply(request.user)
+    if can_apply == False:
+        messages.warning(request, IMPORTANT_MESSAGE)
+
+    sessions = adminApi.get_sessions()
+    return render(request, 'students/jobs/explore_jobs.html', {
+        'loggedin_user': userApi.add_avatar(request.user),
+        'visible_current_sessions': sessions.filter( Q(is_visible=True) & Q(is_archived=False) ),
+        'favourites': adminApi.get_favourites(request.user),
+        'can_apply': can_apply,
+        'expiry_status': userApi.get_confidential_info_expiry_status(request.user),
+        'this_year': utils.THIS_YEAR
+    })
+"""

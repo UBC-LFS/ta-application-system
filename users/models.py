@@ -251,20 +251,12 @@ class Profile(models.Model):
     HAS_GRADUATED_CHOICES = [ ('1', 'Yes'), ('2', 'No') ]
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
-    student_number = models.CharField(
-        max_length=8,
-        unique=True,
-        null=True,
-        blank=True,
-        validators=[
-            NumericalValueValidator,
-            MinLengthValidator(8),
-            MaxLengthValidator(8)
-        ]
+    student_number = models.CharField(max_length=8, unique=True, null=True, blank=True, 
+        validators=[NumericalValueValidator, MinLengthValidator(8), MaxLengthValidator(8)]
     )
-    preferred_name = models.CharField(max_length=256, null=True, blank=True)
     roles = models.ManyToManyField(Role)
-    
+
+    preferred_name = models.CharField(max_length=256, null=True, blank=True)
     status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, null=True, blank=True)
     faculty = models.ForeignKey(Faculty, on_delete=models.DO_NOTHING, null=True, blank=True)
     program = models.ForeignKey(Program, on_delete=models.DO_NOTHING, null=True, blank=True)
@@ -289,12 +281,28 @@ class Profile(models.Model):
     special_considerations = models.TextField(null=True, blank=True)
 
     is_trimmed = models.BooleanField(default=False)
-    created_at = models.DateField(default=dt.date.today)
-    updated_at = models.DateField(default=dt.date.today)
+    created_at = models.DateField(auto_now_add=True)
+    updated_at = models.DateField(auto_now=True)
 
     def __str__(self):
         return self.user.username
 
+    def display_fields_values(self):
+        fields = []
+        for field in self._meta.fields:
+            if field.name == 'user' or field.name == 'student_number' or field.name == 'roles' or field.name == 'is_trimmed' or field.name == 'created_at' or field.name == 'updated_at' :
+                continue
+            fields.append( (field.name, getattr(self, field.name)) )
+        return fields
+
+
+class ProfileReminder(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    session = models.CharField(max_length=20)
+    created_on = models.DateField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ['user', 'session']
 
 class Alert(models.Model):
     ''' To check whether students check an alert message between March and April every year '''

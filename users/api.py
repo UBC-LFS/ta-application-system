@@ -816,6 +816,12 @@ def can_apply(user):
     return False
 
 
+def confirm_profile_reminder(user, session):
+   if not user or not session:
+       return False
+   return ProfileReminder.objects.filter(user=user, session=session).exists()
+
+
 def get_confidential_info_expiry_status(user):
     confi = has_user_confidentiality_created(user)
     
@@ -1064,3 +1070,8 @@ def display_error_messages(errors):
 
 def password_generator():
     return ''.join(random.choices(string.ascii_lowercase + string.digits, k=50))
+
+
+def trim(s):
+    return None if not s or s.isspace() else s.strip()
+        
