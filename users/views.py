@@ -54,7 +54,8 @@ def show_user(request, username):
         'role': resolve(urlparse_next.path).app_name,
         'current_tab': tab,
         'expiry_status': userApi.get_confidential_info_expiry_status(user),
-        'this_year': utils.THIS_YEAR
+        'this_year': utils.THIS_YEAR,
+        'undergrad_status_id': userApi.get_undergraduate_status_id()
     })
 
 

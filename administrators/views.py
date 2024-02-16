@@ -2750,7 +2750,8 @@ def delete_user_confirmation(request, username):
         'loggedin_user': request.user,
         'user': userApi.add_resume(user),
         'users': userApi.get_users(),
-        'next': adminApi.get_next(request)
+        'next': adminApi.get_next(request),
+        'undergrad_status_id': userApi.get_undergraduate_status_id()
     })
 
 
@@ -2811,7 +2812,8 @@ def destroy_user_contents(request):
     return render(request, 'administrators/hr/destroy_user_contents.html', {
         'loggedin_user': request.user,
         'users': users,
-        'target_date': target_date
+        'target_date': target_date,
+        'undergrad_status_id': userApi.get_undergraduate_status_id()
     })
 
 

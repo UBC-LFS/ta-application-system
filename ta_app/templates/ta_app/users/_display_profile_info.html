@@ -1,0 +1,225 @@
+<p class="border bg-white p-3 mt-4">
+  <i class="fa fa-bullhorn text-warning mr-2" aria-hidden="true"></i>
+  <strong>Trainings:</strong> COVID-related trainings are no longer mandatory, and are not being offered.
+</p>
+
+<table class="user-profile-table table table-borderless">
+  <tbody>
+    <tr>
+      <td>Preferred Name:</td>
+      <td>
+        {% if data.profile.preferred_name %}
+          {{ data.profile.preferred_name }}
+        {% else %}
+          None
+        {% endif %}
+      </td>
+    </tr>
+    <tr>
+      <td>Status:</td>
+      <td>
+        {% if data.profile.status %}
+          {{ data.profile.status }}
+        {% else %}
+          None
+        {% endif %}
+      </td>
+    </tr>
+    <tr>
+      <td>Student Year:</td>
+      <td>
+        {% if data.profile.student_year %}
+          {{ data.profile.student_year }}
+        {% else %}
+          None
+        {% endif %}
+      </td>
+    </tr>
+    <tr>
+      <td>Have you graduated?</td>
+      <td>
+        {% if data.profile.has_graduated %}
+          {{ data.profile.get_has_graduated_display }}
+        {% else %}
+          None
+        {% endif %}
+      </td>
+    </tr>
+    <tr>
+      <td>(Anticipated) Graduation Date:</td>
+      <td>
+        {% if data.profile.graduation_date %}
+          {{ data.profile.graduation_date }}
+        {% else %}
+          None
+        {% endif %}
+      </td>
+    </tr>
+    <tr>
+      <td>Faculty:</td>
+      <td>
+        {% if data.profile.faculty %}
+          {{ data.profile.faculty }}
+        {% else %}
+          None
+        {% endif %}
+      </td>
+    </tr>
+    <tr>
+      <td>Current Program:</td>
+      <td>
+        {% if data.profile.program %}
+          {{ data.profile.program }}
+        {% else %}
+          None
+        {% endif %}
+      </td>
+    </tr>
+    <tr>
+      <td>Other Program:</td>
+      <td>
+        {% if data.profile.program_others %}
+          {{ data.profile.program_others|safe }}
+        {% else %}
+          None
+        {% endif %}
+      </td>
+    </tr>
+    <tr>
+      <td>Most Recent Completed Degrees:</td>
+      <td>
+        <ul class="list-no-ml">
+          {% for degree in data.profile.degrees.all %}
+            <li>{{ degree.name }}</li>
+          {% empty %}
+            <li>None</li>
+          {% endfor %}
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td>Degree Details:</td>
+      <td>
+        {% if data.profile.degree_details %}
+          {{ data.profile.degree_details|safe }}
+        {% else %}
+          None
+        {% endif %}
+      </td>
+    </tr>
+    <tr>
+      <td>Trainings:</td>
+      <td>
+        <ul class="list-no-ml">
+          {% for training in data.profile.trainings.all %}
+            <li>{{ training.name }}</li>
+          {% empty %}
+            <li>None</li>
+          {% endfor %}
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td>Training Details:</td>
+      <td>
+        {% if data.profile.training_details %}
+          {{ data.profile.training_details|safe }}
+        {% else %}
+          None
+        {% endif %}
+      </td>
+    </tr>
+    <tr>
+      <td>LFS TA Training:</td>
+      <td>
+        {% if data.profile.lfs_ta_training %}
+          {{ data.profile.get_lfs_ta_training_display }}
+        {% else %}
+          None
+        {% endif %}
+      </td>
+    </tr>
+    <tr>
+      <td>LFS TA Training Details:</td>
+      <td>
+        {% if data.profile.lfs_ta_training_details %}
+          {{ data.profile.lfs_ta_training_details|safe }}
+        {% else %}
+          None
+        {% endif %}
+      </td>
+    </tr>
+    {% if data.profile.status.id != undergrad_status_id %}
+      <tr>
+        <td>Total number of academic years</td>
+        <td>{{ data.profile.total_academic_years }}</td>
+      </tr>
+      <tr>
+        <td>Total number of terms</td>
+        <td>{{ data.profile.total_terms }}</td>
+      </tr>
+      <tr>
+        <td>Total number of TA hours</td>
+        <td>{{ data.profile.total_ta_hours }} hours</td>
+      </tr>
+    {% endif %}
+    <tr>
+      <td>Previous TA Experience:</td>
+      <td>
+        {% if data.profile.ta_experience %}
+          {{ data.profile.get_ta_experience_display }}
+        {% else %}
+          None
+        {% endif %}
+      </td>
+    </tr>
+    <tr>
+      <td>Previous TA Experience Details:</td>
+      <td>
+        {% if data.profile.ta_experience_details %}
+          {{ data.profile.ta_experience_details|safe }}
+        {% else %}
+          None
+        {% endif %}
+      </td>
+    </tr>
+    <tr>
+      <td>Explanation of Qualifications:</td>
+      <td>
+        {% if data.profile.qualifications %}
+          {{ data.profile.qualifications|safe }}
+        {% else %}
+          None
+        {% endif %}
+      </td>
+    </tr>
+    <tr>
+      <td>Information on Prior Employment:</td>
+      <td>
+        {% if data.profile.prior_employment %}
+          {{ data.profile.prior_employment|safe }}
+        {% else %}
+          None
+        {% endif %}
+      </td>
+    </tr>
+    <tr>
+      <td>Special Considerations:</td>
+      <td>
+        {% if data.profile.special_considerations %}
+          {{ data.profile.special_considerations|safe }}
+        {% else %}
+          None
+        {% endif %}
+      </td>
+    </tr>
+    <tr>
+      <td>Created at:</td>
+      <td>{{ data.profile.created_at }}</td>
+    </tr>
+    <tr>
+      <td>Updated at:</td>
+      <td>{{ data.profile.updated_at }}</td>
+    </tr>
+  </tbody>
+</table>

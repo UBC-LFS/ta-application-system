@@ -111,8 +111,12 @@
       </div>
     </div>
 
-    <div class="col-8 mx-auto text-center mt-5">
-      <h5 class="text-info">Total Accepted Hours</h5>
+    <div class="board col-11 mx-auto text-center mt-5">
+      <h3 class="text-info mb-4">Summary of TA Information</h3>
+
+      {% include 'ta_app/users/_summary_ta_info.html' with data=accepted_apps total=total_assigned_hours %}
+
+      {% comment %}
       <table class="table font-size-1">
         <thead>
           <tr>
@@ -133,8 +137,8 @@
           {% endfor %}
         </tbody>
       </table>
+      {% endcomment %}
     </div>
-
 
   </div>
 </div>

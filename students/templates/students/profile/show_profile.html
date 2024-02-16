@@ -40,14 +40,7 @@
 
       <div class="board col-11 mx-auto">
         <h3>Additional Information</h3>
-        <table class="student-profile-form-table table font-size-1">
-          {% for field, value in loggedin_user.profile.display_fields_values %}
-            <tr>
-              <td>{{ field }}</td>
-              <td>{{ value }}</td>
-            </tr>
-          {% endfor %}
-        </table>
+        {% include 'ta_app/users/_display_profile_info.html' with data=loggedin_user undergrad_status_id=undergrad_status_id %}
       </div>
 
     {% elif current_tab == 'resume' %}

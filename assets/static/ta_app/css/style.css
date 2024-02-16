@@ -133,7 +133,8 @@ main {
 
 .help {
   color: #474d52;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
+  font-weight: normal;
   margin-bottom: 5px;
 }
 
@@ -701,14 +702,16 @@ input[type=radio] {
 
 .observer-sort-table tr th a:hover { text-decoration: none; }
 
+.user-profile-table { font-size: 1rem; }
+.user-profile-table tr td { vertical-align:top !important;  }
+.user-profile-table tr td:nth-child(1),
+.user-profile-table tr td:nth-child(1) label { font-weight: 600; }
+.user-profile-table label { margin-bottom: 0; }
 
-.student-profile-form-table { font-size: 1rem; }
-.student-profile-form-table tr td { vertical-align:top !important;  }
-.student-profile-form-table tr td:nth-child(1) label { font-weight: 600; }
-.student-profile-form-table tr td {
-
-}
-.student-profile-form-table label { margin-bottom: 0; }
+.summernote-div,
+.summernote-div > iframe,
+.summernote-div > iframe .note-editor,
+.summernote-div > iframe .note-editor .note-editing-area { height: 400px; }
 
 /* Extra small devices (portrait phones, less than 576px) */
 @media (max-width: 575.98px) {

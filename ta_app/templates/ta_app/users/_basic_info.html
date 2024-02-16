@@ -1,81 +1,78 @@
-{% if type == 'full' %}
-  <div>
-    <h6>First Name:</h6>
-    <span>
-      {% if data.first_name %}
-        {{ data.first_name }}
-      {% else %}
-        None
-      {% endif %}
-    </span>
-  </div>
+<table class="user-profile-table table table-borderless">
+  <tbody>
+    <tr>
+      <td>First Name:</td>
+      <td>
+        {% if data.first_name %}
+          {{ data.first_name }}
+        {% else %}
+          None
+        {% endif %}
+      </td>
+    </tr>
+    <tr>
+      <td>Last Name:</td>
+      <td>
+        {% if data.last_name %}
+          {{ data.last_name }}
+        {% else %}
+          None
+        {% endif %}
+      </td>
+    </tr>
+    <tr>
+      <td>CWL:</td>
+      <td>
+        {% if data.username %}
+          {{ data.username }}
+        {% else %}
+          None
+        {% endif %}
+      </td>
+    </tr>
 
-  <div>
-    <h6>Last Name:</h6>
-    <span>
-      {% if data.last_name %}
-        {{ data.last_name }}
-      {% else %}
-        None
-      {% endif %}
-    </span>
-  </div>
-
-{% endif %}
-
-<div>
-  <h6>CWL:</h6>
-  <span>
-    {% if data.username %}
-      {{ data.username }}
-    {% else %}
-      None
+    {% if student_number_display == 'True' %}
+      <tr>
+        <td>Student Number:</td>
+        <td>
+          {% if data.profile.student_number %}
+            {{ data.profile.student_number }}
+          {% else %}
+            None
+          {% endif %}
+        </td>
+      </tr>
     {% endif %}
-  </span>
-</div>
 
-{% if student_number_display == 'True' %}
-  <div>
-    <h6>Student Number:</h6>
-    <span>
-      {% if data.profile.student_number %}
-        {{ data.profile.student_number }}
-      {% else %}
-        None
-      {% endif %}
-    </span>
-  </div>
-{% endif %}
-
-<div>
-  <h6>Email:</h6>
-  <span>
-    {% if data.email %}
-      {{ data.email }}
-    {% else %}
-      None
-    {% endif %}
-  </span>
-</div>
-
-<div>
-  <h6>Date Joined:</h6>
-  <span>
-    {% if data.date_joined %}
-      {{ data.date_joined }}
-    {% else %}
-      None
-    {% endif %}
-  </span>
-</div>
-
-<div>
-  <h6>Last Login:</h6>
-  <span>
-    {% if data.last_login %}
-      {{ data.last_login }}
-    {% else %}
-      None
-    {% endif %}
-  </span>
-</div>
+    <tr>
+      <td>Email:</td>
+      <td>
+        {% if data.email %}
+          {{ data.email }}
+        {% else %}
+          None
+        {% endif %}
+      </td>
+    </tr>
+    <tr>
+      <td>Date Joined:</td>
+      <td>
+        {% if data.date_joined %}
+          {{ data.date_joined }}
+        {% else %}
+          None
+        {% endif %}
+      </td>
+    </tr>
+    <tr>
+      <td>Last Login:</td>
+      <td>
+        {% if data.last_login %}
+          {{ data.last_login }}
+        {% else %}
+          None
+        {% endif %}
+      </td>
+    </tr>
+  </tbody>
+</table>

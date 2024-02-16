@@ -12,23 +12,13 @@
       <div class="modal-body text-left">
         <div class="modal-item">
           <h4>Basic Information</h4>
-          
-          <div>
-            <h6>First Name:</h6>
-            <span>{{ data.first_name }}</span>
-          </div>
-
-          <div>
-            <h6>Last Name:</h6>
-            <span>{{ data.last_name }}</span>
-          </div>
 
           {% include 'ta_app/users/_basic_info.html' with data=data %}
 
           <hr class="dotted" />
 
           <h4>Additional Information</h4>
-          {% include 'ta_app/users/_profile.html' with data=data %}
+          {% include 'ta_app/users/_display_profile_info.html' with data=data %}
         </div>
       </div>
     </div>

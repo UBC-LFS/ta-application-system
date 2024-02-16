@@ -54,46 +54,25 @@
 
           <a class="nav-item nav-link {% if current_tab == 'summary' %}active{% endif %}" href="{% url 'students:edit_profile' %}?t=summary">
             Summary
-            <span class="mobile-hide">of TA information</span>
+            <span class="mobile-hide">of TA Information</span>
           </a>
         </div>
       </nav>
 
       {% if current_tab == 'summary' %}
 
-        <div class="bg-white border p-3 mb-5">
-          <i class="fa fa-bullhorn text-warning" aria-hidden="true"></i>
-          Please review your profile information in the table below, and go to the <a href="{% url 'students:edit_profile' %}?t={{ path }}">{{ path|title }} Student</a> tab to update if you haven't updated it yet.
-        </div>
+        {% if path %}
+          <div class="bg-white border p-3 mb-5">
+            <i class="fa fa-bullhorn text-warning mr-2" aria-hidden="true"></i>
+            Please review your TA information in the table below, and go to the <a href="{% url 'students:edit_profile' %}?t={{ path }}">{{ path|title }} Student</a> tab to update if you haven't updated it yet.
+          </div>
+        {% endif %}
 
-        <h5 class="mb-4 text-right font-weight-normal">Total number of TA hours: <span class="text-chocolate font-weight-bold">{{ total_assigned_hours }}</span> hours</h5>
-
-        <table class="table table-bordered bg-white font-size-1 text-center">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Year</th>
-              <th>Term</th>
-              <th>Course/Job</th>
-              <th>Assigned TA hours</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for app in accepted_apps %}
-              <tr>
-                <td>{{ forloop.counter }}</td>
-                <td>{{ app.job.session.year }}</td>
-                <td>{{ app.job.course.term.code }}</td>
-                <td>{{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</td>
-                <td>{{ app.accepted.assigned_hours }} hours</td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+          {% include 'ta_app/users/_summary_ta_info.html' with data=accepted_apps total=total_assigned_hours %}
 
         {% if request.GET.session and not confirm_profile_reminder %}
           <div class="bg-white border p-3 text-center mt-5">
-            <p>I confirm that my profile information is up-to-date.</p>
+            <p>I confirm that my TA information is up-to-date.</p>
             <p>If you don't want to see this message again and unlock this <span class="font-weight-bold text-danger">{{ request.GET.session|replace_session }}</span> session, please click on the <strong>Confirm</strong> button below.</p>
 
             <form action="{% url 'students:confirm_profile_reminder' %}" method="POST">
@@ -111,7 +90,7 @@
         <form action="{{ submit_url }}" method="post">
           {% csrf_token %}
 
-          <table class="table table-borderless student-profile-form-table">
+          <table class="table table-borderless user-profile-table">
             {% if current_tab == 'general' %}
               {% for field in form.visible_fields %}
                 {% include 'students/profile/_form.html' %}

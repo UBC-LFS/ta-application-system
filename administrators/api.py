@@ -309,7 +309,7 @@ def valid_accepted_app(list, application, total_accepted_applicants=0):
 
 
 def get_accepted_apps_in_user(user):
-    apps = add_app_info_into_applications(user.application_set.all(), ['accepted'])
+    apps = add_app_info_into_applications(user.application_set.all(), ['accepted', 'declined'])
 
     accepted_apps = []
     total_assigned_hours = 0
@@ -326,6 +326,7 @@ def check_valid_accepted_app_or_not(app):
 
     if app.accepted:
         latest_status = get_latest_status_in_app(app)
+        print(app.id, latest_status, app.is_declined_reassigned)
         if latest_status == 'accepted':
             if not app.is_terminated:
                 return True
@@ -644,6 +645,7 @@ def get_latest_status_in_app(app):
 
     return 'none'
 
+"""
 def get_total_assigned_hours(apps, list):
     ''' Get total assigend hours in list '''
     total_hours = {}
@@ -674,6 +676,7 @@ def get_total_assigned_hours(apps, list):
                         total_hours['accepted'][year_term] = accepted.last().assigned_hours
 
     return total_hours
+"""
 
 
 def get_total_assigned_hours_admin(apps):

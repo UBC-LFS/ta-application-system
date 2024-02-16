@@ -54,7 +54,7 @@
               <input type="checkbox" name="user" value="{{ user.id }}" />
             </td>
             <td>{{ user.id }}</td>
-            <td>{% include 'ta_app/users/_modal_user_details.html' with data=user %}</td>
+            <td>{% include 'ta_app/users/_modal_user_details.html' with data=user undergrad_status_id=undergrad_status_id %}</td>
             <td>
               {% if user.resume_filename %}
                 <a href="{% url 'students:download_file' username=user.username item='resume' filename=user.resume_filename %}" target="_blank">

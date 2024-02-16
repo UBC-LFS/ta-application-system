@@ -77,7 +77,7 @@
 
       <div class="board col-11 mx-auto">
         <h3>Additional Information</h3>
-        {% include 'ta_app/users/_profile.html' with data=selected_user %}
+        {% include 'ta_app/users/_display_profile_info.html' with data=selected_user undergrad_status_id=undergrad_status_id %}
       </div>
 
     {% elif current_tab == 'confidential' and role == 'administrators' and selected_user.is_student %}

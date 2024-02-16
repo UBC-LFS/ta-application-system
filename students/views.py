@@ -26,7 +26,7 @@ from users import api as userApi
 
 from datetime import datetime
 
-IMPORTANT_MESSAGE = '<strong>Important:</strong> Please complete all items in your Additional Information tab. If you have not already done so, also upload your Resume. <br />When these tabs are complete, you will be able to Explore Jobs when the TA Application is open.<br />No official TA offer can be sent to you unless these two sections are completed.  Thanks.'
+IMPORTANT_MESSAGE = '<strong>Important:</strong> Please complete all items in your <strong>Additional Information</strong> tab. If you have not already done so, also upload your <strong>Resume</strong>. <br />When these tabs are complete, you will be able to <strong>Explore Jobs</strong> when the TA Application is open.<br />No official TA offer can be sent to you unless these two sections are completed.  Thanks.'
 
 
 @method_decorator([never_cache], name='dispatch')
@@ -51,15 +51,19 @@ class Index(LoginRequiredMixin, View):
 
         apps = request.user.application_set.all()
 
+        accepted_apps, total_assigned_hours = adminApi.get_accepted_apps_in_user(request.user)
+
         return render(request, 'students/index.html', {
             'loggedin_user': userApi.add_avatar(request.user),
             'apps': apps,
-            'total_assigned_hours': adminApi.get_total_assigned_hours(apps, ['accepted']),
+            #'total_assigned_hours': adminApi.get_total_assigned_hours(apps, ['accepted']),
             'recent_apps': apps.filter( Q(created_at__year__gte=datetime.now().year) ).order_by('-created_at'),
             'favourites': adminApi.get_favourites(request.user),
             'can_alert': can_alert,
             'expiry_status': userApi.get_confidential_info_expiry_status(request.user),
-            'this_year': utils.THIS_YEAR
+            'this_year': utils.THIS_YEAR,
+            'accepted_apps': accepted_apps,
+            'total_assigned_hours': total_assigned_hours
         })
 
     @method_decorator(require_POST)
@@ -81,8 +85,6 @@ class Index(LoginRequiredMixin, View):
 class ShowProfile(LoginRequiredMixin, View):
     ''' Display user profile '''
 
-    form_class = ResumeForm
-
     @method_decorator(require_GET)
     def get(self, request, *args, **kwargs):
         request = userApi.has_user_access(request, Role.STUDENT)
@@ -96,9 +98,10 @@ class ShowProfile(LoginRequiredMixin, View):
 
         return render(request, 'students/profile/show_profile.html', {
             'loggedin_user': userApi.add_avatar(loggedin_user),
-            'form': self.form_class(initial={ 'user': loggedin_user }),
+            'form': ResumeForm(initial={ 'user': loggedin_user }),
             'current_tab': request.GET.get('t'),
-            'can_apply': can_apply
+            'can_apply': can_apply,
+            'undergrad_status_id': userApi.get_undergraduate_status_id()
         })
 
 
@@ -142,6 +145,7 @@ class EditProfile(LoginRequiredMixin, View):
     @method_decorator(require_GET)
     def get(self, request, *args, **kwargs):
         accepted_apps, total_assigned_hours = adminApi.get_accepted_apps_in_user(self.user)
+
         context = { 
             'loggedin_user': userApi.add_avatar(self.user),
             'accepted_apps': accepted_apps,
@@ -149,7 +153,6 @@ class EditProfile(LoginRequiredMixin, View):
             'path': self.path,
             'current_tab': self.tab,
             'submit_url': reverse('students:edit_profile') + '?t=general' if self.tab == 'general' else reverse('students:update_profile_ta'),
-            #'profile_reminder': self.user.profilereminder_set.filter(session=request.GET.get('session', '')).exists()
             'confirm_profile_reminder': userApi.confirm_profile_reminder(self.user, session=request.GET.get('session', None))
         }
         
@@ -640,12 +643,12 @@ class ExploreJobs(LoginRequiredMixin, View):
         if not can_apply:
             messages.warning(request, IMPORTANT_MESSAGE)
 
-        sessions = Session.objects.filter( Q(is_visible=True) & Q(is_archived=False) )
+        sessions = Session.objects.filter(is_visible=True, is_archived=False)
         for session in sessions:
-            session.available = False
-            found = ProfileReminder.objects.filter(session=session.slug)
-            if found.exists():
-                session.available = True
+            session.is_locked = True
+            found = ProfileReminder.objects.filter(user=request.user, session=session.slug).exists()
+            if found:
+                session.is_locked = False
 
         return render(request, 'students/jobs/explore_jobs.html', {
             'loggedin_user': userApi.add_avatar(request.user),

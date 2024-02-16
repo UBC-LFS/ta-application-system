@@ -37,11 +37,12 @@
 					<div>
 						<h5>
 							{% if can_apply %}
-								{% if session.available %}
-									<a href="{% url 'students:available_jobs' session.slug %}">{{ session.title }} (Jobs: {{ session.job_set.count }})</a>
-								{% else %}
-									<span class="text-secondary">{{ session.title }} (Jobs: {{ session.job_set.count }})</span>
+								{% if session.is_locked %}
+									<i class="fa fa-lock" aria-hidden="true"></i>
+									<span class="text-dark-gray">{{ session.title }} (Jobs: {{ session.job_set.count }})</span>
 									<a class="font-size-1" href="{% url 'students:edit_profile' %}?t=summary&session={{ session.slug }}">Confirm to unlock</a>
+								{% else %}
+									<a href="{% url 'students:available_jobs' session.slug %}">{{ session.title }} (Jobs: {{ session.job_set.count }})</a>
 								{% endif %}
 							{% else %}
 								<span class="text-dark-gray">

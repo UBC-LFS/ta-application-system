@@ -287,14 +287,6 @@ class Profile(models.Model):
     def __str__(self):
         return self.user.username
 
-    def display_fields_values(self):
-        fields = []
-        for field in self._meta.fields:
-            if field.name == 'user' or field.name == 'student_number' or field.name == 'roles' or field.name == 'is_trimmed' or field.name == 'created_at' or field.name == 'updated_at' :
-                continue
-            fields.append( (field.name, getattr(self, field.name)) )
-        return fields
-
 
 class ProfileReminder(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -303,6 +295,7 @@ class ProfileReminder(models.Model):
 
     class Meta:
         unique_together = ['user', 'session']
+
 
 class Alert(models.Model):
     ''' To check whether students check an alert message between March and April every year '''

@@ -68,7 +68,7 @@
             <td>{{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</td>
             <td>
               {% for app in job.application_set.all %}
-                {% include 'ta_app/users/_modal_user_details.html' with data=app.applicant %}<br />
+                {% include 'ta_app/users/_modal_user_details.html' with data=app.applicant undergrad_status_id=undergrad_status_id %}<br />
               {% empty %}
                 No applicants
               {% endfor %}

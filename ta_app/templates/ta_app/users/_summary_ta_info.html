@@ -1,0 +1,28 @@
+<h5 class="mb-4 text-right font-weight-normal">Total number of TA hours: <span class="text-chocolate font-weight-bold">{{ total }}</span> hours</h5>
+
+<table class="table table-bordered bg-white font-size-1 text-center">
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Year</th>
+      <th>Term</th>
+      <th>Course/Job</th>
+      <th>Assigned TA hours</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for app in data %}
+      <tr>
+        <td>{{ forloop.counter }}</td>
+        <td>{{ app.job.session.year }}</td>
+        <td>{{ app.job.course.term.code }}</td>
+        <td>{{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</td>
+        <td>{{ app.accepted.assigned_hours }} hours</td>
+      </tr>
+    {% empty %}
+      <tr>
+        <td colspan="100%">No accepted applications found</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
