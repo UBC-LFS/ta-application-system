@@ -399,62 +399,74 @@ class CreateSessionConfirmation(LoginRequiredMixin, View):
         return redirect('administrators:current_sessions')
 
 
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
-def show_report_applicants(request, session_slug):
+
+@method_decorator([never_cache], name='dispatch')
+class ShowReportApplicants(LoginRequiredMixin, View):
     ''' Display a session report including all applicants and their accepted information '''
-    request = userApi.has_admin_access(request)
 
-    session = adminApi.get_session(session_slug, 'slug')
+    def setup(self, request, *args, **kwargs):
+        setup = super().setup(request, *args, **kwargs)
+        session_slug = kwargs.get('session_slug', None)
+        if not session_slug:
+            raise Http404
 
-    applicants = adminApi.get_applicants_in_session(session)
-    total_applicants = applicants.count()
+        self.session_slug = session_slug
+        return setup
 
-    if bool( request.GET.get('first_name') ):
-        applicants = applicants.filter(first_name__icontains=request.GET.get('first_name'))
-    if bool( request.GET.get('last_name') ):
-        applicants = applicants.filter(last_name__icontains=request.GET.get('last_name'))
-    if bool( request.GET.get('cwl') ):
-        applicants = applicants.filter(username__icontains=request.GET.get('cwl'))
-    if bool( request.GET.get('student_number') ):
-        applicants = applicants.filter(profile__student_number__icontains=request.GET.get('student_number'))
+    @method_decorator(require_GET)
+    def get(self, request, *args, **kwargs):
+        request = userApi.has_admin_access(request)
+        session = adminApi.get_session(self.session_slug, 'slug')
 
-    page = request.GET.get('page', 1)
-    paginator = Paginator(applicants, settings.PAGE_SIZE)
+        applicants = adminApi.get_applicants_in_session(session)
+        total_applicants = applicants.count()
 
-    try:
-        applicants = paginator.page(page)
-    except PageNotAnInteger:
-        applicants = paginator.page(1)
-    except EmptyPage:
-        applicants = paginator.page(paginator.num_pages)
+        if bool( request.GET.get('first_name') ):
+            applicants = applicants.filter(first_name__icontains=request.GET.get('first_name'))
+        if bool( request.GET.get('last_name') ):
+            applicants = applicants.filter(last_name__icontains=request.GET.get('last_name'))
+        if bool( request.GET.get('cwl') ):
+            applicants = applicants.filter(username__icontains=request.GET.get('cwl'))
+        if bool( request.GET.get('student_number') ):
+            applicants = applicants.filter(profile__student_number__icontains=request.GET.get('student_number'))
 
-    for applicant in applicants:
-        applicant.has_applied = False
-        apps = applicant.application_set.filter( Q(job__session__year=session.year) & Q(job__session__term__code=session.term.code) )
+        page = request.GET.get('page', 1)
+        paginator = Paginator(applicants, settings.PAGE_SIZE)
 
-        if apps.count() > 0:
-            applicant.has_applied = True
-            accepted_apps = []
-            for app in apps:
-                app = adminApi.add_app_info_into_application(app, ['accepted', 'declined'])
-                if adminApi.check_valid_accepted_app_or_not(app):
-                    accepted_apps.append(app)
-            applicant.accepted_apps = accepted_apps
+        try:
+            applicants = paginator.page(page)
+        except PageNotAnInteger:
+            applicants = paginator.page(1)
+        except EmptyPage:
+            applicants = paginator.page(paginator.num_pages)
 
-    back_to_word = 'Current Sessions'
-    if 'archived' in request.session.get('next_session', None):
-        back_to_word = 'Archived Sessions'
+        for applicant in applicants:
+            applicant.gta = userApi.get_gta_flag(applicant)
+            
+            applicant.has_applied = False
+            apps = applicant.application_set.filter( Q(job__session__year=session.year) & Q(job__session__term__code=session.term.code) )
 
-    return render(request, 'administrators/sessions/show_report_applicants.html', {
-        'loggedin_user': request.user,
-        'session': session,
-        'total_applicants': total_applicants,
-        'applicants': applicants,
-        'next_session': request.session.get('next_session', None),
-        'back_to_word': back_to_word
-    })
+            if apps.count() > 0:
+                applicant.has_applied = True
+                accepted_apps = []
+                for app in apps:
+                    app = adminApi.add_app_info_into_application(app, ['accepted', 'declined'])
+                    if adminApi.check_valid_accepted_app_or_not(app):
+                        accepted_apps.append(app)
+                applicant.accepted_apps = accepted_apps
+
+        back_to_word = 'Current Sessions'
+        if 'archived' in request.session.get('next_session', None):
+            back_to_word = 'Archived Sessions'
+
+        return render(request, 'administrators/sessions/show_report_applicants.html', {
+            'loggedin_user': request.user,
+            'session': session,
+            'total_applicants': total_applicants,
+            'applicants': applicants,
+            'next_session': request.session.get('next_session', None),
+            'back_to_word': back_to_word
+        })
 
 
 @method_decorator([never_cache], name='dispatch')
@@ -787,147 +799,185 @@ def summary_applicants(request, session_slug, job_slug):
     })
 
 
-
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
-def instructor_jobs(request):
+@method_decorator([never_cache], name='dispatch')
+class InstructorJobs(LoginRequiredMixin, View):
     ''' Display jobs by instructor '''
-    request = userApi.has_admin_access(request)
 
-    first_name_q = request.GET.get('first_name')
-    last_name_q = request.GET.get('last_name')
-    preferred_name_q = request.GET.get('preferred_name')
-    cwl_q = request.GET.get('cwl')
+    @method_decorator(require_GET)
+    def get(self, request, *args, **kwargs):    
+        request = userApi.has_admin_access(request)
 
-    user_list = userApi.get_instructors()
-    if bool(first_name_q):
-        user_list = user_list.filter(first_name__icontains=first_name_q)
-    if bool(last_name_q):
-        user_list = user_list.filter(last_name__icontains=last_name_q)
-    if bool(preferred_name_q):
-        user_list = user_list.filter(profile__preferred_name__icontains=preferred_name_q)
-    if bool(cwl_q):
-        user_list = user_list.filter(username__icontains=cwl_q)
+        first_name_q = request.GET.get('first_name')
+        last_name_q = request.GET.get('last_name')
+        preferred_name_q = request.GET.get('preferred_name')
+        cwl_q = request.GET.get('cwl')
 
-    page = request.GET.get('page', 1)
-    paginator = Paginator(user_list, settings.PAGE_SIZE)
+        user_list = userApi.get_instructors()
+        if bool(first_name_q):
+            user_list = user_list.filter(first_name__icontains=first_name_q)
+        if bool(last_name_q):
+            user_list = user_list.filter(last_name__icontains=last_name_q)
+        if bool(preferred_name_q):
+            user_list = user_list.filter(profile__preferred_name__icontains=preferred_name_q)
+        if bool(cwl_q):
+            user_list = user_list.filter(username__icontains=cwl_q)
 
-    try:
-        users = paginator.page(page)
-    except PageNotAnInteger:
-        users = paginator.page(1)
-    except EmptyPage:
-        users = paginator.page(paginator.num_pages)
+        page = request.GET.get('page', 1)
+        paginator = Paginator(user_list, settings.PAGE_SIZE)
 
-    for user in users:
-        user.total_applicants = adminApi.add_total_applicants(user)
+        try:
+            users = paginator.page(page)
+        except PageNotAnInteger:
+            users = paginator.page(1)
+        except EmptyPage:
+            users = paginator.page(paginator.num_pages)
 
-    return render(request, 'administrators/jobs/instructor_jobs.html', {
-        'loggedin_user': request.user,
-        'users': users,
-        'total_users': len(user_list),
-        'new_next': adminApi.build_new_next(request)
-    })
+        for user in users:
+            user.total_applicants = adminApi.add_total_applicants(user)
 
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
-def student_jobs(request):
+        return render(request, 'administrators/jobs/instructor_jobs.html', {
+            'loggedin_user': request.user,
+            'users': users,
+            'total_users': len(user_list),
+            'new_next': adminApi.build_new_next(request)
+        })
+
+
+@method_decorator([never_cache], name='dispatch')
+class StudentJobs(LoginRequiredMixin, View):
     ''' Display jobs by student '''
-    request = userApi.has_admin_access(request)
 
-    first_name_q = request.GET.get('first_name')
-    last_name_q = request.GET.get('last_name')
-    preferred_name_q = request.GET.get('preferred_name')
-    cwl_q = request.GET.get('cwl')
+    @method_decorator(require_GET)
+    def get(self, request, *args, **kwargs):
+        request = userApi.has_admin_access(request)
 
-    user_list = userApi.get_users()
-    if bool(first_name_q):
-        user_list = user_list.filter(first_name__icontains=first_name_q)
-    if bool(last_name_q):
-        user_list = user_list.filter(last_name__icontains=last_name_q)
-    if bool(preferred_name_q):
-        user_list = user_list.filter(profile__preferred_name__icontains=preferred_name_q)
-    if bool(cwl_q):
-        user_list = user_list.filter(username__icontains=cwl_q)
+        first_name_q = request.GET.get('first_name')
+        last_name_q = request.GET.get('last_name')
+        preferred_name_q = request.GET.get('preferred_name')
+        cwl_q = request.GET.get('cwl')
 
-    user_list = user_list.filter(profile__roles__name=Role.STUDENT)
+        user_list = userApi.get_users()
+        if bool(first_name_q):
+            user_list = user_list.filter(first_name__icontains=first_name_q)
+        if bool(last_name_q):
+            user_list = user_list.filter(last_name__icontains=last_name_q)
+        if bool(preferred_name_q):
+            user_list = user_list.filter(profile__preferred_name__icontains=preferred_name_q)
+        if bool(cwl_q):
+            user_list = user_list.filter(username__icontains=cwl_q)
 
-    page = request.GET.get('page', 1)
-    paginator = Paginator(user_list, settings.PAGE_SIZE)
+        user_list = user_list.filter(profile__roles__name=Role.STUDENT)
 
-    try:
-        users = paginator.page(page)
-    except PageNotAnInteger:
-        users = paginator.page(1)
-    except EmptyPage:
-        users = paginator.page(paginator.num_pages)
+        page = request.GET.get('page', 1)
+        paginator = Paginator(user_list, settings.PAGE_SIZE)
 
-    return render(request, 'administrators/jobs/student_jobs.html', {
-        'loggedin_user': request.user,
-        'users': users,
-        'total_users': len(user_list),
-        'new_next': adminApi.build_new_next(request)
-    })
+        try:
+            users = paginator.page(page)
+        except PageNotAnInteger:
+            users = paginator.page(1)
+        except EmptyPage:
+            users = paginator.page(paginator.num_pages)
 
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
-def instructor_jobs_details(request, username):
+        for user in users:
+            user.gta = userApi.get_gta_flag(user)
+
+        return render(request, 'administrators/jobs/student_jobs.html', {
+            'loggedin_user': request.user,
+            'users': users,
+            'total_users': len(user_list),
+            'new_next': adminApi.build_new_next(request)
+        })
+
+
+@method_decorator([never_cache], name='dispatch')
+class InstructorJobsDetails(LoginRequiredMixin, View):
     ''' Display jobs that an instructor has '''
-    request = userApi.has_admin_access(request)
-    adminApi.can_req_parameters_access(request, 'job', ['next', 'p'])
+    
+    def setup(self, request, *args, **kwargs):
+        setup = super().setup(request, *args, **kwargs)
+        username = kwargs.get('username', None)
+        if not username:
+            raise Http404
+        
+        self.username = username
+        return setup
+    
+    @method_decorator(require_GET)
+    def get(self, request, *args, **kwargs):
+        request = userApi.has_admin_access(request)
+        adminApi.can_req_parameters_access(request, 'job', ['next', 'p'])
 
-    user = userApi.get_user(username, 'username')
-    user.total_applicants = adminApi.add_total_applicants(user)
-    return render(request, 'administrators/jobs/instructor_jobs_details.html', {
-        'loggedin_user': request.user,
-        'user': userApi.add_avatar(user),
-        'next': adminApi.get_next(request)
-    })
+        user = userApi.get_user(self.username, 'username')
+        user.total_applicants = adminApi.add_total_applicants(user)
+        
+        jobs = []
+        for job in user.job_set.all():
+            apps = []
+            for app in job.application_set.all():
+                app.applicant.gta = userApi.get_gta_flag(app.applicant)
+                apps.append(app)
+            job.apps = apps
+            jobs.append(job)
+        user.jobs =jobs
+        
+        return render(request, 'administrators/jobs/instructor_jobs_details.html', {
+            'loggedin_user': request.user,
+            'user': userApi.add_avatar(user),
+            'next': adminApi.get_next(request),
+            'undergrad_status_id': userApi.get_undergraduate_status_id() 
+        })
 
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
-def student_jobs_details(request, username):
+
+@method_decorator([never_cache], name='dispatch')
+class StudentJobsDetails(LoginRequiredMixin, View):
     ''' Display jobs that an student has '''
-    request = userApi.has_admin_access(request)
-    adminApi.can_req_parameters_access(request, 'job-tab', ['next', 'p', 't'])
+    
+    def setup(self, request, *args, **kwargs):
+        setup = super().setup(request, *args, **kwargs)
+        username = kwargs.get('username', None)
+        if not username:
+            raise Http404
+        
+        self.username = username
+        return setup
+    
+    @method_decorator(require_GET)
+    def get(self, request, *args, **kwargs):
+        request = userApi.has_admin_access(request)
+        adminApi.can_req_parameters_access(request, 'job-tab', ['next', 'p', 't'])
 
-    next = adminApi.get_next(request)
-    page = request.GET.get('p')
+        next = adminApi.get_next(request)
+        page = request.GET.get('p')
 
-    user = userApi.get_user(username, 'username')
-    apps = user.application_set.all()
-    apps = adminApi.add_app_info_into_applications(apps, ['offered', 'accepted', 'declined', 'cancelled'])
+        user = userApi.get_user(self.username, 'username')
+        apps = user.application_set.all()
+        apps = adminApi.add_app_info_into_applications(apps, ['offered', 'accepted', 'declined', 'cancelled'])
 
-    offered_apps = []
-    accepted_apps = []
-    for app in apps:
-        if app.offered:
-            offered_apps.append(app)
+        offered_apps = []
+        accepted_apps = []
+        for app in apps:
+            if app.offered:
+                offered_apps.append(app)
 
-        if adminApi.check_valid_accepted_app_or_not(app):
-            accepted_apps.append(app)
+            if adminApi.check_valid_accepted_app_or_not(app):
+                accepted_apps.append(app)
 
-    return render(request, 'administrators/jobs/student_jobs_details.html', {
-        'loggedin_user': request.user,
-        'user': userApi.add_avatar(user),
-        'total_assigned_hours': adminApi.get_total_assigned_hours_admin(apps),
-        'apps': apps,
-        'offered_apps': offered_apps,
-        'accepted_apps': accepted_apps,
-        'tab_urls': {
-            'all': adminApi.build_url(request.path, next, page, 'all'),
-            'offered': adminApi.build_url(request.path, next, page, 'offered'),
-            'accepted': adminApi.build_url(request.path, next, page, 'accepted')
-        },
-        'current_tab': request.GET.get('t'),
-        'app_status': APP_STATUS,
-        'next': next
-    })
+        return render(request, 'administrators/jobs/student_jobs_details.html', {
+            'loggedin_user': request.user,
+            'user': userApi.add_avatar(user),
+            'total_assigned_hours': adminApi.get_total_assigned_hours_admin(apps),
+            'apps': apps,
+            'offered_apps': offered_apps,
+            'accepted_apps': accepted_apps,
+            'tab_urls': {
+                'all': adminApi.build_url(request.path, next, page, 'all'),
+                'offered': adminApi.build_url(request.path, next, page, 'offered'),
+                'accepted': adminApi.build_url(request.path, next, page, 'accepted')
+            },
+            'current_tab': request.GET.get('t'),
+            'app_status': APP_STATUS,
+            'next': next
+        })
 
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -1069,103 +1119,118 @@ def delete_job_instructors(request, session_slug, job_slug):
             return JsonResponse({ 'status': 'error', 'message': 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ) })
     return JsonResponse({ 'status': 'error', 'message': 'Request method is not POST.' })
 
+
 # Applications
 
 
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
-def show_application(request, app_slug):
+@method_decorator([never_cache], name='dispatch')
+class ShowApplication(LoginRequiredMixin, View):
     ''' Display an application details '''
-    request = userApi.has_admin_access(request, Role.HR)
-    adminApi.can_req_parameters_access(request, 'app', ['next', 'p'])
 
-    return render(request, 'administrators/applications/show_application.html', {
-        'loggedin_user': request.user,
-        'app': adminApi.get_application(app_slug, 'slug'),
-        'next': adminApi.get_next(request)
-    })
+    def setup(self, request, *args, **kwargs):
+        setup = super().setup(request, *args, **kwargs)
+        app_slug = kwargs.get('app_slug', None)
+        if not app_slug:
+            raise Http404
+        self.app_slug = app_slug
+        return setup
 
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
-def applications_dashboard(request):
+    @method_decorator(require_GET)
+    def get(self, request, *args, **kwargs):
+        request = userApi.has_admin_access(request, Role.HR)
+        adminApi.can_req_parameters_access(request, 'app', ['next', 'p'])
+
+        return render(request, 'administrators/applications/show_application.html', {
+            'loggedin_user': request.user,
+            'app': adminApi.get_application(self.app_slug, 'slug'),
+            'next': adminApi.get_next(request)
+        })
+
+
+@method_decorator([never_cache], name='dispatch')
+class ApplicationsDashboard(LoginRequiredMixin, View):
     ''' Display a dashboard to take a look at updates '''
-    request = userApi.has_admin_access(request)
 
-    year_q = request.GET.get('year')
-    term_q = request.GET.get('term')
-    code_q = request.GET.get('code')
-    number_q = request.GET.get('number')
-    section_q = request.GET.get('section')
-    first_name_q = request.GET.get('first_name')
-    last_name_q = request.GET.get('last_name')
+    @method_decorator(require_GET)
+    def get(self, request, *args, **kwargs):
+        request = userApi.has_admin_access(request)
 
-    status_list = adminApi.get_application_statuses()
-    if bool(year_q):
-        status_list = status_list.filter(application__job__session__year__icontains=year_q)
-    if bool(term_q):
-        status_list = status_list.filter(application__job__session__term__code__icontains=term_q)
-    if bool(code_q):
-        status_list = status_list.filter(application__job__course__code__name__icontains=code_q)
-    if bool(number_q):
-        status_list = status_list.filter(application__job__course__number__name__icontains=number_q)
-    if bool(section_q):
-        status_list = status_list.filter(application__job__course__section__name__icontains=section_q)
-    if bool(first_name_q):
-        status_list = status_list.filter(application__applicant__first_name__icontains=first_name_q)
-    if bool(last_name_q):
-        status_list = status_list.filter(application__applicant__last_name__icontains=last_name_q)
+        year_q = request.GET.get('year')
+        term_q = request.GET.get('term')
+        code_q = request.GET.get('code')
+        number_q = request.GET.get('number')
+        section_q = request.GET.get('section')
+        first_name_q = request.GET.get('first_name')
+        last_name_q = request.GET.get('last_name')
 
-    page = request.GET.get('page', 1)
-    paginator = Paginator(status_list, settings.PAGE_SIZE)
+        status_list = adminApi.get_application_statuses()
+        if bool(year_q):
+            status_list = status_list.filter(application__job__session__year__icontains=year_q)
+        if bool(term_q):
+            status_list = status_list.filter(application__job__session__term__code__icontains=term_q)
+        if bool(code_q):
+            status_list = status_list.filter(application__job__course__code__name__icontains=code_q)
+        if bool(number_q):
+            status_list = status_list.filter(application__job__course__number__name__icontains=number_q)
+        if bool(section_q):
+            status_list = status_list.filter(application__job__course__section__name__icontains=section_q)
+        if bool(first_name_q):
+            status_list = status_list.filter(application__applicant__first_name__icontains=first_name_q)
+        if bool(last_name_q):
+            status_list = status_list.filter(application__applicant__last_name__icontains=last_name_q)
 
-    try:
-        statuses = paginator.page(page)
-    except PageNotAnInteger:
-        statuses = paginator.page(1)
-    except EmptyPage:
-        statuses = paginator.page(paginator.num_pages)
+        page = request.GET.get('page', 1)
+        paginator = Paginator(status_list, settings.PAGE_SIZE)
 
-    return render(request, 'administrators/applications/applications_dashboard.html', {
-        'loggedin_user': request.user,
-        'statuses': statuses,
-        'total_statuses': len(status_list),
-        'app_status': APP_STATUS,
-        'new_next': adminApi.build_new_next(request)
-    })
+        try:
+            statuses = paginator.page(page)
+        except PageNotAnInteger:
+            statuses = paginator.page(1)
+        except EmptyPage:
+            statuses = paginator.page(paginator.num_pages)
 
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
-def all_applications(request):
+        return render(request, 'administrators/applications/applications_dashboard.html', {
+            'loggedin_user': request.user,
+            'statuses': statuses,
+            'total_statuses': len(status_list),
+            'app_status': APP_STATUS,
+            'new_next': adminApi.build_new_next(request)
+        })
+
+
+@method_decorator([never_cache], name='dispatch')
+class AllApplications(LoginRequiredMixin, View):
     ''' Display all applications '''
-    request = userApi.has_admin_access(request)
 
-    apps, info = adminApi.get_applications_filter_limit(request, 'all')
+    @method_decorator(require_GET)
+    def get(self, request, *args, **kwargs):
+        request = userApi.has_admin_access(request)
 
-    page = request.GET.get('page', 1)
-    paginator = Paginator(apps, settings.PAGE_SIZE)
+        apps, info = adminApi.get_applications_filter_limit(request, 'all')
 
-    try:
-        apps = paginator.page(page)
-    except PageNotAnInteger:
-        apps = paginator.page(1)
-    except EmptyPage:
-        apps = paginator.page(paginator.num_pages)
+        page = request.GET.get('page', 1)
+        paginator = Paginator(apps, settings.PAGE_SIZE)
 
-    for app in apps:
-        app.can_reset = adminApi.app_can_reset(app)
-        app.confi_info_expiry_status = userApi.get_confidential_info_expiry_status(app.applicant)
+        try:
+            apps = paginator.page(page)
+        except PageNotAnInteger:
+            apps = paginator.page(1)
+        except EmptyPage:
+            apps = paginator.page(paginator.num_pages)
 
-    return render(request, 'administrators/applications/all_applications.html', {
-        'loggedin_user': request.user,
-        'apps': apps,
-        'num_filtered_apps': info['num_filtered_apps'],
-        'app_status': APP_STATUS,
-        'new_next': adminApi.build_new_next(request),
-        'this_year': utils.THIS_YEAR
-    })
+        for app in apps:
+            app.applicant.gta = userApi.get_gta_flag(app.applicant)
+            app.can_reset = adminApi.app_can_reset(app)
+            app.confi_info_expiry_status = userApi.get_confidential_info_expiry_status(app.applicant)
+
+        return render(request, 'administrators/applications/all_applications.html', {
+            'loggedin_user': request.user,
+            'apps': apps,
+            'num_filtered_apps': info['num_filtered_apps'],
+            'app_status': APP_STATUS,
+            'new_next': adminApi.build_new_next(request),
+            'this_year': utils.THIS_YEAR
+        })
 
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -1214,6 +1279,141 @@ def reset_application(request):
     return HttpResponseRedirect(request.POST.get('next'))
 
 
+@method_decorator([never_cache], name='dispatch')
+class SelectedApplications(LoginRequiredMixin, View):
+    
+    @method_decorator(require_GET)
+    def get(self, request, *args, **kwargs):
+        request = userApi.has_admin_access(request)
+
+        apps, info = adminApi.get_applications_filter_limit(request, 'selected')
+
+        page = request.GET.get('page', 1)
+        paginator = Paginator(apps, settings.PAGE_SIZE)
+
+        try:
+            apps = paginator.page(page)
+        except PageNotAnInteger:
+            apps = paginator.page(1)
+        except EmptyPage:
+            apps = paginator.page(paginator.num_pages)
+
+        apps = adminApi.add_app_info_into_applications(apps, ['resume', 'selected', 'offered', 'declined'])
+
+        filtered_offered_apps = { 'num_offered': 0, 'num_not_offered': 0 }
+        for app in apps:
+            app.applicant.gta = userApi.get_gta_flag(app.applicant)
+            app.confi_info_expiry_status = userApi.get_confidential_info_expiry_status(app.applicant)
+
+            assigned_hours = app.selected.assigned_hours
+            if app.offered and app.offered.id > app.selected.id:
+                assigned_hours = app.offered.assigned_hours
+
+            offer_modal = {
+                'title': '',
+                'form_url': reverse('administrators:offer_job', args=[app.job.session.slug, app.job.course.slug]),
+                'classification_id': app.classification.id if app.classification != None else -1,
+                'assigned_hours': assigned_hours,
+                'button_colour': 'btn-primary',
+                'button_disabled': False,
+                'button_disabled_message': False
+            }
+
+            latest_status = adminApi.get_latest_status_in_app(app)
+            num_offers = app.applicationstatus_set.filter(assigned=ApplicationStatus.OFFERED).count()
+
+            if latest_status == 'selected' or latest_status == 'none':
+                if num_offers == 0: offer_modal['title'] = 'Offer'
+                else: offer_modal['title'] = 'Re-offer'
+
+                filtered_offered_apps['num_not_offered'] += 1
+
+                if latest_status == 'none':
+                    offer_modal['button_disabled'] = True
+                    offer_modal['button_disabled_message'] = True
+
+                    filtered_offered_apps['num_not_offered'] -= 1
+                    filtered_offered_apps['num_offered'] += 1
+            else:
+                offer_modal['title'] = 'Edit'
+                offer_modal['button_colour'] = 'btn-warning'
+                filtered_offered_apps['num_offered'] += 1
+
+            app.offer_modal = offer_modal
+
+            if app.job.assigned_ta_hours == app.job.accumulated_ta_hours:
+                app.ta_hour_progress = 'done'
+            elif app.job.assigned_ta_hours < app.job.accumulated_ta_hours:
+                app.ta_hour_progress = 'over'
+            else:
+                if (app.job.assigned_ta_hours * 3.0/4.0) < app.job.accumulated_ta_hours:
+                    app.ta_hour_progress = 'under_three_quarters'
+                elif (app.job.assigned_ta_hours * 2.0/4.0) < app.job.accumulated_ta_hours:
+                    app.ta_hour_progress = 'under_half'
+                elif (app.job.assigned_ta_hours * 1.0/4.0) < app.job.accumulated_ta_hours:
+                    app.ta_hour_progress = 'under_one_quarter'
+
+        return render(request, 'administrators/applications/selected_applications.html', {
+            'loggedin_user': request.user,
+            'apps': apps,
+            'num_all_apps': info['num_all_apps'],
+            'filtered_apps_stats': {
+                'num_filtered_apps': info['num_filtered_apps'],
+                'filtered_offered_apps': filtered_offered_apps,
+            },
+            'all_offered_apps_stats': {
+                'num_offered': info['num_offered_apps'],
+                'num_not_offered': info['num_not_offered_apps']
+            },
+            'classification_choices': adminApi.get_classifications(),
+            'app_status': APP_STATUS,
+            'new_next': adminApi.build_new_next(request),
+            'this_year': utils.THIS_YEAR
+        })
+
+
+    @method_decorator(require_POST)
+    def post(self, request, *args, **kwargs):
+        # TODO: check this function
+        # Edit application - not using anymore
+
+        # Check whether a next url is valid or not
+        adminApi.can_req_parameters_access(request, 'none', ['next'], 'POST')
+
+        if 'classification' not in request.POST.keys() or len(request.POST.get('classification')) == 0:
+            messages.error(request, 'An error occurred. Please select classification, then try again.')
+            return HttpResponseRedirect(request.POST.get('next'))
+
+        assigned_hours = request.POST.get('assigned_hours')
+
+        if adminApi.is_valid_float(assigned_hours) == False:
+            messages.error(request, 'An error occurred. Please check assigned hours. Assigned hours must be numerival value only.')
+            return HttpResponseRedirect(request.POST.get('next'))
+
+        if adminApi.is_valid_integer(assigned_hours) == False:
+            messages.error(request, 'An error occurred. Please check assigned hours. Assign TA Hours must be non-negative integers.')
+            return HttpResponseRedirect(request.POST.get('next'))
+
+        assigned_hours = int( float(assigned_hours) )
+
+        if assigned_hours < 0:
+            messages.error(request, 'An error occurred. Please check assigned hours. Assigned hours must be greater than 0.')
+            return HttpResponseRedirect(request.POST.get('next'))
+
+        app = adminApi.get_application(request.POST.get('application'))
+        if assigned_hours > int(app.job.assigned_ta_hours):
+            messages.error(request, 'An error occurred. Please you cannot assign {0} hours Total Assigned TA Hours is {1}, then try again.'.format( assigned_hours, int(app.job.assigned_ta_hours) ))
+            return HttpResponseRedirect(request.POST.get('next'))
+
+        if adminApi.update_job_offer(request.POST):
+            messages.success(request, 'Success! Updated this application (ID: {0})'.format(app.id))
+        else:
+            messages.error(request, 'An error occurred. Failed to update this application (ID: {0}).'.format(app.id))
+
+        return HttpResponseRedirect(request.POST.get('next'))
+    
+
+"""
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET', 'POST'])
@@ -1344,7 +1544,7 @@ def selected_applications(request):
         'new_next': adminApi.build_new_next(request),
         'this_year': utils.THIS_YEAR
     })
-
+"""
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -1432,40 +1632,40 @@ def offer_job(request, session_slug, job_slug):
     return HttpResponseRedirect(request.POST.get('next'))
 
 
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
-def offered_applications(request):
+@method_decorator([never_cache], name='dispatch')
+class OfferedApplications(LoginRequiredMixin, View):
     ''' Display applications offered by admins '''
-    request = userApi.has_admin_access(request)
 
-    apps, info = adminApi.get_applications_filter_limit(request, 'offered')
+    @method_decorator(require_GET)
+    def get(self, request, *args, **kwargs):
+        request = userApi.has_admin_access(request)
 
-    page = request.GET.get('page', 1)
-    paginator = Paginator(apps, settings.PAGE_SIZE)
+        apps, info = adminApi.get_applications_filter_limit(request, 'offered')
 
-    try:
-        apps = paginator.page(page)
-    except PageNotAnInteger:
-        apps = paginator.page(1)
-    except EmptyPage:
-        apps = paginator.page(paginator.num_pages)
+        page = request.GET.get('page', 1)
+        paginator = Paginator(apps, settings.PAGE_SIZE)
 
-    apps = adminApi.add_app_info_into_applications(apps, ['offered', 'accepted', 'declined'])
-    for app in apps:
-        app.confi_info_expiry_status = userApi.get_confidential_info_expiry_status(app.applicant)
+        try:
+            apps = paginator.page(page)
+        except PageNotAnInteger:
+            apps = paginator.page(1)
+        except EmptyPage:
+            apps = paginator.page(paginator.num_pages)
 
-    return render(request, 'administrators/applications/offered_applications.html', {
-        'loggedin_user': request.user,
-        'apps': apps,
-        'num_filtered_apps': info['num_filtered_apps'],
-        'admin_emails': adminApi.get_admin_emails(),
-        'new_next': adminApi.build_new_next(request),
-        'this_year': utils.THIS_YEAR
-    })
+        apps = adminApi.add_app_info_into_applications(apps, ['offered', 'accepted', 'declined'])
+        for app in apps:
+            app.applicant.gta = userApi.get_gta_flag(app.applicant)
+            app.confi_info_expiry_status = userApi.get_confidential_info_expiry_status(app.applicant)
 
-from django.urls import resolve
-from urllib.parse import urlparse
+        return render(request, 'administrators/applications/offered_applications.html', {
+            'loggedin_user': request.user,
+            'apps': apps,
+            'num_filtered_apps': info['num_filtered_apps'],
+            'admin_emails': adminApi.get_admin_emails(),
+            'new_next': adminApi.build_new_next(request),
+            'this_year': utils.THIS_YEAR
+        })
+
 
 @method_decorator([never_cache], name='dispatch')
 class AcceptedApplications(LoginRequiredMixin, View):
@@ -1557,35 +1757,36 @@ def import_accepted_apps(request):
     return HttpResponseRedirect(request.POST.get('next'))
 
 
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
-def declined_applications(request):
+@method_decorator([never_cache], name='dispatch')
+class DeclinedApplications(LoginRequiredMixin, View):
     ''' Display applications declined by students '''
-    request = userApi.has_admin_access(request)
 
-    apps, info = adminApi.get_applications_filter_limit(request, 'declined')
+    @method_decorator(require_GET)
+    def get(self, request, *args, **kwargs):
+        request = userApi.has_admin_access(request)
 
-    page = request.GET.get('page', 1)
-    paginator = Paginator(apps, settings.PAGE_SIZE)
+        apps, info = adminApi.get_applications_filter_limit(request, 'declined')
 
-    try:
-        apps = paginator.page(page)
-    except PageNotAnInteger:
-        apps = paginator.page(1)
-    except EmptyPage:
-        apps = paginator.page(paginator.num_pages)
+        page = request.GET.get('page', 1)
+        paginator = Paginator(apps, settings.PAGE_SIZE)
 
-    apps = adminApi.add_app_info_into_applications(apps, ['declined'])
+        try:
+            apps = paginator.page(page)
+        except PageNotAnInteger:
+            apps = paginator.page(1)
+        except EmptyPage:
+            apps = paginator.page(paginator.num_pages)
 
-    return render(request, 'administrators/applications/declined_applications.html', {
-        'loggedin_user': request.user,
-        'apps': apps,
-        'num_filtered_apps': info['num_filtered_apps'],
-        'admin_emails': adminApi.get_admin_emails(),
-        'app_status': APP_STATUS,
-        'new_next': adminApi.build_new_next(request)
-    })
+        apps = adminApi.add_app_info_into_applications(apps, ['declined'])
+
+        return render(request, 'administrators/applications/declined_applications.html', {
+            'loggedin_user': request.user,
+            'apps': apps,
+            'num_filtered_apps': info['num_filtered_apps'],
+            'admin_emails': adminApi.get_admin_emails(),
+            'app_status': APP_STATUS,
+            'new_next': adminApi.build_new_next(request)
+        })
 
 
 @login_required(login_url=settings.LOGIN_URL)

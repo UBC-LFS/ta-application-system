@@ -35,9 +35,10 @@
           <th data-sortable="true">First Name</th>
           <th data-sortable="true">Last Name</th>
           <th data-sortable="true">CWL</th>
-          <th>Student Number</th>
-          <th data-sortable="true">Number of <br />Accepted Apps</th>
-          <th>Accepted <br/>Applications</th>
+          <th>Student <br /> Number</th>
+          <th data-sortable="true">GTA <br /> Info</th>
+          <th data-sortable="true">Number of <br /> Accepted Apps</th>
+          <th>Accepted <br/> Applications</th>
         </tr>
       </thead>
       <tbody>
@@ -48,16 +49,19 @@
               <td>{{ applicant.last_name }}</td>
               <td>{{ applicant.username }}</td>
               <td>{{ applicant.profile.student_number }}</td>
+              <td>{% include 'ta_app/users/_display_gta_info.html' with data=applicant %}</td>
               <td>{{ applicant.accepted_apps|length }}</td>
-              <td>
-                {% for app in applicant.accepted_apps %}
-                  <div>
-                    {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}
-                    ({{ app.accepted.assigned_hours }} hours){% if not forloop.last %},{% endif %}
-                  </div>
-                {% empty %}
-                  None
-                {% endfor %}
+              <td class="text-left">
+                <ul class="list-no-ml">
+                  {% for app in applicant.accepted_apps %}
+                    <li>
+                      <span>{{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</span> <br />
+                      <span>({{ app.accepted.assigned_hours }} hours){% if not forloop.last %},{% endif %}</span>
+                    </li>
+                  {% empty %}
+                    None
+                  {% endfor %}
+                </ul>
               </td>
             </tr>
           {% endif %}
@@ -66,7 +70,6 @@
     </table>
 
     {% include 'instructors/jobs/_table_paginator.html' with data=applicants %}
-
   </div>
 </div>
 

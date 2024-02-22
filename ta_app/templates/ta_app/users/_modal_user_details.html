@@ -12,13 +12,17 @@
       <div class="modal-body text-left">
         <div class="modal-item">
           <h4>Basic Information</h4>
-
           {% include 'ta_app/users/_basic_info.html' with data=data %}
 
           <hr class="dotted" />
 
-          <h4>Additional Information</h4>
-          {% include 'ta_app/users/_display_profile_info.html' with data=data %}
+          <h4>
+            Additional Information
+            {% if data.gta %}
+              - <span class="badge {% if data.gta == 'GTA 1' %}badge-success{% elif data.gta == 'GTA 2' %}badge-warning{% else %}badge-secondary{% endif %}">{{ data.gta }}</span>
+            {% endif %}
+          </h4>
+          {% include 'ta_app/users/_display_profile_info.html' with data=data undergrad_status_id=undergrad_status_id %}
         </div>
       </div>
     </div>

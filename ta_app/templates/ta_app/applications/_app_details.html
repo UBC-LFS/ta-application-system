@@ -1,65 +1,62 @@
-<div>
-  <h6>Supervisor Approval:</h6>
-  <span>
-    {% if data.supervisor_approval %}
-      Yes
-    {% else %}
-      No
+<table class="table user-profile-table table-borderless {% if striped == 'True' %}table-striped{% endif %}">
+  <tbody>
+    <tr>
+      <td>Supervisor Approval:</td>
+      <td>
+        {% if data.supervisor_approval %}
+          Yes
+        {% else %}
+          No
+        {% endif %}
+      </td>
+    </tr>
+    <tr>
+      <td>How qualified are you?</td>
+      <td>{{ data.get_how_qualified_display }}</td>
+    </tr>
+    <tr>
+      <td>How interested are you?</td>
+      <td>{{ data.get_how_interested_display }}</td>
+    </tr>
+    <tr>
+      <td>Availability Requirements:</td>
+      <td>
+        {% if data.availability %}
+          Yes, I understand
+        {% else %}
+          No
+        {% endif %}
+      </td>
+    </tr>
+    <tr>
+      <td>Availability Notes:</td>
+      <td>
+        {% if data.availability_note %}
+          {{ data.availability_note|safe }}
+        {% else %}
+          None
+        {% endif %}
+      </td>
+    </tr>
+    {% if pin_display == 'True' %}
+      <tr>
+        <td>PIN:</td>
+        <td>
+          {% if data.admindocuments.pin %}
+            {{ data.admindocuments.pin }}
+          {% else %}
+            None
+          {% endif %}
+        </td>
+      </tr>
     {% endif %}
-  </span>
-</div>
-
-<div>
-  <h6>How qualified are you?</h6>
-  <span>{{ data.get_how_qualified_display }}</span>
-</div>
-
-<div>
-  <h6>How interested are you?</h6>
-  <span>{{ data.get_how_interested_display }}</span>
-</div>
-
-<div>
-  <h6>Availability Requirements:</h6>
-  <span>
-    {% if data.availability %}
-      Yes, I understand
-    {% else %}
-      No
-    {% endif %}
-  </span>
-</div>
-
-<div>
-  <h6>Availability Notes:</h6>
-  <span>
-    {% if data.availability_note %}
-      {{ data.availability_note|safe }}
-    {% else %}
-      None
-    {% endif %}
-  </span>
-</div>
-
-{% if pin_display == 'True' %}
-  <div>
-    <h6>PIN:</h6>
-    <span>
-      {% if data.admindocuments.pin %}
-        {{ data.admindocuments.pin }}
-      {% else %}
-        None
-      {% endif %}
-    </span>
-  </div>
-{% endif %}
-
-<div>
-  <h6>Created at:</h6>
-  <span>{{ data.created_at }}</span>
-</div>
-
-<div>
-  <h6>Updated at:</h6>
-  <span>{{ data.updated_at }}</span>
-</div>
+    <tr>
+      <td>Applied on:</td>
+      <td>{{ data.created_at }}</td>
+    </tr>
+    <tr>
+      <td>Updated on:</td>
+      <td>{{ data.updated_at }}</td>
+    </tr>
+  </tbody>
+</table>

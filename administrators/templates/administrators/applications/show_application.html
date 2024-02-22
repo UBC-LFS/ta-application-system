@@ -13,16 +13,17 @@
 
   <div class="col-md-8">
     <div class="board col-11 mx-auto">
-      <h3>Details</h3>
+      <h3>
+        {{ app.applicant.get_full_name }}
+        <small class="text-secondary">(CWL: {{ app.applicant.username}})</small>
+      </h3>
+      <h6 class="mt-4">Application ID: <span>{{ app.id }}</span></h6>
+
       {% include 'ta_app/applications/_app_details.html' with data=app pin_display='True' %}
 
-      <div>
-        <h6>Application ID:</h6>
-        <span>{{ app.id }}</span>
-      </div>
-
-      <div>
-        <h6>Status:</h6>
+      <hr />
+      <section class="mt-4">
+        <h4 class="text-info">Status:</h4>
         <table class="custom-table text-center">
           <thead>
             <tr>
@@ -55,13 +56,9 @@
                 <td colspan="3">No status found</td>
               </tr>
             {% endfor %}
-
           </tbody>
         </table>
-        <ul>
-
-        </ul>
-      </div>
+      </section>
 
     </div>
 

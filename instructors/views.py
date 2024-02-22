@@ -6,11 +6,14 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect, Http404
 from django.core.exceptions import PermissionDenied
 from django.views.decorators.http import require_http_methods
-from django.views.decorators.cache import cache_control
-from django.db.models import Q, Count
+from django.views.decorators.cache import cache_control, never_cache
+from django.views import View
+from django.utils.decorators import method_decorator
+from django.views.decorators.http import require_http_methods, require_GET, require_POST
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from urllib.parse import urlparse
 from django.core.mail import EmailMultiAlternatives
+from django.db.models import Q
 
 from administrators.views import APP_STATUS
 from administrators.models import *
@@ -188,19 +191,53 @@ def show_job(request, session_slug, job_slug):
         'next_first': request.session.get('next_first')
     })
 
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET', 'POST'])
-def show_applications(request, session_slug, job_slug):
+
+@method_decorator([never_cache], name='dispatch')
+class ShowApplications(LoginRequiredMixin, View):
     ''' Display applications applied by students '''
-    request = userApi.has_user_access(request, Role.INSTRUCTOR)
 
-    request.session['next_second'] = adminApi.build_new_next(request)
+    def setup(self, request, *args, **kwargs):
+        setup = super().setup(request, *args, **kwargs)
+        session_slug = kwargs.get('session_slug', None)
+        job_slug = kwargs.get('job_slug', None)
 
-    job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
-    apps = Application.objects.filter( Q(job__session__slug=session_slug) & Q(job__course__slug=job_slug) )
+        if not session_slug or not job_slug:
+            raise Http404
 
-    if request.method == 'POST':
+        self.session_slug = session_slug
+        self.job_slug = job_slug
+        return setup
+    
+    @method_decorator(require_GET)
+    def get(self, request, *args, **kwargs):
+        request = userApi.has_user_access(request, Role.INSTRUCTOR)
+
+        request.session['next_second'] = adminApi.build_new_next(request)
+
+        job = adminApi.get_job_by_session_slug_job_slug(self.session_slug, self.job_slug)
+        apps = Application.objects.filter( Q(job__session__slug=self.session_slug) & Q(job__course__slug=self.job_slug) )
+        for app in apps:
+            app.selected = None
+            selected = app.applicationstatus_set.filter(assigned=ApplicationStatus.SELECTED)
+            if selected.exists():
+                app.selected = selected.last()
+
+            app.applicant = userApi.add_resume(app.applicant)
+            app.applicant.accepted_apps = adminApi.get_acceted_apps_in_applicant(app)
+            app.info = userApi.get_applicant_status_program(app.applicant)
+
+        return render(request, 'instructors/jobs/show_applications.html', {
+            'loggedin_user': request.user,
+            'job': job,
+            'apps': apps,
+            'full_job_name': job.course.code.name + '_' + job.course.number.name + '_' + job.course.section.name,
+            'instructor_preference_choices': Application.INSTRUCTOR_PREFERENCE_CHOICES,
+            'app_status': APP_STATUS,
+            'next_first': request.session.get('next_first', None)
+        })
+
+    @method_decorator(require_POST)
+    def post(self, request, *args, **kwargs):
         instructor_preference = request.POST.get('instructor_preference')
         assigned_hours = request.POST.get('assigned_hours')
 
@@ -257,27 +294,6 @@ def show_applications(request, session_slug, job_slug):
             messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
 
         return HttpResponseRedirect(request.get_full_path())
-
-    else:
-        for app in apps:
-            app.selected = None
-            selected = app.applicationstatus_set.filter(assigned=ApplicationStatus.SELECTED)
-            if selected.exists():
-                app.selected = selected.last()
-
-            app.applicant = userApi.add_resume(app.applicant)
-            app.applicant.accepted_apps = adminApi.get_acceted_apps_in_applicant(app)
-            app.info = userApi.get_applicant_status_program(app.applicant)
-
-    return render(request, 'instructors/jobs/show_applications.html', {
-        'loggedin_user': request.user,
-        'job': job,
-        'apps': apps,
-        'full_job_name': job.course.code.name + '_' + job.course.number.name + '_' + job.course.section.name,
-        'instructor_preference_choices': Application.INSTRUCTOR_PREFERENCE_CHOICES,
-        'app_status': APP_STATUS,
-        'next_first': request.session.get('next_first', None)
-    })
 
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -526,3 +542,97 @@ def show_email_history(request):
         'emails': emails,
         'total': len(email_list)
     })
+
+
+"""
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET', 'POST'])
+def show_applications(request, session_slug, job_slug):
+    ''' Display applications applied by students '''
+    request = userApi.has_user_access(request, Role.INSTRUCTOR)
+
+    request.session['next_second'] = adminApi.build_new_next(request)
+
+    job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
+    apps = Application.objects.filter( Q(job__session__slug=session_slug) & Q(job__course__slug=job_slug) )
+
+    if request.method == 'POST':
+        instructor_preference = request.POST.get('instructor_preference')
+        assigned_hours = request.POST.get('assigned_hours')
+
+        if adminApi.is_valid_float(assigned_hours) == False:
+            messages.error(request, 'An error occurred. Please check assigned hours. Assign TA Hours must be numerival value only.')
+            return HttpResponseRedirect(request.get_full_path())
+
+        if adminApi.is_valid_integer(assigned_hours) == False:
+            messages.error(request, 'An error occurred. Please check assigned hours. Assign TA Hours must be non-negative integers.')
+            return HttpResponseRedirect(request.get_full_path())
+
+        assigned_hours = int( float(assigned_hours) )
+
+        if assigned_hours < 0:
+            messages.error(request, 'An error occurred. Please check assigned hours. Assign TA Hours must be greater than 0.')
+            return HttpResponseRedirect(request.get_full_path())
+
+        if instructor_preference == Application.NONE:
+            messages.error(request, 'An error occurred. Please select your preference, then try again.')
+            return HttpResponseRedirect(request.get_full_path())
+
+        if instructor_preference == Application.NO_PREFERENCE and assigned_hours > 0:
+            messages.error(request, 'An error occurred. Please leave 0 for Assign TA Hours if you would like to select No Preference, then try again.')
+            return HttpResponseRedirect(request.get_full_path())
+
+        if assigned_hours > int(job.assigned_ta_hours):
+            messages.error( request, 'An error occurred. You cannot assign {0} hours because Total Assigned TA Hours is {1}. then try again.'.format( assigned_hours, int(job.assigned_ta_hours) ) )
+            return HttpResponseRedirect(request.get_full_path())
+
+        if assigned_hours == 0 and instructor_preference != Application.NO_PREFERENCE:
+            messages.error(request, 'An error occurred. Please assign TA hours, then try again.')
+            return HttpResponseRedirect(request.get_full_path())
+
+        instructor_app_form = InstructorApplicationForm(request.POST)
+        if instructor_app_form.is_valid():
+            app_status_form = ApplicationStatusForm(request.POST)
+
+            if app_status_form.is_valid():
+                app_id = request.POST.get('application')
+                updated_app = adminApi.update_application_instructor_preference(app_id, instructor_preference)
+                if updated_app:
+                    if app_status_form.save():
+                        messages.success(request, 'Success! {0} (CWL: {1}) is selected.'.format(updated_app.applicant.get_full_name(), updated_app.applicant.username))
+                    else:
+                        messages.error(request, 'An error occurred while updating an application status.')
+                else:
+                    messages.error(request, 'An error occurred while updating an instructor_preference.')
+            else:
+                errors = app_status_form.errors.get_json_data()
+                messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+
+        else:
+            errors = instructor_app_form.errors.get_json_data()
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+
+        return HttpResponseRedirect(request.get_full_path())
+
+    else:
+        for app in apps:
+            app.selected = None
+            selected = app.applicationstatus_set.filter(assigned=ApplicationStatus.SELECTED)
+            if selected.exists():
+                app.selected = selected.last()
+
+            app.applicant = userApi.add_resume(app.applicant)
+            app.applicant.accepted_apps = adminApi.get_acceted_apps_in_applicant(app)
+            app.info = userApi.get_applicant_status_program(app.applicant)
+
+    return render(request, 'instructors/jobs/show_applications.html', {
+        'loggedin_user': request.user,
+        'job': job,
+        'apps': apps,
+        'full_job_name': job.course.code.name + '_' + job.course.number.name + '_' + job.course.section.name,
+        'instructor_preference_choices': Application.INSTRUCTOR_PREFERENCE_CHOICES,
+        'app_status': APP_STATUS,
+        'next_first': request.session.get('next_first', None)
+    })
+"""

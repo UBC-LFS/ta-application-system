@@ -433,7 +433,7 @@ main {
     border: 1px solid #eee;
     border-left-width: .25rem;
     border-radius: .25rem;
-    background-color: #fff;
+    /* background-color: #fff; */
 }
 
 .bd-callout-info {
@@ -536,6 +536,12 @@ hr.dotted {
   padding: .1em .3em;
 }
 
+.btn-orange {
+  color: #fff;
+  background-color: #fd7e14;
+  border-color: #fd7e14;
+}
+
 .card-horizontal {
   display: flex;
   flex: 1 1 auto;
@@ -563,6 +569,10 @@ hr.dotted {
 
 .bg-dark-blue {
   background-color: #002145;
+}
+
+.bg-light-blue {
+  background-color: #f3f7f7;
 }
 
 .bg-light-gray {

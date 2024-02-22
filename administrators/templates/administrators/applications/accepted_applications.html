@@ -147,7 +147,7 @@
         </th>
         <th>Processing<br /> Note</th>
         <th class="sortable" onclick="sortColumn(15, 'date')">
-          <div class="sort-field">Accepted at</div>
+          <div class="sort-field">Accepted on</div>
           <div class="sort-icon"><i class="fa fa-sort" aria-hidden="true"></i></div>
         </th>
         <th>Actions</th>
@@ -179,7 +179,7 @@
               {{ app.applicant.first_name }} <br />{{ app.applicant.last_name }}
             </a>
 
-            <div class="text-dark-gray">({{ app.applicant.username }})</div>
+            <div class="text-dark-gray">{{ app.applicant.username }}</div>
 
             {% include 'ta_app/applications/_modal_app_status.html' with data=app display='name' %}
 

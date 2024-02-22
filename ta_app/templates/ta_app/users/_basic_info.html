@@ -55,6 +55,17 @@
       </td>
     </tr>
     <tr>
+      <td>Employee Number:</td>
+      <td>
+        {% if data.confidentiality.employee_number %}
+          {{ data.confidentiality.employee_number }}
+        {% else %}
+          None
+        {% endif %}
+      </td>
+    </tr>
+
+    <tr>
       <td>Date Joined:</td>
       <td>
         {% if data.date_joined %}

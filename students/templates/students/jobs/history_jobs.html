@@ -31,9 +31,10 @@
           <th class="p-0"></th>
           <th data-sortable="true">Year</th>
           <th data-sortable="true">Term</th>
-          <th data-sortable="true">Job</th>
+          <th data-sortable="true">Course/Job</th>
+          <th>Instructors</th>
           <th>Application</th>
-          <th data-sortable="true">Applied at</th>
+          <th data-sortable="true">Applied on</th>
           <th data-sortable="true">Status</th>
         </tr>
       </thead>
@@ -42,11 +43,8 @@
           <tr>
             <td>
               {% if app.job.session.is_archived %}
-
                 <i class="fa fa-lock fa-lg text-secondary" aria-hidden="true"></i>
-
               {% else %}
-
                 {% if app.offered %}
                   <i class="fa fa-envelope fa-lg text-chocolate" aria-hidden="true"></i>
                 {% elif app.accepted and app.is_terminated %}
@@ -54,7 +52,6 @@
                 {% elif app.declined and app.is_declined_reassigned and app.declined.parent_id %}
                   <i class="fa fa-envelope fa-lg text-chocolate" aria-hidden="true"></i>
                 {% endif %}
-
               {% endif %}
             </td>
             <td>{{ app.job.session.year }}</td>
@@ -67,6 +64,17 @@
               {% if not app.job.is_active %}
                 <br />
                 <span class="badge badge-light">No longer available</span>
+              {% endif %}
+            </td>
+            <td class="text-left">
+              {% if app.job.instructors.count %}
+                <ul class="list-no-ml">
+                  {% for ins in app.job.instructors.all %}
+                    <li>{{ ins.get_full_name }}</li>
+                  {% endfor %}
+                </ul>
+              {% else %}
+                None
               {% endif %}
             </td>
             <td>

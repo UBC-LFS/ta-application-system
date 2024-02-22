@@ -15,15 +15,14 @@
       </div>
       <div class="modal-body text-left">
         <div class="modal-item">
-          <div>
-            <h6>Applicant:</h6>
-            <span>
-              {{ data.applicant.get_full_name }}
+          <h5 class="mb-4">
+            Applicant: {{ data.applicant.get_full_name }}
+            <small class="text-secondary">
               (CWL: {{ data.applicant.username }})
-            </span>
-          </div>
+            </small>
+          </h5>
 
-          {% include 'ta_app/applications/_app_details.html' with data=data pin_display=pin_display %}
+          {% include 'ta_app/applications/_app_details.html' with data=data pin_display=pin_display striped=striped %}
         </div>
       </div>
     </div>

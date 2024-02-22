@@ -326,7 +326,6 @@ def check_valid_accepted_app_or_not(app):
 
     if app.accepted:
         latest_status = get_latest_status_in_app(app)
-        print(app.id, latest_status, app.is_declined_reassigned)
         if latest_status == 'accepted':
             if not app.is_terminated:
                 return True
@@ -334,7 +333,6 @@ def check_valid_accepted_app_or_not(app):
             if app.is_declined_reassigned:
                 if (latest_status == 'declined' and app.declined.parent_id != None) or (latest_status == 'accepted'):
                     return True
-
     return False
 
 
@@ -644,39 +642,6 @@ def get_latest_status_in_app(app):
         return 'cancelled'
 
     return 'none'
-
-"""
-def get_total_assigned_hours(apps, list):
-    ''' Get total assigend hours in list '''
-    total_hours = {}
-    for name in list:
-        total_hours[name] = {}
-
-    for app in apps:
-        if 'offered' in list:
-            offered = app.applicationstatus_set.filter(assigned=ApplicationStatus.OFFERED)
-            if offered.exists():
-                year_term = '{0}-{1}'.format(app.job.session.year, app.job.session.term.code)
-                if year_term in total_hours['offered'].keys():
-                    total_hours['offered'][year_term] += offered.last().assigned_hours
-                else:
-                    total_hours['offered'][year_term] = offered.last().assigned_hours
-
-        if 'accepted' in list:
-            accepted = app.applicationstatus_set.filter(assigned=ApplicationStatus.ACCEPTED)
-
-            if accepted.exists():
-                _, _, valid_accepted = valid_accepted_app([], app)
-
-                if valid_accepted:
-                    year_term = '{0}-{1}'.format(app.job.session.year, app.job.session.term.code)
-                    if year_term in total_hours['accepted'].keys():
-                        total_hours['accepted'][year_term] += accepted.last().assigned_hours
-                    else:
-                        total_hours['accepted'][year_term] = accepted.last().assigned_hours
-
-    return total_hours
-"""
 
 
 def get_total_assigned_hours_admin(apps):
@@ -1301,7 +1266,6 @@ def has_admin_docs_created(app):
 
 # end admin documents
 
-
 # emails
 
 def get_email(email_id):
@@ -1334,8 +1298,6 @@ def send_and_create_email(app, sender, receiver, title, message, type):
 # end emails
 
 
-
-
 # ----- Terms -----
 
 def get_terms():
@@ -1362,7 +1324,6 @@ def delete_term(term_id):
 
 # Course Codes
 
-
 def get_course_codes():
     ''' '''
     return CourseCode.objects.all()
@@ -1383,7 +1344,6 @@ def delete_course_code(course_code_id):
         return { 'status': True, 'course_code': course_code }
     except IntegrityError as e:
         return { 'status': False, 'error': e}
-
 
 
 # Course numbers
@@ -1454,8 +1414,8 @@ def delete_classification(classification_id):
     classification.delete()
     return classification if classification else False
 
-# Admin Emails
 
+# Admin Emails
 
 def get_admin_emails():
     ''' Get admin emails '''
@@ -1564,3 +1524,37 @@ def trim(data):
 def strip_html_tags(text):
     text_replaced = text.replace('<br>', '\n').replace('</p>', '\n').replace('&nbsp;', ' ').replace('&amp;', '&').replace('"', "'")
     return strip_tags(text_replaced)
+
+
+"""
+def get_total_assigned_hours(apps, list):
+    ''' Get total assigend hours in list '''
+    total_hours = {}
+    for name in list:
+        total_hours[name] = {}
+
+    for app in apps:
+        if 'offered' in list:
+            offered = app.applicationstatus_set.filter(assigned=ApplicationStatus.OFFERED)
+            if offered.exists():
+                year_term = '{0}-{1}'.format(app.job.session.year, app.job.session.term.code)
+                if year_term in total_hours['offered'].keys():
+                    total_hours['offered'][year_term] += offered.last().assigned_hours
+                else:
+                    total_hours['offered'][year_term] = offered.last().assigned_hours
+
+        if 'accepted' in list:
+            accepted = app.applicationstatus_set.filter(assigned=ApplicationStatus.ACCEPTED)
+
+            if accepted.exists():
+                _, _, valid_accepted = valid_accepted_app([], app)
+
+                if valid_accepted:
+                    year_term = '{0}-{1}'.format(app.job.session.year, app.job.session.term.code)
+                    if year_term in total_hours['accepted'].keys():
+                        total_hours['accepted'][year_term] += accepted.last().assigned_hours
+                    else:
+                        total_hours['accepted'][year_term] = accepted.last().assigned_hours
+
+    return total_hours
+"""

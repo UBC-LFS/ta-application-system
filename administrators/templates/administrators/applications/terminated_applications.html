@@ -46,8 +46,7 @@
           <th data-sortable="true">Instructor<br /> Preference</th>
           <th data-sortable="true">Classification</th>
           <th data-sortable="true">Note</th>
-          <th data-sortable="true">Created at</th>
-          <th data-sortable="true">Updated at</th>
+          <th data-sortable="true">Created on <br /> Updated on</th>
         </tr>
       </thead>
       <tbody>
@@ -73,7 +72,7 @@
               <a href="{% url 'users:show_user' username=app.applicant.username %}?next={{ new_next }}&p=Terminated Applications&t=basic">
                 {{ app.applicant.get_full_name }}
               </a>
-              <div><small class="text-dark-gray">({{ app.applicant.username }})</small></div>
+              <div class="text-dark-gray">{{ app.applicant.username }}</div>
             </td>
             <td>
               {% include 'ta_app/applications/_modal_app_status.html' with data=app %}
@@ -99,10 +98,13 @@
             <td>
               <span class="d-none">{{ app.created_at|date:"Y m d z" }}</span>
               {{ app.created_at }}
-            </td>
-            <td>
-              <span class="d-none">{{ app.updated_at|date:"Y m d z" }}</span>
-              {{ app.updated_at }}
+
+              {% if app.created_at != app.updated_at %}
+                <div>
+                  <span class="d-none">{{ app.updated_at|date:"Y m d z" }}</span>
+                  {{ app.updated_at }}
+                </div>
+              {% endif %}
             </td>
           </tr>
         {% endfor %}

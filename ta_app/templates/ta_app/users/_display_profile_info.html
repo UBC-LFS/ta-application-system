@@ -1,7 +1,9 @@
-<p class="border bg-white p-3 mt-4">
-  <i class="fa fa-bullhorn text-warning mr-2" aria-hidden="true"></i>
-  <strong>Trainings:</strong> COVID-related trainings are no longer mandatory, and are not being offered.
-</p>
+{% if warning_message == 'True' %}
+  <p class="border bg-white p-3 mt-4">
+    <i class="fa fa-bullhorn text-warning mr-2" aria-hidden="true"></i>
+    <strong>Trainings:</strong> COVID-related trainings are no longer mandatory, and are not being offered.
+  </p>
+{% endif %}
 
 <table class="user-profile-table table table-borderless">
   <tbody>
@@ -151,16 +153,22 @@
     </tr>
     {% if data.profile.status.id != undergrad_status_id %}
       <tr>
-        <td>Total number of academic years</td>
+        <td><span class="text-primary">Total number of academic years:</span></td>
         <td>{{ data.profile.total_academic_years }}</td>
       </tr>
       <tr>
-        <td>Total number of terms</td>
+        <td><span class="text-primary">Total number of terms:</span></td>
         <td>{{ data.profile.total_terms }}</td>
       </tr>
       <tr>
-        <td>Total number of TA hours</td>
-        <td>{{ data.profile.total_ta_hours }} hours</td>
+        <td><span class="text-primary">Total number of TA hours:</span></td>
+        <td>
+          {% if data.profile.total_ta_hours %}
+            {{ data.profile.total_ta_hours }} hours
+          {% else %}
+            None
+          {% endif %}
+        </td>
       </tr>
     {% endif %}
     <tr>
@@ -214,11 +222,11 @@
       </td>
     </tr>
     <tr>
-      <td>Created at:</td>
+      <td>Created on:</td>
       <td>{{ data.profile.created_at }}</td>
     </tr>
     <tr>
-      <td>Updated at:</td>
+      <td>Updated on:</td>
       <td>{{ data.profile.updated_at }}</td>
     </tr>
   </tbody>

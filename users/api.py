@@ -483,6 +483,22 @@ def get_applicant_status_program(applicant):
         'current_status': current_status
     }
 
+def get_gta_flag(user):
+    undergrad = is_undergraduate(user)
+    profile = has_user_profile_created(user)
+    if not undergrad and profile:
+        years = profile.total_academic_years
+        terms = profile.total_terms
+        ta_hours = profile.total_ta_hours
+        if years and terms and ta_hours:
+            if terms < 4:
+                return 'GTA 2'
+            if years >= 2 and terms >= 4 and ta_hours >= 192:
+                return 'GTA 1'
+            return 'Review'
+    return None
+
+
 # end profile
 
 
@@ -802,17 +818,19 @@ def match_active_trainings(profile):
 
 def can_apply(user):
     ''' Check whether students can apply or not '''
+
     profile = has_user_profile_created(user)
 
-    if has_user_resume_created(user) is not None and profile is not None:
-        if profile.graduation_date is not None and profile.status is not None and profile.program is not None and \
-            profile.degree_details is not None and profile.training_details is not None and profile.lfs_ta_training is not None and \
-            profile.lfs_ta_training_details is not None and profile.ta_experience is not None and \
-            profile.ta_experience_details is not None and profile.qualifications is not None and match_active_trainings(profile) == True and profile.degrees.count() > 0:
+    if has_user_resume_created(user) and profile:
+        if profile.graduation_date and profile.status and profile.program and \
+            profile.degree_details and profile.training_details and profile.lfs_ta_training and \
+            profile.lfs_ta_training_details and profile.ta_experience and \
+            profile.ta_experience_details and profile.qualifications and match_active_trainings(profile) and profile.degrees.count() > 0:
             if len(profile.degree_details) > 0 and len(profile.training_details) > 0 and \
                 len(profile.lfs_ta_training_details) > 0 and len(profile.ta_experience_details) > 0 and \
                 len(profile.qualifications) > 0:
                 return True
+    
     return False
 
 
@@ -864,8 +882,6 @@ def get_confidential_info_expiry_status(user):
     return docs
 
 
-
-
 # Roles
 
 def get_roles():
@@ -885,9 +901,6 @@ def delete_role(role_id):
     role = get_role(role_id)
     role.delete()
     return role if role else False
-
-
-
 
 
 # Statuses
@@ -911,11 +924,19 @@ def delete_status(status_id):
     return status if status else False
 
 def get_undergraduate_status_id():
-    status = Status.objects.filter(name__icontains='undergraduate')
+    status = Status.objects.filter(name__icontains='undergraduate student')
     if status.exists():
         return status.first().id
     else:
         return None
+
+def is_undergraduate(user):
+    status = Status.objects.filter(name__icontains='undergraduate student')
+    profile = has_user_profile_created(user)
+    if status.exists() and profile and profile.status:
+       if user.profile.status.id == status.first().id:
+           return True
+    return False
 
 
 # faculties
@@ -945,7 +966,6 @@ def get_faculty_others_id():
         return faculty.first().id
     else:
         return None
-
 
 
 # programs

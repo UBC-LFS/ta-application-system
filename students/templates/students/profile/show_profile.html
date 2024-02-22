@@ -40,7 +40,7 @@
 
       <div class="board col-11 mx-auto">
         <h3>Additional Information</h3>
-        {% include 'ta_app/users/_display_profile_info.html' with data=loggedin_user undergrad_status_id=undergrad_status_id %}
+        {% include 'ta_app/users/_display_profile_info.html' with data=loggedin_user undergrad_status_id=undergrad_status_id warning_message='True' %}
       </div>
 
     {% elif current_tab == 'resume' %}

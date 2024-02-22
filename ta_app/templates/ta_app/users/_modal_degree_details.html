@@ -11,76 +11,82 @@
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
       </div>
       <div class="modal-body text-left">
-
-        <div class="modal-item">
+        <div class="modal-item font-size-1">
           <h5 class="mb-4">
             {{ data.get_full_name }}
             <small class="text-mute">(CWL: {{ data.username }})</small>
           </h5>
 
-          <div>
-            <h6>Status:</h6>
-            <span>{{ data.profile.status }}</span>
-          </div>
-
-          <div>
-            <h6>Current Program:</h6>
-            <span>{{ data.profile.program }}</span>
-          </div>
-
-          <div>
-            <h6>Other Program:</h6>
-            <span>
-              {% if data.profile.program_others %}
-                {{ data.profile.program_others|safe }}
-              {% else %}
-                None
-              {% endif %}
-            </span>
-          </div>
-
-          <div>
-            <h6>Student Year:</h6>
-            <span>
-              {% if data.profile.student_year %}
-                {{ data.profile.student_year }}
-              {% else %}
-                None
-              {% endif %}
-            </span>
-          </div>
-
-          <div>
-            <h6>Anticipated Graduation Date:</h6>
-            <span>
-              {% if data.profile.graduation_date %}
-                {{ data.profile.graduation_date }}
-              {% else %}
-                None
-              {% endif %}
-            </span>
-          </div>
-
-          <div>
-            <h6>Most Recent Completed Degrees:</h6>
-            <ul>
-              {% for degree in data.profile.degrees.all %}
-                <li>{{ degree.name }}</li>
-              {% empty %}
-                <li>None</li>
-              {% endfor %}
-            </ul>
-          </div>
-
-          <div>
-            <h6>Degree Details:</h6>
-            <span>{{ data.profile.degree_details|safe }}</span>
-          </div>
-
-          <div>
-            <h6>Previous TA Experience Details:</h6>
-            <span>{{ data.profile.ta_experience_details|safe }}</span>
-          </div>
+          <table class="table user-profile-table table-borderless table-striped">
+            <tbody>
+              <tr>
+                <td>Status:</td>
+                <td>{{ data.profile.status }}</td>
+              </tr>
+              <tr>
+                <td>Student Year:</td>
+                <td>
+                  {% if data.profile.student_year %}
+                    {{ data.profile.student_year }}
+                  {% else %}
+                    None
+                  {% endif %}
+                </td>
+              </tr>
+              <tr>
+                <td>Have you graduated?</td>
+                <td>{{ data.profile.get_has_graduated_display }}</td>
+              </tr>
+              <tr>
+                <td>(Anticipated) Graduation Date:</td>
+                <td>
+                  {% if data.profile.graduation_date %}
+                    {{ data.profile.graduation_date }}
+                  {% else %}
+                    None
+                  {% endif %}
+                </td>
+              </tr>
+              <tr>
+                <td>Faculty</td>
+                <td>{{ data.profile.faculty }}</td>
+              </tr>
+              <tr>
+                <td>Current Program:</td>
+                <td>{{ data.profile.program }}</td>
+              </tr>
+              <tr>
+                <td>Other Program:</td>
+                <td>
+                  {% if data.profile.program_others %}
+                    {{ data.profile.program_others|safe }}
+                  {% else %}
+                    None
+                  {% endif %}
+                </td>
+              </tr>
+              <tr>
+                <td>Most Recent Completed Degrees:</td>
+                <td>
+                  <ul class="list-no-ml">
+                    {% for degree in data.profile.degrees.all %}
+                      <li>{{ degree.name }}</li>
+                    {% empty %}
+                      <li>None</li>
+                    {% endfor %}
+                  </ul>
+                </td>
+              </tr>
+              <tr>
+                <td>Degree Details:</td>
+                <td>{{ data.profile.degree_details|safe }}</td>
+              </tr>
+              <tr>
+                <td>Previous TA Experience Details:</td>
+                <td>{{ data.profile.ta_experience_details|safe }}</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
 
       </div>

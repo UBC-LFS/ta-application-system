@@ -60,14 +60,14 @@
         </tr>
       </thead>
       <tbody>
-        {% for job in user.job_set.all %}
+        {% for job in user.jobs %}
           <tr>
             <td>{{ job.id }}</td>
             <td>{{ job.session.year }}</td>
             <td>{{ job.session.term.code }}</td>
             <td>{{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</td>
             <td>
-              {% for app in job.application_set.all %}
+              {% for app in job.apps %}
                 {% include 'ta_app/users/_modal_user_details.html' with data=app.applicant undergrad_status_id=undergrad_status_id %}<br />
               {% empty %}
                 No applicants
