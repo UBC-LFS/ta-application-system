@@ -55,6 +55,12 @@ class Index(LoginRequiredMixin, View):
         yesterday_accepted_apps, yesterday = adminApi.get_accepted_apps_by_day(apps, 'yesterday')
         week_ago_accepted_apps, week_ago = adminApi.get_accepted_apps_by_day(apps, 'week_ago')
 
+        u85 = userApi.get_user(85)
+        u100 = userApi.get_user(100)
+        
+        # print(userApi.get_preferred_ta(u85))
+        print(userApi.get_preferred_ta(u100))
+
         context = {
             'loggedin_user': userApi.add_avatar(request.user),
             'accepted_apps': apps.filter(applicationstatus__assigned=ApplicationStatus.ACCEPTED).exclude(applicationstatus__assigned=ApplicationStatus.CANCELLED).order_by('-id').distinct(),

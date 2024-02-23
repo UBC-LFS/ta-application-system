@@ -805,31 +805,56 @@ def create_expiry_date(year, month, day):
     if not bool(year) or not bool(month) or not bool(day): return False
     return datetime( int(year), int(month), int(day) )
 
+
 def match_active_trainings(profile):
     ''' To check a user has required trainings clicked '''
     profile_trainings = [ tr.name for tr in profile.trainings.all() ]
-    flag = True
     for tr in get_active_trainings():
         if tr.name not in profile_trainings:
-            flag = False
-            break
-    return flag
+            return False
+    return True
 
 
 def can_apply(user):
     ''' Check whether students can apply or not '''
 
-    profile = has_user_profile_created(user)
+    fields = [
+        'status', 'student_year', 'has_graduated', 'graduation_date', 'faculty', 'program', 'degree_details', 
+        'training_details', 'lfs_ta_training', 'lfs_ta_training_details', 'ta_experience', 'ta_experience_details', 'qualifications'
+    ]
+    gta_fields = ['total_academic_years', 'total_terms', 'total_ta_hours']
 
-    if has_user_resume_created(user) and profile:
-        if profile.graduation_date and profile.status and profile.program and \
-            profile.degree_details and profile.training_details and profile.lfs_ta_training and \
-            profile.lfs_ta_training_details and profile.ta_experience and \
-            profile.ta_experience_details and profile.qualifications and match_active_trainings(profile) and profile.degrees.count() > 0:
-            if len(profile.degree_details) > 0 and len(profile.training_details) > 0 and \
-                len(profile.lfs_ta_training_details) > 0 and len(profile.ta_experience_details) > 0 and \
-                len(profile.qualifications) > 0:
-                return True
+    profile = has_user_profile_created(user)
+    if profile and has_user_resume_created(user):
+        if not is_undergraduate(user):
+            fields += gta_fields
+        
+        for field in fields:
+            value = getattr(user.profile, field)
+            if not value:
+                return False
+            
+        if profile.degrees.count() > 0 and \
+            profile.trainings.count() > 0 and match_active_trainings(profile) and \
+            adminApi.trim(adminApi.strip_html_tags(profile.degree_details)) and \
+            adminApi.trim(adminApi.strip_html_tags(profile.training_details)) and \
+            adminApi.trim(adminApi.strip_html_tags(profile.lfs_ta_training_details)) and \
+            adminApi.trim(adminApi.strip_html_tags(profile.ta_experience_details)) and \
+            adminApi.trim(adminApi.strip_html_tags(profile.qualifications)):
+            return True
+    
+    return False
+
+
+def get_preferred_ta(user):
+    profile = has_user_profile_created(user)
+    print(is_lfs_student(user), valid_sin_international(user) , is_undergraduate(user), is_master(user), is_phd(user), profile.student_year)
+    
+    if profile and is_lfs_student(user) and valid_sin_international(user) and not is_undergraduate(user):
+        if is_master(user) and (1 <= int(profile.student_year) <= 2):
+            return True
+        if is_phd(user) and (1 <= int(profile.student_year) <= 5):
+            return True
     
     return False
 
@@ -838,6 +863,18 @@ def confirm_profile_reminder(user, session):
    if not user or not session:
        return False
    return ProfileReminder.objects.filter(user=user, session=session).exists()
+
+
+def valid_sin_international(user):
+    confi = has_user_confidentiality_created(user)
+    if confi and confi.nationality == utils.NATIONALITY['domestic']:
+        return True
+    
+    return Confidentiality.objects.filter(
+        user_id=user.id, 
+        nationality=utils.NATIONALITY['international'], 
+        sin__isnull=False, 
+        sin_expiry_date__gte=utils.TODAY).exists()
 
 
 def get_confidential_info_expiry_status(user):
@@ -924,19 +961,26 @@ def delete_status(status_id):
     return status if status else False
 
 def get_undergraduate_status_id():
-    status = Status.objects.filter(name__icontains='undergraduate student')
+    status = Status.objects.filter(slug__icontains='undergraduate-student')
     if status.exists():
         return status.first().id
     else:
         return None
 
+
+def is_lfs_student(user):
+    return Profile.objects.filter(user_id=user.id, faculty__slug=utils.LFS_FACULTY).exists()
+
 def is_undergraduate(user):
-    status = Status.objects.filter(name__icontains='undergraduate student')
-    profile = has_user_profile_created(user)
-    if status.exists() and profile and profile.status:
-       if user.profile.status.id == status.first().id:
-           return True
-    return False
+    return Profile.objects.filter(user_id=user.id, status__slug=utils.UNDERGRADUATE).exists()
+
+def is_master(user):
+    return Profile.objects.filter(user_id=user.id, status__slug=utils.MASTER).exists()
+
+def is_phd(user):
+    return Profile.objects.filter(user_id=user.id, status__slug=utils.PHD).exists()
+
+
 
 
 # faculties

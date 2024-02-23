@@ -17,7 +17,7 @@ urlpatterns = [
 
     path('confidential_information/check/', views.check_confidentiality, name='check_confidentiality'),
     path('confidential_information/submit/', views.submit_confidentiality, name='submit_confidentiality'),
-    path('confidential_information/edit/', views.edit_confidentiality, name='edit_confidentiality'),
+    path('confidential_information/edit/', views.EditConfidentiality.as_view(), name='edit_confidentiality'),
     path('confidential_information/delete/', views.delete_confidential_information, name='delete_confidential_information'),
     path('confidential_information/', views.show_confidentiality, name='show_confidentiality'),
 

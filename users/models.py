@@ -19,8 +19,6 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
-from administrators.models import Session, Course
-
 import datetime as dt
 
 
@@ -258,12 +256,12 @@ class Profile(models.Model):
 
     preferred_name = models.CharField(max_length=256, null=True, blank=True)
     status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, null=True, blank=True)
-    faculty = models.ForeignKey(Faculty, on_delete=models.DO_NOTHING, null=True, blank=True)
-    program = models.ForeignKey(Program, on_delete=models.DO_NOTHING, null=True, blank=True)
-    program_others = models.TextField(null=True, blank=True)
     student_year = models.CharField(max_length=2, choices=STUDENT_YEAR_CHOICES, null=True, blank=True)
     has_graduated = models.CharField(max_length=1, choices=HAS_GRADUATED_CHOICES, null=True, blank=True)
     graduation_date = models.DateField(null=True, blank=True)
+    faculty = models.ForeignKey(Faculty, on_delete=models.DO_NOTHING, null=True, blank=True)
+    program = models.ForeignKey(Program, on_delete=models.DO_NOTHING, null=True, blank=True)
+    program_others = models.TextField(null=True, blank=True)
     degrees = models.ManyToManyField(Degree)
     degree_details = models.TextField(null=True, blank=True)
     trainings = models.ManyToManyField(Training)

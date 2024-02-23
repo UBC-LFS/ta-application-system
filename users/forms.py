@@ -438,6 +438,94 @@ class EmployeeNumberEditForm(forms.ModelForm):
         }
 
 
+
+confidentiality_fields = ['user', 'nationality', 'date_of_birth', 'is_new_employee', 'employee_number', 'sin']
+
+confidentiality_widgets = {
+    'user': forms.HiddenInput(),
+    'nationality': forms.RadioSelect(),
+    'date_of_birth': forms.widgets.DateInput(attrs={ 'type': 'date', 'class': 'form-control', 'style': 'width:auto' }),
+    'employee_number': forms.TextInput(attrs={ 'class':'form-control' }),
+    'sin': forms.FileInput()
+}
+
+confidentiality_labels = {
+    'nationality': 'Am I a domestic or international student?', 
+    'date_of_birth': 'Date of Birth:',
+    'is_new_employee': 'I am a new employee:',
+    'employee_number': 'Employee Number:',
+    'sin': 'Social Insurance Number (SIN):'
+}
+
+confidentiality_help_texts = {
+    'is_new_employee': "You are a new UBC employee if you have never had a UBC Employee Number or been paid by UBC. ",
+    'employee_number': 'Enter your UBC Employee ID number here, if you have one. Must be numeric and 7 digits in length.',
+    'sin': 'Valid file formats: JPG, JPEG, PNG. A filename has at most 256 characters.'
+}
+
+confidentiality_field_order = ['user', 'nationality', 'date_of_birth', 'is_new_employee', 'employee_number', 'sin']
+
+international_widgets = {
+    'sin_expiry_date': forms.widgets.DateInput(attrs={ 'type': 'date', 'class': 'form-control', 'style': 'width:auto' }),
+    'study_permit': forms.FileInput(),
+    'study_permit_expiry_date': forms.widgets.DateInput(attrs={ 'type': 'date', 'class': 'form-control', 'style': 'width:auto' })
+}
+
+international_labels = {
+    'sin_expiry_date': 'SIN Expiry Date:',
+    'study_permit': 'Study Permit:',
+    'study_permit_expiry_date': 'Study Permit Expiry Date:'
+}
+
+international_help_texts = {
+    'study_permit': 'Valid file formats: JPG, JPEG, PNG. A filename has at most 256 characters.'
+}
+
+class ConfidentialityDomesticForm(forms.ModelForm):
+    class Meta:
+        model = Confidentiality
+        fields = confidentiality_fields
+        widgets = confidentiality_widgets
+        labels = confidentiality_labels
+        help_texts = confidentiality_help_texts
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['nationality'].choices = Confidentiality.NATIONALITY_CHOICES
+
+    field_order = confidentiality_field_order
+    
+class ConfidentialityInternationalForm(forms.ModelForm):
+    class Meta:
+        model = Confidentiality
+        fields = confidentiality_fields + ['sin_expiry_date', 'study_permit', 'study_permit_expiry_date']
+        widgets = {**confidentiality_widgets, **international_widgets}
+        labels = {**confidentiality_labels, **international_labels}
+        help_texts = {**confidentiality_help_texts, **international_help_texts}
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['nationality'].choices = Confidentiality.NATIONALITY_CHOICES
+
+    field_order = confidentiality_field_order + ['sin_expiry_date', 'study_permit', 'study_permit_expiry_date']
+    
+
+class ConfidentialityForm(forms.ModelForm):
+    class Meta:
+        model = Confidentiality
+        fields = confidentiality_fields + ['sin_expiry_date', 'study_permit', 'study_permit_expiry_date']
+        widgets = {**confidentiality_widgets, **international_widgets}
+        labels = {**confidentiality_labels, **international_labels}
+        help_texts = {**confidentiality_help_texts, **international_help_texts}
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['nationality'].choices = Confidentiality.NATIONALITY_CHOICES
+    
+    field_order = confidentiality_field_order + ['sin_expiry_date', 'study_permit', 'study_permit_expiry_date']
+
+
+"""
 class ConfidentialityDomesticForm(forms.ModelForm):
     nationality = forms.ChoiceField(
         widget=forms.RadioSelect,
@@ -469,13 +557,22 @@ class ConfidentialityDomesticForm(forms.ModelForm):
             'employee_number': 'Enter your UBC Employee ID number here, if you have one. Must be numeric and 7 digits in length.',
             'sin': 'Valid file formats: JPG, JPEG, PNG. A filename has at most 256 characters.'
         }
+"""
 
 
+"""
 class ConfidentialityInternationalForm(forms.ModelForm):
     nationality = forms.ChoiceField(
         widget=forms.RadioSelect,
         choices=Confidentiality.NATIONALITY_CHOICES,
         label='Am I a domestic or international student?',
+    )
+
+    date_of_birth = forms.DateField(
+        required=False,
+        widget=forms.SelectDateWidget(years=range(DATE.year - 70, DATE.year)),
+        label='Date of Birth:',
+        help_text='Format: Month-Day-Year'
     )
 
     sin_expiry_date = forms.DateField(
@@ -492,12 +589,6 @@ class ConfidentialityInternationalForm(forms.ModelForm):
         help_text='Format: Month-Day-Year'
     )
 
-    date_of_birth = forms.DateField(
-        required=False,
-        widget=forms.SelectDateWidget(years=range(DATE.year - 70, DATE.year)),
-        label='Date of Birth:',
-        help_text='Format: Month-Day-Year'
-    )
 
     class Meta:
         model = Confidentiality
@@ -519,8 +610,10 @@ class ConfidentialityInternationalForm(forms.ModelForm):
             'sin': 'Valid file formats: JPG, JPEG, PNG. A filename has at most 256 characters.',
             'study_permit': 'Valid file formats: JPG, JPEG, PNG. A filename has at most 256 characters.'
         }
+"""
 
 
+"""
 class ConfidentialityForm(forms.ModelForm):
     nationality = forms.ChoiceField(
         widget=forms.RadioSelect,
@@ -571,7 +664,7 @@ class ConfidentialityForm(forms.ModelForm):
             'study_permit': 'Valid file formats: JPG, JPEG, PNG. A filename has at most 256 characters.'
         }
         field_order = ['user', 'nationality', 'date_of_birth', 'is_new_employee', 'employee_number', 'sin', 'sin_expiry_date', 'study_permit', 'study_permit_expiry_date']
-
+"""
 
 class ResumeForm(forms.ModelForm):
     ''' Resume form '''

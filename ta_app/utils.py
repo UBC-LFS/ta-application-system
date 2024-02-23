@@ -9,3 +9,9 @@ NATIONALITY = {
     'domestic': '0',
     'international': '1'
 }
+
+LFS_FACULTY = 'land-and-food-systems'
+
+UNDERGRADUATE = 'undergraduate-student'
+MASTER = 'master-student'
+PHD = 'phd-student'

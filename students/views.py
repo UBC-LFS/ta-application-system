@@ -181,8 +181,10 @@ class EditProfile(LoginRequiredMixin, View):
             data = form.cleaned_data
 
             errors = []
-            if data['program'].id == PROGRAM_OTHERS and not bool(data['program_others']):
-                errors.append('<strong>Program</strong>: Please indicate the name of your program if you select "Other" in Current Program.')
+
+            program_others = adminApi.trim(adminApi.strip_html_tags(data['program_others']))
+            if data['program'].id == PROGRAM_OTHERS and not program_others:
+                errors.append('<strong>Other Program</strong>: Please indicate the name of your program if you select "Other" in <strong>Current Program</strong>.')
 
             if len(data['degrees']) == 0:
                 errors.append('<strong>Most Recent Completed Degrees</strong>: This field is required.')
@@ -190,11 +192,22 @@ class EditProfile(LoginRequiredMixin, View):
             if len(data['trainings']) == 0 or len(data['trainings']) != len(userApi.get_active_trainings()):
                 errors.append('<strong>Trainings</strong>: You must check all fields to proceed.')
 
+            degree_details = adminApi.trim(adminApi.strip_html_tags(data['degree_details']))
+            training_details = adminApi.trim(adminApi.strip_html_tags(data['training_details']))
+            lfs_ta_training_details = adminApi.trim(adminApi.strip_html_tags(data['lfs_ta_training_details']))
+            if not degree_details:
+                errors.append('<strong>Degree Details</strong>: This field is required.')
+            if not training_details:
+                errors.append('<strong>Training Details</strong>: This field is required.')
+            if not lfs_ta_training_details:
+                errors.append('<strong>LFS TA Training Details</strong>: This field is required.')
+            
             if len(errors) > 0:
                 messages.error(request, 'An error occurred. Form is invalid. {0}'.format(' '.join(errors)))
                 return HttpResponseRedirect(reverse('students:edit_profile') + '?t=general')
             
             if form.save():
+            
                 # Update degrees and trainings
                 userApi.update_student_profile_degrees_trainings(self.profile, profile_degrees, profile_trainings, data)
                 messages.success(request, 'Success! {0} - General information has been updated.'.format(request.user.get_full_name()))
@@ -231,6 +244,20 @@ def update_profile_ta(request):
         raise SuspiciousOperation
     
     if form.is_valid():
+        data = form.cleaned_data
+
+        errors = []
+        ta_experience_details = adminApi.trim(adminApi.strip_html_tags(data['ta_experience_details']))
+        qualifications = adminApi.trim(adminApi.strip_html_tags(data['qualifications']))
+        if not ta_experience_details:
+            errors.append('<strong>Previous TA Experience Details</strong>: This field is required.')
+        if not qualifications:
+            errors.append('<strong>Explanation of Qualifications</strong>: This field is required.')
+        
+        if len(errors) > 0:
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format(' '.join(errors)))
+            return HttpResponseRedirect(reverse('students:edit_profile') + '?t=' + path)
+
         if form.save():
             messages.success(request, 'Success! {0} - TA information has been updated.'.format(request.user.get_full_name()))
             return HttpResponseRedirect( reverse('students:show_profile') + '?next=' + reverse('students:edit_profile') + '&p=Edit Profile&t=additional' )
@@ -434,6 +461,142 @@ def submit_confidentiality(request):
         'confidentiality': confidentiality
     })
 
+
+@method_decorator([never_cache], name='dispatch')
+class EditConfidentiality(LoginRequiredMixin, View):
+    
+
+    @method_decorator(require_GET)
+    def get(self, request, *args, **kwargs):
+        request = userApi.has_user_access(request, Role.STUDENT)
+
+        confidentiality = userApi.has_user_confidentiality_created(request.user)
+        form = None
+        if confidentiality:
+            if bool(confidentiality.employee_number):
+                can_delete = True
+            if bool(confidentiality.sin):
+                sin_file = os.path.basename(confidentiality.sin.name)
+                can_delete = True
+
+            if bool(confidentiality.study_permit):
+                study_permit_file = os.path.basename(confidentiality.study_permit.name)
+                can_delete = True
+
+            if bool(confidentiality.date_of_birth):
+                can_delete = True
+
+            if confidentiality.nationality == '0':
+                form = ConfidentialityDomesticForm(data=None, instance=confidentiality, initial={ 'user': request.user })
+            else:
+                form = ConfidentialityInternationalForm(data=None, instance=confidentiality, initial={ 'user': request.user })
+                if bool(confidentiality.sin_expiry_date):
+                    can_delete = True
+                if bool(confidentiality.study_permit_expiry_date):
+                    can_delete = True
+        
+        if not form:
+            raise SuspiciousOperation
+
+        return render(request, 'students/profile/edit_confidentiality.html', {
+            'loggedin_user': userApi.add_avatar(request.user),
+            'sin_file': sin_file,
+            'study_permit_file': study_permit_file,
+            'form': form,
+            'can_delete': can_delete,
+            'confidentiality': confidentiality
+        })
+
+    @method_decorator(require_POST)
+    def post(self, request, *args, **kwargs):
+        is_new_employee = request.POST.get('is_new_employee')
+        employee_number = request.POST.get('employee_number')
+        
+        confidentiality = userApi.has_user_confidentiality_created(request.user)
+        if confidentiality.is_new_employee == True:
+            if bool(is_new_employee) == False:
+                # New employees (no employee number) must check is_new_employee
+                if bool(employee_number) == False:
+                    messages.error(request, 'An error occurred. New employees must check this <strong>I am a new employee</strong> field.')
+                    return redirect('students:edit_confidentiality')
+            else:
+                # Not a new employee
+                if bool(employee_number) == True:
+                    messages.error(request, 'An error occurred. Please uncheck this <strong>I am a new employee</strong> field if you are not a new employee.')
+                    return redirect('students:edit_confidentiality')
+        else:
+            # Only new employees (no employee number) can check is_new_employee
+            if bool(is_new_employee) == True:
+                messages.error(request, 'An error occurred. Your Employee Number is {0}. Only new employees can check this <strong>I am a new employee</strong> field.'.format(confidentiality.employee_number))
+                return redirect('students:edit_confidentiality')
+
+        # Check SIN and Study Permit
+        sin_study_permit_errors = []
+        if request.FILES.get('sin') and bool(confidentiality.sin):
+            sin_study_permit_errors.append('SIN')
+        if request.FILES.get('study_permit') and bool(confidentiality.study_permit):
+            sin_study_permit_errors.append('Study Permit')
+
+        if len(sin_study_permit_errors) > 0:
+            msg = ' and '.join(sin_study_permit_errors)
+            messages.error(request, 'An error occurred. Please delete your old {0} first, and then try again.'.format(msg))
+            return redirect('students:edit_confidentiality')
+
+        form = ConfidentialityForm(request.POST, request.FILES, instance=confidentiality)
+        if form.is_valid():
+            data = form.cleaned_data
+            user = data['user']
+
+            updated_confidentiality = form.save(commit=False)
+            updated_confidentiality.updated_at = datetime.now()
+
+            update_fields = ['updated_at']
+            if data['nationality'] is not None:
+                updated_confidentiality.nationality = data['nationality']
+                update_fields.append('nationality')
+
+            if data['is_new_employee'] is not None:
+                updated_confidentiality.is_new_employee = data['is_new_employee']
+                update_fields.append('is_new_employee')
+
+            if data['employee_number'] is not None:
+                updated_confidentiality.employee_number = data['employee_number']
+                update_fields.append('employee_number')
+
+            if request.FILES.get('sin') is not None:
+                updated_confidentiality.sin = request.FILES.get('sin')
+                update_fields.append('sin')
+
+            if data['sin_expiry_date'] is not None:
+                updated_confidentiality.sin_expiry_date = data['sin_expiry_date']
+                update_fields.append('sin_expiry_date')
+
+            if request.FILES.get('study_permit') is not None:
+                updated_confidentiality.study_permit = request.FILES.get('study_permit')
+                update_fields.append('study_permit')
+
+            if data['study_permit_expiry_date'] is not None:
+                updated_confidentiality.study_permit_expiry_date = data['study_permit_expiry_date']
+                update_fields.append('study_permit_expiry_date')
+
+            if data['date_of_birth'] is not None:
+                updated_confidentiality.date_of_birth = data['date_of_birth']
+                update_fields.append('date_of_birth')
+
+            updated_confidentiality.save(update_fields=update_fields)
+
+            if updated_confidentiality:
+                messages.success(request, 'Success! Confidential information of {0} updated'.format(request.user.get_full_name()))
+                return redirect('students:show_confidentiality')
+            else:
+                messages.error(request, 'An error occurred while updating confidential information.')
+        else:
+            errors = form.errors.get_json_data()
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+
+        return redirect('students:edit_confidentiality')
+
+"""
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET', 'POST'])
@@ -567,7 +730,8 @@ def edit_confidentiality(request):
         'can_delete': can_delete,
         'confidentiality': confidentiality
     })
-
+"""
+ 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['POST'])
