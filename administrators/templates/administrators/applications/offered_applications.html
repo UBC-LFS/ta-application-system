@@ -14,12 +14,9 @@
       <div class="bg-light-gray p-4" style="height:204.6px">
         <h5>Note:</h5>
         <ul class="font-size-sm">
-          <li>
-            {% include 'ta_app/applications/_no_response_note.html' %}
-          </li>
-          <li>
-            {% include 'ta_app/users/_note_confi_info_expiry_status.html' %}
-          </li>
+          <li>{% include 'ta_app/applications/_no_response_note.html' %}</li>
+          <li>{% include 'ta_app/users/_note_confi_info_expiry_status.html' %}</li>
+          <li>{% include 'ta_app/pages/_preferred_ta.html' %}</li>
         </ul>
       </div>
     </div>
@@ -63,9 +60,10 @@
               {{ app.email_set.all|length }}
             </td>
             <td>
-              <a class="btn btn-xs btn-info" href="{% url 'administrators:show_application' app_slug=app.slug %}?next={{ new_next }}&p=Offered Applications">
-                {{ app.id }}
-              </a>
+              {% if app.applicant.preferred_ta %}
+                <i class="fa fa-flag text-danger" aria-hidden="true"></i>
+              {% endif %}
+              <a class="btn btn-xs btn-info" href="{% url 'administrators:show_application' app_slug=app.slug %}?next={{ new_next }}&p=Offered Applications">{{ app.id }}</a>
             </td>
             <td>{{ app.job.session.year }}</td>
             <td>{{ app.job.session.term.code }}</td>

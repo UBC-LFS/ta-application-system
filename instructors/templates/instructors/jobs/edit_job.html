@@ -37,33 +37,27 @@
     <div class="board col-11 mx-auto">
       <h3>Job Details Edit Form</h3>
 
-      <div>
+      <div class="mb-4">
         <h6>Instructors:</h6>
         <span>{% include 'ta_app/jobs/_job_instructor.html' with data=job %}</span>
-      </div>
-
-      <div>
-        <h6>Created at:</h6>
-        <span>{{ job.created_at }}</span>
-      </div>
-
-      <div>
-        <h6>Updated at:</h6>
-        <span>{{ job.updated_at }}</span>
       </div>
 
       <form action="" method="post">
         {% csrf_token %}
 
-        {% for field in form.visible_fields %}
-          <div class="field-wrapper my-5">
-            {{ field.label_tag }}
-            {% if field.help_text %}
-              <div class="help">{{ field.help_text|safe }}</div>
-            {% endif %}
-            {{ field }}
-          </div>
-        {% endfor %}
+        <table class="user-profile-table table table-borderless">
+          {% for field in form.visible_fields %}
+            <tr>
+              <td>
+                {{ field.label_tag }}
+                {% if field.help_text %}
+                  <div class="help">{{ field.help_text|safe }}</div>
+                {% endif %}
+              </td>
+              <td>{{ field }}</td>
+            </tr>
+          {% endfor %}
+        </table>
 
         {% for field in form.hidden_fields %}
           {{ field }}
@@ -73,6 +67,11 @@
         <a class="btn btn-outline-secondary" href="{{ next_first }}">Cancel</a>
         <input class="btn btn-primary" type="submit" value="Update" />
       </form>
+
+      <div class="mt-5">
+        <strong>Created on:</strong> {{ job.created_at }} <br />
+        <strong>Updated on:</strong> {{ job.updated_at }}
+      </div>
     </div>
 
   </div>

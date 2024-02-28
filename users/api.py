@@ -461,21 +461,22 @@ def get_applicant_status_program(applicant):
     highlight = ''
     current_status = ''
 
-    if applicant.profile.status != None and applicant.profile.program != None:
-        if applicant.profile.status.slug == 'undergraduate-student':
+    if applicant.profile.faculty and applicant.profile.status and applicant.profile.program:
+        if applicant.profile.status.slug == utils.UNDERGRADUATE:
             highlight = 'undergraduate'
             current_status = 'BSc'
-        elif applicant.profile.status.slug == 'master-student':
+        
+        elif applicant.profile.status.slug == utils.MASTER:
             current_status = 'MSc'
-            if applicant.profile.program.slug in valid_programs:
+            if applicant.profile.faculty.slug == utils.LFS_FACULTY and applicant.profile.program.slug in valid_programs:
                 highlight = 'lfs-graduate'
 
-        elif applicant.profile.status.slug == 'phd-student':
+        elif applicant.profile.status.slug == utils.PHD:
             current_status = 'PhD'
-            if applicant.profile.program.slug in valid_programs:
+            if applicant.profile.faculty.slug == utils.LFS_FACULTY and applicant.profile.program.slug in valid_programs:
                 highlight = 'lfs-graduate'
 
-        if len(current_status) > 0 and applicant.profile.student_year != None:
+        if len(current_status) > 0 and applicant.profile.student_year:
             current_status += '.' + applicant.profile.student_year
 
     return {
@@ -848,7 +849,6 @@ def can_apply(user):
 
 def get_preferred_ta(user):
     profile = has_user_profile_created(user)
-    print(is_lfs_student(user), valid_sin_international(user) , is_undergraduate(user), is_master(user), is_phd(user), profile.student_year)
     
     if profile and is_lfs_student(user) and valid_sin_international(user) and not is_undergraduate(user):
         if is_master(user) and (1 <= int(profile.student_year) <= 2):
@@ -873,8 +873,8 @@ def valid_sin_international(user):
     return Confidentiality.objects.filter(
         user_id=user.id, 
         nationality=utils.NATIONALITY['international'], 
-        sin__isnull=False, 
-        sin_expiry_date__gte=utils.TODAY).exists()
+        sin__isnull=False,
+    ).exists()
 
 
 def get_confidential_info_expiry_status(user):

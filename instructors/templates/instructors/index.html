@@ -23,7 +23,7 @@
     <div class="board col-11 mx-auto">
       <h3>Basic Information</h3>
       {% include 'ta_app/users/_basic_info.html' with data=loggedin_user %}
-      <a class="btn btn-outline-primary btn-lg mt-4" href="{% url 'instructors:edit_user' %}">Edit</a>
+      <a class="btn btn-primary btn-lg mt-4" href="{% url 'instructors:edit_user' %}">Edit</a>
     </div>
   </div>
 </div>

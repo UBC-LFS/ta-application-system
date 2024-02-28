@@ -1,111 +1,105 @@
-<div>
-  <h6>Am I a domestic or international student?</h6>
-  <span>
-    {% if data.confidentiality.nationality %}
-      {{ data.confidentiality.get_nationality_display }}
-    {% else %}
-      None
-    {% endif %}
-  </span>
-</div>
+<table class="user-profile-table table {% if striped == 'True' %}table-bordered table-striped{% else %}table-borderless{% endif %}">
+  <tbody>
+    <tr>
+      <td>Am I a domestic or international student?</td>
+      <td>
+        {% if data.confidentiality.nationality %}
+          {{ data.confidentiality.get_nationality_display }}
+        {% else %}
+          None
+        {% endif %}
+      </td>
+    </tr>
+    <tr>
+      <td>Date of Birth:</td>
+      <td>
+        {% if data.confidentiality.date_of_birth %}
+          {{ data.confidentiality.date_of_birth|date:"F j, Y" }}
+        {% else %}
+          None
+        {% endif %}
+      </td>
+    </tr>
+    <tr>
+      <td>I am a new employee:</td>
+      <td>
+        {% if data.confidentiality.is_new_employee %}
+          Yes
+        {% else %}
+          No
+        {% endif %}
+      </td>
+    </tr>
+    <tr>
+      <td>Employee Number:</td>
+      <td>
+        {% if data.confidentiality.employee_number %}
+          {{ data.confidentiality.employee_number }}
+        {% else %}
+          None
+        {% endif %}
+      </td>
+    </tr>
+    <tr>
+      <td>Social Insurance Number (SIN):</td>
 
-<div>
-  <h6>Date of Birth:</h6>
-  <span>
-    {% if data.confidentiality.date_of_birth %}
-      {{ data.confidentiality.date_of_birth|date:"F j, Y" }}
-    {% else %}
-      None
-    {% endif %}
-  </span>
-</div>
-
-<div>
-  <h6>I am a new employee:</h6>
-  <span>
-    {% if data.confidentiality.is_new_employee %}
-      Yes
-    {% else %}
-      No
-    {% endif %}
-  </span>
-</div>
-
-<div>
-  <h6>Employee Number:</h6>
-  <span>
-    {% if data.confidentiality.employee_number %}
-      {{ data.confidentiality.employee_number }}
-    {% else %}
-      None
-    {% endif %}
-  </span>
-</div>
-
-<div>
-  <h6>Social Insurance Number (SIN):</h6>
-
-  {% if data.sin_decrypt_image %}
-    <img class="img-fluid" src="{{ data.sin_decrypt_image.url }}" width="500" height="400" alt="SIN-image" />
-  {% else %}
-    <span>None</span>
-  {% endif %}
-</div>
-
-{% if data.confidentiality.nationality == '1' %}
-
-  <div>
-    <h6>SIN Expiry Date:</h6>
-    <span>
-      {% if data.confidentiality.sin_expiry_date %}
-        {{ data.confidentiality.sin_expiry_date }}
+      {% if data.sin_decrypt_image %}
+        <td><img class="img-fluid" src="{{ data.sin_decrypt_image.url }}" width="500" height="400" alt="SIN-image" /></td>
       {% else %}
-        None
+        <td>None</td>
       {% endif %}
-    </span>
-  </div>
+    </tr>
 
-  <div>
-    <h6>Study Permit:</h6>
-
-    {% if data.study_permit_decrypt_image %}
-      <img class="img-fluid" src="{{ data.study_permit_decrypt_image.url }}" width="500" height="400" alt="Study-Permit-image" />
-    {% else %}
-      <span>None</span>
+    {% if data.confidentiality.nationality == '1' %}
+      <tr>
+        <td>SIN Expiry Date:</td>
+        <td>
+          {% if data.confidentiality.sin_expiry_date %}
+            {{ data.confidentiality.sin_expiry_date }}
+          {% else %}
+            None
+          {% endif %}
+        </td>
+      </tr>
+      <tr>
+        <td>Study Permit:</td>
+        {% if data.study_permit_decrypt_image %}
+          <td><img class="img-fluid" src="{{ data.study_permit_decrypt_image.url }}" width="500" height="400" alt="Study-Permit-image" /></td>
+        {% else %}
+          <td>None</td>
+        {% endif %}
+      </tr>
+      <tr>
+        <td>Study Permit Expiry Date:</td>
+        <td>
+          {% if data.confidentiality.study_permit_expiry_date %}
+            {{ data.confidentiality.study_permit_expiry_date }}
+          {% else %}
+            None
+          {% endif %}
+        </td>
+      </tr>
     {% endif %}
-  </div>
 
-  <div>
-    <h6>Study Permit Expiry Date:</h6>
-    <span>
-      {% if data.confidentiality.study_permit_expiry_date %}
-        {{ data.confidentiality.study_permit_expiry_date }}
-      {% else %}
-        None
-      {% endif %}
-    </span>
-  </div>
-
-{% endif %}
-
-<div>
-  <h6>Created at:</h6>
-  <span>
-    {% if data.confidentiality.created_at %}
-      {{ data.confidentiality.created_at }}
-    {% else %}
-      None
-    {% endif %}
-  </span>
-</div>
-
-<div>
-  <h6>Updated at:</h6>
-  <span>
-    {% if data.confidentiality.updated_at %}
-      {{ data.confidentiality.updated_at }}
-    {% else %}
-      None
-    {% endif %}
-  </span>
-</div>
+    <tr>
+      <td>Created on:</td>
+      <td>
+        {% if data.confidentiality.created_at %}
+          {{ data.confidentiality.created_at }}
+        {% else %}
+          None
+        {% endif %}
+      </td>
+    </tr>
+    <tr>
+      <td>Updated on:</td>
+      <td>
+        {% if data.confidentiality.updated_at %}
+          {{ data.confidentiality.updated_at }}
+        {% else %}
+          None
+        {% endif %}
+      </td>
+    </tr>
+  </tbody>
+</table>

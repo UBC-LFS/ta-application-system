@@ -61,18 +61,9 @@
 
       {% if current_tab == 'summary' %}
 
-        {% if path %}
-          <div class="bg-white border p-3 mb-5">
-            <i class="fa fa-bullhorn text-warning mr-2" aria-hidden="true"></i>
-            Please review your TA information in the table below, and go to the <a href="{% url 'students:edit_profile' %}?t={{ path }}">{{ path|title }} Student</a> tab to update if you haven't updated it yet.
-          </div>
-        {% endif %}
-
-          {% include 'ta_app/users/_summary_ta_info.html' with data=accepted_apps total=total_assigned_hours %}
-
         {% if request.GET.session and not confirm_profile_reminder %}
-          <div class="bg-white border p-3 text-center mt-5">
-            <p>I confirm that my TA information is up-to-date.</p>
+          <div class="bg-white border border-danger p-3 text-center mb-4">
+            <p class="font-weight-bold">I confirm that my TA information is up-to-date.</p>
             <p>If you don't want to see this message again and unlock this <span class="font-weight-bold text-danger">{{ request.GET.session|replace_session }}</span> session, please click on the <strong>Confirm</strong> button below.</p>
 
             <form action="{% url 'students:confirm_profile_reminder' %}" method="POST">
@@ -80,17 +71,26 @@
               <input type="hidden" name="user" value="{{ loggedin_user.id }}" />
               <input type="hidden" name="session" value="{{ request.GET.session }}" />
               <input type="hidden" name="next" value="{{ request.get_full_path }}" />
-              <button class="btn btn-success" type="submit">Confirm</button>
+              <button class="btn btn-primary" type="submit">Confirm</button>
             </form>
           </div>
         {% endif %}
+
+        {% if path %}
+          <div class="bg-white border p-3 mb-4">
+            <i class="fa fa-bullhorn text-warning mr-2" aria-hidden="true"></i>
+            Please review your TA information in the table below, and go to the <a href="{% url 'students:edit_profile' %}?t={{ path }}">{{ path|title }} Student</a> tab to update if you haven't updated it yet.
+          </div>
+        {% endif %}
+
+        {% include 'ta_app/users/_summary_ta_info.html' with data=accepted_apps total=total_assigned_hours %}
 
       {% else %}
 
         <form action="{{ submit_url }}" method="post">
           {% csrf_token %}
 
-          <table class="table table-borderless user-profile-table">
+          <table class="user-profile-table table table-borderless table-height-424px">
             {% if current_tab == 'general' %}
               {% for field in form.visible_fields %}
                 {% include 'students/profile/_form.html' %}

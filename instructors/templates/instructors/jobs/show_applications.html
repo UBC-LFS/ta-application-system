@@ -1,5 +1,6 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
+{% load static %}
 
 {% include 'instructors/_menu.html' %}
 
@@ -19,12 +20,9 @@
           This icon <span class="btn btn-info btn-xs font-size-xs"><i class="fa fa-file-text-o" aria-hidden="true"></i></span> will appear underneath the name of applicants if applicants have accepted their job offers in this term.
         </li>
         <li>This <span class="badge badge-success">RE</span> badge represents that applicants accept their re-assigned job offers.</li>
-        <li>
-          Please click <span class="text-info">Write</span> on the Note column (rightmost in the table above) in order to take a note.
-        </li>
-        <li>
-          Please click on the icon <span class="btn btn-info btn-xs font-size-xs"><i class="fa fa-file-text-o" aria-hidden="true"></i></span> to see a note if exists.
-        </li>
+        <li>Please click <span class="text-info">Write</span> on the Note column (rightmost in the table above) in order to take a note.</li>
+        <li>Please click on the icon <span class="btn btn-info btn-xs font-size-xs"><i class="fa fa-file-text-o" aria-hidden="true"></i></span> to see a note if exists.</li>
+        <li>{% include 'ta_app/pages/_preferred_ta_note.html' %}</li>
       </ul>
     </div>
   </div>
@@ -57,6 +55,10 @@
       <hr />
 
       {% include 'ta_app/pages/_note_current_status_program.html' %}
+
+      <hr />
+
+      {% include 'ta_app/pages/_preferred_ta.html' with column='Full Name' %}
     </div>
 
     <table
@@ -86,6 +88,9 @@
         {% for app in apps %}
           <tr class="bg-{{ app.info.highlight }}">
             <td>
+              {% if app.applicant.preferred_ta %}
+                <i class="fa fa-flag text-danger" aria-hidden="true"></i>
+              {% endif %}
               {{ app.applicant.get_full_name }}
 
               {% if app.applicant.accepted_apps|length > 0 %}
@@ -197,7 +202,12 @@
 
                         <div class="bg-prompt">
                           <div class="prompt p-2 text-center">
-                            <h4 class="text-primary my-2">{{ app.applicant.get_full_name }}</h4>
+                            <h4 class="my-2">
+                              {{ app.applicant.get_full_name }}
+                              {% if app.applicant.preferred_ta %}
+                                - <span class="text-danger">Preferred TA</span> (<i class="fa fa-flag text-danger" aria-hidden="true"></i>)
+                              {% endif %}
+                            </h4>
                             <p class="px-3 text-left">
                               Please select your preference, and assign TA hours carefully. Once submitted, you cannot modify them.
                             </p>
@@ -211,6 +221,12 @@
                         <div class="p-4">
                           <form action="" method="post">
                             {% csrf_token %}
+
+                            <div class="field-wrapper">
+                              <input id="id_sta_confirmation_{{ app.id }}" name="sta_confirmation" type="checkbox" />
+                              <label class="d-inline-block ml-1" for="id_sta_confirmation_{{ app.id }}">STA</label>
+                              <p class="help">I confirm this student's eligibility and planned duties align with the <a target="_blank" href="{% static 'ta_app/files/SENIOR TEACHING ASSISTANTS - LETTER OF UNDERSTANDING B4 2022-25.pdf' %}">UBC-CUPE 2278 Letter of Agreement B 10</a> in the current collective aggrement.</p>
+                            </div>
 
                             <div class="field-wrapper">
                               <label for="id_instructor_preference_{{ app.id }}">Instructor Preference:</label>

@@ -943,17 +943,6 @@ def update_reset_application(app_id, instructor_preference):
     return get_object_or_404(Application, id=app_id) if app else False
 
 
-def update_application_instructor_preference(app_id, instructor_preference):
-    ''' Update an instructor preference in an application '''
-
-    app = Application.objects.filter(id=app_id).update(
-        instructor_preference = instructor_preference,
-        updated_at = datetime.now()
-    )
-
-    return get_object_or_404(Application, id=app_id) if app else False
-
-
 def update_job_offer(post):
     ''' Update a classification and assigned hours in Selected Apps '''
 
@@ -1203,6 +1192,7 @@ def get_summary_applicants(request, session_slug, job_slug):
     for applicant in applicants:
         applicant = userApi.add_resume(applicant)
         applicant.info = userApi.get_applicant_status_program(applicant)
+        applicant.preferred_ta = userApi.get_preferred_ta(applicant)
 
         # To check whether an alert email has been sent to an applicant
         applicant.is_sent_alertemail = False
@@ -1557,4 +1547,16 @@ def get_total_assigned_hours(apps, list):
                         total_hours['accepted'][year_term] = accepted.last().assigned_hours
 
     return total_hours
+"""
+
+"""
+def update_application_instructor_preference(app_id, instructor_preference):
+    ''' Update an instructor preference in an application '''
+
+    app = Application.objects.filter(id=app_id).update(
+        instructor_preference = instructor_preference,
+        updated_at = datetime.now()
+    )
+
+    return get_object_or_404(Application, id=app_id) if app else False
 """

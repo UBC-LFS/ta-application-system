@@ -55,12 +55,6 @@ class Index(LoginRequiredMixin, View):
         yesterday_accepted_apps, yesterday = adminApi.get_accepted_apps_by_day(apps, 'yesterday')
         week_ago_accepted_apps, week_ago = adminApi.get_accepted_apps_by_day(apps, 'week_ago')
 
-        u85 = userApi.get_user(85)
-        u100 = userApi.get_user(100)
-        
-        # print(userApi.get_preferred_ta(u85))
-        print(userApi.get_preferred_ta(u100))
-
         context = {
             'loggedin_user': userApi.add_avatar(request.user),
             'accepted_apps': apps.filter(applicationstatus__assigned=ApplicationStatus.ACCEPTED).exclude(applicationstatus__assigned=ApplicationStatus.CANCELLED).order_by('-id').distinct(),
@@ -1226,6 +1220,7 @@ class AllApplications(LoginRequiredMixin, View):
 
         for app in apps:
             app.applicant.gta = userApi.get_gta_flag(app.applicant)
+            app.applicant.preferred_ta = userApi.get_preferred_ta(app.applicant)
             app.can_reset = adminApi.app_can_reset(app)
             app.confi_info_expiry_status = userApi.get_confidential_info_expiry_status(app.applicant)
 
@@ -1309,6 +1304,7 @@ class SelectedApplications(LoginRequiredMixin, View):
         filtered_offered_apps = { 'num_offered': 0, 'num_not_offered': 0 }
         for app in apps:
             app.applicant.gta = userApi.get_gta_flag(app.applicant)
+            app.applicant.preferred_ta = userApi.get_preferred_ta(app.applicant)
             app.confi_info_expiry_status = userApi.get_confidential_info_expiry_status(app.applicant)
 
             assigned_hours = app.selected.assigned_hours
@@ -1419,139 +1415,6 @@ class SelectedApplications(LoginRequiredMixin, View):
         return HttpResponseRedirect(request.POST.get('next'))
     
 
-"""
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET', 'POST'])
-def selected_applications(request):
-    ''' Display applications selected by instructors '''
-    request = userApi.has_admin_access(request)
-
-    if request.method == 'POST':
-
-        # TODO: check this function
-        # Edit application - not using anymore
-
-        # Check whether a next url is valid or not
-        adminApi.can_req_parameters_access(request, 'none', ['next'], 'POST')
-
-        if 'classification' not in request.POST.keys() or len(request.POST.get('classification')) == 0:
-            messages.error(request, 'An error occurred. Please select classification, then try again.')
-            return HttpResponseRedirect(request.POST.get('next'))
-
-        assigned_hours = request.POST.get('assigned_hours')
-
-        if adminApi.is_valid_float(assigned_hours) == False:
-            messages.error(request, 'An error occurred. Please check assigned hours. Assigned hours must be numerival value only.')
-            return HttpResponseRedirect(request.POST.get('next'))
-
-        if adminApi.is_valid_integer(assigned_hours) == False:
-            messages.error(request, 'An error occurred. Please check assigned hours. Assign TA Hours must be non-negative integers.')
-            return HttpResponseRedirect(request.POST.get('next'))
-
-        assigned_hours = int( float(assigned_hours) )
-
-        if assigned_hours < 0:
-            messages.error(request, 'An error occurred. Please check assigned hours. Assigned hours must be greater than 0.')
-            return HttpResponseRedirect(request.POST.get('next'))
-
-        app = adminApi.get_application(request.POST.get('application'))
-        if assigned_hours > int(app.job.assigned_ta_hours):
-            messages.error(request, 'An error occurred. Please you cannot assign {0} hours Total Assigned TA Hours is {1}, then try again.'.format( assigned_hours, int(app.job.assigned_ta_hours) ))
-            return HttpResponseRedirect(request.POST.get('next'))
-
-        if adminApi.update_job_offer(request.POST):
-            messages.success(request, 'Success! Updated this application (ID: {0})'.format(app.id))
-        else:
-            messages.error(request, 'An error occurred. Failed to update this application (ID: {0}).'.format(app.id))
-
-        return HttpResponseRedirect(request.POST.get('next'))
-    else:
-        apps, info = adminApi.get_applications_filter_limit(request, 'selected')
-
-        page = request.GET.get('page', 1)
-        paginator = Paginator(apps, settings.PAGE_SIZE)
-
-        try:
-            apps = paginator.page(page)
-        except PageNotAnInteger:
-            apps = paginator.page(1)
-        except EmptyPage:
-            apps = paginator.page(paginator.num_pages)
-
-        apps = adminApi.add_app_info_into_applications(apps, ['resume', 'selected', 'offered', 'declined'])
-
-        filtered_offered_apps = { 'num_offered': 0, 'num_not_offered': 0 }
-        for app in apps:
-            app.confi_info_expiry_status = userApi.get_confidential_info_expiry_status(app.applicant)
-
-            assigned_hours = app.selected.assigned_hours
-            if app.offered and app.offered.id > app.selected.id:
-                assigned_hours = app.offered.assigned_hours
-
-            offer_modal = {
-                'title': '',
-                'form_url': reverse('administrators:offer_job', args=[app.job.session.slug, app.job.course.slug]),
-                'classification_id': app.classification.id if app.classification != None else -1,
-                'assigned_hours': assigned_hours,
-                'button_colour': 'btn-primary',
-                'button_disabled': False,
-                'button_disabled_message': False
-            }
-
-            latest_status = adminApi.get_latest_status_in_app(app)
-            num_offers = app.applicationstatus_set.filter(assigned=ApplicationStatus.OFFERED).count()
-
-            if latest_status == 'selected' or latest_status == 'none':
-                if num_offers == 0: offer_modal['title'] = 'Offer'
-                else: offer_modal['title'] = 'Re-offer'
-
-                filtered_offered_apps['num_not_offered'] += 1
-
-                if latest_status == 'none':
-                    offer_modal['button_disabled'] = True
-                    offer_modal['button_disabled_message'] = True
-
-                    filtered_offered_apps['num_not_offered'] -= 1
-                    filtered_offered_apps['num_offered'] += 1
-            else:
-                offer_modal['title'] = 'Edit'
-                offer_modal['button_colour'] = 'btn-warning'
-                filtered_offered_apps['num_offered'] += 1
-
-            app.offer_modal = offer_modal
-
-            if app.job.assigned_ta_hours == app.job.accumulated_ta_hours:
-                app.ta_hour_progress = 'done'
-            elif app.job.assigned_ta_hours < app.job.accumulated_ta_hours:
-                app.ta_hour_progress = 'over'
-            else:
-                if (app.job.assigned_ta_hours * 3.0/4.0) < app.job.accumulated_ta_hours:
-                    app.ta_hour_progress = 'under_three_quarters'
-                elif (app.job.assigned_ta_hours * 2.0/4.0) < app.job.accumulated_ta_hours:
-                    app.ta_hour_progress = 'under_half'
-                elif (app.job.assigned_ta_hours * 1.0/4.0) < app.job.accumulated_ta_hours:
-                    app.ta_hour_progress = 'under_one_quarter'
-
-    return render(request, 'administrators/applications/selected_applications.html', {
-        'loggedin_user': request.user,
-        'apps': apps,
-        'num_all_apps': info['num_all_apps'],
-        'filtered_apps_stats': {
-            'num_filtered_apps': info['num_filtered_apps'],
-            'filtered_offered_apps': filtered_offered_apps,
-        },
-        'all_offered_apps_stats': {
-            'num_offered': info['num_offered_apps'],
-            'num_not_offered': info['num_not_offered_apps']
-        },
-        'classification_choices': adminApi.get_classifications(),
-        'app_status': APP_STATUS,
-        'new_next': adminApi.build_new_next(request),
-        'this_year': utils.THIS_YEAR
-    })
-"""
-
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['POST'])
@@ -1661,6 +1524,7 @@ class OfferedApplications(LoginRequiredMixin, View):
         apps = adminApi.add_app_info_into_applications(apps, ['offered', 'accepted', 'declined'])
         for app in apps:
             app.applicant.gta = userApi.get_gta_flag(app.applicant)
+            app.applicant.preferred_ta = userApi.get_preferred_ta(app.applicant)
             app.confi_info_expiry_status = userApi.get_confidential_info_expiry_status(app.applicant)
 
         return render(request, 'administrators/applications/offered_applications.html', {
@@ -4125,3 +3989,139 @@ def delete_landing_page(request):
         else:
             messages.error(request, 'An error occurred.')
     return redirect("administrators:landing_pages")
+
+
+
+
+"""
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET', 'POST'])
+def selected_applications(request):
+    ''' Display applications selected by instructors '''
+    request = userApi.has_admin_access(request)
+
+    if request.method == 'POST':
+
+        # TODO: check this function
+        # Edit application - not using anymore
+
+        # Check whether a next url is valid or not
+        adminApi.can_req_parameters_access(request, 'none', ['next'], 'POST')
+
+        if 'classification' not in request.POST.keys() or len(request.POST.get('classification')) == 0:
+            messages.error(request, 'An error occurred. Please select classification, then try again.')
+            return HttpResponseRedirect(request.POST.get('next'))
+
+        assigned_hours = request.POST.get('assigned_hours')
+
+        if adminApi.is_valid_float(assigned_hours) == False:
+            messages.error(request, 'An error occurred. Please check assigned hours. Assigned hours must be numerival value only.')
+            return HttpResponseRedirect(request.POST.get('next'))
+
+        if adminApi.is_valid_integer(assigned_hours) == False:
+            messages.error(request, 'An error occurred. Please check assigned hours. Assign TA Hours must be non-negative integers.')
+            return HttpResponseRedirect(request.POST.get('next'))
+
+        assigned_hours = int( float(assigned_hours) )
+
+        if assigned_hours < 0:
+            messages.error(request, 'An error occurred. Please check assigned hours. Assigned hours must be greater than 0.')
+            return HttpResponseRedirect(request.POST.get('next'))
+
+        app = adminApi.get_application(request.POST.get('application'))
+        if assigned_hours > int(app.job.assigned_ta_hours):
+            messages.error(request, 'An error occurred. Please you cannot assign {0} hours Total Assigned TA Hours is {1}, then try again.'.format( assigned_hours, int(app.job.assigned_ta_hours) ))
+            return HttpResponseRedirect(request.POST.get('next'))
+
+        if adminApi.update_job_offer(request.POST):
+            messages.success(request, 'Success! Updated this application (ID: {0})'.format(app.id))
+        else:
+            messages.error(request, 'An error occurred. Failed to update this application (ID: {0}).'.format(app.id))
+
+        return HttpResponseRedirect(request.POST.get('next'))
+    else:
+        apps, info = adminApi.get_applications_filter_limit(request, 'selected')
+
+        page = request.GET.get('page', 1)
+        paginator = Paginator(apps, settings.PAGE_SIZE)
+
+        try:
+            apps = paginator.page(page)
+        except PageNotAnInteger:
+            apps = paginator.page(1)
+        except EmptyPage:
+            apps = paginator.page(paginator.num_pages)
+
+        apps = adminApi.add_app_info_into_applications(apps, ['resume', 'selected', 'offered', 'declined'])
+
+        filtered_offered_apps = { 'num_offered': 0, 'num_not_offered': 0 }
+        for app in apps:
+            app.confi_info_expiry_status = userApi.get_confidential_info_expiry_status(app.applicant)
+
+            assigned_hours = app.selected.assigned_hours
+            if app.offered and app.offered.id > app.selected.id:
+                assigned_hours = app.offered.assigned_hours
+
+            offer_modal = {
+                'title': '',
+                'form_url': reverse('administrators:offer_job', args=[app.job.session.slug, app.job.course.slug]),
+                'classification_id': app.classification.id if app.classification != None else -1,
+                'assigned_hours': assigned_hours,
+                'button_colour': 'btn-primary',
+                'button_disabled': False,
+                'button_disabled_message': False
+            }
+
+            latest_status = adminApi.get_latest_status_in_app(app)
+            num_offers = app.applicationstatus_set.filter(assigned=ApplicationStatus.OFFERED).count()
+
+            if latest_status == 'selected' or latest_status == 'none':
+                if num_offers == 0: offer_modal['title'] = 'Offer'
+                else: offer_modal['title'] = 'Re-offer'
+
+                filtered_offered_apps['num_not_offered'] += 1
+
+                if latest_status == 'none':
+                    offer_modal['button_disabled'] = True
+                    offer_modal['button_disabled_message'] = True
+
+                    filtered_offered_apps['num_not_offered'] -= 1
+                    filtered_offered_apps['num_offered'] += 1
+            else:
+                offer_modal['title'] = 'Edit'
+                offer_modal['button_colour'] = 'btn-warning'
+                filtered_offered_apps['num_offered'] += 1
+
+            app.offer_modal = offer_modal
+
+            if app.job.assigned_ta_hours == app.job.accumulated_ta_hours:
+                app.ta_hour_progress = 'done'
+            elif app.job.assigned_ta_hours < app.job.accumulated_ta_hours:
+                app.ta_hour_progress = 'over'
+            else:
+                if (app.job.assigned_ta_hours * 3.0/4.0) < app.job.accumulated_ta_hours:
+                    app.ta_hour_progress = 'under_three_quarters'
+                elif (app.job.assigned_ta_hours * 2.0/4.0) < app.job.accumulated_ta_hours:
+                    app.ta_hour_progress = 'under_half'
+                elif (app.job.assigned_ta_hours * 1.0/4.0) < app.job.accumulated_ta_hours:
+                    app.ta_hour_progress = 'under_one_quarter'
+
+    return render(request, 'administrators/applications/selected_applications.html', {
+        'loggedin_user': request.user,
+        'apps': apps,
+        'num_all_apps': info['num_all_apps'],
+        'filtered_apps_stats': {
+            'num_filtered_apps': info['num_filtered_apps'],
+            'filtered_offered_apps': filtered_offered_apps,
+        },
+        'all_offered_apps_stats': {
+            'num_offered': info['num_offered_apps'],
+            'num_not_offered': info['num_not_offered_apps']
+        },
+        'classification_choices': adminApi.get_classifications(),
+        'app_status': APP_STATUS,
+        'new_next': adminApi.build_new_next(request),
+        'this_year': utils.THIS_YEAR
+    })
+"""

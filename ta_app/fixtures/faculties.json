@@ -3,61 +3,45 @@
     "model": "users.faculty",
     "pk": 1,
     "fields": {
-      "name": "Applied Science",
-      "slug": "applied-science"
+      "name": "Faculty of Land and Food Systems",
+      "slug": "faculty-of-land-and-food-systems"
     }
   },
   {
     "model": "users.faculty",
     "pk": 2,
     "fields": {
-      "name": "Arts",
-      "slug": "arts"
+      "name": "Faculty of Applied Science",
+      "slug": "faculty-of-applied-science"
     }
   },
   {
     "model": "users.faculty",
     "pk": 3,
     "fields": {
-      "name": "Education",
-      "slug": "education"
+      "name": "School of Architecture and Landscape Architecture",
+      "slug": "school-of-architecture-and-landscape-architecture"
     }
   },
   {
     "model": "users.faculty",
     "pk": 4,
     "fields": {
-      "name": "Engineering",
-      "slug": "engineering"
+      "name": "Faculty of Arts",
+      "slug": "faculty-of-arts"
     }
   },
   {
     "model": "users.faculty",
     "pk": 5,
     "fields": {
-      "name": "Forestry",
-      "slug": "forestry"
+      "name": "School of Audiology and Speech Sciences",
+      "slug": "school-of-audiology-and-speech-sciences"
     }
   },
   {
     "model": "users.faculty",
     "pk": 6,
-    "fields": {
-      "name": "Land and Food Systems",
-      "slug": "land-and-food-systems"
-    }
-  },
-  {
-    "model": "users.faculty",
-    "pk": 7,
-    "fields": {
-      "name": "Pharmaceutical Sciences",
-      "slug": "pharmaceutical-sciences"
-    }
-  },
-  {
-    "model": "users.faculty",
-    "pk": 8,
     "fields": {
       "name": "Sauder School of Business",
       "slug": "sauder-school-of-business"
@@ -65,15 +49,132 @@
   },
   {
     "model": "users.faculty",
+    "pk": 7,
+    "fields": {
+      "name": "School of Community and Regional Planning",
+      "slug": "school-of-community-and-regional-planning"
+    }
+  },
+  {
+    "model": "users.faculty",
+    "pk": 8,
+    "fields": {
+      "name": "Faculty of Dentistry",
+      "slug": "faculty-of-dentistry"
+    }
+  },
+  {
+    "model": "users.faculty",
     "pk": 9,
     "fields": {
-      "name": "Science",
-      "slug": "science"
+      "name": "Faculty of Education",
+      "slug": "faculty-of-education"
     }
   },
   {
     "model": "users.faculty",
     "pk": 10,
+    "fields": {
+      "name": "Faculty of Forestry",
+      "slug": "faculty-of-forestry"
+    }
+  },
+  {
+    "model": "users.faculty",
+    "pk": 11,
+    "fields": {
+      "name": "School of Journalism",
+      "slug": "school-of-journalism"
+    }
+  },{
+    "model": "users.faculty",
+    "pk": 12,
+    "fields": {
+      "name": "School of Kinesiology",
+      "slug": "school-of-kinesiology"
+    }
+  },
+  {
+    "model": "users.faculty",
+    "pk": 13,
+    "fields": {
+      "name": "Peter A. Allard School of Law",
+      "slug": "peter-a-allard-school-of-law"
+    }
+  },
+  {
+    "model": "users.faculty",
+    "pk": 14,
+    "fields": {
+      "name": "School of Library, Archival and Information Studies",
+      "slug": "school-of-library-archival-and-information studies"
+    }
+  },
+  {
+    "model": "users.faculty",
+    "pk": 15,
+    "fields": {
+      "name": "Faculty of Medicine",
+      "slug": "faculty-of-medicine"
+    }
+  },
+  {
+    "model": "users.faculty",
+    "pk": 16,
+    "fields": {
+      "name": "School of Music",
+      "slug": "school-of-music"
+    }
+  },{
+    "model": "users.faculty",
+    "pk": 17,
+    "fields": {
+      "name": "School of Nursing",
+      "slug": "school-of-nursing"
+    }
+  },
+  {
+    "model": "users.faculty",
+    "pk": 18,
+    "fields": {
+      "name": "Faculty of Pharmaceutical Sciences",
+      "slug": "faculty-of-pharmaceutical-sciences"
+    }
+  },
+  {
+    "model": "users.faculty",
+    "pk": 19,
+    "fields": {
+      "name": "School of Population and Public Health",
+      "slug": "school-of-population-and-public-health"
+    }
+  },
+  {
+    "model": "users.faculty",
+    "pk": 20,
+    "fields": {
+      "name": "School of Public Policy and Global Affairs",
+      "slug": "school-of-public-policy-and-global-affairs"
+    }
+  },
+  {
+    "model": "users.faculty",
+    "pk": 21,
+    "fields": {
+      "name": "Faculty of Science",
+      "slug": "faculty-of-science"
+    }
+  },{
+    "model": "users.faculty",
+    "pk": 22,
+    "fields": {
+      "name": "School of Social Work",
+      "slug": "school-of-social-work"
+    }
+  },
+  {
+    "model": "users.faculty",
+    "pk": 23,
     "fields": {
       "name": "Vancouver School of Economics",
       "slug": "vancouver-school-of-economics"

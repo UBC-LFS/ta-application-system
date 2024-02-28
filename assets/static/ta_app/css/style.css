@@ -519,17 +519,17 @@ hr.dotted {
 }
 
 .badge-orange {
-  color: #fff;
+  color: #fff !important;
   background-color: #fd7e14;
-}
-
-.badge-indigo {
-  color: #fff;
-  background-color: #6610f2;
 }
 
 .badge-warning {
   color: #212529 !important;
+}
+
+.badge-teal {
+  color: #fff;
+  background-color: #20c997;
 }
 
 .btn-xs {
@@ -564,7 +564,7 @@ hr.dotted {
 }
 
 .text-chocolate {
-  color: #D2691E;
+  color: #D2691E !important;
 }
 
 .bg-dark-blue {
@@ -718,10 +718,11 @@ input[type=radio] {
 .user-profile-table tr td:nth-child(1) label { font-weight: 600; }
 .user-profile-table label { margin-bottom: 0; }
 
+.table-height-424px tr,
+.table-height-424px tr td { max-height: 424px; } 
+
 .summernote-div,
-.summernote-div > iframe,
-.summernote-div > iframe .note-editor,
-.summernote-div > iframe .note-editor .note-editing-area { height: 400px; }
+.summernote-div > iframe { height: 400px; }
 
 /* Extra small devices (portrait phones, less than 576px) */
 @media (max-width: 575.98px) {

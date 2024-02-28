@@ -5,8 +5,28 @@
   </p>
 {% endif %}
 
-<table class="user-profile-table table table-borderless">
+<table class="user-profile-table table {% if striped == 'True' %}table-bordered table-striped{% else %}table-borderless{% endif %}">
   <tbody>
+    {% if data.profile.status.id != undergrad_status_id %}
+      <tr>
+        <td><span class="text-primary">Total number of academic years:</span></td>
+        <td>{{ data.profile.total_academic_years }}</td>
+      </tr>
+      <tr>
+        <td><span class="text-primary">Total number of terms:</span></td>
+        <td>{{ data.profile.total_terms }}</td>
+      </tr>
+      <tr>
+        <td><span class="text-primary">Total number of TA hours:</span></td>
+        <td>
+          {% if data.profile.total_ta_hours %}
+            {{ data.profile.total_ta_hours }} hours
+          {% else %}
+            None
+          {% endif %}
+        </td>
+      </tr>
+    {% endif %}
     <tr>
       <td>Preferred Name:</td>
       <td>
@@ -151,26 +171,6 @@
         {% endif %}
       </td>
     </tr>
-    {% if data.profile.status.id != undergrad_status_id %}
-      <tr>
-        <td><span class="text-primary">Total number of academic years:</span></td>
-        <td>{{ data.profile.total_academic_years }}</td>
-      </tr>
-      <tr>
-        <td><span class="text-primary">Total number of terms:</span></td>
-        <td>{{ data.profile.total_terms }}</td>
-      </tr>
-      <tr>
-        <td><span class="text-primary">Total number of TA hours:</span></td>
-        <td>
-          {% if data.profile.total_ta_hours %}
-            {{ data.profile.total_ta_hours }} hours
-          {% else %}
-            None
-          {% endif %}
-        </td>
-      </tr>
-    {% endif %}
     <tr>
       <td>Previous TA Experience:</td>
       <td>

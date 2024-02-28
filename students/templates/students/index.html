@@ -15,7 +15,7 @@
       </div>
       <div class="modal-body">
         <p>
-          Have you checked your Additional information and Resume recently? If not,
+          Have you checked your <strong>Additional Information</strong> and <strong>Resume</strong> recently? If not,
         </p>
         <ul>
           <li>Keep your <strong>Resume</strong> up to date.</li>
@@ -28,12 +28,12 @@
         <hr />
 
         <div class="text-center mb-2">
-          <p>Please click on the <span class="text-primary">Read</span> button below if you <span class="text-danger font-weight-bold">DO NOT</span> want to see this message again.</p>
+          <p>Please click on the <span class="text-primary">Read</span> button below if you <span class="text-danger font-weight-bold">DO NOT</span> want to see this message again this year.</p>
           <form action="" method="POST">
             {% csrf_token %}
             <input type="hidden" name="student" value="{{ loggedin_user.id }}" />
             <input type="hidden" name="has_read" value="true" />
-            <button class="btn btn-primary btn-lg" type="submit">Read</button>
+            <button class="btn btn-primary" type="submit">Read</button>
           </form>
         </div>
       </div>
@@ -113,31 +113,7 @@
 
     <div class="board col-11 mx-auto text-center mt-5">
       <h3 class="text-info mb-4">Summary of TA Information</h3>
-
       {% include 'ta_app/users/_summary_ta_info.html' with data=accepted_apps total=total_assigned_hours %}
-
-      {% comment %}
-      <table class="table font-size-1">
-        <thead>
-          <tr>
-            <th>Year-Term</th>
-            <th>Total Hours</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for year_term, assigned_hours in total_assigned_hours.accepted.items %}
-            <tr>
-              <td>{{ year_term }}</td>
-              <td>{{ assigned_hours }}</td>
-            </tr>
-          {% empty %}
-            <tr>
-              <td colspan="2">No matching records found</td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-      {% endcomment %}
     </div>
 
   </div>

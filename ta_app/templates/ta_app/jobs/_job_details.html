@@ -5,63 +5,73 @@
   </h5>
 </div>
 
-<div>
-  <h6>Instructors:</h6>
-  <ul>
-    {% for instructor in data.instructors.all %}
-      <li>{{ instructor.get_full_name }}</li>
-    {% empty %}
-      <li>None</li>
-    {% endfor %}
-  </ul>
-</div>
-
-<div class="job-desc">
-  <div>
-    <h6>Course Overview:</h6>
-    <span>
-      {% if data.course_overview %}
-        {{ data.course_overview|safe }}
-      {% else %}
-        None
-      {% endif %}
-    </span>
-  </div>
-
-  <div>
-    <h6>Description:</h6>
-    <span>
-      {% if data.description %}
-        {{ data.description|safe }}
-      {% else %}
-        None
-      {% endif %}
-    </span>
-  </div>
-
-  <div>
-    <h6>Note:</h6>
-    <span>
-      {% if data.note %}
-        {{ data.note|safe }}
-      {% else %}
-        None
-      {% endif %}
-    </span>
-  </div>
-</div>
-
-<div>
-  <h6>Is active:</h6>
-  {% include 'ta_app/jobs/_job_is_active.html' with data=data %}
-</div>
-
-<div>
-  <h6>Created at:</h6>
-  <span>{{ data.created_at }}</span>
-</div>
-
-<div>
-  <h6>Updated at:</h6>
-  <span>{{ data.updated_at }}</span>
-</div>
+<table class="user-profile-table table table-borderless">
+  <tbody>
+    <tr>
+      <td>Instructors:</td>
+      <td>
+        <ul>
+          {% for instructor in data.instructors.all %}
+            <li>{{ instructor.get_full_name }}</li>
+          {% empty %}
+            <li>None</li>
+          {% endfor %}
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <span class="text-danger">Course Overview:</span>
+      </td>
+      <td>
+        <section class="bg-white p-4">
+          {% if data.course_overview %}
+            {{ data.course_overview|safe }}
+          {% else %}
+            None
+          {% endif %}
+        </section>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <span class="text-danger">Job Description:</span>
+      </td>
+      <td>
+        <section class="bg-white p-4">
+          {% if data.description %}
+            {{ data.description|safe }}
+          {% else %}
+            None
+          {% endif %}
+        </section>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <span class="text-danger">Note:</span>
+      </td>
+      <td>
+        <section class="bg-white p-4">
+          {% if data.note %}
+            {{ data.note|safe }}
+          {% else %}
+            None
+          {% endif %}
+        </section>
+      </td>
+    </tr>
+    <tr>
+      <td>Is active:</td>
+      <td>{% include 'ta_app/jobs/_job_is_active.html' with data=data %}</td>
+    </tr>
+    <tr>
+      <td>Created on:</td>
+      <td>{{ data.created_at }}</td>
+    </tr>
+    <tr>
+      <td>Updated on:</td>
+      <td>{{ data.updated_at }}</td>
+    </tr>
+  </tbody>
+</table>

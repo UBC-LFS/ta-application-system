@@ -18,7 +18,7 @@
           <h5 class="mb-4">
             {{ data.get_full_name }}
             {% if data.gta %}
-              - <span class="badge {% if data.gta == 'GTA 1' %}badge-success{% elif data.gta == 'GTA 2' %}badge-orange{% else %}badge-secondary{% endif %}">{{ data.gta }}</span>
+              - {% include 'ta_app/users/_gta_badge.html' with data=data %}
             {% endif %}
           </h5>
           {% include 'ta_app/users/_display_profile_info.html' with data=data %}

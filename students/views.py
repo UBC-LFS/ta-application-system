@@ -39,7 +39,7 @@ class Index(LoginRequiredMixin, View):
 
         # To check whether a student has competed an additional information and resume
         can_apply = userApi.can_apply(request.user)
-        if can_apply == False:
+        if not can_apply:
             return HttpResponseRedirect( reverse('students:show_profile') + '?next=' + reverse('students:index') + '&p=Home&t=basic' )
 
         # To check whether a student has read an alert message
@@ -56,7 +56,6 @@ class Index(LoginRequiredMixin, View):
         return render(request, 'students/index.html', {
             'loggedin_user': userApi.add_avatar(request.user),
             'apps': apps,
-            #'total_assigned_hours': adminApi.get_total_assigned_hours(apps, ['accepted']),
             'recent_apps': apps.filter( Q(created_at__year__gte=datetime.now().year) ).order_by('-created_at'),
             'favourites': adminApi.get_favourites(request.user),
             'can_alert': can_alert,
@@ -596,141 +595,6 @@ class EditConfidentiality(LoginRequiredMixin, View):
 
         return redirect('students:edit_confidentiality')
 
-"""
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET', 'POST'])
-def edit_confidentiality(request):
-    ''' Edit user's confidentiality '''
-    request = userApi.has_user_access(request, Role.STUDENT)
-
-    loggedin_user = request.user
-    form = None
-    sin_file = None
-    study_permit_file = None
-    can_delete = False
-
-    confidentiality = userApi.has_user_confidentiality_created(loggedin_user)
-    if request.method == 'POST':
-        is_new_employee = request.POST.get('is_new_employee')
-        employee_number = request.POST.get('employee_number')
-
-        if confidentiality.is_new_employee == True:
-            if bool(is_new_employee) == False:
-                # New employees (no employee number) must check is_new_employee
-                if bool(employee_number) == False:
-                    messages.error(request, 'An error occurred. New employees must check this <strong>I am a new employee</strong> field.')
-                    return redirect('students:edit_confidentiality')
-            else:
-                # Not a new employee
-                if bool(employee_number) == True:
-                    messages.error(request, 'An error occurred. Please uncheck this <strong>I am a new employee</strong> field if you are not a new employee.')
-                    return redirect('students:edit_confidentiality')
-        else:
-            # Only new employees (no employee number) can check is_new_employee
-            if bool(is_new_employee) == True:
-                messages.error(request, 'An error occurred. Your Employee Number is {0}. Only new employees can check this <strong>I am a new employee</strong> field.'.format(confidentiality.employee_number))
-                return redirect('students:edit_confidentiality')
-
-        # Check SIN and Study Permit
-        sin_study_permit_errors = []
-        if request.FILES.get('sin') and bool(confidentiality.sin):
-            sin_study_permit_errors.append('SIN')
-        if request.FILES.get('study_permit') and bool(confidentiality.study_permit):
-            sin_study_permit_errors.append('Study Permit')
-
-        if len(sin_study_permit_errors) > 0:
-            msg = ' and '.join(sin_study_permit_errors)
-            messages.error(request, 'An error occurred. Please delete your old {0} first, and then try again.'.format(msg))
-            return redirect('students:edit_confidentiality')
-
-        form = ConfidentialityForm(request.POST, request.FILES, instance=confidentiality)
-        if form.is_valid():
-            data = form.cleaned_data
-            user = data['user']
-
-            updated_confidentiality = form.save(commit=False)
-            updated_confidentiality.updated_at = datetime.now()
-
-            update_fields = ['updated_at']
-            if data['nationality'] is not None:
-                updated_confidentiality.nationality = data['nationality']
-                update_fields.append('nationality')
-
-            if data['is_new_employee'] is not None:
-                updated_confidentiality.is_new_employee = data['is_new_employee']
-                update_fields.append('is_new_employee')
-
-            if data['employee_number'] is not None:
-                updated_confidentiality.employee_number = data['employee_number']
-                update_fields.append('employee_number')
-
-            if request.FILES.get('sin') is not None:
-                updated_confidentiality.sin = request.FILES.get('sin')
-                update_fields.append('sin')
-
-            if data['sin_expiry_date'] is not None:
-                updated_confidentiality.sin_expiry_date = data['sin_expiry_date']
-                update_fields.append('sin_expiry_date')
-
-            if request.FILES.get('study_permit') is not None:
-                updated_confidentiality.study_permit = request.FILES.get('study_permit')
-                update_fields.append('study_permit')
-
-            if data['study_permit_expiry_date'] is not None:
-                updated_confidentiality.study_permit_expiry_date = data['study_permit_expiry_date']
-                update_fields.append('study_permit_expiry_date')
-
-            if data['date_of_birth'] is not None:
-                updated_confidentiality.date_of_birth = data['date_of_birth']
-                update_fields.append('date_of_birth')
-
-            updated_confidentiality.save(update_fields=update_fields)
-
-            if updated_confidentiality:
-                messages.success(request, 'Success! Confidential information of {0} updated'.format(loggedin_user.get_full_name()))
-                return redirect('students:show_confidentiality')
-            else:
-                messages.error(request, 'An error occurred while updating confidential information.')
-        else:
-            errors = form.errors.get_json_data()
-            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
-
-        return redirect('students:edit_confidentiality')
-
-    else:
-        if confidentiality:
-            if bool(confidentiality.employee_number):
-                can_delete = True
-            if bool(confidentiality.sin):
-                sin_file = os.path.basename(confidentiality.sin.name)
-                can_delete = True
-
-            if bool(confidentiality.study_permit):
-                study_permit_file = os.path.basename(confidentiality.study_permit.name)
-                can_delete = True
-
-            if bool(confidentiality.date_of_birth):
-                can_delete = True
-
-            if confidentiality.nationality == '0':
-                form = ConfidentialityDomesticForm(data=None, instance=confidentiality, initial={ 'user': loggedin_user })
-            else:
-                form = ConfidentialityInternationalForm(data=None, instance=confidentiality, initial={ 'user': loggedin_user })
-                if bool(confidentiality.sin_expiry_date):
-                    can_delete = True
-                if bool(confidentiality.study_permit_expiry_date):
-                    can_delete = True
-
-    return render(request, 'students/profile/edit_confidentiality.html', {
-        'loggedin_user': userApi.add_avatar(loggedin_user),
-        'sin_file': sin_file,
-        'study_permit_file': study_permit_file,
-        'form': form,
-        'can_delete': can_delete,
-        'confidentiality': confidentiality
-    })
-"""
  
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -765,7 +629,6 @@ def delete_confidential_information(request):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def download_file(request, username, item, filename):
     ''' Download user' uploaded files '''
-    print( list(request.session.keys()) )
     if userApi.is_valid_user(request.user) == False:
         raise PermissionDenied
 
@@ -997,8 +860,20 @@ class ApplyJob(LoginRequiredMixin, View):
         if 'favourite' not in next:
             adminApi.validate_next(next, ['session'])
 
+        session = adminApi.get_session(session_slug, 'slug')
+        job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
+
+        can_apply = userApi.can_apply(request.user)
+        UNDERGRADUATE_STUDENT = userApi.get_undergraduate_status_id()
+
+        if not session.is_visible or session.is_archived or not job.is_active or not can_apply or not UNDERGRADUATE_STUDENT:
+            raise PermissionDenied
+
         self.session_slug = session_slug
         self.job_slug = job_slug
+        self.UNDERGRADUATE_STUDENT = UNDERGRADUATE_STUDENT
+        self.job = job
+        self.next = next
 
         return setup
 
@@ -1006,56 +881,49 @@ class ApplyJob(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         ''' Students can apply for each job '''
 
-        session = adminApi.get_session(self.session_slug, 'slug')
-        job = adminApi.get_job_by_session_slug_job_slug(self.session_slug, self.job_slug)
-        can_apply = userApi.can_apply(request.user)
-        UNDERGRADUATE_STUDENT = userApi.get_undergraduate_status_id()
-
-        if session.is_visible == False or session.is_archived == True or job.is_active == False or can_apply == False or UNDERGRADUATE_STUDENT == None:
-            raise PermissionDenied
-
-        if request.method == 'POST':
-
-            # Check whether a next url is valid or not
-            adminApi.can_req_parameters_access(request, 'none', ['next'], 'POST')
-
-            if request.user.profile.status is not None and request.user.profile.status.id != UNDERGRADUATE_STUDENT and request.POST.get('supervisor_approval') == None:
-                messages.error(request, 'An error occurred. You must check "Yes" in the box under "Supervisor Approval" if you are a graduate student. Undergraduate students should leave this box blank.')
-                return HttpResponseRedirect(request.get_full_path())
-
-            if request.POST.get('availability') == None:
-                messages.error(request, 'An error occurred. You must check "I understand" in the box under "Availability requirements". Please read through it.')
-                return HttpResponseRedirect(request.get_full_path())
-
-            if request.POST.get('how_qualified') == '0' or request.POST.get('how_interested') == '0':
-                messages.error(request, 'An error occurred. Please select both "How qualifed are you?" and "How interested are you?".')
-                return HttpResponseRedirect(request.get_full_path())
-
-            form = ApplicationForm(request.POST)
-            if form.is_valid():
-                app = form.save()
-                if app:
-                    app_status = adminApi.create_application_status(app)
-                    if app_status:
-                        messages.success(request, 'Success! {0} {1} - {2} {3} {4} applied'.format(job.session.year, job.session.term.code, job.course.code.name, job.course.number.name, job.course.section.name))
-                        return HttpResponseRedirect(request.POST.get('next'))
-                    else:
-                        messages.error(request, 'An error occurred while creating a status of an application.')
-                else:
-                    messages.error(request, 'An error occurred while saving an application.')
-            else:
-                errors = form.errors.get_json_data()
-                messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
-
-            return HttpResponseRedirect(request.get_full_path())
-
         return render(request, 'students/jobs/apply_job.html', {
             'loggedin_user': request.user,
-            'job': adminApi.add_favourite_job(request.user, job),
-            'has_applied_job': job.application_set.filter(applicant__id=request.user.id).exists(),
-            'form': ApplicationForm(initial={ 'applicant': request.user.id, 'job': job.id }),
-            'next':next
+            'job': adminApi.add_favourite_job(request.user, self.job),
+            'has_applied_job': self.job.application_set.filter(applicant__id=request.user.id).exists(),
+            'form': ApplicationForm(initial={ 'applicant': request.user.id, 'job': self.job.id }),
+            'next': self.next
         })
+
+    @method_decorator(require_POST)
+    def post(self, request, *args, **kwargs):
+
+        # Check whether a next url is valid or not
+        adminApi.can_req_parameters_access(request, 'none', ['next'], 'POST')
+
+        if request.user.profile.status and request.user.profile.status.id != self.UNDERGRADUATE_STUDENT and not request.POST.get('supervisor_approval'):
+            messages.error(request, 'An error occurred. You must check "Yes" in the box under <strong>Supervisor Approval</strong> if you are a <strong>graduate student</strong>. Undergraduate students should leave this box blank.')
+            return HttpResponseRedirect(request.get_full_path())
+
+        if request.POST.get('how_qualified') == '0' or request.POST.get('how_interested') == '0':
+            messages.error(request, 'An error occurred. Please select both <strong>How qualifed are you?</strong> and <strong>How interested are you?</strong>.')
+            return HttpResponseRedirect(request.get_full_path())
+
+        if not request.POST.get('availability'):
+            messages.error(request, 'An error occurred. You must check "I understand" in the box under <strong>Availability Requirements</strong>. Please read through it.')
+            return HttpResponseRedirect(request.get_full_path())
+
+        form = ApplicationForm(request.POST)
+        if form.is_valid():
+            app = form.save()
+            if app:
+                app_status = adminApi.create_application_status(app)
+                if app_status:
+                    messages.success(request, 'Success! {0} {1} - {2} {3} {4} applied'.format(self.job.session.year, self.job.session.term.code, self.job.course.code.name, self.job.course.number.name, self.job.course.section.name))
+                    return HttpResponseRedirect(request.POST.get('next'))
+                else:
+                    messages.error(request, 'An error occurred while creating a status of an application.')
+            else:
+                messages.error(request, 'An error occurred while saving an application.')
+        else:
+            errors = form.errors.get_json_data()
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+
+        return HttpResponseRedirect(request.get_full_path())
 
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -1786,5 +1654,141 @@ def explore_jobs(request):
         'can_apply': can_apply,
         'expiry_status': userApi.get_confidential_info_expiry_status(request.user),
         'this_year': utils.THIS_YEAR
+    })
+"""
+
+"""
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET', 'POST'])
+def edit_confidentiality(request):
+    ''' Edit user's confidentiality '''
+    request = userApi.has_user_access(request, Role.STUDENT)
+
+    loggedin_user = request.user
+    form = None
+    sin_file = None
+    study_permit_file = None
+    can_delete = False
+
+    confidentiality = userApi.has_user_confidentiality_created(loggedin_user)
+    if request.method == 'POST':
+        is_new_employee = request.POST.get('is_new_employee')
+        employee_number = request.POST.get('employee_number')
+
+        if confidentiality.is_new_employee == True:
+            if bool(is_new_employee) == False:
+                # New employees (no employee number) must check is_new_employee
+                if bool(employee_number) == False:
+                    messages.error(request, 'An error occurred. New employees must check this <strong>I am a new employee</strong> field.')
+                    return redirect('students:edit_confidentiality')
+            else:
+                # Not a new employee
+                if bool(employee_number) == True:
+                    messages.error(request, 'An error occurred. Please uncheck this <strong>I am a new employee</strong> field if you are not a new employee.')
+                    return redirect('students:edit_confidentiality')
+        else:
+            # Only new employees (no employee number) can check is_new_employee
+            if bool(is_new_employee) == True:
+                messages.error(request, 'An error occurred. Your Employee Number is {0}. Only new employees can check this <strong>I am a new employee</strong> field.'.format(confidentiality.employee_number))
+                return redirect('students:edit_confidentiality')
+
+        # Check SIN and Study Permit
+        sin_study_permit_errors = []
+        if request.FILES.get('sin') and bool(confidentiality.sin):
+            sin_study_permit_errors.append('SIN')
+        if request.FILES.get('study_permit') and bool(confidentiality.study_permit):
+            sin_study_permit_errors.append('Study Permit')
+
+        if len(sin_study_permit_errors) > 0:
+            msg = ' and '.join(sin_study_permit_errors)
+            messages.error(request, 'An error occurred. Please delete your old {0} first, and then try again.'.format(msg))
+            return redirect('students:edit_confidentiality')
+
+        form = ConfidentialityForm(request.POST, request.FILES, instance=confidentiality)
+        if form.is_valid():
+            data = form.cleaned_data
+            user = data['user']
+
+            updated_confidentiality = form.save(commit=False)
+            updated_confidentiality.updated_at = datetime.now()
+
+            update_fields = ['updated_at']
+            if data['nationality'] is not None:
+                updated_confidentiality.nationality = data['nationality']
+                update_fields.append('nationality')
+
+            if data['is_new_employee'] is not None:
+                updated_confidentiality.is_new_employee = data['is_new_employee']
+                update_fields.append('is_new_employee')
+
+            if data['employee_number'] is not None:
+                updated_confidentiality.employee_number = data['employee_number']
+                update_fields.append('employee_number')
+
+            if request.FILES.get('sin') is not None:
+                updated_confidentiality.sin = request.FILES.get('sin')
+                update_fields.append('sin')
+
+            if data['sin_expiry_date'] is not None:
+                updated_confidentiality.sin_expiry_date = data['sin_expiry_date']
+                update_fields.append('sin_expiry_date')
+
+            if request.FILES.get('study_permit') is not None:
+                updated_confidentiality.study_permit = request.FILES.get('study_permit')
+                update_fields.append('study_permit')
+
+            if data['study_permit_expiry_date'] is not None:
+                updated_confidentiality.study_permit_expiry_date = data['study_permit_expiry_date']
+                update_fields.append('study_permit_expiry_date')
+
+            if data['date_of_birth'] is not None:
+                updated_confidentiality.date_of_birth = data['date_of_birth']
+                update_fields.append('date_of_birth')
+
+            updated_confidentiality.save(update_fields=update_fields)
+
+            if updated_confidentiality:
+                messages.success(request, 'Success! Confidential information of {0} updated'.format(loggedin_user.get_full_name()))
+                return redirect('students:show_confidentiality')
+            else:
+                messages.error(request, 'An error occurred while updating confidential information.')
+        else:
+            errors = form.errors.get_json_data()
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+
+        return redirect('students:edit_confidentiality')
+
+    else:
+        if confidentiality:
+            if bool(confidentiality.employee_number):
+                can_delete = True
+            if bool(confidentiality.sin):
+                sin_file = os.path.basename(confidentiality.sin.name)
+                can_delete = True
+
+            if bool(confidentiality.study_permit):
+                study_permit_file = os.path.basename(confidentiality.study_permit.name)
+                can_delete = True
+
+            if bool(confidentiality.date_of_birth):
+                can_delete = True
+
+            if confidentiality.nationality == '0':
+                form = ConfidentialityDomesticForm(data=None, instance=confidentiality, initial={ 'user': loggedin_user })
+            else:
+                form = ConfidentialityInternationalForm(data=None, instance=confidentiality, initial={ 'user': loggedin_user })
+                if bool(confidentiality.sin_expiry_date):
+                    can_delete = True
+                if bool(confidentiality.study_permit_expiry_date):
+                    can_delete = True
+
+    return render(request, 'students/profile/edit_confidentiality.html', {
+        'loggedin_user': userApi.add_avatar(loggedin_user),
+        'sin_file': sin_file,
+        'study_permit_file': study_permit_file,
+        'form': form,
+        'can_delete': can_delete,
+        'confidentiality': confidentiality
     })
 """

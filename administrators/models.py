@@ -189,6 +189,8 @@ class Application(models.Model):
     note = models.TextField(null=True, blank=True)
 
     instructor_preference = models.CharField(max_length=1, choices=INSTRUCTOR_PREFERENCE_CHOICES, default=NONE)
+    sta_confirmation = models.BooleanField(default=False)
+
     is_declined_reassigned = models.BooleanField(default=False)
     is_terminated = models.BooleanField(default=False)
 

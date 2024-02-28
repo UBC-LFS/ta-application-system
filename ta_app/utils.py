@@ -10,7 +10,7 @@ NATIONALITY = {
     'international': '1'
 }
 
-LFS_FACULTY = 'land-and-food-systems'
+LFS_FACULTY = 'faculty-of-land-and-food-systems'
 
 UNDERGRADUATE = 'undergraduate-student'
 MASTER = 'master-student'

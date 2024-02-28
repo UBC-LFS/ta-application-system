@@ -13,8 +13,10 @@
 
   <div class="col-md-8">
     <div class="board col-11 mx-auto">
-      <h3>Details</h3>
+      <h3>Job Details</h3>
       {% include 'ta_app/jobs/_job_details.html' with data=job %}
+
+      <a class="btn btn-primary" href="{% url 'instructors:edit_job' session_slug=job.session.slug job_slug=job.course.slug %}">Edit Job</a>
     </div>
   </div>
 </div>

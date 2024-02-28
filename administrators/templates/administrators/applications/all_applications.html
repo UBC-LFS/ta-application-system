@@ -20,15 +20,15 @@
             <span class="badge badge-danger">DECLINED</span> or
             <span class="badge badge-secondary">TERMINATED</span>.
           </li>
-          <li>
-            {% include 'ta_app/applications/_declined_reassigned_note.html' %}
-          </li>
-          <li>
-            {% include 'ta_app/users/_note_confi_info_expiry_status.html' %}
-          </li>
+          <li>{% include 'ta_app/applications/_declined_reassigned_note.html' %}</li>
+          <li>{% include 'ta_app/users/_note_confi_info_expiry_status.html' %}</li>
         </ul>
       </div>
     </div>
+  </div>
+
+  <div class="font-size-sm text-right" style="margin-top: -20px;">
+    {% include 'ta_app/pages/_preferred_ta.html' %}
   </div>
 
   <table
@@ -61,6 +61,9 @@
       {% for app in apps %}
         <tr>
           <td>
+            {% if app.applicant.preferred_ta %}
+              <i class="fa fa-flag text-danger" aria-hidden="true"></i>
+            {% endif %}
             <a class="btn btn-xs btn-info" href="{% url 'administrators:show_application' app_slug=app.slug %}?next={{ new_next }}&p=All Applications">{{ app.id }}</a>
           </td>
           <td>{{ app.job.session.year }}</td>

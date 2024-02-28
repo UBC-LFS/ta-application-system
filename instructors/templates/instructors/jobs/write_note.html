@@ -15,48 +15,48 @@
     <div class="board col-11 mx-auto">
       <h3>Write Note Form</h3>
 
-      <div>
-        <h5>Applicant:</h5>
-        <span>{{ app.applicant.get_full_name }} (CWL: {{ app.applicant.username }})</span>
-      </div>
+      <table class="user-profile-table table table-borderless">
+        <tbody>
+          <tr>
+            <td>Applicant:</td>
+            <td>{{ app.applicant.get_full_name }} (CWL: {{ app.applicant.username }})</td>
+          </tr>
+          <tr>
+            <td>Instructor Preference:</td>
+            <td>
+              {% if app.instructor_preference != app_status.none and app.selected %}
+                {% include 'ta_app/applications/_app_instructor_preference.html' with data=app.get_instructor_preference_display %}
+                <div>Assigned <span class="font-weight-bold">{{ app.selected.assigned_hours }}</span> hours</div>
+                <small class="text-dark-gray">{{ app.selected.created_at }}</small>
+              {% else %}
+                None
+              {% endif %}
+            </td>
+          </tr>
+          <tr>
+            <td>Application Status:</td>
+            <td>
+              {% if app.applicationstatus_set.last.assigned == app_status.offered or app.applicationstatus_set.last.assigned == app_status.accepted or app.applicationstatus_set.last.assigned == app_status.declined or app.applicationstatus_set.last.assigned == app_status.cancelled %}
 
-      <div>
-        <h5>Instructor Preference:</h5>
-        <span>
-          {% if app.instructor_preference != app_status.none and app.selected %}
+                {% if app.applicationstatus_set.last.assigned == app_status.accepted and app.is_declined_reassigned %}
+                  <span class="badge badge-success">RE</span>
+                {% endif %}
 
-            {% include 'ta_app/applications/_app_instructor_preference.html' with data=app.get_instructor_preference_display %}
-            <div>Assigned <span class="font-weight-bold">{{ app.selected.assigned_hours }}</span> hours</div>
-            <small class="text-dark-gray">{{ app.selected.created_at }}</small>
+                {% include 'ta_app/applications/_app_status.html' with data=app.applicationstatus_set.last.get_assigned_display %}
 
-          {% else %}
-            None
-          {% endif %}
-        </span>
-      </div>
+                {% if app.applicationstatus_set.last.assigned == app_status.offered or app.applicationstatus_set.last.assigned == app_status.accepted %}
+                  <div>Assigned <span class="font-weight-bold">{{ app.applicationstatus_set.last.assigned_hours }}</span> hours</div>
+                {% endif %}
 
-      <div>
-        <h5>Application Status:</h5>
-        <span>
-          {% if app.applicationstatus_set.last.assigned == app_status.offered or app.applicationstatus_set.last.assigned == app_status.accepted or app.applicationstatus_set.last.assigned == app_status.declined or app.applicationstatus_set.last.assigned == app_status.cancelled %}
+                <div><small class="text-dark-gray">{{ app.applicationstatus_set.last.created_at }}</small></div>
 
-            {% if app.applicationstatus_set.last.assigned == app_status.accepted and app.is_declined_reassigned %}
-              <span class="badge badge-success">RE</span>
-            {% endif %}
-
-            {% include 'ta_app/applications/_app_status.html' with data=app.applicationstatus_set.last.get_assigned_display %}
-
-            {% if app.applicationstatus_set.last.assigned == app_status.offered or app.applicationstatus_set.last.assigned == app_status.accepted %}
-              <div>Assigned <span class="font-weight-bold">{{ app.applicationstatus_set.last.assigned_hours }}</span> hours</div>
-            {% endif %}
-
-            <div><small class="text-dark-gray">{{ app.applicationstatus_set.last.created_at }}</small></div>
-
-          {% else %}
-            <span class="badge badge-light text-dark">PENDING</span>
-          {% endif %}
-        </span>
-      </div>
+              {% else %}
+                <span class="badge badge-light text-dark">PENDING</span>
+              {% endif %}
+            </td>
+          </tr>
+        </tbody>
+      </table>
 
       <form action="" method="post">
         {% csrf_token %}
