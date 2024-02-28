@@ -1,13 +1,23 @@
-<h5 class="mb-4 text-right font-weight-normal">Total number of TA hours: <span class="text-chocolate font-weight-bold">{{ total }}</span> hours</h5>
+<h5 class="mb-4 text-right font-weight-normal">Total Assigned TA hours: <span class="text-chocolate font-weight-bold">{{ total }}</span> hours</h5>
 
-<table class="table table-bordered bg-white font-size-1 text-center">
+<table
+  class="table table-bordered bg-white text-center font-size-sm"
+  data-toggle="table"
+  data-sortable="true"
+  data-classes=""
+  data-pagination="true"
+  data-search="true"
+  data-page-size="20"
+  data-page-list="[20, 40, 100, all]"
+>
   <thead>
     <tr>
       <th>#</th>
-      <th>Year</th>
-      <th>Term</th>
-      <th>Course/Job</th>
-      <th>Assigned TA hours</th>
+      <th data-sortable="true">Year</th>
+      <th data-sortable="true">Term</th>
+      <th data-sortable="true">Course/Job</th>
+      <th data-sortable="true">Assigned TA hours</th>
+      <th data-sortable="true">Accepted on</th>
     </tr>
   </thead>
   <tbody>
@@ -18,6 +28,10 @@
         <td>{{ app.job.course.term.code }}</td>
         <td>{{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</td>
         <td>{{ app.accepted.assigned_hours }} hours</td>
+        <td>
+          <span class="d-none">{{ app.accepted.created_at|date:"Y m d z" }}</span>
+          {{ app.accepted.created_at }}
+        </td>
       </tr>
     {% empty %}
       <tr>
