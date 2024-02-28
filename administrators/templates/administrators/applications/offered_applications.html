@@ -87,7 +87,11 @@
                 <i class="fa fa-question-circle text-warning font-size-1 vertical-middle" aria-hidden="true"></i>
               {% endif %}
             </td>
-            <td>{% include 'ta_app/applications/_app_instructor_preference.html' with data=app.get_instructor_preference_display %}</td>
+            <td>
+              {% include 'ta_app/applications/_app_instructor_preference.html' with data=app.get_instructor_preference_display %}
+              <br />
+              {% include 'ta_app/applications/_app_sta_confirmation.html' with data=app.sta_confirmation %}
+            </td>
             <td>{{ app.classification.year }} {{ app.classification.name }}</td>
             <td>{% include 'ta_app/users/_display_gta_info.html' with data=app.applicant %}</td>
             <td>{% include 'ta_app/users/_modal_confi_info_expiry_status.html' with data=app status=app.confi_info_expiry_status this_year=this_year %}</td>

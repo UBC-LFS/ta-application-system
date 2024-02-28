@@ -85,7 +85,11 @@
               <i class="fa fa-asterisk text-danger" aria-hidden="true"></i>
             {% endif %}
           </td>
-          <td>{% include 'ta_app/applications/_app_instructor_preference.html' with data=app.get_instructor_preference_display %}</td>
+          <td>
+            {% include 'ta_app/applications/_app_instructor_preference.html' with data=app.get_instructor_preference_display %}
+            <br />
+            {% include 'ta_app/applications/_app_sta_confirmation.html' with data=app.sta_confirmation %}
+          </td>
           <td>
             {% if app.classification %}
               {{ app.classification.year }} {{ app.classification.name }}
