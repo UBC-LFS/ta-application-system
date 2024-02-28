@@ -1548,15 +1548,3 @@ def get_total_assigned_hours(apps, list):
 
     return total_hours
 """
-
-"""
-def update_application_instructor_preference(app_id, instructor_preference):
-    ''' Update an instructor preference in an application '''
-
-    app = Application.objects.filter(id=app_id).update(
-        instructor_preference = instructor_preference,
-        updated_at = datetime.now()
-    )
-
-    return get_object_or_404(Application, id=app_id) if app else False
-"""

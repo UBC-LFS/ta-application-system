@@ -1138,4 +1138,3 @@ def password_generator():
 
 def trim(s):
     return None if not s or s.isspace() else s.strip()
-        
