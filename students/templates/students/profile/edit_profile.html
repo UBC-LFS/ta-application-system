@@ -92,7 +92,7 @@
         <form action="{{ submit_url }}" method="post">
           {% csrf_token %}
 
-          <table class="user-profile-table table table-borderless table-height-424px">
+          <table class="user-data-table table table-borderless table-height-424px">
             {% if current_tab == 'general' %}
               {% for field in form.visible_fields %}
                 {% include 'students/profile/_form.html' %}

@@ -25,7 +25,7 @@
       <form action="" method="post" enctype="multipart/form-data">
         {% csrf_token %}
 
-        <table class="table table-borderless user-profile-table">
+        <table class="table table-borderless user-data-table">
           {% for field in form.visible_fields %}
             {% if field.name == 'is_new_employee' %}
               {% if confidentiality.employee_number == None and confidentiality.is_new_employee == True %}

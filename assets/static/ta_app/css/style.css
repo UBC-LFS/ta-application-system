@@ -572,7 +572,7 @@ hr.dotted {
 }
 
 .bg-light-blue {
-  background-color: #f3f7f7;
+  background-color: #f3f7f7 !important;
 }
 
 .bg-light-gray {
@@ -609,6 +609,8 @@ table thead th,
 table tbody td {
   vertical-align: middle !important;
 }
+
+.table-no-striped tr { background-color: #f3f7f7 !important; }
 
 .sortable-table > thead > tr {
   height: 90px;
@@ -712,14 +714,14 @@ input[type=radio] {
 
 .observer-sort-table tr th a:hover { text-decoration: none; }
 
-.user-profile-table { font-size: 1rem; }
-.user-profile-table tr td { vertical-align:top !important;  }
-.user-profile-table tr td:nth-child(1),
-.user-profile-table tr td:nth-child(1) label { font-weight: 600; }
-.user-profile-table label { margin-bottom: 0; }
+.user-data-table { font-size: 1rem; }
+.user-data-table tr td { vertical-align:top !important;  }
+.user-data-table tr td:nth-child(1),
+.user-data-table tr td:nth-child(1) label { font-weight: 600; }
+.user-data-table label { margin-bottom: 0; }
 
 .table-height-424px tr,
-.table-height-424px tr td { max-height: 424px; } 
+.table-height-424px tr td { max-height: 424px; }
 
 .summernote-div,
 .summernote-div > iframe { height: 400px; }

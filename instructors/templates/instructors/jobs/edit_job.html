@@ -45,7 +45,7 @@
       <form action="" method="post">
         {% csrf_token %}
 
-        <table class="user-profile-table table table-borderless">
+        <table class="user-data-table table table-borderless">
           {% for field in form.visible_fields %}
             <tr>
               <td>
