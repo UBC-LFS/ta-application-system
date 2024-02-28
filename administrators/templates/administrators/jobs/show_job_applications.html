@@ -10,6 +10,8 @@
       <a class="btn btn-outline-primary" href="{{ next }}">Back to Jobs in Progress</a>
     </div>
 
+    {% include 'ta_app/applications/_show_applications_note.html' %}
+
     <div class="col-10 mx-auto mt-5">
       <h5 class="text-info text-center">Statistics</h5>
 
@@ -66,6 +68,10 @@
       <hr />
 
       {% include 'ta_app/pages/_note_current_status_program.html' %}
+
+      <hr />
+
+      {% include 'ta_app/pages/_preferred_ta.html' with column='Full Name' %}
     </div>
 
     <table
@@ -96,6 +102,10 @@
         {% for app in apps %}
           <tr class="bg-{{ app.info.highlight }}">
             <td>
+              {% if app.applicant.preferred_ta %}
+                <i class="fa fa-flag text-danger" aria-hidden="true"></i>
+              {% endif %}
+              
               {{ app.applicant.get_full_name }}
 
               {% if app.applicant.accepted_apps|length > 0 %}
@@ -219,23 +229,6 @@
         {% endfor %}
       </tbody>
     </table>
-
-    <div class="bd-callout bd-callout-warning mt-3">
-      <h4>Note:</h4>
-      <ul class="list-no-ml">
-        <li class="mb-2">{% include 'ta_app/pages/_note_accumulated_ta_hours.html' %}</li>
-        <li>
-          This icon <span class="btn btn-info btn-xs font-size-xs"><i class="fa fa-file-text-o" aria-hidden="true"></i></span> will appear next to the name of applicants if applicants have accepted their job offers in this term.
-        </li>
-        <li>This <span class="badge badge-success">RE</span> badge represents that applicants accept their re-assigned job offers.</li>
-        <li>
-          Please click <span class="text-info">Write</span> on the Note column (rightmost in the table above) in order to take a note.
-        </li>
-        <li>
-          Please click on the icon <span class="btn btn-info btn-xs font-size-xs"><i class="fa fa-file-text-o" aria-hidden="true"></i></span> to see a note if exists.
-        </li>
-      </ul>
-    </div>
 
   </div>
 </div>

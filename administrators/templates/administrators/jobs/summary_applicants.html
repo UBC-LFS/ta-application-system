@@ -35,6 +35,8 @@
         {% include 'ta_app/pages/_note_current_status_program.html' %}
         <hr />
         If a student has already applied for this course, there will no checkbox selection button in the first column and its course name is <span class="text-danger font-weight-bold">RED</span> in the Course & Status column (rightmost).
+        <hr />
+        {% include 'ta_app/pages/_preferred_ta_note.html' %}
       </div>
     </div>
   </div>
@@ -57,6 +59,10 @@
 
     <div class="text-dark-gray font-size-sm">{{ searched_total_applicants }} result{% if searched_total_applicants > 1 %}s {% endif %} found. {{ applicants|length }} row{% if applicants|length > 1 %}s {% endif %} in this page.</div>
 
+    <div class="font-size-sm text-right" style="margin-top: -20px;">
+      {% include 'ta_app/pages/_preferred_ta.html' with column='Full Name' %}
+    </div>
+
     <div class="mt-4">
       <table
         class="table table-bordered table-responsive-md text-center font-size-sm"
@@ -68,8 +74,7 @@
           <tr>
             <th>Select<br /> to email</th>
             <th>No Offers</th>
-            <th data-sortable="true">First Name</th>
-            <th data-sortable="true">Last Name</th>
+            <th data-sortable="true">Full Name</th>
             <th>CWL</th>
             <th>Student <br /> Number</th>
             <th>Curriculum <br /> Vitae (CV)</th>
@@ -94,8 +99,12 @@
                   <span class="badge badge-warning">NO OFFERS</span>
                 {% endif %}
               </td>
-              <td>{{ applicant.first_name }}</td>
-              <td>{{ applicant.last_name }}</td>
+              <td>
+                {% if applicant.preferred_ta %}
+                  <i class="fa fa-flag text-danger" aria-hidden="true"></i>
+                {% endif %}
+                {{ applicant.get_full_name }}
+              </td>
               <td>
                 {{ applicant.username }}
                 {% if applicant.info.current_status %}

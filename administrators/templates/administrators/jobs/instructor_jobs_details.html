@@ -55,8 +55,8 @@
           <th data-sortable="true">Job</th>
           <th>Applicants</th>
           <th data-sortable="true">Active</th>
-          <th data-sortable="true">Created at</th>
-          <th data-sortable="true">Updated at</th>
+          <th data-sortable="true">Created on</th>
+          <th data-sortable="true">Updated on</th>
         </tr>
       </thead>
       <tbody>
@@ -68,7 +68,7 @@
             <td>{{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</td>
             <td>
               {% for app in job.apps %}
-                {% include 'ta_app/users/_modal_user_details.html' with data=app.applicant undergrad_status_id=undergrad_status_id %}<br />
+                {% include 'ta_app/users/_modal_user_details.html' with data=app.applicant undergrad_status_id=undergrad_status_id striped='True' %}<br />
               {% empty %}
                 No applicants
               {% endfor %}

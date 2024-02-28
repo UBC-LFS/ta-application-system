@@ -761,6 +761,7 @@ def show_job_applications(request, session_slug, job_slug):
 
         app.applicant = userApi.add_resume(app.applicant)
         app.applicant.accepted_apps = adminApi.get_acceted_apps_in_applicant(app)
+        app.applicant.preferred_ta = userApi.get_preferred_ta(app.applicant)
         app.info = userApi.get_applicant_status_program(app.applicant)
 
         apps.append(app)
