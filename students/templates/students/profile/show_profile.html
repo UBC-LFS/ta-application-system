@@ -13,6 +13,8 @@
         <a class="btn btn-outline-primary mt-4" href="{{ request.GET.next }}">Back to {{ request.GET.p }}</a>
       {% endif %}
     </div>
+
+    {% include 'ta_app/users/_new_fields_note.html' %}
   </div>
 
   <div class="col-md-8">
