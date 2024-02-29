@@ -1,5 +1,5 @@
 <tr>
-  <td class="col-md-4 {% if field.name == 'total_ta_hours' %}pb-5{% endif %}">
+  <td width="30%">
     <label for="{{ field.id_for_label }}" {% if field.name == 'total_academic_years' or field.name == 'total_terms' or field.name == 'total_ta_hours' %}class="text-primary"{% endif %}>
       {{ field.label }}
       {% if field.name == 'preferred_name' or field.name == 'program_others' or field.name == 'special_considerations' or field.name == 'prior_employment' %}
@@ -12,5 +12,5 @@
       <div class="help">{{ field.help_text|safe }}</div>
     {% endif %}
   </td>
-  <td class="col-md-8 {% if field.name == 'total_ta_hours' %}pb-5{% endif %}">{{ field }}</td>
+  <td width="70%">{{ field }}</td>
 </tr>
