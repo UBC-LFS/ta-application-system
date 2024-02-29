@@ -15,15 +15,15 @@
     <div class="board col-11 mx-auto">
       <h3>Write Note Form</h3>
 
-      <table class="user-data-table table table-borderless" width="100%">
+      <table class="user-data-table table table-borderless">
         <tbody>
           <tr>
-            <td width="30%">Applicant:</td>
-            <td width="70%">{{ app.applicant.get_full_name }} (CWL: {{ app.applicant.username }})</td>
+            <td>Applicant:</td>
+            <td>{{ app.applicant.get_full_name }} (CWL: {{ app.applicant.username }})</td>
           </tr>
           <tr>
-            <td width="30%">Instructor Preference:</td>
-            <td width="70%">
+            <td>Instructor Preference:</td>
+            <td>
               {% if app.instructor_preference != app_status.none and app.selected %}
                 {% include 'ta_app/applications/_app_instructor_preference.html' with data=app.get_instructor_preference_display %}
                 <div>Assigned <span class="font-weight-bold">{{ app.selected.assigned_hours }}</span> hours</div>

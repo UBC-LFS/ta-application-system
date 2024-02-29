@@ -25,23 +25,23 @@
       <form action="" method="post" enctype="multipart/form-data">
         {% csrf_token %}
 
-        <table class="table table-borderless user-data-table">
+        <table class="user-data-table table table-borderless">
           {% for field in form.visible_fields %}
             {% if field.name == 'is_new_employee' %}
               {% if confidentiality.employee_number == None and confidentiality.is_new_employee == True %}
                 <tr>
-                  <td class="col-md-4">
+                  <td>
                     <label for="{{ field.id_for_label }}">{{ field.label }}</label>
                     {% if field.help_text %}
                       <div class="help">{{ field.help_text|safe }}</div>
                     {% endif %}
                   </td>
-                  <td class="col-md-8">{{ field }}</td>
+                  <td>{{ field }}</td>
                 </tr>
               {% endif %}
             {% else %}
               <tr>
-                <td class="col-md-4">
+                <td>
                   <label for="{{ field.id_for_label }}">
                     {{ field.label }}
                     {% if field.name != 'employee_number' and field.name != 'date_of_birth' %}
@@ -52,7 +52,7 @@
                     <div class="help">{{ field.help_text|safe }}</div>
                   {% endif %}
                 </td>
-                <td class="col-md-8">{{ field }}</td>
+                <td>{{ field }}</td>
               </tr>
             {% endif %}
           {% endfor %}

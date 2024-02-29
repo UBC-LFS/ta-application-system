@@ -642,11 +642,6 @@ table tbody td {
   color: #007bff;
 }
 
-.form-table td:first-child label {
-  font-weight: 600;
-  margin: 0;
-}
-
 .asterisk {
   color: red;
   font-size: 1.3rem;
@@ -714,7 +709,12 @@ input[type=radio] {
 
 .observer-sort-table tr th a:hover { text-decoration: none; }
 
-.user-data-table { font-size: 1rem; }
+.user-data-table {
+  font-size: 1rem;
+  width: 100%;
+}
+.user-data-table tr td:nth-child(1) { width: 30%; }
+.user-data-table tr td:nth-child(2) { width: 70%; }
 .user-data-table tr td { vertical-align:top !important;  }
 .user-data-table tr td:nth-child(1),
 .user-data-table tr td:nth-child(1) label { font-weight: 600; }
