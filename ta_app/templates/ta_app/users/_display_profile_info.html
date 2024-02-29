@@ -7,7 +7,7 @@
 
 <table class="user-data-table table {% if striped == 'True' %}table-bordered table-striped{% else %}table-borderless{% endif %}">
   <tbody>
-    {% if data.profile.status.id != undergrad_status_id %}
+    {% if data.profile.status and data.profile.status.id != undergrad_status_id %}
       <tr>
         <td><span class="text-primary">Total number of academic years:</span></td>
         <td>{{ data.profile.total_academic_years }}</td>
