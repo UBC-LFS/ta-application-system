@@ -1,8 +1,7 @@
 import os
 from django.conf import settings
 from django.shortcuts import get_object_or_404
-from django.core.exceptions import PermissionDenied, SuspiciousOperation
-from django.http import Http404
+from django.core.exceptions import PermissionDenied
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
 from django.db.models import Q
@@ -18,8 +17,6 @@ from administrators import api as adminApi
 from datetime import datetime, timedelta
 from django.utils.timezone import get_current_timezone
 
-import shutil
-from PIL import Image
 import random
 import string
 
@@ -763,7 +760,6 @@ def delete_user_sin(username, option=None):
                     return False
             except OSError:
                 return False
-                # raise SuspiciousOperation
         else:
             return False
     return True
@@ -793,7 +789,6 @@ def delete_user_study_permit(username, option=None):
                     return False
             except OSError:
                 return False
-                # raise SuspiciousOperation
         else:
             return False
     return True

@@ -1,11 +1,7 @@
 from django import forms
-from django.contrib.auth.models import User
 from django.forms import ModelMultipleChoiceField
-from django_summernote.widgets import SummernoteWidget, SummernoteInplaceWidget
-
+from django_summernote.widgets import SummernoteWidget
 from administrators.models import *
-from users.models import Role
-
 import datetime as dt
 
 ROLES = {

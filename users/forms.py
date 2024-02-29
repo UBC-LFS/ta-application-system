@@ -1,10 +1,8 @@
 from django import forms
 from django.contrib.auth.models import User
 from .models import *
-from . import api
 from datetime import datetime
-import datetime as dt
-from django_summernote.widgets import SummernoteWidget, SummernoteInplaceWidget
+from django_summernote.widgets import SummernoteWidget
 
 
 DATE = datetime.now()
