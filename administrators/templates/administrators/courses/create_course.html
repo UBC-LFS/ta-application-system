@@ -10,8 +10,11 @@
       <div class="prompt p-4 mb-4">
         <h4>Current Courses</h4>
         <p>There are <span class="font-weight-bold">{{ courses|length }}</span> courses.</p>
-        <a class="btn btn-sm btn-outline-primary" href="{{ next }}">All Courses</a>
       </div>
+    </div>
+
+    <div class="left-aside-btn-groups">
+      <a class="btn btn-outline-primary" href="{{ next }}">Back to All Courses</a>
     </div>
   </div>
 
@@ -22,15 +25,21 @@
       <form action="" method="post">
         {% csrf_token %}
 
-        {% for field in form.visible_fields  %}
-          <div class="field-wrapper">
-            {{ field.label_tag }}
-            {% if field.help_text %}
-              <div class="help">{{ field.help_text|safe }}</div>
-            {% endif %}
-            {{ field }}
-          </div>
-        {% endfor %}
+        <table class="user-data-table table table-borderless">
+          <tbody>
+            {% for field in form.visible_fields  %}
+              <tr>
+                <td>
+                  {{ field.label_tag }}
+                  {% if field.help_text %}
+                    <div class="help">{{ field.help_text|safe }}</div>
+                  {% endif %}
+                </td>
+                <td>{{ field }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
 
         {% for field in form.hidden_fields %}
           {{ field }}

@@ -10,53 +10,77 @@
       <div class="prompt p-4 mb-4">
         <h4>{{ course.code.name }} {{ course.number.name }} {{ course.section.name }} ({{ course.term.code }})</h4>
         <p>{{ course.name }}</p>
-
-        <a class="btn btn-sm btn-outline-primary" href="{{ next }}">All Courses</a>
       </div>
     </div>
-
+    <div class="left-aside-btn-groups">
+      <a class="btn btn-outline-primary" href="{{ next }}">Back to All Courses</a>
+    </div>
   </div>
-  <div class="col-md-8">
 
+  <div class="col-md-8">
     <div class="board col-11 mx-auto">
       <h3>Edit Course Form</h3>
 
       <form action="" method="post">
         {% csrf_token %}
 
-        <div class="field-wrapper">
-          <label for="id_term">Term:</label>
-          <div class="help">This field is required.</div>
-          <input id="id_term" type="text" value="{{ course.term.code }}" class="form-control" disabled />
-        </div>
+        <table class="user-data-table table table-borderless">
+          <tbody>
+            <tr>
+              <td>
+                <label for="id_term">Term:</label>
+                <div class="help">This field is required.</div>
+              </td>
+              <td>
+                <input id="id_term" type="text" value="{{ course.term.code }}" class="form-control" disabled />
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <label for="id_code">Code:</label>
+                <div class="help">This field is required.</div>
+              </td>
+              <td>
+                <input id="id_code" type="text" value="{{ course.code.name }}" class="form-control" disabled />
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <label for="id_number">Number:</label>
+                <div class="help">This field is required.</div>
+              </td>
+              <td>
+                <input id="id_number" type="text" value="{{ course.number.name }}" class="form-control" disabled />
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <label for="id_section">Section:</label>
+                <div class="help">This field is required.</div>
+              </td>
+              <td>
+                <input id="id_section" type="text" value="{{ course.section.name }}" class="form-control" disabled />
+              </td>
+            </tr>
+          </tbody>
+        </table>
 
-        <div class="field-wrapper">
-          <label for="id_code">Code:</label>
-          <div class="help">This field is required.</div>
-          <input id="id_code" type="text" value="{{ course.code.name }}" class="form-control" disabled />
-        </div>
-
-        <div class="field-wrapper">
-          <label for="id_number">Number:</label>
-          <div class="help">This field is required.</div>
-          <input id="id_number" type="text" value="{{ course.number.name }}" class="form-control" disabled />
-        </div>
-
-        <div class="field-wrapper">
-          <label for="id_section">Section:</label>
-          <div class="help">This field is required.</div>
-          <input id="id_section" type="text" value="{{ course.section.name }}" class="form-control" disabled />
-        </div>
-
-        {% for field in form.visible_fields  %}
-          <div class="field-wrapper">
-            {{ field.label_tag }}
-            {% if field.help_text %}
-              <div class="help">{{ field.help_text|safe }}</div>
-            {% endif %}
-            {{ field }}
-          </div>
-        {% endfor %}
+        <table class="user-data-table table table-borderless">
+          <tbody>
+            {% for field in form.visible_fields  %}
+              <tr>
+                <td>
+                  <div class="field-wrapper">
+                    {{ field.label_tag }}
+                    {% if field.help_text %}
+                      <div class="help">{{ field.help_text|safe }}</div>
+                    {% endif %}
+                </td>
+                <td>{{ field }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
 
         {% for field in form.hidden_fields %}
           {{ field }}
