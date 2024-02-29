@@ -38,7 +38,7 @@ class AdminHRTest(TestCase):
 
     def build_csv_file(self, apps, options, id_included=False):
         ''' Build a csv file '''
-        csv_file = 'ID,Year,Term,Job,Applicant,Student Number,Employee Number,Classification,Monthly Salary (CAD),P/T (%),PIN,TASM,Processed,Worktag,Processing Note,Accepted at\n'
+        csv_file = 'ID,Year,Term,Job,Applicant,Student Number,Employee Number,Classification,Monthly Salary (CAD),P/T (%),PIN,TASM,Processed,Worktag,Processing Note,Accepted on\n'
         objs = []
         c = 1
         for app in apps:
@@ -361,7 +361,7 @@ class AdminHRTest(TestCase):
         print('- Test: Admin or HR can have update admin docs via CSV - no data fields')
         self.login()
 
-        csv = 'ID,Year,Term,Job,Applicant,Student Number,Employee Number,Classification,Monthly Salary (CAD),P/T (%),PIN,TASM,Processed,Worktag,Processing Note,Accepted at\n'
+        csv = 'ID,Year,Term,Job,Applicant,Student Number,Employee Number,Classification,Monthly Salary (CAD),P/T (%),PIN,TASM,Processed,Worktag,Processing Note,Accepted on\n'
         data = {
             'file': SimpleUploadedFile('ta_app.csv', csv.encode(), content_type='text/csv'),
             'next': reverse('administrators:accepted_applications')
@@ -377,7 +377,7 @@ class AdminHRTest(TestCase):
         print('- Test: Admin or HR can have update admin docs via CSV - some columns are missing')
         self.login()
 
-        csv3 = 'ID,Year,Term,Job,Applicant,Student Number,Employee Number,Classification,Monthly Salary (CAD),P/T (%),PIN,TASM,Processed,Worktag,Processing Note,Accepted at\n"24","2019","W2","APBI 260 001","Michael Jordan (user100.test)","45345555","1111112","2019 STA ($35.42)","$442.75","26.04","2222","","444444","5555","6666"\n'
+        csv3 = 'ID,Year,Term,Job,Applicant,Student Number,Employee Number,Classification,Monthly Salary (CAD),P/T (%),PIN,TASM,Processed,Worktag,Processing Note,Accepted on\n"24","2019","W2","APBI 260 001","Michael Jordan (user100.test)","45345555","1111112","2019 STA ($35.42)","$442.75","26.04","2222","","444444","5555","6666"\n'
         data3 = {
             'file': SimpleUploadedFile('ta_app.csv', csv3.encode(), content_type='text/csv'),
             'next': reverse('administrators:accepted_applications')

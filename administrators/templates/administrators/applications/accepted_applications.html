@@ -398,7 +398,7 @@
 
                         <h6 class="bg-success text-white text-center p-2">UPDATE HISTORY</h6>
                         {% for adminuser in app.admindocuments.admindocumentsuser_set.all %}
-                          <div>- Updated at <span class="text-chocolate">{{ adminuser.created_at }}</span> by <span class="text-info">{{ adminuser.user }}</span></div>
+                          <div>- Updated on <span class="text-chocolate">{{ adminuser.created_at }}</span> by <span class="text-info">{{ adminuser.user }}</span></div>
                         {% empty %}
                           <div>No records found</div>
                         {% endfor %}

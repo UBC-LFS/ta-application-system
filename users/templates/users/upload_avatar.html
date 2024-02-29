@@ -60,7 +60,7 @@
           <img class="img-fluid my-3" src="{{ loggedin_user.avatar_file.url }}" width="350" alt="avatar" />
           <div class="font-size-sm">
             File name: {{ loggedin_user.avatar_file.filename }}
-            <span class="mb-3 d-block">Created at: {{ loggedin_user.avatar_file.created_at }}</span>
+            <span class="mb-3 d-block">Created on: {{ loggedin_user.avatar_file.created_at }}</span>
           </div>
 
           <form action="{% url 'users:delete_avatar' %}?next={{ request.GET.next }}" method="post" onsubmit="return confirm('Are you sure to delete this profile photo?')">
