@@ -720,12 +720,6 @@ input[type=radio] {
 .user-data-table tr td:nth-child(1) label { font-weight: 600; }
 .user-data-table label { margin-bottom: 0; }
 
-/*.summernote-div,
-.summernote-div > iframe { height: 400px; }*/
-
-.note-editor.note-frame .note-editing-area .note-editable {
-  height: 600px !important; 
-}
 
 /* Extra small devices (portrait phones, less than 576px) */
 @media (max-width: 575.98px) {
