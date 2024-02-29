@@ -20,28 +20,37 @@
     <div class="board col-11 mx-auto">
       <h3>Edit Session Form</h3>
 
-      <div>
-        <h5>Year:</h5>
-        <span>{{ session.year }}</span>
-      </div>
-
-      <div>
-        <h5>Term:</h5>
-        <span>{{ session.term.code }}</span>
-      </div>
+      <table class="user-data-table table table-borderless">
+        <tbody>
+          <tr>
+            <td>Year:</td>
+            <td>{{ session.year }}</td>
+          </tr>
+          <tr>
+            <td>Term:</td>
+            <td>{{ session.term.code }}</td>
+          </tr>
+        </tbody>
+      </table>
 
       <form action="" method="post">
         {% csrf_token %}
 
-        {% for field in form.visible_fields  %}
-          <div class="field-wrapper">
-            {{ field.label_tag }}
-            {% if field.help_text %}
-              <div class="help">{{ field.help_text|safe }}</div>
-            {% endif %}
-            {{ field }}
-          </div>
-        {% endfor %}
+        <table class="user-data-table table table-borderless">
+          <tbody>
+            {% for field in form.visible_fields  %}
+              <tr>
+                <td>
+                  {{ field.label_tag }}
+                  {% if field.help_text %}
+                    <div class="help">{{ field.help_text|safe }}</div>
+                  {% endif %}
+                </td>
+                <td>{{ field }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
 
         {% for field in form.hidden_fields %}
           {{ field }}
