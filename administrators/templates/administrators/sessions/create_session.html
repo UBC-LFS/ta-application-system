@@ -40,10 +40,10 @@
       <form action="" method="post">
         {% csrf_token %}
 
-        <table class="form-table table table-borderless font-size-1">
+        <table class="user-data-table table table-borderless" width="100%">
           {% for field in form.visible_fields  %}
             <tr>
-              <td class="col-md-4">
+              <td width="30%">
                 <label class="form-label" for="{{ field.id_for_label }}">
                   {{ field.label }}
                   {% if field.name == 'year' or field.name == 'term' or field.name == 'title' %}
@@ -54,7 +54,7 @@
                   <div class="help">{{ field.help_text|safe }}</div>
                 {% endif %}
               </td>
-              <td class="col-md-8">{{ field }}</td>
+              <td width="70%">{{ field }}</td>
             </tr>
           {% endfor %}
         </table>
