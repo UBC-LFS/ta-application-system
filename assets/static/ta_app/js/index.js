@@ -18,16 +18,16 @@ $(document).ready(function() {
   } else if (roles[2] === 'users') {
 
     const parameters = window.location.href.split('?');
-    if ( parameters[2].includes('administrators') ) {
+    if ( parameters[1].includes('administrators') ) {
       $('#nav-administrator').addClass('active');
 
-    } else if ( parameters[2].includes('instructors') ) {
+    } else if ( parameters[1].includes('instructors') ) {
       $('#nav-instructor').addClass('active');
 
-    } else if ( parameters[2].includes('students') ) {
+    } else if ( parameters[1].includes('students') ) {
       $('#nav-student').addClass('active');
 
-    } else if ( parameters[2].includes('observers') ) {
+    } else if ( parameters[1].includes('observers') ) {
       $('#nav-observer').addClass('active');
     }
   }

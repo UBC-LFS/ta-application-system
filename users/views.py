@@ -107,9 +107,10 @@ def delete_avatar(request):
     if request.method == 'POST':
         res = userApi.delete_user_avatar(request.POST.get('user'))
         if res['status'] == 'success':
-            messages.success(request, 'Success! Profile Photo deleted')
+            messages.success(request, 'Success! Profile Photo has been deleted.')
         elif res['status'] == 'warning':
-            messages.warning(request, "Warning! The folder of this avatar hasn't been deleted")
+            print("Warning! The folder of this avatar ({0}) hasn't been deleted.".format(res['user']))
+            messages.success(request, 'Success! Profile Photo has been deleted.')
         else:
             messages.error(request, 'An error occurred. {0}'.format(res['message']))
 

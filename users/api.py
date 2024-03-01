@@ -597,7 +597,7 @@ def delete_user_avatar(user_id):
             if not os.path.exists(dirpath):
                 return { 'status': 'success' }
             else:
-                return { 'status': 'warning' }
+                return { 'status': 'warning', 'user': user.get_full_name() }
         return {
             'status': 'error',
             'message': "The file of this avatar hasn't been deleted"
