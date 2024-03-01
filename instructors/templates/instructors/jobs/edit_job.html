@@ -37,26 +37,32 @@
     <div class="board col-11 mx-auto">
       <h3>Job Details Edit Form</h3>
 
-      <div class="mb-4">
-        <h6>Instructors:</h6>
-        <span>{% include 'ta_app/jobs/_job_instructor.html' with data=job %}</span>
-      </div>
+      <table class="user-data-table table table-borderless">
+        <tbody>
+          <tr>
+            <td>Instructors:</td>
+            <td>{% include 'ta_app/jobs/_job_instructor_list.html' with data=job %}</td>
+          </tr>
+        </tbody>
+      </table>
 
       <form action="" method="post">
         {% csrf_token %}
 
         <table class="user-data-table table table-borderless">
-          {% for field in form.visible_fields %}
-            <tr>
-              <td>
-                {{ field.label_tag }}
-                {% if field.help_text %}
-                  <div class="help">{{ field.help_text|safe }}</div>
-                {% endif %}
-              </td>
-              <td>{{ field }}</td>
-            </tr>
-          {% endfor %}
+          <tbody>
+            {% for field in form.visible_fields %}
+              <tr>
+                <td>
+                  {{ field.label_tag }}
+                  {% if field.help_text %}
+                    <div class="help">{{ field.help_text|safe }}</div>
+                  {% endif %}
+                </td>
+                <td>{{ field }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
         </table>
 
         {% for field in form.hidden_fields %}

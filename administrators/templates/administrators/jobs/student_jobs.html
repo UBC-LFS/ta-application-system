@@ -39,7 +39,7 @@
           <td>{{ student.profile.preferred_name }}</td>
           <td>{{ student.username }}</td>
           <td>{{ student.email }}</td>
-          <td>{% include 'ta_app/users/_display_gta_info.html' with data=student %}</td>
+          <td>{% include 'ta_app/users/_display_gta_info.html' with data=student striped='True' %}</td>
           <td>
             {% if student.application_set.count > 0 %}
               <a class="btn btn-xs btn-info" href="{% url 'administrators:student_jobs_details' username=student.username %}?next={{ new_next }}&p=Jobs by Student&t=all">{{ student.application_set.count }}</a>
