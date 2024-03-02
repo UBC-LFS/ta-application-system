@@ -42,7 +42,7 @@
   <div class="col-md-9">
     {% include 'instructors/jobs/_search_fields.html' with data=applicants total=searched_total_applicants path='instructors_applications' session_slug=session.slug job_slug=job.course.slug %}
 
-    <div class="font-size-sm text-right" style="margin-top: -20px;">
+    <div class="font-size-sm text-right">
       {% include 'ta_app/pages/_preferred_ta.html' with column='Full Name' %}
     </div>
 
