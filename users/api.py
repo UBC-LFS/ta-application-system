@@ -29,14 +29,24 @@ def is_valid_user(user):
         return False
     return True
 
+
+def is_superadmin(user, option=None):
+    ''' Check if an user is an Admin or Superadmin '''
+    if option == 'dict':
+        if 'Superadmin' in user['roles']: return True
+    else:
+        if 'Superadmin' in user.roles: return True
+    return False
+
+
 def is_admin(user, option=None):
     ''' Check if an user is an Admin or Superadmin '''
     if option == 'dict':
         if 'Admin' in user['roles'] or 'Superadmin' in user['roles']: return True
     else:
         if 'Admin' in user.roles or 'Superadmin' in user.roles: return True
-
     return False
+
 
 def get_user_roles(user):
     ''' Add roles into an user '''
@@ -87,13 +97,23 @@ def has_auth_user_access(request):
         raise PermissionDenied
     return request
 
+
+def has_superadmin_access(request, role=None):
+    ''' Check if a superadmin has access '''
+    request.user.roles = request.session['loggedin_user']['roles']
+    print('has_superadmin_access', request.user.roles)
+    if not is_superadmin(request.user) and role not in request.user.roles:
+        raise PermissionDenied
+    return request
+
+
 def has_admin_access(request, role=None):
     ''' Check if an admin has access '''
     request.user.roles = request.session['loggedin_user']['roles']
     if is_admin(request.user) == False and role not in request.user.roles:
         raise PermissionDenied
-
     return request
+
 
 def has_user_access(request, role):
     ''' Check if an user has access with a given role '''

@@ -3300,73 +3300,6 @@ def delete_course_section(request):
     return redirect('administrators:course_sections')
 
 
-# Roles
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET', 'POST'])
-def roles(request):
-    ''' Display all roles and create a role '''
-    request = userApi.has_admin_access(request)
-
-    if request.method == 'POST':
-        form = RoleForm(request.POST)
-        if form.is_valid():
-            role = form.save()
-            if role:
-                messages.success(request, 'Success! {0} created'.format(role.name))
-            else:
-                messages.error(request, 'An error occurred while saving data.')
-        else:
-            errors = form.errors.get_json_data()
-            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
-
-        return redirect('administrators:roles')
-
-    return render(request, 'administrators/preparation/roles.html', {
-        'loggedin_user': request.user,
-        'roles': userApi.get_roles(),
-        'form': RoleForm()
-    })
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['POST'])
-def edit_role(request, slug):
-    ''' Edit a role '''
-    request = userApi.has_admin_access(request)
-
-    if request.method == 'POST':
-        role = userApi.get_role_by_slug(slug)
-        form = RoleForm(request.POST, instance=role)
-        if form.is_valid():
-            updated_role = form.save()
-            if updated_role:
-                messages.success(request, 'Success! {0} updated'.format(updated_role.name))
-            else:
-                messages.error(request, 'An error occurred.')
-        else:
-            errors = form.errors.get_json_data()
-            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
-    return redirect("administrators:roles")
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['POST'])
-def delete_role(request):
-    ''' Delete a role '''
-    request = userApi.has_admin_access(request)
-
-    if request.method == 'POST':
-        role_id = request.POST.get('role')
-        deleted_role = userApi.delete_role(role_id)
-        if deleted_role:
-            messages.success(request, 'Success! {0} deleted'.format(deleted_role.name))
-        else:
-            messages.error(request, 'An error occurred.')
-    return redirect("administrators:roles")
-
-
 # Statuses
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -3774,21 +3707,21 @@ def delete_classification(request):
     return redirect("administrators:classifications")
 
 
-# roles
+# Roles
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET', 'POST'])
 def roles(request):
     ''' Display all roles and create a role '''
-    request = userApi.has_admin_access(request)
+    request = userApi.has_superadmin_access(request)
 
     if request.method == 'POST':
         form = RoleForm(request.POST)
         if form.is_valid():
             role = form.save()
             if role:
-                messages.success(request, 'Success! {0} created'.format(role.name))
+                messages.success(request, 'Success! {0} has been created'.format(role.name))
             else:
                 messages.error(request, 'An error occurred while saving data.')
         else:
@@ -3808,7 +3741,7 @@ def roles(request):
 @require_http_methods(['POST'])
 def edit_role(request, slug):
     ''' Edit a role '''
-    request = userApi.has_admin_access(request)
+    request = userApi.has_superadmin_access(request)
 
     if request.method == 'POST':
         role = userApi.get_role_by_slug(slug)
@@ -3816,7 +3749,7 @@ def edit_role(request, slug):
         if form.is_valid():
             updated_role = form.save()
             if updated_role:
-                messages.success(request, 'Success! {0} updated'.format(updated_role.name))
+                messages.success(request, 'Success! {0} has been updated'.format(updated_role.name))
             else:
                 messages.error(request, 'An error occurred.')
         else:
@@ -3829,17 +3762,19 @@ def edit_role(request, slug):
 @require_http_methods(['POST'])
 def delete_role(request):
     ''' Delete a role '''
-    request = userApi.has_admin_access(request)
+    request = userApi.has_superadmin_access(request)
 
     if request.method == 'POST':
         role_id = request.POST.get('role')
         deleted_role = userApi.delete_role(role_id)
         if deleted_role:
-            messages.success(request, 'Success! {0} deleted'.format(deleted_role.name))
+            messages.success(request, 'Success! {0} has been deleted'.format(deleted_role.name))
         else:
             messages.error(request, 'An error occurred.')
     return redirect("administrators:roles")
 
+
+# Admin emails
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)

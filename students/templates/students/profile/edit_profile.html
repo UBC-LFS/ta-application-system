@@ -65,9 +65,11 @@
 
         {% if request.GET.session and not confirm_profile_reminder %}
           <div class="bg-white border border-danger p-3 text-center mb-4">
+            <p>
+              To complete your update, unlock this <span class="font-weight-bold text-danger">{{ request.GET.session|replace_session }}</span> session and
+              remove this message, click <strong>Confirm</strong> button below.
+            </p>
             <p class="font-weight-bold">I confirm that my TA information is up-to-date.</p>
-            <p>If you don't want to see this message again and unlock this <span class="font-weight-bold text-danger">{{ request.GET.session|replace_session }}</span> session, please click on the <strong>Confirm</strong> button below.</p>
-
             <form action="{% url 'students:confirm_profile_reminder' %}" method="POST">
               {% csrf_token %}
               <input type="hidden" name="user" value="{{ loggedin_user.id }}" />

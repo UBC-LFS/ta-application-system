@@ -9,15 +9,15 @@
   <tbody>
     {% if data.profile.status and data.profile.status.id != undergrad_status_id %}
       <tr>
-        <td><span class="text-primary">Total number of academic years:</span></td>
+        <td><span class="text-primary">Total number of academic years worked as a GTA:</span></td>
         <td>{{ data.profile.total_academic_years }}</td>
       </tr>
       <tr>
-        <td><span class="text-primary">Total number of terms:</span></td>
+        <td><span class="text-primary">Total number of terms worked as a GTA:</span></td>
         <td>{{ data.profile.total_terms }}</td>
       </tr>
       <tr>
-        <td><span class="text-primary">Total number of TA hours:</span></td>
+        <td><span class="text-primary">Total number of TA hours worked:</span></td>
         <td>
           {% if data.profile.total_ta_hours %}
             {{ data.profile.total_ta_hours }} hours

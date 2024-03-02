@@ -195,7 +195,7 @@
                             <h4 class="my-2">
                               {{ app.applicant.get_full_name }}
                               {% if app.applicant.preferred_ta %}
-                                - <span class="text-danger">Preferred TA</span> (<i class="fa fa-flag text-danger" aria-hidden="true"></i>)
+                                - <span class="text-danger">Preferred Candidate</span> (<i class="fa fa-flag text-danger" aria-hidden="true"></i>)
                               {% endif %}
                             </h4>
                             <p class="px-3 text-left">
@@ -214,7 +214,9 @@
 
                             <div class="field-wrapper">
                               <input id="id_sta_confirmation_{{ app.id }}" name="sta_confirmation" type="checkbox" />
-                              <label class="d-inline-block ml-1" for="id_sta_confirmation_{{ app.id }}">STA</label>
+                              <label class="d-inline-block ml-1" for="id_sta_confirmation_{{ app.id }}">
+                                STA (Optional Senior TA classification. Click link for current details.)
+                              </label>
                               <p class="help">I confirm this student's eligibility and planned duties align with the <a target="_blank" href="{% static 'ta_app/files/SENIOR TEACHING ASSISTANTS - LETTER OF UNDERSTANDING B4 2022-25.pdf' %}">UBC-CUPE 2278 Letter of Agreement B 10</a> in the current collective aggrement.</p>
                             </div>
 
