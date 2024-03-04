@@ -300,15 +300,15 @@ ta_total_widgets = {
 }
 
 ta_total_labels = {
-    'total_academic_years': 'Total number of academic years',
-    'total_terms': 'Total number of terms',
-    'total_ta_hours': 'Total number of GTA hours'
+    'total_academic_years': 'Total number of academic years worked as a GTA',
+    'total_terms': 'Total number of terms worked as a GTA',
+    'total_ta_hours': 'Total number of GTA hours worked'
 }
 
 ta_total_ta_hours = {
-    'total_academic_years': 'GTA only. Only positive numbers allowed.',
-    'total_terms': 'GTA only. Only positive numbers allowed.',
-    'total_ta_hours': 'GTA only. Only positive numbers allowed.'
+    'total_academic_years': 'Only positive numbers allowed.',
+    'total_terms': 'Only positive numbers allowed.',
+    'total_ta_hours': 'Only positive numbers allowed.'
 }
 
 ta_error_messages = {
