@@ -19,7 +19,11 @@
       <tr>
         <td><span class="text-primary">Total number of GTA hours worked:</span></td>
         <td>
-          {% if data.profile.total_ta_hours %}
+          {% if data.profile.total_ta_hours == 0 %}
+            0 hour
+          {% elif data.profile.total_ta_hours == 1 %}
+            1 hour
+          {% elif data.profile.total_ta_hours > 1 %}
             {{ data.profile.total_ta_hours }} hours
           {% else %}
             None

@@ -847,7 +847,7 @@ def can_apply(user):
         
         for field in fields:
             value = getattr(user.profile, field)
-            if not value:
+            if value == None:
                 return False
             
         if profile.degrees.count() > 0 and \

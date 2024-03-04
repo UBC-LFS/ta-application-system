@@ -667,6 +667,7 @@ class ExploreJobs(LoginRequiredMixin, View):
         request = userApi.has_user_access(request, Role.STUDENT)
 
         can_apply = userApi.can_apply(request.user)
+        print('can_apply', can_apply)
         if not can_apply:
             messages.warning(request, IMPORTANT_MESSAGE)
 
