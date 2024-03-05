@@ -87,13 +87,7 @@
               {{ app.applicant.get_full_name }}
             </a>
 
-            {% if 'MFRE' in app.applicant.profile.program.name %}
-              <span class="badge badge-warning">MFRE</span>
-            {% elif 'MLWS' in app.applicant.profile.program.name %}
-              <span class="badge badge-warning">MLWS</span>
-            {% elif 'MFS' in app.applicant.profile.program.name %}
-              <span class="badge badge-warning">MFS</span>
-            {% endif %}
+            {% include 'ta_app/users/_display_special_master_program.html' with data=app.applicant.profile.program.slug %}
 
             {% if app.resume_filename %}
               <a class="d-block mt-2" href="{% url 'students:download_file' username=app.applicant.username item='resume' filename=app.resume_filename %}" target="_blank">Resume</a>
@@ -271,13 +265,7 @@
                       </h4>
 
                       <div>
-                        {% if 'MFRE' in app.applicant.profile.program.name %}
-                          <span class="badge badge-warning mr-2">MFRE</span>
-                        {% elif 'MLWS' in app.applicant.profile.program.name %}
-                          <span class="badge badge-warning mr-2">MLWS</span>
-                        {% elif 'MFS' in app.applicant.profile.program.name %}
-                          <span class="badge badge-warning mr-2">MFS</span>
-                        {% endif %}
+                        {% include 'ta_app/users/_display_special_master_program.html' with data=app.applicant.profile.program.slug %}
 
                         {% if app.applicant.gta %}
                           {% include 'ta_app/users/_gta_badge.html' with data=app.applicant %}

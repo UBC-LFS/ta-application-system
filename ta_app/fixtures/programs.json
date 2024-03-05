@@ -126,5 +126,13 @@
       "name": "Other",
       "slug": "other"
     }
+  },
+  {
+    "model": "users.program",
+    "pk": 17,
+    "fields": {
+      "name": "Master of Nutrition and Dietetics (MND)",
+      "slug": "master-of-nutrition-and-dietetics-mnd"
+    }
   }
 ]

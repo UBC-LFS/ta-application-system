@@ -261,6 +261,7 @@ class StudentProfileGeneralForm(forms.ModelForm):
         self.fields['lfs_ta_training'].required = True
         self.fields['lfs_ta_training_details'].required = True
 
+        self.fields['program'].queryset = Program.objects.all().order_by('name')
         self.fields['trainings'].queryset = Training.objects.filter(is_active=True)
     
     field_order = [

@@ -77,7 +77,8 @@
             <a class="d-block" href="{% url 'users:show_user' username=app.applicant.username %}?next={{ new_next }}&p=All Applications&t=basic">
               {{ app.applicant.get_full_name }}
             </a>
-            <div class="text-dark-gray">{{ app.applicant.username }}</div>
+
+            {% include 'ta_app/users/_display_special_master_program.html' with data=app.applicant.profile.program.slug %}
           </td>
           <td>
             {% include 'ta_app/applications/_modal_app_status.html' with data=app %}
@@ -135,15 +136,8 @@
 
                             <h4>
                               <span class="text-primary">{{ app.applicant.get_full_name }}</span>
-
                               <small class="text-dark-gray">({{ app.applicant.username }})</small>
-                              {% if 'MFRE' in app.applicant.profile.program.name %}
-                                <span class="badge badge-warning">MFRE</span>
-                              {% elif 'MLWS' in app.applicant.profile.program.name %}
-                                <span class="badge badge-warning">MLWS</span>
-                              {% elif 'MFS' in app.applicant.profile.program.name %}
-                                <span class="badge badge-warning">MFS</span>
-                              {% endif %}
+                              {% include 'ta_app/users/_display_special_master_program.html' with data=app.applicant.profile.program.slug %}
                             </h4>
 
                             <ul class="no-bullet bg-light border rounded p-3">
