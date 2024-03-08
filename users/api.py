@@ -501,21 +501,6 @@ def get_applicant_status_program(applicant):
         'current_status': current_status
     }
 
-def get_gta_flag(user):
-    undergrad = is_undergraduate(user)
-    profile = has_user_profile_created(user)
-    if not undergrad and profile:
-        years = profile.total_academic_years
-        terms = profile.total_terms
-        ta_hours = profile.total_ta_hours
-        if years and terms and ta_hours:
-            if terms < 4:
-                return 'GTA 2'
-            if years >= 2 and terms >= 4 and ta_hours >= 192:
-                return 'GTA 1'
-            return 'Review'
-    return None
-
 
 # end profile
 
@@ -862,6 +847,22 @@ def can_apply(user):
     return False
 
 
+def get_gta_flag(user):
+    undergrad = is_undergraduate(user)
+    profile = has_user_profile_created(user)
+    if not undergrad and profile:
+        years = profile.total_academic_years
+        terms = profile.total_terms
+        ta_hours = profile.total_ta_hours
+        if years != None and terms != None and ta_hours != None:
+            if terms < 4:
+                return 'GTA 2'
+            if years >= 2 and terms >= 4 and ta_hours >= 192:
+                return 'GTA 1'
+            return 'Review'
+    return None
+
+
 def get_preferred_ta(user):
     profile = has_user_profile_created(user)
     
@@ -1018,14 +1019,6 @@ def delete_faculty(faculty_id):
     faculty.delete()
     return faculty if faculty else False
 
-def get_faculty_others_id():
-    ''' Get id of others in program '''
-    faculty = Faculty.objects.filter(name__icontains='other')
-    if faculty.exists():
-        return faculty.first().id
-    else:
-        return None
-
 
 # programs
 
@@ -1107,13 +1100,11 @@ def get_alertemails():
 
 
 def get_lfs_grad_or_others(user):
-    master = get_status_by_slug('master-student')
-    phd = get_status_by_slug('phd-student')
     other_program = get_program_by_slug('other')
 
     lfs_grad_or_others = ''
     if profile_exists(user) and user.profile.status and user.profile.program:
-        if (user.profile.status.id == master.id or user.profile.status.id == phd.id) and user.profile.program.id != other_program.id:
+        if (is_master(user) or is_phd(user)) and is_lfs_student(user) and user.profile.program.id != other_program.id:
             lfs_grad_or_others = 'LFS GRAD'
         else:
             lfs_grad_or_others = 'OTHERS'

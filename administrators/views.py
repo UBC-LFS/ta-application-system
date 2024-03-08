@@ -473,25 +473,27 @@ class ShowReportApplicants(LoginRequiredMixin, View):
 class ShowReportSummary(LoginRequiredMixin, View):
     ''' Display a session summary '''
 
+    def setup(self, request, *args, **kwargs):
+        setup = super().setup(request, *args, **kwargs)
+        session_slug = kwargs['session_slug']
+        if not session_slug:
+            raise Http404
+        
+        request = userApi.has_admin_access(request)
+        
+        session = adminApi.get_session(session_slug, 'slug')
+        self.session = session
+        return setup
+
     @method_decorator(require_GET)
     def get(self, request, *args, **kwargs):
-        session_slug = kwargs['session_slug']
-
-        request = userApi.has_admin_access(request)
-
-        session = adminApi.get_session(session_slug, 'slug')
-
-        master = userApi.get_status_by_slug('master-student')
-        phd = userApi.get_status_by_slug('phd-student')
-        other_program = userApi.get_program_by_slug('other')
-
         jobs = []
 
         total_lfs_grad = set()
         total_lfs_grad_ta_hours = 0.0
         total_others = set()
         total_others_ta_hours = 0.0
-        for job in session.job_set.all():
+        for job in self.session.job_set.all():
             apps = adminApi.get_accepted_apps_not_terminated(job.application_set.all())
             apps = adminApi.get_filtered_accepted_apps(apps)
 
@@ -503,20 +505,18 @@ class ShowReportSummary(LoginRequiredMixin, View):
                 for app in apps:
                     app.accepted = adminApi.get_accepted(app)
                     app.salary = adminApi.calcualte_salary(app)
+                    if userApi.get_lfs_grad_or_others(app.applicant) == 'LFS GRAD':
+                        lfs_grad.add(app.applicant.id)
+                        lfs_grad_ta_hours += app.accepted.assigned_hours
 
-                    if userApi.profile_exists(app.applicant) and app.applicant.profile.status and app.applicant.profile.program:
-                        if (app.applicant.profile.status.id == master.id or app.applicant.profile.status.id == phd.id) and app.applicant.profile.program.id != other_program.id:
-                            lfs_grad.add(app.applicant.id)
-                            lfs_grad_ta_hours += app.accepted.assigned_hours
+                        total_lfs_grad.add(app.applicant.id)
+                        total_lfs_grad_ta_hours += app.accepted.assigned_hours
+                    else:
+                        others.add(app.applicant.id)
+                        others_ta_hours += app.accepted.assigned_hours
 
-                            total_lfs_grad.add(app.applicant.id)
-                            total_lfs_grad_ta_hours += app.accepted.assigned_hours
-                        else:
-                            others.add(app.applicant.id)
-                            others_ta_hours += app.accepted.assigned_hours
-
-                            total_others.add(app.applicant.id)
-                            total_others_ta_hours += app.accepted.assigned_hours
+                        total_others.add(app.applicant.id)
+                        total_others_ta_hours += app.accepted.assigned_hours
 
                 job.accepted_apps = apps
 
@@ -534,7 +534,7 @@ class ShowReportSummary(LoginRequiredMixin, View):
 
         return render(request, 'administrators/sessions/show_report_summary.html', {
             'loggedin_user': request.user,
-            'session': session,
+            'session': self.session,
             'jobs': jobs,
             'ta_hours_stat': {
                 'total_lfs_grad': len(total_lfs_grad),
