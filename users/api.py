@@ -758,13 +758,13 @@ def delete_user_sin(username, option=None):
 
                 if deleted and not bool(user.confidentiality.sin):
                     dirpath = os.path.join(settings.MEDIA_ROOT, 'users', username, 'sin')
-                    if os.path.exists(dirpath) and os.path.isdir(dirpath):
+                    if os.path.exists(dirpath) and os.path.isdir(dirpath) and len(os.listdir(dirpath)) == 0:
                         os.rmdir(dirpath)
                         return True
                 else:
                     return False
             except OSError:
-                return False
+                print('SIN: OSError')
         else:
             return False
     return True
@@ -787,13 +787,13 @@ def delete_user_study_permit(username, option=None):
 
                 if deleted and not bool(user.confidentiality.study_permit):
                     dirpath = os.path.join(settings.MEDIA_ROOT, 'users', username, 'study_permit')
-                    if os.path.exists(dirpath) and os.path.isdir(dirpath):
+                    if os.path.exists(dirpath) and os.path.isdir(dirpath) and len(os.listdir(dirpath)) == 0:
                         os.rmdir(dirpath)
                         return True
                 else:
                     return False
             except OSError:
-                return False
+                print('Study Permit: OSError')
         else:
             return False
     return True

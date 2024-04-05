@@ -464,13 +464,16 @@ def submit_confidentiality(request):
 @method_decorator([never_cache], name='dispatch')
 class EditConfidentiality(LoginRequiredMixin, View):
     
-
     @method_decorator(require_GET)
     def get(self, request, *args, **kwargs):
         request = userApi.has_user_access(request, Role.STUDENT)
 
-        confidentiality = userApi.has_user_confidentiality_created(request.user)
         form = None
+        sin_file = None
+        study_permit_file = None
+        can_delete = False
+
+        confidentiality = userApi.has_user_confidentiality_created(request.user)
         if confidentiality:
             if bool(confidentiality.employee_number):
                 can_delete = True
@@ -667,7 +670,6 @@ class ExploreJobs(LoginRequiredMixin, View):
         request = userApi.has_user_access(request, Role.STUDENT)
 
         can_apply = userApi.can_apply(request.user)
-        print('can_apply', can_apply)
         if not can_apply:
             messages.warning(request, IMPORTANT_MESSAGE)
 
