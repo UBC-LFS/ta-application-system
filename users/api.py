@@ -101,7 +101,6 @@ def has_auth_user_access(request):
 def has_superadmin_access(request, role=None):
     ''' Check if a superadmin has access '''
     request.user.roles = request.session['loggedin_user']['roles']
-    print('has_superadmin_access', request.user.roles)
     if not is_superadmin(request.user) and role not in request.user.roles:
         raise PermissionDenied
     return request
@@ -123,7 +122,7 @@ def has_user_access(request, role):
         request.user.roles = get_user_roles(request.user)
     else:
         request.user.roles = request.session['loggedin_user']['roles']
-    
+
     if role not in request.user.roles:
         raise PermissionDenied
 
@@ -196,18 +195,18 @@ def user_exists(data):
         if not user.first_name and data['first_name']:
             user.first_name = data['first_name']
             update_fields.append('first_name')
-        
+
         if not user.last_name and data['last_name']:
             user.last_name = data['last_name']
             update_fields.append('last_name')
-            
+
         if not user.email and data['email']:
             user.email = data['email']
             update_fields.append('email')
-        
+
         if len(update_fields) > 0:
             user.save(update_fields=update_fields)
-        
+
         # To check if profile information exists or not
         if has_user_profile_created(user) == None:
             user_profile_form = UserProfileForm({
@@ -215,10 +214,10 @@ def user_exists(data):
                 'preferred_name': None,
                 'roles': [ ROLES['Student'] ]
             })
-            
+
             if user_profile_form.is_valid():
                 profile = Profile.objects.create(
-                    user_id=user.id, 
+                    user_id=user.id,
                     student_number=data['student_number']
                 )
                 profile.roles.add( *user_profile_form.cleaned_data['roles'] )
@@ -482,7 +481,7 @@ def get_applicant_status_program(applicant):
         if applicant.profile.status.slug == utils.UNDERGRADUATE:
             highlight = 'undergraduate'
             current_status = 'BSc'
-        
+
         elif applicant.profile.status.slug == utils.MASTER:
             current_status = 'MSc'
             if applicant.profile.faculty.slug == utils.LFS_FACULTY and applicant.profile.program.slug in valid_programs:
@@ -618,8 +617,8 @@ def delete_user_avatar(user_id):
 
 def create_confidentiality(user):
     return Confidentiality.objects.create(
-        user_id = user.id, 
-        created_at = datetime.now(), 
+        user_id = user.id,
+        created_at = datetime.now(),
         updated_at = datetime.now()
     )
 
@@ -820,7 +819,7 @@ def can_apply(user):
     ''' Check whether students can apply or not '''
 
     fields = [
-        'status', 'student_year', 'has_graduated', 'graduation_date', 'faculty', 'program', 'degree_details', 
+        'status', 'student_year', 'has_graduated', 'graduation_date', 'faculty', 'program', 'degree_details',
         'training_details', 'lfs_ta_training', 'lfs_ta_training_details', 'ta_experience', 'ta_experience_details', 'qualifications'
     ]
     gta_fields = ['total_academic_years', 'total_terms', 'total_ta_hours']
@@ -829,12 +828,12 @@ def can_apply(user):
     if profile and has_user_resume_created(user):
         if not is_undergraduate(user):
             fields += gta_fields
-        
+
         for field in fields:
             value = getattr(user.profile, field)
             if value == None:
                 return False
-            
+
         if profile.degrees.count() > 0 and \
             profile.trainings.count() > 0 and match_active_trainings(profile) and \
             adminApi.trim(adminApi.strip_html_tags(profile.degree_details)) and \
@@ -843,7 +842,7 @@ def can_apply(user):
             adminApi.trim(adminApi.strip_html_tags(profile.ta_experience_details)) and \
             adminApi.trim(adminApi.strip_html_tags(profile.qualifications)):
             return True
-    
+
     return False
 
 
@@ -865,13 +864,13 @@ def get_gta_flag(user):
 
 def get_preferred_ta(user):
     profile = has_user_profile_created(user)
-    
+
     if profile and is_lfs_student(user) and valid_sin_international(user) and not is_undergraduate(user):
         if is_master(user) and (1 <= int(profile.student_year) <= 2):
             return True
         if is_phd(user) and (1 <= int(profile.student_year) <= 5):
             return True
-    
+
     return False
 
 
@@ -885,31 +884,31 @@ def valid_sin_international(user):
     confi = has_user_confidentiality_created(user)
     if confi and confi.nationality == utils.NATIONALITY['domestic']:
         return True
-    
+
     return Confidentiality.objects.filter(
-        user_id=user.id, 
-        nationality=utils.NATIONALITY['international'], 
+        user_id=user.id,
+        nationality=utils.NATIONALITY['international'],
         sin__isnull=False,
     ).exists()
 
 
 def get_confidential_info_expiry_status(user):
     confi = has_user_confidentiality_created(user)
-    
+
     docs = []
-    
+
     # Nationality == 1: International Student
     if confi and confi.nationality == utils.NATIONALITY['international']:
-        sin = { 
-            'doc': 'SIN', 
+        sin = {
+            'doc': 'SIN',
             'date': confi.sin_expiry_date
         }
-        
-        study_permit = { 
-            'doc': 'Study Permit', 
-            'date': confi.study_permit_expiry_date 
+
+        study_permit = {
+            'doc': 'Study Permit',
+            'date': confi.study_permit_expiry_date
         }
-        
+
         if confi.sin_expiry_date:
             if confi.sin_expiry_date < utils.TODAY:
                 sin['status'] = 'Expired'
@@ -931,7 +930,7 @@ def get_confidential_info_expiry_status(user):
         else:
             study_permit['status'] = 'Missing'
             docs.append(study_permit)
-    
+
     return docs
 
 
@@ -1108,7 +1107,7 @@ def get_lfs_grad_or_others(user):
             lfs_grad_or_others = 'LFS GRAD'
         else:
             lfs_grad_or_others = 'OTHERS'
-    
+
     return lfs_grad_or_others
 
 

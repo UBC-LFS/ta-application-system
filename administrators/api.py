@@ -343,13 +343,13 @@ def get_filtered_accepted_apps(apps=None):
         apps = get_accepted_apps_not_terminated()
 
     excluded_apps = apps.filter( Q(is_declined_reassigned=True) & Q(applicationstatus__assigned=ApplicationStatus.DECLINED) )
-    print('excluded_apps', excluded_apps)
+
     excluded_ids = []
     for app in excluded_apps:
         ret_app = add_app_info_into_application(app, ['declined'])
         if ret_app.declined.parent_id == None:
             excluded_ids.append(ret_app.id)
-    print('excluded_ids', excluded_ids)
+    
     return apps.exclude(id__in=excluded_ids)
 
 
