@@ -45,6 +45,9 @@ $(document).ready(function() {
     toolbar: []
   });
 
+  // Remove external style
+  $('.WebKit-mso-list-quirks-style').remove();
+  
 });
 
 /* Helper functions */
