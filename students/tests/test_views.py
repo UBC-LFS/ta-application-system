@@ -1,17 +1,14 @@
 import os
 from django.conf import settings
-from django.test import TestCase, override_settings
+from django.test import TestCase, tag
 from django.urls import reverse
-from django.contrib.auth.models import User
 from django.contrib.messages import get_messages
 from urllib.parse import urlencode
 from django.core.files.uploadedfile import SimpleUploadedFile
+
 import datetime
 import json
-
 from random import randint
-import tempfile
-from PIL import Image
 
 from administrators.models import *
 from users.models import *
@@ -32,6 +29,7 @@ NEXT = '?next=/app/students/'
 HOME_BASIC = '&p=Home&t=basic'
 HOME_ADDITIONAL = '&p=Home&t=additional'
 HOME_RESUME = '&p=Home&t=resume'
+
 EDIT_PROFILE_BASIC = '&p=Edit%20Profile&t=basic'
 EDIT_PROFILE_ADDITIONAL = '&p=Edit%20Profile&t=additional'
 EDIT_PROFILE_RESUME = '&p=Edit%20Profile&t=resume'
@@ -80,10 +78,10 @@ class StudentTest(TestCase):
 
         data = {
             'preferred_name': 'preferred name',
-            'qualifications': 'qualifications',
-            'prior_employment': 'prior employment',
-            'special_considerations': 'special considerations',
             'status': '3',
+            'student_year': '2',
+            'has_graduated': '2',
+            'faculty': '1',
             'program': '5',
             'program_others': 'program others',
             'graduation_date': '2020-05-20',
@@ -92,30 +90,49 @@ class StudentTest(TestCase):
             'trainings': ['1','2', '3', '4'],
             'training_details': 'training details',
             'lfs_ta_training': '1',
-            'lfs_ta_training_details': 'Lfs ta training details',
-            'ta_experience': '2',
-            'ta_experience_details': 'Ta experience details'
+            'lfs_ta_training_details': 'Lfs ta training details'
         }
 
-        response = self.client.post( reverse('students:edit_profile'), data=urlencode(data, True), content_type=ContentType )
+        response = self.client.post( reverse('students:edit_profile') + '?t=general', data=urlencode(data, True), content_type=ContentType )
         messages = self.messages(response)
-        self.assertTrue('Success' in messages[0])
+        self.assertEqual(messages[0], 'Success! User100 Test - General information has been updated.')
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse('students:show_profile') + '?next=' + reverse('students:edit_profile') + EDIT_PROFILE_ADDITIONAL )
+        self.assertEqual(response.url, reverse('students:edit_profile') + '?t=graduate')
         self.assertRedirects(response, response.url)
 
-        response = self.client.get( reverse('students:show_profile') + '?next=' + reverse('students:edit_profile') + EDIT_PROFILE_ADDITIONAL )
+        response = self.client.get(reverse('students:edit_profile') + '?t=graduate')
         self.assertEqual(response.status_code, 200)
 
-        self.assertEqual(response.context['loggedin_user'].username, username)
-        self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
+        data2 = {
+            'total_academic_years': 4,
+            'total_terms': 4,
+            'total_ta_hours': 200,
+            'ta_experience': '2',
+            'ta_experience_details': 'Ta experience details',
+            'qualifications': 'qualifications',
+            'prior_employment': 'prior employment',
+            'special_considerations': 'special considerations',
+            'path': 'graduate'
+        }
+        response2 = self.client.post( reverse('students:update_profile_ta'), data=urlencode(data2), content_type=ContentType )
+        messages2 = self.messages(response2)
+        self.assertEqual(messages2[0], 'Success! User100 Test - TA information has been updated.')
+        self.assertEqual(response2.status_code, 302)
+        self.assertEqual(response2.url, reverse('students:show_profile') + '?next=' + reverse('students:edit_profile') + EDIT_PROFILE_ADDITIONAL)
+        self.assertRedirects(response2, response2.url)
 
-        user = response.context['loggedin_user']
+
+        response3 = self.client.get(response2.url)
+        self.assertEqual(response3.status_code, 200)
+        self.assertEqual(response3.context['loggedin_user'].username, username)
+        self.assertEqual(response3.context['loggedin_user'].roles, ['Student'])
+
+        user = response3.context['loggedin_user']
         self.assertEqual(user.profile.preferred_name, data['preferred_name'])
-        self.assertEqual(user.profile.qualifications, data['qualifications'])
-        self.assertEqual(user.profile.prior_employment, data['prior_employment'])
-        self.assertEqual(user.profile.special_considerations, data['special_considerations'])
         self.assertEqual(user.profile.status.id, int(data['status']))
+        self.assertEqual(user.profile.student_year, data['student_year'])
+        self.assertEqual(user.profile.has_graduated, data['has_graduated'])
+        self.assertEqual(user.profile.faculty.id, int(data['faculty']))
         self.assertEqual(user.profile.program.id, int(data['program']))
         self.assertEqual(user.profile.program_others, data['program_others'])
         self.assertEqual(user.profile.graduation_date.year, 2020)
@@ -127,8 +144,15 @@ class StudentTest(TestCase):
         self.assertEqual(user.profile.training_details, data['training_details'])
         self.assertEqual(user.profile.lfs_ta_training, data['lfs_ta_training'])
         self.assertEqual(user.profile.lfs_ta_training_details, data['lfs_ta_training_details'])
-        self.assertEqual(user.profile.ta_experience, data['ta_experience'])
-        self.assertEqual(user.profile.ta_experience_details, data['ta_experience_details'])
+        
+        self.assertEqual(user.profile.total_academic_years, data2['total_academic_years'])
+        self.assertEqual(user.profile.total_terms, data2['total_terms'])
+        self.assertEqual(user.profile.total_ta_hours, data2['total_ta_hours'])
+        self.assertEqual(user.profile.ta_experience, data2['ta_experience'])
+        self.assertEqual(user.profile.ta_experience_details, data2['ta_experience_details'])
+        self.assertEqual(user.profile.qualifications, data2['qualifications'])
+        self.assertEqual(user.profile.prior_employment, data2['prior_employment'])
+        self.assertEqual(user.profile.special_considerations, data2['special_considerations'])
 
         user = userApi.get_user(username, 'username')
 
@@ -387,7 +411,7 @@ class StudentTest(TestCase):
             else:
                 userApi.delete_user_study_permit(username)
 
-
+    @tag('test_view_url_exists_at_desired_location_admin')
     def test_view_url_exists_at_desired_location_admin(self):
         print('- Test: view url exists at desired location - admin')
 
@@ -403,6 +427,7 @@ class StudentTest(TestCase):
         self.assertEqual(response.status_code, 403)
 
 
+    @tag('test_view_url_exists_at_desired_location_admin2')
     def test_view_url_exists_at_desired_location_admin2(self):
         print('- Test: view url exists at desired location - admin2')
 
@@ -418,6 +443,7 @@ class StudentTest(TestCase):
         self.assertEqual(response.status_code, 403)
 
 
+    @tag('test_view_url_exists_at_desired_location_instructor')
     def test_view_url_exists_at_desired_location_instructor(self):
         print('- Test: view url exists at desired location - instructor')
 
@@ -433,6 +459,7 @@ class StudentTest(TestCase):
         self.assertEqual(response.status_code, 403)
 
 
+    @tag('test_view_url_exists_at_desired_location_student')
     def test_view_url_exists_at_desired_location_student(self):
         print('- Test: view url exists at desired location - student')
 
@@ -450,6 +477,7 @@ class StudentTest(TestCase):
         self.assertEqual(response.status_code, 403)
 
         self.submit_profile_resume(USERS[2])
+        self.submit_confiential_information_international_complete(USERS[2])
 
         response = self.client.get( reverse('students:index') )
         self.assertEqual(response.status_code, 200)
@@ -457,7 +485,7 @@ class StudentTest(TestCase):
         response = self.client.get( reverse('students:show_profile') + NEXT + HOME_BASIC )
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get( reverse('students:edit_profile') )
+        response = self.client.get( reverse('students:edit_profile') + '?t=general' )
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get( reverse('students:show_confidentiality') )
@@ -499,6 +527,7 @@ class StudentTest(TestCase):
         self.delete_document(USERS[2], USER_IDS[2], ['resume'])
 
 
+    @tag('')
     def test_view_url_exists_at_desired_location_student2(self):
         print('- Test: view url exists at desired location - student2')
 
@@ -511,6 +540,7 @@ class StudentTest(TestCase):
         self.delete_document(STUDENT, STUDENT_ID, ['sin', 'study_permit'], 'international')
 
 
+    @tag('')
     def test_home_page(self):
         print('- Test: Display a home page')
         self.login()
@@ -530,7 +560,9 @@ class StudentTest(TestCase):
 
         self.delete_document(USERS, USER_IDS[2], ['resume'])
 
+
     # It works in March or April
+    @tag('')
     def test_alert_message(self):
         print('- Test: Display an alert message in March and April')
         self.login()
@@ -572,6 +604,7 @@ class StudentTest(TestCase):
         self.delete_document(USERS[2], USER_IDS[2], ['resume'])
 
 
+    @tag('')
     def test_show_profile(self):
         print('- Test: Display all lists of session terms')
         self.login()
@@ -627,6 +660,7 @@ class StudentTest(TestCase):
         self.assertFalse(response.context['form'].is_bound)
 
 
+    @tag('')
     def test_edit_profile(self):
         print('- Test: Edit user profile')
         self.login()
@@ -803,7 +837,9 @@ class StudentTest(TestCase):
         self.assertEqual(user.profile.ta_experience_details, data['ta_experience_details'])
 
 
-    """def test_edit_profile_without_program_others(self):
+    """
+    @tag('')
+    def test_edit_profile_without_program_others(self):
         print('- Test: Edit profile without program others')
         self.login()
 
@@ -834,6 +870,7 @@ class StudentTest(TestCase):
         self.assertEqual(response.status_code, 403)"""
 
 
+    @tag('')
     def test_upload_user_resume(self):
         print('- Test: upload user resume')
         self.login()
@@ -866,6 +903,7 @@ class StudentTest(TestCase):
         self.delete_document(USERS[2], USER_IDS[2], ['resume'])
 
 
+    @tag('')
     def test_delete_user_resume(self):
         print('- Test: delete user resume')
         self.login()
@@ -918,6 +956,7 @@ class StudentTest(TestCase):
         self.assertIsNone(resume)
 
 
+    @tag('')
     def test_show_confidentiality(self):
         print('- Test: Display user confidentiality')
         self.login()
@@ -928,6 +967,7 @@ class StudentTest(TestCase):
         self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
 
 
+    @tag('')
     def test_check_submit_confidentiality_empty_employee_number(self):
         print('- Test: Check and submit confidential information - empty employee number')
         self.login()
@@ -960,6 +1000,7 @@ class StudentTest(TestCase):
         self.assertRedirects(response, response.url)
 
 
+    @tag('')
     def test_check_submit_confidentiality_not_new_employee(self):
         print('- Test: Check and submit confidential information - not new employee')
         self.login()
@@ -993,6 +1034,7 @@ class StudentTest(TestCase):
         self.assertRedirects(response, response.url)
 
 
+    @tag('')
     def test_check_submit_confidentiality_checked_new_employee(self):
         print('- Test: Check and submit confidential information - checked new employee')
         self.login()
@@ -1021,6 +1063,7 @@ class StudentTest(TestCase):
         self.assertRedirects(response, response.url)
 
 
+    @tag('')
     def test_check_submit_confidentiality_success(self):
         print('- Test: Check and submit confidential information - success')
         self.login()
@@ -1089,6 +1132,7 @@ class StudentTest(TestCase):
         self.delete_document(USERS[2], USER_IDS[2], ['sin', 'study_permit'], 'international')
 
 
+    @tag('')
     def test_edit_confidentiality(self):
         print('- Test: Edit confidentional information')
         self.login()
@@ -1159,6 +1203,7 @@ class StudentTest(TestCase):
         self.assertEqual(loggedin_user.confidentiality.nationality, data3['nationality'])
 
 
+    @tag('')
     def test_edit_confidentiality_checking(self):
         print('- Test: Edit confidentional information with checking conditions for employee number')
         self.login()
@@ -1249,6 +1294,8 @@ class StudentTest(TestCase):
 
         self.delete_document(USERS[2], USER_IDS[2], ['sin', 'study_permit'], 'international')
 
+
+    @tag('')
     def test_delete_confidential_information(self):
         print('- Test: delete confidential information')
         self.login()
@@ -1296,6 +1343,7 @@ class StudentTest(TestCase):
         self.assertFalse( bool(user.confidentiality.sin) )
 
 
+    @tag('')
     def test_delete_confidential_information_nothing_selected(self):
         print('- Test: delete confidential information - nothing selected')
         self.login()
@@ -1327,15 +1375,44 @@ class StudentTest(TestCase):
         self.delete_document(USERS[2], USER_IDS[2], ['sin', 'study_permit'], 'international')
 
 
+    @tag('test_explore_jobs')
     def test_explore_jobs(self):
         print('- Test: Display all lists of session terms')
         self.login()
 
-        response = self.client.get( reverse('students:explore_jobs') )
+        response = self.client.get(reverse('students:explore_jobs'))
         messages = self.messages(response)
         self.assertTrue('Important' in messages[0])
 
         self.submit_profile_resume(USERS[2])
+
+        response = self.client.get(reverse('students:explore_jobs'))
+        messages = self.messages(response)
+        self.assertEqual(messages, [])
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['loggedin_user'].username, USERS[2])
+        self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
+
+        self.assertEqual(len(response.context['visible_current_sessions']), 3)
+        self.assertEqual(len(response.context['favourites']), 3)
+        self.assertTrue(response.context['can_apply'])
+        self.assertEqual(response.context['expiry_status'], [])
+        self.assertEqual(response.context['this_year'], 2024)
+
+        for session in response.context['visible_current_sessions']:
+            self.assertTrue(session.is_locked)
+
+        self.delete_document(USERS[2], USER_IDS[2], ['resume'])
+
+
+    @tag('test_unlock_sessions')
+    def test_unlock_sessions(self):
+        print('- Test: unlock sessions')
+
+        self.login()
+
+        self.submit_profile_resume(USERS[2])
+        self.submit_confiential_information_international_complete(USERS[2])
 
         response = self.client.get( reverse('students:explore_jobs') )
         messages = self.messages(response)
@@ -1344,12 +1421,38 @@ class StudentTest(TestCase):
         self.assertEqual(response.context['loggedin_user'].username, USERS[2])
         self.assertEqual(response.context['loggedin_user'].roles, ['Student'])
 
-        self.assertEqual( len(response.context['visible_current_sessions']), 3 )
-        self.assertEqual( len(response.context['favourites']), 3 )
+        self.assertEqual(len(response.context['visible_current_sessions']), 3)
+        self.assertEqual(len(response.context['favourites']), 3)
+        self.assertTrue(response.context['can_apply'])
+        self.assertEqual(response.context['expiry_status'], [])
+        self.assertEqual(response.context['this_year'], 2024)
+
+        sessions = []
+        for session in response.context['visible_current_sessions']:
+            self.assertTrue(session.is_locked)
+            sessions.append(session.slug)
+
+            res1 = self.client.get(reverse('students:edit_profile') + '?t=summary&session=' + session.slug)
+            self.assertEqual(res1.status_code, 200)
+            self.assertEqual(res1.context['total_assigned_hours'], 80.0)
+            self.assertEqual(res1.context['path'], 'graduate')
+            self.assertEqual(res1.context['current_tab'], 'summary')
+            self.assertFalse(res1.context['confirm_profile_reminder'])
+
+            data = {
+                'user': USERS[2],
+                'session': session.slug,
+                'next': reverse('students:edit_profile') + '?t=summary&session=' + session.slug
+            }
+            res2 = self.client.post(reverse('students:confirm_profile_reminder'), data=data, content_type=ContentType)
+            print(res2)
+            messages = self.messages(res2)
+            #print(session.slug, res2.status_code, res2.url)
 
         self.delete_document(USERS[2], USER_IDS[2], ['resume'])
 
 
+    @tag('')
     def test_favrouite_jobs(self):
         print('- Test: Display all lists of favourite jobs')
         self.login()
@@ -1361,6 +1464,8 @@ class StudentTest(TestCase):
 
         self.assertEqual( len(response.context['favourites']), 3 )
 
+
+    @tag('')
     def test_select_favourite_job(self):
         print('- Test: Select favourite job')
         self.login()
@@ -1444,6 +1549,7 @@ class StudentTest(TestCase):
         self.delete_document(USERS[2], USER_IDS[2], ['resume'])
 
 
+    @tag('')
     def test_available_jobs(self):
         print('- Test: Display jobs available to apply')
         self.login()
@@ -1462,6 +1568,7 @@ class StudentTest(TestCase):
         self.delete_document(USERS[2], USER_IDS[2], ['resume'])
 
 
+    @tag('')
     def test_apply_job_undergraduate(self):
         print('- Test: Undergraduate students can apply for each job')
         self.login()
@@ -1506,6 +1613,7 @@ class StudentTest(TestCase):
         self.delete_document(USERS[2], USER_IDS[2], ['resume'])
 
 
+    @tag('')
     def test_apply_job_no_supervisor_approval(self):
         print('- Test: Graudate students cannot apply for each job without supervisor approval')
         self.login()
@@ -1547,6 +1655,7 @@ class StudentTest(TestCase):
         self.delete_document(USERS[2], USER_IDS[2], ['resume'])
 
 
+    @tag('')
     def test_apply_job(self):
         print('- Test: Graudate students can apply for each job')
         self.login()
@@ -1704,6 +1813,7 @@ class StudentTest(TestCase):
         self.delete_document(USERS[2], USER_IDS[2], ['resume'])
 
 
+    @tag('')
     def test_cannot_apply_jobs(self):
         print('- Test: Students cannot apply for each job')
 
@@ -1750,7 +1860,9 @@ class StudentTest(TestCase):
         self.delete_document(USERS[2], USER_IDS[2], ['resume'])
 
 
-    """def test_apply_jobs_without_undergraduate(self):
+    """
+    @tag('')
+    def test_apply_jobs_without_undergraduate(self):
         print('- Test: Students apply with undergraduate')
 
         self.login()
@@ -1763,6 +1875,7 @@ class StudentTest(TestCase):
         self.assertEqual(response.status_code, 403)"""
 
 
+    @tag('')
     def test_history_jobs(self):
         print('- Test: Display History of Jobs applied by a student')
         self.login()
@@ -1774,6 +1887,7 @@ class StudentTest(TestCase):
         self.assertEqual( len(response.context['apps']), 7 )
 
 
+    @tag('')
     def test_accept_decline_job_domestic_incomplete(self):
         print('- Test: Display a job to select accept a job offer with domestic students')
         self.login(STUDENT, PASSWORD)
@@ -1798,6 +1912,7 @@ class StudentTest(TestCase):
         self.delete_document(STUDENT, STUDENT_ID, [])
 
 
+    @tag('')
     def test_accept_decline_job_domestic_incomplete_employee_number(self):
         print('- Test: Display a job to select accept a job offer with domestic students without an employee number')
         self.login(STUDENT, PASSWORD)
@@ -1828,6 +1943,7 @@ class StudentTest(TestCase):
         self.delete_document(STUDENT, STUDENT_ID, ['sin'])
 
 
+    @tag('')
     def test_accept_decline_job_international_incomplete(self):
         print('- Test: Display a job to select accept or decline a job offer with international students')
         self.login(STUDENT, PASSWORD)
@@ -1864,6 +1980,7 @@ class StudentTest(TestCase):
         self.delete_document(STUDENT, STUDENT_ID, ['sin', 'study_permit'], 'international')
 
 
+    @tag('')
     def test_accept_decline_job(self):
         print('- Test: Display a job to select accept or decline a job offer')
         self.login(STUDENT, PASSWORD)
@@ -1917,6 +2034,7 @@ class StudentTest(TestCase):
         self.delete_document(STUDENT, STUDENT_ID, ['sin', 'study_permit'], 'international')
 
 
+    @tag('')
     def test_accept_offer(self):
         print('- Test: Students accept a job offer')
         self.login(STUDENT, PASSWORD)
@@ -2008,6 +2126,7 @@ class StudentTest(TestCase):
         self.delete_document(STUDENT, STUDENT_ID, ['sin', 'study_permit'], 'international')
 
 
+    @tag('')
     def test_today_accepted_application_student(self):
         print('- Test: Display today accepted applications - student')
         self.login(STUDENT, PASSWORD)
@@ -2202,6 +2321,7 @@ class StudentTest(TestCase):
         self.delete_document(STUDENT2, STUDENT2_ID, ['resume', 'sin', 'study_permit'], 'international')
 
 
+    @tag('')
     def test_cannot_accept_offer(self):
         print('- Test: Students cannot accept a job offer')
         self.login(STUDENT, PASSWORD)
@@ -2234,6 +2354,7 @@ class StudentTest(TestCase):
         self.delete_document(STUDENT, STUDENT_ID, ['sin', 'study_permit'], 'international')
 
 
+    @tag('')
     def test_decline_offer(self):
         print('- Test: Students decline job offers')
         self.login(STUDENT, PASSWORD)
@@ -2317,6 +2438,7 @@ class StudentTest(TestCase):
         self.delete_document(STUDENT, STUDENT_ID, ['sin', 'study_permit'], 'international')
 
 
+    @tag('')
     def test_decline_offer_with_incomplete_confidentiality(self):
         print('- Test: Students decline job offers with incomplete confidentiality')
         self.login(STUDENT, PASSWORD)
@@ -2350,6 +2472,7 @@ class StudentTest(TestCase):
         self.delete_document(STUDENT, STUDENT_ID, ['sin', 'study_permit'], 'international')
 
 
+    @tag('')
     def test_reaccept_application_not_ready(self):
         print('- Test: Students re-accept new job offers - not ready')
 
@@ -2365,6 +2488,7 @@ class StudentTest(TestCase):
         self.delete_document(STUDENT, STUDENT_ID, ['sin', 'study_permit'], 'international')
 
 
+    @tag('')
     def test_reaccept_application_success(self):
         print('- Test: Students re-accept new job offers - success')
 
@@ -2493,6 +2617,7 @@ class StudentTest(TestCase):
         self.delete_document(STUDENT2, STUDENT2_ID, ['resume', 'sin', 'study_permit'], 'international')
 
 
+    @tag('')
     def test_reaccept_application_with_incomplete_confidentiality_not_ready(self):
         print('- Test: Students cannot re-accept new job offers - not ready')
 
@@ -2507,6 +2632,7 @@ class StudentTest(TestCase):
         self.delete_document(STUDENT, STUDENT_ID, ['sin', 'study_permit'], 'international')
 
 
+    @tag('')
     def test_reaccept_application_with_incomplete_confidentiality_success(self):
         print('- Test: Students cannot re-accept new job offers - success')
 
@@ -2539,6 +2665,7 @@ class StudentTest(TestCase):
         self.delete_document(STUDENT2, STUDENT2_ID, ['resume', 'sin', 'study_permit'], 'international')
 
 
+    @tag('')
     def test_redecline_application_not_ready(self):
         print('- Test: Students re-decline new job offers - not ready')
 
@@ -2553,6 +2680,7 @@ class StudentTest(TestCase):
         self.delete_document(STUDENT, STUDENT_ID, ['sin', 'study_permit'], 'international')
 
 
+    @tag('')
     def test_redecline_application_success(self):
         print('- Test: Students re-decline new job offers - success')
 
@@ -2657,6 +2785,7 @@ class StudentTest(TestCase):
         self.delete_document(STUDENT2, STUDENT2_ID, ['resume', 'sin', 'study_permit'], 'international')
 
 
+    @tag('')
     def test_redecline_application_with_incomplete_confidentiality(self):
         print('- Test: Students re-decline new job offers with incomplete confidentiality')
 
@@ -2717,6 +2846,7 @@ class StudentTest(TestCase):
         self.delete_document(STUDENT2, STUDENT2_ID, ['resume', 'sin', 'study_permit'], 'international')
 
 
+    @tag('')
     def test_terminate_job(self):
         print('- Test: A student terminates a job contract')
         self.login()
@@ -2771,6 +2901,7 @@ class StudentTest(TestCase):
         self.assertEqual(job.accumulated_ta_hours, app.job.accumulated_ta_hours - app.accepted.assigned_hours)
 
 
+    @tag('')
     def test_show_job(self):
         print('- Test: display a job')
         self.login()
@@ -2798,6 +2929,7 @@ class StudentTest(TestCase):
         self.assertEqual(job.course.slug, JOB)
 
 
+    @tag('')
     def test_show_application(self):
         print('- Test: Display an application details')
         self.login()

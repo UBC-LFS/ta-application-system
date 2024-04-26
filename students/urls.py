@@ -6,9 +6,7 @@ app_name = 'students'
 urlpatterns = [
     path('', views.Index.as_view(), name='index'),
 
-    #path('profile/edit/', views.edit_profile, name='edit_profile'),
     path('profile/edit/', views.EditProfile.as_view(), name='edit_profile'),
-    #path('profile/information/', views.show_profile, name='show_profile'),
     path('profile/reminder/confirm/', views.confirm_profile_reminder, name='confirm_profile_reminder'),
     path('profile/information/ta/update/', views.update_profile_ta, name='update_profile_ta'),
     path('profile/information/', views.ShowProfile.as_view(), name='show_profile'),

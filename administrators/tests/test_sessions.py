@@ -25,6 +25,7 @@ DATA = [
     'ta_app/fixtures/course_numbers.json',
     'ta_app/fixtures/course_sections.json',
     'ta_app/fixtures/degrees.json',
+    'ta_app/fixtures/faculties.json',
     'ta_app/fixtures/landing_pages.json',
     'ta_app/fixtures/programs.json',
     'ta_app/fixtures/roles.json',
