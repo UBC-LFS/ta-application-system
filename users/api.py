@@ -854,9 +854,9 @@ def get_gta_flag(user):
         terms = profile.total_terms
         ta_hours = profile.total_ta_hours
         if years != None and terms != None and ta_hours != None:
-            if terms < 4:
+            if terms < 5:
                 return 'GTA 2'
-            if years >= 2 and terms >= 4 and ta_hours >= 192:
+            if years >= 2 and terms >= 5 and ta_hours >= 192:
                 return 'GTA 1'
             return 'Review'
     return None
