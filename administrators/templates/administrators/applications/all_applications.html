@@ -140,9 +140,12 @@
                               {% include 'ta_app/users/_display_special_master_program.html' with data=app.applicant.profile.program.slug %}
                             </h4>
 
-                            <ul class="no-bullet bg-light border rounded p-3">
+                            <ul class="no-bullet bg-light border rounded p-3 font-size-1">
                               <li>Application ID: {{ app.id }}</li>
-                              <li>Current Assigned Status: {% include 'ta_app/applications/_app_status.html' with data=app.applicationstatus_set.last.get_assigned_display %}</li>
+                              <li>
+                                Current Assigned Status: {% include 'ta_app/applications/_app_status.html' with data=app.applicationstatus_set.last.get_assigned_display %}
+                                {% include 'ta_app/applications/_app_sta_confirmation.html' with data=app.sta_confirmation %}
+                              </li>
                             </ul>
 
                             <h6 class="my-3">Are you sure to <span class="text-danger">reset</span> this application <span class="text-secondary"></span>?</h6>

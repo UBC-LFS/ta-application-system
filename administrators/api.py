@@ -937,6 +937,7 @@ def update_reset_application(app_id, instructor_preference):
     app = Application.objects.filter(id=app_id).update(
         instructor_preference = instructor_preference,
         is_terminated = False,
+        sta_confirmation = False,
         updated_at = datetime.now()
     )
 
