@@ -193,6 +193,7 @@
             <td>
               <div>
                 {% include 'ta_app/applications/_app_instructor_preference.html' with data=app.get_instructor_preference_display %}
+                {% include 'ta_app/applications/_app_sta_confirmation.html' with data=app.sta_confirmation %}
               </div>
 
               {% if app.selected %}

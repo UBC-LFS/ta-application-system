@@ -89,6 +89,8 @@
             </td>
             <td>
               {% include 'ta_app/applications/_app_instructor_preference.html' with data=app.get_instructor_preference_display %}
+              <br />
+              {% include 'ta_app/applications/_app_sta_confirmation.html' with data=app.sta_confirmation %}
             </td>
             <td>{{ app.classification.year }} {{ app.classification.name }}</td>
             <td>{% include 'ta_app/users/_display_gta_info.html' with data=app.applicant striped='True' %}</td>
