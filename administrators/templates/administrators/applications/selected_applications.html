@@ -98,8 +98,6 @@
           </td>
           <td>
             {% include 'ta_app/applications/_app_instructor_preference.html' with data=app.get_instructor_preference_display %}
-            <br />
-            {% include 'ta_app/applications/_app_sta_confirmation.html' with data=app.sta_confirmation %}
           </td>
           <td>
             <div class="mb-1">{% include 'ta_app/applications/_app_classification.html' with data=app %}</div>
@@ -270,8 +268,6 @@
                         {% if app.applicant.gta %}
                           {% include 'ta_app/users/_gta_badge.html' with data=app.applicant %}
                         {% endif %}
-
-                        {% include 'ta_app/applications/_app_sta_confirmation.html' with data=app.sta_confirmation %}
                       </div>
 
                       {% if app.applicant.preferred_ta %}

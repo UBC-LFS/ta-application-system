@@ -170,10 +170,9 @@
 
                 <div>
                   {% include 'ta_app/applications/_app_instructor_preference.html' with data=app.get_instructor_preference_display %}
-                  {% include 'ta_app/applications/_app_sta_confirmation.html' with data=app.sta_confirmation %}
                 </div>
                 <div>Assigned <span class="font-weight-bold">{{ app.selected.assigned_hours }}</span> hours</div>
-                <small class="text-dark-gray">{{ app.selected.created_at }}</small>
+                <span class="font-size-sm text-dark-gray">{{ app.selected.created_at }}</span>
 
               {% else %}
 
@@ -211,14 +210,6 @@
                         <div class="p-4">
                           <form action="" method="post">
                             {% csrf_token %}
-
-                            <div class="field-wrapper">
-                              <input id="id_sta_confirmation_{{ app.id }}" name="sta_confirmation" type="checkbox" />
-                              <label class="d-inline-block ml-1" for="id_sta_confirmation_{{ app.id }}">
-                                STA <span class="font-weight-normal">(Optional Senior TA pay classification. Click link for eligibility criteria and job duty specifics.)</span>
-                              </label>
-                              <p class="help">I confirm this student's eligibility and planned duties align with the <a target="_blank" href="{% static 'ta_app/files/SENIOR TEACHING ASSISTANTS - LETTER OF UNDERSTANDING B4 2022-25.pdf' %}">UBC-CUPE 2278 Letter of Agreement B 10</a> in the current collective agreement.</p>
-                            </div>
 
                             <div class="field-wrapper">
                               <label for="id_instructor_preference_{{ app.id }}">Instructor Preference:</label>

@@ -316,9 +316,8 @@ class ShowApplications(LoginRequiredMixin, View):
                 # Update Application
                 app = adminApi.get_application(request.POST.get('application'))
                 app.instructor_preference = instructor_preference
-                app.sta_confirmation = instructor_app_form.cleaned_data['sta_confirmation']
                 app.updated_at = datetime.now()
-                app.save(update_fields=['instructor_preference', 'sta_confirmation', 'updated_at'])
+                app.save(update_fields=['instructor_preference', 'updated_at'])
 
                 if app_status_form.save():
                     messages.success(request, 'Success! {0} (CWL: {1}) has been selected.'.format(app.applicant.get_full_name(), app.applicant.username))
