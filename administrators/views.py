@@ -12,9 +12,10 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views import View
 from django.utils.decorators import method_decorator
 from django.views.decorators.http import require_http_methods, require_GET, require_POST
-
 from django.db.models import Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+import operator
+from django.utils.html import strip_tags
 
 from ta_app import utils
 from administrators.models import Session, Job, Application, ApplicationStatus
@@ -2174,90 +2175,6 @@ class AcceptedAppsReportAdmin(LoginRequiredMixin, View):
         })
 
 
-@method_decorator([never_cache], name='dispatch')
-class AcceptedAppsReportObserver(LoginRequiredMixin, View, AcceptedAppsReportMixin):
-    ''' Display a report of applications accepted by students for Observer '''
-    pass
-
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
-def download_all_accepted_apps(request):
-    ''' Download all accepted applications as CSV '''
-
-    apps, info = adminApi.get_applications_filter_limit(request, 'accepted')
-    apps = adminApi.add_app_info_into_applications(apps, ['accepted'])
-
-    result = 'ID,Year,Term,Job,First Name,Last Name,CWL,Student Number,Employee Number,Classification,Monthly Salary,P/T (%),PIN,TASM,Processed,Worktag,Processing Note,Accepted on,Assigned Hours\n'
-    for app in apps:
-        year = app.job.session.year
-        term = app.job.session.term.code
-        job = '{0} {1} {2}'.format(app.job.course.code.name, app.job.course.number.name, app.job.course.section.name)
-        first_name = app.applicant.first_name
-        last_name = app.applicant.last_name
-        cwl = app.applicant.username
-
-        student_number = ''
-        if userApi.profile_exists(app.applicant):
-            student_number = app.applicant.profile.student_number
-
-        employee_number = 'NEW'
-        if userApi.confidentiality_exists(app.applicant):
-            if app.applicant.confidentiality.employee_number:
-                employee_number = app.applicant.confidentiality.employee_number
-
-        classification = '{0} {1} (${2})'.format(app.classification.year, app.classification.name, format(round(app.classification.wage, 2), '.2f'))
-        salary = '${0}'.format( format(adminApi.calcualte_salary(app), '.2f') )
-        pt = format( adminApi.calculate_pt_percentage(app), '.2f' )
-
-        pin = ''
-        tasm = ''
-        processed = ''
-        worktag = ''
-        processing_note = ''
-        if adminApi.has_admin_docs_created(app):
-            if app.admindocuments.pin:
-                pin = app.admindocuments.pin
-            if app.admindocuments.tasm:
-                tasm = 'YES'
-            if app.admindocuments.processed:
-                processed = app.admindocuments.processed
-            if app.admindocuments.worktag:
-                worktag = app.admindocuments.worktag
-            if app.admindocuments.processing_note:
-                processing_note = adminApi.strip_html_tags(app.admindocuments.processing_note)
-
-        accepted_on = ''
-        assigned_hours = ''
-        if app.accepted:
-            accepted_on = app.accepted.created_at
-            assigned_hours = app.accepted.assigned_hours
-
-        result += '{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15},{16},{17},{18}\n'.format(
-            app.id,
-            year,
-            term,
-            job,
-            first_name,
-            last_name,
-            cwl,
-            student_number,
-            employee_number,
-            classification,
-            salary,
-            pt,
-            pin,
-            tasm,
-            processed,
-            '\"' + worktag + '\"',
-            '\"' + processing_note + '\"',
-            accepted_on,
-            assigned_hours
-        )
-
-    return JsonResponse({ 'status': 'success', 'data': result })
-
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -2436,6 +2353,184 @@ def download_all_accepted_apps_report_admin(request):
             '\"' + prev_year_accepted_apps_ubc + '\"',
             total_prev_year_assigned_hours
         )
+    return JsonResponse({ 'status': 'success', 'data': result })
+
+
+@method_decorator([never_cache], name='dispatch')
+class ReportPreferredCandidates(LoginRequiredMixin, View):
+
+    @method_decorator(require_GET)
+    def get(self, request, *args, **kwargs):
+        request = userApi.has_admin_access(request, Role.HR)
+        return render(request, 'administrators/applications/report_preferred_candidates.html', {
+            'download_report_preferred_candidates_url': reverse('administrators:download_report_preferred_candidates')
+        })
+
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def download_report_preferred_candidates(request):
+    apps = Application.objects.filter(job__session__year__iexact='2024', applicationstatus__assigned=ApplicationStatus.OFFERED).order_by('-id').distinct()
+
+    items = {}
+    for app in apps:
+        app = adminApi.add_app_info_into_application(app, ['offered'])
+        job = '{0} {1} {2} {3} {4} - {5}'.format(app.job.session.year, app.job.session.term.code, app.job.course.code.name, app.job.course.number.name, app.job.course.section.name, app.offered.assigned_hours)
+        first_name = app.applicant.first_name
+        last_name = app.applicant.last_name
+        username = app.applicant.username
+
+        status = ''
+        program = ''
+        other_program = ''
+        if userApi.profile_exists(app.applicant):
+            if app.applicant.profile.status:
+                status = app.applicant.profile.status.name
+            if app.applicant.profile.program:
+                program = app.applicant.profile.program.name
+            if app.applicant.profile.program_others:
+                other_program = app.applicant.profile.program_others.replace('&nbsp;', '')
+                other_program = strip_tags(other_program)
+            
+        if username in items.keys():
+            items[username]['total_hours'] += app.offered.assigned_hours
+            items[username]['total_hours_jobs'].append(job)
+        else:
+            total_hours_first_offered = 0
+            if userApi.is_master(app.applicant) or userApi.is_phd(app.applicant):
+                prev_apps = Application.objects.filter(applicant__username=username, applicationstatus__assigned=ApplicationStatus.OFFERED).order_by('job__session__year', 'job__session__term__code').distinct()
+
+                minn = 9999
+                temp_jobs = []
+                for pa in prev_apps:
+                    pa = adminApi.add_app_info_into_application(pa, ['offered'])
+                    if int(pa.job.session.year) < minn:
+                        minn = int(pa.job.session.year)
+                        temp_jobs = []
+                        total_hours_first_offered = 0
+                    
+                    if int(pa.job.session.year) < minn or int(pa.job.session.year) == minn:
+                        j = '{0} {1} {2} {3} {4} - {5}'.format(pa.job.session.year, pa.job.session.term.code, pa.job.course.code.name, pa.job.course.number.name, pa.job.course.section.name, pa.offered.assigned_hours)
+                        temp_jobs.append(j)
+                        total_hours_first_offered += pa.offered.assigned_hours
+                
+            items[username] = { 
+                'first_name': first_name, 
+                'last_name': last_name,
+                'status': status,
+                'program': program,
+                'other_program': other_program,
+                'total_hours': app.offered.assigned_hours,
+                'total_hours_jobs': [job],
+                'total_hours_first_offered': total_hours_first_offered,
+                'total_hours_first_offered_jobs': temp_jobs
+            }
+
+    users = []
+    for k, v in items.items():
+        users.append(v)
+
+    users = sorted(users, key=operator.itemgetter('last_name'))
+
+    result = 'First Name,Last Name,MSc or Phd,Program,Other Program,Offered Total TA Hours in 2024,List of offered jobs in 2024,Offered Total TA Hours in the first year,List of offered jobs in the first year\n'
+    for user in users:
+        result += '{0},{1},{2},{3},{4},{5},{6},{7},{8}\n'.format(
+            user['first_name'],
+            user['last_name'],
+            user['status'],
+            user['program'],
+            '\"' + user['other_program'] + '\"',
+            user['total_hours'],
+            '; '.join(user['total_hours_jobs']),
+            user['total_hours_first_offered'],
+            '; '.join(user['total_hours_first_offered_jobs'])
+        )
+    return JsonResponse({ 'status': 'success', 'data': result })
+
+
+@method_decorator([never_cache], name='dispatch')
+class AcceptedAppsReportObserver(LoginRequiredMixin, View, AcceptedAppsReportMixin):
+    ''' Display a report of applications accepted by students for Observer '''
+    pass
+
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def download_all_accepted_apps(request):
+    ''' Download all accepted applications as CSV '''
+
+    apps, info = adminApi.get_applications_filter_limit(request, 'accepted')
+    apps = adminApi.add_app_info_into_applications(apps, ['accepted'])
+
+    result = 'ID,Year,Term,Job,First Name,Last Name,CWL,Student Number,Employee Number,Classification,Monthly Salary,P/T (%),PIN,TASM,Processed,Worktag,Processing Note,Accepted on,Assigned Hours\n'
+    for app in apps:
+        year = app.job.session.year
+        term = app.job.session.term.code
+        job = '{0} {1} {2}'.format(app.job.course.code.name, app.job.course.number.name, app.job.course.section.name)
+        first_name = app.applicant.first_name
+        last_name = app.applicant.last_name
+        cwl = app.applicant.username
+
+        student_number = ''
+        if userApi.profile_exists(app.applicant):
+            student_number = app.applicant.profile.student_number
+
+        employee_number = 'NEW'
+        if userApi.confidentiality_exists(app.applicant):
+            if app.applicant.confidentiality.employee_number:
+                employee_number = app.applicant.confidentiality.employee_number
+
+        classification = '{0} {1} (${2})'.format(app.classification.year, app.classification.name, format(round(app.classification.wage, 2), '.2f'))
+        salary = '${0}'.format( format(adminApi.calcualte_salary(app), '.2f') )
+        pt = format( adminApi.calculate_pt_percentage(app), '.2f' )
+
+        pin = ''
+        tasm = ''
+        processed = ''
+        worktag = ''
+        processing_note = ''
+        if adminApi.has_admin_docs_created(app):
+            if app.admindocuments.pin:
+                pin = app.admindocuments.pin
+            if app.admindocuments.tasm:
+                tasm = 'YES'
+            if app.admindocuments.processed:
+                processed = app.admindocuments.processed
+            if app.admindocuments.worktag:
+                worktag = app.admindocuments.worktag
+            if app.admindocuments.processing_note:
+                processing_note = adminApi.strip_html_tags(app.admindocuments.processing_note)
+
+        accepted_on = ''
+        assigned_hours = ''
+        if app.accepted:
+            accepted_on = app.accepted.created_at
+            assigned_hours = app.accepted.assigned_hours
+
+        result += '{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15},{16},{17},{18}\n'.format(
+            app.id,
+            year,
+            term,
+            job,
+            first_name,
+            last_name,
+            cwl,
+            student_number,
+            employee_number,
+            classification,
+            salary,
+            pt,
+            pin,
+            tasm,
+            processed,
+            '\"' + worktag + '\"',
+            '\"' + processing_note + '\"',
+            accepted_on,
+            assigned_hours
+        )
+
     return JsonResponse({ 'status': 'success', 'data': result })
 
 

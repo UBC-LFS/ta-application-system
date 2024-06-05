@@ -1,0 +1,21 @@
+{% extends 'ta_app/base.html' %}
+{% block content %}
+
+{% include 'administrators/_menu.html' %}
+
+<div>
+  <div id="download-csv-message" class="container"></div>
+
+  {% include 'ta_app/pages/_header.html' with title='Report for Preferred Candidates' %}
+
+  <button id="download-report-preferred-candidates" class="btn btn-sm btn-info font-size-xs" type="button" data-url='{{ download_report_preferred_candidates_url }}' data-next='{{ request.get_full_path }}'>
+    Download All as CSV
+  </button>
+</div>
+
+{% endblock %}
+
+{% block js %}
+  {% load static %}
+  <script type="text/javascript" src="{% static 'ta_app/js/report_preferred_candidates.js' %}"></script>
+{% endblock %}

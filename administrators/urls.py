@@ -46,6 +46,7 @@ urlpatterns = [
     path('applications/selected/', views.SelectedApplications.as_view(), name='selected_applications'),
     path('applications/offered/', views.OfferedApplications.as_view(), name='offered_applications'),
     path('applications/accepted/report/admin/', views.AcceptedAppsReportAdmin.as_view(), name='accepted_apps_report_admin'),
+    path('applications/report/preferred-candidates/', views.ReportPreferredCandidates.as_view(), name='report_preferred_candidates'),
     path('applications/accepted/', views.AcceptedApplications.as_view(), name='accepted_applications'),
     path('applications/declined/', views.DeclinedApplications.as_view(), name='declined_applications'),
     path('applications/terminated/', views.terminated_applications, name='terminated_applications'),
@@ -58,6 +59,7 @@ urlpatterns = [
 
     path('api/applications/accepted/download/all/', views.download_all_accepted_apps, name='download_all_accepted_apps'),
     path('api/applications/accepted/report/admin/download/all/', views.download_all_accepted_apps_report_admin, name='download_all_accepted_apps_report_admin'),
+    path('api/applications/report/preferred-candidates/download/', views.download_report_preferred_candidates, name='download_report_preferred_candidates'),
 
     path('hr/users/<str:username>/edit/', views.edit_user, name='edit_user'),
     path('hr/users/<str:username>/delete/confirmation/', views.delete_user_confirmation, name='delete_user_confirmation'),

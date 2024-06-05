@@ -1515,37 +1515,3 @@ def trim(data):
 def strip_html_tags(text):
     text_replaced = text.replace('<br>', '\n').replace('</p>', '\n').replace('&nbsp;', ' ').replace('&amp;', '&').replace('"', "'")
     return strip_tags(text_replaced)
-
-
-"""
-def get_total_assigned_hours(apps, list):
-    ''' Get total assigend hours in list '''
-    total_hours = {}
-    for name in list:
-        total_hours[name] = {}
-
-    for app in apps:
-        if 'offered' in list:
-            offered = app.applicationstatus_set.filter(assigned=ApplicationStatus.OFFERED)
-            if offered.exists():
-                year_term = '{0}-{1}'.format(app.job.session.year, app.job.session.term.code)
-                if year_term in total_hours['offered'].keys():
-                    total_hours['offered'][year_term] += offered.last().assigned_hours
-                else:
-                    total_hours['offered'][year_term] = offered.last().assigned_hours
-
-        if 'accepted' in list:
-            accepted = app.applicationstatus_set.filter(assigned=ApplicationStatus.ACCEPTED)
-
-            if accepted.exists():
-                _, _, valid_accepted = valid_accepted_app([], app)
-
-                if valid_accepted:
-                    year_term = '{0}-{1}'.format(app.job.session.year, app.job.session.term.code)
-                    if year_term in total_hours['accepted'].keys():
-                        total_hours['accepted'][year_term] += accepted.last().assigned_hours
-                    else:
-                        total_hours['accepted'][year_term] = accepted.last().assigned_hours
-
-    return total_hours
-"""
