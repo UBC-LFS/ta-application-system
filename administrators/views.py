@@ -2394,37 +2394,47 @@ def download_report_preferred_candidates(request):
                 other_program = strip_tags(other_program)
             
         if username in items.keys():
-            items[username]['total_hours'] += app.offered.assigned_hours
-            items[username]['total_hours_jobs'].append(job)
+            items[username]['total_hours_offered'] += app.offered.assigned_hours
+            items[username]['total_hours_offered_jobs'].append(job)
         else:
-            total_hours_first_offered = 0
-            if userApi.is_master(app.applicant) or userApi.is_phd(app.applicant):
-                prev_apps = Application.objects.filter(applicant__username=username, applicationstatus__assigned=ApplicationStatus.OFFERED).order_by('job__session__year', 'job__session__term__code').distinct()
+            last_year_apps = Application.objects.filter(applicant__username=username, job__session__year='2023', applicationstatus__assigned=ApplicationStatus.OFFERED).order_by('job__session__year', 'job__session__term__code').distinct()
+            total_hours_offered_last_year = 0
+            offered_jobs_last_year = []
+            for aa in last_year_apps:
+                aa = adminApi.add_app_info_into_application(aa, ['offered'])
+                j = '{0} {1} {2} {3} {4} - {5}'.format(aa.job.session.year, aa.job.session.term.code, aa.job.course.code.name, aa.job.course.number.name, aa.job.course.section.name, aa.offered.assigned_hours)
+                total_hours_offered_last_year += aa.offered.assigned_hours
+                offered_jobs_last_year.append(j)
 
+            total_hours_first_offered = 0
+            first_offered_jobs = []
+            if userApi.is_master(app.applicant) or userApi.is_phd(app.applicant):
+                all_apps = Application.objects.filter(applicant__username=username, applicationstatus__assigned=ApplicationStatus.OFFERED).order_by('job__session__year', 'job__session__term__code').distinct()
                 minn = 9999
-                temp_jobs = []
-                for pa in prev_apps:
-                    pa = adminApi.add_app_info_into_application(pa, ['offered'])
-                    if int(pa.job.session.year) < minn:
-                        minn = int(pa.job.session.year)
-                        temp_jobs = []
+                for aa in all_apps:
+                    aa = adminApi.add_app_info_into_application(aa, ['offered'])
+                    if int(aa.job.session.year) < minn:
+                        minn = int(aa.job.session.year)
                         total_hours_first_offered = 0
-                    
-                    if int(pa.job.session.year) < minn or int(pa.job.session.year) == minn:
-                        j = '{0} {1} {2} {3} {4} - {5}'.format(pa.job.session.year, pa.job.session.term.code, pa.job.course.code.name, pa.job.course.number.name, pa.job.course.section.name, pa.offered.assigned_hours)
-                        temp_jobs.append(j)
-                        total_hours_first_offered += pa.offered.assigned_hours
-                
+                        first_offered_jobs = []
+                        
+                    if int(aa.job.session.year) < minn or int(aa.job.session.year) == minn:
+                        j = '{0} {1} {2} {3} {4} - {5}'.format(aa.job.session.year, aa.job.session.term.code, aa.job.course.code.name, aa.job.course.number.name, aa.job.course.section.name, aa.offered.assigned_hours)
+                        total_hours_first_offered += aa.offered.assigned_hours
+                        first_offered_jobs.append(j)
+            
             items[username] = { 
                 'first_name': first_name, 
                 'last_name': last_name,
                 'status': status,
                 'program': program,
                 'other_program': other_program,
-                'total_hours': app.offered.assigned_hours,
-                'total_hours_jobs': [job],
+                'total_hours_offered': app.offered.assigned_hours,
+                'total_hours_offered_last_year': total_hours_offered_last_year,
                 'total_hours_first_offered': total_hours_first_offered,
-                'total_hours_first_offered_jobs': temp_jobs
+                'total_hours_offered_jobs': [job],
+                'offered_jobs_last_year': offered_jobs_last_year,
+                'total_hours_first_offered_jobs': first_offered_jobs
             }
 
     users = []
@@ -2433,17 +2443,19 @@ def download_report_preferred_candidates(request):
 
     users = sorted(users, key=operator.itemgetter('last_name'))
 
-    result = 'First Name,Last Name,MSc or Phd,Program,Other Program,Offered Total TA Hours in 2024,List of offered jobs in 2024,Offered Total TA Hours in the first year,List of offered jobs in the first year\n'
+    result = 'First Name,Last Name,MSc or Phd,Program,Other Program,Offered Total TA Hours in 2024,Offered Total TA Hours in 2023,Offered Total TA Hours in the first year,List of offered jobs in 2024,List of offered jobs in 2023,List of offered jobs in the first year\n'
     for user in users:
-        result += '{0},{1},{2},{3},{4},{5},{6},{7},{8}\n'.format(
+        result += '{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10}\n'.format(
             user['first_name'],
             user['last_name'],
             user['status'],
             user['program'],
             '\"' + user['other_program'] + '\"',
-            user['total_hours'],
-            '; '.join(user['total_hours_jobs']),
+            user['total_hours_offered'],
+            user['total_hours_offered_last_year'],
             user['total_hours_first_offered'],
+            '; '.join(user['total_hours_offered_jobs']),
+            '; '.join(user['offered_jobs_last_year']),
             '; '.join(user['total_hours_first_offered_jobs'])
         )
     return JsonResponse({ 'status': 'success', 'data': result })
