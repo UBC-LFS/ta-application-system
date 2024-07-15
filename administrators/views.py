@@ -1356,6 +1356,17 @@ class SelectedApplications(LoginRequiredMixin, View):
                 elif (app.job.assigned_ta_hours * 1.0/4.0) < app.job.accumulated_ta_hours:
                     app.ta_hour_progress = 'under_one_quarter'
 
+
+        program1 = 'FNH'
+        program1 = 'MND'
+        if app.worktaghours:
+            if app.worktaghours.program_hours['program1_name']:
+                program1 = app.worktaghours.program_hours['program1_name']
+            if app.worktaghours.program_hours['program2_name']:
+                program2 = app.worktaghours.program_hours['program2_name']
+
+        programs = { 'one': program1, 'two': program2 }
+
         return render(request, 'administrators/applications/selected_applications.html', {
             'loggedin_user': request.user,
             'apps': apps,
@@ -1371,50 +1382,83 @@ class SelectedApplications(LoginRequiredMixin, View):
             'classification_choices': adminApi.get_classifications(),
             'app_status': APP_STATUS,
             'new_next': adminApi.build_new_next(request),
-            'this_year': utils.THIS_YEAR
+            'this_year': utils.THIS_YEAR,
+            'worktags': settings.WORKTAGS,
+            'programs': programs
         })
 
 
     @method_decorator(require_POST)
     def post(self, request, *args, **kwargs):
-        # TODO: check this function
-        # Edit application - not using anymore
+        aid = request.POST['application']
+        valid_programs = [
+            ('program1', 'Program 1'), 
+            ('program1_hours', 'Program 1 Hours'), 
+            ('program2', 'Program 2'), 
+            ('program2_hours', 'Program 2 Hours'), 
+            ('total_hours', 'Total Hours')
+        ]
+        for field in valid_programs:
+            if not request.POST.get(field[0], None):
+                messages.error(request, 'An error occurred. This <strong>{0}</strong> field is required. Please try again.'.format(field[1]))
+                return HttpResponseRedirect(request.POST.get('next'))
 
-        # Check whether a next url is valid or not
-        adminApi.can_req_parameters_access(request, 'none', ['next'], 'POST')
+        program1 = request.POST['program1'].split('-')
+        program1_code = program1[1]
+        program1_hours = request.POST['program1_hours']
+        program2 = request.POST['program2'].split('-')
+        program2_code = program2[1]
+        program2_hours = request.POST['program2_hours']
+        total_hours = request.POST['total_hours']
+        program_hours = {
+            'program1_name': program1[0],
+            'program1_code': program1[1],
+            'program1_hours': program1_hours,
+            'program2_name': program2[0],
+            'program2_code': program2[1],
+            'program2_hours': program2_hours,
+            'total_hours': total_hours
+        }
 
-        if 'classification' not in request.POST.keys() or len(request.POST.get('classification')) == 0:
-            messages.error(request, 'An error occurred. Please select classification, then try again.')
-            return HttpResponseRedirect(request.POST.get('next'))
+        p1_percentage = round(int(program1_hours) / int(total_hours) * 100, 1)
+        p2_percentage = round(int(program2_hours) / int(total_hours) * 100, 1)
+        worktag = '{0}% {1}, {2}% {3}'.format(p1_percentage, program1_code, p2_percentage, program2_code)
 
-        assigned_hours = request.POST.get('assigned_hours')
-
-        if adminApi.is_valid_float(assigned_hours) == False:
-            messages.error(request, 'An error occurred. Please check assigned hours. Assigned hours must be numerival value only.')
-            return HttpResponseRedirect(request.POST.get('next'))
-
-        if adminApi.is_valid_integer(assigned_hours) == False:
-            messages.error(request, 'An error occurred. Please check assigned hours. Assign TA Hours must be non-negative integers.')
-            return HttpResponseRedirect(request.POST.get('next'))
-
-        assigned_hours = int( float(assigned_hours) )
-
-        if assigned_hours < 0:
-            messages.error(request, 'An error occurred. Please check assigned hours. Assigned hours must be greater than 0.')
-            return HttpResponseRedirect(request.POST.get('next'))
-
-        app = adminApi.get_application(request.POST.get('application'))
-        if assigned_hours > int(app.job.assigned_ta_hours):
-            messages.error(request, 'An error occurred. Please you cannot assign {0} hours Total Assigned TA Hours is {1}, then try again.'.format( assigned_hours, int(app.job.assigned_ta_hours) ))
-            return HttpResponseRedirect(request.POST.get('next'))
-
-        if adminApi.update_job_offer(request.POST):
-            messages.success(request, 'Success! Updated this application (ID: {0})'.format(app.id))
+        # Update admin docs - processing note
+        processing_note = request.POST['processing_note']
+        ad = AdminDocuments.objects.filter(application_id=aid)
+        if ad.exists():
+            ad_obj = ad.first()
+            update_fields = []
+            if ad_obj.worktag and ad_obj.worktag != worktag:
+                update_fields.append('worktag')
+                ad_obj.worktag = worktag
+                processing_note += "<p>Auto update: <strong class='text-success'>{0}</strong> on {1}</p>".format(worktag, datetime.today().strftime('%Y-%m-%d'))
+            
+            if (ad_obj.processing_note or 'worktag' in update_fields) and (len(ad_obj.processing_note) != len(processing_note)):
+                update_fields.append('processing_note')
+                ad_obj.processing_note = processing_note
+            
+            if len(update_fields) > 0:
+                ad_obj.save(update_fields=update_fields)
         else:
-            messages.error(request, 'An error occurred. Failed to update this application (ID: {0}).'.format(app.id))
+            processing_note += "<p>Auto update: <strong class='text-success'>{0}</strong> on {1}</p>".format(worktag, datetime.today().strftime('%Y-%m-%d'))
+            AdminDocuments.objects.create(application_id=aid, processing_note=processing_note, worktag=worktag)
 
+        wt = WorktagHours.objects.filter(application_id=aid)
+        if wt.exists():
+            if wt.first().program_hours == program_hours:
+                messages.warning(request, 'Warning! Nothing has been updated for the Worktag Hours (ID: {0})'.format(wt.first().application.id))
+            else:
+                wt.update(program_hours=program_hours)
+                messages.success(request, 'Success! Updated the Worktag Hours (ID: {0})'.format(wt.first().application.id))
+        else:
+            obj = WorktagHours.objects.create(application_id=aid, program_hours=program_hours)
+            if obj:
+                messages.success(request, 'Success! Saved the Worktag Hours (ID: {0})'.format(obj.application.id))
+        
         return HttpResponseRedirect(request.POST.get('next'))
-    
+
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -1572,7 +1616,7 @@ class AcceptedApplications(LoginRequiredMixin, View):
             'today_processed_stats': adminApi.get_processed_stats(info['today_accepted_apps']),
             'today': info['today'],
             'download_all_accepted_apps_url': reverse('administrators:download_all_accepted_apps'),
-            'worktag_options': settings.WORKTAGS
+            'worktag_options': settings.WORKTAG_MAP
         })
 
 
@@ -1624,6 +1668,99 @@ def import_accepted_apps(request):
                 messages.warning(request, 'Warning! No data was updated in the database. Please check your data inputs.')
         else:
             messages.error(request, msg)
+
+    return HttpResponseRedirect(request.POST.get('next'))
+
+
+@method_decorator([never_cache], name='dispatch')
+class AcceptedApplicationsWorkday(LoginRequiredMixin, View):
+
+    @method_decorator(require_GET)
+    def get(self, request, *args, **kwargs):
+        request = userApi.has_admin_access(request, Role.HR)
+
+        apps, info = adminApi.get_applications_filter_limit(request, 'accepted')
+
+        page = request.GET.get('page', 1)
+        paginator = Paginator(apps, settings.PAGE_SIZE)
+
+        try:
+            apps = paginator.page(page)
+        except PageNotAnInteger:
+            apps = paginator.page(1)
+        except EmptyPage:
+            apps = paginator.page(paginator.num_pages)
+
+        apps = adminApi.add_app_info_into_applications(apps, ['accepted', 'declined'])
+
+        return render(request, 'administrators/applications/accepted_applications_workday.html', {
+            'apps': apps,
+            'new_next': adminApi.build_new_next(request),
+        })
+
+
+import csv
+from dataclasses import dataclass
+
+@require_http_methods(['POST'])
+def import_accepted_apps_workday(request):
+    ''' Import accepted applications for Workday '''
+    
+    file = request.FILES.get('file')
+    file_split = os.path.splitext(file.name)
+
+    print(file_split)
+    # only csv is allowed to update
+    if 'csv' not in file_split[1].lower():
+        messages.error(request, 'An error occurred. Only CSV files are allowed to update. Please check your file.')
+        return HttpResponseRedirect(request.POST.get('next'))
+
+
+    @dataclass
+    class Student:
+        employee_number: str
+        student_number: str
+        worktag: str
+        sin_expiry_date: date
+        study_permit_expiry_date: date
+
+
+    apps, info = adminApi.get_applications_filter_limit(request, 'accepted')
+    students = {}
+    for app in apps:
+        en = ''
+        sn = ''
+        sin_expiry = ''
+        sp_expiry = ''
+
+        if userApi.confidentiality_exists(app.applicant):
+            if app.applicant.confidentiality.employee_number:
+                en = app.applicant.confidentiality.employee_number
+
+            if app.applicant.confidentiality.sin_expiry_date:
+                sin_expiry = app.applicant.confidentiality.sin_expiry_date
+
+            if app.applicant.confidentiality.study_permit_expiry_date:
+                sp_expiry = app.applicant.confidentiality.study_permit_expiry_date
+
+        if userApi.profile_exists(app.applicant):
+            sn = app.applicant.profile.student_number
+
+        students[sn] = Student(en, sn, app.admindocuments.worktag, sin_expiry, sp_expiry)
+    
+    
+    data = StringIO(file.read().decode())
+
+    csv_reader = csv.reader(data, quotechar='"', delimiter=',')
+
+
+    for i, row in enumerate(csv_reader):
+        if i == 0:
+            print(row)
+        else:
+            print(row)
+            sn = row[1]
+            print(students[sn])
 
     return HttpResponseRedirect(request.POST.get('next'))
 

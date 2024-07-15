@@ -421,6 +421,7 @@ class AdminEmailForm(forms.ModelForm):
             'type': forms.TextInput(attrs={ 'class':'form-control' }),
         }
 
+
 class LandingPageForm(forms.ModelForm):
     class Meta:
         model = LandingPage

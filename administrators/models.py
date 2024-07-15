@@ -244,6 +244,18 @@ class ApplicationStatus(models.Model):
         ordering = ['pk']
 
 
+class WorktagHours(models.Model):
+    ''' Worktag hours for admin documents '''
+
+    application = models.OneToOneField(Application, on_delete=models.CASCADE, primary_key=True)
+    program_hours = models.JSONField()
+    created_at = models.DateField(auto_now_add=True)
+    updated_at = models.DateField(auto_now=True)
+
+    class Meta:
+        ordering = ['-pk']
+
+
 class AdminDocuments(models.Model):
     '''
     Admin Documents
@@ -260,7 +272,7 @@ class AdminDocuments(models.Model):
     eform = models.CharField(max_length=6, unique=True, null=True, blank=True)
     speed_chart = models.CharField(max_length=4, null=True, blank=True)
     processing_note = models.TextField(null=True, blank=True)
-    worktag = models.CharField(max_length=35, null=True, blank=True)
+    worktag = models.CharField(max_length=100, null=True, blank=True)
     processed = models.CharField(max_length=4, null=True, blank=True)
 
 

@@ -240,6 +240,96 @@
               <button class="btn btn-xs {{ app.offer_modal.button_colour }}" type="button" data-toggle="modal" data-target="#job-application-offer-modal-{{ app.id }}">
                 {{ app.offer_modal.title }}
               </button>
+
+              <div class="modal fade" id="job-application-offer-modal-{{ app.id }}" tabindex="-1" role="dialog" aria-labelledby="job-application-offer-modal-label-{{ app.id }}" aria-hidden="true">
+                <div class="modal-dialog modal-lg" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title text-info" id="job-application-offer-modal-label-{{ app.id }}">{{ app.offer_modal.title }}</h5>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    </div>
+                    <div class="modal-body text-left font-size-1">
+                      <div class="modal-item">
+                        <h6 class="text-secondary">{{ app.job.session.year }} {{ app.job.session.term.code }} - {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</h6>
+                        <h4>
+                          {{ app.applicant.get_full_name }}
+                          <small class="text-dark-gray">(CWL: {{ app.applicant.username }})</small>
+                        </h4>
+
+                        <div>
+                          {% include 'ta_app/users/_display_special_master_program.html' with data=app.applicant.profile.program.slug %}
+
+                          {% if app.applicant.gta %}
+                            {% include 'ta_app/users/_gta_badge.html' with data=app.applicant %}
+                          {% endif %}
+
+                          {% include 'ta_app/applications/_app_sta_confirmation.html' with data=app.sta_confirmation %}
+                        </div>
+
+                        {% if app.applicant.preferred_ta %}
+                          <div class="border bg-light-blue p-3">
+                            <span class="font-weight-bold text-danger">Preferred Candidate</span> (<i class="fa fa-flag text-danger" aria-hidden="true"></i>)
+
+                            Total number of GTA hours worked: <span class="text-chocolate font-weight-bold">
+                              {% if app.applicant.profile.total_ta_hours %}
+                                {{ app.applicant.profile.total_ta_hours }}
+                              {% else %}
+                                0
+                              {% endif %}
+                            </span> hours
+                          </div>
+                        {% endif %}
+
+                        <form action="{{ app.offer_modal.form_url }}" method="post">
+                          {% csrf_token %}
+
+                          <div class="field-wrapper">
+                            <label for="id_classification_{{ app.id }}">Classification:</label>
+                            <div class="help">This field is required.</div>
+                            <select id="id_classification_{{ app.id }}" name="classification" class="form-control">
+                              <option value="">Select</option>
+                              {% for choice in classification_choices %}
+                                {% if choice.id == app.offer_modal.classification_id %}
+                                  <option value="{{ choice.id }}" selected>{{ choice.year }} {{ choice.name }}</option>
+                                {% else %}
+                                  <option value="{{ choice.id }}">{{ choice.year }} {{ choice.name }}</option>
+                                {% endif %}
+                              {% endfor %}
+                            </select>
+                          </div>
+
+                          <div class="field-wrapper">
+                            <label for="id_assigned_hours_{{ app.id }}">Assigned Hours:</label>
+                            <div class="help">Only numerical value allowed.</div>
+                            <input id="id_assigned_hours_{{ app.id }}" type="number" step="1" name="assigned_hours" value="{{ app.offer_modal.assigned_hours|floatformat:'0' }}" class="form-control" />
+                          </div>
+
+                          <div class="field-wrapper mt-0">
+                            <label for="id_note_{{ app.id }}">Note:</label>
+                            <div class="help">Administrators and instructors can see this note.</div>
+                            <textarea id="id_note_{{ app.id }}" name="note" class="summernote">{{ app.note|default_if_none:"" }}</textarea>
+                          </div>
+
+                          <input type="hidden" name="application" value="{{ app.id }}" />
+                          <input type="hidden" name="applicant" value="{{ app.applicant.id }}" />
+                          <input type="hidden" name="next" value="{{ new_next }}" />
+
+                          {% if app.offer_modal.title == 'Edit' %}
+                            <input type="hidden" name="applicationstatus" value="{{ app.offered.id }}" />
+                            <input type="hidden" name="offer_type" value="edit" />
+                          {% else %}
+                            <input type="hidden" name="assigned" value="{{ app_status.offered }}" />
+                            <input type="hidden" name="has_contract_read" value="false" />
+                            <input type="hidden" name="offer_type" value="offer" />
+                          {% endif %}
+
+                          <input class="btn font-size-1 {{ app.offer_modal.button_colour }}" type="submit" value="{% if app.offer_modal.title == 'Edit' %}Update{% else %}{{ app.offer_modal.title }}{% endif %}" />
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             {% endif %}
 
             {% if app.offer_modal.button_disabled_message %}
@@ -248,97 +338,108 @@
               </div>
             {% endif %}
 
-            <div class="modal fade" id="job-application-offer-modal-{{ app.id }}" tabindex="-1" role="dialog" aria-labelledby="job-application-offer-modal-label-{{ app.id }}" aria-hidden="true">
+            <button class="btn btn-xs btn-{% if app.worktaghours %}secondary{% else %}success{% endif %} d-block mx-auto mt-2" type="button" data-toggle="modal" data-target="#worktag-modal-{{ app.id }}">
+              Worktag
+            </button>
+            <div class="modal fade" id="worktag-modal-{{ app.id }}" tabindex="-1" role="dialog" aria-labelledby="worktag-label-{{ app.id }}" aria-hidden="true">
               <div class="modal-dialog modal-lg" role="document">
                 <div class="modal-content">
                   <div class="modal-header">
-                    <h5 class="modal-title text-info" id="job-application-offer-modal-label-{{ app.id }}">{{ app.offer_modal.title }}</h5>
+                    <h5 class="modal-title text-info" id="worktag-modal-label-{{ app.id }}">Worktag Setting</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                   </div>
-                  <div class="modal-body text-left">
+                  <div class="modal-body text-left font-size-1">
                     <div class="modal-item">
                       <h6 class="text-secondary">{{ app.job.session.year }} {{ app.job.session.term.code }} - {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</h6>
-
                       <h4>
                         {{ app.applicant.get_full_name }}
                         <small class="text-dark-gray">(CWL: {{ app.applicant.username }})</small>
                       </h4>
 
-                      <div>
-                        {% include 'ta_app/users/_display_special_master_program.html' with data=app.applicant.profile.program.slug %}
-
-                        {% if app.applicant.gta %}
-                          {% include 'ta_app/users/_gta_badge.html' with data=app.applicant %}
-                        {% endif %}
-
-                        {% include 'ta_app/applications/_app_sta_confirmation.html' with data=app.sta_confirmation %}
+                      <div class="border bg-light-gray font-size-sm pt-2 px-3 pb-0">
+                        <p class="mb-0">
+                          When students accept their offer, a <code>Worktag</code> value will automatically be saved in their Admin Documents.
+                          If an application has two different <code>Worktags</code>, please enter two hour values to calculate their percentages and store them automatically.<br />
+                          For example,
+                        </p>
+                        <ul class="font-size-sm">
+                          <li>FNH = 84 hours, 84 / 112 * 100 = 75%</li>
+                          <li>MND = 28 hours, 28 / 112 * 100 = 25%</li>
+                        </ul>
                       </div>
 
-                      {% if app.applicant.preferred_ta %}
-                        <div class="border bg-light-blue p-3 font-size-1">
-                          <span class="font-weight-bold text-danger">Preferred Candidate</span> (<i class="fa fa-flag text-danger" aria-hidden="true"></i>)
+                      <p class="font-weight-bold">
+                        Current Worktag:
+                        {% if app.admindocuments.worktag %}
+                          <span class="text-danger">{{ app.admindocuments.worktag }}</span>
+                        {% else %}
+                          <span class="badge badge-secondary">NONE</span>
+                        {% endif %}
+                      </p>
 
-                          Total number of GTA hours worked: <span class="text-chocolate font-weight-bold">
-                            {% if app.applicant.profile.total_ta_hours %}
-                              {{ app.applicant.profile.total_ta_hours }}
-                            {% else %}
-                              0
-                            {% endif %}
-                          </span> hours
-                        </div>
-                      {% endif %}
-
-                      <form action="{{ app.offer_modal.form_url }}" method="post">
+                      <form action="" method="post">
                         {% csrf_token %}
 
-                        <div class="field-wrapper">
-                          <label for="id_classification_{{ app.id }}">Classification:</label>
-                          <div class="help">This field is required.</div>
-                          <select id="id_classification_{{ app.id }}" name="classification" class="form-control">
-                            <option value="">Select</option>
-                            {% for choice in classification_choices %}
-                              {% if choice.id == app.offer_modal.classification_id %}
-                                <option value="{{ choice.id }}" selected>{{ choice.year }} {{ choice.name }}</option>
-                              {% else %}
-                                <option value="{{ choice.id }}">{{ choice.year }} {{ choice.name }}</option>
-                              {% endif %}
-                            {% endfor %}
-                          </select>
-                        </div>
+                        <table class="white-modal-table table">
+                          <tr>
+                            <td>
+                              <label for="id_program1_{{ app.id }}">Program 1:</label>
+                              <div class="help">This field is required.</div>
+                              <select id="id_program1_{{ app.id }}" name="program1" class="form-control">
+                                {% for worktag in worktags %}
+                                  <option value="{{ worktag.name }}-{{ worktag.code }}" {% if programs.one == worktag.name %}selected{% endif %}>{{ worktag.name }} ({{ worktag.code }})</option>
+                                {% endfor %}
+                              </select>
+                            </td>
+                            <td>
+                              <label for="id_program1_hours_{{ app.id }}">Program 1 Hours:</label>
+                              <div class="help">This field is required. Only numerical value allowed.</div>
+                              <input id="id_program1_hours_{{ app.id }}" type="number" step="1" name="program1_hours" value="{{ app.worktaghours.program_hours.program1_hours }}" class="form-control" />
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>
+                              <label for="id_program2_{{ app.id }}">Program 2:</label>
+                              <div class="help">This field is required.</div>
+                              <select id="id_program2_{{ app.id }}" name="program2" class="form-control">
+                                {% for worktag in worktags %}
+                                  <option value="{{ worktag.name }}-{{ worktag.code }}" {% if programs.two == worktag.name %}selected{% endif %}>{{ worktag.name }} ({{ worktag.code }})</option>
+                                {% endfor %}
+                              </select>
+                            </td>
+                            <td>
+                              <label for="id_program2_hours_{{ app.id }}">Program 2 Hours:</label>
+                              <div class="help">This field is required. Only numerical value allowed.</div>
+                              <input id="id_program2_hours_{{ app.id }}" type="number" step="1" name="program2_hours" value="{{ app.worktaghours.program_hours.program2_hours }}" class="form-control" />
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>
+                              <label for="id_total_hours_{{ app.id }}">Total Hours:</label>
+                              <div class="help">This field is required. Only numerical value allowed.</div>
+                              <input id="id_total_hours_{{ app.id }}" type="number" step="1" name="total_hours" value="{{ app.worktaghours.program_hours.total_hours }}" class="form-control" />
+                            </td>
+                            <td></td>
+                          </tr>
+                        </table>
 
                         <div class="field-wrapper">
-                          <label for="id_note_{{ app.id }}">Note:</label>
-                          <div class="help">Administrators and instructors can see this note.</div>
-                          <textarea id="id_note_{{ app.id }}" name="note" class="summernote">{{ app.note|default_if_none:"" }}</textarea>
-                        </div>
-
-                        <div class="field-wrapper">
-                          <label for="id_assigned_hours_{{ app.id }}">Assigned Hours:</label>
-                          <div class="help">Only numerical value allowed.</div>
-                          <input id="id_assigned_hours_{{ app.id }}" type="number" step="1" name="assigned_hours" value="{{ app.offer_modal.assigned_hours|floatformat:'0' }}" class="form-control" />
+                          <label for="id_processing_note_{{ app.id }}">Admin Documents - Processing Note:</label>
+                          <div class="help">This field is optional. Only administrators can see this processing note in the Accepted Applications.</div>
+                          <textarea id="id_processing_note_{{ app.id }}" name="processing_note" class="summernote">{{ app.admindocuments.processing_note|default_if_none:"" }}</textarea>
                         </div>
 
                         <input type="hidden" name="application" value="{{ app.id }}" />
-                        <input type="hidden" name="applicant" value="{{ app.applicant.id }}" />
                         <input type="hidden" name="next" value="{{ new_next }}" />
 
-                        {% if app.offer_modal.title == 'Edit' %}
-                          <input type="hidden" name="applicationstatus" value="{{ app.offered.id }}" />
-                          <input type="hidden" name="offer_type" value="edit" />
-                        {% else %}
-                          <input type="hidden" name="assigned" value="{{ app_status.offered }}" />
-                          <input type="hidden" name="has_contract_read" value="false" />
-                          <input type="hidden" name="offer_type" value="offer" />
-                        {% endif %}
-
-                        <input class="btn font-size-1 {{ app.offer_modal.button_colour }}" type="submit" value="{% if app.offer_modal.title == 'Edit' %}Update{% else %}{{ app.offer_modal.title }}{% endif %}" />
+                        <input class="btn btn-{% if app.worktaghours %}secondary{% else %}success{% endif %} font-size-1" type="submit" value="{% if app.worktaghours %}Save Changes{% else %}Conform Save{% endif %}" />
                       </form>
+
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-
           </td>
         </tr>
       {% endfor %}

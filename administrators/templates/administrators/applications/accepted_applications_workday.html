@@ -1,0 +1,43 @@
+{% extends 'ta_app/base.html' %}
+{% block content %}
+
+{% include 'administrators/_menu.html' %}
+
+<div>
+
+  {% include 'ta_app/pages/_header.html' with title='Accepted Applications - Workday' %}
+
+  <form action="{% url 'administrators:import_accepted_apps_workday' %}" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="field-wrapper">
+      <label for="id_file">CSV File:</label>
+      <input id="id_file" type="file" name="file" />
+    </div>
+    <input type="hidden" name="next" value="{{ new_next }}" />
+    <input class="btn btn-primary" type="submit" value="Import" />
+  </form>
+
+  <table class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Year</th>
+        <th>Term</th>
+        <th>Job</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for app in apps %}
+      <tr>
+        <td>{{ app.id }}</td>
+        <td>{{ app.job.session.year }}</td>
+        <td>{{ app.job.session.term.code }}</td>
+        <td>{{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+</div>
+
+{% endblock %}
