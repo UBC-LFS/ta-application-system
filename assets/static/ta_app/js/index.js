@@ -47,8 +47,9 @@ $(document).ready(function() {
 
   // Remove external style
   $('.WebKit-mso-list-quirks-style').remove();
-  
+
 });
+
 
 /* Helper functions */
 
@@ -60,6 +61,14 @@ function downloadCSV(data, filename) {
   el.href = url;
   el.setAttribute('download', filename);
   el.click();
+}
+
+// Download data to an Excel file
+function downloadExcel(data, filename) {
+  const worksheet = XLSX.utils.json_to_sheet(data);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+  XLSX.writeFile(workbook, filename, { compression: true });
 }
 
 // Get today's date format

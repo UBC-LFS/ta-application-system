@@ -52,7 +52,7 @@ urlpatterns = [
     path('applications/terminated/', views.terminated_applications, name='terminated_applications'),
     path('applications/accepted/report/observer/', views.AcceptedAppsReportObserver.as_view(), name='accepted_apps_report_observer'),
     path('applications/admin_docs/update/', views.update_admin_docs, name='update_admin_docs'),
-    path('applications/accepted/import/workday/', views.import_accepted_apps_workday, name='import_accepted_apps_workday'),
+    path('applications/accepted/download/workday/', views.download_accepted_apps_workday, name='download_accepted_apps_workday'),
     path('applications/accepted/import/', views.import_accepted_apps, name='import_accepted_apps'),
     path('applications/reset/', views.reset_application, name='reset_application'),
 

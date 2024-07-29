@@ -1589,10 +1589,10 @@ class AcceptedApplications(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         request = userApi.has_admin_access(request, Role.HR)
 
-        apps, info = adminApi.get_applications_filter_limit(request, 'accepted')
+        app_list, info = adminApi.get_applications_filter_limit(request, 'accepted')
 
         page = request.GET.get('page', 1)
-        paginator = Paginator(apps, settings.PAGE_SIZE)
+        paginator = Paginator(app_list, settings.PAGE_SIZE)
 
         try:
             apps = paginator.page(page)
@@ -1679,10 +1679,10 @@ class AcceptedApplicationsWorkday(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         request = userApi.has_admin_access(request, Role.HR)
 
-        apps, info = adminApi.get_applications_filter_limit(request, 'accepted')
+        app_list, total_apps = adminApi.get_accepted_app_report(request)
 
         page = request.GET.get('page', 1)
-        paginator = Paginator(apps, settings.PAGE_SIZE)
+        paginator = Paginator(app_list, settings.PAGE_SIZE)
 
         try:
             apps = paginator.page(page)
@@ -1691,78 +1691,102 @@ class AcceptedApplicationsWorkday(LoginRequiredMixin, View):
         except EmptyPage:
             apps = paginator.page(paginator.num_pages)
 
-        apps = adminApi.add_app_info_into_applications(apps, ['accepted', 'declined'])
+        for app in apps:
+            app = adminApi.make_workday_data(app)
 
         return render(request, 'administrators/applications/accepted_applications_workday.html', {
+            'total_apps': total_apps,
             'apps': apps,
-            'new_next': adminApi.build_new_next(request),
+            'download_accepted_apps_workday_url': reverse('administrators:download_accepted_apps_workday'),
+            'workday_location': settings.WORKDAY_LOCATION,
+            'workday_costing_alloc_level': settings.WORKDAY_COSTING_ALLOCATION_LEVEL
         })
 
 
-import csv
-from dataclasses import dataclass
+@require_http_methods(['GET'])
+def download_accepted_apps_workday(request):
+    ''' Download accepted applications for Workday '''
 
-@require_http_methods(['POST'])
-def import_accepted_apps_workday(request):
-    ''' Import accepted applications for Workday '''
-    
-    file = request.FILES.get('file')
-    file_split = os.path.splitext(file.name)
-
-    print(file_split)
-    # only csv is allowed to update
-    if 'csv' not in file_split[1].lower():
-        messages.error(request, 'An error occurred. Only CSV files are allowed to update. Please check your file.')
-        return HttpResponseRedirect(request.POST.get('next'))
-
-
-    @dataclass
-    class Student:
-        employee_number: str
-        student_number: str
-        worktag: str
-        sin_expiry_date: date
-        study_permit_expiry_date: date
-
-
-    apps, info = adminApi.get_applications_filter_limit(request, 'accepted')
-    students = {}
+    apps, total_apps = adminApi.get_accepted_app_report(request)
+    data = []
     for app in apps:
-        en = ''
-        sn = ''
-        sin_expiry = ''
-        sp_expiry = ''
+        app = adminApi.make_workday_data(app)
+        data.append({
+            'Fields': '',
+            'Bot Action': '',
+            'Primary Initiator': '',
+            'Secondary Initiator': '',
+            'Three Jobs Rule (Bypass/Leave Blank)': '',
+            'Bot Status': '',
+            'Bot Timestamp': '',
+            'Bot Comments': '',
+            'Employee ID': app.employee_number,
+            'Student ID': app.student_number,
+            'Supervisory Org': '',
+            'Hire Date': app.start_date1,
+            'Hire Reason': '',
+            'Position Number': app.position_number,
+            'Time Type': app.time_type,
+            'Job Title': app.job_title,
+            'Default Weekly Hours': app.default_weekly_hours,
+            'Scheduled Weekly Hours': app.scheduled_weekly_hours,
+            'Additional Job Classifications': app.job_class,
+            'End Employment Date': app.end_date1,
+            'Comments': '',
+            'Attachment 1': '',
+            'Attachment 1 Category': '',
+            'Attachment 2': '',
+            'Attachment 2 Category': '',
+            'SIN Number': '',
+            'Expiration Date of SIN': app.sin_expiry_date,
+            'Visa ID Type': app.visa_type,
+            'Issued Date of Visa': '',
+            'Expiration Date of Visa': app.study_permit_expiry_date,
+            'Permit Validated': '',
+            'Identification #': '',
+            'Attachment (NHI)': '',
+            'Description of Upload (NHI)': '',
+            'Manager(s) after the change': '',
+            'Location': app.location,
+            'Manager Approval': '',
+            'Cost Centre': '',
+            'Functional Unit Hierarchy': '',
+            'Amount (Monthly)': app.monthly_salary,
+            'Amount (Hourly)': app.hourly_salary,
+            'Comments for Costing allocation': '',
+            'Costing Allocation Level': app.costing_alloc_level,
+            'Start Date1': app.start_date1,
+            'End Date1': app.end_date1,
+            'Worktag1': app.worktag1,
+            'Distribution Percent1': app.dist_per1,
+            'Start Date2': app.start_date2,
+            'End Date2': app.end_date2,
+            'Worktag2': app.worktag2,
+            'Distribution Percent2': app.dist_per2,
+            'Start Date3': app.start_date3,
+            'End Date3': app.end_date3,
+            'Worktag3': app.worktag3,
+            'Distribution Percent3': app.dist_per3,
+            'Start Date4': app.start_date4,
+            'End Date4': app.end_date4,
+            'Worktag4': app.worktag4,
+            'Distribution Percent4': app.dist_per4
+        })
 
-        if userApi.confidentiality_exists(app.applicant):
-            if app.applicant.confidentiality.employee_number:
-                en = app.applicant.confidentiality.employee_number
-
-            if app.applicant.confidentiality.sin_expiry_date:
-                sin_expiry = app.applicant.confidentiality.sin_expiry_date
-
-            if app.applicant.confidentiality.study_permit_expiry_date:
-                sp_expiry = app.applicant.confidentiality.study_permit_expiry_date
-
-        if userApi.profile_exists(app.applicant):
-            sn = app.applicant.profile.student_number
-
-        students[sn] = Student(en, sn, app.admindocuments.worktag, sin_expiry, sp_expiry)
+    # data = 'Fields,Bot Action,Primary Initiator,Secondary Initiator,Three Jobs Rule (Bypass/Leave Blank),Bot Status,Bot Timestamp,Bot Comments,Employee ID,Student ID,Supervisory Org,Hire Date,Hire Reason,Position Number,Time Type,Job Title,Default Weekly Hours,Scheduled Weekly Hours,Additional Job Classifications,End Employment Date,Comments,Attachment 1,Attachment 1 Category,Attachment 2,Attachment 2 Category,SIN Number,Expiration Date of SIN,Visa ID Type,Issued Date of Visa,Expiration Date of Visa,Permit Validated,Identification #,Attachment (NHI),Description of Upload (NHI),Manager(s) after the change,Location,Manager Approval,Cost Centre,Functional Unit Hierarchy,Amount (Monthly),Amount (Hourly),Comments for Costing allocation,Costing Allocation Level,Start Date1,End Date1,Worktag1,Distribution Percent1,Start Date2,End Date2,Worktag2,Distribution Percent2,Start Date3,End Date3,Worktag3,Distribution Percent3,Start Date4,End Date4,Worktag4,Distribution Percent4\n'
+    # for app in apps:
+    #     app = adminApi.make_workday_data(app)
+    #     data += '{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15},{16},{17},{18},{19},{20},{21},{22},{23},{24},{25},{26},{27},{28},{29},{30},{31},{32},{33},{34},{35},{36},{37},{38},{39},{40},{41},{42},{43},{44},{45},{46},{47},{48},{49},{50},{51},{52},{53},{54},{55}\n'.format(
+    #         '','','','','','','','',
+    #         app.employee_number, app.student_number, '', app.start_date1, '', app.position_number, app.time_type,
+    #         app.job_title, app.default_weekly_hours, app.scheduled_weekly_hours, app.job_class, app.end_date1, '',
+    #         '', '', '', '', '', app.sin_expiry_date, app.visa_type, '', app.study_permit_expiry_date, '', '', '' ,'' ,'' , app.location,
+    #         '', '', '', app.monthly_salary, app.hourly_salary, '', app.costing_alloc_level, app.start_date1, app.end_date1, app.worktag1, app.dist_per1, 
+    #         app.start_date2, app.end_date2, app.worktag2, app.dist_per2,
+    #         '', '', '', '', '', ''
+    #     )
+    return JsonResponse({ 'status': 'success', 'data': data })
     
-    
-    data = StringIO(file.read().decode())
-
-    csv_reader = csv.reader(data, quotechar='"', delimiter=',')
-
-
-    for i, row in enumerate(csv_reader):
-        if i == 0:
-            print(row)
-        else:
-            print(row)
-            sn = row[1]
-            print(students[sn])
-
-    return HttpResponseRedirect(request.POST.get('next'))
 
 
 @method_decorator([never_cache], name='dispatch')
@@ -2240,10 +2264,10 @@ class AcceptedAppsReportAdmin(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         request = userApi.has_admin_access(request, Role.HR)
 
-        apps, total_apps = adminApi.get_accepted_app_report(request)
+        app_list, total_apps = adminApi.get_accepted_app_report(request)
 
         page = request.GET.get('page', 1)
-        paginator = Paginator(apps, 10)
+        paginator = Paginator(app_list, 10)
 
         try:
             apps = paginator.page(page)

@@ -264,9 +264,11 @@ class AdminDocuments(models.Model):
     efrom -> no longer available
     speed_chart -> worktag
     processed -> new
+    position_number -> new
     '''
     application = models.OneToOneField(Application, on_delete=models.CASCADE, primary_key=True)
 
+    position_number = models.CharField(max_length=10, null=True, blank=True)
     pin = models.CharField(max_length=4, null=True, blank=True)
     tasm = models.BooleanField(default=False)
     eform = models.CharField(max_length=6, unique=True, null=True, blank=True)

@@ -4,40 +4,93 @@
 {% include 'administrators/_menu.html' %}
 
 <div>
+  <div id="download-result-message" class="container"></div>
 
   {% include 'ta_app/pages/_header.html' with title='Accepted Applications - Workday' %}
 
-  <form action="{% url 'administrators:import_accepted_apps_workday' %}" method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    <div class="field-wrapper">
-      <label for="id_file">CSV File:</label>
-      <input id="id_file" type="file" name="file" />
+  <div class="row">
+    <div class="col-md-6">
+      {% include 'administrators/applications/_admin_report_search_fields.html' with data=apps total=total_apps path='workday' path='workday' %}
     </div>
-    <input type="hidden" name="next" value="{{ new_next }}" />
-    <input class="btn btn-primary" type="submit" value="Import" />
-  </form>
+    <div class="col-md-6">
+      <div class="bg-light-gray p-4" style="height:180.8px">
+        <h5>Note:</h5>
+        <ul class="font-size-sm">
+          <li>
+            <code>Time Type</code> = Part_time, <code>Location</code> = {{ workday_location }}, and <code>Costing Allocation Level</code> = {{ workday_costing_alloc_level }}
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
 
-  <table class="table table-sm table-bordered table-hover table-striped table-responsive-md text-center">
+  <div class="mb-5">
+    <small class="float-right">Search first before download all</small>
+    <br />
+
+    <div class="float-right">
+      <button id="download-accepted-apps-workday" class="btn btn-sm btn-info font-size-xs" type="button" data-url='{{ download_accepted_apps_workday_url }}' data-next='{{ request.get_full_path }}'>
+        Download All as Excel
+      </button>
+    </div>
+  </div>
+
+  <table class="table table-bordered table-hover table-striped table-responsive-md text-center">
     <thead>
       <tr>
-        <th>ID</th>
-        <th>Year</th>
-        <th>Term</th>
-        <th>Job</th>
+        <th>ID <br /> Year Term</th>
+        <th>Job Title</th>
+        <th>Employee <br /> ID</th>
+        <th>Student <br /> ID</th>
+        <th>Position <br /> Number</th>
+        <th>Default <br /> Weekly Hours</th>
+        <th>Scheduled <br /> Weekly Hours</th>
+        <th>Additional Job <br /> Classifications</th>
+        <th>Hire Date / <br /> Start Date1</th>
+        <th>End Empl. Date / <br /> End Date1</th>
+        <th>Monthly <br /> Salary</th>
+        <th>Hourly <br /> Salary</th>
+        <th>Worktag1</th>
+        <th>Worktag2</th>
       </tr>
     </thead>
     <tbody>
       {% for app in apps %}
       <tr>
-        <td>{{ app.id }}</td>
-        <td>{{ app.job.session.year }}</td>
-        <td>{{ app.job.session.term.code }}</td>
-        <td>{{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</td>
+        <td>{{ app.id }} <br /> {{ app.job.session.year }} {{ app.job.session.term.code }}</td>
+          <td>{{ app.job_title }}</td>
+          <td>{{ app.applicant.confidentiality.employee_number }}</td>
+          <td>{{ app.applicant.profile.student_number }}</td>
+          <td>{{ app.position_number }}</td>
+          <td>{{ app.default_weekly_hours }}</td>
+          <td>{{ app.scheduled_weekly_hours }}</td>
+          <td>{{ app.job_class }}</td>
+          <td>{{ app.start_date1 }}</td>
+          <td>{{ app.end_date1 }}</td>
+          <td>${{ app.monthly_salary|floatformat:2 }}</td>
+          <td>${{ app.hourly_salary|floatformat:2 }}</td>
+          <td>
+            {% if app.worktag1 %}
+              {{ app.worktag1 }}, {{ app.dist_per1 }}
+            {% endif %}
+          </td>
+          <td>
+            {% if app.worktag2 %}
+              {{ app.worktag2 }}, {{ app.dist_per2 }}
+            {% endif %}
+          </td>
       </tr>
       {% endfor %}
     </tbody>
   </table>
 
+  {% include 'administrators/applications/_admin_report_table_paginator.html' with data=apps %}
 </div>
 
+{% endblock %}
+
+
+{% block js %}
+  {% load static %}
+  <script type="text/javascript" src="{% static 'ta_app/js/accepted_apps_workday.js' %}"></script>
 {% endblock %}

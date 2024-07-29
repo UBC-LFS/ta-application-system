@@ -346,33 +346,13 @@ class ApplicationForm(forms.ModelForm):
             'availability_note': 'This field is optional.'
         }
 
+
 class AdminDocumentsForm(forms.ModelForm):
     class Meta:
         model = AdminDocuments
         fields = [
-            'application', 'pin', 'tasm', 'processed', 'worktag', 'processing_note'
+            'application', 'position_number', 'pin', 'tasm', 'processed', 'worktag', 'processing_note'
         ]
-        labels = {
-            'pin': 'PIN',
-            'tasm': 'TASM',
-            'processed': 'Processed',
-            'worktag': 'Worktag',
-            'processing_note': 'Processing Note'
-        }
-        widgets = {
-            'application': forms.HiddenInput(),
-            'pin': forms.TextInput(attrs={ 'class':'form-control' }),
-            'processed': forms.TextInput(attrs={ 'class':'form-control' }),
-            'worktag': forms.TextInput(attrs={ 'class':'form-control' }),
-            'processing_note': forms.Textarea(attrs={ 'class':'form-control', 'rows': 2 })
-        }
-        help_texts = {
-            'pin': 'This field is optional. Maximum length is 4.',
-            'tasm': 'This field is optional.',
-            'processed': 'This field is optional. Maximum length is 4.',
-            'worktag': 'This field is optional. Maximum length is 35.',
-            'processing_note': 'This field is optional.'
-        }
 
 
 class FavouriteForm(forms.ModelForm):
