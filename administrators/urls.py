@@ -17,8 +17,8 @@ urlpatterns = [
     path('sessions/current/', views.CurrentSessions.as_view(), name='current_sessions'),
     path('sessions/archived/', views.ArchivedSessions.as_view(), name='archived_sessions'),
 
-    path('jobs/prepare/', views.prepare_jobs, name='prepare_jobs'),
-    path('jobs/progress/', views.progress_jobs, name='progress_jobs'),
+    path('jobs/prepare/', views.PrepareJobs.as_view(), name='prepare_jobs'),
+    path('jobs/progress/', views.ProgressJobs.as_view(), name='progress_jobs'),
     path('jobs/student/', views.StudentJobs.as_view(), name='student_jobs'),
     path('jobs/instructor/', views.InstructorJobs.as_view(), name='instructor_jobs'),
     path('instructors/search/', views.search_instructors, name='search_instructors'),
@@ -55,6 +55,7 @@ urlpatterns = [
     path('applications/accepted/download/workday/', views.download_accepted_apps_workday, name='download_accepted_apps_workday'),
     path('applications/accepted/import/', views.import_accepted_apps, name='import_accepted_apps'),
     path('applications/reset/', views.reset_application, name='reset_application'),
+    # path('feat/worktag/hours/submit/', views.submit_worktag_hours, name='submit_worktag_hours'),
 
     path('applications/<str:app_slug>/details/', views.ShowApplication.as_view(), name='show_application'),
 

@@ -227,12 +227,15 @@ SHIB_ATTR_MAP = {
 }
 
 
-WORKTAGS = {
-    'option1': '',
-    'option2': '',
-    'option3': '',
-    'option4': '',
-    'option5': '',
-    'option6': '',
-    'option7': ''
+WORKTAGS = [
+    { 'name': 'Graduate', 'code': '' },
+    { 'name': 'Undergraduate', 'code': '' }
+]
+
+WORKTAG_MAP = { 
+    'Graduate': '',
+    'Undergraduate': ''
 }
+
+WORKDAY_LOCATION = ''
+WORKDAY_COSTING_ALLOCATION_LEVEL = ''

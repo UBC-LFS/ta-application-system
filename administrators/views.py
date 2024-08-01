@@ -651,97 +651,104 @@ def show_job(request, session_slug, job_slug):
         'next': adminApi.get_next(request)
     })
 
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
-def prepare_jobs(request):
+
+@method_decorator([never_cache], name='dispatch')
+class PrepareJobs(LoginRequiredMixin, View):
     ''' Display preparing jobs '''
-    request = userApi.has_admin_access(request)
 
-    year_q = request.GET.get('year')
-    term_q = request.GET.get('term')
-    code_q = request.GET.get('code')
-    number_q = request.GET.get('number')
-    section_q = request.GET.get('section')
-    instructor_first_name_q = request.GET.get('instructor_first_name')
-    instructor_last_name_q = request.GET.get('instructor_last_name')
+    @method_decorator(require_GET)
+    def get(self, request, *args, **kwargs):
+        request = userApi.has_admin_access(request)
 
-    job_list = adminApi.get_jobs()
-    if bool(year_q):
-        job_list = job_list.filter(session__year__icontains=year_q)
-    if bool(term_q):
-        job_list = job_list.filter(session__term__code__icontains=term_q)
-    if bool(code_q):
-        job_list = job_list.filter(course__code__name__icontains=code_q)
-    if bool(number_q):
-        job_list = job_list.filter(course__number__name__icontains=number_q)
-    if bool(section_q):
-        job_list = job_list.filter(course__section__name__icontains=section_q)
-    if bool(instructor_first_name_q):
-        job_list = job_list.filter(instructors__first_name__icontains=instructor_first_name_q)
-    if bool(instructor_last_name_q):
-        job_list = job_list.filter(instructors__last_name__icontains=instructor_last_name_q)
+        year_q = request.GET.get('year')
+        term_q = request.GET.get('term')
+        code_q = request.GET.get('code')
+        number_q = request.GET.get('number')
+        section_q = request.GET.get('section')
+        instructor_first_name_q = request.GET.get('instructor_first_name')
+        instructor_last_name_q = request.GET.get('instructor_last_name')
 
-    page = request.GET.get('page', 1)
-    paginator = Paginator(job_list, settings.PAGE_SIZE)
+        job_list = adminApi.get_jobs()
+        if bool(year_q):
+            job_list = job_list.filter(session__year__icontains=year_q)
+        if bool(term_q):
+            job_list = job_list.filter(session__term__code__icontains=term_q)
+        if bool(code_q):
+            job_list = job_list.filter(course__code__name__icontains=code_q)
+        if bool(number_q):
+            job_list = job_list.filter(course__number__name__icontains=number_q)
+        if bool(section_q):
+            job_list = job_list.filter(course__section__name__icontains=section_q)
+        if bool(instructor_first_name_q):
+            job_list = job_list.filter(instructors__first_name__icontains=instructor_first_name_q)
+        if bool(instructor_last_name_q):
+            job_list = job_list.filter(instructors__last_name__icontains=instructor_last_name_q)
 
-    try:
-        jobs = paginator.page(page)
-    except PageNotAnInteger:
-        jobs = paginator.page(1)
-    except EmptyPage:
-        jobs = paginator.page(paginator.num_pages)
+        page = request.GET.get('page', 1)
+        paginator = Paginator(job_list, settings.PAGE_SIZE)
 
-    return render(request, 'administrators/jobs/prepare_jobs.html', {
-        'loggedin_user': request.user,
-        'jobs': jobs,
-        'total_jobs': len(job_list),
-        'new_next': adminApi.build_new_next(request)
-    })
+        try:
+            jobs = paginator.page(page)
+        except PageNotAnInteger:
+            jobs = paginator.page(1)
+        except EmptyPage:
+            jobs = paginator.page(paginator.num_pages)
 
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
-def progress_jobs(request):
+        return render(request, 'administrators/jobs/prepare_jobs.html', {
+            'loggedin_user': request.user,
+            'jobs': jobs,
+            'total_jobs': len(job_list),
+            'new_next': adminApi.build_new_next(request),
+            'worktags': settings.WORKTAGS,
+            'submit_worktag_hours_url': request.get_full_path()
+        })
+
+
+@method_decorator([never_cache], name='dispatch')
+class ProgressJobs(LoginRequiredMixin, View):
     ''' See jobs in progress '''
-    request = userApi.has_admin_access(request)
 
-    year_q = request.GET.get('year')
-    term_q = request.GET.get('term')
-    code_q = request.GET.get('code')
-    number_q = request.GET.get('number')
-    section_q = request.GET.get('section')
+    @method_decorator(require_GET)
+    def get(self, request, *args, **kwargs):
+        request = userApi.has_admin_access(request)
 
-    job_list = adminApi.get_jobs()
-    if bool(year_q):
-        job_list = job_list.filter(session__year__icontains=year_q)
-    if bool(term_q):
-        job_list = job_list.filter(session__term__code__icontains=term_q)
-    if bool(code_q):
-        job_list = job_list.filter(course__code__name__icontains=code_q)
-    if bool(number_q):
-        job_list = job_list.filter(course__number__name__icontains=number_q)
-    if bool(section_q):
-        job_list = job_list.filter(course__section__name__icontains=section_q)
+        year_q = request.GET.get('year')
+        term_q = request.GET.get('term')
+        code_q = request.GET.get('code')
+        number_q = request.GET.get('number')
+        section_q = request.GET.get('section')
 
-    page = request.GET.get('page', 1)
-    paginator = Paginator(job_list, settings.PAGE_SIZE)
+        job_list = adminApi.get_jobs()
+        if bool(year_q):
+            job_list = job_list.filter(session__year__icontains=year_q)
+        if bool(term_q):
+            job_list = job_list.filter(session__term__code__icontains=term_q)
+        if bool(code_q):
+            job_list = job_list.filter(course__code__name__icontains=code_q)
+        if bool(number_q):
+            job_list = job_list.filter(course__number__name__icontains=number_q)
+        if bool(section_q):
+            job_list = job_list.filter(course__section__name__icontains=section_q)
 
-    try:
-        jobs = paginator.page(page)
-    except PageNotAnInteger:
-        jobs = paginator.page(1)
-    except EmptyPage:
-        jobs = paginator.page(paginator.num_pages)
+        page = request.GET.get('page', 1)
+        paginator = Paginator(job_list, settings.PAGE_SIZE)
 
-    request.session['progress_jobs_next'] = request.get_full_path()
+        try:
+            jobs = paginator.page(page)
+        except PageNotAnInteger:
+            jobs = paginator.page(1)
+        except EmptyPage:
+            jobs = paginator.page(paginator.num_pages)
 
-    return render(request, 'administrators/jobs/progress_jobs.html', {
-        'loggedin_user': request.user,
-        'jobs': jobs,
-        'total_jobs': len(job_list),
-        'new_next': adminApi.build_new_next(request)
-    })
+        request.session['progress_jobs_next'] = request.get_full_path()
+
+        return render(request, 'administrators/jobs/progress_jobs.html', {
+            'loggedin_user': request.user,
+            'jobs': jobs,
+            'total_jobs': len(job_list),
+            'new_next': adminApi.build_new_next(request)
+        })
+
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -1357,15 +1364,16 @@ class SelectedApplications(LoginRequiredMixin, View):
                     app.ta_hour_progress = 'under_one_quarter'
 
 
-        program1 = 'FNH'
-        program1 = 'MND'
-        if app.worktaghours:
-            if app.worktaghours.program_hours['program1_name']:
-                program1 = app.worktaghours.program_hours['program1_name']
-            if app.worktaghours.program_hours['program2_name']:
-                program2 = app.worktaghours.program_hours['program2_name']
+            # Find default worktag programs
+            program1 = 'FNH'
+            program2 = 'MND'
+            if hasattr(app, 'worktaghours') and app.worktaghours:
+                if app.worktaghours.program_hours['program1_name']:
+                    program1 = app.worktaghours.program_hours['program1_name']
+                if app.worktaghours.program_hours['program2_name']:
+                    program2 = app.worktaghours.program_hours['program2_name']
 
-        programs = { 'one': program1, 'two': program2 }
+            app.programs = { 'one': program1, 'two': program2 }
 
         return render(request, 'administrators/applications/selected_applications.html', {
             'loggedin_user': request.user,
@@ -1384,7 +1392,7 @@ class SelectedApplications(LoginRequiredMixin, View):
             'new_next': adminApi.build_new_next(request),
             'this_year': utils.THIS_YEAR,
             'worktags': settings.WORKTAGS,
-            'programs': programs
+            'submit_worktag_hours_url': request.get_full_path()
         })
 
 
