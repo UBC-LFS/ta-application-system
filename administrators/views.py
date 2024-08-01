@@ -1572,7 +1572,7 @@ class AcceptedApplications(LoginRequiredMixin, View):
             'today_processed_stats': adminApi.get_processed_stats(info['today_accepted_apps']),
             'today': info['today'],
             'download_all_accepted_apps_url': reverse('administrators:download_all_accepted_apps'),
-            'worktag_options': settings.WORKTAGS
+            'worktag_options': settings.WORKTAG_MAP
         })
 
 
@@ -2189,7 +2189,7 @@ def download_all_accepted_apps(request):
     apps, info = adminApi.get_applications_filter_limit(request, 'accepted')
     apps = adminApi.add_app_info_into_applications(apps, ['accepted'])
 
-    result = 'ID,Year,Term,Job,First Name,Last Name,CWL,Student Number,Employee Number,Classification,Monthly Salary,P/T (%),PIN,TASM,Processed,Worktag,Processing Note,Accepted on,Assigned Hours\n'
+    result = 'ID,Year,Term,Job,First Name,Last Name,CWL,Student Number,Employee Number,Classification,Monthly Salary,P/T (%),Positin Number,PIN,TASM,Processed,Worktag,Processing Note,Accepted on,Assigned Hours\n'
     for app in apps:
         year = app.job.session.year
         term = app.job.session.term.code
@@ -2211,12 +2211,15 @@ def download_all_accepted_apps(request):
         salary = '${0}'.format( format(adminApi.calcualte_salary(app), '.2f') )
         pt = format( adminApi.calculate_pt_percentage(app), '.2f' )
 
+        position_number = ''
         pin = ''
         tasm = ''
         processed = ''
         worktag = ''
         processing_note = ''
         if adminApi.has_admin_docs_created(app):
+            if app.admindocuments.position_number:
+                position_number = app.admindocuments.position_number
             if app.admindocuments.pin:
                 pin = app.admindocuments.pin
             if app.admindocuments.tasm:
@@ -2234,7 +2237,7 @@ def download_all_accepted_apps(request):
             accepted_on = app.accepted.created_at
             assigned_hours = app.accepted.assigned_hours
 
-        result += '{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15},{16},{17},{18}\n'.format(
+        result += '{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15},{16},{17},{18},{19}\n'.format(
             app.id,
             year,
             term,
@@ -2247,6 +2250,7 @@ def download_all_accepted_apps(request):
             classification,
             salary,
             pt,
+            position_number,
             pin,
             tasm,
             processed,

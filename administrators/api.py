@@ -972,7 +972,7 @@ def bulk_update_admin_docs(data, user):
     c = 0
     for row in csv_reader:
         # Check a number of rows
-        if len(row) != 16:
+        if len(row) != 17:
             return False, 'An error occurred while reading table rows. Some columns are missing.'
 
         # header
@@ -1012,14 +1012,15 @@ def bulk_update_admin_docs(data, user):
     for i in range(1, len(rows)):
         row = rows[i]
         id = trim(row[0])
-        pin = trim(row[10])
-        tasm = True if trim(row[11].lower()) == 'yes' else False
-        processed = trim(row[12])
-        worktag = trim(row[13])
-        processing_note = trim(row[14])
+        position_number = trim(row[10])
+        pin = trim(row[11])
+        tasm = True if trim(row[12].lower()) == 'yes' else False
+        processed = trim(row[13])
+        worktag = trim(row[14])
+        processing_note = trim(row[15])
 
         admin_docs = get_admin_docs(id)
-        form = AdminDocumentsForm({ 'application': id, 'pin': pin, 'tasm': tasm, 'processed': processed, 'worktag': worktag, 'processing_note': processing_note }, instance=admin_docs)
+        form = AdminDocumentsForm({ 'application': id, 'position_number': position_number, 'pin': pin, 'tasm': tasm, 'processed': processed, 'worktag': worktag, 'processing_note': processing_note }, instance=admin_docs)
         if form.is_valid() == False:
             errors = form.errors.get_json_data()
             return False, 'ID: ' + id + ' - ' + userApi.get_error_messages(errors)
