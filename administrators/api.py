@@ -1233,6 +1233,15 @@ def get_summary_applicants(request, session_slug, job_slug):
     return session, job, total_applicants, no_offers_applicants, applicants, searched_total_applicants
 
 
+def count_number_tas(job):
+    num_tas = 0
+    for appl in job.application_set.all():
+        appl = add_app_info_into_application(appl, ['accepted', 'declined'])
+        if check_valid_accepted_app_or_not(appl):
+            num_tas += 1
+    return num_tas
+
+
 def make_workday_data(app):
     app = add_app_info_into_application(app, ['accepted'])
 
@@ -1264,16 +1273,10 @@ def make_workday_data(app):
     else:
         app.student_number
 
-    num_tas = 0
-    for appl in app.job.application_set.all():
-        appl = add_app_info_into_application(appl, ['accepted', 'declined'])
-        if check_valid_accepted_app_or_not(appl):
-            num_tas += 1
-
     instructor = 'None'
     if app.job.instructors and app.job.instructors.count() > 0:
         instructor = app.job.instructors.first().last_name
-    app.job_title = '{0} - {1} {2} {3}-{4}'.format(app.classification.name, app.job.course.code.name, app.job.course.number.name, instructor, num_tas)
+    app.job_title = '{0} - {1} {2} {3}-{4}'.format(app.classification.name, app.job.course.code.name, app.job.course.number.name, instructor, count_number_tas(app.job))
 
     if app.job.course.code.name in ['FNH', 'HUNU', 'FOOD']:
         app.location = settings.WORKDAY_FNH_LOCATION
