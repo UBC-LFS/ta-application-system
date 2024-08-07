@@ -22,6 +22,7 @@ from administrators.models import *
 from administrators.forms import AdminDocumentsForm
 from users.models import *
 from users import api as userApi
+from ta_app import utils
 
 from datetime import datetime, timedelta, date
 import math
@@ -1232,6 +1233,162 @@ def get_summary_applicants(request, session_slug, job_slug):
     return session, job, total_applicants, no_offers_applicants, applicants, searched_total_applicants
 
 
+def make_workday_data(app):
+    app = add_app_info_into_application(app, ['accepted'])
+
+    app.permit_validated = 'n/a'
+    if hasattr(app.applicant, 'confidentiality') and app.applicant.confidentiality:
+        app.employee_number = app.applicant.confidentiality.employee_number if app.applicant.confidentiality.employee_number else ''
+
+        if app.applicant.confidentiality.nationality and app.applicant.confidentiality.nationality == utils.NATIONALITY['international']:
+            app.permit_validated = 'Yes' if app.applicant.confidentiality.study_permit else 'No'
+        
+        app.sin_expiry_date = app.applicant.confidentiality.sin_expiry_date if app.applicant.confidentiality.sin_expiry_date else ''
+        app.study_permit_expiry_date = app.applicant.confidentiality.study_permit_expiry_date if app.applicant.confidentiality.study_permit_expiry_date else ''
+        
+        app.visa_type = 'Study Permit' if app.study_permit_expiry_date else ''
+
+        if app.applicant.profile.status.name and app.applicant.confidentiality.nationality:
+            app.job_class = '{0} - {1}'.format(app.applicant.profile.status.name, app.applicant.confidentiality.get_nationality_display().split(' ')[0])
+        else:
+            app.job_class = ''
+    else:
+        app.employee_number = ''
+        app.sin_expiry_date = ''
+        app.study_permit_expiry_date = ''
+        app.visa_type = ''
+        app.job_class = ''
+
+    if hasattr(app.applicant, 'profile') and app.applicant.profile:
+        app.student_number = app.applicant.profile.student_number if app.applicant.profile.student_number else ''
+    else:
+        app.student_number
+
+    num_tas = 0
+    for appl in app.job.application_set.all():
+        appl = add_app_info_into_application(appl, ['accepted'])
+        if check_valid_accepted_app_or_not(appl):
+            num_tas += 1
+
+    instructor = 'None'
+    if app.job.instructors and app.job.instructors.count() > 0:
+        instructor = app.job.instructors.first().last_name
+    app.job_title = '{0} - {1} {2} {3}-{4}'.format(app.classification.name, app.job.course.code.name, app.job.course.number.name, instructor, num_tas)
+
+    if app.job.course.code.name in ['FNH', 'HUNU', 'FOOD']:
+        app.location = settings.WORKDAY_FNH_LOCATION
+    else:
+        app.location = settings.WORKDAY_MCML_LOCATION
+
+    app.default_weekly_hours = 12 if 'Winter' in app.job.session.term.name else 20
+    app.scheduled_weekly_hours = round(app.accepted.assigned_hours / 4, 2)
+    app.monthly_salary = calcualte_salary(app)
+    app.hourly_salary = app.classification.wage
+
+    start_date1 = ''
+    end_date1 = ''
+    year = app.job.session.year
+    next_year = int(app.job.session.year) + 1
+    if 'Summer' in app.job.session.term.name:
+        if app.job.session.term.code == 'W1':
+            start_date1 = '{0}-05-01'.format(year)
+            end_date1 = '{0}-06-30'.format(year)
+        elif app.job.session.term.code == 'W2':
+            start_date1 = '{0}-07-01'.format(year)
+            end_date1 = '{0}-08-31'.format(year)
+        elif app.job.session.term.code == 'W1+2':
+            start_date1 = '{0}-05-01'.format(year)
+            end_date1 = '{0}-08-31'.format(year)
+    elif 'Winter' in app.job.session.term.name:
+        if app.job.session.term.code == 'W1':
+            start_date1 = '{0}-09-01'.format(year)
+            end_date1 = '{0}-12-31'.format(year)
+        elif app.job.session.term.code == 'W2':
+            start_date1 = '{0}-01-01'.format(next_year)
+            end_date1 = '{0}-04-30'.format(next_year)
+        elif app.job.session.term.code == 'W1+2':
+            start_date1 = '{0}-09-01'.format(year)
+            end_date1 = '{0}-04-30'.format(next_year)
+
+    app.start_date1 = start_date1
+    app.end_date1 = end_date1
+    app.start_date2 = ''
+    app.end_date2 = ''
+    app.start_date3 = ''
+    app.end_date3 = ''
+    app.start_date4 = ''
+    app.end_date4 = ''
+
+    app.position_number = ''
+    app.worktag1 = ''
+    app.dist_per1 = ''
+    app.worktag2 = ''
+    app.dist_per2 = ''
+    app.worktag3 = ''
+    app.dist_per3 = ''
+    app.worktag4 = ''
+    app.dist_per4 = ''
+    if hasattr(app, 'admindocuments') and app.admindocuments.worktag:
+        app.position_number = app.admindocuments.position_number if app.admindocuments.position_number else ''
+
+        if ',' in app.admindocuments.worktag:
+            worktags = app.admindocuments.worktag.split(',')
+            if len(worktags) > 1:
+                app.worktag1, app.dist_per1 = assign_worktag(worktags[0])
+                app.worktag2, app.dist_per2 = assign_worktag(worktags[1])
+                app.start_date2 = start_date1
+                app.end_date2 = end_date1
+            
+            if len(worktags) > 2:
+                app.worktag3, app.dist_per3 = assign_worktag(worktags[2])
+                app.start_date3 = start_date1
+                app.end_date3 = end_date1
+
+            if len(worktags) > 3:
+                app.worktag4, app.dist_per4 = assign_worktag(worktags[3])
+                app.start_date4 = start_date1
+                app.end_date4 = end_date1
+        else:
+            app.worktag1 = app.admindocuments.worktag
+            app.dist_per1 = 1
+
+    app.costing_alloc_level = settings.WORKDAY_COSTING_ALLOCATION_LEVEL
+
+    app.time_type = 'Part_time'
+    pt_percentage = calculate_pt_percentage(app)
+    if pt_percentage >= 100:
+        app.time_type = 'Full_time'
+
+    return app
+
+
+def assign_worktag(input_worktag):
+    worktag = ''
+    dist_per = ''
+    if '%' in input_worktag:
+        worktag1_sp = input_worktag.split('%')
+        worktag = worktag1_sp[1].strip()
+        dist_per = float(worktag1_sp[0].strip()) * 0.01
+    else:
+        worktag = input_worktag.strip()
+        dist_per = 1
+    
+    return worktag, dist_per
+
+
+def find_default_worktag_hours(app):
+    program1 = 'FNH'
+    program2 = 'MND'
+    if hasattr(app, 'worktaghours') and app.worktaghours:
+        if app.worktaghours.program_hours['program1_name']:
+            program1 = app.worktaghours.program_hours['program1_name']
+        if app.worktaghours.program_hours['program2_name']:
+            program2 = app.worktaghours.program_hours['program2_name']
+
+    return { 'one': program1, 'two': program2 }
+
+
+
 # end applications
 
 
@@ -1516,37 +1673,3 @@ def trim(data):
 def strip_html_tags(text):
     text_replaced = text.replace('<br>', '\n').replace('</p>', '\n').replace('&nbsp;', ' ').replace('&amp;', '&').replace('"', "'")
     return strip_tags(text_replaced)
-
-
-"""
-def get_total_assigned_hours(apps, list):
-    ''' Get total assigend hours in list '''
-    total_hours = {}
-    for name in list:
-        total_hours[name] = {}
-
-    for app in apps:
-        if 'offered' in list:
-            offered = app.applicationstatus_set.filter(assigned=ApplicationStatus.OFFERED)
-            if offered.exists():
-                year_term = '{0}-{1}'.format(app.job.session.year, app.job.session.term.code)
-                if year_term in total_hours['offered'].keys():
-                    total_hours['offered'][year_term] += offered.last().assigned_hours
-                else:
-                    total_hours['offered'][year_term] = offered.last().assigned_hours
-
-        if 'accepted' in list:
-            accepted = app.applicationstatus_set.filter(assigned=ApplicationStatus.ACCEPTED)
-
-            if accepted.exists():
-                _, _, valid_accepted = valid_accepted_app([], app)
-
-                if valid_accepted:
-                    year_term = '{0}-{1}'.format(app.job.session.year, app.job.session.term.code)
-                    if year_term in total_hours['accepted'].keys():
-                        total_hours['accepted'][year_term] += accepted.last().assigned_hours
-                    else:
-                        total_hours['accepted'][year_term] = accepted.last().assigned_hours
-
-    return total_hours
-"""

@@ -38,8 +38,9 @@
         <a class="dropdown-item" href="{% url 'administrators:terminated_applications' %}">Terminated</a>
         <a class="dropdown-item" href="{% url 'administrators:email_history' %}">Email History</a>
 
-        <hr />
+        <hr class="dropdown-divider">
 
+        <a class="dropdown-item" href="{% url 'administrators:accepted_apps_report_workday' %}">Report for Workday - Accepted</a>
         <a class="dropdown-item" href="{% url 'administrators:accepted_apps_report_admin' %}">Report for Admin - Accepted</a>
         <a class="dropdown-item" href="{% url 'administrators:accepted_apps_report_observer' %}?page=1">Report for Observer - Accepted</a>
       </div>
@@ -95,8 +96,9 @@
       <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
         <a class="dropdown-item" href="{% url 'administrators:accepted_applications' %}">Accepted</a>
 
-        <hr />
+        <hr class="dropdown-divider">
 
+        <a class="dropdown-item" href="{% url 'administrators:accepted_apps_report_workday' %}">Report for Workday - Accepted</a>
         <a class="dropdown-item" href="{% url 'administrators:accepted_apps_report_admin' %}">Report for Admin - Accepted</a>
         <a class="dropdown-item" href="{% url 'administrators:accepted_apps_report_observer' %}">Report for Observer - Accepted</a>
       </div>

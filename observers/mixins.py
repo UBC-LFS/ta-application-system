@@ -23,7 +23,7 @@ class AcceptedAppsReportMixin:
         parsed_full_path = urlparse(request.get_full_path())
         app_name = resolve(parsed_full_path.path).app_names[0]
 
-        template = '/accepted_app_report_observer.html'
+        template = '/accepted_apps_report_observer.html'
         if app_name == 'observers':
             request = userApi.has_user_access(request, Role.OBSERVER)
             template = app_name + template

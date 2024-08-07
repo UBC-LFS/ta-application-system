@@ -1629,6 +1629,112 @@ def import_accepted_apps(request):
 
 
 @method_decorator([never_cache], name='dispatch')
+class AcceptedAppsReportWorkday(LoginRequiredMixin, View):
+
+    @method_decorator(require_GET)
+    def get(self, request, *args, **kwargs):
+        request = userApi.has_admin_access(request, Role.HR)
+
+        app_list, total_apps = adminApi.get_accepted_app_report(request)
+
+        page = request.GET.get('page', 1)
+        paginator = Paginator(app_list, settings.PAGE_SIZE)
+
+        try:
+            apps = paginator.page(page)
+        except PageNotAnInteger:
+            apps = paginator.page(1)
+        except EmptyPage:
+            apps = paginator.page(paginator.num_pages)
+
+        for app in apps:
+            app = adminApi.make_workday_data(app)
+
+        return render(request, 'administrators/applications/accepted_apps_report_workday.html', {
+            'total_apps': total_apps,
+            'apps': apps,
+            'download_accepted_apps_workday_url': reverse('administrators:download_accepted_apps_workday'),
+            'workday_costing_alloc_level': settings.WORKDAY_COSTING_ALLOCATION_LEVEL,
+            'workday_mcml_location': settings.WORKDAY_MCML_LOCATION,
+            'workday_fnh_location': settings.WORKDAY_FNH_LOCATION,
+        })
+
+
+@require_http_methods(['GET'])
+def download_accepted_apps_workday(request):
+    ''' Download accepted applications for Workday '''
+
+    apps, total_apps = adminApi.get_accepted_app_report(request)
+    data = []
+    for app in apps:
+        app = adminApi.make_workday_data(app)
+        data.append({
+            'Fields': '',
+            'Bot Action': '',
+            'Primary Initiator': '',
+            'Secondary Initiator': '',
+            'Three Jobs Rule (Bypass/Leave Blank)': '',
+            'Bot Status': '',
+            'Bot Timestamp': '',
+            'Bot Comments': '',
+            'Employee ID': app.employee_number,
+            'Student ID': app.student_number,
+            'Supervisory Org': '',
+            'Hire Date': app.start_date1,
+            'Hire Reason': '',
+            'Position Number': app.position_number,
+            'Time Type': app.time_type,
+            'Job Title': app.job_title,
+            'Default Weekly Hours': app.default_weekly_hours,
+            'Scheduled Weekly Hours': app.scheduled_weekly_hours,
+            'Additional Job Classifications': app.job_class,
+            'End Employment Date': app.end_date1,
+            'Comments': '',
+            'Attachment 1': '',
+            'Attachment 1 Category': '',
+            'Attachment 2': '',
+            'Attachment 2 Category': '',
+            'SIN Number': '',
+            'Expiration Date of SIN': app.sin_expiry_date,
+            'Visa ID Type': app.visa_type,
+            'Issued Date of Visa': '',
+            'Expiration Date of Visa': app.study_permit_expiry_date,
+            'Permit Validated': app.permit_validated,
+            'Identification #': '',
+            'Attachment (NHI)': '',
+            'Description of Upload (NHI)': '',
+            'Manager(s) after the change': '',
+            'Location': app.location,
+            'Manager Approval': '',
+            'Cost Centre': '',
+            'Functional Unit Hierarchy': '',
+            'Amount (Monthly)': app.monthly_salary,
+            'Amount (Hourly)': app.hourly_salary,
+            'Comments for Costing allocation': '',
+            'Costing Allocation Level': app.costing_alloc_level,
+            'Start Date1': app.start_date1,
+            'End Date1': app.end_date1,
+            'Worktag1': app.worktag1,
+            'Distribution Percent1': app.dist_per1,
+            'Start Date2': app.start_date2,
+            'End Date2': app.end_date2,
+            'Worktag2': app.worktag2,
+            'Distribution Percent2': app.dist_per2,
+            'Start Date3': app.start_date3,
+            'End Date3': app.end_date3,
+            'Worktag3': app.worktag3,
+            'Distribution Percent3': app.dist_per3,
+            'Start Date4': app.start_date4,
+            'End Date4': app.end_date4,
+            'Worktag4': app.worktag4,
+            'Distribution Percent4': app.dist_per4
+        })
+    
+    return JsonResponse({ 'status': 'success', 'data': data })
+    
+
+
+@method_decorator([never_cache], name='dispatch')
 class DeclinedApplications(LoginRequiredMixin, View):
     ''' Display applications declined by students '''
 
@@ -2167,7 +2273,7 @@ class AcceptedAppsReportAdmin(LoginRequiredMixin, View):
 
             app.confi_info_expiry_status = confi_info_expiry_status
 
-        return render(request, 'administrators/applications/accepted_app_report_admin.html', context={
+        return render(request, 'administrators/applications/accepted_apps_report_admin.html', context={
             'total_apps': total_apps,
             'apps': apps,
             'download_all_accepted_apps_report_admin_url': reverse('administrators:download_all_accepted_apps_report_admin')

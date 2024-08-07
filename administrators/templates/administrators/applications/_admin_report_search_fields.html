@@ -12,7 +12,11 @@
 
     <div class="mt-1">
       <button class="btn btn-sm btn-secondary" type="submit">Search</button>
-      <a class="btn btn-sm btn-light" href="{% url 'administrators:accepted_apps_report_admin' %}">Clear</a>
+      {% if path == 'admin' %}
+        <a class="btn btn-sm btn-light" href="{% url 'administrators:accepted_apps_report_admin' %}">Clear</a>
+      {% elif path == 'workday' %}
+        <a class="btn btn-sm btn-light" href="{% url 'administrators:accepted_apps_report_workday' %}">Clear</a>
+      {% endif %}
     </div>
   </form>
 </div>

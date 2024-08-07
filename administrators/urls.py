@@ -46,11 +46,13 @@ urlpatterns = [
     path('applications/selected/', views.SelectedApplications.as_view(), name='selected_applications'),
     path('applications/offered/', views.OfferedApplications.as_view(), name='offered_applications'),
     path('applications/accepted/report/admin/', views.AcceptedAppsReportAdmin.as_view(), name='accepted_apps_report_admin'),
+    path('applications/accepted/workday/', views.AcceptedAppsReportWorkday.as_view(), name='accepted_apps_report_workday'),
     path('applications/accepted/', views.AcceptedApplications.as_view(), name='accepted_applications'),
     path('applications/declined/', views.DeclinedApplications.as_view(), name='declined_applications'),
     path('applications/terminated/', views.terminated_applications, name='terminated_applications'),
     path('applications/accepted/report/observer/', views.AcceptedAppsReportObserver.as_view(), name='accepted_apps_report_observer'),
     path('applications/admin_docs/update/', views.update_admin_docs, name='update_admin_docs'),
+    path('applications/accepted/download/workday/', views.download_accepted_apps_workday, name='download_accepted_apps_workday'),
     path('applications/accepted/import/', views.import_accepted_apps, name='import_accepted_apps'),
     path('applications/reset/', views.reset_application, name='reset_application'),
 
