@@ -1266,7 +1266,7 @@ def make_workday_data(app):
 
     num_tas = 0
     for appl in app.job.application_set.all():
-        appl = add_app_info_into_application(appl, ['accepted'])
+        appl = add_app_info_into_application(appl, ['accepted', 'declined'])
         if check_valid_accepted_app_or_not(appl):
             num_tas += 1
 
