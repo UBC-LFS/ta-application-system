@@ -152,6 +152,16 @@ main {
   padding: 0.75rem !important;
 }
 
+.white-modal-table tr { background-color: white !important; }
+.white-modal-table tr td { border: none !important; }
+.white-modal-table tr td:nth-child(1) { padding-left: 0; }
+.white-modal-table tr td:nth-child(2) { padding-right: 0; }
+
+.white-modal-table tr td label {
+  font-size: 1rem;
+  font-weight: bold;
+}
+
 .left-content {
   border: 1px solid #e6e6e6;
   border-radius: 4px;

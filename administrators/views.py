@@ -106,7 +106,7 @@ class CurrentSessions(LoginRequiredMixin, View):
         session_list = adminApi.add_num_instructors(session_list)
 
         page = request.GET.get('page', 1)
-        paginator = Paginator(session_list, settings.PAGE_SIZE)
+        paginator = Paginator(session_list, utils.TABLE_PAGE_SIZE)
 
         try:
             sessions = paginator.page(page)
@@ -146,7 +146,7 @@ class ArchivedSessions(LoginRequiredMixin, View):
         session_list = adminApi.add_num_instructors(session_list)
 
         page = request.GET.get('page', 1)
-        paginator = Paginator(session_list, settings.PAGE_SIZE)
+        paginator = Paginator(session_list, utils.TABLE_PAGE_SIZE)
 
         try:
             sessions = paginator.page(page)
@@ -431,7 +431,7 @@ class ShowReportApplicants(LoginRequiredMixin, View):
             applicants = applicants.filter(profile__student_number__icontains=request.GET.get('student_number'))
 
         page = request.GET.get('page', 1)
-        paginator = Paginator(applicants, settings.PAGE_SIZE)
+        paginator = Paginator(applicants, utils.TABLE_PAGE_SIZE)
 
         try:
             applicants = paginator.page(page)
@@ -651,97 +651,102 @@ def show_job(request, session_slug, job_slug):
         'next': adminApi.get_next(request)
     })
 
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
-def prepare_jobs(request):
+
+@method_decorator([never_cache], name='dispatch')
+class PrepareJobs(LoginRequiredMixin, View):
     ''' Display preparing jobs '''
-    request = userApi.has_admin_access(request)
 
-    year_q = request.GET.get('year')
-    term_q = request.GET.get('term')
-    code_q = request.GET.get('code')
-    number_q = request.GET.get('number')
-    section_q = request.GET.get('section')
-    instructor_first_name_q = request.GET.get('instructor_first_name')
-    instructor_last_name_q = request.GET.get('instructor_last_name')
+    @method_decorator(require_GET)
+    def get(self, request, *args, **kwargs):
+        request = userApi.has_admin_access(request)
 
-    job_list = adminApi.get_jobs()
-    if bool(year_q):
-        job_list = job_list.filter(session__year__icontains=year_q)
-    if bool(term_q):
-        job_list = job_list.filter(session__term__code__icontains=term_q)
-    if bool(code_q):
-        job_list = job_list.filter(course__code__name__icontains=code_q)
-    if bool(number_q):
-        job_list = job_list.filter(course__number__name__icontains=number_q)
-    if bool(section_q):
-        job_list = job_list.filter(course__section__name__icontains=section_q)
-    if bool(instructor_first_name_q):
-        job_list = job_list.filter(instructors__first_name__icontains=instructor_first_name_q)
-    if bool(instructor_last_name_q):
-        job_list = job_list.filter(instructors__last_name__icontains=instructor_last_name_q)
+        year_q = request.GET.get('year')
+        term_q = request.GET.get('term')
+        code_q = request.GET.get('code')
+        number_q = request.GET.get('number')
+        section_q = request.GET.get('section')
+        instructor_first_name_q = request.GET.get('instructor_first_name')
+        instructor_last_name_q = request.GET.get('instructor_last_name')
 
-    page = request.GET.get('page', 1)
-    paginator = Paginator(job_list, settings.PAGE_SIZE)
+        job_list = adminApi.get_jobs()
+        if bool(year_q):
+            job_list = job_list.filter(session__year__icontains=year_q)
+        if bool(term_q):
+            job_list = job_list.filter(session__term__code__icontains=term_q)
+        if bool(code_q):
+            job_list = job_list.filter(course__code__name__icontains=code_q)
+        if bool(number_q):
+            job_list = job_list.filter(course__number__name__icontains=number_q)
+        if bool(section_q):
+            job_list = job_list.filter(course__section__name__icontains=section_q)
+        if bool(instructor_first_name_q):
+            job_list = job_list.filter(instructors__first_name__icontains=instructor_first_name_q)
+        if bool(instructor_last_name_q):
+            job_list = job_list.filter(instructors__last_name__icontains=instructor_last_name_q)
 
-    try:
-        jobs = paginator.page(page)
-    except PageNotAnInteger:
-        jobs = paginator.page(1)
-    except EmptyPage:
-        jobs = paginator.page(paginator.num_pages)
+        page = request.GET.get('page', 1)
+        paginator = Paginator(job_list, utils.TABLE_PAGE_SIZE)
 
-    return render(request, 'administrators/jobs/prepare_jobs.html', {
-        'loggedin_user': request.user,
-        'jobs': jobs,
-        'total_jobs': len(job_list),
-        'new_next': adminApi.build_new_next(request)
-    })
+        try:
+            jobs = paginator.page(page)
+        except PageNotAnInteger:
+            jobs = paginator.page(1)
+        except EmptyPage:
+            jobs = paginator.page(paginator.num_pages)
 
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
-def progress_jobs(request):
+        return render(request, 'administrators/jobs/prepare_jobs.html', {
+            'loggedin_user': request.user,
+            'jobs': jobs,
+            'total_jobs': len(job_list),
+            'new_next': adminApi.build_new_next(request)
+        })
+
+
+@method_decorator([never_cache], name='dispatch')
+class ProgressJobs(LoginRequiredMixin, View):
     ''' See jobs in progress '''
-    request = userApi.has_admin_access(request)
+    
+    @method_decorator(require_GET)
+    def get(self, request, *args, **kwargs):
+        request = userApi.has_admin_access(request)
 
-    year_q = request.GET.get('year')
-    term_q = request.GET.get('term')
-    code_q = request.GET.get('code')
-    number_q = request.GET.get('number')
-    section_q = request.GET.get('section')
+        year_q = request.GET.get('year')
+        term_q = request.GET.get('term')
+        code_q = request.GET.get('code')
+        number_q = request.GET.get('number')
+        section_q = request.GET.get('section')
 
-    job_list = adminApi.get_jobs()
-    if bool(year_q):
-        job_list = job_list.filter(session__year__icontains=year_q)
-    if bool(term_q):
-        job_list = job_list.filter(session__term__code__icontains=term_q)
-    if bool(code_q):
-        job_list = job_list.filter(course__code__name__icontains=code_q)
-    if bool(number_q):
-        job_list = job_list.filter(course__number__name__icontains=number_q)
-    if bool(section_q):
-        job_list = job_list.filter(course__section__name__icontains=section_q)
+        job_list = adminApi.get_jobs()
+        if bool(year_q):
+            job_list = job_list.filter(session__year__icontains=year_q)
+        if bool(term_q):
+            job_list = job_list.filter(session__term__code__icontains=term_q)
+        if bool(code_q):
+            job_list = job_list.filter(course__code__name__icontains=code_q)
+        if bool(number_q):
+            job_list = job_list.filter(course__number__name__icontains=number_q)
+        if bool(section_q):
+            job_list = job_list.filter(course__section__name__icontains=section_q)
 
-    page = request.GET.get('page', 1)
-    paginator = Paginator(job_list, settings.PAGE_SIZE)
+        page = request.GET.get('page', 1)
+        paginator = Paginator(job_list, utils.TABLE_PAGE_SIZE)
 
-    try:
-        jobs = paginator.page(page)
-    except PageNotAnInteger:
-        jobs = paginator.page(1)
-    except EmptyPage:
-        jobs = paginator.page(paginator.num_pages)
+        try:
+            jobs = paginator.page(page)
+        except PageNotAnInteger:
+            jobs = paginator.page(1)
+        except EmptyPage:
+            jobs = paginator.page(paginator.num_pages)
 
-    request.session['progress_jobs_next'] = request.get_full_path()
+        request.session['progress_jobs_next'] = request.get_full_path()
 
-    return render(request, 'administrators/jobs/progress_jobs.html', {
-        'loggedin_user': request.user,
-        'jobs': jobs,
-        'total_jobs': len(job_list),
-        'new_next': adminApi.build_new_next(request)
-    })
+        return render(request, 'administrators/jobs/progress_jobs.html', {
+            'loggedin_user': request.user,
+            'jobs': jobs,
+            'total_jobs': len(job_list),
+            'new_next': adminApi.build_new_next(request)
+        })
+
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -824,7 +829,7 @@ class InstructorJobs(LoginRequiredMixin, View):
             user_list = user_list.filter(username__icontains=cwl_q)
 
         page = request.GET.get('page', 1)
-        paginator = Paginator(user_list, settings.PAGE_SIZE)
+        paginator = Paginator(user_list, utils.TABLE_PAGE_SIZE)
 
         try:
             users = paginator.page(page)
@@ -870,7 +875,7 @@ class StudentJobs(LoginRequiredMixin, View):
         user_list = user_list.filter(profile__roles__name=Role.STUDENT)
 
         page = request.GET.get('page', 1)
-        paginator = Paginator(user_list, settings.PAGE_SIZE)
+        paginator = Paginator(user_list, utils.TABLE_PAGE_SIZE)
 
         try:
             users = paginator.page(page)
@@ -1181,7 +1186,7 @@ class ApplicationsDashboard(LoginRequiredMixin, View):
             status_list = status_list.filter(application__applicant__last_name__icontains=last_name_q)
 
         page = request.GET.get('page', 1)
-        paginator = Paginator(status_list, settings.PAGE_SIZE)
+        paginator = Paginator(status_list, utils.TABLE_PAGE_SIZE)
 
         try:
             statuses = paginator.page(page)
@@ -1207,10 +1212,10 @@ class AllApplications(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         request = userApi.has_admin_access(request)
 
-        apps, info = adminApi.get_applications_filter_limit(request, 'all')
+        app_list, info = adminApi.get_applications_filter_limit(request, 'all')
 
         page = request.GET.get('page', 1)
-        paginator = Paginator(apps, settings.PAGE_SIZE)
+        paginator = Paginator(app_list, utils.TABLE_PAGE_SIZE)
 
         try:
             apps = paginator.page(page)
@@ -1288,10 +1293,10 @@ class SelectedApplications(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         request = userApi.has_admin_access(request)
 
-        apps, info = adminApi.get_applications_filter_limit(request, 'selected')
+        app_list, info = adminApi.get_applications_filter_limit(request, 'selected')
 
         page = request.GET.get('page', 1)
-        paginator = Paginator(apps, settings.PAGE_SIZE)
+        paginator = Paginator(app_list, utils.TABLE_PAGE_SIZE)
 
         try:
             apps = paginator.page(page)
@@ -1356,6 +1361,17 @@ class SelectedApplications(LoginRequiredMixin, View):
                 elif (app.job.assigned_ta_hours * 1.0/4.0) < app.job.accumulated_ta_hours:
                     app.ta_hour_progress = 'under_one_quarter'
 
+            # Find default worktag programs
+            program1 = 'FNH'
+            program2 = 'MND'
+            if hasattr(app, 'worktaghours') and app.worktaghours:
+                if app.worktaghours.program_hours['program1_name']:
+                    program1 = app.worktaghours.program_hours['program1_name']
+                if app.worktaghours.program_hours['program2_name']:
+                    program2 = app.worktaghours.program_hours['program2_name']
+
+            app.programs = { 'one': program1, 'two': program2 }
+
         return render(request, 'administrators/applications/selected_applications.html', {
             'loggedin_user': request.user,
             'apps': apps,
@@ -1371,48 +1387,80 @@ class SelectedApplications(LoginRequiredMixin, View):
             'classification_choices': adminApi.get_classifications(),
             'app_status': APP_STATUS,
             'new_next': adminApi.build_new_next(request),
-            'this_year': utils.THIS_YEAR
+            'this_year': utils.THIS_YEAR,
+            'worktags': settings.WORKTAGS,
+            'submit_worktag_hours_url': request.get_full_path()
         })
-
 
     @method_decorator(require_POST)
     def post(self, request, *args, **kwargs):
-        # TODO: check this function
-        # Edit application - not using anymore
+        aid = request.POST['application']
+        valid_programs = [
+            ('program1', 'Program 1'), 
+            ('program1_hours', 'Program 1 Hours'), 
+            ('program2', 'Program 2'), 
+            ('program2_hours', 'Program 2 Hours'), 
+            ('total_hours', 'Total Hours')
+        ]
+        for field in valid_programs:
+            if not request.POST.get(field[0], None):
+                messages.error(request, 'An error occurred. This <strong>{0}</strong> field is required. Please try again.'.format(field[1]))
+                return HttpResponseRedirect(request.POST.get('next'))
 
-        # Check whether a next url is valid or not
-        adminApi.can_req_parameters_access(request, 'none', ['next'], 'POST')
+        program1 = request.POST['program1'].split('-')
+        program1_code = program1[1]
+        program1_hours = request.POST['program1_hours']
+        program2 = request.POST['program2'].split('-')
+        program2_code = program2[1]
+        program2_hours = request.POST['program2_hours']
+        total_hours = request.POST['total_hours']
+        program_hours = {
+            'program1_name': program1[0],
+            'program1_code': program1[1],
+            'program1_hours': program1_hours,
+            'program2_name': program2[0],
+            'program2_code': program2[1],
+            'program2_hours': program2_hours,
+            'total_hours': total_hours
+        }
 
-        if 'classification' not in request.POST.keys() or len(request.POST.get('classification')) == 0:
-            messages.error(request, 'An error occurred. Please select classification, then try again.')
-            return HttpResponseRedirect(request.POST.get('next'))
+        p1_percentage = round(int(program1_hours) / int(total_hours) * 100, 1)
+        p2_percentage = round(int(program2_hours) / int(total_hours) * 100, 1)
+        worktag = '{0}% {1}, {2}% {3}'.format(p1_percentage, program1_code, p2_percentage, program2_code)
 
-        assigned_hours = request.POST.get('assigned_hours')
-
-        if adminApi.is_valid_float(assigned_hours) == False:
-            messages.error(request, 'An error occurred. Please check assigned hours. Assigned hours must be numerival value only.')
-            return HttpResponseRedirect(request.POST.get('next'))
-
-        if adminApi.is_valid_integer(assigned_hours) == False:
-            messages.error(request, 'An error occurred. Please check assigned hours. Assign TA Hours must be non-negative integers.')
-            return HttpResponseRedirect(request.POST.get('next'))
-
-        assigned_hours = int( float(assigned_hours) )
-
-        if assigned_hours < 0:
-            messages.error(request, 'An error occurred. Please check assigned hours. Assigned hours must be greater than 0.')
-            return HttpResponseRedirect(request.POST.get('next'))
-
-        app = adminApi.get_application(request.POST.get('application'))
-        if assigned_hours > int(app.job.assigned_ta_hours):
-            messages.error(request, 'An error occurred. Please you cannot assign {0} hours Total Assigned TA Hours is {1}, then try again.'.format( assigned_hours, int(app.job.assigned_ta_hours) ))
-            return HttpResponseRedirect(request.POST.get('next'))
-
-        if adminApi.update_job_offer(request.POST):
-            messages.success(request, 'Success! Updated this application (ID: {0})'.format(app.id))
+        # Update admin docs - processing note
+        processing_note = request.POST['processing_note']
+        ad = AdminDocuments.objects.filter(application_id=aid)
+        if ad.exists():
+            ad_obj = ad.first()
+            update_fields = []
+            if ad_obj.worktag and ad_obj.worktag != worktag:
+                update_fields.append('worktag')
+                ad_obj.worktag = worktag
+                processing_note += "<p>Auto update: <strong class='text-success'>{0}</strong> on {1}</p>".format(worktag, datetime.today().strftime('%Y-%m-%d'))
+            
+            if (ad_obj.processing_note or 'worktag' in update_fields) and (len(ad_obj.processing_note) != len(processing_note)):
+                update_fields.append('processing_note')
+                ad_obj.processing_note = processing_note
+            
+            if len(update_fields) > 0:
+                ad_obj.save(update_fields=update_fields)
         else:
-            messages.error(request, 'An error occurred. Failed to update this application (ID: {0}).'.format(app.id))
+            processing_note += "<p>Auto update: <strong class='text-success'>{0}</strong> on {1}</p>".format(worktag, datetime.today().strftime('%Y-%m-%d'))
+            AdminDocuments.objects.create(application_id=aid, processing_note=processing_note, worktag=worktag)
 
+        wt = WorktagHours.objects.filter(application_id=aid)
+        if wt.exists():
+            if wt.first().program_hours == program_hours:
+                messages.warning(request, 'Warning! Nothing has been updated for the Worktag Hours (ID: {0})'.format(wt.first().application.id))
+            else:
+                wt.update(program_hours=program_hours)
+                messages.success(request, 'Success! Updated the Worktag Hours (ID: {0})'.format(wt.first().application.id))
+        else:
+            obj = WorktagHours.objects.create(application_id=aid, program_hours=program_hours)
+            if obj:
+                messages.success(request, 'Success! Saved the Worktag Hours (ID: {0})'.format(obj.application.id))
+        
         return HttpResponseRedirect(request.POST.get('next'))
     
 
@@ -1510,10 +1558,10 @@ class OfferedApplications(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         request = userApi.has_admin_access(request)
 
-        apps, info = adminApi.get_applications_filter_limit(request, 'offered')
+        app_list, info = adminApi.get_applications_filter_limit(request, 'offered')
 
         page = request.GET.get('page', 1)
-        paginator = Paginator(apps, settings.PAGE_SIZE)
+        paginator = Paginator(app_list, utils.TABLE_PAGE_SIZE)
 
         try:
             apps = paginator.page(page)
@@ -1545,10 +1593,10 @@ class AcceptedApplications(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         request = userApi.has_admin_access(request, Role.HR)
 
-        apps, info = adminApi.get_applications_filter_limit(request, 'accepted')
+        app_list, info = adminApi.get_applications_filter_limit(request, 'accepted')
 
         page = request.GET.get('page', 1)
-        paginator = Paginator(apps, settings.PAGE_SIZE)
+        paginator = Paginator(app_list, utils.TABLE_PAGE_SIZE)
 
         try:
             apps = paginator.page(page)
@@ -1638,7 +1686,7 @@ class AcceptedAppsReportWorkday(LoginRequiredMixin, View):
         app_list, total_apps = adminApi.get_accepted_app_report(request)
 
         page = request.GET.get('page', 1)
-        paginator = Paginator(app_list, settings.PAGE_SIZE)
+        paginator = Paginator(app_list, utils.TABLE_PAGE_SIZE)
 
         try:
             apps = paginator.page(page)
@@ -1742,10 +1790,10 @@ class DeclinedApplications(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         request = userApi.has_admin_access(request)
 
-        apps, info = adminApi.get_applications_filter_limit(request, 'declined')
+        app_list, info = adminApi.get_applications_filter_limit(request, 'declined')
 
         page = request.GET.get('page', 1)
-        paginator = Paginator(apps, settings.PAGE_SIZE)
+        paginator = Paginator(app_list, utils.TABLE_PAGE_SIZE)
 
         try:
             apps = paginator.page(page)
@@ -1792,7 +1840,7 @@ def email_history(request):
         email_list = email_list.filter(application__applicationstatus__assigned=ApplicationStatus.OFFERED).filter( ~Q(application__applicationstatus__assigned=ApplicationStatus.ACCEPTED) & ~Q(application__applicationstatus__assigned=ApplicationStatus.DECLINED) ).order_by('-id').distinct()
 
     page = request.GET.get('page', 1)
-    paginator = Paginator(email_list, settings.PAGE_SIZE)
+    paginator = Paginator(email_list, utils.TABLE_PAGE_SIZE)
 
     try:
         emails = paginator.page(page)
@@ -1899,6 +1947,7 @@ def decline_reassign(request):
 
     return HttpResponseRedirect(next)
 
+
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET', 'POST'])
@@ -2001,6 +2050,7 @@ def decline_reassign_confirmation(request):
         'next': adminApi.get_next(request)
     })
 
+
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET','POST'])
@@ -2044,33 +2094,36 @@ def terminate(request, app_slug):
         'next': adminApi.get_next(request)
     })
 
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
-def terminated_applications(request):
+
+@method_decorator([never_cache], name='dispatch')
+class TerminatedApplications(LoginRequiredMixin, View):
     ''' Terminated applications '''
-    request = userApi.has_admin_access(request)
 
-    apps, info = adminApi.get_applications_filter_limit(request, 'terminated')
+    @method_decorator(require_GET)
+    def get(self, request, *args, **kwargs):
+        request = userApi.has_admin_access(request)
 
-    page = request.GET.get('page', 1)
-    paginator = Paginator(apps, settings.PAGE_SIZE)
+        app_list, info = adminApi.get_applications_filter_limit(request, 'terminated')
 
-    try:
-        apps = paginator.page(page)
-    except PageNotAnInteger:
-        apps = paginator.page(1)
-    except EmptyPage:
-        apps = paginator.page(paginator.num_pages)
+        page = request.GET.get('page', 1)
+        paginator = Paginator(app_list, utils.TABLE_PAGE_SIZE)
 
-    return render(request, 'administrators/applications/terminated_applications.html', {
-        'loggedin_user': request.user,
-        'apps': apps,
-        'num_filtered_apps': info['num_filtered_apps'],
-        'admin_emails': adminApi.get_admin_emails(),
-        'app_status': APP_STATUS,
-        'new_next': adminApi.build_new_next(request)
-    })
+        try:
+            apps = paginator.page(page)
+        except PageNotAnInteger:
+            apps = paginator.page(1)
+        except EmptyPage:
+            apps = paginator.page(paginator.num_pages)
+
+        return render(request, 'administrators/applications/terminated_applications.html', {
+            'loggedin_user': request.user,
+            'apps': apps,
+            'num_filtered_apps': info['num_filtered_apps'],
+            'admin_emails': adminApi.get_admin_emails(),
+            'app_status': APP_STATUS,
+            'new_next': adminApi.build_new_next(request)
+        })
+
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -2582,7 +2635,7 @@ def all_users(request):
 
 
     page = request.GET.get('page', 1)
-    paginator = Paginator(user_list, settings.PAGE_SIZE)
+    paginator = Paginator(user_list, utils.TABLE_PAGE_SIZE)
 
     try:
         users = paginator.page(page)
@@ -3028,7 +3081,7 @@ def all_courses(request):
         course_list = course_list.filter(name__icontains=course_name_q)
 
     page = request.GET.get('page', 1)
-    paginator = Paginator(course_list, settings.PAGE_SIZE)
+    paginator = Paginator(course_list, utils.TABLE_PAGE_SIZE)
 
     try:
         courses = paginator.page(page)

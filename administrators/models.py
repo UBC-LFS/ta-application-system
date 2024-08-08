@@ -244,6 +244,18 @@ class ApplicationStatus(models.Model):
         ordering = ['pk']
 
 
+class WorktagHours(models.Model):
+    ''' Worktag hours for admin documents '''
+
+    application = models.OneToOneField(Application, on_delete=models.CASCADE, primary_key=True)
+    program_hours = models.JSONField()
+    created_at = models.DateField(auto_now_add=True)
+    updated_at = models.DateField(auto_now=True)
+
+    class Meta:
+        ordering = ['-pk']
+
+
 class AdminDocuments(models.Model):
     '''
     Admin Documents
