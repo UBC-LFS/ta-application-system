@@ -1297,13 +1297,13 @@ def make_workday_data(app):
     year = app.job.session.year
     next_year = int(app.job.session.year) + 1
     if 'Summer' in app.job.session.term.name:
-        if app.job.session.term.code == 'W1':
+        if app.job.session.term.code == 'S1':
             start_date1 = '05/01/{0}'.format(year)
             end_date1 = '06/30/{0}'.format(year)
-        elif app.job.session.term.code == 'W2':
+        elif app.job.session.term.code == 'S2':
             start_date1 = '07/01/{0}'.format(year)
             end_date1 = '08/31/{0}'.format(year)
-        elif app.job.session.term.code == 'W1+2':
+        elif app.job.session.term.code == 'S' or app.job.session.term.code == 'S1+2':
             start_date1 = '05/01/{0}'.format(year)
             end_date1 = '08/31/{0}'.format(year)
     elif 'Winter' in app.job.session.term.name:
