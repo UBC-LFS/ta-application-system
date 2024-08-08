@@ -1252,8 +1252,8 @@ def make_workday_data(app):
         if app.applicant.confidentiality.nationality and app.applicant.confidentiality.nationality == utils.NATIONALITY['international']:
             app.permit_validated = 'Yes' if app.applicant.confidentiality.study_permit else 'No'
         
-        app.sin_expiry_date = app.applicant.confidentiality.sin_expiry_date if app.applicant.confidentiality.sin_expiry_date else ''
-        app.study_permit_expiry_date = app.applicant.confidentiality.study_permit_expiry_date if app.applicant.confidentiality.study_permit_expiry_date else ''
+        app.sin_expiry_date = convert_date_format(app.applicant.confidentiality.sin_expiry_date) if app.applicant.confidentiality.sin_expiry_date else ''
+        app.study_permit_expiry_date = convert_date_format(app.applicant.confidentiality.study_permit_expiry_date) if app.applicant.confidentiality.study_permit_expiry_date else ''
         
         app.visa_type = 'Study Permit' if app.study_permit_expiry_date else ''
 
@@ -1683,3 +1683,7 @@ def trim(data):
 def strip_html_tags(text):
     text_replaced = text.replace('<br>', '\n').replace('</p>', '\n').replace('&nbsp;', ' ').replace('&amp;', '&').replace('"', "'")
     return strip_tags(text_replaced)
+
+
+def convert_date_format(date):
+    return date.strftime('%m/%d/%Y')
