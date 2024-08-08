@@ -66,6 +66,7 @@
           </td>
           <td>
             <a class="btn btn-sm btn-link" href="{% url 'administrators:edit_job' session_slug=job.session.slug job_slug=job.course.slug %}?next={{ new_next }}&p=Prepare Jobs">Edit</a>
+            {% include 'administrators/applications/_submit_worktag_hours.html' with data=app submit_url=submit_worktag_hours_url %}
           </td>
         </tr>
       {% endfor %}

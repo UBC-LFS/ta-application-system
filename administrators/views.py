@@ -698,9 +698,17 @@ class PrepareJobs(LoginRequiredMixin, View):
             'loggedin_user': request.user,
             'jobs': jobs,
             'total_jobs': len(job_list),
-            'new_next': adminApi.build_new_next(request)
+            'new_next': adminApi.build_new_next(request),
+            'worktags': settings.WORKTAGS,
+            'submit_worktag_hours_url': request.get_full_path()
         })
 
+    @method_decorator(require_POST)
+    def post(self, request, *args, **kwargs):
+        print(request.POST)
+
+        return HttpResponseRedirect(request.POST.get('next'))
+    
 
 @method_decorator([never_cache], name='dispatch')
 class ProgressJobs(LoginRequiredMixin, View):
