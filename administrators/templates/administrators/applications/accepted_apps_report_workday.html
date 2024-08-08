@@ -51,7 +51,6 @@
         <th>End Empl. Date / <br /> End Date1</th>
         <th>Permit <br /> Validated</th>
         <th>Monthly <br /> Salary</th>
-        <th>Hourly <br /> Salary</th>
         <th>Worktag1</th>
         <th>Worktag2</th>
       </tr>
@@ -72,7 +71,6 @@
           <td>{{ app.end_date1 }}</td>
           <td>{{ app.permit_validated }}</td>
           <td>${{ app.monthly_salary|floatformat:2 }}</td>
-          <td>${{ app.hourly_salary|floatformat:2 }}</td>
           <td>
             {% if app.worktag1 %}
               {{ app.worktag1 }}, {{ app.dist_per1 }}

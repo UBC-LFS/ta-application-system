@@ -1257,8 +1257,15 @@ def make_workday_data(app):
         
         app.visa_type = 'Study Permit' if app.study_permit_expiry_date else ''
 
-        if app.applicant.profile.status.name and app.applicant.confidentiality.nationality:
-            app.job_class = '{0} - {1}'.format(app.applicant.profile.status.name, app.applicant.confidentiality.get_nationality_display().split(' ')[0])
+        if app.applicant.profile.status and app.applicant.confidentiality.nationality:
+            status_name = app.applicant.profile.status.name
+            if status_name.find('Undergraduate') > -1:
+                status_name = status_name.replace('Undergraduate', 'Bachelor')
+            elif status_name.find('Ph.D') > -1:
+                status_name = status_name.replace('Ph.D', 'Doctoral')
+            status_name = status_name.replace('student', 'Student')
+
+            app.job_class = '{0} - {1}'.format(status_name, app.applicant.confidentiality.get_nationality_display().split(' ')[0])
         else:
             app.job_class = ''
     else:
@@ -1283,8 +1290,7 @@ def make_workday_data(app):
     else:
         app.location = settings.WORKDAY_MCML_LOCATION
 
-    app.monthly_salary = calcualte_salary(app)
-    app.hourly_salary = app.classification.wage
+    app.monthly_salary = app.classification.wage * 48
 
     start_date1 = ''
     end_date1 = ''
@@ -1292,24 +1298,24 @@ def make_workday_data(app):
     next_year = int(app.job.session.year) + 1
     if 'Summer' in app.job.session.term.name:
         if app.job.session.term.code == 'W1':
-            start_date1 = '{0}-05-01'.format(year)
-            end_date1 = '{0}-06-30'.format(year)
+            start_date1 = '05/01/{0}'.format(year)
+            end_date1 = '06/30/{0}'.format(year)
         elif app.job.session.term.code == 'W2':
-            start_date1 = '{0}-07-01'.format(year)
-            end_date1 = '{0}-08-31'.format(year)
+            start_date1 = '07/01/{0}'.format(year)
+            end_date1 = '08/31/{0}'.format(year)
         elif app.job.session.term.code == 'W1+2':
-            start_date1 = '{0}-05-01'.format(year)
-            end_date1 = '{0}-08-31'.format(year)
+            start_date1 = '05/01/{0}'.format(year)
+            end_date1 = '08/31/{0}'.format(year)
     elif 'Winter' in app.job.session.term.name:
         if app.job.session.term.code == 'W1':
-            start_date1 = '{0}-09-01'.format(year)
-            end_date1 = '{0}-12-31'.format(year)
+            start_date1 = '09/01/{0}'.format(year)
+            end_date1 = '12/31/{0}'.format(year)
         elif app.job.session.term.code == 'W2':
-            start_date1 = '{0}-01-01'.format(next_year)
-            end_date1 = '{0}-04-30'.format(next_year)
+            start_date1 = '01/01/{0}'.format(next_year)
+            end_date1 = '04/30/{0}'.format(next_year)
         elif app.job.session.term.code == 'W1+2':
-            start_date1 = '{0}-09-01'.format(year)
-            end_date1 = '{0}-04-30'.format(next_year)
+            start_date1 = '09/01/{0}'.format(year)
+            end_date1 = '04/30/{0}'.format(next_year)
 
     app.start_date1 = start_date1
     app.end_date1 = end_date1

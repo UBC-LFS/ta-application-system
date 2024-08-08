@@ -1709,7 +1709,7 @@ def download_accepted_apps_workday(request):
             'Cost Centre': '',
             'Functional Unit Hierarchy': '',
             'Amount (Monthly)': app.monthly_salary,
-            'Amount (Hourly)': app.hourly_salary,
+            'Amount (Hourly)': '',
             'Comments for Costing allocation': '',
             'Costing Allocation Level': app.costing_alloc_level,
             'Start Date1': app.start_date1,
