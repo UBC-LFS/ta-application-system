@@ -856,7 +856,7 @@ def get_applications_filter_limit(request, status):
     }
 
 
-def get_acceted_apps_in_applicant(app):
+def get_accepted_apps_in_applicant(app):
     ''' Get accepted applications in an applicant '''
     accepted_apps = []
     apps = app.applicant.application_set.filter( Q(job__session__year=app.job.session.year) & Q(job__session__term__code=app.job.session.term.code) )
@@ -1118,7 +1118,7 @@ def get_today_terminated_apps():
     return app_statuses if app_statuses.exists() else None
 
 
-def calcualte_salary(app):
+def calculate_salary(app):
     ''' Calculate the salary of an application '''
     return round(app.accepted.assigned_hours * app.classification.wage / app.job.session.term.by_month, 2)
 
@@ -1285,7 +1285,7 @@ def make_workday_data(app):
 
     app.default_weekly_hours = 12 if 'Winter' in app.job.session.term.name else 20
     app.scheduled_weekly_hours = round(app.accepted.assigned_hours / 4, 2)
-    app.monthly_salary = calcualte_salary(app)
+    app.monthly_salary = calculate_salary(app)
     app.hourly_salary = app.classification.wage
 
     start_date1 = ''

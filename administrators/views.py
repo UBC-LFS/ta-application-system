@@ -504,7 +504,7 @@ class ShowReportSummary(LoginRequiredMixin, View):
             if len(apps) > 0:
                 for app in apps:
                     app.accepted = adminApi.get_accepted(app)
-                    app.salary = adminApi.calcualte_salary(app)
+                    app.salary = adminApi.calculate_salary(app)
                     if userApi.get_lfs_grad_or_others(app.applicant) == 'LFS GRAD':
                         lfs_grad.add(app.applicant.id)
                         lfs_grad_ta_hours += app.accepted.assigned_hours
@@ -773,7 +773,7 @@ def show_job_applications(request, session_slug, job_slug):
             app.selected = selected.last()
 
         app.applicant = userApi.add_resume(app.applicant)
-        app.applicant.accepted_apps = adminApi.get_acceted_apps_in_applicant(app)
+        app.applicant.accepted_apps = adminApi.get_accepted_apps_in_applicant(app)
         app.applicant.preferred_ta = userApi.get_preferred_ta(app.applicant)
         app.info = userApi.get_applicant_status_program(app.applicant)
 
@@ -1616,7 +1616,7 @@ class AcceptedApplications(LoginRequiredMixin, View):
         apps = adminApi.add_app_info_into_applications(apps, ['accepted', 'declined'])
 
         for app in apps:
-            app.salary = adminApi.calcualte_salary(app)
+            app.salary = adminApi.calculate_salary(app)
             app.pt_percentage = adminApi.calculate_pt_percentage(app)
 
         return render(request, 'administrators/applications/accepted_applications.html', {
@@ -2285,7 +2285,7 @@ class AcceptedAppsReportAdmin(LoginRequiredMixin, View):
         for app in apps:
             app = adminApi.add_app_info_into_application(app, ['accepted'])
 
-            app.salary = adminApi.calcualte_salary(app)
+            app.salary = adminApi.calculate_salary(app)
             pt_percentage = adminApi.calculate_pt_percentage(app)
             app.pt_percentage = pt_percentage
             app.weekly_hours = pt_percentage / 100 * 12
@@ -2375,7 +2375,7 @@ def download_all_accepted_apps(request):
                 employee_number = app.applicant.confidentiality.employee_number
 
         classification = '{0} {1} (${2})'.format(app.classification.year, app.classification.name, format(round(app.classification.wage, 2), '.2f'))
-        salary = '${0}'.format( format(adminApi.calcualte_salary(app), '.2f') )
+        salary = '${0}'.format( format(adminApi.calculate_salary(app), '.2f') )
         pt = format( adminApi.calculate_pt_percentage(app), '.2f' )
 
         position_number = ''
@@ -2486,7 +2486,7 @@ def download_all_accepted_apps_report_admin(request):
                 sin_expiry_date = app.applicant.confidentiality.sin_expiry_date
                 study_permit_expiry_date = app.applicant.confidentiality.study_permit_expiry_date
 
-        salary = '${0}'.format(format(adminApi.calcualte_salary(app), '.2f'))
+        salary = '${0}'.format(format(adminApi.calculate_salary(app), '.2f'))
         pt = format(adminApi.calculate_pt_percentage(app), '.2f')
         weekly_hours = format(adminApi.calculate_weekly_hours(pt), '.2f')
 
