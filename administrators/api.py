@@ -1283,8 +1283,6 @@ def make_workday_data(app):
     else:
         app.location = settings.WORKDAY_MCML_LOCATION
 
-    app.default_weekly_hours = 12 if 'Winter' in app.job.session.term.name else 20
-    app.scheduled_weekly_hours = round(app.accepted.assigned_hours / 4, 2)
     app.monthly_salary = calcualte_salary(app)
     app.hourly_salary = app.classification.wage
 
@@ -1361,6 +1359,9 @@ def make_workday_data(app):
     pt_percentage = calculate_pt_percentage(app)
     if pt_percentage >= 100:
         app.time_type = 'Full_time'
+
+    app.default_weekly_hours = 12 if 'Winter' in app.job.session.term.name else 20
+    app.scheduled_weekly_hours = format( calculate_weekly_hours(pt_percentage), '.2f' )
 
     return app
 

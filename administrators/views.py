@@ -2227,7 +2227,7 @@ class AcceptedAppsReportAdmin(LoginRequiredMixin, View):
             app.salary = adminApi.calcualte_salary(app)
             pt_percentage = adminApi.calculate_pt_percentage(app)
             app.pt_percentage = pt_percentage
-            app.weekly_hours = pt_percentage / 100 * 12
+            app.weekly_hours = adminApi.calculate_weekly_hours(pt_percentage)
 
             prev_apps = app.applicant.application_set.filter(job__session__year__lt=app.job.session.year)
             app.prev_accepted_apps = None
