@@ -694,6 +694,10 @@ class PrepareJobs(LoginRequiredMixin, View):
         except EmptyPage:
             jobs = paginator.page(paginator.num_pages)
 
+        # app.programs = adminApi.find_default_worktag_programs(app)
+        for job in jobs:
+            print(job.id, job.application_set.count())
+
         return render(request, 'administrators/jobs/prepare_jobs.html', {
             'loggedin_user': request.user,
             'jobs': jobs,
@@ -1369,16 +1373,7 @@ class SelectedApplications(LoginRequiredMixin, View):
                 elif (app.job.assigned_ta_hours * 1.0/4.0) < app.job.accumulated_ta_hours:
                     app.ta_hour_progress = 'under_one_quarter'
 
-            # Find default worktag programs
-            program1 = 'FNH'
-            program2 = 'MND'
-            if hasattr(app, 'worktaghours') and app.worktaghours:
-                if app.worktaghours.program_hours['program1_name']:
-                    program1 = app.worktaghours.program_hours['program1_name']
-                if app.worktaghours.program_hours['program2_name']:
-                    program2 = app.worktaghours.program_hours['program2_name']
-
-            app.programs = { 'one': program1, 'two': program2 }
+            app.programs = adminApi.find_default_worktag_programs(app)
 
         return render(request, 'administrators/applications/selected_applications.html', {
             'loggedin_user': request.user,

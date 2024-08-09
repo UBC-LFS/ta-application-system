@@ -25,7 +25,8 @@
         <th data-sortable="true">Instructors</th>
         <th data-sortable="true">Total Assigned<br /> TA Hours</th>
         <th>Job Details</th>
-        <th data-sortable="true">Is active</th>
+        <th data-sortable="true">Active?</th>
+        <th data-sortable="true">Number of<br />Applications</th>
         <th data-sortable="true">Created on</th>
         <th data-sortable="true">Updated on</th>
         <th>Actions</th>
@@ -56,6 +57,7 @@
               <span class="badge badge-danger">{{ job.is_active }} <i class="fa fa-stop-circle" aria-hidden="true"></i></span>
             {% endif %}
           </td>
+          <td>{{ job.application_set.count }}</td>
           <td>
             <span class="d-none">{{ job.created_at|date:"Y m d z" }}</span>
             {{ job.created_at }}
