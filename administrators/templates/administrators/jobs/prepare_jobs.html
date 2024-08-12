@@ -29,6 +29,7 @@
         <th data-sortable="true">Number of<br />Applications</th>
         <th data-sortable="true">Created on</th>
         <th data-sortable="true">Updated on</th>
+        <th>Worktag <br /> Setting</th>
         <th>Actions</th>
       </tr>
     </thead>
@@ -67,8 +68,90 @@
             {{ job.updated_at }}
           </td>
           <td>
+            {% include 'administrators/applications/_submit_worktag_setting.html' with id=job.id worktag_setting=job.worktag_setting submit_url=submit_worktag_setting_url path='job' %}
+
+            {% if job.application_set.count > 0 and job.worktag_setting %}
+              <button class="btn btn-xs btn-info d-block mx-auto mt-2" type="button" data-toggle="modal" data-target="#list-applicants-modal-{{ job.id }}">
+                List
+              </button>
+              <div class="modal fade" id="list-applicants-modal-{{ job.id }}" tabindex="-1" role="dialog" aria-labelledby="list-applicants-worktag-label-{{ job.id }}" aria-hidden="true">
+                <div class="modal-dialog modal-lg" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title text-info" id="list-applicants-modal-label-{{ job.id }}">List of Applicants with Worktag Setting</h5>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    </div>
+                    <div class="modal-body text-left font-size-1">
+                      <div class="modal-item">
+                        <table class="modal-table table text-center">
+                          <thead>
+                            <tr>
+                              <th>App ID</th>
+                              <th>Full Name</th>
+                              <th>Program 1 <br /> & Hours</th>
+                              <th>Program 2 <br /> & Hours</th>
+                              <th>Total Hours</th>
+                              <th>Worktag</th>
+                              <th>Created on / <br /> Updated on</th>
+                            </tr>
+                          </thead>
+                          {% for app in job.application_set.all %}
+                            <tr>
+                              <td>{{ app.id }}</td>
+                              <td>
+                                {{ app.applicant.get_full_name }} <br />
+                                <small class="text-secondary">({{ app.applicant.username }})</small>
+                              </td>
+                              <td>
+                                {% if app.worktagsetting.program_info.name1 %}
+                                  {{ app.worktagsetting.program_info.name1 }}
+                                {% endif %}
+
+                                {% if app.worktagsetting.program_info.code1 %}
+                                  ({{ app.worktagsetting.program_info.code1 }})
+                                {% endif %}
+
+                                {% if app.worktagsetting.program_info.hours1 %}
+                                  <br /> {{ app.worktagsetting.program_info.hours1 }}
+                                {% endif %}
+                              </td>
+                              <td>
+                                {% if app.worktagsetting.program_info.name2 %}
+                                  {{ app.worktagsetting.program_info.name2 }}
+                                {% endif %}
+
+                                {% if app.worktagsetting.program_info.code2 %}
+                                  ({{ app.worktagsetting.program_info.code2 }})
+                                {% endif %}
+
+                                {% if app.worktagsetting.program_info.hours2 %}
+                                  <br /> {{ app.worktagsetting.program_info.hours2 }}
+                                {% endif %}
+                              </td>
+                              <td>
+                                {% if app.worktagsetting.program_info.total_hours %}
+                                  {{ app.worktagsetting.program_info.total_hours }}
+                                {% endif %}
+                              </td>
+                              <td>{{ app.worktagsetting.worktag }}</td>
+                              <td>
+                                {{ app.worktagsetting.created_at }}
+                                {% if app.worktagsetting.created_at != app.worktagsetting.updated_at %}
+                                  <br /> {{ app.worktagsetting.updated_at }}
+                                {% endif %}
+                              </td>
+                            </tr>
+                          {% endfor %}
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {% endif %}
+          </td>
+          <td>
             <a class="btn btn-sm btn-link" href="{% url 'administrators:edit_job' session_slug=job.session.slug job_slug=job.course.slug %}?next={{ new_next }}&p=Prepare Jobs">Edit</a>
-            {% include 'administrators/applications/_submit_worktag_hours.html' with data=app submit_url=submit_worktag_hours_url %}
           </td>
         </tr>
       {% endfor %}
@@ -76,7 +159,6 @@
   </table>
 
   {% include 'ta_app/pages/_table_paginator.html' with data=jobs %}
-
 </div>
 
 {% endblock %}

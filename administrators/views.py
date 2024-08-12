@@ -694,25 +694,100 @@ class PrepareJobs(LoginRequiredMixin, View):
         except EmptyPage:
             jobs = paginator.page(paginator.num_pages)
 
-        # app.programs = adminApi.find_default_worktag_programs(app)
         for job in jobs:
-            print(job.id, job.application_set.count())
+            job.worktag_setting = None
+            for app in job.application_set.all():
+                if hasattr(app, 'worktagsetting') and app.worktagsetting:
+                    job.worktag_setting = app.worktagsetting
+            
+            if job.application_set.count() > 0 and not job.worktag_setting:
+                app = job.application_set.first()
+                if hasattr(app, 'worktagsetting') and app.worktagsetting:
+                    job.worktag_setting = app.worktagsetting
 
         return render(request, 'administrators/jobs/prepare_jobs.html', {
-            'loggedin_user': request.user,
+            # 'loggedin_user': request.user,
             'jobs': jobs,
             'total_jobs': len(job_list),
             'new_next': adminApi.build_new_next(request),
             'worktags': settings.WORKTAGS,
-            'submit_worktag_hours_url': request.get_full_path()
+            'submit_worktag_setting_url': request.get_full_path()
         })
 
     @method_decorator(require_POST)
     def post(self, request, *args, **kwargs):
         print(request.POST)
+        is_valid = valid_worktag_setting(request)
+        if is_valid:
+            jid, aid, program_info, worktag = get_worktag(request)
+            job = adminApi.get_job(jid)
+
+            create_objs = []
+            update_objs = []
+            for app in job.application_set.all():
+                ws_filtered = WorktagSetting.objects.filter(application_id=app.id, job_id=job.id)
+                if ws_filtered.exists():
+                    ws = ws_filtered.first()
+                    ws.program_info = program_info
+                    ws.worktag = worktag
+                    update_objs.append(ws)
+                else:
+                    create_objs.append(WorktagSetting(application_id=app.id, job_id=jid, program_info=program_info, worktag=worktag))
+            
+            if len(create_objs) > 0:
+                WorktagSetting.objects.bulk_create(create_objs)
+            
+            if len(update_objs) > 0:
+                WorktagSetting.objects.bulk_update(update_objs, ['program_info', 'worktag'])
 
         return HttpResponseRedirect(request.POST.get('next'))
     
+
+def valid_worktag_setting(request):
+    valid_programs = [
+        ('program1', 'Program 1'), 
+        ('hours1', 'Program 1 Hours'), 
+        ('program2', 'Program 2'), 
+        ('hours2', 'Program 2 Hours'), 
+        ('total_hours', 'Total Hours')
+    ]
+    for field in valid_programs:
+        if not request.POST.get(field[0], None):
+            messages.error(request, 'An error occurred. This <strong>{0}</strong> field is required. Please try again.'.format(field[1]))
+            return False
+    
+    
+    return True
+
+
+def get_worktag(request):
+    jid = request.POST['job']
+    aid = request.POST.get('application', None)
+    
+    program1 = request.POST['program1'].split('-')
+    code1 = program1[1]
+    hours1 = request.POST['hours1']
+    program2 = request.POST['program2'].split('-')
+    code2 = program2[1]
+    hours2 = request.POST['hours2']
+    total_hours = request.POST['total_hours']
+    program_info = {
+        'name1': program1[0],
+        'code1': program1[1],
+        'hours1': hours1,
+        'name2': program2[0],
+        'code2': program2[1],
+        'hours2': hours2,
+        'total_hours': total_hours
+    }
+
+    p1_percentage = round(int(hours1) / int(total_hours) * 100, 1)
+    p2_percentage = round(int(hours2) / int(total_hours) * 100, 1)
+    worktag = '{0}% {1}, {2}% {3}'.format(p1_percentage, code1, p2_percentage, code2)
+    
+    return jid, aid, program_info, worktag
+
+
 
 @method_decorator([never_cache], name='dispatch')
 class ProgressJobs(LoginRequiredMixin, View):
@@ -1343,8 +1418,10 @@ class SelectedApplications(LoginRequiredMixin, View):
             num_offers = app.applicationstatus_set.filter(assigned=ApplicationStatus.OFFERED).count()
 
             if latest_status == 'selected' or latest_status == 'none':
-                if num_offers == 0: offer_modal['title'] = 'Offer'
-                else: offer_modal['title'] = 'Re-offer'
+                if num_offers == 0: 
+                    offer_modal['title'] = 'Offer'
+                else: 
+                    offer_modal['title'] = 'Re-offer'
 
                 filtered_offered_apps['num_not_offered'] += 1
 
@@ -1373,8 +1450,6 @@ class SelectedApplications(LoginRequiredMixin, View):
                 elif (app.job.assigned_ta_hours * 1.0/4.0) < app.job.accumulated_ta_hours:
                     app.ta_hour_progress = 'under_one_quarter'
 
-            app.programs = adminApi.find_default_worktag_programs(app)
-
         return render(request, 'administrators/applications/selected_applications.html', {
             'loggedin_user': request.user,
             'apps': apps,
@@ -1392,7 +1467,7 @@ class SelectedApplications(LoginRequiredMixin, View):
             'new_next': adminApi.build_new_next(request),
             'this_year': utils.THIS_YEAR,
             'worktags': settings.WORKTAGS,
-            'submit_worktag_hours_url': request.get_full_path()
+            'submit_worktag_setting_url': request.get_full_path()
         })
 
     @method_decorator(require_POST)
@@ -1411,25 +1486,25 @@ class SelectedApplications(LoginRequiredMixin, View):
                 return HttpResponseRedirect(request.POST.get('next'))
 
         program1 = request.POST['program1'].split('-')
-        program1_code = program1[1]
-        program1_hours = request.POST['program1_hours']
+        code1 = program1[1]
+        hours1 = request.POST['hours1']
         program2 = request.POST['program2'].split('-')
-        program2_code = program2[1]
-        program2_hours = request.POST['program2_hours']
+        code2 = program2[1]
+        hours2 = request.POST['hours2']
         total_hours = request.POST['total_hours']
-        program_hours = {
-            'program1_name': program1[0],
-            'program1_code': program1[1],
-            'program1_hours': program1_hours,
-            'program2_name': program2[0],
-            'program2_code': program2[1],
-            'program2_hours': program2_hours,
+        program_info = {
+            'name1': program1[0],
+            'code1': program1[1],
+            'hours1': hours1,
+            'name2': program2[0],
+            'code2': program2[1],
+            'hours2': hours2,
             'total_hours': total_hours
         }
 
-        p1_percentage = round(int(program1_hours) / int(total_hours) * 100, 1)
-        p2_percentage = round(int(program2_hours) / int(total_hours) * 100, 1)
-        worktag = '{0}% {1}, {2}% {3}'.format(p1_percentage, program1_code, p2_percentage, program2_code)
+        p1_percentage = round(int(hours1) / int(total_hours) * 100, 1)
+        p2_percentage = round(int(hours2) / int(total_hours) * 100, 1)
+        worktag = '{0}% {1}, {2}% {3}'.format(p1_percentage, code1, p2_percentage, code2)
 
         # Update admin docs - processing note
         processing_note = request.POST['processing_note']
@@ -1452,15 +1527,15 @@ class SelectedApplications(LoginRequiredMixin, View):
             processing_note += "<p>Auto update: <strong class='text-success'>{0}</strong> on {1}</p>".format(worktag, datetime.today().strftime('%Y-%m-%d'))
             AdminDocuments.objects.create(application_id=aid, processing_note=processing_note, worktag=worktag)
 
-        wt = WorktagHours.objects.filter(application_id=aid)
+        wt = WorktagSetting.objects.filter(application_id=aid)
         if wt.exists():
-            if wt.first().program_hours == program_hours:
+            if wt.first().program_info == program_info:
                 messages.warning(request, 'Warning! Nothing has been updated for the Worktag Hours (ID: {0})'.format(wt.first().application.id))
             else:
-                wt.update(program_hours=program_hours)
+                wt.update(program_info=program_info)
                 messages.success(request, 'Success! Updated the Worktag Hours (ID: {0})'.format(wt.first().application.id))
         else:
-            obj = WorktagHours.objects.create(application_id=aid, program_hours=program_hours)
+            obj = WorktagSetting.objects.create(application_id=aid, program_info=program_info)
             if obj:
                 messages.success(request, 'Success! Saved the Worktag Hours (ID: {0})'.format(obj.application.id))
         

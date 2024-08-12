@@ -244,12 +244,13 @@ class ApplicationStatus(models.Model):
         ordering = ['pk']
 
 
-class WorktagHours(models.Model):
-    ''' Worktag hours for admin documents '''
+class WorktagSetting(models.Model):
+    ''' Set up worktag hours for admin documents '''
 
     application = models.OneToOneField(Application, on_delete=models.CASCADE, primary_key=True)
     job_id = models.BigIntegerField()
-    program_hours = models.JSONField()
+    program_info = models.JSONField()
+    worktag = models.CharField(max_length=100)
     created_at = models.DateField(auto_now_add=True)
     updated_at = models.DateField(auto_now=True)
 

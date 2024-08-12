@@ -1389,20 +1389,6 @@ def find_default_worktag_hours(app):
             program2 = app.worktaghours.program_hours['program2_name']
 
     return { 'one': program1, 'two': program2 }
-
-
-def find_default_worktag_programs(app):
-    ''' Find default worktag programs '''
-    
-    program1 = 'FNH'
-    program2 = 'MND'
-    if hasattr(app, 'worktaghours') and app.worktaghours:
-        if app.worktaghours.program_hours['program1_name']:
-            program1 = app.worktaghours.program_hours['program1_name']
-        if app.worktaghours.program_hours['program2_name']:
-            program2 = app.worktaghours.program_hours['program2_name']
-
-    return { 'one': program1, 'two': program2 }
     
 
 # end applications
