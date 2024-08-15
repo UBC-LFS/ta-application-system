@@ -1764,7 +1764,6 @@ class AcceptedAppsReportWorkday(LoginRequiredMixin, View):
 
 
 @require_http_methods(['GET'])
-@require_http_methods(['GET'])
 def download_accepted_apps_workday(request):
     ''' Download accepted applications for Workday '''
 
@@ -1831,7 +1830,6 @@ def download_accepted_apps_workday(request):
     
     return JsonResponse({ 'status': 'success', 'data': data })
     
-
 
 @method_decorator([never_cache], name='dispatch')
 class DeclinedApplications(LoginRequiredMixin, View):

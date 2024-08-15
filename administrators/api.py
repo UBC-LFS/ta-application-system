@@ -1254,20 +1254,9 @@ def make_workday_data(app):
         
         app.sin_expiry_date = convert_date_format(app.applicant.confidentiality.sin_expiry_date) if app.applicant.confidentiality.sin_expiry_date else ''
         app.study_permit_expiry_date = convert_date_format(app.applicant.confidentiality.study_permit_expiry_date) if app.applicant.confidentiality.study_permit_expiry_date else ''
-        app.sin_expiry_date = convert_date_format(app.applicant.confidentiality.sin_expiry_date) if app.applicant.confidentiality.sin_expiry_date else ''
-        app.study_permit_expiry_date = convert_date_format(app.applicant.confidentiality.study_permit_expiry_date) if app.applicant.confidentiality.study_permit_expiry_date else ''
         
         app.visa_type = 'Study Permit' if app.study_permit_expiry_date else ''
 
-        if app.applicant.profile.status and app.applicant.confidentiality.nationality:
-            status_name = app.applicant.profile.status.name
-            if status_name.find('Undergraduate') > -1:
-                status_name = status_name.replace('Undergraduate', 'Bachelor')
-            elif status_name.find('Ph.D') > -1:
-                status_name = status_name.replace('Ph.D', 'Doctoral')
-            status_name = status_name.replace('student', 'Student')
-
-            app.job_class = '{0} - {1}'.format(status_name, app.applicant.confidentiality.get_nationality_display().split(' ')[0])
         if app.applicant.profile.status and app.applicant.confidentiality.nationality:
             status_name = app.applicant.profile.status.name
             if status_name.find('Undergraduate') > -1:
@@ -1302,7 +1291,6 @@ def make_workday_data(app):
         app.location = settings.WORKDAY_MCML_LOCATION
 
     app.monthly_salary = app.classification.wage * 48
-    app.monthly_salary = app.classification.wage * 48
 
     start_date1 = ''
     end_date1 = ''
@@ -1318,29 +1306,14 @@ def make_workday_data(app):
         elif app.job.session.term.code == 'S' or app.job.session.term.code == 'S1+2':
             start_date1 = '05/01/{0}'.format(year)
             end_date1 = '08/31/{0}'.format(year)
-        if app.job.session.term.code == 'S1':
-            start_date1 = '05/01/{0}'.format(year)
-            end_date1 = '06/30/{0}'.format(year)
-        elif app.job.session.term.code == 'S2':
-            start_date1 = '07/01/{0}'.format(year)
-            end_date1 = '08/31/{0}'.format(year)
-        elif app.job.session.term.code == 'S' or app.job.session.term.code == 'S1+2':
-            start_date1 = '05/01/{0}'.format(year)
-            end_date1 = '08/31/{0}'.format(year)
     elif 'Winter' in app.job.session.term.name:
         if app.job.session.term.code == 'W1':
-            start_date1 = '09/01/{0}'.format(year)
-            end_date1 = '12/31/{0}'.format(year)
             start_date1 = '09/01/{0}'.format(year)
             end_date1 = '12/31/{0}'.format(year)
         elif app.job.session.term.code == 'W2':
             start_date1 = '01/01/{0}'.format(next_year)
             end_date1 = '04/30/{0}'.format(next_year)
-            start_date1 = '01/01/{0}'.format(next_year)
-            end_date1 = '04/30/{0}'.format(next_year)
         elif app.job.session.term.code == 'W1+2':
-            start_date1 = '09/01/{0}'.format(year)
-            end_date1 = '04/30/{0}'.format(next_year)
             start_date1 = '09/01/{0}'.format(year)
             end_date1 = '04/30/{0}'.format(next_year)
 
@@ -1392,9 +1365,6 @@ def make_workday_data(app):
     pt_percentage = calculate_pt_percentage(app)
     if pt_percentage >= 100:
         app.time_type = 'Full_time'
-
-    app.default_weekly_hours = 12 if 'Winter' in app.job.session.term.name else 20
-    app.scheduled_weekly_hours = format( calculate_weekly_hours(pt_percentage), '.2f' )
 
     app.default_weekly_hours = 12 if 'Winter' in app.job.session.term.name else 20
     app.scheduled_weekly_hours = format( calculate_weekly_hours(pt_percentage), '.2f' )
