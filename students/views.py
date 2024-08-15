@@ -1156,14 +1156,21 @@ def make_decision(request, session_slug, job_slug):
                     if adminApi.update_job_accumulated_ta_hours(session_slug, job_slug, float(assigned_hours)):
 
                         # Update Worktag to Admin Docs
+                        ad_filtered = AdminDocuments.objects.filter(application_id=app.id)
                         ws_filtered = WorktagSetting.objects.filter(application_id=app.id)
                         if ws_filtered.exists():
                             worktag = ws_filtered.first().worktag
-                            ad_filtered = AdminDocuments.objects.filter(application_id=app.id)
                             if ad_filtered.exists():
                                 ad_filtered.update(worktag=worktag)
                             else:
                                 AdminDocuments.objects.create(application_id=app.id, worktag=worktag)
+                        else:
+                            if app.job.course.code.name in settings.WORKTAG_MAP.keys():
+                                worktag = settings.WORKTAG_MAP[app.job.course.code.name]
+                                if ad_filtered.exists():
+                                    ad_filtered.update(worktag=worktag)
+                                else:
+                                    AdminDocuments.objects.create(application_id=app.id, worktag=worktag)
 
                         messages.success(request, 'Success! You accepted the job offer - {0} {1}: {2} {3} {4}'.format(app.job.session.year, app.job.session.term.code, app.job.course.code.name, app.job.course.number.name, app.job.course.section.name))
                         return HttpResponseRedirect(request.POST.get('next'))
