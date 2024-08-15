@@ -339,7 +339,7 @@
               </div>
             {% endif %}
 
-            {% include 'administrators/applications/_submit_worktag_setting.html' with id=app.id job=app.job data=app worktag_setting=app.worktagsetting submit_url=submit_worktag_setting_url path='app' %}
+            {% include 'administrators/applications/_submit_worktag_setting.html' with id=app.id job=app.job data=app worktag_setting=app.worktagsetting submit_url=submit_worktag_setting_url delete_url=delete_worktag_setting_url path='app' %}
           </td>
         </tr>
       {% endfor %}

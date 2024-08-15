@@ -1391,6 +1391,44 @@ def find_default_worktag_hours(app):
     return { 'one': program1, 'two': program2 }
     
 
+def update_worktag_in_admin_docs(app, worktag, processing_note):
+    if processing_note == '<p><br></p>':
+        processing_note = None
+
+    app = add_app_info_into_application(app, ['accepted', 'declined'])
+    ad_filtered = AdminDocuments.objects.filter(application_id=app.id)
+
+    is_valid_accepted = check_valid_accepted_app_or_not(app)
+    if is_valid_accepted:
+        addon = "<p>Auto update: <strong class='text-success'>{0}</strong> on {1}</p>".format(worktag, datetime.today().strftime('%Y-%m-%d'))
+        if ad_filtered.exists():
+            ad = ad_filtered.first()
+
+            update_fields = ['processing_note']
+            if not ad.worktag or ad.worktag != worktag:
+                ad.worktag = worktag
+                update_fields.append('worktag')
+            
+            if processing_note:
+                ad.processing_note = processing_note + addon
+            else:
+                ad.processing_note = addon
+            
+            ad.save(update_fields=update_fields)
+        else:
+            if processing_note:
+                processing_note += addon
+            else:
+                processing_note = addon
+            AdminDocuments.objects.create(application_id=app.id, worktag=worktag, processing_note=processing_note)
+    else:
+        if processing_note:
+            if ad_filtered.exists():
+                ad_filtered.update(processing_note=processing_note)
+            else:
+                AdminDocuments.objects.create(application_id=app.id, processing_note=processing_note)
+
+
 # end applications
 
 
@@ -1675,3 +1713,8 @@ def trim(data):
 def strip_html_tags(text):
     text_replaced = text.replace('<br>', '\n').replace('</p>', '\n').replace('&nbsp;', ' ').replace('&amp;', '&').replace('"', "'")
     return strip_tags(text_replaced)
+
+
+def compare_two_dicts_by_key(d1, d2):    
+    return dict(d1.items()) == dict(d2.items())
+

@@ -31,30 +31,34 @@
             </ul>
           </div>
 
-          <p class="font-weight-bold">
-            Worktag to be saved:
-            {% if worktag_setting.worktag %}
-              <span class="text-danger">{{ worktag_setting.worktag }}</span>
-            {% else %}
-              <span class="badge badge-secondary">NONE</span>
-            {% endif %}
-          </p>
-          
-          <p class="font-weight-bold">
+          <p class="font-weight-bold mb-1">
             {% if path == 'job' %}
               Number of Applications:
               <span class="text-chocolate">{{ job.application_set.count }}</span>
             {% elif path == 'app' %}
-              Current Worktag:
-              {% if data.admindocuments.worktag %}
-                <span class="text-chocolate">{{ data.admindocuments.worktag }}</span>
+              Worktag Setup:
+              {% if worktag_setting.worktag %}
+                <span class="text-chocolate">{{ worktag_setting.worktag }}</span>
+
+                {% if data.admindocuments.worktag == worktag_setting.worktag %}
+                  <span class="badge badge-success">SAVED IN ADMIN DOCS</span>
+                {% endif %}
               {% else %}
                 <span class="badge badge-secondary">NONE</span>
               {% endif %}
             {% endif %}
           </p>
 
-          <form action="{{ submit_url }}" method="post">
+          <p class="font-size-sm">
+            {% if worktag_setting.created_at %}
+              Created on: {{ worktag_setting.created_at }} <br />
+            {% endif %}
+            {% if worktag_setting.updated_at %}
+              Recent Updated on: {{ worktag_setting.updated_at }}
+            {% endif %}
+          </p>
+
+          <form action="{{ save_url }}" method="post">
             {% csrf_token %}
 
             <table class="white-modal-table table">
@@ -114,9 +118,25 @@
             <input type="hidden" name="job" value="{{ job.id }}" />
             <input type="hidden" name="next" value="{{ new_next }}" />
 
-            <input class="btn btn-success font-size-1" type="submit" value="{% if worktag_setting %}Save Changes{% else %}Confirm Save{% endif %}" />
+            <input class="btn btn-success font-size-1 float-left mr-2" type="submit" value="{% if worktag_setting %}Save Changes{% else %}Confirm Save{% endif %}" />
           </form>
 
+          {% if worktag_setting %}
+            <form action="{{ delete_url }}" method="post">
+              {% csrf_token %}
+
+              {% if path == 'app' %}
+                <input type="hidden" name="application" value="{{ data.id }}" />
+              {% endif %}
+
+              <input type="hidden" name="job" value="{{ job.id }}" />
+              <input type="hidden" name="next" value="{{ new_next }}" />
+
+              <input class="btn btn-danger font-size-1 d-block-inlne" type="submit" value="Delete" />
+            </form>
+          {% else %}
+            <button class="btn btn-danger font-size-1 d-block-inlne float-left" disabled>Delete</button>
+          {% endif %}
         </div>
       </div>
     </div>

@@ -68,7 +68,7 @@
             {{ job.updated_at }}
           </td>
           <td>
-            {% include 'administrators/applications/_submit_worktag_setting.html' with id=job.id worktag_setting=job.worktag_setting submit_url=submit_worktag_setting_url path='job' %}
+            {% include 'administrators/applications/_submit_worktag_setting.html' with id=job.id worktag_setting=job.worktag_setting save_url=save_worktag_setting_url delete_url=delete_worktag_setting_url path='job' %}
 
             {% if job.application_set.count > 0 and job.worktag_setting %}
               <button class="btn btn-xs btn-info d-block mx-auto mt-2" type="button" data-toggle="modal" data-target="#list-applicants-modal-{{ job.id }}">
@@ -91,7 +91,7 @@
                               <th>Program 1 <br /> & Hours</th>
                               <th>Program 2 <br /> & Hours</th>
                               <th>Total Hours</th>
-                              <th>Worktag</th>
+                              <th>Worktag Setup</th>
                               <th>Created on / <br /> Updated on</th>
                             </tr>
                           </thead>
@@ -133,7 +133,17 @@
                                   {{ app.worktagsetting.program_info.total_hours }}
                                 {% endif %}
                               </td>
-                              <td>{{ app.worktagsetting.worktag }}</td>
+                              <td>
+                                {{ app.worktagsetting.worktag }}
+
+                                {% if app.admindocuments.worktag %}
+                                  {% if app.admindocuments.worktag == app.worktagsetting.worktag %}
+                                    <br /> <span class="badge badge-success">SAVED</span>
+                                  {% else %}
+                                    <br /> <span class="badge badge-warning">DIFF</span>
+                                  {% endif %}
+                                {% endif %}
+                              </td>
                               <td>
                                 {{ app.worktagsetting.created_at }}
                                 {% if app.worktagsetting.created_at != app.worktagsetting.updated_at %}
@@ -143,6 +153,18 @@
                             </tr>
                           {% endfor %}
                         </table>
+
+                        <div class="mt-5 font-size-sm">
+                          <h6 class="mt-4">Note:</h6>
+                          <ul>
+                            <li>
+                              This badge <span class="badge badge-success">SAVED</span> indicates that a <code>Worktag</code> value in the Worktag Setting has been saved to the Admin Documents because the application has been accepted
+                            </li>
+                            <li>
+                              This badge <span class="badge badge-warning">DIFF</span> indicates that a <code>Worktag</code> value has been saved to the Admin Documents, but it's different from the one in the Worktag Setting
+                            </li>
+                          </ul>
+                        </div>
                       </div>
                     </div>
                   </div>
