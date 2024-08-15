@@ -1764,6 +1764,7 @@ class AcceptedAppsReportWorkday(LoginRequiredMixin, View):
 
 
 @require_http_methods(['GET'])
+@require_http_methods(['GET'])
 def download_accepted_apps_workday(request):
     ''' Download accepted applications for Workday '''
 
@@ -1780,9 +1781,7 @@ def download_accepted_apps_workday(request):
             'Bot Status': '',
             'Bot Timestamp': '',
             'Bot Comments': '',
-            'Employee ID': app.employee_number,
             'Student ID': app.student_number,
-            'Supervisory Org': '',
             'Hire Date': app.start_date1,
             'Hire Reason': '',
             'Position Number': app.position_number,
@@ -1795,24 +1794,21 @@ def download_accepted_apps_workday(request):
             'Comments': '',
             'Attachment 1': '',
             'Attachment 1 Category': '',
-            'Attachment 2': '',
-            'Attachment 2 Category': '',
             'SIN Number': '',
             'Expiration Date of SIN': app.sin_expiry_date,
             'Visa ID Type': app.visa_type,
+            'Identification #': '',
             'Issued Date of Visa': '',
             'Expiration Date of Visa': app.study_permit_expiry_date,
             'Permit Validated': app.permit_validated,
-            'Identification #': '',
             'Attachment (NHI)': '',
             'Description of Upload (NHI)': '',
-            'Manager(s) after the change': '',
             'Location': app.location,
-            'Manager Approval': '',
+            'Vacating Position': '',
             'Cost Centre': '',
             'Functional Unit Hierarchy': '',
             'Amount (Monthly)': app.monthly_salary,
-            'Amount (Hourly)': app.hourly_salary,
+            'Amount (Hourly)': '',
             'Comments for Costing allocation': '',
             'Costing Allocation Level': app.costing_alloc_level,
             'Start Date1': app.start_date1,

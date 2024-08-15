@@ -40,28 +40,26 @@
       <tr>
         <th>ID <br /> Year Term</th>
         <th>Job Title</th>
-        <th>Employee <br /> ID</th>
         <th>Student <br /> ID</th>
         <th>Position <br /> Number</th>
         <th>Time <br /> Type</th>
         <th>Default <br /> Weekly Hours</th>
         <th>Scheduled <br /> Weekly Hours</th>
         <th>Additional Job <br /> Classifications</th>
-        <th>Hire Date / <br /> Start Date1</th>
-        <th>End Empl. Date / <br /> End Date1</th>
+        <th>Hire Date <br /> (Start Date1)</th>
+        <th>End Empl. Date <br /> (End Date1)</th>
+        <th>SIN Expiry Date / <br /> Study Permit Expiry Date</th>
         <th>Permit <br /> Validated</th>
         <th>Monthly <br /> Salary</th>
-        <th>Hourly <br /> Salary</th>
         <th>Worktag1</th>
         <th>Worktag2</th>
       </tr>
     </thead>
     <tbody>
       {% for app in apps %}
-      <tr>
-        <td>{{ app.id }} <br /> {{ app.job.session.year }} {{ app.job.session.term.code }}</td>
+        <tr>
+          <td>{{ app.id }} <br /> {{ app.job.session.year }} {{ app.job.session.term.code }}</td>
           <td>{{ app.job_title }}</td>
-          <td>{{ app.applicant.confidentiality.employee_number }}</td>
           <td>{{ app.applicant.profile.student_number }}</td>
           <td>{{ app.position_number }}</td>
           <td>{{ app.time_type }}</td>
@@ -70,9 +68,12 @@
           <td>{{ app.job_class }}</td>
           <td>{{ app.start_date1 }}</td>
           <td>{{ app.end_date1 }}</td>
+          <td>
+            {{ app.sin_expiry_date }} <br />
+            {{ app.study_permit_expiry_date }}
+          </td>
           <td>{{ app.permit_validated }}</td>
           <td>${{ app.monthly_salary|floatformat:2 }}</td>
-          <td>${{ app.hourly_salary|floatformat:2 }}</td>
           <td>
             {% if app.worktag1 %}
               {{ app.worktag1 }}, {{ app.dist_per1 }}
@@ -83,7 +84,7 @@
               {{ app.worktag2 }}, {{ app.dist_per2 }}
             {% endif %}
           </td>
-      </tr>
+        </tr>
       {% endfor %}
     </tbody>
   </table>
