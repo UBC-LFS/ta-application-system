@@ -16,7 +16,7 @@
       <div class="bg-light-gray p-4" style="height:180.8px">
         <h5>Note:</h5>
         <ul class="font-size-sm">
-          <li><code>Time Type</code> is Full_time if P/T (%) = 100; otherwise, Part_time</li>
+          <li><code>Time Type</code> is Full_time if P/T (%) >= 100; otherwise, Part_time</li>
           <li><code>Costing Allocation Level</code> = {{ workday_costing_alloc_level }}</li>
           <li><code>Location:</code> FNH, HUNU, and FOOD courses are set at {{ workday_fnh_location }}; otherwise, {{ workday_mcml_location }}</li>
         </ul>
@@ -40,6 +40,7 @@
       <tr>
         <th>ID <br /> Year Term</th>
         <th>Job Title</th>
+        <th>Instructor(s)</th>
         <th>Student <br /> ID</th>
         <th>Position <br /> Number</th>
         <th>Time <br /> Type</th>
@@ -60,6 +61,7 @@
         <tr>
           <td>{{ app.id }} <br /> {{ app.job.session.year }} {{ app.job.session.term.code }}</td>
           <td>{{ app.job_title }}</td>
+          <td class="text-left">{% include 'ta_app/jobs/_job_instructor_list.html' with data=app.job %}</td>
           <td>{{ app.applicant.profile.student_number }}</td>
           <td>{{ app.position_number }}</td>
           <td>{{ app.time_type }}</td>

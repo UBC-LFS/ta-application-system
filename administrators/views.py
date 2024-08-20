@@ -1771,6 +1771,14 @@ def download_accepted_apps_workday(request):
     data = []
     for app in apps:
         app = adminApi.make_workday_data(app)
+
+        instructors = ''
+        if app.job.instructors.count() > 0:
+            for i, ins in enumerate(app.job.instructors.all()):
+                instructors += ins.get_full_name()
+                if i < app.job.instructors.count() - 1:
+                    instructors += ', '
+
         data.append({
             'Fields': '',
             'Bot Action': '',
@@ -1786,6 +1794,7 @@ def download_accepted_apps_workday(request):
             'Position Number': app.position_number,
             'Time Type': app.time_type,
             'Job Title': app.job_title,
+            'Instructor(s)': instructors,
             'Default Weekly Hours': app.default_weekly_hours,
             'Scheduled Weekly Hours': app.scheduled_weekly_hours,
             'Additional Job Classifications': app.job_class,

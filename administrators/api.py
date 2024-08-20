@@ -1398,7 +1398,7 @@ def find_default_worktag_hours(app):
     return { 'one': program1, 'two': program2 }
     
 
-def update_worktag_in_admin_docs(app, worktag, processing_note):
+def update_worktag_in_admin_docs(app, new_worktag, processing_note):
     if processing_note == '<p><br></p>':
         processing_note = None
 
@@ -1407,13 +1407,15 @@ def update_worktag_in_admin_docs(app, worktag, processing_note):
 
     is_valid_accepted = check_valid_accepted_app_or_not(app)
     if is_valid_accepted:
-        addon = "<p>Auto update: <strong class='text-success'>{0}</strong> on {1}</p>".format(worktag, datetime.today().strftime('%Y-%m-%d'))
+        today = datetime.today().strftime('%Y-%m-%d')
+        addon = "<p>Auto update: <strong class='text-success'>{0}</strong> on {1}</p>".format(new_worktag, today)
         if ad_filtered.exists():
             ad = ad_filtered.first()
+            old_worktag = ad.worktag
 
             update_fields = ['processing_note']
-            if not ad.worktag or ad.worktag != worktag:
-                ad.worktag = worktag
+            if not ad.worktag or ad.worktag != new_worktag:
+                ad.worktag = new_worktag
                 update_fields.append('worktag')
             
             if processing_note:
@@ -1421,13 +1423,16 @@ def update_worktag_in_admin_docs(app, worktag, processing_note):
             else:
                 ad.processing_note = addon
             
+            if old_worktag and 'worktag' in update_fields:
+                ad.processing_note += "<p>Auto update: <strong>Previous Worktag</strong> - {0} on {1}</p>".format(old_worktag, today)
+            
             ad.save(update_fields=update_fields)
         else:
             if processing_note:
                 processing_note += addon
             else:
                 processing_note = addon
-            AdminDocuments.objects.create(application_id=app.id, worktag=worktag, processing_note=processing_note)
+            AdminDocuments.objects.create(application_id=app.id, worktag=new_worktag, processing_note=processing_note)
     else:
         if processing_note:
             if ad_filtered.exists():

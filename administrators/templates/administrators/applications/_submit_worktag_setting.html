@@ -31,6 +31,17 @@
             </ul>
           </div>
 
+          {% if path == 'app' %}
+            <p class="font-weight-bold mb-1">
+              Current Worktag:
+              {% if data.admindocuments.worktag %}
+                <span class="text-primary">{{ data.admindocuments.worktag }}</span>
+              {% else %}
+                <span class="badge badge-secondary">NONE</span>
+              {% endif %}
+            </p>
+          {% endif %}
+
           <p class="font-weight-bold mb-1">
             {% if path == 'job' %}
               Number of Applications:
@@ -41,7 +52,7 @@
                 <span class="text-chocolate">{{ worktag_setting.worktag }}</span>
 
                 {% if data.admindocuments.worktag == worktag_setting.worktag %}
-                  <span class="badge badge-success">SAVED IN ADMIN DOCS</span>
+                  <span class="badge badge-warning">SAVED IN ADMIN DOCS</span>
                 {% endif %}
               {% else %}
                 <span class="badge badge-secondary">NONE</span>
