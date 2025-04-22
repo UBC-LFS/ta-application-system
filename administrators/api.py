@@ -1126,9 +1126,9 @@ def calculate_pt_percentage(app):
     ''' Calculate the P/T (%) of an application '''
     pt_percentage = round(app.accepted.assigned_hours / app.job.session.term.max_hours * 100, 2)
 
-    # When a term is S1 or S2, pt percentage * 2
-    if app.job.course.term.code == 'S1' or app.job.course.term.code == 'S2':
-        pt_percentage = pt_percentage * 2
+    # REMOVED: When a term is S1 or S2, pt percentage * 2
+    # if app.job.course.term.code == 'S1' or app.job.course.term.code == 'S2':
+    #     pt_percentage = pt_percentage * 2
 
     return pt_percentage
 
