@@ -2406,13 +2406,14 @@ def download_all_accepted_apps(request):
     apps, info = adminApi.get_applications_filter_limit(request, 'accepted')
     apps = adminApi.add_app_info_into_applications(apps, ['accepted'])
 
-    result = 'ID,Year,Term,Job,First Name,Last Name,CWL,Email,Student Number,Employee Number,Classification,Monthly Salary,P/T (%),Positin Number,PIN,TASM,Processed,Worktag,Processing Note,Accepted on,Assigned Hours\n'
+    result = 'ID,Year,Term,Job,First Name,Last Name,Full Name,CWL,Email,Student Number,Employee Number,Classification,Monthly Salary,P/T (%),Positin Number,PIN,TASM,Processed,Worktag,Processing Note,Accepted on,Assigned Hours\n'
     for app in apps:
         year = app.job.session.year
         term = app.job.session.term.code
         job = '{0} {1} {2}'.format(app.job.course.code.name, app.job.course.number.name, app.job.course.section.name)
         first_name = app.applicant.first_name
         last_name = app.applicant.last_name
+        full_name = f'{app.applicant.first_name} {app.applicant.last_name}'
         cwl = app.applicant.username
         email = app.applicant.email
 
@@ -2455,13 +2456,14 @@ def download_all_accepted_apps(request):
             accepted_on = app.accepted.created_at
             assigned_hours = app.accepted.assigned_hours
 
-        result += '{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15},{16},{17},{18},{19},{20}\n'.format(
+        result += '{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15},{16},{17},{18},{19},{20},{21}\n'.format(
             app.id,
             year,
             term,
             job,
             first_name,
             last_name,
+            full_name,
             cwl,
             email,
             student_number,
