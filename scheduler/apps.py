@@ -7,6 +7,6 @@ class SchedulerConfig(AppConfig):
     name = 'scheduler'
 
     def ready(self):
-        if not settings.DEBUG:
+        if settings.SCHEDULER:
             from scheduler import tasks
             tasks.run()
