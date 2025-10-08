@@ -25,10 +25,10 @@
         <th data-sortable="true">Instructors</th>
         <th data-sortable="true">Total Assigned<br /> TA Hours</th>
         <th>Job Details</th>
-        <th data-sortable="true">Active?</th>
+        <th>Note</th>
         <th data-sortable="true">Number of<br />Applications</th>
-        <th data-sortable="true">Created on</th>
-        <th data-sortable="true">Updated on</th>
+        <th data-sortable="true">Active?</th>
+        <th>Created Date / <br> Updated Date</th>
         <th>Worktag <br /> Setting</th>
         <th>Actions</th>
       </tr>
@@ -51,6 +51,14 @@
               None
             {% endif %}
           </td>
+          <td class="text-left" style="max-width:300px; min-width:200px;">
+            {% if job.note %}
+              {{ job.note|safe }}
+            {% else %}
+              None
+            {% endif %}
+          </td>
+          <td>{{ job.application_set.count }}</td>
           <td>
             {% if job.is_active %}
               <span class="badge badge-success">{{ job.is_active }} <i class="fa fa-check-circle" aria-hidden="true"></i></span>
@@ -58,13 +66,8 @@
               <span class="badge badge-danger">{{ job.is_active }} <i class="fa fa-stop-circle" aria-hidden="true"></i></span>
             {% endif %}
           </td>
-          <td>{{ job.application_set.count }}</td>
           <td>
-            <span class="d-none">{{ job.created_at|date:"Y m d z" }}</span>
-            {{ job.created_at }}
-          </td>
-          <td>
-            <span class="d-none">{{ job.updated_at|date:"Y m d z" }}</span>
+            {{ job.created_at }} <br />
             {{ job.updated_at }}
           </td>
           <td>
@@ -92,7 +95,7 @@
                               <th>Program 2 <br /> & Hours</th>
                               <th>Total Hours</th>
                               <th>Worktag Setup</th>
-                              <th>Created on / <br /> Updated on</th>
+                              <th>Created Date / <br /> Updated Date</th>
                             </tr>
                           </thead>
                           {% for app in job.application_set.all %}

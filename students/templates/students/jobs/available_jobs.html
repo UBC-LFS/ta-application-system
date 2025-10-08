@@ -54,7 +54,7 @@
                   {{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}
                 </span>
 
-                {% include 'ta_app/jobs/_modal_job_details.html' with data=job %}
+                {% include 'ta_app/jobs/_modal_job_details.html' with data=job path='student' %}
 
                 {% if job.my_fav %}
                   <i class="fa fa-star text-warning" aria-hidden="true"></i>

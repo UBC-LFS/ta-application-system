@@ -65,7 +65,7 @@
 								>
 									{{ fav.job.course.code.name }} {{ fav.job.course.number.name }} {{ fav.job.course.section.name }}
 								</span>
-								{% include 'ta_app/jobs/_modal_job_details.html' with data=fav.job %}
+								{% include 'ta_app/jobs/_modal_job_details.html' with data=fav.job path='student' %}
 							</td>
 							<td>{% include 'ta_app/jobs/_job_instructor.html' with data=fav.job %}</td>
 							<td>

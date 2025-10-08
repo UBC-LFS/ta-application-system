@@ -8,7 +8,7 @@
 <table class="user-data-table table table-borderless table-no-striped">
   <tbody>
     <tr>
-      <td>Instructors:</td>
+      <td>Instructors</td>
       <td>
         <ul>
           {% for instructor in data.instructors.all %}
@@ -20,7 +20,7 @@
       </td>
     </tr>
     <tr>
-      <td>Course Overview:</td>
+      <td>Course Overview</td>
       <td>
         <section class="bg-white p-4">
           {% if data.course_overview %}
@@ -32,7 +32,7 @@
       </td>
     </tr>
     <tr>
-      <td>Job Description:</td>
+      <td>Job Description</td>
       <td>
         <section class="bg-white p-4">
           {% if data.description %}
@@ -43,28 +43,30 @@
         </section>
       </td>
     </tr>
+    {% if path != 'student' %}
+      <tr>
+        <td>Note</td>
+        <td>
+          <section class="bg-white p-4">
+            {% if data.note %}
+              {{ data.note|safe }}
+            {% else %}
+              None
+            {% endif %}
+          </section>
+        </td>
+      </tr>
+    {% endif %}
     <tr>
-      <td>Note:</td>
-      <td>
-        <section class="bg-white p-4">
-          {% if data.note %}
-            {{ data.note|safe }}
-          {% else %}
-            None
-          {% endif %}
-        </section>
-      </td>
-    </tr>
-    <tr>
-      <td>Is active:</td>
+      <td>Active?</td>
       <td>{% include 'ta_app/jobs/_job_is_active.html' with data=data %}</td>
     </tr>
     <tr>
-      <td>Created on:</td>
+      <td>Created Date</td>
       <td>{{ data.created_at }}</td>
     </tr>
     <tr>
-      <td>Updated on:</td>
+      <td>Updated Date</td>
       <td>{{ data.updated_at }}</td>
     </tr>
   </tbody>

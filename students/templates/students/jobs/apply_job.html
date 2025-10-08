@@ -13,7 +13,7 @@
           <td>Favourite</td>
         </tr>
         <tr>
-          <td>{% include 'ta_app/jobs/_modal_job_details.html' with data=job %}</td>
+          <td>{% include 'ta_app/jobs/_modal_job_details.html' with data=job path='student' %}</td>
           <td>
             <form action="{% url 'students:select_favourite_job' session_slug=job.session.slug job_slug=job.course.slug %}" method="post">
               {% csrf_token %}
