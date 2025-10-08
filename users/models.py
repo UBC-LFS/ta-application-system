@@ -34,7 +34,7 @@ class Role(models.Model):
     slug = models.SlugField(max_length=256, unique=True)
 
     class Meta: ordering = ['pk']
-    def __str__(self): 
+    def __str__(self):
         return self.name
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)
@@ -46,7 +46,7 @@ class Status(models.Model):
     slug = models.SlugField(max_length=256, unique=True)
 
     class Meta: ordering = ['pk']
-    def __str__(self): 
+    def __str__(self):
         return self.name
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)
@@ -58,7 +58,7 @@ class Faculty(models.Model):
     slug = models.SlugField(max_length=256, unique=True)
 
     class Meta: ordering = ['pk']
-    def __str__(self): 
+    def __str__(self):
         return self.name
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)
@@ -70,7 +70,7 @@ class Program(models.Model):
     slug = models.SlugField(max_length=256, unique=True)
 
     class Meta: ordering = ['pk']
-    def __str__(self): 
+    def __str__(self):
         return self.name
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)
@@ -82,7 +82,7 @@ class Degree(models.Model):
     slug = models.SlugField(max_length=256, unique=True)
 
     class Meta: ordering = ['pk']
-    def __str__(self): 
+    def __str__(self):
         return self.name
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)
@@ -95,7 +95,7 @@ class Training(models.Model):
     slug = models.SlugField(max_length=256, unique=True)
 
     class Meta: ordering = ['pk']
-    def __str__(self): 
+    def __str__(self):
         return self.name
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)
@@ -249,7 +249,7 @@ class Profile(models.Model):
     HAS_GRADUATED_CHOICES = [ ('1', 'Yes'), ('2', 'No') ]
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
-    student_number = models.CharField(max_length=8, unique=True, null=True, blank=True, 
+    student_number = models.CharField(max_length=8, unique=True, null=True, blank=True,
         validators=[NumericalValueValidator, MinLengthValidator(8), MaxLengthValidator(8)]
     )
     roles = models.ManyToManyField(Role)
@@ -359,7 +359,9 @@ class Avatar(models.Model):
 
                     width, height = compress_image(img)
 
-                    img.thumbnail( (width, height), PILImage.ANTIALIAS )
+                    # img.thumbnail( (width, height), PILImage.ANTIALIAS ) # Pillow < 10.0.0
+                    img.thumbnail( (width, height), PILImage.Resampling.LANCZOS )
+
                     output = BytesIO()
                     img.save(output, format='JPEG', quality=70) # Reduce a quality by 70%
                     output.seek(0)
@@ -414,7 +416,7 @@ def encrypt_image(obj):
     img = PILImage.open(obj)
     if img.mode == 'P':
         img = img.convert('RGB')
-    
+
     if img.mode in ['RGBA']:
         background = PILImage.new( img.mode[:-1], img.size, (255,255,255) )
         background.paste(img, img.split()[-1])
@@ -422,7 +424,9 @@ def encrypt_image(obj):
 
     width, height = compress_image(img)
 
-    img.thumbnail( (width, height), PILImage.ANTIALIAS )
+    # img.thumbnail( (width, height), PILImage.ANTIALIAS ) # Pillow < 10.0.0
+    img.thumbnail( (width, height), PILImage.Resampling.LANCZOS )
+
     output = BytesIO()
     img.save(output, format='JPEG', quality=70) # Reduce a quality by 70%
     output.seek(0)
