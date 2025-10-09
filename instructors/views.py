@@ -250,26 +250,14 @@ class ShowApplications(LoginRequiredMixin, View):
     @method_decorator(require_GET)
     def get(self, request, *args, **kwargs):
         request.session['next_second'] = adminApi.build_new_next(request)
-
-        apps = Application.objects.filter( Q(job__session__slug=self.session_slug) & Q(job__course__slug=self.job_slug) )
-        for app in apps:
-            app.selected = None
-            selected = app.applicationstatus_set.filter(assigned=ApplicationStatus.SELECTED)
-            if selected.exists():
-                app.selected = selected.last()
-
-            app.applicant = userApi.add_resume(app.applicant)
-            app.applicant.accepted_apps = adminApi.get_accepted_apps_in_applicant(app)
-            app.applicant.preferred_ta = userApi.get_preferred_ta(app.applicant)
-            app.info = userApi.get_applicant_status_program(app.applicant)
-
         return render(request, 'instructors/jobs/show_applications.html', {
             'loggedin_user': request.user,
             'job': self.job,
-            'apps': apps,
+            'apps': Application.objects.filter(Q(job__session__slug=self.session_slug) & Q(job__course__slug=self.job_slug)),
             'full_job_name': self.job.course.code.name + '_' + self.job.course.number.name + '_' + self.job.course.section.name,
             'instructor_preference_choices': Application.INSTRUCTOR_PREFERENCE_CHOICES,
             'app_status': APP_STATUS,
+            'summary_of_applicants_link': reverse('instructors:summary_applicants', kwargs={'session_slug': self.job.session.slug, 'job_slug': self.job.course.slug}),
             'next_first': request.session.get('next_first', None)
         })
 

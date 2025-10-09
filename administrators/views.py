@@ -846,31 +846,15 @@ class ProgressJobs(LoginRequiredMixin, View):
 def show_job_applications(request, session_slug, job_slug):
     ''' Display a job's applications '''
     request = userApi.has_admin_access(request)
-
     job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
-
-    apps = []
-    for app in job.application_set.all():
-        app.selected = None
-        selected = app.applicationstatus_set.filter(assigned=ApplicationStatus.SELECTED)
-        if selected.exists():
-            app.selected = selected.last()
-
-        app.applicant = userApi.add_resume(app.applicant)
-        app.applicant.accepted_apps = adminApi.get_accepted_apps_in_applicant(app)
-        app.applicant.preferred_ta = userApi.get_preferred_ta(app.applicant)
-        app.info = userApi.get_applicant_status_program(app.applicant)
-
-        apps.append(app)
-
     request.session['summary_applicants_next'] = request.get_full_path()
-
     return render(request, 'administrators/jobs/show_job_applications.html', {
         'loggedin_user': request.user,
         'job': adminApi.add_job_with_applications_statistics(job),
-        'apps': apps,
+        'apps': job.application_set.all(),
         'app_status': APP_STATUS,
         'next': request.session.get('progress_jobs_next'),
+        'summary_of_applicants_link': reverse('administrators:summary_applicants', kwargs={'session_slug': job.session.slug, 'job_slug': job.course.slug}),
         'new_next': adminApi.build_new_next(request)
     })
 

@@ -577,6 +577,10 @@ hr.dotted {
   color: #D2691E !important;
 }
 
+.text-orange {
+  color: #fd7e14;
+}
+
 .bg-dark-blue {
   background-color: #002145;
 }

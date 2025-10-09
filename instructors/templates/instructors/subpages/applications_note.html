@@ -1,0 +1,34 @@
+<div class="bd-callout bd-callout-info bg-light-blue">
+  <div class="row mb-4">
+    <div class="col-4">
+      <h5 class="text-info">
+        <i class="fa fa-info-circle" aria-hidden="true"></i>
+        Summary of TA hours
+      </h5>
+      <ul>
+        <li>Total Assigned TA Hours: <span class="font-weight-bold text-danger">{{ job.assigned_ta_hours }}</span> hours</li>
+        <li>Accumulated TA hours: <span class="font-weight-bold text-danger">{{ job.accumulated_ta_hours }}</span> hours</li>
+      </ul>
+    </div>
+    <div class="col-8">
+      <h5 class="text-info">
+        <i class="fa fa-info-circle" aria-hidden="true"></i>
+        Number of Applications: {{ job.application_set.all|length }}
+      </h5>
+      <ul>
+        <li>
+          If you would like to view a list of all applicants and their status in this term, please go to
+          <a href="{{ summary_of_applicants_link }}">Summary of Applicants</a>.
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <hr />
+
+  {% include 'ta_app/pages/_note_current_status_program.html' %}
+
+  <hr />
+
+  {% include 'ta_app/pages/_preferred_ta.html' with column='Full Name' %}
+</div>
