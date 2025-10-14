@@ -136,7 +136,7 @@ class CourseEditForm(forms.ModelForm):
 
 class SessionForm(forms.ModelForm):
     ''' Create a model form for a Session '''
-    
+
     class Meta:
         model = Session
         fields = ['year', 'term', 'title', 'description', 'note', 'is_visible', 'is_archived']
@@ -263,7 +263,7 @@ class ReassignApplicationForm(forms.ModelForm):
             'is_declined_reassigned': 'Are you sure to decline and re-assign this application?'
         }
         help_texts = {
-            'note': 'Administrators and instructors can see this note.'
+            'note': 'This note is visible only to administrators and instructors.'
         }
 
 class TerminateApplicationForm(forms.ModelForm):
@@ -277,7 +277,7 @@ class TerminateApplicationForm(forms.ModelForm):
             'is_terminated': 'Are you sure to terminate this application?'
         }
         help_texts = {
-            'note': 'Administrators and instructors can see this note.'
+            'note': 'This note is visible only to administrators and instructors.'
         }
 
 
@@ -305,8 +305,11 @@ class ApplicationNoteForm(forms.ModelForm):
         widgets = {
             'note': SummernoteWidget()
         }
+        labels = {
+            'note': 'Instructor Note'
+        }
         help_texts = {
-            'note': 'Administrators and instructors can see this note.'
+            'note': 'This note is visible only to administrators and instructors.'
         }
 
 class AdminApplicationForm(forms.ModelForm):

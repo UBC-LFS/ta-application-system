@@ -20,7 +20,7 @@
       <th data-sortable="true">Applied on</th>
       <th>Instructor <br /> Preference</th>
       <th>Application <br /> Status</th>
-      <th>Note</th>
+      <th>Instructor <br /> Note</th>
     </tr>
   </thead>
   <tbody>
@@ -28,11 +28,7 @@
       {% with status_program=app.applicant|applicant_status_program %}
         <tr class="bg-{{ status_program.highlight }}">
           <td>
-            {% if app.applicant|preferred_ta %}
-              <i class="fa fa-flag text-danger" aria-hidden="true"></i>
-            {% elif app.applicant|potential_preferred_ta %}
-              <i class="fa fa-bell text-warning" aria-hidden="true"></i>
-            {% endif %}
+            {% include 'users/subpages/display_preferred_ta.html' %}
 
             {{ app.applicant.get_full_name }}
 

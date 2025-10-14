@@ -1,0 +1,7 @@
+{% load user_filters %}
+
+{% if app.applicant|preferred_ta %}
+  <i class="fa fa-flag text-danger" aria-hidden="true"></i>
+{% elif app.applicant|potential_preferred_ta %}
+  <i class="fa fa-bell text-warning" aria-hidden="true"></i>
+{% endif %}

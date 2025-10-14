@@ -1,7 +1,9 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
+{% load user_filters %}
 
 {% include 'administrators/_menu.html' %}
+
 <div>
   {% include 'ta_app/pages/_header.html' with title='Selected Applications' %}
 
@@ -68,9 +70,8 @@
       {% for app in apps %}
         <tr>
           <td>
-            {% if app.applicant.preferred_ta %}
-              <i class="fa fa-flag text-danger" aria-hidden="true"></i>
-            {% endif %}
+            {% include 'users/subpages/display_preferred_ta.html' %}
+
             <a class="btn btn-xs btn-info" href="{% url 'administrators:show_application' app_slug=app.slug %}?next={{ new_next }}&p=Selected Applications">{{ app.id }}</a>
           </td>
           <td>{{ app.job.session.year }}</td>
@@ -267,9 +268,13 @@
                           {% include 'ta_app/applications/_app_sta_confirmation.html' with data=app.sta_confirmation %}
                         </div>
 
-                        {% if app.applicant.preferred_ta %}
+                        {% if app.applicant|preferred_ta or app.applicant|potential_preferred_ta %}
                           <div class="border bg-light-blue p-3 font-size-1">
-                            <span class="font-weight-bold text-danger">Preferred Candidate</span> (<i class="fa fa-flag text-danger" aria-hidden="true"></i>)
+                            {% if app.applicant|preferred_ta %}
+                              <span class="font-weight-bold text-danger">Preferred Candidate</span> (<i class="fa fa-flag text-danger" aria-hidden="true"></i>) <br />
+                            {% elif app.applicant|potential_preferred_ta %}
+                              <span class="font-weight-bold text-orange">Potential Preferred Candidate</span> (<i class="fa fa-bell text-orange" aria-hidden="true"></i>) <br />
+                            {% endif %}
 
                             Total number of GTA hours worked: <span class="text-chocolate font-weight-bold">
                               {% if app.applicant.profile.total_ta_hours %}
@@ -300,8 +305,8 @@
                           </div>
 
                           <div class="field-wrapper">
-                            <label for="id_note_{{ app.id }}">Note:</label>
-                            <div class="help">Administrators and instructors can see this note.</div>
+                            <label for="id_note_{{ app.id }}">Instructor Note:</label>
+                            <div class="help">This note is visible only to administrators and instructors.</div>
                             <textarea id="id_note_{{ app.id }}" name="note" class="summernote">{{ app.note|default_if_none:"" }}</textarea>
                           </div>
 
