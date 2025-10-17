@@ -43,7 +43,7 @@
     {% include 'instructors/jobs/_search_fields.html' with data=applicants total=searched_total_applicants path='instructors_applications' session_slug=session.slug job_slug=job.course.slug %}
 
     <div class="font-size-sm text-right">
-      {% include 'ta_app/pages/_preferred_ta.html' with column='Full Name' %}
+      {% include 'ta_app/pages/_preferred_candidate.html' with column='Full Name' %}
     </div>
 
     <div class="mt-4">
@@ -92,7 +92,7 @@
                   {% endif %}
                 </td>
                 <td>
-                  {% if applicant.preferred_ta %}
+                  {% if applicant.preferred_candidate %}
                     <i class="fa fa-flag text-danger" aria-hidden="true"></i>
                   {% endif %}
                   {{ applicant.get_full_name }}

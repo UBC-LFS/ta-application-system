@@ -58,7 +58,7 @@
     <div class="text-dark-gray font-size-sm">{{ searched_total_applicants }} result{% if searched_total_applicants > 1 %}s {% endif %} found. {{ applicants|length }} row{% if applicants|length > 1 %}s {% endif %} in this page.</div>
 
     <div class="font-size-sm text-right" style="margin-top: -20px;">
-      {% include 'ta_app/pages/_preferred_ta.html' with column='Full Name' %}
+      {% include 'ta_app/pages/_preferred_candidate.html' with column='Full Name' %}
     </div>
 
     <div class="mt-4">
@@ -98,7 +98,7 @@
                 {% endif %}
               </td>
               <td>
-                {% if applicant.preferred_ta %}
+                {% if applicant.preferred_candidate %}
                   <i class="fa fa-flag text-danger" aria-hidden="true"></i>
                 {% endif %}
                 {{ applicant.get_full_name }}

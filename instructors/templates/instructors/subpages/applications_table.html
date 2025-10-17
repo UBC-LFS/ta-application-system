@@ -28,7 +28,7 @@
       {% with status_program=app.applicant|applicant_status_program %}
         <tr class="bg-{{ status_program.highlight }}">
           <td>
-            {% include 'users/subpages/display_preferred_ta.html' %}
+            {% include 'users/subpages/display_preferred_candidate.html' %}
 
             {{ app.applicant.get_full_name }}
 
@@ -146,15 +146,10 @@
                           <div class="prompt p-2 text-center">
                             <h4 class="mt-2">{{ app.applicant.get_full_name }}</h4>
 
-                            {% if app.applicant|preferred_ta %}
+                            {% if app|preferred_candidate %}
                               <h5 class="mb-2">
                                 <span class="text-danger">Preferred Candidate</span>
                                 (<i class="fa fa-flag text-danger" aria-hidden="true"></i>)
-                              </h5>
-                            {% elif app.applicant|potential_preferred_ta %}
-                              <h5 class="mb-2">
-                                <span class="text-orange">Potential Preferred Candidate</span>
-                                (<i class="fa fa-bell text-orange" aria-hidden="true"></i>)
                               </h5>
                             {% endif %}
 

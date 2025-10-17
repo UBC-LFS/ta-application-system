@@ -18,13 +18,8 @@ def resume(user):
 
 
 @register.filter
-def preferred_ta(user):
-    return userApi.get_preferred_ta(user)
-
-
-@register.filter
-def potential_preferred_ta(user):
-    return userApi.get_potential_preferred_ta(user)
+def preferred_candidate(app):
+    return userApi.get_preferred_candidate(app)
 
 
 @register.filter

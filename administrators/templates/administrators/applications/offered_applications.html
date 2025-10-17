@@ -16,7 +16,7 @@
         <ul class="font-size-sm">
           <li>{% include 'ta_app/applications/_no_response_note.html' %}</li>
           <li>{% include 'ta_app/users/_note_confi_info_expiry_status.html' %}</li>
-          <li>{% include 'ta_app/pages/_preferred_ta.html' with column='ID' %}</li>
+          <li>{% include 'ta_app/pages/_preferred_candidate.html' with column='ID' %}</li>
         </ul>
       </div>
     </div>
@@ -60,7 +60,7 @@
               {{ app.email_set.all|length }}
             </td>
             <td>
-              {% if app.applicant.preferred_ta %}
+              {% if app.applicant.preferred_candidate %}
                 <i class="fa fa-flag text-danger" aria-hidden="true"></i>
               {% endif %}
               <a class="btn btn-xs btn-info" href="{% url 'administrators:show_application' app_slug=app.slug %}?next={{ new_next }}&p=Offered Applications">{{ app.id }}</a>

@@ -172,7 +172,6 @@ def get_next(request):
     return next.query.split('&p=')[0][5:]
 
 
-
 # Courses
 
 def get_courses():
@@ -374,6 +373,27 @@ def get_accepted_app_report(request):
         apps = apps.filter(applicant__last_name__icontains=request.GET.get('last_name'))
     if bool( request.GET.get('student_number') ):
         apps = apps.filter(applicant__profile__student_number__icontains=request.GET.get('student_number'))
+
+    return apps, apps.count()
+
+
+def filter_all_apps(request):
+    apps, _ = get_applications_filter_limit(request, 'all')
+
+    if bool( request.GET.get('year') ):
+        apps = apps.filter(job__session__year__icontains=request.GET.get('year'))
+    if bool( request.GET.get('term') ):
+        apps = apps.filter(job__session__term__code__iexact=request.GET.get('term'))
+    if bool( request.GET.get('code') ):
+        apps = apps.filter(job__course__code__name__icontains=request.GET.get('code'))
+    if bool( request.GET.get('number') ):
+        apps = apps.filter(job__course__number__name__icontains=request.GET.get('number'))
+    if bool( request.GET.get('section') ):
+        apps = apps.filter(job__course__section__name__icontains=request.GET.get('section'))
+    if bool( request.GET.get('first_name') ):
+        apps = apps.filter(applicant__first_name__icontains=request.GET.get('first_name'))
+    if bool( request.GET.get('last_name') ):
+        apps = apps.filter(applicant__last_name__icontains=request.GET.get('last_name'))
 
     return apps, apps.count()
 
@@ -801,6 +821,7 @@ def get_applications_filter_limit(request, status):
             apps = apps.filter(applicant__last_name__iexact=request.GET.get('last_name'))
         else:
             apps = apps.filter(applicant__last_name__icontains=request.GET.get('last_name'))
+        
 
     if status == 'selected':
         if bool( request.GET.get('sort_by_job') ):
@@ -1195,7 +1216,7 @@ def get_summary_applicants(request, session_slug, job_slug):
     for applicant in applicants:
         applicant = userApi.add_resume(applicant)
         applicant.info = userApi.get_applicant_status_program(applicant)
-        applicant.preferred_ta = userApi.get_preferred_ta(applicant)
+        applicant.preferred_candidate = userApi.get_preferred_candidate(applicant)
 
         # To check whether an alert email has been sent to an applicant
         applicant.is_sent_alertemail = False
@@ -1439,6 +1460,23 @@ def update_worktag_in_admin_docs(app, new_worktag, processing_note):
                 ad_filtered.update(processing_note=processing_note)
             else:
                 AdminDocuments.objects.create(application_id=app.id, processing_note=processing_note)
+
+
+def get_accepted_hours_from_previous_year(app):
+    prev_year_apps = Application.objects.filter(
+        applicant = app.applicant, 
+        job__session__year = int(app.job.session.year) - 1
+    )
+
+    prev_year_assigned_hours = 0
+    if prev_year_apps.exists():
+        prev_year_accepted_apps = get_accepted_apps_not_terminated(prev_year_apps)
+        prev_year_accepted_apps = get_filtered_accepted_apps(prev_year_accepted_apps)
+        for app in prev_year_accepted_apps:
+            app = add_app_info_into_application(app, ['accepted'])    
+            prev_year_assigned_hours += float(app.accepted.assigned_hours)
+        
+    return prev_year_assigned_hours
 
 
 # end applications

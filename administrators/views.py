@@ -12,9 +12,9 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views import View
 from django.utils.decorators import method_decorator
 from django.views.decorators.http import require_http_methods, require_GET, require_POST
-
 from django.db.models import Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.utils.html import strip_tags
 
 from ta_app import utils
 from administrators.models import Session, Job, Application, ApplicationStatus
@@ -1302,7 +1302,7 @@ class AllApplications(LoginRequiredMixin, View):
 
         for app in apps:
             app.applicant.gta = userApi.get_gta_flag(app.applicant)
-            app.applicant.preferred_ta = userApi.get_preferred_ta(app.applicant)
+            app.applicant.preferred_candidate = userApi.get_preferred_candidate(app)
             app.can_reset = adminApi.app_can_reset(app)
             app.confi_info_expiry_status = userApi.get_confidential_info_expiry_status(app.applicant)
 
@@ -1312,8 +1312,72 @@ class AllApplications(LoginRequiredMixin, View):
             'num_filtered_apps': info['num_filtered_apps'],
             'app_status': APP_STATUS,
             'new_next': adminApi.build_new_next(request),
-            'this_year': utils.THIS_YEAR
+            'this_year': utils.THIS_YEAR,
+            'download_preferred_candidate_url': reverse('administrators:download_preferred_candidate')
         })
+
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def download_preferred_candidate(request):
+    app_list, _ = adminApi.get_applications_filter_limit(request, 'all')
+
+    apps = []
+    usernames = []
+    for app in app_list:
+        if userApi.get_preferred_candidate(app) and app.applicant.username not in usernames:
+            apps.append(app)
+            usernames.append(app.applicant.username)
+            
+    result = 'Year,First Name,Last Name,CWL,Student Number,Status,LFS Grad or Others,Program,Other Program,Faculty,Student Year,Previous Year - Accepted Hours\n'
+
+    sorted_apps = sorted(apps, key=lambda x: x.applicant.first_name)
+    for app in sorted_apps:
+        student_number = ''
+        status = ''
+        student_year = ''
+        program = ''
+        program_others = ''
+        if userApi.profile_exists(app.applicant):
+            if app.applicant.profile.student_number:
+                student_number = app.applicant.profile.student_number
+
+            if app.applicant.profile.status:
+                status = app.applicant.profile.status.name
+            
+            if app.applicant.profile.student_year:
+                student_year = app.applicant.profile.student_year
+
+            if app.applicant.profile.program:
+                program = app.applicant.profile.program.name
+            
+            if app.applicant.profile.program_others:
+                program_others = app.applicant.profile.program_others.replace('&nbsp;', ' ').replace(',', "")
+                program_others = strip_tags(program_others)
+
+            if app.applicant.profile.faculty:
+                faculty = app.applicant.profile.faculty.name
+
+        lfs_grad_or_others = userApi.get_lfs_grad_or_others(app.applicant)
+        prev_year_accepted_hours = adminApi.get_accepted_hours_from_previous_year(app)
+
+        result += '{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11}\n'.format(
+            app.job.session.year,
+            app.applicant.first_name,
+            app.applicant.last_name,
+            app.applicant.username,
+            student_number,
+            status,
+            lfs_grad_or_others,
+            program,
+            program_others,
+            faculty,
+            student_year,
+            float(prev_year_accepted_hours)
+        )
+
+    return JsonResponse({ 'status': 'success', 'data': result })
 
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -1386,7 +1450,7 @@ class SelectedApplications(LoginRequiredMixin, View):
         filtered_offered_apps = { 'num_offered': 0, 'num_not_offered': 0 }
         for app in apps:
             app.applicant.gta = userApi.get_gta_flag(app.applicant)
-            app.applicant.preferred_ta = userApi.get_preferred_ta(app.applicant)
+            app.applicant.preferred_candidate = userApi.get_preferred_candidate(app)
             app.confi_info_expiry_status = userApi.get_confidential_info_expiry_status(app.applicant)
 
             assigned_hours = app.selected.assigned_hours
@@ -1612,7 +1676,7 @@ class OfferedApplications(LoginRequiredMixin, View):
         apps = adminApi.add_app_info_into_applications(apps, ['offered', 'accepted', 'declined'])
         for app in apps:
             app.applicant.gta = userApi.get_gta_flag(app.applicant)
-            app.applicant.preferred_ta = userApi.get_preferred_ta(app.applicant)
+            app.applicant.preferred_candidate = userApi.get_preferred_candidate(app)
             app.confi_info_expiry_status = userApi.get_confidential_info_expiry_status(app.applicant)
 
         return render(request, 'administrators/applications/offered_applications.html', {
@@ -2337,7 +2401,11 @@ class AcceptedAppsReportAdmin(LoginRequiredMixin, View):
                 app.prev_accepted_apps = prev_accepted_apps
                 app.total_assigned_hours = total_assigned_hours
 
-            prev_year_apps = app.applicant.application_set.filter(job__session__year=int(app.job.session.year)-1, job__session__term__code=app.job.session.term.code)
+            prev_year_apps = app.applicant.application_set.filter(
+                job__session__year = int(app.job.session.year) - 1, 
+                job__session__term__code = app.job.session.term.code
+            )
+
             app.prev_year_accepted_apps = None
             total_prev_year_assigned_hours = 0
             if prev_year_apps.exists():
@@ -2474,7 +2542,7 @@ def download_all_accepted_apps(request):
 def download_all_accepted_apps_report_admin(request):
     ''' Download accepted applications as CSV for admin '''
 
-    apps, total_apps = adminApi.get_accepted_app_report(request)
+    apps, _ = adminApi.get_accepted_app_report(request)
     apps = adminApi.add_app_info_into_applications(apps, ['accepted'])
 
     result = 'ID,Preferred Student,Year,Term,Job,Instructor(s),First Name,Last Name,CWL,Student Number,Employee Number,Domestic or International Student,Status,LFS Grad or Others,SIN Expiry Date,Study Permit Expiry Date,Accepted on,Assigned Hours,Classification,Monthly Salary,P/T (%),Weekly Hours,PIN,TASM,Processed,Worktag,Processing Note,Previous TA Experience Details,Previous TA Experience in UBC,Total Assigned Hours - Previous TA Experience in UBC,Previous Year TA Experience in Same Term,Total Previous Year Assigned Hours in Same Term\n'

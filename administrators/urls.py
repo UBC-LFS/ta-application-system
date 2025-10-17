@@ -60,8 +60,9 @@ urlpatterns = [
 
     path('applications/<str:app_slug>/details/', views.ShowApplication.as_view(), name='show_application'),
 
-    path('api/applications/accepted/download/all/', views.download_all_accepted_apps, name='download_all_accepted_apps'),
-    path('api/applications/accepted/report/admin/download/all/', views.download_all_accepted_apps_report_admin, name='download_all_accepted_apps_report_admin'),
+    path('func/applications/accepted/download/all/', views.download_all_accepted_apps, name='download_all_accepted_apps'),
+    path('func/applications/accepted/report/admin/download/all/', views.download_all_accepted_apps_report_admin, name='download_all_accepted_apps_report_admin'),
+    path('func/applications/applied/preferred_candidate/download/', views.download_preferred_candidate, name='download_preferred_candidate'),
 
     path('hr/users/<str:username>/edit/', views.edit_user, name='edit_user'),
     path('hr/users/<str:username>/delete/confirmation/', views.delete_user_confirmation, name='delete_user_confirmation'),

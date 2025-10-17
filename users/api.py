@@ -862,24 +862,24 @@ def get_gta_flag(user):
     return None
 
 
-def get_preferred_ta(user):
-    profile = has_user_profile_created(user)
-    if profile and is_lfs_student(user) and valid_sin_international(user) and not is_undergraduate(user):
-        if is_master(user) and (1 <= int(profile.student_year) <= 2):
+def get_preferred_candidate(app):
+    profile = has_user_profile_created(app.applicant)
+    if profile and is_lfs_student(app.applicant) and not is_undergraduate(app.applicant) and adminApi.get_accepted_hours_from_previous_year(app) > 0:
+        if is_master(app.applicant) and (1 <= int(profile.student_year) <= 2):
             return True
-        if is_phd(user) and (1 <= int(profile.student_year) <= 5):
+        if is_phd(app.applicant) and (1 <= int(profile.student_year) <= 5):
             return True
     return False
 
 
-def get_potential_preferred_ta(user):
-    profile = has_user_profile_created(user)
-    if profile and is_lfs_student(user) and not is_undergraduate(user):
-        if is_master(user) and (1 <= int(profile.student_year) <= 2):
-            return True
-        if is_phd(user) and (1 <= int(profile.student_year) <= 5):
-            return True
-    return False
+# def get_preferred_candidate2(user):
+#     profile = has_user_profile_created(user)
+#     if profile and is_lfs_student(user) and valid_sin_international(user) and not is_undergraduate(user):
+#         if is_master(user) and (1 <= int(profile.student_year) <= 2):
+#             return True
+#         if is_phd(user) and (1 <= int(profile.student_year) <= 5):
+#             return True
+#     return False
 
 
 def confirm_profile_reminder(user, session):

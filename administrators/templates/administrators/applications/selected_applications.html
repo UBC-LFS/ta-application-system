@@ -35,8 +35,8 @@
     </div>
   </div>
 
-  <div class="font-size-sm text-right">
-    {% include 'ta_app/pages/_preferred_ta.html' with column='ID' %}
+  <div class="font-size-sm" style="position:absolute; margin-top:-20px; right:35px;">
+    {% include 'ta_app/pages/_preferred_candidate.html' with column='ID' %}
   </div>
 
   <table
@@ -70,7 +70,7 @@
       {% for app in apps %}
         <tr>
           <td>
-            {% include 'users/subpages/display_preferred_ta.html' %}
+            {% include 'users/subpages/display_preferred_candidate.html' %}
 
             <a class="btn btn-xs btn-info" href="{% url 'administrators:show_application' app_slug=app.slug %}?next={{ new_next }}&p=Selected Applications">{{ app.id }}</a>
           </td>
@@ -268,13 +268,10 @@
                           {% include 'ta_app/applications/_app_sta_confirmation.html' with data=app.sta_confirmation %}
                         </div>
 
-                        {% if app.applicant|preferred_ta or app.applicant|potential_preferred_ta %}
+                        {% if app|preferred_candidate %}
                           <div class="border bg-light-blue p-3 font-size-1">
-                            {% if app.applicant|preferred_ta %}
-                              <span class="font-weight-bold text-danger">Preferred Candidate</span> (<i class="fa fa-flag text-danger" aria-hidden="true"></i>) <br />
-                            {% elif app.applicant|potential_preferred_ta %}
-                              <span class="font-weight-bold text-orange">Potential Preferred Candidate</span> (<i class="fa fa-bell text-orange" aria-hidden="true"></i>) <br />
-                            {% endif %}
+                            <span class="font-weight-bold text-danger">Preferred Candidate</span>
+                            (<i class="fa fa-flag text-danger" aria-hidden="true"></i>) <br />
 
                             Total number of GTA hours worked: <span class="text-chocolate font-weight-bold">
                               {% if app.applicant.profile.total_ta_hours %}
