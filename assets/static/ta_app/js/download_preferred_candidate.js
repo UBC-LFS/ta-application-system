@@ -9,7 +9,7 @@ $(document).ready(function() {
       url: $(this).data('url'),
       data: $(this).data('next'),
       success: function(res) {
-        $(self).text('Download All as CSV');
+        $(self).text('Download Preferred Candidates');
 
         if (res.status === 'success') {
           const filename = 'TA App - Preferred TAs ' + getToday() + '.csv';
@@ -23,7 +23,7 @@ $(document).ready(function() {
         }
       },
         error: function(err) {
-          $(self).text('Download All as CSV');
+          $(self).text('Download Preferred Candidates');
 
           const message = '<div class="alert alert-danger alert-dismissible fade show" role="alert">' +
                             'Error: ' + err.statusText + ' (' + err.status + '). ' + err.responseJSON.message +
