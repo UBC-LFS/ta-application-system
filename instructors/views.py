@@ -263,6 +263,8 @@ class ShowApplications(LoginRequiredMixin, View):
 
     @method_decorator(require_POST)
     def post(self, request, *args, **kwargs):
+        print('===========', request.POST)
+
         instructor_preference = request.POST.get('instructor_preference')
         assigned_hours = request.POST.get('assigned_hours')
 
@@ -304,6 +306,7 @@ class ShowApplications(LoginRequiredMixin, View):
                 # Update Application
                 app = adminApi.get_application(request.POST.get('application'))
                 app.instructor_preference = instructor_preference
+                app.sta_confirmation = instructor_app_form.cleaned_data['sta_confirmation']
                 app.updated_at = datetime.now()
                 app.save(update_fields=['instructor_preference', 'sta_confirmation', 'updated_at'])
 

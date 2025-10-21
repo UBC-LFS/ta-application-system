@@ -125,6 +125,7 @@
               {% if app.instructor_preference != app_status.none and app_selected %}
                 <div>
                   {% include 'ta_app/applications/_app_instructor_preference.html' with data=app.get_instructor_preference_display %}
+                  <br />
                   {% include 'ta_app/applications/_app_sta_confirmation.html' with data=app.sta_confirmation %}
                 </div>
                 <div>Assigned <span class="font-weight-bold">{{ app_selected.assigned_hours }}</span> hours</div>

@@ -23,10 +23,11 @@
         <th data-sortable="true">Term</th>
         <th data-sortable="true">Job</th>
         <th data-sortable="true">Instructors</th>
-        <th data-sortable="true">Total Assigned<br /> TA Hours</th>
+        <th data-sortable="true">Total <br /> Assigned <br /> TA Hours</th>
         <th>Job Details</th>
         <th>Note</th>
-        <th data-sortable="true">Number of<br />Applications</th>
+        <th data-sortable="true">Number of <br /> Applications</th>
+        <th data-sortable="true">Class <br /> Size</th>
         <th data-sortable="true">Active?</th>
         <th>Created Date / <br> Updated Date</th>
         <th>Worktag <br /> Setting</th>
@@ -51,7 +52,7 @@
               None
             {% endif %}
           </td>
-          <td class="text-left" style="max-width:300px; min-width:200px;">
+          <td class="text-left" style="max-width:250px; min-width:200px;">
             {% if job.note %}
               {{ job.note|safe }}
             {% else %}
@@ -59,6 +60,7 @@
             {% endif %}
           </td>
           <td>{{ job.application_set.count }}</td>
+          <td></td>
           <td>
             {% if job.is_active %}
               <span class="badge badge-success">{{ job.is_active }} <i class="fa fa-check-circle" aria-hidden="true"></i></span>

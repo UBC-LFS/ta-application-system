@@ -247,10 +247,11 @@ class InstructorJobForm(forms.ModelForm):
 class InstructorApplicationForm(forms.ModelForm):
     class Meta:
         model = Application
-        fields = ['instructor_preference']
+        fields = ['instructor_preference', 'sta_confirmation']
         labels = {
             'instructor_preference': ''
         }
+
 
 class ReassignApplicationForm(forms.ModelForm):
     class Meta:
