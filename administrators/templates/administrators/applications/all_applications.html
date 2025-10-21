@@ -8,11 +8,11 @@
   {% include 'ta_app/pages/_header.html' with title='All Applications' %}
 
   <div class="row">
-    <div class="col-md-6">
+    <div class="col-xl-6">
       {% include 'administrators/applications/_search_fields.html' with data=apps total=num_filtered_apps path='all' %}
     </div>
 
-    <div class="col-md-6">
+    <div class="col-xl-6">
       <div class="bg-light-gray p-4" style="height:210px">
         <h5>Note:</h5>
         <ul class="font-size-sm">
@@ -31,7 +31,7 @@
   </div>
 
   <div class="mb-5">
-    <div class="font-size-sm" style="position:absolute; margin-top:-20px; right:55px;">
+    <div class="font-size-sm float-right" style="margin-top:-20px">
       {% include 'ta_app/pages/_preferred_candidate.html' with column='ID' %}
     </div>
 

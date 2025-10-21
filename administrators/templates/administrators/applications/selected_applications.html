@@ -8,11 +8,11 @@
   {% include 'ta_app/pages/_header.html' with title='Selected Applications' %}
 
   <div class="row">
-    <div class="col-md-6">
+    <div class="col-xl-6">
       {% include 'administrators/applications/_search_fields.html' with data=apps total=filtered_apps_stats.num_filtered_apps path='selected' filtered_offered_apps=filtered_apps_stats.filtered_offered_apps %}
     </div>
 
-    <div class="col-md-6">
+    <div class="col-xl-6">
       <div class="bg-light-gray p-3 text-center" style="height:212px">
         <p class="h4 font-weight-normal mt-2 mb-4">
           <i class="fa fa-bell-o" aria-hidden="true"></i> Statistics
@@ -35,7 +35,7 @@
     </div>
   </div>
 
-  <div class="font-size-sm" style="position:absolute; margin-top:-20px; right:55px;">
+  <div class="font-size-sm float-right" style="margin-top:-20px">
     {% include 'ta_app/pages/_preferred_candidate.html' with column='ID' %}
   </div>
 
