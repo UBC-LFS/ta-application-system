@@ -872,7 +872,7 @@ def get_preferred_candidate(app):
     return False
 
 
-# def get_preferred_candidate2(user):
+# def get_preferred_candidate(user):
 #     profile = has_user_profile_created(user)
 #     if profile and is_lfs_student(user) and valid_sin_international(user) and not is_undergraduate(user):
 #         if is_master(user) and (1 <= int(profile.student_year) <= 2):

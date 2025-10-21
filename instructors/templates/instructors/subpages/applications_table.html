@@ -1,3 +1,4 @@
+{% load static %}
 {% load user_filters %}
 
 <table
@@ -183,6 +184,14 @@
                               <div class="help">Numerical value only</div>
 
                               <input class="form-control" type="number" step="1" name="assigned_hours" id="id_assigned_hours_{{ app.id }}" value="0" />
+                            </div>
+
+                            <div class="field-wrapper">
+                              <input id="id_sta_confirmation_{{ app.id }}" name="sta_confirmation" type="checkbox" />
+                              <label class="d-inline-block ml-1" for="id_sta_confirmation_{{ app.id }}">
+                                STA <span class="font-weight-normal">(Optional Senior TA pay classification. Click link for eligibility criteria and job duty specifics.)</span>
+                              </label>
+                              <p class="help">I confirm this student's eligibility and planned duties align with the <a target="_blank" href="{% static 'ta_app/files/SENIOR TEACHING ASSISTANTS - LETTER OF UNDERSTANDING B4 2022-25.pdf' %}">UBC-CUPE 2278 Letter of Agreement B 10</a> in the current collective agreement.</p>
                             </div>
 
                             <input type="hidden" name="assigned" value="{{ app_status.selected }}" />

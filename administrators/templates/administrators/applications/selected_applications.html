@@ -35,318 +35,320 @@
     </div>
   </div>
 
-  <div class="font-size-sm" style="position:absolute; margin-top:-20px; right:35px;">
+  <div class="font-size-sm" style="position:absolute; margin-top:-20px; right:145px;">
     {% include 'ta_app/pages/_preferred_candidate.html' with column='ID' %}
   </div>
 
-  <table
-    class="table table-bordered table-hover table-striped table-responsive-md text-center"
-    data-toggle="table"
-    data-sortable="true"
-    data-classes=""
-    data-show-export="true"
-    data-show-columns="true"
-    data-export-types="['csv']"
-  >
-    <thead>
-      <tr>
-        <th data-sortable="true">ID</th>
-        <th data-sortable="true">Year</th>
-        <th data-sortable="true">Term</th>
-        <th data-sortable="true">Job</th>
-        <th data-sortable="true">Applicant</th>
-        <th data-sortable="true">Status</th>
-        <th data-sortable="true">Instructor<br /> Preference</th>
-        <th data-sortable="true">Classification</th>
-        <th>TA Hours <br /> Info</th>
-        <th data-sortable="true">GTA <br /> Info</th>
-        <th data-sortable="true">Confidential <br /> Info</th>
-        <th>Note</th>
-        <th data-sortable="true">Created Date <br /> Updated Date</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for app in apps %}
+  <div class="mt-4">
+    <table
+      class="table table-bordered table-hover table-striped table-responsive-md text-center"
+      data-toggle="table"
+      data-sortable="true"
+      data-classes=""
+      data-show-export="true"
+      data-show-columns="true"
+      data-export-types="['csv']"
+    >
+      <thead>
         <tr>
-          <td>
-            {% include 'users/subpages/display_preferred_candidate.html' %}
+          <th data-sortable="true">ID</th>
+          <th data-sortable="true">Year</th>
+          <th data-sortable="true">Term</th>
+          <th data-sortable="true">Job</th>
+          <th data-sortable="true">Applicant</th>
+          <th data-sortable="true">Status</th>
+          <th data-sortable="true">Instructor<br /> Preference</th>
+          <th data-sortable="true">Classification</th>
+          <th>TA Hours <br /> Info</th>
+          <th data-sortable="true">GTA <br /> Info</th>
+          <th data-sortable="true">Confidential <br /> Info</th>
+          <th>Note</th>
+          <th data-sortable="true">Created Date <br /> Updated Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for app in apps %}
+          <tr>
+            <td>
+              {% include 'users/subpages/display_preferred_candidate.html' %}
 
-            <a class="btn btn-xs btn-info" href="{% url 'administrators:show_application' app_slug=app.slug %}?next={{ new_next }}&p=Selected Applications">{{ app.id }}</a>
-          </td>
-          <td>{{ app.job.session.year }}</td>
-          <td>{{ app.job.session.term.code }}</td>
-          <td>
-            <a href="{% url 'administrators:show_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}?next={{ new_next }}&p=Selected Applications">
-              {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}
-            </a>
-            <br />
-            {% include 'ta_app/applications/_modal_reset_log.html' with data=app %}
-          </td>
-          <td>
-            <a class="d-block" href="{% url 'users:show_user' username=app.applicant.username %}?next={{ new_next }}&p=Selected Applications&t=basic">
-              {{ app.applicant.get_full_name }}
-            </a>
+              <a class="btn btn-xs btn-info" href="{% url 'administrators:show_application' app_slug=app.slug %}?next={{ new_next }}&p=Selected Applications">{{ app.id }}</a>
+            </td>
+            <td>{{ app.job.session.year }}</td>
+            <td>{{ app.job.session.term.code }}</td>
+            <td>
+              <a href="{% url 'administrators:show_job' session_slug=app.job.session.slug job_slug=app.job.course.slug %}?next={{ new_next }}&p=Selected Applications">
+                {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}
+              </a>
+              <br />
+              {% include 'ta_app/applications/_modal_reset_log.html' with data=app %}
+            </td>
+            <td>
+              <a class="d-block" href="{% url 'users:show_user' username=app.applicant.username %}?next={{ new_next }}&p=Selected Applications&t=basic">
+                {{ app.applicant.get_full_name }}
+              </a>
 
-            {% include 'ta_app/users/_display_special_master_program.html' with data=app.applicant.profile.program.slug %}
+              {% include 'ta_app/users/_display_special_master_program.html' with data=app.applicant.profile.program.slug %}
 
-            {% if app.resume_filename %}
-              <a class="d-block mt-2" href="{% url 'students:download_file' username=app.applicant.username item='resume' filename=app.resume_filename %}" target="_blank">Resume</a>
-            {% endif %}
-          </td>
-          <td>
-            {% include 'ta_app/applications/_modal_app_status.html' with data=app %}
-          </td>
-          <td>
-            {% include 'ta_app/applications/_app_instructor_preference.html' with data=app.get_instructor_preference_display %}
-            <br />
-            {% include 'ta_app/applications/_app_sta_confirmation.html' with data=app.sta_confirmation %}
-          </td>
-          <td>
-            <div class="mb-1">{% include 'ta_app/applications/_app_classification.html' with data=app %}</div>
-            {% include 'ta_app/users/_modal_degree_details.html' with data=app.applicant %}
-          </td>
-          <td>
-            <button class="btn btn-xs btn-info" type="button" data-toggle="modal" data-target="#ta-hours-info-modal-{{ app.id }}">
-              <i class="fa fa-file-text-o" aria-hidden="true"></i>
-            </button>
-
-            <div class="modal fade" id="ta-hours-info-modal-{{ app.id }}" tabindex="-1" role="dialog" aria-labelledby="ta-hours-info-modal-label-{{ app.id }}" aria-hidden="true">
-              <div class="modal-dialog modal-lg" role="document">
-                <div class="modal-content">
-                  <div class="modal-header">
-                    <h5 class="modal-title text-info" id="ta-hours-info-modal-label-{{ app.id }}">
-                      TA Hours Information
-
-                      {% if app.ta_hour_progress == 'done' %}
-                        <i class="fa fa-check text-success" aria-hidden="true"></i>
-                        <small class="text-dark-gray">(Matched)</small>
-
-                      {% elif app.ta_hour_progress == 'over' %}
-                        <i class="fa fa-times-circle text-danger" aria-hidden="true"></i>
-                        <small class="text-dark-gray">(Exceeded!)</small>
-
-                      {% elif app.ta_hour_progress == 'under_one_quarter' %}
-                        <i class="fa fa-battery-quarter text-success" aria-hidden="true"></i>
-                        <small class="text-dark-gray">(Reached one quarter)</small>
-
-                      {% elif app.ta_hour_progress == 'under_half' %}
-                        <i class="fa fa-battery-half text-success" aria-hidden="true"></i>
-                        <small class="text-dark-gray">(Reached half)</small>
-
-                      {% elif app.ta_hour_progress == 'under_three_quarters' %}
-                        <i class="fa fa-battery-three-quarters text-success" aria-hidden="true"></i>
-                        <small class="text-dark-gray">(Reached three quarters)</small>
-
-                      {% endif %}
-                    </h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                  </div>
-                  <div class="modal-body text-left">
-                    <div class="modal-item">
-                      <table class="table user-data-table">
-                        <tbody>
-                          <tr>
-                            <td>Total Assigned TA Hours:</td>
-                            <td>
-                              {% if app.job.assigned_ta_hours %}
-                                {{ app.job.assigned_ta_hours }} hour{% if app.job.assigned_ta_hours > 1 %}s {% endif %}
-                              {% else %}
-                                None
-                              {% endif %}
-                            </td>
-                          </tr>
-                          <tr>
-                            <td>Accumulated TA Hours:</td>
-                            <td>
-                              {% if app.job.accumulated_ta_hours %}
-                                {{ app.job.accumulated_ta_hours }} hour{% if app.job.accumulated_ta_hours > 1 %}s {% endif %}
-                              {% else %}
-                                None
-                              {% endif %}
-                            </td>
-                          </tr>
-                          <tr>
-                            <td>Assigned TA Hours by <span class="text-success">Instructor</span>:</td>
-                            <td>
-                              {% if app.selected.assigned_hours %}
-                                {{ app.selected.assigned_hours }} hour{% if app.selected.assigned_hours > 1 %}s {% endif %}
-                              {% else %}
-                                None
-                              {% endif %}
-                            </td>
-                          </tr>
-                          <tr>
-                            <td>Assigned TA Hours by <span class="text-primary">Administrator</span>:</td>
-                            <td>
-                              {% if app.offered.assigned_hours %}
-                                {{ app.offered.assigned_hours }} hour{% if app.offered.assigned_hours > 1 %}s {% endif %}
-                              {% else %}
-                                None
-                              {% endif %}
-                            </td>
-                          </tr>
-                          {% if app.is_declined_reassigned %}
-                            <tr>
-                              <td><span class="text-danger">Delcined and re-assigned:</span></td>
-                              <td>{{ app.declined.assigned_hours }} hour{% if app.declined.assigned_hours > 1 %}s {% endif %}</td>
-                            </tr>
-                          {% endif %}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <br/>
-
-            {% if app.ta_hour_progress == 'done' %}
-              <i class="fa fa-check text-success" aria-hidden="true"></i>
-            {% elif app.ta_hour_progress == 'over' %}
-              <i class="fa fa-times-circle text-danger" aria-hidden="true"></i>
-            {% elif app.ta_hour_progress == 'under_one_quarter' %}
-              <i class="fa fa-battery-quarter text-success" aria-hidden="true"></i>
-            {% elif app.ta_hour_progress == 'under_half' %}
-              <i class="fa fa-battery-half text-success" aria-hidden="true"></i>
-            {% elif app.ta_hour_progress == 'under_three_quarters' %}
-              <i class="fa fa-battery-three-quarters text-success" aria-hidden="true"></i>
-            {% endif %}
-          </td>
-          <td>{% include 'ta_app/users/_display_gta_info.html' with data=app.applicant striped='True' %}</td>
-          <td>{% include 'ta_app/users/_modal_confi_info_expiry_status.html' with data=app status=app.confi_info_expiry_status this_year=this_year %}</td>
-          <td>{% include 'ta_app/applications/_modal_note.html' with data=app %}</td>
-          <td>
-            <span class="d-none">{{ app.created_at|date:"Y m d z" }}</span>
-            {{ app.created_at }}
-
-            {% if app.created_at != app.updated_at %}
-              <div>
-                <span class="d-none">{{ app.updated_at|date:"Y m d z" }}</span>
-                {{ app.updated_at }}
-              </div>
-            {% endif %}
-          </td>
-          <td>
-            {% if app.offered %}
-              <div class="badge badge-light">OFFERED</div>
-              <div class="text-dark-gray mb-1">{{ app.offered.created_at }}</div>
-            {% endif %}
-
-            {% if app.offer_modal.button_disabled %}
-              <button class="btn btn-xs {{ app.offer_modal.button_colour }}" type="button" disabled>
-                {{ app.offer_modal.title }}
-              </button>
-            {% else %}
-              <button class="btn btn-xs {{ app.offer_modal.button_colour }} mb-2" type="button" data-toggle="modal" data-target="#job-application-offer-modal-{{ app.id }}">
-                {{ app.offer_modal.title }}
+              {% if app.resume_filename %}
+                <a class="d-block mt-2" href="{% url 'students:download_file' username=app.applicant.username item='resume' filename=app.resume_filename %}" target="_blank">Resume</a>
+              {% endif %}
+            </td>
+            <td>
+              {% include 'ta_app/applications/_modal_app_status.html' with data=app %}
+            </td>
+            <td>
+              {% include 'ta_app/applications/_app_instructor_preference.html' with data=app.get_instructor_preference_display %}
+              <br />
+              {% include 'ta_app/applications/_app_sta_confirmation.html' with data=app.sta_confirmation %}
+            </td>
+            <td>
+              <div class="mb-1">{% include 'ta_app/applications/_app_classification.html' with data=app %}</div>
+              {% include 'ta_app/users/_modal_degree_details.html' with data=app.applicant %}
+            </td>
+            <td>
+              <button class="btn btn-xs btn-info" type="button" data-toggle="modal" data-target="#ta-hours-info-modal-{{ app.id }}">
+                <i class="fa fa-file-text-o" aria-hidden="true"></i>
               </button>
 
-              <div class="modal fade" id="job-application-offer-modal-{{ app.id }}" tabindex="-1" role="dialog" aria-labelledby="job-application-offer-modal-label-{{ app.id }}" aria-hidden="true">
+              <div class="modal fade" id="ta-hours-info-modal-{{ app.id }}" tabindex="-1" role="dialog" aria-labelledby="ta-hours-info-modal-label-{{ app.id }}" aria-hidden="true">
                 <div class="modal-dialog modal-lg" role="document">
                   <div class="modal-content">
                     <div class="modal-header">
-                      <h5 class="modal-title text-info" id="job-application-offer-modal-label-{{ app.id }}">{{ app.offer_modal.title }}</h5>
+                      <h5 class="modal-title text-info" id="ta-hours-info-modal-label-{{ app.id }}">
+                        TA Hours Information
+
+                        {% if app.ta_hour_progress == 'done' %}
+                          <i class="fa fa-check text-success" aria-hidden="true"></i>
+                          <small class="text-dark-gray">(Matched)</small>
+
+                        {% elif app.ta_hour_progress == 'over' %}
+                          <i class="fa fa-times-circle text-danger" aria-hidden="true"></i>
+                          <small class="text-dark-gray">(Exceeded!)</small>
+
+                        {% elif app.ta_hour_progress == 'under_one_quarter' %}
+                          <i class="fa fa-battery-quarter text-success" aria-hidden="true"></i>
+                          <small class="text-dark-gray">(Reached one quarter)</small>
+
+                        {% elif app.ta_hour_progress == 'under_half' %}
+                          <i class="fa fa-battery-half text-success" aria-hidden="true"></i>
+                          <small class="text-dark-gray">(Reached half)</small>
+
+                        {% elif app.ta_hour_progress == 'under_three_quarters' %}
+                          <i class="fa fa-battery-three-quarters text-success" aria-hidden="true"></i>
+                          <small class="text-dark-gray">(Reached three quarters)</small>
+
+                        {% endif %}
+                      </h5>
                       <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                     </div>
                     <div class="modal-body text-left">
                       <div class="modal-item">
-                        <h6 class="text-secondary">{{ app.job.session.year }} {{ app.job.session.term.code }} - {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</h6>
-
-                        <h4>
-                          {{ app.applicant.get_full_name }}
-                          <small class="text-dark-gray">(CWL: {{ app.applicant.username }})</small>
-                        </h4>
-
-                        <div>
-                          {% include 'ta_app/users/_display_special_master_program.html' with data=app.applicant.profile.program.slug %}
-
-                          {% if app.applicant.gta %}
-                            {% include 'ta_app/users/_gta_badge.html' with data=app.applicant %}
-                          {% endif %}
-
-                          {% include 'ta_app/applications/_app_sta_confirmation.html' with data=app.sta_confirmation %}
-                        </div>
-
-                        {% if app|preferred_candidate %}
-                          <div class="border bg-light-blue p-3 font-size-1">
-                            <span class="font-weight-bold text-danger">Preferred Candidate</span>
-                            (<i class="fa fa-flag text-danger" aria-hidden="true"></i>) <br />
-
-                            Total number of GTA hours worked: <span class="text-chocolate font-weight-bold">
-                              {% if app.applicant.profile.total_ta_hours %}
-                                {{ app.applicant.profile.total_ta_hours }}
-                              {% else %}
-                                0
-                              {% endif %}
-                            </span> hours
-                          </div>
-                        {% endif %}
-
-                        <form action="{{ app.offer_modal.form_url }}" method="post">
-                          {% csrf_token %}
-
-                          <div class="field-wrapper">
-                            <label for="id_classification_{{ app.id }}">Classification:</label>
-                            <div class="help">This field is required.</div>
-                            <select id="id_classification_{{ app.id }}" name="classification" class="form-control">
-                              <option value="">Select</option>
-                              {% for choice in classification_choices %}
-                                {% if choice.id == app.offer_modal.classification_id %}
-                                  <option value="{{ choice.id }}" selected>{{ choice.year }} {{ choice.name }}</option>
+                        <table class="table user-data-table">
+                          <tbody>
+                            <tr>
+                              <td>Total Assigned TA Hours:</td>
+                              <td>
+                                {% if app.job.assigned_ta_hours %}
+                                  {{ app.job.assigned_ta_hours }} hour{% if app.job.assigned_ta_hours > 1 %}s {% endif %}
                                 {% else %}
-                                  <option value="{{ choice.id }}">{{ choice.year }} {{ choice.name }}</option>
+                                  None
                                 {% endif %}
-                              {% endfor %}
-                            </select>
-                          </div>
-
-                          <div class="field-wrapper">
-                            <label for="id_note_{{ app.id }}">Instructor Note:</label>
-                            <div class="help">This note is visible only to administrators and instructors.</div>
-                            <textarea id="id_note_{{ app.id }}" name="note" class="summernote">{{ app.note|default_if_none:"" }}</textarea>
-                          </div>
-
-                          <div class="field-wrapper">
-                            <label for="id_assigned_hours_{{ app.id }}">Assigned Hours:</label>
-                            <div class="help">Only numerical value allowed.</div>
-                            <input id="id_assigned_hours_{{ app.id }}" type="number" step="1" name="assigned_hours" value="{{ app.offer_modal.assigned_hours|floatformat:'0' }}" class="form-control" />
-                          </div>
-
-                          <input type="hidden" name="application" value="{{ app.id }}" />
-                          <input type="hidden" name="applicant" value="{{ app.applicant.id }}" />
-                          <input type="hidden" name="next" value="{{ new_next }}" />
-
-                          {% if app.offer_modal.title == 'Edit' %}
-                            <input type="hidden" name="applicationstatus" value="{{ app.offered.id }}" />
-                            <input type="hidden" name="offer_type" value="edit" />
-                          {% else %}
-                            <input type="hidden" name="assigned" value="{{ app_status.offered }}" />
-                            <input type="hidden" name="has_contract_read" value="false" />
-                            <input type="hidden" name="offer_type" value="offer" />
-                          {% endif %}
-
-                          <input class="btn font-size-1 {{ app.offer_modal.button_colour }}" type="submit" value="{% if app.offer_modal.title == 'Edit' %}Update{% else %}{{ app.offer_modal.title }}{% endif %}" />
-                        </form>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>Accumulated TA Hours:</td>
+                              <td>
+                                {% if app.job.accumulated_ta_hours %}
+                                  {{ app.job.accumulated_ta_hours }} hour{% if app.job.accumulated_ta_hours > 1 %}s {% endif %}
+                                {% else %}
+                                  None
+                                {% endif %}
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>Assigned TA Hours by <span class="text-success">Instructor</span>:</td>
+                              <td>
+                                {% if app.selected.assigned_hours %}
+                                  {{ app.selected.assigned_hours }} hour{% if app.selected.assigned_hours > 1 %}s {% endif %}
+                                {% else %}
+                                  None
+                                {% endif %}
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>Assigned TA Hours by <span class="text-primary">Administrator</span>:</td>
+                              <td>
+                                {% if app.offered.assigned_hours %}
+                                  {{ app.offered.assigned_hours }} hour{% if app.offered.assigned_hours > 1 %}s {% endif %}
+                                {% else %}
+                                  None
+                                {% endif %}
+                              </td>
+                            </tr>
+                            {% if app.is_declined_reassigned %}
+                              <tr>
+                                <td><span class="text-danger">Delcined and re-assigned:</span></td>
+                                <td>{{ app.declined.assigned_hours }} hour{% if app.declined.assigned_hours > 1 %}s {% endif %}</td>
+                              </tr>
+                            {% endif %}
+                          </tbody>
+                        </table>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-            {% endif %}
+              <br/>
 
-            {% if app.offer_modal.button_disabled_message %}
-              <div class="mb-2" style="width:80px; margin-left:auto; margin-right:auto; line-height:1;">
-                <small class="text-secondary">The instructor has not selected yet</small>
-              </div>
-            {% endif %}
+              {% if app.ta_hour_progress == 'done' %}
+                <i class="fa fa-check text-success" aria-hidden="true"></i>
+              {% elif app.ta_hour_progress == 'over' %}
+                <i class="fa fa-times-circle text-danger" aria-hidden="true"></i>
+              {% elif app.ta_hour_progress == 'under_one_quarter' %}
+                <i class="fa fa-battery-quarter text-success" aria-hidden="true"></i>
+              {% elif app.ta_hour_progress == 'under_half' %}
+                <i class="fa fa-battery-half text-success" aria-hidden="true"></i>
+              {% elif app.ta_hour_progress == 'under_three_quarters' %}
+                <i class="fa fa-battery-three-quarters text-success" aria-hidden="true"></i>
+              {% endif %}
+            </td>
+            <td>{% include 'ta_app/users/_display_gta_info.html' with data=app.applicant striped='True' %}</td>
+            <td>{% include 'ta_app/users/_modal_confi_info_expiry_status.html' with data=app status=app.confi_info_expiry_status this_year=this_year %}</td>
+            <td>{% include 'ta_app/applications/_modal_note.html' with data=app %}</td>
+            <td>
+              <span class="d-none">{{ app.created_at|date:"Y m d z" }}</span>
+              {{ app.created_at }}
 
-            {% include 'administrators/applications/_submit_worktag_setting.html' with id=app.id job=app.job data=app worktag_setting=app.worktagsetting submit_url=submit_worktag_setting_url delete_url=delete_worktag_setting_url path='app' %}
-          </td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+              {% if app.created_at != app.updated_at %}
+                <div>
+                  <span class="d-none">{{ app.updated_at|date:"Y m d z" }}</span>
+                  {{ app.updated_at }}
+                </div>
+              {% endif %}
+            </td>
+            <td>
+              {% if app.offered %}
+                <div class="badge badge-light">OFFERED</div>
+                <div class="text-dark-gray mb-1">{{ app.offered.created_at }}</div>
+              {% endif %}
+
+              {% if app.offer_modal.button_disabled %}
+                <button class="btn btn-xs {{ app.offer_modal.button_colour }}" type="button" disabled>
+                  {{ app.offer_modal.title }}
+                </button>
+              {% else %}
+                <button class="btn btn-xs {{ app.offer_modal.button_colour }} mb-2" type="button" data-toggle="modal" data-target="#job-application-offer-modal-{{ app.id }}">
+                  {{ app.offer_modal.title }}
+                </button>
+
+                <div class="modal fade" id="job-application-offer-modal-{{ app.id }}" tabindex="-1" role="dialog" aria-labelledby="job-application-offer-modal-label-{{ app.id }}" aria-hidden="true">
+                  <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title text-info" id="job-application-offer-modal-label-{{ app.id }}">{{ app.offer_modal.title }}</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                      </div>
+                      <div class="modal-body text-left">
+                        <div class="modal-item">
+                          <h6 class="text-secondary">{{ app.job.session.year }} {{ app.job.session.term.code }} - {{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</h6>
+
+                          <h4>
+                            {{ app.applicant.get_full_name }}
+                            <small class="text-dark-gray">(CWL: {{ app.applicant.username }})</small>
+                          </h4>
+
+                          <div>
+                            {% include 'ta_app/users/_display_special_master_program.html' with data=app.applicant.profile.program.slug %}
+
+                            {% if app.applicant.gta %}
+                              {% include 'ta_app/users/_gta_badge.html' with data=app.applicant %}
+                            {% endif %}
+
+                            {% include 'ta_app/applications/_app_sta_confirmation.html' with data=app.sta_confirmation %}
+                          </div>
+
+                          {% if app|preferred_candidate %}
+                            <div class="border bg-light-blue p-3 font-size-1">
+                              <span class="font-weight-bold text-danger">Preferred Candidate</span>
+                              (<i class="fa fa-flag text-danger" aria-hidden="true"></i>) <br />
+
+                              Total number of GTA hours worked: <span class="text-chocolate font-weight-bold">
+                                {% if app.applicant.profile.total_ta_hours %}
+                                  {{ app.applicant.profile.total_ta_hours }}
+                                {% else %}
+                                  0
+                                {% endif %}
+                              </span> hours
+                            </div>
+                          {% endif %}
+
+                          <form action="{{ app.offer_modal.form_url }}" method="post">
+                            {% csrf_token %}
+
+                            <div class="field-wrapper">
+                              <label for="id_classification_{{ app.id }}">Classification:</label>
+                              <div class="help">This field is required.</div>
+                              <select id="id_classification_{{ app.id }}" name="classification" class="form-control">
+                                <option value="">Select</option>
+                                {% for choice in classification_choices %}
+                                  {% if choice.id == app.offer_modal.classification_id %}
+                                    <option value="{{ choice.id }}" selected>{{ choice.year }} {{ choice.name }}</option>
+                                  {% else %}
+                                    <option value="{{ choice.id }}">{{ choice.year }} {{ choice.name }}</option>
+                                  {% endif %}
+                                {% endfor %}
+                              </select>
+                            </div>
+
+                            <div class="field-wrapper">
+                              <label for="id_note_{{ app.id }}">Instructor Note:</label>
+                              <div class="help">This note is visible only to administrators and instructors.</div>
+                              <textarea id="id_note_{{ app.id }}" name="note" class="summernote">{{ app.note|default_if_none:"" }}</textarea>
+                            </div>
+
+                            <div class="field-wrapper">
+                              <label for="id_assigned_hours_{{ app.id }}">Assigned Hours:</label>
+                              <div class="help">Only numerical value allowed.</div>
+                              <input id="id_assigned_hours_{{ app.id }}" type="number" step="1" name="assigned_hours" value="{{ app.offer_modal.assigned_hours|floatformat:'0' }}" class="form-control" />
+                            </div>
+
+                            <input type="hidden" name="application" value="{{ app.id }}" />
+                            <input type="hidden" name="applicant" value="{{ app.applicant.id }}" />
+                            <input type="hidden" name="next" value="{{ new_next }}" />
+
+                            {% if app.offer_modal.title == 'Edit' %}
+                              <input type="hidden" name="applicationstatus" value="{{ app.offered.id }}" />
+                              <input type="hidden" name="offer_type" value="edit" />
+                            {% else %}
+                              <input type="hidden" name="assigned" value="{{ app_status.offered }}" />
+                              <input type="hidden" name="has_contract_read" value="false" />
+                              <input type="hidden" name="offer_type" value="offer" />
+                            {% endif %}
+
+                            <input class="btn font-size-1 {{ app.offer_modal.button_colour }}" type="submit" value="{% if app.offer_modal.title == 'Edit' %}Update{% else %}{{ app.offer_modal.title }}{% endif %}" />
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              {% endif %}
+
+              {% if app.offer_modal.button_disabled_message %}
+                <div class="mb-2" style="width:80px; margin-left:auto; margin-right:auto; line-height:1;">
+                  <small class="text-secondary">The instructor has not selected yet</small>
+                </div>
+              {% endif %}
+
+              {% include 'administrators/applications/_submit_worktag_setting.html' with id=app.id job=app.job data=app worktag_setting=app.worktagsetting submit_url=submit_worktag_setting_url delete_url=delete_worktag_setting_url path='app' %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 
   {% include 'ta_app/pages/_table_paginator.html' with data=apps %}
 

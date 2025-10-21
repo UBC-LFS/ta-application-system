@@ -845,9 +845,11 @@ class ProgressJobs(LoginRequiredMixin, View):
 @require_http_methods(['GET'])
 def show_job_applications(request, session_slug, job_slug):
     ''' Display a job's applications '''
+    
     request = userApi.has_admin_access(request)
     job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
     request.session['summary_applicants_next'] = request.get_full_path()
+
     return render(request, 'administrators/jobs/show_job_applications.html', {
         'loggedin_user': request.user,
         'job': adminApi.add_job_with_applications_statistics(job),

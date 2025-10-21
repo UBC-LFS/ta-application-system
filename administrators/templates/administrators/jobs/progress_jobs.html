@@ -22,6 +22,7 @@
         <th data-sortable="true">Year</th>
         <th data-sortable="true">Term</th>
         <th data-sortable="true">Job</th>
+        <th data-sortable="true">Instructors</th>
         <th data-sortable="true">Number of<br />Applications</th>
         <th data-sortable="true">Total Assigned <br />TA Hours</th>
         <th data-sortable="true">Accumulated <br />TA Hours</th>
@@ -39,6 +40,7 @@
           <td>{{ job.session.year }}</td>
           <td>{{ job.session.term.code }}</td>
           <td>{{ job.course.code.name }} {{ job.course.number.name }} {{ job.course.section.name }}</td>
+          <td>{% include 'ta_app/jobs/_job_instructor.html' with data=job %}</td>
           <td>
             {% if job.application_set.count > 0 %}
               <a class="btn btn-xs btn-info" href="{% url 'administrators:show_job_applications' session_slug=job.session.slug job_slug=job.course.slug %}">{{ job.application_set.count }}</a>
