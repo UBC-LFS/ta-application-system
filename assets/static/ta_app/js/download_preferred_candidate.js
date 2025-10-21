@@ -12,7 +12,7 @@ $(document).ready(function() {
         $(self).text('Download Preferred Candidates');
 
         if (res.status === 'success') {
-          const filename = 'TA App - Preferred TAs ' + getToday() + '.csv';
+          const filename = 'TA App - Preferred Candidates ' + getToday() + '.csv';
           downloadCSV(res.data, filename);
         } else {
           const message = '<div class="alert alert-danger alert-dismissible fade show" role="alert">' +
