@@ -1,4 +1,4 @@
-<div class="search-field bg-light-gray p-3 font-size-sm">
+<div class="search-field bg-light-gray p-3 font-size-sm" {% if path == 'all' %}style="height:210px"{% endif %}>
   <form method="GET">
     <input type="hidden" name="page" value="{% if request.GET.page %}{{ request.GET.page }}{% else %}1{% endif %}" />
     <input type="text" name="year" value="{{ request.GET.year }}" placeholder="Year" /> and

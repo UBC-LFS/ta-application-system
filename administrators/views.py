@@ -845,7 +845,7 @@ class ProgressJobs(LoginRequiredMixin, View):
 @require_http_methods(['GET'])
 def show_job_applications(request, session_slug, job_slug):
     ''' Display a job's applications '''
-    
+
     request = userApi.has_admin_access(request)
     job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
     request.session['summary_applicants_next'] = request.get_full_path()
@@ -1411,7 +1411,7 @@ def reset_application(request):
                 if app_status_form.save():
                     app_reset = ApplicationReset.objects.create(application=app, user=request.user.get_full_name())
                     if app_reset:
-                        messages.success(request, 'Success! {0} - the following information (ID: {1}, {2} {3} - {4} {5} {6}) have been reset. <ul><li>Instructor Preference</li><li>Assigned Status</li><li>Assigned Hours</li></ul>'.format(updated_app.applicant.get_full_name(), updated_app.id, updated_app.job.session.year, updated_app.job.session.term.code, updated_app.job.course.code.name, updated_app.job.course.number.name, updated_app.job.course.section.name))
+                        messages.success(request, 'Success! {0} - the following information (ID: {1}, {2} {3} - {4} {5} {6}) have been reset. <ul><li>Instructor Preference</li><li>Assigned Status</li><li>Assigned Hours</li><li>STA option</li></ul>'.format(updated_app.applicant.get_full_name(), updated_app.id, updated_app.job.session.year, updated_app.job.session.term.code, updated_app.job.course.code.name, updated_app.job.course.number.name, updated_app.job.course.section.name))
                     else:
                         messages.error(request, 'An error occurred while updating an application reset log.')
                 else:

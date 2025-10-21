@@ -13,7 +13,7 @@
     </div>
 
     <div class="col-md-6">
-      <div class="bg-light-gray p-4" style="height:180.8px">
+      <div class="bg-light-gray p-4" style="height:210px">
         <h5>Note:</h5>
         <ul class="font-size-sm">
           <li>
@@ -24,13 +24,14 @@
           </li>
           <li>{% include 'ta_app/applications/_declined_reassigned_note.html' %}</li>
           <li>{% include 'ta_app/users/_note_confi_info_expiry_status.html' %}</li>
+          <li>A <span class="badge badge-secondary">STA</span> badge indicates that an instructor selected the <strong>STA</strong> option while choosing students.</li>
         </ul>
       </div>
     </div>
   </div>
 
   <div class="mb-5">
-    <div class="font-size-sm" style="position:absolute; margin-top:-20px; right:145px;">
+    <div class="font-size-sm" style="position:absolute; margin-top:-20px; right:55px;">
       {% include 'ta_app/pages/_preferred_candidate.html' with column='ID' %}
     </div>
 
