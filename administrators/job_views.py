@@ -11,14 +11,13 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.http import require_http_methods, require_GET, require_POST
 from django.db.models import Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from datetime import datetime
 
 from ta_app import utils
 from administrators.forms import AdminJobEditForm, InstructorUpdateForm, WorktagSetting
 from administrators import api as adminApi
 from instructors.mixins import SummaryApplicantsMixin
 from users import api as userApi
-
-from datetime import datetime
 
 
 @method_decorator([never_cache], name='dispatch')

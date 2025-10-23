@@ -10,16 +10,14 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.http import require_http_methods, require_GET, require_POST
 from django.db.models import Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from datetime import date, datetime
+import copy
 
 from ta_app import utils
 from administrators.models import Session, Job
 from administrators.forms import SessionForm, SessionConfirmationForm
 from administrators import api as adminApi
-
 from users import api as userApi
-
-from datetime import date, datetime
-import copy
 
 
 @method_decorator([never_cache], name='dispatch')
