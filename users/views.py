@@ -31,7 +31,7 @@ def show_user(request, username):
 
     user = userApi.get_user(username, 'username')
     user = userApi.add_avatar(user)
-    user.is_student = userApi.user_has_role(user , Role.STUDENT)
+    user.is_student = userApi.user_has_role(user , utils.STUDENT)
     if user.is_student:
         userApi.add_resume(user)
 

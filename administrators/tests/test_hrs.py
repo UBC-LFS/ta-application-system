@@ -364,7 +364,7 @@ class HRTest(TestCase):
 
         user = userApi.get_user(USERS[2], 'username')
         user_first_role = user.profile.roles.all()[0]
-        self.assertEqual(user_first_role.name, Role.STUDENT)
+        self.assertEqual(user_first_role.name, utils.STUDENT)
 
         data1 = {
             'first_name': user.first_name,
@@ -405,7 +405,7 @@ class HRTest(TestCase):
 
         user = userApi.get_user(USERS[2], 'username')
         user_first_role = user.profile.roles.all()[0]
-        self.assertEqual(user_first_role.name, Role.STUDENT)
+        self.assertEqual(user_first_role.name, utils.STUDENT)
 
         # Missing first name, last name, email, username
         data0 = {
@@ -427,7 +427,7 @@ class HRTest(TestCase):
 
         user = userApi.get_user(USERS[2], 'username')
         user_first_role = user.profile.roles.all()[0]
-        self.assertEqual(user_first_role.name, Role.STUDENT)
+        self.assertEqual(user_first_role.name, utils.STUDENT)
 
         # Missing first name, last name, email, username
         data1 = {
@@ -453,7 +453,7 @@ class HRTest(TestCase):
 
         user = userApi.get_user(USERS[2], 'username')
         user_first_role = user.profile.roles.all()[0]
-        self.assertEqual(user_first_role.name, Role.STUDENT)
+        self.assertEqual(user_first_role.name, utils.STUDENT)
 
         # Missing last name, username, email
         data2 = {
@@ -480,7 +480,7 @@ class HRTest(TestCase):
 
         user = userApi.get_user(USERS[2], 'username')
         user_first_role = user.profile.roles.all()[0]
-        self.assertEqual(user_first_role.name, Role.STUDENT)
+        self.assertEqual(user_first_role.name, utils.STUDENT)
 
         # Missing email and username
         data3 = {
@@ -508,7 +508,7 @@ class HRTest(TestCase):
 
         user = userApi.get_user(USERS[2], 'username')
         user_first_role = user.profile.roles.all()[0]
-        self.assertEqual(user_first_role.name, Role.STUDENT)
+        self.assertEqual(user_first_role.name, utils.STUDENT)
 
         # Missing username
         data4 = {
@@ -538,7 +538,7 @@ class HRTest(TestCase):
 
         user = userApi.get_user(USERS[2], 'username')
         user_first_role = user.profile.roles.all()[0]
-        self.assertEqual(user_first_role.name, Role.STUDENT)
+        self.assertEqual(user_first_role.name, utils.STUDENT)
 
         # Wrong employee number
         data5 = {
@@ -569,7 +569,7 @@ class HRTest(TestCase):
 
         user = userApi.get_user(USERS[2], 'username')
         user_first_role = user.profile.roles.all()[0]
-        self.assertEqual(user_first_role.name, Role.STUDENT)
+        self.assertEqual(user_first_role.name, utils.STUDENT)
 
         # Wrong employee number
         data6 = {
@@ -600,7 +600,7 @@ class HRTest(TestCase):
 
         user = userApi.get_user(USERS[2], 'username')
         user_first_role = user.profile.roles.all()[0]
-        self.assertEqual(user_first_role.name, Role.STUDENT)
+        self.assertEqual(user_first_role.name, utils.STUDENT)
 
         # Wrong employee number
         data7 = {
@@ -631,7 +631,7 @@ class HRTest(TestCase):
 
         user = userApi.get_user(USERS[2], 'username')
         user_first_role = user.profile.roles.all()[0]
-        self.assertEqual(user_first_role.name, Role.STUDENT)
+        self.assertEqual(user_first_role.name, utils.STUDENT)
 
         # Wrong student number
         data8 = {
@@ -662,7 +662,7 @@ class HRTest(TestCase):
 
         user = userApi.get_user(USERS[2], 'username')
         user_first_role = user.profile.roles.all()[0]
-        self.assertEqual(user_first_role.name, Role.STUDENT)
+        self.assertEqual(user_first_role.name, utils.STUDENT)
 
         # Wrong student number
         data9 = {
@@ -693,7 +693,7 @@ class HRTest(TestCase):
 
         user = userApi.get_user(USERS[2], 'username')
         user_first_role = user.profile.roles.all()[0]
-        self.assertEqual(user_first_role.name, Role.STUDENT)
+        self.assertEqual(user_first_role.name, utils.STUDENT)
 
         data10 = {
             'user': user.id,
@@ -727,7 +727,7 @@ class HRTest(TestCase):
         self.assertEqual(u.confidentiality.employee_number, data10['employee_number'])
         self.assertFalse(u.is_superuser)
         self.assertEqual(u.profile.preferred_name, data10['preferred_name'])
-        self.assertEqual(u.profile.roles.all()[0].name, Role.INSTRUCTOR)
+        self.assertEqual(u.profile.roles.all()[0].name, utils.INSTRUCTOR)
         self.assertIsNotNone( userApi.has_user_confidentiality_created(u) )
 
 
@@ -863,7 +863,7 @@ class HRTest(TestCase):
         self.assertEqual(u.confidentiality.employee_number, data['employee_number'])
         self.assertFalse(u.is_superuser)
         self.assertEqual(u.profile.preferred_name, data['preferred_name'])
-        self.assertEqual(u.profile.roles.all()[0].name, Role.STUDENT)
+        self.assertEqual(u.profile.roles.all()[0].name, utils.STUDENT)
         self.assertIsNotNone( userApi.has_user_confidentiality_created(u) )
 
 
@@ -1125,7 +1125,7 @@ class HRTest(TestCase):
         self.assertEqual(u.confidentiality.employee_number, data['employee_number'])
         self.assertFalse(u.is_superuser)
         self.assertIsNone(u.profile.preferred_name)
-        self.assertEqual(u.profile.roles.all()[0].name, Role.STUDENT)
+        self.assertEqual(u.profile.roles.all()[0].name, utils.STUDENT)
         self.assertIsNotNone( userApi.has_user_confidentiality_created(u) )
 
 
@@ -1161,7 +1161,7 @@ class HRTest(TestCase):
         self.assertEqual(user.confidentiality.employee_number, data['employee_number'])
         self.assertFalse(user.is_superuser)
         self.assertIsNone(user.profile.preferred_name)
-        self.assertEqual(user.profile.roles.all()[0].name, Role.STUDENT)
+        self.assertEqual(user.profile.roles.all()[0].name, utils.STUDENT)
         self.assertIsNotNone( userApi.has_user_confidentiality_created(user) )
 
 

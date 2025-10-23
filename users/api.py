@@ -52,18 +52,18 @@ def get_user_roles(user):
     ''' Add roles into an user '''
     roles = []
     for role in user.profile.roles.all():
-        if role.name == Role.SUPERADMIN:
-            roles.append(Role.SUPERADMIN)
-        elif role.name == Role.ADMIN:
-            roles.append(Role.ADMIN)
-        elif role.name == Role.HR:
-            roles.append(Role.HR)
-        elif role.name == Role.INSTRUCTOR:
-            roles.append(Role.INSTRUCTOR)
-        elif role.name == Role.STUDENT:
-            roles.append(Role.STUDENT)
-        elif role.name == Role.OBSERVER:
-            roles.append(Role.OBSERVER)
+        if role.name == utils.SUPERADMIN:
+            roles.append(utils.SUPERADMIN)
+        elif role.name == utils.ADMIN:
+            roles.append(utils.ADMIN)
+        elif role.name == utils.HR:
+            roles.append(utils.HR)
+        elif role.name == utils.INSTRUCTOR:
+            roles.append(utils.INSTRUCTOR)
+        elif role.name == utils.STUDENT:
+            roles.append(utils.STUDENT)
+        elif role.name == utils.OBSERVER:
+            roles.append(utils.OBSERVER)
 
     return roles
 
@@ -74,18 +74,18 @@ def loggedin_user(user):
 
     roles = []
     for role in user.profile.roles.all():
-        if role.name == Role.SUPERADMIN:
-            roles.append(Role.SUPERADMIN)
-        elif role.name == Role.ADMIN:
-            roles.append(Role.ADMIN)
-        elif role.name == Role.HR:
-            roles.append(Role.HR)
-        elif role.name == Role.INSTRUCTOR:
-            roles.append(Role.INSTRUCTOR)
-        elif role.name == Role.STUDENT:
-            roles.append(Role.STUDENT)
-        elif role.name == Role.OBSERVER:
-            roles.append(Role.OBSERVER)
+        if role.name == utils.SUPERADMIN:
+            roles.append(utils.SUPERADMIN)
+        elif role.name == utils.ADMIN:
+            roles.append(utils.ADMIN)
+        elif role.name == utils.HR:
+            roles.append(utils.HR)
+        elif role.name == utils.INSTRUCTOR:
+            roles.append(utils.INSTRUCTOR)
+        elif role.name == utils.STUDENT:
+            roles.append(utils.STUDENT)
+        elif role.name == utils.OBSERVER:
+            roles.append(utils.OBSERVER)
     user.roles = roles
 
     return user
@@ -134,15 +134,15 @@ def has_users_view_access(request, role):
 
     custom_roles = []
     for r in request.session['loggedin_user']['roles']:
-        if r == Role.SUPERADMIN:
+        if r == utils.SUPERADMIN:
             custom_roles.append('administrators')
-        elif r == Role.ADMIN:
+        elif r == utils.ADMIN:
             custom_roles.append('administrators')
-        elif r == Role.HR:
+        elif r == utils.HR:
             custom_roles.append('administrators')
-        elif r == Role.INSTRUCTOR:
+        elif r == utils.INSTRUCTOR:
             custom_roles.append('instructors')
-        elif r == Role.STUDENT:
+        elif r == utils.STUDENT:
             custom_roles.append('students')
 
     if is_valid_user(request.user) == False or role not in custom_roles:
@@ -170,7 +170,7 @@ def get_users(option=None):
 
 def get_instructors():
     ''' Get instructors '''
-    return User.objects.filter(profile__roles__name=Role.INSTRUCTOR).order_by('last_name', 'first_name')
+    return User.objects.filter(profile__roles__name=utils.INSTRUCTOR).order_by('last_name', 'first_name')
 
 def get_users_by_role(role):
     ''' Get users by role '''
@@ -862,12 +862,12 @@ def get_gta_flag(user):
     return None
 
 
-def get_preferred_candidate(app):
-    profile = has_user_profile_created(app.applicant)
-    if profile and is_lfs_student(app.applicant) and not is_undergraduate(app.applicant) and adminApi.get_accepted_hours_from_previous_year(app) > 0:
-        if is_master(app.applicant) and (1 <= int(profile.student_year) <= 2):
+def get_preferred_candidate(user, year):
+    profile = has_user_profile_created(user)
+    if profile and is_lfs_student(user) and not is_undergraduate(user) and adminApi.get_accepted_hours_from_previous_year(user, year) > 0:
+        if is_master(user) and (1 <= int(profile.student_year) <= 2):
             return True
-        if is_phd(app.applicant) and (1 <= int(profile.student_year) <= 5):
+        if is_phd(user) and (1 <= int(profile.student_year) <= 5):
             return True
     return False
 

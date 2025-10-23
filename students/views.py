@@ -35,7 +35,7 @@ class Index(LoginRequiredMixin, View):
 
     @method_decorator(require_GET)
     def get(self, request, *args, **kwargs):
-        request = userApi.has_user_access(request, Role.STUDENT)
+        request = userApi.has_user_access(request, utils.STUDENT)
 
         # To check whether a student has competed an additional information and resume
         can_apply = userApi.can_apply(request.user)
@@ -68,7 +68,7 @@ class Index(LoginRequiredMixin, View):
     @method_decorator(require_POST)
     def post(self, request, *args, **kwargs):
         ''' Read an alert message '''
-        request = userApi.has_user_access(request, Role.STUDENT)
+        request = userApi.has_user_access(request, utils.STUDENT)
 
         form = AlertForm(request.POST)
         if form.is_valid():
@@ -86,7 +86,7 @@ class ShowProfile(LoginRequiredMixin, View):
 
     @method_decorator(require_GET)
     def get(self, request, *args, **kwargs):
-        request = userApi.has_user_access(request, Role.STUDENT)
+        request = userApi.has_user_access(request, utils.STUDENT)
         adminApi.can_req_parameters_access(request, 'student', ['next', 'p', 't'])
 
         loggedin_user = userApi.add_resume(request.user)
@@ -110,7 +110,7 @@ class EditProfile(LoginRequiredMixin, View):
 
     def setup(self, request, *args, **kwargs):
         setup = super().setup(request, *args, **kwargs)
-        request = userApi.has_user_access(request, Role.STUDENT)
+        request = userApi.has_user_access(request, utils.STUDENT)
 
         tab = request.GET.get('t', None)
         if not tab or tab not in ['general', 'graduate', 'undergraduate', 'summary']:
@@ -292,7 +292,7 @@ def confirm_profile_reminder(request):
 @require_http_methods(['POST'])
 def upload_resume(request):
     ''' Upload user's resume '''
-    request = userApi.has_user_access(request, Role.STUDENT)
+    request = userApi.has_user_access(request, utils.STUDENT)
     adminApi.can_req_parameters_access(request, 'student', ['next', 'p'])
 
     loggedin_user = userApi.add_resume(request.user)
@@ -327,7 +327,7 @@ def upload_resume(request):
 @require_http_methods(['POST'])
 def delete_resume(request):
     ''' Delete user's resume '''
-    request = userApi.has_user_access(request, Role.STUDENT)
+    request = userApi.has_user_access(request, utils.STUDENT)
     adminApi.can_req_parameters_access(request, 'student', ['next', 'p'])
 
     if request.method == 'POST':
@@ -349,7 +349,7 @@ def delete_resume(request):
 @require_http_methods(['GET'])
 def show_confidentiality(request):
     ''' Display user's confidentiality '''
-    request = userApi.has_user_access(request, Role.STUDENT)
+    request = userApi.has_user_access(request, utils.STUDENT)
 
     template = 'choose'
     if userApi.has_user_confidentiality_created(request.user) and request.user.confidentiality and request.user.confidentiality.nationality != None:
@@ -366,7 +366,7 @@ def show_confidentiality(request):
 @require_http_methods(['POST'])
 def check_confidentiality(request):
     ''' Check whether an international student or not '''
-    request = userApi.has_user_access(request, Role.STUDENT)
+    request = userApi.has_user_access(request, utils.STUDENT)
 
     if request.method == 'POST':
         form = None
@@ -395,7 +395,7 @@ def check_confidentiality(request):
 @require_http_methods(['GET', 'POST'])
 def submit_confidentiality(request):
     ''' Submit user's confidentiality '''
-    request = userApi.has_user_access(request, Role.STUDENT)
+    request = userApi.has_user_access(request, utils.STUDENT)
 
     loggedin_user = request.user
     form = None
@@ -466,7 +466,7 @@ class EditConfidentiality(LoginRequiredMixin, View):
     
     @method_decorator(require_GET)
     def get(self, request, *args, **kwargs):
-        request = userApi.has_user_access(request, Role.STUDENT)
+        request = userApi.has_user_access(request, utils.STUDENT)
 
         form = None
         sin_file = None
@@ -604,7 +604,7 @@ class EditConfidentiality(LoginRequiredMixin, View):
 @require_http_methods(['POST'])
 def delete_confidential_information(request):
     ''' Delete a confidential information '''
-    request = userApi.has_user_access(request, Role.STUDENT)
+    request = userApi.has_user_access(request, utils.STUDENT)
 
     if request.method == 'POST':
         data = []
@@ -667,7 +667,7 @@ class ExploreJobs(LoginRequiredMixin, View):
     @method_decorator(require_GET)
     def get(self, request, *args, **kwargs):
         ''' Display all lists of session terms '''
-        request = userApi.has_user_access(request, Role.STUDENT)
+        request = userApi.has_user_access(request, utils.STUDENT)
 
         can_apply = userApi.can_apply(request.user)
         if not can_apply:
@@ -695,7 +695,7 @@ class ExploreJobs(LoginRequiredMixin, View):
 @require_http_methods(['GET', 'POST'])
 def favourite_jobs(request):
     ''' Display all lists of session terms '''
-    request = userApi.has_user_access(request, Role.STUDENT)
+    request = userApi.has_user_access(request, utils.STUDENT)
 
     if request.method == 'POST':
         form = FavouriteForm(request.POST)
@@ -777,7 +777,7 @@ class AvailableJobs(LoginRequiredMixin, View):
         if not confirm_profile_reminder:
             raise PermissionDenied
 
-        request = userApi.has_user_access(request, Role.STUDENT)
+        request = userApi.has_user_access(request, utils.STUDENT)
 
         can_apply = userApi.can_apply(request.user)
         if can_apply == False:
@@ -853,7 +853,7 @@ class ApplyJob(LoginRequiredMixin, View):
         if not confirm_profile_reminder:
             raise PermissionDenied
         
-        request = userApi.has_user_access(request, Role.STUDENT)
+        request = userApi.has_user_access(request, utils.STUDENT)
         adminApi.can_req_parameters_access(request, 'none', ['next'])
 
         next = adminApi.get_next(request)
@@ -934,7 +934,7 @@ class ApplyJob(LoginRequiredMixin, View):
 @require_http_methods(['POST'])
 def select_favourite_job(request, session_slug, job_slug):
     ''' Select favourite jobs '''
-    request = userApi.has_user_access(request, Role.STUDENT)
+    request = userApi.has_user_access(request, utils.STUDENT)
 
     if request.method == 'POST':
 
@@ -970,7 +970,7 @@ def select_favourite_job(request, session_slug, job_slug):
 @require_http_methods(['GET'])
 def history_jobs(request):
     ''' Display History of Jobs and total accepted assigned hours '''
-    request = userApi.has_user_access(request, Role.STUDENT)
+    request = userApi.has_user_access(request, utils.STUDENT)
 
     year_q = request.GET.get('year')
     term_q = request.GET.get('term')
@@ -1004,29 +1004,29 @@ def history_jobs(request):
     # Add applications with latest status
     for app in apps:
         app.applied = None
-        applied = app.applicationstatus_set.filter(assigned=ApplicationStatus.NONE)
+        applied = app.applicationstatus_set.filter(assigned=utils.NONE)
         if applied.exists(): app.applied = applied.first()
 
         status = app.applicationstatus_set.all().last()
-        if status.assigned == ApplicationStatus.OFFERED:
+        if status.assigned == utils.OFFERED:
             app.offered = None
-            offered = app.applicationstatus_set.filter(assigned=ApplicationStatus.OFFERED)
+            offered = app.applicationstatus_set.filter(assigned=utils.OFFERED)
             if offered.exists(): app.offered = offered.last()
 
-        elif status.assigned == ApplicationStatus.ACCEPTED:
+        elif status.assigned == utils.ACCEPTED:
             app.accepted = None
-            accepted = app.applicationstatus_set.filter(assigned=ApplicationStatus.ACCEPTED)
+            accepted = app.applicationstatus_set.filter(assigned=utils.ACCEPTED)
             if accepted.exists(): app.accepted = accepted.last()
 
-        elif status.assigned == ApplicationStatus.DECLINED:
+        elif status.assigned == utils.DECLINED:
             app.declined = None
-            declined = app.applicationstatus_set.filter(assigned=ApplicationStatus.DECLINED)
+            declined = app.applicationstatus_set.filter(assigned=utils.DECLINED)
             if declined.exists():
                 app.declined = declined.last()
 
-        elif status.assigned == ApplicationStatus.CANCELLED:
+        elif status.assigned == utils.CANCELLED:
             app.cancelled = None
-            cancelled = app.applicationstatus_set.filter(assigned=ApplicationStatus.CANCELLED)
+            cancelled = app.applicationstatus_set.filter(assigned=utils.CANCELLED)
             if cancelled.exists(): app.cancelled = cancelled.last()
 
     return render(request, 'students/jobs/history_jobs.html', {
@@ -1041,7 +1041,7 @@ def history_jobs(request):
 @require_http_methods(['GET', 'POST'])
 def terminate_job(request, session_slug, job_slug):
     ''' Cancel/terminate an accepted job '''
-    request = userApi.has_user_access(request, Role.STUDENT)
+    request = userApi.has_user_access(request, utils.STUDENT)
     adminApi.can_req_parameters_access(request, 'none', ['next'])
 
     apps = request.user.application_set.all()
@@ -1060,7 +1060,7 @@ def terminate_job(request, session_slug, job_slug):
         assigned_hours = request.POST.get('assigned_hours')
         form = ApplicationStatusReassignForm({
             'application': request.POST.get('application'),
-            'assigned': ApplicationStatus.CANCELLED,
+            'assigned': utils.CANCELLED,
             'assigned_hours': assigned_hours,
             'parent_id': app.accepted.id
         })
@@ -1090,7 +1090,7 @@ def terminate_job(request, session_slug, job_slug):
 @require_http_methods(['GET'])
 def accept_decline_job(request, session_slug, job_slug):
     ''' Display a job to select accept or decline a job offer '''
-    request = userApi.has_user_access(request, Role.STUDENT)
+    request = userApi.has_user_access(request, utils.STUDENT)
     adminApi.can_req_parameters_access(request, 'none', ['next'])
 
     apps = request.user.application_set.all()
@@ -1115,7 +1115,7 @@ def accept_decline_job(request, session_slug, job_slug):
 @require_http_methods(['POST'])
 def make_decision(request, session_slug, job_slug):
     ''' Students accept a job offer '''
-    request = userApi.has_user_access(request, Role.STUDENT)
+    request = userApi.has_user_access(request, utils.STUDENT)
     if request.method == 'POST':
 
         # Check whether a next url is valid or not
@@ -1141,7 +1141,7 @@ def make_decision(request, session_slug, job_slug):
             assigned_hours = request.POST.get('assigned_hours')
             form = ApplicationStatusForm({
                 'application': request.POST.get('application'),
-                'assigned': ApplicationStatus.ACCEPTED,
+                'assigned': utils.ACCEPTED,
                 'assigned_hours': assigned_hours,
                 'has_contract_read': True
             })
@@ -1187,7 +1187,7 @@ def make_decision(request, session_slug, job_slug):
         elif request.POST.get('decision') == 'decline':
             form = ApplicationStatusForm({
                 'application': request.POST.get('application'),
-                'assigned': ApplicationStatus.DECLINED,
+                'assigned': utils.DECLINED,
                 'assigned_hours': 0.0,
                 'has_contract_read': True
             })
@@ -1213,7 +1213,7 @@ def make_decision(request, session_slug, job_slug):
 @require_http_methods(['GET','POST'])
 def reaccept_application(request, app_slug):
     ''' Re-accept an accepted application after declined '''
-    request = userApi.has_user_access(request, Role.STUDENT)
+    request = userApi.has_user_access(request, utils.STUDENT)
 
     app = adminApi.get_application(app_slug, 'slug')
     app = adminApi.add_app_info_into_application(app, ['accepted','declined'])
@@ -1246,7 +1246,7 @@ def reaccept_application(request, app_slug):
             assigned_hours = request.POST.get('assigned_hours')
             form = ApplicationStatusForm({
                 'application': request.POST.get('application'),
-                'assigned': ApplicationStatus.ACCEPTED,
+                'assigned': utils.ACCEPTED,
                 'assigned_hours': assigned_hours,
                 'has_contract_read': True
             })
@@ -1273,7 +1273,7 @@ def reaccept_application(request, app_slug):
         elif request.POST.get('decision') == 'decline':
             form = ApplicationStatusForm({
                 'application': request.POST.get('application'),
-                'assigned': ApplicationStatus.DECLINED,
+                'assigned': utils.DECLINED,
                 'assigned_hours': 0.0,
                 'has_contract_read': True
             })
@@ -1313,7 +1313,7 @@ def reaccept_application(request, app_slug):
 @require_http_methods(['GET'])
 def show_job(request, session_slug, job_slug):
     ''' Display job details '''
-    request = userApi.has_user_access(request, Role.STUDENT)
+    request = userApi.has_user_access(request, utils.STUDENT)
     adminApi.can_req_parameters_access(request, 'student-job', ['next', 'p'])
 
     return render(request, 'students/jobs/show_job.html', {
@@ -1326,7 +1326,7 @@ def show_job(request, session_slug, job_slug):
 @require_http_methods(['GET', 'POST'])
 def show_application(request, app_slug):
     ''' Display job details '''
-    request = userApi.has_user_access(request, Role.STUDENT)
+    request = userApi.has_user_access(request, utils.STUDENT)
     adminApi.can_req_parameters_access(request, 'none', ['next'])
 
     return render(request, 'students/jobs/show_application.html', {

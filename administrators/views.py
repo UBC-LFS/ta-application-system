@@ -17,7 +17,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.utils.html import strip_tags
 
 from ta_app import utils
-from administrators.models import Session, Job, Application, ApplicationStatus
+from administrators.models import Application, ApplicationStatus
 from administrators.forms import *
 from administrators import api as adminApi
 
@@ -30,16 +30,6 @@ import copy
 
 from observers.mixins import AcceptedAppsReportMixin
 
-APP_STATUS = {
-    'none': ApplicationStatus.NONE,
-    'applied': ApplicationStatus.NONE,
-    'selected': ApplicationStatus.SELECTED,
-    'offered': ApplicationStatus.OFFERED,
-    'accepted': ApplicationStatus.ACCEPTED,
-    'declined': ApplicationStatus.DECLINED,
-    'cancelled': ApplicationStatus.CANCELLED
-}
-
 
 @method_decorator([never_cache], name='dispatch')
 class Index(LoginRequiredMixin, View):
@@ -47,7 +37,7 @@ class Index(LoginRequiredMixin, View):
 
     @method_decorator(require_GET)
     def get(self, request, *args, **kwargs):
-        request = userApi.has_admin_access(request, Role.HR)
+        request = userApi.has_admin_access(request, utils.HR)
 
         apps = adminApi.get_applications()
 
@@ -57,7 +47,7 @@ class Index(LoginRequiredMixin, View):
 
         context = {
             'loggedin_user': userApi.add_avatar(request.user),
-            'accepted_apps': apps.filter(applicationstatus__assigned=ApplicationStatus.ACCEPTED).exclude(applicationstatus__assigned=ApplicationStatus.CANCELLED).order_by('-id').distinct(),
+            'accepted_apps': apps.filter(applicationstatus__assigned=utils.ACCEPTED).exclude(applicationstatus__assigned=utils.CANCELLED).order_by('-id').distinct(),
             'today_accepted_apps': today_accepted_apps,
             'today_processed_stats': adminApi.get_processed_stats(today_accepted_apps),
             'yesterday_accepted_apps': yesterday_accepted_apps,
@@ -68,1140 +58,16 @@ class Index(LoginRequiredMixin, View):
             'yesterday': yesterday,
             'week_ago': week_ago
         }
-        if Role.ADMIN in request.user.roles or Role.SUPERADMIN in request.user.roles:
+        if utils.ADMIN in request.user.roles or utils.SUPERADMIN in request.user.roles:
             sessions = adminApi.get_sessions()
             context['current_sessions'] = sessions.filter(is_archived=False)
             context['archived_sessions'] = sessions.filter(is_archived=True)
             context['apps'] = adminApi.get_applications()
-            context['instructors'] = userApi.get_users_by_role(Role.INSTRUCTOR)
-            context['students'] = userApi.get_users_by_role(Role.STUDENT)
+            context['instructors'] = userApi.get_users_by_role(utils.INSTRUCTOR)
+            context['students'] = userApi.get_users_by_role(utils.STUDENT)
             context['users'] = userApi.get_users()
 
         return render(request, 'administrators/index.html', context)
-
-
-# Sessions
-
-
-@method_decorator([never_cache], name='dispatch')
-class CurrentSessions(LoginRequiredMixin, View):
-    ''' Display all information of sessions and create a session '''
-
-    @method_decorator(require_GET)
-    def get(self, request, *args, **kwargs):
-        request = userApi.has_admin_access(request)
-
-        request.session['next_session'] = adminApi.build_new_next(request)
-
-        year_q = request.GET.get('year')
-        term_q = request.GET.get('term')
-
-        session_list = adminApi.get_sessions()
-        if bool(year_q):
-            session_list = session_list.filter(year__icontains=year_q)
-        if bool(term_q):
-            session_list = session_list.filter(term__code__icontains=term_q)
-
-        session_list = session_list.filter(is_archived=False)
-        session_list = adminApi.add_num_instructors(session_list)
-
-        page = request.GET.get('page', 1)
-        paginator = Paginator(session_list, utils.TABLE_PAGE_SIZE)
-
-        try:
-            sessions = paginator.page(page)
-        except PageNotAnInteger:
-            sessions = paginator.page(1)
-        except EmptyPage:
-            sessions = paginator.page(paginator.num_pages)
-
-        return render(request, 'administrators/sessions/current_sessions.html', context={
-            'loggedin_user': request.user,
-            'sessions': sessions,
-            'total_sessions': len(session_list),
-            'new_next': adminApi.build_new_next(request)
-        })
-
-
-@method_decorator([never_cache], name='dispatch')
-class ArchivedSessions(LoginRequiredMixin, View):
-    ''' Display all information of sessions and create a session '''
-
-    @method_decorator(require_GET)
-    def get(self, request, *args, **kwargs):
-        request = userApi.has_admin_access(request)
-
-        request.session['next_session'] = adminApi.build_new_next(request)
-
-        year_q = request.GET.get('year')
-        term_q = request.GET.get('term')
-
-        session_list = adminApi.get_sessions()
-        if bool(year_q):
-            session_list = session_list.filter(year__icontains=year_q)
-        if bool(term_q):
-            session_list = session_list.filter(term__code__icontains=term_q)
-
-        session_list = session_list.filter(is_archived=True)
-        session_list = adminApi.add_num_instructors(session_list)
-
-        page = request.GET.get('page', 1)
-        paginator = Paginator(session_list, utils.TABLE_PAGE_SIZE)
-
-        try:
-            sessions = paginator.page(page)
-        except PageNotAnInteger:
-            sessions = paginator.page(1)
-        except EmptyPage:
-            sessions = paginator.page(paginator.num_pages)
-
-        return render(request, 'administrators/sessions/archived_sessions.html', context={
-            'loggedin_user': request.user,
-            'sessions': sessions,
-            'total_sessions': len(session_list),
-            'new_next': adminApi.build_new_next(request)
-        })
-
-
-@method_decorator([never_cache], name='dispatch')
-class ShowSession(LoginRequiredMixin, View):
-    ''' Display session details '''
-
-    @method_decorator(require_GET)
-    def get(self, request, *args, **kwargs):
-        session_slug = kwargs['session_slug']
-
-        request = userApi.has_admin_access(request)
-        adminApi.can_req_parameters_access(request, 'session', ['next', 'p'])
-
-        return render(request, 'administrators/sessions/show_session.html', context={
-            'loggedin_user': request.user,
-            'session': adminApi.get_session(session_slug, 'slug'),
-            'next': adminApi.get_next(request)
-        })
-
-from django.forms.models import model_to_dict
-
-@method_decorator([never_cache], name='dispatch')
-class CreateSession(LoginRequiredMixin, View):
-    ''' Create a session '''
-
-    form_class = SessionForm
-
-    @method_decorator(require_GET)
-    def get(self, request, *args, **kwargs):
-        request = userApi.has_admin_access(request)
-
-        sessions = adminApi.get_sessions()
-        return render(request, 'administrators/sessions/create_session.html', context={
-            'loggedin_user': request.user,
-            'current_sessions': sessions.filter(is_archived=False),
-            'archived_sessions': sessions.filter(is_archived=True),
-            'form': self.form_class(initial={
-                'year': date.today().year,
-                'title': 'TA Application'
-            })
-        })
-
-    @method_decorator(require_POST)
-    def post(self, request, *args, **kwargs):
-        form = self.form_class(request.POST)
-        if form.is_valid():
-            data = form.cleaned_data
-            data['term'] = data['term'].id
-            data['is_visible'] = False if data['is_archived'] == True else data['is_visible']
-
-            request.session['session_form_data'] = data
-        else:
-            errors = form.errors.get_json_data()
-            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
-            return redirect('administrators:create_session')
-
-        return redirect('administrators:create_session_setup_courses')
-
-
-@method_decorator([never_cache], name='dispatch')
-class CreateSessionSetupCourses(LoginRequiredMixin, View):
-    form_class = SessionConfirmationForm
-
-    @method_decorator(require_GET)
-    def get(self, request, *args, **kwargs):
-        request = userApi.has_admin_access(request)
-        data = request.session.get('session_form_data', None)
-
-        if not data:
-            messages.error(request, 'Oops! Something went wrong for some reason. No data found.')
-            return redirect('administrators:create_session')
-
-        year = data['year']
-        term = adminApi.get_term(data['term'])
-        courses = adminApi.get_courses_by_term(data['term'])
-
-        for course in courses:
-            job = course.job_set.filter(session__year=int(year)-1)
-            course.prev_job = job.first() if job.exists() else None
-
-        return render(request, 'administrators/sessions/create_session_setup_courses.html', context={
-            'loggedin_user': request.user,
-            'session': adminApi.make_session_info(data, term),
-            'term': term,
-            'courses': courses
-        })
-
-    @method_decorator(require_POST)
-    def post(self, request, *args, **kwargs):
-        path = request.POST.get('submit_path', None)
-
-        if path != 'Save Changes' and path != 'Save without Copy':
-            messages.error(request, 'Oops! Something went wrong for some reason. No valid path found.')
-            return redirect('administrators:create_session')
-
-        data = request.session['session_form_data']
-        data['selected_course_ids'] = request.POST.getlist('is_course_selected')
-        data['copied_ids'] = request.POST.getlist('is_copied') if path == 'Save Changes' else []
-
-        request.session['session_form_data'] = data
-        return redirect('administrators:create_session_confirmation')
-
-
-@method_decorator([never_cache], name='dispatch')
-class CreateSessionConfirmation(LoginRequiredMixin, View):
-    ''' Confirm all the inforamtion to create a session '''
-
-    @method_decorator(require_GET)
-    def get(self, request, *args, **kwargs):
-        request = userApi.has_admin_access(request)
-
-        data = request.session.get('session_form_data', None)
-
-        if not data:
-            messages.error(request, 'Oops! Something went wrong for some reason. No data found.')
-            return redirect('administrators:create_session_setup_courses')
-
-        year = data['year']
-        term = adminApi.get_term(data['term'])
-        course_ids = data['selected_course_ids']
-        copied_ids = data['copied_ids']
-
-        courses = []
-        selected_jobs = []
-        for id in course_ids:
-            course = adminApi.get_course(id)
-            course.is_copied = False
-            selected_job = {
-                    'id': course.id,
-                    'instructors': [],
-                    'assigned_ta_hours': 0.0,
-                    'course_overview': course.overview,
-                    'description': course.job_description,
-                    'note': course.job_note,
-                    'is_active': True
-                }
-
-            if id in copied_ids:
-                course.is_copied = True
-                jobs = course.job_set.filter(session__year=int(year)-1)
-                job = jobs.first() if jobs.exists() else None
-                if job:
-                    selected_job = {
-                        'id': course.id,
-                        'instructors': job.instructors.all() if job.instructors.count() > 0 else [],
-                        'assigned_ta_hours': job.assigned_ta_hours,
-                        'course_overview': job.course_overview,
-                        'description': job.description,
-                        'note': job.note,
-                        'is_active': job.is_active
-                    }
-
-            course.selected_job = selected_job
-            courses.append(course)
-
-            copied_job = copy.deepcopy(selected_job)
-            if len(copied_job['instructors']) > 0:
-                copied_job['instructors'] = [ instructor.id for instructor in job.instructors.all() ]
-            selected_jobs.append(copied_job)
-
-        data['selected_jobs'] = selected_jobs
-        request.session['session_form_data'] = data
-
-        return render(request, 'administrators/sessions/create_session_confirmation.html', context={
-            'loggedin_user': request.user,
-            'session': adminApi.make_session_info(data, term),
-            'term': term,
-            'courses': courses,
-            'num_courses': len(courses),
-            'num_copied_ids': len(copied_ids)
-        })
-
-    @method_decorator(require_POST)
-    def post(self, request, *args, **kwargs):
-        data = request.session.get('session_form_data', None)
-        selected_jobs = data.get('selected_jobs', None)
-
-        if not data or not selected_jobs:
-            messages.error(request, 'Oops! Something went wrong for some reason. No data found.')
-            return redirect('administrators:create_session_setup_courses')
-
-        year = data['year']
-        term = adminApi.get_term(data['term'])
-
-        # Create a session
-        session_obj = Session.objects.filter(year=year, term=term)
-        if session_obj.exists():
-            messages.error(request, 'Oops! Something went wrong. The session already exists!')
-            return redirect('administrators:create_session')
-
-        session = Session.objects.create(
-            year = year,
-            term = term,
-            title = data['title'],
-            description = data['description'],
-            note = data['note'],
-            is_visible = data['is_visible'],
-            is_archived = data['is_archived']
-        )
-
-        jobs = []
-        job_instructors = {}
-        for selected_job in selected_jobs:
-            course = adminApi.get_course(selected_job['id'])
-
-            # Create a job
-            created_job = Job(
-                session = session,
-                course = course,
-                assigned_ta_hours = selected_job['assigned_ta_hours'],
-                course_overview = selected_job['course_overview'],
-                description = selected_job['description'],
-                note = selected_job['note'],
-                is_active = selected_job['is_active']
-            )
-            jobs.append(created_job)
-
-            job_instructors[course.id] = selected_job['instructors']
-
-        created_jobs = Job.objects.bulk_create(jobs)
-
-        # Add instructors
-        for course_id, instructors in job_instructors.items():
-            instructors = [ userApi.get_user(iid) for iid in instructors ]
-
-            job = adminApi.get_job_by_session_id_and_course_id(session.id, course_id)
-            job.instructors.add( *list(instructors) )
-
-        # Remove session form data
-        del request.session['session_form_data']
-
-        messages.success(request, 'Success! {0} {1} - {2} created'.format(session.year, session.term.code, session.title))
-
-        if data['is_archived']:
-            return redirect('administrators:archived_sessions')
-        return redirect('administrators:current_sessions')
-
-
-
-@method_decorator([never_cache], name='dispatch')
-class ShowReportApplicants(LoginRequiredMixin, View):
-    ''' Display a session report including all applicants and their accepted information '''
-
-    def setup(self, request, *args, **kwargs):
-        setup = super().setup(request, *args, **kwargs)
-        session_slug = kwargs.get('session_slug', None)
-        if not session_slug:
-            raise Http404
-
-        self.session_slug = session_slug
-        return setup
-
-    @method_decorator(require_GET)
-    def get(self, request, *args, **kwargs):
-        request = userApi.has_admin_access(request)
-        session = adminApi.get_session(self.session_slug, 'slug')
-
-        applicants = adminApi.get_applicants_in_session(session)
-        total_applicants = applicants.count()
-
-        if bool( request.GET.get('first_name') ):
-            applicants = applicants.filter(first_name__icontains=request.GET.get('first_name'))
-        if bool( request.GET.get('last_name') ):
-            applicants = applicants.filter(last_name__icontains=request.GET.get('last_name'))
-        if bool( request.GET.get('cwl') ):
-            applicants = applicants.filter(username__icontains=request.GET.get('cwl'))
-        if bool( request.GET.get('student_number') ):
-            applicants = applicants.filter(profile__student_number__icontains=request.GET.get('student_number'))
-
-        page = request.GET.get('page', 1)
-        paginator = Paginator(applicants, utils.TABLE_PAGE_SIZE)
-
-        try:
-            applicants = paginator.page(page)
-        except PageNotAnInteger:
-            applicants = paginator.page(1)
-        except EmptyPage:
-            applicants = paginator.page(paginator.num_pages)
-
-        for applicant in applicants:
-            applicant.gta = userApi.get_gta_flag(applicant)
-            
-            applicant.has_applied = False
-            apps = applicant.application_set.filter( Q(job__session__year=session.year) & Q(job__session__term__code=session.term.code) )
-
-            if apps.count() > 0:
-                applicant.has_applied = True
-                accepted_apps = []
-                for app in apps:
-                    app = adminApi.add_app_info_into_application(app, ['accepted', 'declined'])
-                    if adminApi.check_valid_accepted_app_or_not(app):
-                        accepted_apps.append(app)
-                applicant.accepted_apps = accepted_apps
-
-        back_to_word = 'Current Sessions'
-        if 'archived' in request.session.get('next_session', None):
-            back_to_word = 'Archived Sessions'
-
-        return render(request, 'administrators/sessions/show_report_applicants.html', {
-            'loggedin_user': request.user,
-            'session': session,
-            'total_applicants': total_applicants,
-            'applicants': applicants,
-            'next_session': request.session.get('next_session', None),
-            'back_to_word': back_to_word
-        })
-
-
-@method_decorator([never_cache], name='dispatch')
-class ShowReportSummary(LoginRequiredMixin, View):
-    ''' Display a session summary '''
-
-    def setup(self, request, *args, **kwargs):
-        setup = super().setup(request, *args, **kwargs)
-        session_slug = kwargs['session_slug']
-        if not session_slug:
-            raise Http404
-        
-        request = userApi.has_admin_access(request)
-        
-        session = adminApi.get_session(session_slug, 'slug')
-        self.session = session
-        return setup
-
-    @method_decorator(require_GET)
-    def get(self, request, *args, **kwargs):
-        jobs = []
-
-        total_lfs_grad = set()
-        total_lfs_grad_ta_hours = 0.0
-        total_others = set()
-        total_others_ta_hours = 0.0
-        for job in self.session.job_set.all():
-            apps = adminApi.get_accepted_apps_not_terminated(job.application_set.all())
-            apps = adminApi.get_filtered_accepted_apps(apps)
-
-            lfs_grad = set()
-            lfs_grad_ta_hours = 0.0
-            others = set()
-            others_ta_hours = 0.0
-            if len(apps) > 0:
-                for app in apps:
-                    app.accepted = adminApi.get_accepted(app)
-                    app.salary = adminApi.calculate_salary(app)
-                    if userApi.get_lfs_grad_or_others(app.applicant) == 'LFS GRAD':
-                        lfs_grad.add(app.applicant.id)
-                        lfs_grad_ta_hours += app.accepted.assigned_hours
-
-                        total_lfs_grad.add(app.applicant.id)
-                        total_lfs_grad_ta_hours += app.accepted.assigned_hours
-                    else:
-                        others.add(app.applicant.id)
-                        others_ta_hours += app.accepted.assigned_hours
-
-                        total_others.add(app.applicant.id)
-                        total_others_ta_hours += app.accepted.assigned_hours
-
-                job.accepted_apps = apps
-
-            job.stat = {
-                'lfs_grad': len(lfs_grad),
-                'lfs_grad_ta_hours': lfs_grad_ta_hours,
-                'others': len(others),
-                'others_ta_hours': others_ta_hours
-            }
-            jobs.append(job)
-
-        back_to_word = 'Current Sessions'
-        if 'archived' in request.session.get('next_session', None):
-            back_to_word = 'Archived Sessions'
-
-        return render(request, 'administrators/sessions/show_report_summary.html', {
-            'loggedin_user': request.user,
-            'session': self.session,
-            'jobs': jobs,
-            'ta_hours_stat': {
-                'total_lfs_grad': len(total_lfs_grad),
-                'total_lfs_grad_ta_hours': total_lfs_grad_ta_hours,
-                'total_others': len(total_others),
-                'total_others_ta_hours': total_others_ta_hours
-            },
-            'next_session': request.session.get('next_session', None),
-            'back_to_word': back_to_word
-        })
-
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET', 'POST'])
-def edit_session(request, session_slug):
-    ''' Edit a session '''
-    request = userApi.has_admin_access(request)
-    adminApi.can_req_parameters_access(request, 'session', ['next', 'p'])
-
-    session = adminApi.get_session(session_slug, 'slug')
-    if request.method == 'POST':
-
-        # Check whether a next url is valid or not
-        adminApi.can_req_parameters_access(request, 'none', ['next'], 'POST')
-
-        form = SessionConfirmationForm(request.POST, instance=session)
-        if form.is_valid():
-            data = form.cleaned_data
-            courses = data['courses']
-
-            if len(courses) == 0:
-                messages.error(request, 'An error occurred. Please select courses in this session.')
-                return HttpResponseRedirect(request.get_full_path())
-
-            updated_session = form.save(commit=False)
-            updated_session.updated_at = datetime.now()
-
-            if data['is_archived']:
-                updated_session.is_visible = False
-
-            updated_session.save()
-
-            if updated_session:
-                updated_jobs = adminApi.update_session_jobs(session, courses)
-                if updated_jobs:
-                    messages.success(request, 'Success! {0} {1} {2} updated'.format(session.year, session.term.code, session.title))
-                    return HttpResponseRedirect(request.POST.get('next'))
-                else:
-                    messages.error(request, 'An error occurred while updating courses in a session.')
-            else:
-                messages.error(request, 'An error occurred while updating a session.')
-        else:
-            errors = form.errors.get_json_data()
-            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
-
-        return HttpResponseRedirect(request.get_full_path())
-
-    return render(request, 'administrators/sessions/edit_session.html', {
-        'loggedin_user': request.user,
-        'session': session,
-        'form': SessionConfirmationForm(data=None, instance=session, initial={
-            'courses': [ job.course for job in session.job_set.all() ],
-            'term': session.term
-        }),
-        'next': adminApi.get_next(request)
-    })
-
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET', 'POST'])
-def delete_session_confirmation(request, session_slug):
-    ''' Confirmation to delete a Session '''
-    request = userApi.has_admin_access(request)
-    adminApi.can_req_parameters_access(request, 'session', ['next', 'p'])
-
-    sessions = adminApi.get_sessions()
-    if request.method == 'POST':
-        adminApi.can_req_parameters_access(request, 'session', ['next'], 'POST')
-
-        session_id = request.POST.get('session')
-        deleted_session = adminApi.delete_session(session_id)
-        if deleted_session:
-            messages.success(request, 'Success! {0} {1} {2} deleted'.format(deleted_session.year, deleted_session.term.code, deleted_session.title))
-            return HttpResponseRedirect(request.POST.get('next'))
-        else:
-            messages.error(request, 'An error occurred. Failed to delete {0} {1} {2}'.format(deleted_session.year, deleted_session.term.code, deleted_session.title))
-        return HttpResponseRedirect(request.get_full_path())
-
-    return render(request, 'administrators/sessions/delete_session_confirmation.html', {
-        'loggedin_user': request.user,
-        'current_sessions': sessions.filter(is_archived=False),
-        'archived_sessions': sessions.filter(is_archived=True),
-        'session': adminApi.get_session(session_slug, 'slug'),
-        'next': adminApi.get_next(request)
-    })
-
-
-# Jobs
-
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
-def show_job(request, session_slug, job_slug):
-    ''' Display job details '''
-    request = userApi.has_admin_access(request, Role.HR)
-    adminApi.can_req_parameters_access(request, 'job-app', ['next', 'p'])
-
-    return render(request, 'administrators/jobs/show_job.html', {
-        'loggedin_user': request.user,
-        'job': adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug),
-        'next': adminApi.get_next(request)
-    })
-
-
-@method_decorator([never_cache], name='dispatch')
-class PrepareJobs(LoginRequiredMixin, View):
-    ''' Display preparing jobs '''
-
-    @method_decorator(require_GET)
-    def get(self, request, *args, **kwargs):
-        request = userApi.has_admin_access(request)
-
-        year_q = request.GET.get('year')
-        term_q = request.GET.get('term')
-        code_q = request.GET.get('code')
-        number_q = request.GET.get('number')
-        section_q = request.GET.get('section')
-        instructor_first_name_q = request.GET.get('instructor_first_name')
-        instructor_last_name_q = request.GET.get('instructor_last_name')
-
-        job_list = adminApi.get_jobs()
-        if bool(year_q):
-            job_list = job_list.filter(session__year__icontains=year_q)
-        if bool(term_q):
-            job_list = job_list.filter(session__term__code__icontains=term_q)
-        if bool(code_q):
-            job_list = job_list.filter(course__code__name__icontains=code_q)
-        if bool(number_q):
-            job_list = job_list.filter(course__number__name__icontains=number_q)
-        if bool(section_q):
-            job_list = job_list.filter(course__section__name__icontains=section_q)
-        if bool(instructor_first_name_q):
-            job_list = job_list.filter(instructors__first_name__icontains=instructor_first_name_q)
-        if bool(instructor_last_name_q):
-            job_list = job_list.filter(instructors__last_name__icontains=instructor_last_name_q)
-
-        page = request.GET.get('page', 1)
-        paginator = Paginator(job_list, utils.TABLE_PAGE_SIZE)
-
-        try:
-            jobs = paginator.page(page)
-        except PageNotAnInteger:
-            jobs = paginator.page(1)
-        except EmptyPage:
-            jobs = paginator.page(paginator.num_pages)
-
-        for job in jobs:
-            job.worktag_setting = None
-            worktag_settings_filtered = WorktagSetting.objects.filter(application_id__in=[app.id for app in job.application_set.all()]).order_by('-updated_at')
-            if not job.worktag_setting and worktag_settings_filtered.exists():
-                job.worktag_setting = worktag_settings_filtered.first()
-
-        return render(request, 'administrators/jobs/prepare_jobs.html', {
-            'loggedin_user': request.user,
-            'jobs': jobs,
-            'total_jobs': len(job_list),
-            'new_next': adminApi.build_new_next(request),
-            'worktags': settings.WORKTAGS,
-            'save_worktag_setting_url': request.get_full_path(),
-            'delete_worktag_setting_url': reverse('administrators:delete_job_worktag_setting')
-        })
-
-    @method_decorator(require_POST)
-    def post(self, request, *args, **kwargs):
-        is_valid = valid_worktag_setting(request)
-        if is_valid:
-            jid, aid, program_info, worktag = get_worktag(request)
-            job = adminApi.get_job(jid)
-
-            create_objs = []
-            update_objs = []
-            update_fields = []
-            for app in job.application_set.all():
-                success = False
-
-                # Update Worktag Setting
-                ws_filtered = WorktagSetting.objects.filter(application_id=app.id, job_id=job.id)
-                if ws_filtered.exists():
-                    ws = ws_filtered.first()
-                    if not adminApi.compare_two_dicts_by_key(ws.program_info, program_info):
-                        ws.program_info = program_info
-                        update_fields.append('program_info')
-                    
-                    if ws.worktag != worktag:
-                        ws.worktag = worktag
-                        update_fields.append('worktag')
-                    
-                    if len(update_fields) > 0:
-                        update_objs.append(ws)
-                        success = True
-                else:
-                    create_objs.append(WorktagSetting(application_id=app.id, job_id=jid, program_info=program_info, worktag=worktag))
-                    success = True
-                
-                if success:
-                    adminApi.update_worktag_in_admin_docs(app, worktag, None)
-            
-            has_submitted = False
-            if len(create_objs) > 0:
-                WorktagSetting.objects.bulk_create(create_objs)
-                has_submitted = True
-            
-            if len(update_objs) > 0:
-                WorktagSetting.objects.bulk_update(update_objs, update_fields)
-                has_submitted = True
-
-            if has_submitted:
-                
-                messages.success(request, 'Success! Updated the Worktag Setting of applications in this Job (Job ID: {0})'.format(jid))
-        else:
-            messages.error(request, 'An error occurred. Your input values are not valid. Please try again.')
-
-        return HttpResponseRedirect(request.POST.get('next'))
-
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['POST'])
-def delete_job_worktag_setting(request):
-    jid = request.POST['job']
-    job = adminApi.get_job(jid)
-
-    deleted = WorktagSetting.objects.filter(job_id=jid).delete()
-    if deleted[0] == job.application_set.count():
-        messages.success(request, 'Success! Deleted the Worktag Setting of applications in this Job (Job ID: {0})'.format(jid))
-    elif deleted[0] < job.application_set.count():
-        messages.warning(request, 'Warning! There are some undeleted applications in this Job (Job ID: {0})'.format(jid))
-    else:
-        messages.error(request, 'An error occurred. Failed to delete the Worktag Setting of applications in this Job (Job ID: {0}). Please try again.'.format(jid))
-    
-    return HttpResponseRedirect(request.POST.get('next'))
-
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['POST'])
-def delete_app_worktag_setting(request):
-    aid = request.POST['application']
-    deleted = WorktagSetting.objects.filter(application_id=aid).delete()
-    if deleted[0] == 1:
-        messages.success(request, 'Success! Deleted the Worktag Setting of this Application (Application ID: {0})'.format(aid))
-    else:
-        messages.error(request, 'An error occurred. Failed to delete the Worktag Setting of this Application (Application ID: {0}). Please try again.'.format(aid))
-    return HttpResponseRedirect(request.POST.get('next'))
-
-
-@method_decorator([never_cache], name='dispatch')
-class ProgressJobs(LoginRequiredMixin, View):
-    ''' See jobs in progress '''
-    
-    @method_decorator(require_GET)
-    def get(self, request, *args, **kwargs):
-        request = userApi.has_admin_access(request)
-
-        year_q = request.GET.get('year')
-        term_q = request.GET.get('term')
-        code_q = request.GET.get('code')
-        number_q = request.GET.get('number')
-        section_q = request.GET.get('section')
-
-        job_list = adminApi.get_jobs()
-        if bool(year_q):
-            job_list = job_list.filter(session__year__icontains=year_q)
-        if bool(term_q):
-            job_list = job_list.filter(session__term__code__icontains=term_q)
-        if bool(code_q):
-            job_list = job_list.filter(course__code__name__icontains=code_q)
-        if bool(number_q):
-            job_list = job_list.filter(course__number__name__icontains=number_q)
-        if bool(section_q):
-            job_list = job_list.filter(course__section__name__icontains=section_q)
-
-        page = request.GET.get('page', 1)
-        paginator = Paginator(job_list, utils.TABLE_PAGE_SIZE)
-
-        try:
-            jobs = paginator.page(page)
-        except PageNotAnInteger:
-            jobs = paginator.page(1)
-        except EmptyPage:
-            jobs = paginator.page(paginator.num_pages)
-
-        request.session['progress_jobs_next'] = request.get_full_path()
-
-        return render(request, 'administrators/jobs/progress_jobs.html', {
-            'loggedin_user': request.user,
-            'jobs': jobs,
-            'total_jobs': len(job_list),
-            'new_next': adminApi.build_new_next(request)
-        })
-
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
-def show_job_applications(request, session_slug, job_slug):
-    ''' Display a job's applications '''
-
-    request = userApi.has_admin_access(request)
-    job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
-    request.session['summary_applicants_next'] = request.get_full_path()
-
-    return render(request, 'administrators/jobs/show_job_applications.html', {
-        'loggedin_user': request.user,
-        'job': adminApi.add_job_with_applications_statistics(job),
-        'apps': job.application_set.all(),
-        'app_status': APP_STATUS,
-        'next': request.session.get('progress_jobs_next'),
-        'summary_of_applicants_link': reverse('administrators:summary_applicants', kwargs={'session_slug': job.session.slug, 'job_slug': job.course.slug}),
-        'new_next': adminApi.build_new_next(request)
-    })
-
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
-def summary_applicants(request, session_slug, job_slug):
-    ''' Display the summary of applicants in each session term '''
-
-    request = userApi.has_admin_access(request)
-
-    session, job, total_applicants, no_offers_applicants, applicants, searched_total_applicants = adminApi.get_summary_applicants(request, session_slug, job_slug)
-
-    return render(request, 'administrators/jobs/summary_applicants.html', {
-        'loggedin_user': request.user,
-        'session': session,
-        'job': job,
-        'total_applicants': total_applicants,
-        'total_no_offers_applicants': len(no_offers_applicants),
-        'applicants': applicants,
-        'searched_total_applicants': searched_total_applicants,
-        'next': request.session.get('summary_applicants_next')
-    })
-
-
-@method_decorator([never_cache], name='dispatch')
-class InstructorJobs(LoginRequiredMixin, View):
-    ''' Display jobs by instructor '''
-
-    @method_decorator(require_GET)
-    def get(self, request, *args, **kwargs):    
-        request = userApi.has_admin_access(request)
-
-        first_name_q = request.GET.get('first_name')
-        last_name_q = request.GET.get('last_name')
-        preferred_name_q = request.GET.get('preferred_name')
-        cwl_q = request.GET.get('cwl')
-
-        user_list = userApi.get_instructors()
-        if bool(first_name_q):
-            user_list = user_list.filter(first_name__icontains=first_name_q)
-        if bool(last_name_q):
-            user_list = user_list.filter(last_name__icontains=last_name_q)
-        if bool(preferred_name_q):
-            user_list = user_list.filter(profile__preferred_name__icontains=preferred_name_q)
-        if bool(cwl_q):
-            user_list = user_list.filter(username__icontains=cwl_q)
-
-        page = request.GET.get('page', 1)
-        paginator = Paginator(user_list, utils.TABLE_PAGE_SIZE)
-
-        try:
-            users = paginator.page(page)
-        except PageNotAnInteger:
-            users = paginator.page(1)
-        except EmptyPage:
-            users = paginator.page(paginator.num_pages)
-
-        for user in users:
-            user.total_applicants = adminApi.add_total_applicants(user)
-
-        return render(request, 'administrators/jobs/instructor_jobs.html', {
-            'loggedin_user': request.user,
-            'users': users,
-            'total_users': len(user_list),
-            'new_next': adminApi.build_new_next(request)
-        })
-
-
-@method_decorator([never_cache], name='dispatch')
-class StudentJobs(LoginRequiredMixin, View):
-    ''' Display jobs by student '''
-
-    @method_decorator(require_GET)
-    def get(self, request, *args, **kwargs):
-        request = userApi.has_admin_access(request)
-
-        first_name_q = request.GET.get('first_name')
-        last_name_q = request.GET.get('last_name')
-        preferred_name_q = request.GET.get('preferred_name')
-        cwl_q = request.GET.get('cwl')
-
-        user_list = userApi.get_users()
-        if bool(first_name_q):
-            user_list = user_list.filter(first_name__icontains=first_name_q)
-        if bool(last_name_q):
-            user_list = user_list.filter(last_name__icontains=last_name_q)
-        if bool(preferred_name_q):
-            user_list = user_list.filter(profile__preferred_name__icontains=preferred_name_q)
-        if bool(cwl_q):
-            user_list = user_list.filter(username__icontains=cwl_q)
-
-        user_list = user_list.filter(profile__roles__name=Role.STUDENT)
-
-        page = request.GET.get('page', 1)
-        paginator = Paginator(user_list, utils.TABLE_PAGE_SIZE)
-
-        try:
-            users = paginator.page(page)
-        except PageNotAnInteger:
-            users = paginator.page(1)
-        except EmptyPage:
-            users = paginator.page(paginator.num_pages)
-
-        for user in users:
-            user.gta = userApi.get_gta_flag(user)
-
-        return render(request, 'administrators/jobs/student_jobs.html', {
-            'loggedin_user': request.user,
-            'users': users,
-            'total_users': len(user_list),
-            'new_next': adminApi.build_new_next(request)
-        })
-
-
-@method_decorator([never_cache], name='dispatch')
-class InstructorJobsDetails(LoginRequiredMixin, View):
-    ''' Display jobs that an instructor has '''
-    
-    def setup(self, request, *args, **kwargs):
-        setup = super().setup(request, *args, **kwargs)
-        username = kwargs.get('username', None)
-        if not username:
-            raise Http404
-        
-        self.username = username
-        return setup
-    
-    @method_decorator(require_GET)
-    def get(self, request, *args, **kwargs):
-        request = userApi.has_admin_access(request)
-        adminApi.can_req_parameters_access(request, 'job', ['next', 'p'])
-
-        user = userApi.get_user(self.username, 'username')
-        user.total_applicants = adminApi.add_total_applicants(user)
-        
-        jobs = []
-        for job in user.job_set.all():
-            apps = []
-            for app in job.application_set.all():
-                app.applicant.gta = userApi.get_gta_flag(app.applicant)
-                apps.append(app)
-            job.apps = apps
-            jobs.append(job)
-        user.jobs =jobs
-        
-        return render(request, 'administrators/jobs/instructor_jobs_details.html', {
-            'loggedin_user': request.user,
-            'user': userApi.add_avatar(user),
-            'next': adminApi.get_next(request),
-            'undergrad_status_id': userApi.get_undergraduate_status_id() 
-        })
-
-
-@method_decorator([never_cache], name='dispatch')
-class StudentJobsDetails(LoginRequiredMixin, View):
-    ''' Display jobs that an student has '''
-    
-    def setup(self, request, *args, **kwargs):
-        setup = super().setup(request, *args, **kwargs)
-        username = kwargs.get('username', None)
-        if not username:
-            raise Http404
-        
-        self.username = username
-        return setup
-    
-    @method_decorator(require_GET)
-    def get(self, request, *args, **kwargs):
-        request = userApi.has_admin_access(request)
-        adminApi.can_req_parameters_access(request, 'job-tab', ['next', 'p', 't'])
-
-        next = adminApi.get_next(request)
-        page = request.GET.get('p')
-
-        user = userApi.get_user(self.username, 'username')
-        apps = user.application_set.all()
-        apps = adminApi.add_app_info_into_applications(apps, ['offered', 'accepted', 'declined', 'cancelled'])
-
-        offered_apps = []
-        accepted_apps = []
-        for app in apps:
-            if app.offered:
-                offered_apps.append(app)
-
-            if adminApi.check_valid_accepted_app_or_not(app):
-                accepted_apps.append(app)
-
-        return render(request, 'administrators/jobs/student_jobs_details.html', {
-            'loggedin_user': request.user,
-            'user': userApi.add_avatar(user),
-            'total_assigned_hours': adminApi.get_total_assigned_hours_admin(apps),
-            'apps': apps,
-            'offered_apps': offered_apps,
-            'accepted_apps': accepted_apps,
-            'tab_urls': {
-                'all': adminApi.build_url(request.path, next, page, 'all'),
-                'offered': adminApi.build_url(request.path, next, page, 'offered'),
-                'accepted': adminApi.build_url(request.path, next, page, 'accepted')
-            },
-            'current_tab': request.GET.get('t'),
-            'app_status': APP_STATUS,
-            'next': next
-        })
-
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET', 'POST'])
-def edit_job(request, session_slug, job_slug):
-    ''' Edit a job '''
-    request = userApi.has_admin_access(request)
-    adminApi.can_req_parameters_access(request, 'job', ['next', 'p'])
-
-    job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
-    if request.method == 'POST':
-
-        # Check whether a next url is valid or not
-        adminApi.can_req_parameters_access(request, 'none', ['next'], 'POST')
-
-        form = AdminJobEditForm(request.POST, instance=job)
-        if form.is_valid():
-            updated_job = form.save(commit=False)
-            updated_job.updated_at = datetime.now()
-            updated_job.save()
-
-            if updated_job:
-                messages.success(request, 'Success! {0} {1} {2} {3} {4} updated'.format(updated_job.session.year, updated_job.session.term.code, updated_job.course.code.name, updated_job.course.number.name, updated_job.course.section.name))
-                return HttpResponseRedirect(request.POST.get('next'))
-            else:
-                messages.error(request, 'An error occurred while updating a job.')
-        else:
-            errors = form.errors.get_json_data()
-            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
-
-        return HttpResponseRedirect(request.get_full_path())
-
-    return render(request, 'administrators/jobs/edit_job.html', {
-        'loggedin_user': request.user,
-        'job': job,
-        'instructors': job.instructors.all(),
-        'form': AdminJobEditForm(data=None, instance=job),
-        'next': adminApi.get_next(request)
-    })
-
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
-def search_instructors(request):
-    ''' Search job instructors '''
-    request = userApi.has_admin_access(request)
-
-    if request.method == 'GET':
-        instructors = userApi.get_instructors()
-        username = request.GET.get('username')
-
-        data = []
-        if bool(username) == True:
-            job = adminApi.get_job_by_session_slug_job_slug(request.GET.get('session_slug'), request.GET.get('job_slug'))
-            for ins in instructors.filter( Q(username__icontains=username) & ~Q(pk__in=[ins.id for ins in job.instructors.all()]) ):
-                data.append({
-                    'id': ins.id,
-                    'username': ins.username,
-                    'first_name': ins.first_name,
-                    'last_name': ins.last_name
-                })
-        return JsonResponse({ 'data': data, 'status': 'success' }, safe=False)
-    return JsonResponse({ 'data': [], 'status': 'error' }, safe=False)
-
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['POST'])
-def add_job_instructors(request, session_slug, job_slug):
-    ''' Add job instructors '''
-    request = userApi.has_admin_access(request)
-    if request.method == 'POST':
-        job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
-
-        form = InstructorUpdateForm(request.POST)
-        if form.is_valid():
-            instructor = form.cleaned_data['instructors']
-            instructors_ids = [ ins.id for ins in job.instructors.all() ]
-            if int(request.POST.get('instructors')) in instructors_ids:
-                return JsonResponse({ 'status': 'error', 'message': 'An error occurred. Instructor {0} ({1})is already added int this job.'.format(instructor.first().username, instructor.first().get_full_name()) })
-
-            if adminApi.add_job_instructors(job, form.cleaned_data['instructors']):
-                return JsonResponse({
-                    'status': 'success',
-                    'user': {
-                        'id': instructor.first().id,
-                        'username': instructor.first().username,
-                        'first_name': instructor.first().first_name,
-                        'last_name': instructor.first().last_name
-                    },
-                    'data': {
-                        'delete_url': reverse('administrators:delete_job_instructors', args=[session_slug, job_slug]),
-                        'csrfmiddlewaretoken': request.POST.get('csrfmiddlewaretoken')
-                    },
-                    'message': 'Success! Instructor {0} added.'.format(instructor.first().username)
-                })
-
-            return JsonResponse({
-                'status': 'error',
-                'message': 'An error occurred while adding an instructor into a job.'
-            })
-        else:
-            errors = form.errors.get_json_data()
-            return JsonResponse({ 'status': 'error', 'message': 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ) })
-    return JsonResponse({ 'status': 'error', 'message': 'Request method is not POST.' })
-
-
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['POST'])
-def delete_job_instructors(request, session_slug, job_slug):
-    ''' Delete job instructors '''
-    request = userApi.has_admin_access(request)
-    if request.method == 'POST':
-        job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
-
-        if job.instructors.count() == 0:
-            return JsonResponse({ 'status': 'error', 'message': 'An error occurred. Instructors are empty.' })
-
-        form = InstructorUpdateForm(request.POST);
-        if form.is_valid():
-            instructor = form.cleaned_data['instructors']
-            instructors_ids = [ ins.id for ins in job.instructors.all() ]
-            if int(request.POST.get('instructors')) not in instructors_ids:
-                return JsonResponse({ 'status': 'error', 'message': 'An error occurred. No instructor {0} {1} exists.'.format(instructor.first().username, instructor.first().get_full_name()) })
-
-            if adminApi.remove_job_instructors(job, instructor):
-                return JsonResponse({
-                    'status': 'success',
-                    'username': instructor.first().username,
-                    'message': 'Success! Instructor {0} removed.'.format(instructor.first().username)
-                })
-            return JsonResponse({ 'status': 'error', 'message': 'An error occurred while removing an instructor into a job.' })
-        else:
-            errors = form.errors.get_json_data()
-            return JsonResponse({ 'status': 'error', 'message': 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ) })
-    return JsonResponse({ 'status': 'error', 'message': 'Request method is not POST.' })
 
 
 # Applications
@@ -1221,7 +87,7 @@ class ShowApplication(LoginRequiredMixin, View):
 
     @method_decorator(require_GET)
     def get(self, request, *args, **kwargs):
-        request = userApi.has_admin_access(request, Role.HR)
+        request = userApi.has_admin_access(request, utils.HR)
         adminApi.can_req_parameters_access(request, 'app', ['next', 'p'])
 
         return render(request, 'administrators/applications/show_application.html', {
@@ -1277,7 +143,7 @@ class ApplicationsDashboard(LoginRequiredMixin, View):
             'loggedin_user': request.user,
             'statuses': statuses,
             'total_statuses': len(status_list),
-            'app_status': APP_STATUS,
+            'app_status': utils.APP_STATUS,
             'new_next': adminApi.build_new_next(request)
         })
 
@@ -1303,8 +169,8 @@ class AllApplications(LoginRequiredMixin, View):
             apps = paginator.page(paginator.num_pages)
 
         for app in apps:
-            app.applicant.gta = userApi.get_gta_flag(app.applicant)
-            app.applicant.preferred_candidate = userApi.get_preferred_candidate(app)
+            # app.applicant.gta = userApi.get_gta_flag(app.applicant)
+            # app.applicant.preferred_candidate = userApi.get_preferred_candidate(app)
             app.can_reset = adminApi.app_can_reset(app)
             app.confi_info_expiry_status = userApi.get_confidential_info_expiry_status(app.applicant)
 
@@ -1312,7 +178,7 @@ class AllApplications(LoginRequiredMixin, View):
             'loggedin_user': request.user,
             'apps': apps,
             'num_filtered_apps': info['num_filtered_apps'],
-            'app_status': APP_STATUS,
+            'app_status': utils.APP_STATUS,
             'new_next': adminApi.build_new_next(request),
             'this_year': utils.THIS_YEAR,
             'download_preferred_candidate_url': reverse('administrators:download_preferred_candidate')
@@ -1362,7 +228,7 @@ def download_preferred_candidate(request):
                 faculty = app.applicant.profile.faculty.name
 
         lfs_grad_or_others = userApi.get_lfs_grad_or_others(app.applicant)
-        prev_year_accepted_hours = adminApi.get_accepted_hours_from_previous_year(app)
+        prev_year_accepted_hours = adminApi.get_accepted_hours_from_previous_year(app.applicant, app.job.session.year)
 
         result += '{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11}\n'.format(
             app.job.session.year,
@@ -1404,7 +270,7 @@ def reset_application(request):
 
     reset_app_form = InstructorApplicationForm({ 'instructor_preference': instructor_preference })
     if reset_app_form.is_valid():
-        app_status_form = ApplicationStatusForm({ 'application': app_id, 'assigned': ApplicationStatus.NONE, 'assigned_hours': '0', 'has_contract_read': False })
+        app_status_form = ApplicationStatusForm({ 'application': app_id, 'assigned': utils.NONE, 'assigned_hours': '0', 'has_contract_read': False })
         if app_status_form:
             updated_app = adminApi.update_reset_application(app_id, instructor_preference)
             if updated_app:
@@ -1452,7 +318,7 @@ class SelectedApplications(LoginRequiredMixin, View):
         filtered_offered_apps = { 'num_offered': 0, 'num_not_offered': 0 }
         for app in apps:
             app.applicant.gta = userApi.get_gta_flag(app.applicant)
-            app.applicant.preferred_candidate = userApi.get_preferred_candidate(app)
+            # app.applicant.preferred_candidate = userApi.get_preferred_candidate(app)
             app.confi_info_expiry_status = userApi.get_confidential_info_expiry_status(app.applicant)
 
             assigned_hours = app.selected.assigned_hours
@@ -1470,7 +336,7 @@ class SelectedApplications(LoginRequiredMixin, View):
             }
 
             latest_status = adminApi.get_latest_status_in_app(app)
-            num_offers = app.applicationstatus_set.filter(assigned=ApplicationStatus.OFFERED).count()
+            num_offers = app.applicationstatus_set.filter(assigned=utils.OFFERED).count()
 
             if latest_status == 'selected' or latest_status == 'none':
                 if num_offers == 0: 
@@ -1518,7 +384,7 @@ class SelectedApplications(LoginRequiredMixin, View):
                 'num_not_offered': info['num_not_offered_apps']
             },
             'classification_choices': adminApi.get_classifications(),
-            'app_status': APP_STATUS,
+            'app_status': utils.APP_STATUS,
             'new_next': adminApi.build_new_next(request),
             'this_year': utils.THIS_YEAR,
             'worktags': settings.WORKTAGS,
@@ -1528,9 +394,9 @@ class SelectedApplications(LoginRequiredMixin, View):
 
     @method_decorator(require_POST)
     def post(self, request, *args, **kwargs):
-        is_valid = valid_worktag_setting(request)
+        is_valid = adminApi.valid_worktag_setting(request)
         if is_valid:
-            jid, aid, program_info, worktag = get_worktag(request)
+            jid, aid, program_info, worktag = adminApi.get_worktag(request)
             app = adminApi.get_application(aid)        
             success = False
 
@@ -1678,7 +544,7 @@ class OfferedApplications(LoginRequiredMixin, View):
         apps = adminApi.add_app_info_into_applications(apps, ['offered', 'accepted', 'declined'])
         for app in apps:
             app.applicant.gta = userApi.get_gta_flag(app.applicant)
-            app.applicant.preferred_candidate = userApi.get_preferred_candidate(app)
+            # app.applicant.preferred_candidate = userApi.get_preferred_candidate(app)
             app.confi_info_expiry_status = userApi.get_confidential_info_expiry_status(app.applicant)
 
         return render(request, 'administrators/applications/offered_applications.html', {
@@ -1696,7 +562,7 @@ class AcceptedApplications(LoginRequiredMixin, View):
 
     @method_decorator(require_GET)
     def get(self, request, *args, **kwargs):
-        request = userApi.has_admin_access(request, Role.HR)
+        request = userApi.has_admin_access(request, utils.HR)
 
         app_list, info = adminApi.get_applications_filter_limit(request, 'accepted')
 
@@ -1786,7 +652,7 @@ class AcceptedAppsReportWorkday(LoginRequiredMixin, View):
 
     @method_decorator(require_GET)
     def get(self, request, *args, **kwargs):
-        request = userApi.has_admin_access(request, Role.HR)
+        request = userApi.has_admin_access(request, utils.HR)
 
         app_list, total_apps = adminApi.get_accepted_app_report(request)
 
@@ -1917,7 +783,7 @@ class DeclinedApplications(LoginRequiredMixin, View):
             'apps': apps,
             'num_filtered_apps': info['num_filtered_apps'],
             'admin_emails': adminApi.get_admin_emails(),
-            'app_status': APP_STATUS,
+            'app_status': utils.APP_STATUS,
             'new_next': adminApi.build_new_next(request)
         })
 
@@ -1945,7 +811,7 @@ def email_history(request):
     if bool(type_q):
         email_list = email_list.filter(type__icontains=type_q)
     if bool(no_response_q):
-        email_list = email_list.filter(application__applicationstatus__assigned=ApplicationStatus.OFFERED).filter( ~Q(application__applicationstatus__assigned=ApplicationStatus.ACCEPTED) & ~Q(application__applicationstatus__assigned=ApplicationStatus.DECLINED) ).order_by('-id').distinct()
+        email_list = email_list.filter(application__applicationstatus__assigned=utils.OFFERED).filter( ~Q(application__applicationstatus__assigned=utils.ACCEPTED) & ~Q(application__applicationstatus__assigned=utils.DECLINED) ).order_by('-id').distinct()
 
     page = request.GET.get('page', 1)
     paginator = Paginator(email_list, utils.TABLE_PAGE_SIZE)
@@ -2081,11 +947,11 @@ def decline_reassign_confirmation(request):
         old_assigned_hours = request.POST.get('old_assigned_hours')
         new_assigned_hours = request.POST.get('new_assigned_hours')
         app = adminApi.get_application(app_id)
-        accepted_status = app.applicationstatus_set.filter(assigned=ApplicationStatus.ACCEPTED).last()
+        accepted_status = app.applicationstatus_set.filter(assigned=utils.ACCEPTED).last()
 
         status_form = ApplicationStatusReassignForm({
             'application': app_id,
-            'assigned': ApplicationStatus.DECLINED,
+            'assigned': utils.DECLINED,
             'assigned_hours': new_assigned_hours,
             'parent_id': accepted_status.id
         })
@@ -2228,7 +1094,7 @@ class TerminatedApplications(LoginRequiredMixin, View):
             'apps': apps,
             'num_filtered_apps': info['num_filtered_apps'],
             'admin_emails': adminApi.get_admin_emails(),
-            'app_status': APP_STATUS,
+            'app_status': utils.APP_STATUS,
             'new_next': adminApi.build_new_next(request)
         })
 
@@ -2368,7 +1234,7 @@ class AcceptedAppsReportAdmin(LoginRequiredMixin, View):
 
     @method_decorator(require_GET)
     def get(self, request, *args, **kwargs):
-        request = userApi.has_admin_access(request, Role.HR)
+        request = userApi.has_admin_access(request, utils.HR)
 
         apps, total_apps = adminApi.get_accepted_app_report(request)
 
@@ -4205,51 +3071,3 @@ def delete_landing_page(request):
             messages.error(request, 'An error occurred.')
     return redirect("administrators:landing_pages")
 
-
-# Utils
-
-def valid_worktag_setting(request):
-    valid_programs = [
-        ('program1', 'Program 1'), 
-        ('hours1', 'Program 1 Hours'), 
-        ('program2', 'Program 2'), 
-        ('hours2', 'Program 2 Hours'), 
-        ('total_hours', 'Total Hours')
-    ]
-    for field in valid_programs:
-        if not request.POST.get(field[0], None):
-            messages.error(request, 'An error occurred. This <strong>{0}</strong> field is required. Please try again.'.format(field[1]))
-            return False
-    
-    if request.POST['program1'] == request.POST['program2']:
-        return False
-    
-    return True
-
-
-def get_worktag(request):
-    jid = request.POST['job']
-    aid = request.POST.get('application', None)
-    
-    program1 = request.POST['program1'].split('-')
-    code1 = program1[1]
-    hours1 = request.POST['hours1']
-    program2 = request.POST['program2'].split('-')
-    code2 = program2[1]
-    hours2 = request.POST['hours2']
-    total_hours = request.POST['total_hours']
-    program_info = {
-        'name1': program1[0],
-        'code1': program1[1],
-        'hours1': hours1,
-        'name2': program2[0],
-        'code2': program2[1],
-        'hours2': hours2,
-        'total_hours': total_hours
-    }
-
-    p1_percentage = round(int(hours1) / int(total_hours) * 100, 1)
-    p2_percentage = round(int(hours2) / int(total_hours) * 100, 1)
-    worktag = '{0}% {1}, {2}% {3}'.format(p1_percentage, code1, p2_percentage, code2)
-    
-    return jid, aid, program_info, worktag

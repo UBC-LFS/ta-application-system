@@ -1,37 +1,12 @@
 from django.urls import path
 from . import views
+from . import session_views
+from . import job_views
 
 app_name = 'administrators'
 
 urlpatterns = [
     path('', views.Index.as_view(), name='index'),
-
-    path('sessions/create/confirmation/', views.CreateSessionConfirmation.as_view(), name='create_session_confirmation'),
-    path('sessions/create/setup-jobs/', views.CreateSessionSetupCourses.as_view(), name='create_session_setup_courses'),
-    path('sessions/create/', views.CreateSession.as_view(), name='create_session'),
-    path('sessions/<str:session_slug>/delete/confirmation/', views.delete_session_confirmation, name='delete_session_confirmation'),
-    path('sessions/<str:session_slug>/edit/', views.edit_session, name='edit_session'),
-    path('sessions/<str:session_slug>/details/', views.ShowSession.as_view(), name='show_session'),
-    path('sessions/<str:session_slug>/report/summary/', views.ShowReportSummary.as_view(), name='show_report_summary'),
-    path('sessions/<str:session_slug>/report/applicants/', views.ShowReportApplicants.as_view(), name='show_report_applicants'),
-    path('sessions/current/', views.CurrentSessions.as_view(), name='current_sessions'),
-    path('sessions/archived/', views.ArchivedSessions.as_view(), name='archived_sessions'),
-
-    path('jobs/prepare/', views.PrepareJobs.as_view(), name='prepare_jobs'),
-    path('jobs/progress/', views.ProgressJobs.as_view(), name='progress_jobs'),
-    path('jobs/student/', views.StudentJobs.as_view(), name='student_jobs'),
-    path('jobs/instructor/', views.InstructorJobs.as_view(), name='instructor_jobs'),
-    path('instructors/search/', views.search_instructors, name='search_instructors'),
-    path('instructors/<str:username>/jobs/', views.InstructorJobsDetails.as_view(), name='instructor_jobs_details'),
-    path('students/<str:username>/jobs/', views.StudentJobsDetails.as_view(), name='student_jobs_details'),
-    path('sessions/<str:session_slug>/jobs/<str:job_slug>/edit/', views.edit_job, name='edit_job'),
-    path('sessions/<str:session_slug>/jobs/<str:job_slug>/applications/', views.show_job_applications, name='show_job_applications'),
-    path('sessions/<str:session_slug>/jobs/<str:job_slug>/applicants/summary/', views.summary_applicants, name='summary_applicants'),
-    path('sessions/<str:session_slug>/jobs/<str:job_slug>/details/', views.show_job, name='show_job'),
-    path('sessions/<str:session_slug>/jobs/<str:job_slug>/instructors/add/', views.add_job_instructors, name='add_job_instructors'),
-    path('sessions/<str:session_slug>/jobs/<str:job_slug>/instructors/delete/', views.delete_job_instructors, name='delete_job_instructors'),
-    path('job/worktag_setting/delete/', views.delete_job_worktag_setting, name='delete_job_worktag_setting'),
-    path('app/worktag_setting/delete/', views.delete_app_worktag_setting, name='delete_app_worktag_setting'),
 
     path('applications/send_email/confirmation/', views.applications_send_email_confirmation, name='applications_send_email_confirmation'),
     path('applications/send_email/', views.applications_send_email, name='applications_send_email'),
@@ -126,4 +101,41 @@ urlpatterns = [
     path('preparation/landing-pages/delete/', views.delete_landing_page, name='delete_landing_page'),
     path('preparation/landing-pages/<int:landing_page_id>/edit/', views.edit_landing_page, name='edit_landing_page'),
     path('preparation/landing-pages/', views.landing_pages, name='landing_pages')
+]
+
+
+# Session
+
+urlpatterns += [
+    path('sessions/create/confirmation/', session_views.CreateSessionConfirmation.as_view(), name='create_session_confirmation'),
+    path('sessions/create/setup-jobs/', session_views.CreateSessionSetupCourses.as_view(), name='create_session_setup_courses'),
+    path('sessions/create/', session_views.CreateSession.as_view(), name='create_session'),
+    path('sessions/<str:session_slug>/delete/confirmation/', session_views.delete_session_confirmation, name='delete_session_confirmation'),
+    path('sessions/<str:session_slug>/edit/', session_views.edit_session, name='edit_session'),
+    path('sessions/<str:session_slug>/details/', session_views.ShowSession.as_view(), name='show_session'),
+    path('sessions/<str:session_slug>/report/summary/', session_views.ShowReportSummary.as_view(), name='show_report_summary'),
+    path('sessions/<str:session_slug>/report/applicants/', session_views.ShowReportApplicants.as_view(), name='show_report_applicants'),
+    path('sessions/current/', session_views.CurrentSessions.as_view(), name='current_sessions'),
+    path('sessions/archived/', session_views.ArchivedSessions.as_view(), name='archived_sessions')
+]
+
+
+# Job
+
+urlpatterns += [
+    path('jobs/prepare/', job_views.PrepareJobs.as_view(), name='prepare_jobs'),
+    path('jobs/progress/', job_views.ProgressJobs.as_view(), name='progress_jobs'),
+    path('jobs/student/', job_views.StudentJobs.as_view(), name='student_jobs'),
+    path('jobs/instructor/', job_views.InstructorJobs.as_view(), name='instructor_jobs'),
+    path('instructors/search/', job_views.search_instructors, name='search_instructors'),
+    path('instructors/<str:username>/jobs/', job_views.InstructorJobsDetails.as_view(), name='instructor_jobs_details'),
+    path('students/<str:username>/jobs/', job_views.StudentJobsDetails.as_view(), name='student_jobs_details'),
+    path('sessions/<str:session_slug>/jobs/<str:job_slug>/edit/', job_views.edit_job, name='edit_job'),
+    path('sessions/<str:session_slug>/jobs/<str:job_slug>/applications/', job_views.show_job_applications, name='show_job_applications'),
+    path('sessions/<str:session_slug>/jobs/<str:job_slug>/applicants/summary/', job_views.SummaryApplicants.as_view(), name='summary_applicants'),
+    path('sessions/<str:session_slug>/jobs/<str:job_slug>/details/', job_views.show_job, name='show_job'),
+    path('sessions/<str:session_slug>/jobs/<str:job_slug>/instructors/add/', job_views.add_job_instructors, name='add_job_instructors'),
+    path('sessions/<str:session_slug>/jobs/<str:job_slug>/instructors/delete/', job_views.delete_job_instructors, name='delete_job_instructors'),
+    path('job/worktag_setting/delete/', job_views.delete_job_worktag_setting, name='delete_job_worktag_setting'),
+    path('app/worktag_setting/delete/', job_views.delete_app_worktag_setting, name='delete_app_worktag_setting')
 ]

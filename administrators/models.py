@@ -6,6 +6,8 @@ from django.utils.translation import gettext_lazy as _
 
 import datetime as dt
 
+from ta_app import utils
+
 
 class Term(models.Model):
     """ Create a Term model """
@@ -221,16 +223,11 @@ class ApplicationStatus(models.Model):
     # Updates
     Cancelled = Terminated
     '''
-    NONE = '0'
-    SELECTED = '1'
-    OFFERED = '2'
-    ACCEPTED = '3'
-    DECLINED = '4'
-    CANCELLED = '5'
-    ASSSIGNED_CHOICES = [(NONE, 'None'), (SELECTED, 'Selected'), (OFFERED, 'Offered'), (ACCEPTED, 'Accepted'), (DECLINED, 'Declined'), (CANCELLED, 'Cancelled')]
+    
+    ASSSIGNED_CHOICES = [(utils.NONE, 'None'), (utils.SELECTED, 'Selected'), (utils.OFFERED, 'Offered'), (utils.ACCEPTED, 'Accepted'), (utils.DECLINED, 'Declined'), (utils.CANCELLED, 'Cancelled')]
 
     application = models.ForeignKey(Application, on_delete=models.CASCADE)
-    assigned = models.CharField(max_length=1, choices=ASSSIGNED_CHOICES, default=NONE)
+    assigned = models.CharField(max_length=1, choices=ASSSIGNED_CHOICES, default=utils.NONE)
     assigned_hours = models.FloatField(
         default=0.0,
         validators=[MaxValueValidator(4000)]

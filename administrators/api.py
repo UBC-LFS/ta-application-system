@@ -342,7 +342,7 @@ def get_filtered_accepted_apps(apps=None):
     if apps == None:
         apps = get_accepted_apps_not_terminated()
 
-    excluded_apps = apps.filter( Q(is_declined_reassigned=True) & Q(applicationstatus__assigned=ApplicationStatus.DECLINED) )
+    excluded_apps = apps.filter( Q(is_declined_reassigned=True) & Q(applicationstatus__assigned=utils.DECLINED) )
 
     excluded_ids = []
     for app in excluded_apps:
@@ -546,7 +546,7 @@ def get_applications_user(user):
 
 def create_application_status(app):
     ''' Create a status of an application '''
-    app_status = ApplicationStatus.objects.create(application=app, assigned=ApplicationStatus.NONE, assigned_hours=0.0)
+    app_status = ApplicationStatus.objects.create(application=app, assigned=utils.NONE, assigned_hours=0.0)
     return app_status if app_status else None
 
 
@@ -555,13 +555,13 @@ def app_can_reset(app):
     can_reset = False
     num_reset = app.applicationreset_set.count()
 
-    if (app.applicationstatus_set.filter(assigned=ApplicationStatus.NONE).count() > num_reset) and (app.applicationstatus_set.filter(assigned=ApplicationStatus.SELECTED).count() > num_reset):
+    if (app.applicationstatus_set.filter(assigned=utils.NONE).count() > num_reset) and (app.applicationstatus_set.filter(assigned=utils.SELECTED).count() > num_reset):
         last_status = app.applicationstatus_set.last()
-        if last_status.assigned == ApplicationStatus.SELECTED:
+        if last_status.assigned == utils.SELECTED:
             can_reset = True
-        elif last_status.assigned == ApplicationStatus.DECLINED and last_status.parent_id == None:
+        elif last_status.assigned == utils.DECLINED and last_status.parent_id == None:
             can_reset = True
-        elif last_status.assigned == ApplicationStatus.CANCELLED and app.is_terminated == True:
+        elif last_status.assigned == utils.CANCELLED and app.is_terminated == True:
             can_reset = True
 
     return can_reset
@@ -576,32 +576,32 @@ def add_app_info_into_application(app, list):
 
     if 'applied' in list:
         app.applied = None
-        applied = app.applicationstatus_set.filter(assigned=ApplicationStatus.NONE)
+        applied = app.applicationstatus_set.filter(assigned=utils.NONE)
         if applied.exists(): app.applied = applied.first()
 
     if 'selected' in list:
         app.selected = None
-        selected = app.applicationstatus_set.filter(assigned=ApplicationStatus.SELECTED)
+        selected = app.applicationstatus_set.filter(assigned=utils.SELECTED)
         if selected.exists(): app.selected = selected.first()
 
     if 'offered' in list:
         app.offered = None
-        offered = app.applicationstatus_set.filter(assigned=ApplicationStatus.OFFERED)
+        offered = app.applicationstatus_set.filter(assigned=utils.OFFERED)
         if offered.exists(): app.offered = offered.last()
 
     if 'accepted' in list:
         app.accepted = None
-        accepted = app.applicationstatus_set.filter(assigned=ApplicationStatus.ACCEPTED)
+        accepted = app.applicationstatus_set.filter(assigned=utils.ACCEPTED)
         if accepted.exists(): app.accepted = accepted.last()
 
     if 'declined' in list:
         app.declined = None
-        declined = app.applicationstatus_set.filter(assigned=ApplicationStatus.DECLINED)
+        declined = app.applicationstatus_set.filter(assigned=utils.DECLINED)
         if declined.exists(): app.declined = declined.last()
 
     if 'cancelled' in list:
         app.cancelled = None
-        cancelled = app.applicationstatus_set.filter(assigned=ApplicationStatus.CANCELLED)
+        cancelled = app.applicationstatus_set.filter(assigned=utils.CANCELLED)
         if cancelled.exists(): app.cancelled = cancelled.last()
 
     return app
@@ -616,32 +616,32 @@ def add_app_info_into_applications(apps, list):
 
         if 'applied' in list:
             app.applied = None
-            applied = app.applicationstatus_set.filter(assigned=ApplicationStatus.NONE)
+            applied = app.applicationstatus_set.filter(assigned=utils.NONE)
             if applied.exists(): app.applied = applied.last()
 
         if 'selected' in list:
             app.selected = None
-            selected = app.applicationstatus_set.filter(assigned=ApplicationStatus.SELECTED)
+            selected = app.applicationstatus_set.filter(assigned=utils.SELECTED)
             if selected.exists(): app.selected = selected.last()
 
         if 'offered' in list:
             app.offered = None
-            offered = app.applicationstatus_set.filter(assigned=ApplicationStatus.OFFERED)
+            offered = app.applicationstatus_set.filter(assigned=utils.OFFERED)
             if offered.exists(): app.offered = offered.last()
 
         if 'accepted' in list:
             app.accepted = None
-            accepted = app.applicationstatus_set.filter(assigned=ApplicationStatus.ACCEPTED)
+            accepted = app.applicationstatus_set.filter(assigned=utils.ACCEPTED)
             if accepted.exists(): app.accepted = accepted.last()
 
         if 'declined' in list:
             app.declined = None
-            declined = app.applicationstatus_set.filter(assigned=ApplicationStatus.DECLINED)
+            declined = app.applicationstatus_set.filter(assigned=utils.DECLINED)
             if declined.exists(): app.declined = declined.last()
 
         if 'cancelled' in list:
             app.cancelled = None
-            cancelled = app.applicationstatus_set.filter(assigned=ApplicationStatus.CANCELLED)
+            cancelled = app.applicationstatus_set.filter(assigned=utils.CANCELLED)
             if cancelled.exists(): app.cancelled = cancelled.last()
 
     return apps
@@ -706,7 +706,7 @@ def get_accepted_apps_by_day(apps, when):
         day = date.today() - timedelta(days=7)
         query = Q(applicationstatus__created_at__gte=day)
 
-    apps = apps.filter( Q(applicationstatus__assigned=ApplicationStatus.ACCEPTED) & Q(is_terminated=False) & query ).order_by('-id').distinct()
+    apps = apps.filter( Q(applicationstatus__assigned=utils.ACCEPTED) & Q(is_terminated=False) & query ).order_by('-id').distinct()
 
     return add_app_info_into_applications(apps, ['accepted']), day
 
@@ -758,16 +758,16 @@ def get_applications_filter_limit(request, status):
     today = None
 
     if status == 'selected':
-        apps = Application.objects.filter(applicationstatus__assigned=ApplicationStatus.SELECTED).order_by('-id').distinct()
+        apps = Application.objects.filter(applicationstatus__assigned=utils.SELECTED).order_by('-id').distinct()
 
         num_all_apps = apps.count()
         # adminApi.get_latest_status_in_app(app)
-        # count_offered_apps = Count('applicationstatus', filter=Q(applicationstatus__assigned=ApplicationStatus.OFFERED))
+        # count_offered_apps = Count('applicationstatus', filter=Q(applicationstatus__assigned=utils.OFFERED))
         # offered_apps = Application.objects.annotate(count_offered_apps=count_offered_apps).filter(count_offered_apps__gt=0)
         # num_offered_apps = offered_apps.count()
 
         latest = ApplicationStatus.objects.filter(application=OuterRef('pk')).order_by('-id')
-        not_offered_apps = apps.annotate(latest_app_status=Subquery(latest.values('assigned')[:1])).filter(latest_app_status=ApplicationStatus.SELECTED).order_by('-id')
+        not_offered_apps = apps.annotate(latest_app_status=Subquery(latest.values('assigned')[:1])).filter(latest_app_status=utils.SELECTED).order_by('-id')
         num_not_offered_apps = not_offered_apps.count()
 
     elif status == 'accepted':
@@ -833,19 +833,19 @@ def get_applications_filter_limit(request, status):
         offer_status = request.GET.get('offer_status')
         if bool(offer_status):
             if offer_status == 'offered':
-                # apps = apps.filter(applicationstatus__assigned=ApplicationStatus.OFFERED)
+                # apps = apps.filter(applicationstatus__assigned=utils.OFFERED)
                 apps = apps.annotate(latest_app_status=Subquery(latest.values('assigned')[:1]))
                 apps = apps.difference(not_offered_apps).order_by('-id')
 
             if offer_status == 'not_offered':
-                # apps = apps.filter( ~Q(applicationstatus__assigned=ApplicationStatus.OFFERED) )
-                apps = apps.annotate(latest_app_status=Subquery(latest.values('assigned')[:1])).filter(latest_app_status=ApplicationStatus.SELECTED).order_by('-id')
+                # apps = apps.filter( ~Q(applicationstatus__assigned=utils.OFFERED) )
+                apps = apps.annotate(latest_app_status=Subquery(latest.values('assigned')[:1])).filter(latest_app_status=utils.SELECTED).order_by('-id')
 
     elif status == 'offered':
         if bool( request.GET.get('no_response') ):
-            apps = apps.filter(applicationstatus__assigned=ApplicationStatus.OFFERED).filter( ~Q(applicationstatus__assigned=ApplicationStatus.ACCEPTED) & ~Q(applicationstatus__assigned=ApplicationStatus.DECLINED) ).order_by('-id').distinct()
+            apps = apps.filter(applicationstatus__assigned=utils.OFFERED).filter( ~Q(applicationstatus__assigned=utils.ACCEPTED) & ~Q(applicationstatus__assigned=utils.DECLINED) ).order_by('-id').distinct()
         else:
-            apps = apps.filter(applicationstatus__assigned=ApplicationStatus.OFFERED).order_by('-id').distinct()
+            apps = apps.filter(applicationstatus__assigned=utils.OFFERED).order_by('-id').distinct()
 
     elif status == 'accepted':
         processed_q = request.GET.get('processed')
@@ -865,7 +865,7 @@ def get_applications_filter_limit(request, status):
         apps = get_filtered_accepted_apps(apps)
 
     elif status == 'declined':
-        apps = apps.filter(applicationstatus__assigned=ApplicationStatus.DECLINED).order_by('-id').distinct()
+        apps = apps.filter(applicationstatus__assigned=utils.DECLINED).order_by('-id').distinct()
 
     return apps, {
         'num_all_apps': num_all_apps,
@@ -897,27 +897,27 @@ def get_application_statuses():
 
 def get_applied(app):
     ''' Get an application selected '''
-    applied_app = app.applicationstatus_set.filter(assigned=ApplicationStatus.NONE)
+    applied_app = app.applicationstatus_set.filter(assigned=utils.NONE)
     if applied_app.exists(): return applied_app.last()
     return False
 
 
 def get_selected(app):
     ''' Get an application selected '''
-    selected_app = app.applicationstatus_set.filter(assigned=ApplicationStatus.SELECTED)
+    selected_app = app.applicationstatus_set.filter(assigned=utils.SELECTED)
     if selected_app.exists(): return selected_app.last()
     return False
 
 
 def get_offered(app):
     ''' Get an application offered '''
-    offered_app = app.applicationstatus_set.filter(assigned=ApplicationStatus.OFFERED)
+    offered_app = app.applicationstatus_set.filter(assigned=utils.OFFERED)
     if offered_app.exists(): return offered_app.last()
     return False
 
 def get_accepted(app):
     ''' Get an application accepted '''
-    accepted_app = app.applicationstatus_set.filter(assigned=ApplicationStatus.ACCEPTED)
+    accepted_app = app.applicationstatus_set.filter(assigned=utils.ACCEPTED)
     if accepted_app.exists(): return accepted_app.last()
     return False
 
@@ -925,13 +925,13 @@ def get_accepted(app):
 def get_accepted_apps_not_terminated(apps=None):
     ''' Get accepted applications '''
     if apps == None:
-        return Application.objects.filter( Q(applicationstatus__assigned=ApplicationStatus.ACCEPTED) & Q(is_terminated=False) ).order_by('-id').distinct()
-    return apps.filter( Q(applicationstatus__assigned=ApplicationStatus.ACCEPTED) & Q(is_terminated=False) ).order_by('-id').distinct()
+        return Application.objects.filter( Q(applicationstatus__assigned=utils.ACCEPTED) & Q(is_terminated=False) ).order_by('-id').distinct()
+    return apps.filter( Q(applicationstatus__assigned=utils.ACCEPTED) & Q(is_terminated=False) ).order_by('-id').distinct()
 
 
 def get_declined(app):
     ''' Get an application declined '''
-    declined_app = app.applicationstatus_set.filter(assigned=ApplicationStatus.DECLINED)
+    declined_app = app.applicationstatus_set.filter(assigned=utils.DECLINED)
     if declined_app.exists(): return declined_app.last()
     return False
 
@@ -941,13 +941,13 @@ def get_applications_with_multiple_ids_by_path(ids, path):
     apps = get_applications_with_multiple_ids(ids)
     for app in apps:
         if path == 'Offered Applications':
-            offered = app.applicationstatus_set.filter(assigned=ApplicationStatus.OFFERED)
+            offered = app.applicationstatus_set.filter(assigned=utils.OFFERED)
             if offered.exists(): app.offered = offered.last()
         elif path == 'Declined Applications':
-            declined = app.applicationstatus_set.filter(assigned=ApplicationStatus.DECLINED)
+            declined = app.applicationstatus_set.filter(assigned=utils.DECLINED)
             if declined.exists(): app.declined = declined.last()
         elif path == 'Terminated Applications':
-            accepted = app.applicationstatus_set.filter(assigned=ApplicationStatus.ACCEPTED)
+            accepted = app.applicationstatus_set.filter(assigned=utils.ACCEPTED)
             if accepted.exists(): app.accepted = accepted.last()
 
     return apps
@@ -987,7 +987,7 @@ def bulk_update_admin_docs(data, user):
     csv_reader = csv.reader(data, quotechar='"', delimiter=',')
 
     apps = get_applications()
-    apps = apps.filter( Q(applicationstatus__assigned=ApplicationStatus.ACCEPTED) & Q(is_terminated=False) ).order_by('-id').distinct()
+    apps = apps.filter( Q(applicationstatus__assigned=utils.ACCEPTED) & Q(is_terminated=False) ).order_by('-id').distinct()
     accepted_ids = [ app.id for app in apps ]
 
     rows = []
@@ -1128,14 +1128,14 @@ def bulk_update_admin_docs(data, user):
 def get_today_accepted_apps():
     ''' Get accepted application in today '''
 
-    app_statuses = ApplicationStatus.objects.filter( Q(assigned=ApplicationStatus.ACCEPTED) & Q(created_at=date.today()) & Q(application__is_terminated=False) )
+    app_statuses = ApplicationStatus.objects.filter( Q(assigned=utils.ACCEPTED) & Q(created_at=date.today()) & Q(application__is_terminated=False) )
     return app_statuses if app_statuses.exists() else None
 
 
 def get_today_terminated_apps():
     ''' Get terminated application in today '''
 
-    app_statuses = ApplicationStatus.objects.filter( Q(application__is_terminated=True) & Q(assigned=ApplicationStatus.CANCELLED) & Q(created_at=date.today()) )
+    app_statuses = ApplicationStatus.objects.filter( Q(application__is_terminated=True) & Q(assigned=utils.CANCELLED) & Q(created_at=date.today()) )
     return app_statuses if app_statuses.exists() else None
 
 
@@ -1190,7 +1190,7 @@ def get_summary_applicants(request, session_slug, job_slug):
     for applicant in applicants:
         appls = applicant.application_set.filter( Q(job__session__year=session.year) & Q(job__session__term__code=session.term.code) )
 
-        count_offered_apps = Count('applicationstatus', filter=Q(applicationstatus__assigned=ApplicationStatus.OFFERED))
+        count_offered_apps = Count('applicationstatus', filter=Q(applicationstatus__assigned=utils.OFFERED))
         offered_apps = appls.annotate(count_offered_apps=count_offered_apps).filter(count_offered_apps__gt=0)
 
         applicant.no_offers = False
@@ -1462,10 +1462,10 @@ def update_worktag_in_admin_docs(app, new_worktag, processing_note):
                 AdminDocuments.objects.create(application_id=app.id, processing_note=processing_note)
 
 
-def get_accepted_hours_from_previous_year(app):
+def get_accepted_hours_from_previous_year(user, year):
     prev_year_apps = Application.objects.filter(
-        applicant = app.applicant, 
-        job__session__year = int(app.job.session.year) - 1
+        applicant = user, 
+        job__session__year = int(year) - 1
     )
 
     prev_year_assigned_hours = 0
@@ -1477,6 +1477,57 @@ def get_accepted_hours_from_previous_year(app):
             prev_year_assigned_hours += float(app.accepted.assigned_hours)
         
     return prev_year_assigned_hours
+
+
+from django.contrib import messages
+
+
+def valid_worktag_setting(request):
+    valid_programs = [
+        ('program1', 'Program 1'), 
+        ('hours1', 'Program 1 Hours'), 
+        ('program2', 'Program 2'), 
+        ('hours2', 'Program 2 Hours'), 
+        ('total_hours', 'Total Hours')
+    ]
+    for field in valid_programs:
+        if not request.POST.get(field[0], None):
+            messages.error(request, 'An error occurred. This <strong>{0}</strong> field is required. Please try again.'.format(field[1]))
+            return False
+    
+    if request.POST['program1'] == request.POST['program2']:
+        return False
+    
+    return True
+
+
+def get_worktag(request):
+    jid = request.POST['job']
+    aid = request.POST.get('application', None)
+    
+    program1 = request.POST['program1'].split('-')
+    code1 = program1[1]
+    hours1 = request.POST['hours1']
+    program2 = request.POST['program2'].split('-')
+    code2 = program2[1]
+    hours2 = request.POST['hours2']
+    total_hours = request.POST['total_hours']
+    program_info = {
+        'name1': program1[0],
+        'code1': program1[1],
+        'hours1': hours1,
+        'name2': program2[0],
+        'code2': program2[1],
+        'hours2': hours2,
+        'total_hours': total_hours
+    }
+
+    p1_percentage = round(int(hours1) / int(total_hours) * 100, 1)
+    p2_percentage = round(int(hours2) / int(total_hours) * 100, 1)
+    worktag = '{0}% {1}, {2}% {3}'.format(p1_percentage, code1, p2_percentage, code2)
+    
+    return jid, aid, program_info, worktag
+
 
 
 # end applications

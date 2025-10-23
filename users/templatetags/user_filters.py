@@ -2,24 +2,24 @@ from django import template
 from users import api as userApi
 from administrators import api as adminApi
 from administrators.models import ApplicationStatus
+from ta_app import utils
 
 register = template.Library()
 
 
 @register.filter
 def selected(app):
-    return app.applicationstatus_set.filter(assigned=ApplicationStatus.SELECTED).last()
+    return app.applicationstatus_set.filter(assigned=utils.SELECTED).last()
 
 
 @register.filter
 def resume(user):
-    usre = userApi.add_resume(user)
-    return user.resume_filename
+    return userApi.add_resume(user).resume_filename
 
 
 @register.filter
-def preferred_candidate(app):
-    return userApi.get_preferred_candidate(app)
+def preferred_candidate(user, year):
+    return userApi.get_preferred_candidate(user, year)
 
 
 @register.filter
@@ -28,5 +28,5 @@ def applicant_status_program(user):
 
 
 @register.filter
-def applicant_accepted_apps(app):
-    return adminApi.get_accepted_apps_in_applicant(app)
+def gta(user):
+    return userApi.get_gta_flag(user)

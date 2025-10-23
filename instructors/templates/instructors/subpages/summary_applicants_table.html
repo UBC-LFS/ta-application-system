@@ -1,0 +1,86 @@
+{% load user_filters %}
+
+<table
+  class="table table-bordered table-responsive-md text-center font-size-sm"
+  data-toggle="table"
+  data-sortable="true"
+  data-classes=""
+>
+  <thead>
+    <tr>
+      <th>Select<br /> to email</th>
+      <th>No Offers</th>
+      <th data-sortable="true">Full Name</th>
+      <th>CWL</th>
+      <th>Student <br /> Number</th>
+      <th>Curriculum <br /> Vitae (CV)</th>
+      <th>Email</th>
+      <th>Course & Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for applicant in applicants %}
+      {% with status_program=applicant|applicant_status_program %}
+        <tr class="bg-{{ status_program.highlight }}">
+          <td>
+            {% if applicant.has_applied == False %}
+              {% if applicant.is_sent_alertemail %}
+                <span class="badge badge-secondary">SENT</span>
+              {% else %}
+                <input type="checkbox" name="applicant" value="{{ applicant.id }}" disabled />
+              {% endif %}
+            {% endif %}
+          </td>
+          <td>
+            {% if applicant.no_offers %}
+              <span class="badge badge-warning">NO OFFERS</span>
+            {% endif %}
+          </td>
+          <td>
+            {% include 'users/subpages/display_preferred_candidate.html' with user=applicant year=session.year %}
+
+            {{ applicant.get_full_name }}
+          </td>
+          <td>
+            {{ applicant.username }}
+
+            {% if status_program.current_status %}
+              <span class="badge d-block mt-1">{{ status_program.current_status }}</span>
+            {% endif %}
+          </td>
+          <td>{{ applicant.profile.student_number }}</td>
+          <td>
+            {% include 'ta_app/users/_modal_degree_details.html' with data=applicant %}
+
+            {% with resume_filename=applicant|resume %}
+              {% if resume_filename %}
+                <a class="d-block mt-2" href="{% url 'students:download_file' username=applicant.username item='resume' filename=resume_filename %}" target="_blank">
+                  Resume
+                </a>
+              {% endif %}
+            {% endwith %}
+          </td>
+          <td>
+            <a href="mailto:{{ applicant.email }}">{{ applicant.email }}</a>
+          </td>
+          <td>
+              {% for app in applicant.apps %}
+                <div class="text-left my-1">
+                  <span class="font-weight-bold {% if app.has_applied %} text-danger {% endif %}">{{ app.course }}:</span>
+                  <span class="badge font-size-xs font-weight-normal">Applied on {{ app.applied.created_at }}</span>
+                  {% if app.accepted %}
+                    <br />
+                    <span class="badge badge-success font-size-xs font-weight-normal" style="margin-left:99px">Accepted on {{ app.accepted.created_at }}</span>
+                  {% endif %}
+                </div>
+              {% empty %}
+                None
+              {% endfor %}
+          </td>
+        </tr>
+      {% endwith %}
+    {% endfor %}
+  </tbody>
+</table>
+
+{% include 'ta_app/pages/_table_paginator.html' with data=applicants %}

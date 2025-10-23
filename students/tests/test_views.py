@@ -2875,7 +2875,7 @@ class StudentTest(TestCase):
         data1 = {
             'application': app.id,
             'assigned_hours': app.accepted.assigned_hours,
-            'assigned': ApplicationStatus.CANCELLED,
+            'assigned': utils.CANCELLED,
             'parent_id': app.accepted.id,
             'next': '/app/students/jobs/History/?page=2'
         }
@@ -2885,7 +2885,7 @@ class StudentTest(TestCase):
         data2 = {
             'application': app.id,
             'assigned_hours': app.accepted.assigned_hours,
-            'assigned': ApplicationStatus.CANCELLED,
+            'assigned': utils.CANCELLED,
             'parent_id': app.accepted.id,
             'next': reverse('students:history_jobs') + '?page=2'
         }

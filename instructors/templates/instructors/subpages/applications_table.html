@@ -1,4 +1,5 @@
 {% load static %}
+{% load admin_filters %}
 {% load user_filters %}
 
 <table
@@ -29,7 +30,7 @@
       {% with status_program=app.applicant|applicant_status_program %}
         <tr class="bg-{{ status_program.highlight }}">
           <td>
-            {% include 'users/subpages/display_preferred_candidate.html' %}
+            {% include 'users/subpages/display_preferred_candidate.html' with user=app.applicant year=app.job.session.year %}
 
             {{ app.applicant.get_full_name }}
 
@@ -148,7 +149,7 @@
                           <div class="prompt p-2 text-center">
                             <h4 class="mt-2">{{ app.applicant.get_full_name }}</h4>
 
-                            {% if app|preferred_candidate %}
+                            {% if app.applicant|preferred_candidate:app.job.session.year %}
                               <h5 class="mb-2">
                                 <span class="text-danger">Preferred Candidate</span>
                                 (<i class="fa fa-flag text-danger" aria-hidden="true"></i>)

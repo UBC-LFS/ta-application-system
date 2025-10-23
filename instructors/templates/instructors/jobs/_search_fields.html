@@ -18,6 +18,9 @@
       {% elif path == 'instructors_applications' %}
         <a class="btn btn-sm btn-light" href="{% url 'instructors:summary_applicants' session_slug=session_slug job_slug=job_slug %}">Clear</a>
 
+      {% elif path == 'administrators_applications' %}
+        <a class="btn btn-sm btn-light" href="{% url 'administrators:summary_applicants' session_slug=session.slug job_slug=job.course.slug %}">Clear</a>
+
       {% endif %}
     </div>
   </form>

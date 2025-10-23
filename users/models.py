@@ -23,13 +23,6 @@ import datetime as dt
 
 
 class Role(models.Model):
-    SUPERADMIN = 'Superadmin'
-    ADMIN = 'Admin'
-    HR = 'HR'
-    INSTRUCTOR = 'Instructor'
-    STUDENT = 'Student'
-    OBSERVER = 'Observer'
-
     name = models.CharField(max_length=256, unique=True)
     slug = models.SlugField(max_length=256, unique=True)
 

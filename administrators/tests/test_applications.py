@@ -410,7 +410,7 @@ class ApplicationTest(TestCase):
         data = {
             'application': app.id,
             'assigned_hours': app.accepted.assigned_hours,
-            'assigned': ApplicationStatus.CANCELLED,
+            'assigned': utils.CANCELLED,
             'parent_id': app.accepted.id,
             'next': reverse('students:history_jobs') + '?page=2'
         }
@@ -493,7 +493,7 @@ class ApplicationTest(TestCase):
                 edit.append(app.id)
             elif app.offer_modal['title'] == 'Re-offer':
                 available_reoffer.append(app.id)
-                if app.applicationstatus_set.last().assigned == ApplicationStatus.NONE:
+                if app.applicationstatus_set.last().assigned == utils.NONE:
                     cannot_reoffer.append(app.id)
                                  
         self.assertEqual(offer, [21, 17, 15, 14, 13, 9, 5, 4, 2])
@@ -523,7 +523,7 @@ class ApplicationTest(TestCase):
         self.assertIsNotNone(app)
         self.assertIsNotNone(app.selected)
         self.assertEqual(app.selected.id, 72)
-        self.assertEqual(app.selected.assigned, ApplicationStatus.SELECTED)
+        self.assertEqual(app.selected.assigned, utils.SELECTED)
         self.assertEqual(app.selected.created_at, datetime.date(2020, 10, 17))
 
         FULL_PATH = reverse('administrators:selected_applications') + '?page=1'
@@ -532,7 +532,7 @@ class ApplicationTest(TestCase):
             'note': 'this is a note',
             'assigned_hours': app.selected.assigned_hours,
             'application': app.id,
-            'assigned': ApplicationStatus.OFFERED,
+            'assigned': utils.OFFERED,
             'applicant': '100',
             'classification': '2',
             'offer_type': 'offer',
@@ -552,7 +552,7 @@ class ApplicationTest(TestCase):
 
         offered_app = adminApi.get_offered(app2)
         self.assertFalse(offered_app.has_contract_read)
-        self.assertTrue(offered_app.assigned, ApplicationStatus.OFFERED)
+        self.assertTrue(offered_app.assigned, utils.OFFERED)
         self.assertEqual(offered_app.assigned_hours, float(data['assigned_hours']))
 
 
@@ -567,7 +567,7 @@ class ApplicationTest(TestCase):
         self.assertIsNotNone(app)
         self.assertIsNotNone(applied_app)
         self.assertEqual(applied_app.id, 70)
-        self.assertEqual(applied_app.assigned, ApplicationStatus.NONE)
+        self.assertEqual(applied_app.assigned, utils.NONE)
         self.assertEqual(applied_app.created_at, datetime.date(2020, 9, 27))
 
         FULL_PATH = reverse('administrators:selected_applications') + '?page=1'
@@ -576,7 +576,7 @@ class ApplicationTest(TestCase):
             'note': 'this is a note',
             'assigned_hours': applied_app.assigned_hours,
             'application': app.id,
-            'assigned': ApplicationStatus.OFFERED,
+            'assigned': utils.OFFERED,
             'applicant': '70',
             'classification': '2',
             'offer_type': 'offer',
@@ -623,9 +623,9 @@ class ApplicationTest(TestCase):
         self.assertFalse(app2.is_terminated)
 
         expected2 = [
-            {'id': 5, 'assigned': ApplicationStatus.NONE, 'created_at': datetime.date(2019, 9, 1)},
-            {'id': 39, 'assigned': ApplicationStatus.SELECTED, 'created_at': datetime.date(2019, 9, 5)},
-            {'id': 80, 'assigned': ApplicationStatus.NONE, 'created_at': datetime.date.today()},
+            {'id': 5, 'assigned': utils.NONE, 'created_at': datetime.date(2019, 9, 1)},
+            {'id': 39, 'assigned': utils.SELECTED, 'created_at': datetime.date(2019, 9, 5)},
+            {'id': 80, 'assigned': utils.NONE, 'created_at': datetime.date.today()},
         ]
 
         count2 = 0
@@ -643,7 +643,7 @@ class ApplicationTest(TestCase):
         JOBS_NEXT = '?next=' + reverse('instructors:show_jobs') + '?page=2'
 
         data3 = {
-            'assigned': ApplicationStatus.SELECTED,
+            'assigned': utils.SELECTED,
             'application': app_id,
             'instructor_preference': Application.REQUESTED,
             'assigned_hours': 65
@@ -697,7 +697,7 @@ class ApplicationTest(TestCase):
         self.assertIsNotNone(app5)
         self.assertIsNotNone(app5.selected)
         self.assertEqual(app5.selected.id, 81)
-        self.assertEqual(app5.selected.assigned, ApplicationStatus.SELECTED)
+        self.assertEqual(app5.selected.assigned, utils.SELECTED)
         self.assertEqual(app5.selected.created_at, datetime.date.today())
 
         FULL_PATH = reverse('administrators:selected_applications') + '?page=1'
@@ -706,7 +706,7 @@ class ApplicationTest(TestCase):
             'note': 'this is a note',
             'assigned_hours': app5.selected.assigned_hours,
             'application': app5.id,
-            'assigned': ApplicationStatus.OFFERED,
+            'assigned': utils.OFFERED,
             'applicant': '66',
             'classification': '2',
             'offer_type': 'offer',
@@ -726,7 +726,7 @@ class ApplicationTest(TestCase):
 
         offered_app = adminApi.get_offered(app6)
         self.assertFalse(offered_app.has_contract_read)
-        self.assertTrue(offered_app.assigned, ApplicationStatus.OFFERED)
+        self.assertTrue(offered_app.assigned, utils.OFFERED)
         self.assertEqual(offered_app.assigned_hours, float(data5['assigned_hours']))
 
 
@@ -758,12 +758,12 @@ class ApplicationTest(TestCase):
         self.assertFalse(final_app.is_terminated)
 
         expected7 = [
-            {'id': 5, 'assigned': ApplicationStatus.NONE, 'created_at': datetime.date(2019, 9, 1)},
-            {'id': 39, 'assigned': ApplicationStatus.SELECTED, 'created_at': datetime.date(2019, 9, 5)},
-            {'id': 80, 'assigned': ApplicationStatus.NONE, 'created_at': datetime.date.today()},
-            {'id': 81, 'assigned': ApplicationStatus.SELECTED, 'created_at': datetime.date.today()},
-            {'id': 82, 'assigned': ApplicationStatus.OFFERED, 'created_at': datetime.date.today()},
-            {'id': 83, 'assigned': ApplicationStatus.ACCEPTED, 'created_at': datetime.date.today()},
+            {'id': 5, 'assigned': utils.NONE, 'created_at': datetime.date(2019, 9, 1)},
+            {'id': 39, 'assigned': utils.SELECTED, 'created_at': datetime.date(2019, 9, 5)},
+            {'id': 80, 'assigned': utils.NONE, 'created_at': datetime.date.today()},
+            {'id': 81, 'assigned': utils.SELECTED, 'created_at': datetime.date.today()},
+            {'id': 82, 'assigned': utils.OFFERED, 'created_at': datetime.date.today()},
+            {'id': 83, 'assigned': utils.ACCEPTED, 'created_at': datetime.date.today()},
         ]
         
         count5 = 0
@@ -808,11 +808,11 @@ class ApplicationTest(TestCase):
         self.assertFalse(app2.is_terminated)
 
         expected2 = [
-            {'id': 25, 'assigned': ApplicationStatus.NONE, 'created_at': datetime.date(2019, 9, 1)},
-            {'id': 31, 'assigned': ApplicationStatus.SELECTED, 'created_at': datetime.date(2019, 9, 5)},
-            {'id': 46, 'assigned': ApplicationStatus.OFFERED, 'created_at': datetime.date(2019, 9, 10)},
-            {'id': 58, 'assigned': ApplicationStatus.DECLINED, 'created_at': datetime.date(2019, 9, 20)},
-            {'id': 88, 'assigned': ApplicationStatus.NONE, 'created_at': datetime.date.today()}
+            {'id': 25, 'assigned': utils.NONE, 'created_at': datetime.date(2019, 9, 1)},
+            {'id': 31, 'assigned': utils.SELECTED, 'created_at': datetime.date(2019, 9, 5)},
+            {'id': 46, 'assigned': utils.OFFERED, 'created_at': datetime.date(2019, 9, 10)},
+            {'id': 58, 'assigned': utils.DECLINED, 'created_at': datetime.date(2019, 9, 20)},
+            {'id': 88, 'assigned': utils.NONE, 'created_at': datetime.date.today()}
         ]
 
         count2 = 0
@@ -829,7 +829,7 @@ class ApplicationTest(TestCase):
         JOBS_NEXT = '?next=' + reverse('instructors:show_jobs') + '?page=2'
 
         data3 = {
-            'assigned': ApplicationStatus.SELECTED,
+            'assigned': utils.SELECTED,
             'application': app_id,
             'instructor_preference': Application.REQUESTED,
             'assigned_hours': 65
@@ -883,7 +883,7 @@ class ApplicationTest(TestCase):
         self.assertIsNotNone(app5)
         self.assertIsNotNone(app5.selected)
         self.assertEqual(app5.selected.id, 89)
-        self.assertEqual(app5.selected.assigned, ApplicationStatus.SELECTED)
+        self.assertEqual(app5.selected.assigned, utils.SELECTED)
         self.assertEqual(app5.selected.created_at, datetime.date.today())
 
         FULL_PATH = reverse('administrators:selected_applications') + '?page=1'
@@ -892,7 +892,7 @@ class ApplicationTest(TestCase):
             'note': 'this is a note',
             'assigned_hours': app5.selected.assigned_hours,
             'application': app5.id,
-            'assigned': ApplicationStatus.OFFERED,
+            'assigned': utils.OFFERED,
             'applicant': '100',
             'classification': '2',
             'offer_type': 'offer',
@@ -912,7 +912,7 @@ class ApplicationTest(TestCase):
 
         offered_app = adminApi.get_offered(app6)
         self.assertFalse(offered_app.has_contract_read)
-        self.assertTrue(offered_app.assigned, ApplicationStatus.OFFERED)
+        self.assertTrue(offered_app.assigned, utils.OFFERED)
         self.assertEqual(offered_app.assigned_hours, float(data5['assigned_hours']))
 
 
@@ -943,14 +943,14 @@ class ApplicationTest(TestCase):
         self.assertFalse(app7.is_terminated)
 
         expected7 = [
-            {'id': 25, 'assigned': ApplicationStatus.NONE, 'created_at': datetime.date(2019, 9, 1)},
-            {'id': 31, 'assigned': ApplicationStatus.SELECTED, 'created_at': datetime.date(2019, 9, 5)},
-            {'id': 46, 'assigned': ApplicationStatus.OFFERED, 'created_at': datetime.date(2019, 9, 10)},
-            {'id': 58, 'assigned': ApplicationStatus.DECLINED, 'created_at': datetime.date(2019, 9, 20)},
-            {'id': 88, 'assigned': ApplicationStatus.NONE, 'created_at': datetime.date.today()},
-            {'id': 89, 'assigned': ApplicationStatus.SELECTED, 'created_at': datetime.date.today()},
-            {'id': 90, 'assigned': ApplicationStatus.OFFERED, 'created_at': datetime.date.today()},
-            {'id': 91, 'assigned': ApplicationStatus.DECLINED, 'created_at': datetime.date.today()},
+            {'id': 25, 'assigned': utils.NONE, 'created_at': datetime.date(2019, 9, 1)},
+            {'id': 31, 'assigned': utils.SELECTED, 'created_at': datetime.date(2019, 9, 5)},
+            {'id': 46, 'assigned': utils.OFFERED, 'created_at': datetime.date(2019, 9, 10)},
+            {'id': 58, 'assigned': utils.DECLINED, 'created_at': datetime.date(2019, 9, 20)},
+            {'id': 88, 'assigned': utils.NONE, 'created_at': datetime.date.today()},
+            {'id': 89, 'assigned': utils.SELECTED, 'created_at': datetime.date.today()},
+            {'id': 90, 'assigned': utils.OFFERED, 'created_at': datetime.date.today()},
+            {'id': 91, 'assigned': utils.DECLINED, 'created_at': datetime.date.today()},
         ]
 
         count5 = 0
@@ -980,7 +980,7 @@ class ApplicationTest(TestCase):
                 break
 
         self.assertTrue(app8.can_reset)
-        self.assertEqual(app8.applicationstatus_set.last().assigned, ApplicationStatus.DECLINED)
+        self.assertEqual(app8.applicationstatus_set.last().assigned, utils.DECLINED)
         self.assertEqual(app8.applicationreset_set.count(), 1)
         self.assertEqual(app8.applicationreset_set.last().created_at, datetime.date.today())
         self.assertEqual(app8.applicationreset_set.last().user, 'User2 Admin')
@@ -996,7 +996,7 @@ class ApplicationTest(TestCase):
         self.assertEqual(response.context['loggedin_user'].roles, ['Admin'])
         self.assertEqual( len(response.context['apps']), 20)
         self.assertEqual( len(response.context['classification_choices']), 6)
-        self.assertEqual(response.context['app_status']['offered'], ApplicationStatus.OFFERED)
+        self.assertEqual(response.context['app_status']['offered'], utils.OFFERED)
 
     def test_offer_job_wrong_next(self):
         print('- Test: Admin can offer a job to each job - wrong next')
@@ -1013,7 +1013,7 @@ class ApplicationTest(TestCase):
             'assigned_hours': 'abcde',
             'application': app_id,
             'has_contract_read': False,
-            'assigned': ApplicationStatus.OFFERED,
+            'assigned': utils.OFFERED,
             'applicant': '65',
             'classification': '2',
             'offer_type': 'offer',
@@ -1038,7 +1038,7 @@ class ApplicationTest(TestCase):
             'assigned_hours': 'abcde',
             'application': app_id,
             'has_contract_read': False,
-            'assigned': ApplicationStatus.OFFERED,
+            'assigned': utils.OFFERED,
             'applicant': '65',
             'classification': '2',
             'offer_type': 'offer',
@@ -1067,7 +1067,7 @@ class ApplicationTest(TestCase):
             'assigned_hours': '-20.0',
             'application': app_id,
             'has_contract_read': False,
-            'assigned': ApplicationStatus.OFFERED,
+            'assigned': utils.OFFERED,
             'applicant': '65',
             'classification': '2',
             'offer_type': 'offer',
@@ -1096,7 +1096,7 @@ class ApplicationTest(TestCase):
             'assigned_hours': '20.0',
             'application': app_id,
             'has_contract_read': False,
-            'assigned': ApplicationStatus.OFFERED,
+            'assigned': utils.OFFERED,
             'applicant': '65',
             'offer_type': 'offer',
             'next': FULL_PATH
@@ -1124,7 +1124,7 @@ class ApplicationTest(TestCase):
             'assigned_hours': '20.0',
             'application': app_id,
             'has_contract_read': False,
-            'assigned': ApplicationStatus.OFFERED,
+            'assigned': utils.OFFERED,
             'applicant': '65',
             'classification': '',
             'offer_type': 'offer',
@@ -1153,7 +1153,7 @@ class ApplicationTest(TestCase):
             'assigned_hours': '210.0',
             'application': app_id,
             'has_contract_read': False,
-            'assigned': ApplicationStatus.OFFERED,
+            'assigned': utils.OFFERED,
             'applicant': '65',
             'classification': '2',
             'offer_type': 'offer',
@@ -1183,7 +1183,7 @@ class ApplicationTest(TestCase):
             'assigned_hours': '20.0',
             'application': app_id,
             'applicant': '65',
-            'assigned': ApplicationStatus.OFFERED,
+            'assigned': utils.OFFERED,
             'has_contract_read': False,
             'offer_type': 'offer',
             'next': FULL_PATH
@@ -1201,7 +1201,7 @@ class ApplicationTest(TestCase):
         self.assertEqual(app.classification.id, int(data['classification']))
         self.assertEqual(app.note, data['note'])
         self.assertFalse(offered_app.has_contract_read)
-        self.assertTrue(offered_app.assigned, ApplicationStatus.OFFERED)
+        self.assertTrue(offered_app.assigned, utils.OFFERED)
         self.assertEqual(offered_app.assigned_hours, float(data['assigned_hours']))
 
         # edit the offer job
@@ -2167,7 +2167,7 @@ class SchedulingTaskTest(TestCase):
         data = {
             'application': app_id,
             'assigned_hours':70.0,
-            'assigned': ApplicationStatus.CANCELLED,
+            'assigned': utils.CANCELLED,
             'parent_id': '57',
             'next': reverse('students:history_jobs')
         }

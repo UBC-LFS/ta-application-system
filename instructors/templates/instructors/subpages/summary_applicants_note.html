@@ -1,0 +1,26 @@
+<div class="board col-10 mx-auto mt-5 p-3">
+  <h5 class="text-center text-info">Statistics</h5>
+  <table class="table font-size-sm mb-0">
+    <tbody>
+      <tr>
+        <td><strong>Total Applicants</strong></td>
+        <td>{{ total_applicants }}</td>
+      </tr>
+      <tr>
+        <td><strong>Applicants with no offers</strong></td>
+        <td>{{ total_no_offers_applicants }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="bd-callout bd-callout-warning col-10 mx-auto my-4 p-3">
+  <h5>Note:</h5>
+  <div class="font-size-sm">
+    This badge <span class="badge badge-warning">NO OFFERS</span> in the table means that applicants have no offers so far in this term.
+    <hr />
+    {% include 'ta_app/pages/_note_current_status_program.html' %}
+    <hr />
+    If a student has already applied for this course, there will no checkbox selection button in the first column and its course name is <span class="text-danger font-weight-bold">RED</span> in the <strong>Course & Status</strong> column (rightmost).
+  </div>
+</div>

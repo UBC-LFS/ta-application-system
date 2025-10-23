@@ -126,7 +126,7 @@ class InstructorTest(TestCase):
 
         user = userApi.get_user(USER, 'username')
         user_first_role = user.profile.roles.all()[0]
-        self.assertEqual(user_first_role.name, Role.INSTRUCTOR)
+        self.assertEqual(user_first_role.name, utils.INSTRUCTOR)
 
         data = {
             'user': user.id,
@@ -158,7 +158,7 @@ class InstructorTest(TestCase):
 
         user = userApi.get_user(USER, 'username')
         user_first_role = user.profile.roles.all()[0]
-        self.assertEqual(user_first_role.name, Role.INSTRUCTOR)
+        self.assertEqual(user_first_role.name, utils.INSTRUCTOR)
 
         data1 = {
             'user': user.id,
@@ -180,7 +180,7 @@ class InstructorTest(TestCase):
 
         user = userApi.get_user(USER, 'username')
         user_first_role = user.profile.roles.all()[0]
-        self.assertEqual(user_first_role.name, Role.INSTRUCTOR)
+        self.assertEqual(user_first_role.name, utils.INSTRUCTOR)
 
         data2 = {
             'user': user.id,
@@ -202,7 +202,7 @@ class InstructorTest(TestCase):
 
         user = userApi.get_user(USER, 'username')
         user_first_role = user.profile.roles.all()[0]
-        self.assertEqual(user_first_role.name, Role.INSTRUCTOR)
+        self.assertEqual(user_first_role.name, utils.INSTRUCTOR)
 
         data3 = {
             'user': user.id,
@@ -224,7 +224,7 @@ class InstructorTest(TestCase):
 
         user = userApi.get_user(USER, 'username')
         user_first_role = user.profile.roles.all()[0]
-        self.assertEqual(user_first_role.name, Role.INSTRUCTOR)
+        self.assertEqual(user_first_role.name, utils.INSTRUCTOR)
 
         data4 = {
             'user': user.id,
@@ -247,7 +247,7 @@ class InstructorTest(TestCase):
 
         user = userApi.get_user(USER, 'username')
         user_first_role = user.profile.roles.all()[0]
-        self.assertEqual(user_first_role.name, Role.INSTRUCTOR)
+        self.assertEqual(user_first_role.name, utils.INSTRUCTOR)
 
         data5 = {
             'user': user.id,
@@ -270,7 +270,7 @@ class InstructorTest(TestCase):
 
         user = userApi.get_user(USER, 'username')
         user_first_role = user.profile.roles.all()[0]
-        self.assertEqual(user_first_role.name, Role.INSTRUCTOR)
+        self.assertEqual(user_first_role.name, utils.INSTRUCTOR)
 
         data6 = {
             'user': user.id,
@@ -448,7 +448,7 @@ class InstructorTest(TestCase):
         self.login()
 
         data1 = {
-            'assigned': ApplicationStatus.OFFERED,
+            'assigned': utils.OFFERED,
             'application': '6',
             'has_contract_read': False,
             'instructor_preference': Application.NONE,
@@ -467,7 +467,7 @@ class InstructorTest(TestCase):
         self.login()
 
         data2 = {
-            'assigned': ApplicationStatus.OFFERED,
+            'assigned': utils.OFFERED,
             'application': '6',
             'has_contract_read': False,
             'instructor_preference': Application.NONE,
@@ -486,7 +486,7 @@ class InstructorTest(TestCase):
         self.login()
 
         data3 = {
-            'assigned': ApplicationStatus.OFFERED,
+            'assigned': utils.OFFERED,
             'application': '6',
             'has_contract_read': False,
             'instructor_preference': Application.NONE,
@@ -505,7 +505,7 @@ class InstructorTest(TestCase):
         self.login()
 
         data4 = {
-            'assigned': ApplicationStatus.OFFERED,
+            'assigned': utils.OFFERED,
             'application': '6',
             'has_contract_read': False,
             'instructor_preference': Application.NO_PREFERENCE,
@@ -524,7 +524,7 @@ class InstructorTest(TestCase):
         self.login()
 
         data5 = {
-            'assigned': ApplicationStatus.OFFERED,
+            'assigned': utils.OFFERED,
             'application': '6',
             'has_contract_read': False,
             'instructor_preference': Application.ACCEPTABLE,
@@ -543,7 +543,7 @@ class InstructorTest(TestCase):
         self.login()
 
         data6 = {
-            'assigned': ApplicationStatus.OFFERED,
+            'assigned': utils.OFFERED,
             'application': '6',
             'has_contract_read': False,
             'instructor_preference': Application.ACCEPTABLE,
@@ -561,7 +561,7 @@ class InstructorTest(TestCase):
         self.login()
 
         data7 = {
-            'assigned': ApplicationStatus.OFFERED,
+            'assigned': utils.OFFERED,
             'application': '6',
             'has_contract_read': False,
             'instructor_preference': Application.ACCEPTABLE,
@@ -579,7 +579,7 @@ class InstructorTest(TestCase):
         self.login()
 
         data8 = {
-            'assigned': ApplicationStatus.OFFERED,
+            'assigned': utils.OFFERED,
             'application': '6',
             'has_contract_read': False,
             'instructor_preference': Application.REQUESTED,

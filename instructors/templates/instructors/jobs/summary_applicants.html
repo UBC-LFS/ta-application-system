@@ -11,38 +11,13 @@
       <a class="btn btn-outline-primary" href="{{ next_second }}">Back to Applications</a>
     </div>
 
-    <div class="board col-10 mx-auto mt-5 p-3">
-      <h5 class="text-center text-info">Statistics</h5>
-      <table class="table font-size-sm mb-0">
-        <tbody>
-          <tr>
-            <td><strong>Total Applicants</strong></td>
-            <td>{{ total_applicants }}</td>
-          </tr>
-          <tr>
-            <td><strong>Applicants with no offers</strong></td>
-            <td>{{ total_no_offers_applicants }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="bd-callout bd-callout-warning col-10 mx-auto my-4 p-3">
-      <h5>Note:</h5>
-      <div class="font-size-sm">
-        This badge <span class="badge badge-warning">NO OFFERS</span> in the table means that applicants have no offers so far in this term.
-        <hr />
-        {% include 'ta_app/pages/_note_current_status_program.html' %}
-        <hr />
-        If a student has already applied for this course, there will no checkbox selection button in the first column and its course name is <span class="text-danger font-weight-bold">RED</span> in the <strong>Course & Status</strong> column (rightmost).
-      </div>
-    </div>
+    {% include 'instructors/subpages/summary_applicants_note.html' %}
   </div>
 
   <div class="col-md-9">
     {% include 'instructors/jobs/_search_fields.html' with data=applicants total=searched_total_applicants path='instructors_applications' session_slug=session.slug job_slug=job.course.slug %}
 
-    <div class="font-size-sm text-right">
+    <div class="font-size-sm text-right" style="margin-top: -20px;">
       {% include 'ta_app/pages/_preferred_candidate.html' with column='Full Name' %}
     </div>
 
@@ -56,91 +31,8 @@
 
         <input class="btn btn-primary font-size-sm mb-2" type="submit" value="Send Email" />
 
-        <table
-          class="table table-bordered table-responsive-md text-center font-size-sm"
-          data-toggle="table"
-          data-sortable="true"
-          data-classes=""
-        >
-          <thead>
-            <tr>
-              <th>Select<br /> to email</th>
-              <th>No Offers</th>
-              <th data-sortable="true">Full Name</th>
-              <th>CWL</th>
-              <th>Student <br /> Number</th>
-              <th>Curriculum <br /> Vitae (CV)</th>
-              <th>Email</th>
-              <th>Course & Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for applicant in applicants %}
-              <tr class="bg-{{ applicant.info.highlight }}">
-                <td>
-                  {% if applicant.has_applied == False%}
-                    {% if applicant.is_sent_alertemail %}
-                      <span class="badge badge-secondary">SENT</span>
-                    {% else %}
-                      <input type="checkbox" name="applicant" value="{{ applicant.id }}" />
-                    {% endif %}
-                  {% endif %}
-                </td>
-                <td>
-                  {% if applicant.no_offers %}
-                    <span class="badge badge-warning">NO OFFERS</span>
-                  {% endif %}
-                </td>
-                <td>
-                  {% if applicant.preferred_candidate %}
-                    <i class="fa fa-flag text-danger" aria-hidden="true"></i>
-                  {% endif %}
-                  {{ applicant.get_full_name }}
-                </td>
-                <td>
-                  {{ applicant.username }}
-                  {% if applicant.info.current_status %}
-                    <span class="badge d-block mt-1">{{ applicant.info.current_status }}</span>
-                  {% endif %}
-                </td>
-                <td>{{ applicant.profile.student_number }}</td>
-                <td>
-                  {% include 'ta_app/users/_modal_degree_details.html' with data=applicant %}
-
-                  {% if applicant.resume_filename %}
-                    <a class="d-block mt-2" href="{% url 'students:download_file' username=applicant.username item='resume' filename=applicant.resume_filename %}" target="_blank">
-                      Resume
-                    </a>
-                  {% endif %}
-                </td>
-                <td>
-                  <a href="mailto:{{ applicant.email }}">{{ applicant.email }}</a>
-                </td>
-                <td>
-                    {% for app in applicant.apps %}
-                      <div class="text-left my-1">
-                        <span class="font-weight-bold {% if app.has_applied %} text-danger {% endif %}">{{ app.course }}:</span>
-                        <span class="badge font-size-xs font-weight-normal">Applied on {{ app.applied.created_at }}</span>
-                        {% if app.accepted %}
-                          <br />
-                          <span class="badge badge-success font-size-xs font-weight-normal" style="margin-left:99px">Accepted on {{ app.accepted.created_at }}</span>
-                        {% endif %}
-                      </div>
-                    {% empty %}
-                      None
-                    {% endfor %}
-                </td>
-              </tr>
-            {% empty %}
-              <tr>
-                <td colspan="9">No applicants found</td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+        {% include 'instructors/subpages/summary_applicants_table.html' %}
       </form>
-
-      {% include 'instructors/jobs/_table_paginator.html' with data=applicants %}
     </div>
   </div>
 </div>

@@ -25,10 +25,10 @@ class AcceptedAppsReportMixin:
 
         template = '/accepted_apps_report_observer.html'
         if app_name == 'observers':
-            request = userApi.has_user_access(request, Role.OBSERVER)
+            request = userApi.has_user_access(request, utils.OBSERVER)
             template = app_name + template
         elif app_name == 'administrators':
-            request = userApi.has_admin_access(request, Role.HR)
+            request = userApi.has_admin_access(request, utils.HR)
             template = app_name + '/applications' + template
 
         app_list = adminApi.get_filtered_accepted_apps()

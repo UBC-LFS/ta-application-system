@@ -4,7 +4,7 @@
 {% include 'administrators/_menu.html' %}
 
 <div class="row">
-  <div class="col-md-4">
+  <div class="col-md-3">
     {% include 'ta_app/pages/_left_aside.html' with view_name='sessions' title='Session Report' data=session %}
 
     <div class="left-aside-btn-groups">
@@ -12,11 +12,11 @@
     </div>
   </div>
 
-  <div class="col-md-8">
+  <div class="col-md-9">
 
     <h3 class="text-info">
       All Applicants
-      <small class="text-secondary">Total: {{ total_applicants }}</small>
+      <small class="text-secondary">(Total: {{ total_applicants }})</small>
     </h3>
 
     {% include 'instructors/jobs/_search_fields.html' with data=applicants total=total_applicants path='administrators_sessions' session_slug=session.slug %}
@@ -49,7 +49,7 @@
               <td>{{ applicant.last_name }}</td>
               <td>{{ applicant.username }}</td>
               <td>{{ applicant.profile.student_number }}</td>
-              <td>{% include 'ta_app/users/_display_gta_info.html' with data=applicant %}</td>
+              <td>{% include 'ta_app/users/_display_gta_info.html' with user=applicant %}</td>
               <td>{{ applicant.accepted_apps|length }}</td>
               <td class="text-left">
                 <ul class="list-no-ml">

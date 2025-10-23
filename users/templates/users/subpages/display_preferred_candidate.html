@@ -1,5 +1,5 @@
 {% load user_filters %}
 
-{% if app|preferred_candidate %}
+{% if user|preferred_candidate:year %}
   <i class="fa fa-flag text-danger" aria-hidden="true"></i>
 {% endif %}

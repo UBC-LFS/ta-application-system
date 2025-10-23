@@ -18,7 +18,7 @@ from observers.mixins import AcceptedAppsReportMixin
 @require_http_methods(['GET'])
 def index(request):
     ''' Index page of Observer's portal '''
-    request = userApi.has_user_access(request, Role.OBSERVER)
+    request = userApi.has_user_access(request, utils.OBSERVER)
 
     return render(request, 'observers/index.html', {
         'loggedin_user': request.user

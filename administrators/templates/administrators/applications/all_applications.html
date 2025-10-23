@@ -77,9 +77,8 @@
       {% for app in apps %}
         <tr>
           <td>
-            {% if app.applicant.preferred_candidate %}
-              <i class="fa fa-flag text-danger" aria-hidden="true"></i>
-            {% endif %}
+            {% include 'users/subpages/display_preferred_candidate.html' with user=app.applicant year=app.job.session.year %}
+
             <a class="btn btn-xs btn-info" href="{% url 'administrators:show_application' app_slug=app.slug %}?next={{ new_next }}&p=All Applications">{{ app.id }}</a>
           </td>
           <td>{{ app.job.session.year }}</td>
@@ -114,7 +113,7 @@
               None
             {% endif %}
           </td>
-          <td>{% include 'ta_app/users/_display_gta_info.html' with data=app.applicant striped='True' %}</td>
+          <td>{% include 'ta_app/users/_display_gta_info.html' with user=app.applicant %}</td>
           <td>{% include 'ta_app/users/_modal_confi_info_expiry_status.html' with data=app status=app.confi_info_expiry_status this_year=this_year %}</td>
           <td>{% include 'ta_app/applications/_modal_note.html' with data=app %}</td>
           <td>
