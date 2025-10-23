@@ -130,7 +130,6 @@ class AllApplications(LoginRequiredMixin, View):
             apps = paginator.page(paginator.num_pages)
 
         for app in apps:
-            # app.applicant.gta = userApi.get_gta_flag(app.applicant)
             app.can_reset = adminApi.app_can_reset(app)
             app.confi_info_expiry_status = userApi.get_confidential_info_expiry_status(app.applicant)
 
@@ -277,7 +276,6 @@ class SelectedApplications(LoginRequiredMixin, View):
 
         filtered_offered_apps = { 'num_offered': 0, 'num_not_offered': 0 }
         for app in apps:
-            app.applicant.gta = userApi.get_gta_flag(app.applicant)
             app.confi_info_expiry_status = userApi.get_confidential_info_expiry_status(app.applicant)
 
             assigned_hours = app.selected.assigned_hours
@@ -502,7 +500,6 @@ class OfferedApplications(LoginRequiredMixin, View):
 
         apps = adminApi.add_app_info_into_applications(apps, ['offered', 'accepted', 'declined'])
         for app in apps:
-            app.applicant.gta = userApi.get_gta_flag(app.applicant)
             app.confi_info_expiry_status = userApi.get_confidential_info_expiry_status(app.applicant)
 
         return render(request, 'administrators/applications/offered_applications.html', {

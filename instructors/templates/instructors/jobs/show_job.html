@@ -3,7 +3,7 @@
 
 {% include 'instructors/_menu.html' %}
 <div class="row">
-  <div class="col-md-4">
+  <div class="col-md-3">
     {% include 'ta_app/pages/_left_aside.html' with view_name='jobs' title='Job Details' data=job %}
 
     <div class="left-aside-btn-groups mb-5">
@@ -11,7 +11,7 @@
     </div>
   </div>
 
-  <div class="col-md-8">
+  <div class="col-md-9">
     <div class="board col-11 mx-auto">
       <h3>Job Details</h3>
       {% include 'ta_app/jobs/_job_details.html' with data=job %}

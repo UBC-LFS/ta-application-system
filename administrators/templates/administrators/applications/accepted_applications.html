@@ -408,7 +408,7 @@
                         </form>
                       </div>
                       <div class="col-md-4">
-                        <section class="border bg-light-gray p-2 mb-5 font-size-sm">
+                        <section class="border bg-light-gray font-size-sm p-2">
                           <div class="font-size-sm"><strong>Note:</strong> If eForm or Speed Chart (or both) exists, it will appear here.</div>
 
                           {% if app.admindocuments.eform %}
@@ -420,25 +420,27 @@
                           {% endif %}
                         </section>
 
-                        <h6 class="bg-success text-white text-center p-2">UPDATE HISTORY</h6>
-                        {% for adminuser in app.admindocuments.admindocumentsuser_set.all %}
-                          <div class="font-size-sm">- Updated Date <span class="text-chocolate">{{ adminuser.created_at }}</span> by <span class="text-info">{{ adminuser.user }}</span></div>
-                        {% empty %}
-                          <div class="font-size-sm">No records found</div>
-                        {% endfor %}
+                        <section class="font-size-sm my-5">
+                          <h6 class="bg-main text-white text-center p-2">Update History</h6>
+                          {% for adminuser in app.admindocuments.admindocumentsuser_set.all %}
+                            <div class="font-size-sm">- Updated Date <span class="text-chocolate">{{ adminuser.created_at }}</span> by <span class="text-info">{{ adminuser.user }}</span></div>
+                          {% empty %}
+                            <div class="font-size-sm">No records found</div>
+                          {% endfor %}
+                        </section>
+
+                        <section class="font-size-sm">
+                          <h6 class="bg-main text-white text-center p-2">Job Note</h6>
+                          <div>
+                            {% if app.job.note %}
+                              {{ app.job.note|safe }}
+                            {% else %}
+                              None
+                            {% endif %}
+                          </div>
+                        </section>
                       </div>
                     </div>
-
-                    <section class="border bg-light-gray font-size-sm p-3 mt-3 mx-3">
-                      <h5 class="text-info">Job Note:</h5>
-                      <div>
-                        {% if app.job.note %}
-                          {{ app.job.note|safe }}
-                        {% else %}
-                          None
-                        {% endif %}
-                      </div>
-                    </section>
                   </div>
 
                 </div>

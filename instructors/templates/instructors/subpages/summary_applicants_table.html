@@ -67,7 +67,7 @@
               {% for app in applicant.apps %}
                 <div class="text-left my-1">
                   <span class="font-weight-bold {% if app.has_applied %} text-danger {% endif %}">{{ app.course }}:</span>
-                  <span class="badge font-size-xs font-weight-normal">Applied on {{ app.applied.created_at }}</span>
+                  <span class="badge font-size-xs font-weight-normal">Applied Date {{ app.applied.created_at }}</span>
                   {% if app.accepted %}
                     <br />
                     <span class="badge badge-success font-size-xs font-weight-normal" style="margin-left:99px">Accepted on {{ app.accepted.created_at }}</span>

@@ -261,6 +261,7 @@ class ReassignApplicationForm(forms.ModelForm):
             'note': SummernoteWidget()
         }
         labels = {
+            'note': 'Instructor Note',
             'is_declined_reassigned': 'Are you sure to decline and re-assign this application?'
         }
         help_texts = {
@@ -275,6 +276,7 @@ class TerminateApplicationForm(forms.ModelForm):
             'note': SummernoteWidget()
         }
         labels = {
+            'note': 'Instructor Note',
             'is_terminated': 'Are you sure to terminate this application?'
         }
         help_texts = {

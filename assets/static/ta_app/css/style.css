@@ -581,6 +581,14 @@ hr.dotted {
   color: #fd7e14;
 }
 
+.text-main {
+  color: #1560b0;
+}
+
+.bg-main {
+  background-color: #1560b0; 
+}
+
 .bg-dark-blue {
   background-color: #002145;
 }
