@@ -19,14 +19,14 @@ from datetime import datetime
 from ta_app import utils
 from administrators.models import Application, ApplicationStatus, ApplicationReset, WorktagSetting
 from administrators.forms import (
-    InstructorApplicationForm, 
-    ApplicationStatusForm, 
-    AdminApplicationForm, 
-    AdminDocumentsForm, 
-    ReminderForm, 
-    ApplicationStatusReassignForm, 
-    ReassignApplicationForm, 
-    TerminateApplicationForm, 
+    InstructorApplicationForm,
+    ApplicationStatusForm,
+    AdminApplicationForm,
+    AdminDocumentsForm,
+    ReminderForm,
+    ApplicationStatusReassignForm,
+    ReassignApplicationForm,
+    TerminateApplicationForm,
     EmailForm
 )
 from administrators import api as adminApi
@@ -131,7 +131,6 @@ class AllApplications(LoginRequiredMixin, View):
 
         for app in apps:
             # app.applicant.gta = userApi.get_gta_flag(app.applicant)
-            # app.applicant.preferred_candidate = userApi.get_preferred_candidate(app)
             app.can_reset = adminApi.app_can_reset(app)
             app.confi_info_expiry_status = userApi.get_confidential_info_expiry_status(app.applicant)
 
@@ -142,23 +141,23 @@ class AllApplications(LoginRequiredMixin, View):
             'app_status': utils.APP_STATUS,
             'new_next': adminApi.build_new_next(request),
             'this_year': utils.THIS_YEAR,
-            'download_preferred_candidate_url': reverse('administrators:download_preferred_candidate')
+            'download_preferred_candidates_url': reverse('administrators:download_preferred_candidates')
         })
 
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
-def download_preferred_candidate(request):
+def download_preferred_candidates(request):
     app_list, _ = adminApi.get_applications_filter_limit(request, 'all')
 
     apps = []
     usernames = []
     for app in app_list:
-        if userApi.get_preferred_candidate(app) and app.applicant.username not in usernames:
+        if userApi.get_preferred_candidate(app.applicant, app.job.session.year) and app.applicant.username not in usernames:
             apps.append(app)
             usernames.append(app.applicant.username)
-            
+
     result = 'Year,First Name,Last Name,CWL,Student Number,Status,LFS Grad or Others,Program,Other Program,Faculty,Student Year,Previous Year - Accepted Hours\n'
 
     sorted_apps = sorted(apps, key=lambda x: x.applicant.first_name)
@@ -174,13 +173,13 @@ def download_preferred_candidate(request):
 
             if app.applicant.profile.status:
                 status = app.applicant.profile.status.name
-            
+
             if app.applicant.profile.student_year:
                 student_year = app.applicant.profile.student_year
 
             if app.applicant.profile.program:
                 program = app.applicant.profile.program.name
-            
+
             if app.applicant.profile.program_others:
                 program_others = app.applicant.profile.program_others.replace('&nbsp;', ' ').replace(',', "")
                 program_others = strip_tags(program_others)
@@ -257,7 +256,7 @@ def reset_application(request):
 
 @method_decorator([never_cache], name='dispatch')
 class SelectedApplications(LoginRequiredMixin, View):
-    
+
     @method_decorator(require_GET)
     def get(self, request, *args, **kwargs):
         request = userApi.has_admin_access(request)
@@ -279,7 +278,6 @@ class SelectedApplications(LoginRequiredMixin, View):
         filtered_offered_apps = { 'num_offered': 0, 'num_not_offered': 0 }
         for app in apps:
             app.applicant.gta = userApi.get_gta_flag(app.applicant)
-            # app.applicant.preferred_candidate = userApi.get_preferred_candidate(app)
             app.confi_info_expiry_status = userApi.get_confidential_info_expiry_status(app.applicant)
 
             assigned_hours = app.selected.assigned_hours
@@ -300,9 +298,9 @@ class SelectedApplications(LoginRequiredMixin, View):
             num_offers = app.applicationstatus_set.filter(assigned=utils.OFFERED).count()
 
             if latest_status == 'selected' or latest_status == 'none':
-                if num_offers == 0: 
+                if num_offers == 0:
                     offer_modal['title'] = 'Offer'
-                else: 
+                else:
                     offer_modal['title'] = 'Re-offer'
 
                 filtered_offered_apps['num_not_offered'] += 1
@@ -358,7 +356,7 @@ class SelectedApplications(LoginRequiredMixin, View):
         is_valid = adminApi.valid_worktag_setting(request)
         if is_valid:
             jid, aid, program_info, worktag = adminApi.get_worktag(request)
-            app = adminApi.get_application(aid)        
+            app = adminApi.get_application(aid)
             success = False
 
             # Worktag Setting
@@ -371,11 +369,11 @@ class SelectedApplications(LoginRequiredMixin, View):
                 else:
                     ws.program_info = program_info
                     update_fields.append('program_info')
-                
+
                 if ws.worktag != worktag:
                     ws.worktag = worktag
                     update_fields.append('worktag')
-                
+
                 if len(update_fields) > 0:
                     ws.save(update_fields=update_fields)
                     success = True
@@ -392,9 +390,9 @@ class SelectedApplications(LoginRequiredMixin, View):
                 adminApi.update_worktag_in_admin_docs(app, worktag, request.POST['processing_note'])
         else:
             messages.error(request, 'An error occurred. Your input values are not valid. Please try again.')
-        
+
         return HttpResponseRedirect(request.POST.get('next'))
-    
+
 
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -505,7 +503,6 @@ class OfferedApplications(LoginRequiredMixin, View):
         apps = adminApi.add_app_info_into_applications(apps, ['offered', 'accepted', 'declined'])
         for app in apps:
             app.applicant.gta = userApi.get_gta_flag(app.applicant)
-            # app.applicant.preferred_candidate = userApi.get_preferred_candidate(app)
             app.confi_info_expiry_status = userApi.get_confidential_info_expiry_status(app.applicant)
 
         return render(request, 'administrators/applications/offered_applications.html', {
@@ -713,9 +710,9 @@ def download_accepted_apps_workday(request):
             'Worktag4': app.worktag4,
             'Distribution Percent4': app.dist_per4
         })
-    
+
     return JsonResponse({ 'status': 'success', 'data': data })
-    
+
 
 @method_decorator([never_cache], name='dispatch')
 class DeclinedApplications(LoginRequiredMixin, View):
@@ -1231,7 +1228,7 @@ class AcceptedAppsReportAdmin(LoginRequiredMixin, View):
                 app.total_assigned_hours = total_assigned_hours
 
             prev_year_apps = app.applicant.application_set.filter(
-                job__session__year = int(app.job.session.year) - 1, 
+                job__session__year = int(app.job.session.year) - 1,
                 job__session__term__code = app.job.session.term.code
             )
 

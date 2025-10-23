@@ -872,16 +872,6 @@ def get_preferred_candidate(user, year):
     return False
 
 
-# def get_preferred_candidate(user):
-#     profile = has_user_profile_created(user)
-#     if profile and is_lfs_student(user) and valid_sin_international(user) and not is_undergraduate(user):
-#         if is_master(user) and (1 <= int(profile.student_year) <= 2):
-#             return True
-#         if is_phd(user) and (1 <= int(profile.student_year) <= 5):
-#             return True
-#     return False
-
-
 def confirm_profile_reminder(user, session):
    if not user or not session:
        return False

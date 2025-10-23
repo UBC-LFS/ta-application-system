@@ -83,7 +83,7 @@ urlpatterns += [
 
     path('func/applications/accepted/download/all/', app_views.download_all_accepted_apps, name='download_all_accepted_apps'),
     path('func/applications/accepted/report/admin/download/all/', app_views.download_all_accepted_apps_report_admin, name='download_all_accepted_apps_report_admin'),
-    path('func/applications/applied/preferred_candidate/download/', app_views.download_preferred_candidate, name='download_preferred_candidate')
+    path('func/applications/applied/preferred_candidate/download/', app_views.download_preferred_candidates, name='download_preferred_candidates')
 ]
 
 

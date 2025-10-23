@@ -1,6 +1,6 @@
 $(document).ready(function() {
 
-  $('#download-preferred-ta').on('click', function() {
+  $('#download-preferred-candidates').on('click', function() {
     $(this).text('Downloading...');
     const self = this;
 

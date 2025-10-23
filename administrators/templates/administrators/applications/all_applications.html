@@ -40,7 +40,7 @@
       <br />
 
       <div>
-        <button id="download-preferred-ta" class="btn btn-sm btn-info font-size-xs" type="button" data-url='{{ download_preferred_candidate_url }}' data-next='{{ request.get_full_path }}'>
+        <button id="download-preferred-candidates" class="btn btn-sm btn-info font-size-xs" type="button" data-url='{{ download_preferred_candidates_url }}' data-next='{{ request.get_full_path }}'>
           Download Preferred Candidates
         </button>
       </div>
@@ -211,5 +211,5 @@
 
 {% block js %}
   {% load static %}
-  <script type="text/javascript" src="{% static 'ta_app/js/download_preferred_candidate.js' %}"></script>
+  <script type="text/javascript" src="{% static 'ta_app/js/download_preferred_candidates.js' %}"></script>
 {% endblock %}

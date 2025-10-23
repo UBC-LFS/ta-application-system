@@ -349,7 +349,7 @@ def get_filtered_accepted_apps(apps=None):
         ret_app = add_app_info_into_application(app, ['declined'])
         if ret_app.declined.parent_id == None:
             excluded_ids.append(ret_app.id)
-    
+
     return apps.exclude(id__in=excluded_ids)
 
 
@@ -821,7 +821,7 @@ def get_applications_filter_limit(request, status):
             apps = apps.filter(applicant__last_name__iexact=request.GET.get('last_name'))
         else:
             apps = apps.filter(applicant__last_name__icontains=request.GET.get('last_name'))
-        
+
 
     if status == 'selected':
         if bool( request.GET.get('sort_by_job') ):
@@ -1165,95 +1165,6 @@ def get_applicants_in_session(session):
     return applicants
 
 
-def get_summary_applicants(request, session_slug, job_slug):
-    ''' Get a view for summary applicants '''
-
-    session = get_session(session_slug, 'slug')
-    job = get_job_by_session_slug_job_slug(session_slug, job_slug)
-
-    session_term = session.year + '_' + session.term.code
-    course = job.course.code.name + '_' + job.course.number.name + '_' + job.course.section.name
-
-    applicants = get_applicants_in_session(session)
-    total_applicants = applicants.count()
-
-    if bool( request.GET.get('first_name') ):
-        applicants = applicants.filter(first_name__icontains=request.GET.get('first_name'))
-    if bool( request.GET.get('last_name') ):
-        applicants = applicants.filter(last_name__icontains=request.GET.get('last_name'))
-    if bool( request.GET.get('cwl') ):
-        applicants = applicants.filter(username__icontains=request.GET.get('cwl'))
-    if bool( request.GET.get('student_number') ):
-        applicants = applicants.filter(profile__student_number__icontains=request.GET.get('student_number'))
-
-    no_offers_applicants = []
-    for applicant in applicants:
-        appls = applicant.application_set.filter( Q(job__session__year=session.year) & Q(job__session__term__code=session.term.code) )
-
-        count_offered_apps = Count('applicationstatus', filter=Q(applicationstatus__assigned=utils.OFFERED))
-        offered_apps = appls.annotate(count_offered_apps=count_offered_apps).filter(count_offered_apps__gt=0)
-
-        applicant.no_offers = False
-        if len(offered_apps) == 0:
-            no_offers_applicants.append(applicant)
-            applicant.no_offers = True
-
-    if bool( request.GET.get('no_offers') ):
-        applicants = no_offers_applicants
-
-    searched_total_applicants = len(applicants)
-
-    page = request.GET.get('page', 1)
-    paginator = Paginator(applicants, 25)
-
-    try:
-        applicants = paginator.page(page)
-    except PageNotAnInteger:
-        applicants = paginator.page(1)
-    except EmptyPage:
-        applicants = paginator.page(paginator.num_pages)
-
-    for applicant in applicants:
-        applicant = userApi.add_resume(applicant)
-        applicant.info = userApi.get_applicant_status_program(applicant)
-        applicant.preferred_candidate = userApi.get_preferred_candidate(applicant)
-
-        # To check whether an alert email has been sent to an applicant
-        applicant.is_sent_alertemail = False
-        is_sent_alertemail = request.user.alertemail_set.filter(
-            Q(year=job.session.year) & Q(term=job.session.term.code) &
-            Q(job_code=job.course.code.name) & Q(job_number=job.course.number.name) & Q(job_section=job.course.section.name) &
-            Q(receiver_name=applicant.get_full_name()) & Q(receiver_email=applicant.email)
-        )
-        if is_sent_alertemail.count() > 0:
-            applicant.is_sent_alertemail = True
-
-        has_applied = False
-        apps = applicant.application_set.filter( Q(job__session__year=session.year) & Q(job__session__term__code=session.term.code) )
-        applicant.apps = []
-        for app in apps:
-            app = add_app_info_into_application(app, ['applied', 'accepted', 'declined', 'cancelled'])
-            app_obj = {
-                'course': app.job.course.code.name + ' ' + app.job.course.number.name + ' ' + app.job.course.section.name,
-                'applied': app.applied,
-                'accepted': None,
-                'has_applied': False
-            }
-            if check_valid_accepted_app_or_not(app):
-                app_obj['accepted'] = app.accepted
-
-            applicant.apps.append(app_obj)
-
-            # To check whether an application of this user has been applied already
-            if (app.job.course.code.name == job.course.code.name) and (app.job.course.number.name == job.course.number.name) and (app.job.course.section.name == job.course.section.name):
-                has_applied = True
-                app_obj['has_applied'] = True
-
-            applicant.has_applied = has_applied
-
-    return session, job, total_applicants, no_offers_applicants, applicants, searched_total_applicants
-
-
 def count_number_tas(job):
     num_tas = 0
     for appl in job.application_set.all():
@@ -1272,10 +1183,10 @@ def make_workday_data(app):
 
         if app.applicant.confidentiality.nationality and app.applicant.confidentiality.nationality == utils.NATIONALITY['international']:
             app.permit_validated = 'Yes' if app.applicant.confidentiality.study_permit else 'No'
-        
+
         app.sin_expiry_date = convert_date_format(app.applicant.confidentiality.sin_expiry_date) if app.applicant.confidentiality.sin_expiry_date else ''
         app.study_permit_expiry_date = convert_date_format(app.applicant.confidentiality.study_permit_expiry_date) if app.applicant.confidentiality.study_permit_expiry_date else ''
-        
+
         app.visa_type = 'Study Permit' if app.study_permit_expiry_date else ''
 
         if app.applicant.profile.status and app.applicant.confidentiality.nationality:
@@ -1366,7 +1277,7 @@ def make_workday_data(app):
                 app.worktag2, app.dist_per2 = assign_worktag(worktags[1])
                 app.start_date2 = start_date1
                 app.end_date2 = end_date1
-            
+
             if len(worktags) > 2:
                 app.worktag3, app.dist_per3 = assign_worktag(worktags[2])
                 app.start_date3 = start_date1
@@ -1403,7 +1314,7 @@ def assign_worktag(input_worktag):
     else:
         worktag = input_worktag.strip()
         dist_per = 1
-    
+
     return worktag, dist_per
 
 
@@ -1417,7 +1328,7 @@ def find_default_worktag_hours(app):
             program2 = app.worktaghours.program_hours['program2_name']
 
     return { 'one': program1, 'two': program2 }
-    
+
 
 def update_worktag_in_admin_docs(app, new_worktag, processing_note):
     if processing_note == '<p><br></p>':
@@ -1438,15 +1349,15 @@ def update_worktag_in_admin_docs(app, new_worktag, processing_note):
             if not ad.worktag or ad.worktag != new_worktag:
                 ad.worktag = new_worktag
                 update_fields.append('worktag')
-            
+
             if processing_note:
                 ad.processing_note = processing_note + addon
             else:
                 ad.processing_note = addon
-            
+
             if old_worktag and 'worktag' in update_fields:
                 ad.processing_note += "<p>Auto update: <strong>Previous Worktag</strong> - {0} on {1}</p>".format(old_worktag, today)
-            
+
             ad.save(update_fields=update_fields)
         else:
             if processing_note:
@@ -1464,7 +1375,7 @@ def update_worktag_in_admin_docs(app, new_worktag, processing_note):
 
 def get_accepted_hours_from_previous_year(user, year):
     prev_year_apps = Application.objects.filter(
-        applicant = user, 
+        applicant = user,
         job__session__year = int(year) - 1
     )
 
@@ -1473,9 +1384,9 @@ def get_accepted_hours_from_previous_year(user, year):
         prev_year_accepted_apps = get_accepted_apps_not_terminated(prev_year_apps)
         prev_year_accepted_apps = get_filtered_accepted_apps(prev_year_accepted_apps)
         for app in prev_year_accepted_apps:
-            app = add_app_info_into_application(app, ['accepted'])    
+            app = add_app_info_into_application(app, ['accepted'])
             prev_year_assigned_hours += float(app.accepted.assigned_hours)
-        
+
     return prev_year_assigned_hours
 
 
@@ -1484,27 +1395,27 @@ from django.contrib import messages
 
 def valid_worktag_setting(request):
     valid_programs = [
-        ('program1', 'Program 1'), 
-        ('hours1', 'Program 1 Hours'), 
-        ('program2', 'Program 2'), 
-        ('hours2', 'Program 2 Hours'), 
+        ('program1', 'Program 1'),
+        ('hours1', 'Program 1 Hours'),
+        ('program2', 'Program 2'),
+        ('hours2', 'Program 2 Hours'),
         ('total_hours', 'Total Hours')
     ]
     for field in valid_programs:
         if not request.POST.get(field[0], None):
             messages.error(request, 'An error occurred. This <strong>{0}</strong> field is required. Please try again.'.format(field[1]))
             return False
-    
+
     if request.POST['program1'] == request.POST['program2']:
         return False
-    
+
     return True
 
 
 def get_worktag(request):
     jid = request.POST['job']
     aid = request.POST.get('application', None)
-    
+
     program1 = request.POST['program1'].split('-')
     code1 = program1[1]
     hours1 = request.POST['hours1']
@@ -1525,7 +1436,7 @@ def get_worktag(request):
     p1_percentage = round(int(hours1) / int(total_hours) * 100, 1)
     p2_percentage = round(int(hours2) / int(total_hours) * 100, 1)
     worktag = '{0}% {1}, {2}% {3}'.format(p1_percentage, code1, p2_percentage, code2)
-    
+
     return jid, aid, program_info, worktag
 
 
@@ -1819,5 +1730,5 @@ def strip_html_tags(text):
 def convert_date_format(date):
     return date.strftime('%m/%d/%Y')
 
-def compare_two_dicts_by_key(d1, d2):    
+def compare_two_dicts_by_key(d1, d2):
     return dict(d1.items()) == dict(d2.items())

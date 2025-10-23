@@ -20,7 +20,7 @@ class SummaryApplicantsMixin:
 
         parsed = urlparse(request.get_full_path())
         resolved = resolve(parsed.path)
-        
+
         if len(resolved.app_names) == 0:
             raise SuspiciousOperation
 
@@ -28,11 +28,11 @@ class SummaryApplicantsMixin:
         job_slug = kwargs.get('job_slug', None)
         if not session_slug or not job_slug:
             raise Http404
-    
+
         self.app_name = resolved.app_names[0]
         self.session = adminApi.get_session(session_slug, 'slug')
         self.job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
-        
+
         return setup
 
     @method_decorator(require_GET)
@@ -41,7 +41,7 @@ class SummaryApplicantsMixin:
             request = userApi.has_user_access(request, utils.INSTRUCTOR)
         elif self.app_name == 'administrators':
             request = userApi.has_admin_access(request)
-        
+
         # session_term = session.year + '_' + session.term.code
         # course = job.course.code.name + '_' + job.course.number.name + '_' + job.course.section.name
 
@@ -85,9 +85,6 @@ class SummaryApplicantsMixin:
             applicants = paginator.page(paginator.num_pages)
 
         for applicant in applicants:
-            # applicant = userApi.add_resume(applicant)
-            # applicant.info = userApi.get_applicant_status_program(applicant)
-            # applicant.preferred_candidate = userApi.get_preferred_candidate(applicant, self.session.year)
 
             # To check whether an alert email has been sent to an applicant
             applicant.is_sent_alertemail = False
@@ -121,7 +118,7 @@ class SummaryApplicantsMixin:
                     app_obj['has_applied'] = True
 
                 applicant.has_applied = has_applied
-        
+
         template = '{0}/jobs/summary_applicants.html'.format(self.app_name)
 
         context = {
@@ -137,8 +134,8 @@ class SummaryApplicantsMixin:
         if self.app_name == 'instructors':
             context['next_second'] = request.session.get('next_second', None)
             context['new_next'] = adminApi.build_new_next(request)
-        
+
         elif self.app_name == 'administrators':
             context['next'] = request.session.get('summary_applicants_next')
-        
+
         return render(request, template, context)

@@ -10,7 +10,7 @@
 {% endif %}
 
 <div class="row">
-  <div class="col-md-4">
+  <div class="col-md-3">
     {% include 'ta_app/pages/_left_aside.html' with view_name='users' title='User Details' data=selected_user %}
 
     {% if role == 'administrators' and selected_user.is_student %}
@@ -36,7 +36,7 @@
     {% include 'ta_app/users/_confi_info_expiry_status.html' with items=expiry_status %}
   </div>
 
-  <div class="col-md-8">
+  <div class="col-md-9">
 
     <nav class="mb-4">
       <div class="nav nav-tabs">
