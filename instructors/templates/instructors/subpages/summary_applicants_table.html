@@ -27,7 +27,7 @@
               {% if applicant.is_sent_alertemail %}
                 <span class="badge badge-secondary">SENT</span>
               {% else %}
-                <input type="checkbox" name="applicant" value="{{ applicant.id }}" disabled />
+                <input type="checkbox" name="applicant" value="{{ applicant.id }}" {% if path == 'admin' %}disabled{% endif %} />
               {% endif %}
             {% endif %}
           </td>
