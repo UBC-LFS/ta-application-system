@@ -64,8 +64,8 @@
         <th data-sortable="true">Job</th>
         <th data-sortable="true">Applicant</th>
         <th data-sortable="true">Status</th>
-        <th data-sortable="true">Instructor <br /> Preference</th>
         <th data-sortable="true">Classification</th>
+        <th>Resume</th>
         <th data-sortable="true">GTA <br /> Info</th>
         <th data-sortable="true">Confidential <br /> Info</th>
         <th data-sortable="true">Note</th>
@@ -92,8 +92,8 @@
             <a class="d-block" href="{% url 'users:show_user' username=app.applicant.username %}?next={{ new_next }}&p=All Applications&t=basic">
               {{ app.applicant.get_full_name }}
             </a>
-
             {% include 'ta_app/users/_display_special_master_program.html' with data=app.applicant.profile.program.slug %}
+            {% include 'ta_app/applications/_app_sta_confirmation.html' with data=app.sta_confirmation %}
           </td>
           <td>
             {% include 'ta_app/applications/_modal_app_status.html' with data=app %}
@@ -102,15 +102,15 @@
             {% endif %}
           </td>
           <td>
-            {% include 'ta_app/applications/_app_instructor_preference.html' with data=app.get_instructor_preference_display %}
-            <br />
-            {% include 'ta_app/applications/_app_sta_confirmation.html' with data=app.sta_confirmation %}
-          </td>
-          <td>
             {% if app.classification %}
               {{ app.classification.year }} {{ app.classification.name }}
             {% else %}
               None
+            {% endif %}
+          </td>
+          <td>
+            {% if app.resume_filename %}
+              <a class="d-block mt-2" href="{% url 'students:download_file' username=app.applicant.username item='resume' filename=app.resume_filename %}" target="_blank">Download</a>
             {% endif %}
           </td>
           <td>{% include 'ta_app/users/_display_gta_info.html' with user=app.applicant %}</td>

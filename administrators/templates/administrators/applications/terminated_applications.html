@@ -43,7 +43,6 @@
           <th data-sortable="true">Job</th>
           <th data-sortable="true">Applicant</th>
           <th data-sortable="true">Status</th>
-          <th data-sortable="true">Instructor<br /> Preference</th>
           <th data-sortable="true">Classification</th>
           <th data-sortable="true">Note</th>
           <th data-sortable="true">Created Date <br /> Updated Date</th>
@@ -72,7 +71,8 @@
               <a href="{% url 'users:show_user' username=app.applicant.username %}?next={{ new_next }}&p=Terminated Applications&t=basic">
                 {{ app.applicant.get_full_name }}
               </a>
-              <div class="text-dark-gray">{{ app.applicant.username }}</div>
+              <br />
+              {% include 'ta_app/applications/_app_sta_confirmation.html' with data=app.sta_confirmation %}
             </td>
             <td>
               {% include 'ta_app/applications/_modal_app_status.html' with data=app %}
@@ -80,7 +80,6 @@
                 <i class="fa fa-bell text-warning" aria-hidden="true"></i>
               {% endif %}
             </td>
-            <td>{% include 'ta_app/applications/_app_instructor_preference.html' with data=app.get_instructor_preference_display %}</td>
             <td>
               {% if app.classification %}
                 {{ app.classification.year }} {{ app.classification.name }}

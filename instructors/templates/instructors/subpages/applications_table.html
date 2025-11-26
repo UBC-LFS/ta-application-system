@@ -20,7 +20,7 @@
       <th>Curriculum <br /> Vitae (CV)</th>
       <th>Application</th>
       <th data-sortable="true">Applied Date</th>
-      <th>Instructor <br /> Preference</th>
+      <th>Instructor <br /> Assignment</th>
       <th>Application <br /> Status</th>
       <th>Instructor <br /> Note</th>
     </tr>
@@ -123,15 +123,19 @@
           </td>
           <td>
             {% with app_selected=app|selected %}
-              {% if app.instructor_preference != app_status.none and app_selected %}
+              {% if app_selected %}
+
                 <div>
                   {% include 'ta_app/applications/_app_instructor_preference.html' with data=app.get_instructor_preference_display %}
                   <br />
                   {% include 'ta_app/applications/_app_sta_confirmation.html' with data=app.sta_confirmation %}
                 </div>
+
                 <div>Assigned <span class="font-weight-bold">{{ app_selected.assigned_hours }}</span> hours</div>
-                <span class="font-size-sm text-dark-gray">{{ app_selected.created_at }}</span>
+                <span class="font-size-sm">{{ app_selected.created_at }}</span>
+
               {% else %}
+
                 <button type="button" class="btn btn-xs btn-info" data-toggle="modal" data-target="#application-select-modal-{{ app.id }}">Select</button>
 
                 <div class="modal fade" id="application-select-modal-{{ app.id }}" tabindex="-1" role="dialog" aria-labelledby="application-select-modal-label-{{ app.id }}" aria-hidden="true">
@@ -156,10 +160,8 @@
                               </h5>
                             {% endif %}
 
-                            <p class="px-3 text-left">
-                              Please select your preference, and assign TA hours carefully. Once submitted, you cannot modify them.
-                            </p>
-                            <p class="px-3 text-left">
+                            <p class="px-3">
+                              Please assign TA hours carefully. Once submitted, you cannot modify them. <br />
                               If change becomes necessary, contact the Academic Coordinator, and note your new choices using the Write link.
                             </p>
                             <p>Thanks.</p>
@@ -170,18 +172,7 @@
                           <form action="" method="post">
                             {% csrf_token %}
 
-                            <div class="field-wrapper">
-                              <label for="id_instructor_preference_{{ app.id }}">Instructor Preference:</label>
-                              <select class="form-control" name="instructor_preference" id="id_instructor_preference_{{ app.id }}">
-                                {% for choice in instructor_preference_choices %}
-                                  {% if choice.1 != 'None' and choice.1 != 'No Preference' %}
-                                    <option value="{{ choice.0 }}">{{ choice.1 }}</option>
-                                  {% endif %}
-                                {% endfor %}
-                              </select>
-                            </div>
-
-                            <div class="field-wrapper">
+                            <div class="field-wrapper mt-0">
                               <label for="id_assigned_hours_{{ app.id }}">Assign TA Hours:</label>
                               <div class="help">Numerical value only</div>
 
@@ -193,7 +184,7 @@
                               <label class="d-inline-block ml-1" for="id_sta_confirmation_{{ app.id }}">
                                 STA <span class="font-weight-normal">(Optional Senior TA pay classification. Click link for eligibility criteria and job duty specifics.)</span>
                               </label>
-                              <p class="help">I confirm this student's eligibility and planned duties align with the <a target="_blank" href="{% static 'ta_app/files/SENIOR TEACHING ASSISTANTS - LETTER OF UNDERSTANDING B4 2022-25.pdf' %}">UBC-CUPE 2278 Letter of Agreement B 10</a> in the current collective agreement.</p>
+                              <p>I confirm this student's eligibility and planned duties align with the <a target="_blank" href="{% static 'ta_app/files/SENIOR TEACHING ASSISTANTS - LETTER OF UNDERSTANDING B4 2022-25.pdf' %}">UBC-CUPE 2278 Letter of Agreement B 10</a> in the current collective agreement.</p>
                             </div>
 
                             <input type="hidden" name="assigned" value="{{ app_status.selected }}" />
@@ -225,7 +216,7 @@
                 <div>Assigned <span class="font-weight-bold">{{ app.applicationstatus_set.last.assigned_hours }}</span> hours</div>
               {% endif %}
 
-              <div class="text-dark-gray">{{ app.applicationstatus_set.last.created_at }}</div>
+              <div>{{ app.applicationstatus_set.last.created_at }}</div>
 
             {% else %}
               <span class="badge badge-light text-dark">PENDING</span>

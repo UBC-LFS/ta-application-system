@@ -129,6 +129,7 @@ class AllApplications(LoginRequiredMixin, View):
         except EmptyPage:
             apps = paginator.page(paginator.num_pages)
 
+        apps = adminApi.add_app_info_into_applications(apps, ['resume'])
         for app in apps:
             app.can_reset = adminApi.app_can_reset(app)
             app.confi_info_expiry_status = userApi.get_confidential_info_expiry_status(app.applicant)
@@ -236,7 +237,7 @@ def reset_application(request):
                 if app_status_form.save():
                     app_reset = ApplicationReset.objects.create(application=app, user=request.user.get_full_name())
                     if app_reset:
-                        messages.success(request, 'Success! {0} - the following information (ID: {1}, {2} {3} - {4} {5} {6}) have been reset. <ul><li>Instructor Preference</li><li>Assigned Status</li><li>Assigned Hours</li><li>STA option</li></ul>'.format(updated_app.applicant.get_full_name(), updated_app.id, updated_app.job.session.year, updated_app.job.session.term.code, updated_app.job.course.code.name, updated_app.job.course.number.name, updated_app.job.course.section.name))
+                        messages.success(request, 'Success! {0} - the following information (ID: {1}, {2} {3} - {4} {5} {6}) have been reset. <ul><li>Assigned Status</li><li>Assigned Hours</li><li>STA option</li></ul>'.format(updated_app.applicant.get_full_name(), updated_app.id, updated_app.job.session.year, updated_app.job.session.term.code, updated_app.job.course.code.name, updated_app.job.course.number.name, updated_app.job.course.section.name))
                     else:
                         messages.error(request, 'An error occurred while updating an application reset log.')
                 else:

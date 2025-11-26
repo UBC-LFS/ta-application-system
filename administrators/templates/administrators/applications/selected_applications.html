@@ -57,9 +57,9 @@
           <th data-sortable="true">Job</th>
           <th data-sortable="true">Applicant</th>
           <th data-sortable="true">Status</th>
-          <th data-sortable="true">Instructor<br /> Preference</th>
           <th data-sortable="true">Classification</th>
           <th>TA Hours <br /> Info</th>
+          <th>Resume</th>
           <th data-sortable="true">GTA <br /> Info</th>
           <th data-sortable="true">Confidential <br /> Info</th>
           <th>Note</th>
@@ -85,23 +85,15 @@
               {% include 'ta_app/applications/_modal_reset_log.html' with data=app %}
             </td>
             <td>
-              <a class="d-block" href="{% url 'users:show_user' username=app.applicant.username %}?next={{ new_next }}&p=Selected Applications&t=basic">
+              <a href="{% url 'users:show_user' username=app.applicant.username %}?next={{ new_next }}&p=Selected Applications&t=basic">
                 {{ app.applicant.get_full_name }}
               </a>
-
+              <br />
               {% include 'ta_app/users/_display_special_master_program.html' with data=app.applicant.profile.program.slug %}
-
-              {% if app.resume_filename %}
-                <a class="d-block mt-2" href="{% url 'students:download_file' username=app.applicant.username item='resume' filename=app.resume_filename %}" target="_blank">Resume</a>
-              {% endif %}
+              {% include 'ta_app/applications/_app_sta_confirmation.html' with data=app.sta_confirmation %}
             </td>
             <td>
               {% include 'ta_app/applications/_modal_app_status.html' with data=app %}
-            </td>
-            <td>
-              {% include 'ta_app/applications/_app_instructor_preference.html' with data=app.get_instructor_preference_display %}
-              <br />
-              {% include 'ta_app/applications/_app_sta_confirmation.html' with data=app.sta_confirmation %}
             </td>
             <td>
               <div class="mb-1">{% include 'ta_app/applications/_app_classification.html' with data=app %}</div>
@@ -212,6 +204,11 @@
                 <i class="fa fa-battery-half text-success" aria-hidden="true"></i>
               {% elif app.ta_hour_progress == 'under_three_quarters' %}
                 <i class="fa fa-battery-three-quarters text-success" aria-hidden="true"></i>
+              {% endif %}
+            </td>
+            <td>
+              {% if app.resume_filename %}
+                <a class="d-block mt-2" href="{% url 'students:download_file' username=app.applicant.username item='resume' filename=app.resume_filename %}" target="_blank">Download</a>
               {% endif %}
             </td>
             <td>{% include 'ta_app/users/_display_gta_info.html' with user=app.applicant %}</td>

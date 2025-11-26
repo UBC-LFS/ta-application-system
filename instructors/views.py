@@ -263,7 +263,6 @@ class ShowApplications(LoginRequiredMixin, View):
 
     @method_decorator(require_POST)
     def post(self, request, *args, **kwargs):
-        instructor_preference = request.POST.get('instructor_preference')
         assigned_hours = request.POST.get('assigned_hours')
 
         if adminApi.is_valid_float(assigned_hours) == False:
@@ -275,25 +274,13 @@ class ShowApplications(LoginRequiredMixin, View):
             return HttpResponseRedirect(request.get_full_path())
 
         assigned_hours = int( float(assigned_hours) )
-
-        if assigned_hours < 0:
+        
+        if assigned_hours <= 0:
             messages.error(request, 'An error occurred. Please check assigned hours. Assign TA Hours must be greater than 0.')
-            return HttpResponseRedirect(request.get_full_path())
-
-        if instructor_preference == Application.NONE:
-            messages.error(request, 'An error occurred. Please select your preference, then try again.')
-            return HttpResponseRedirect(request.get_full_path())
-
-        if instructor_preference == Application.NO_PREFERENCE and assigned_hours > 0:
-            messages.error(request, 'An error occurred. Please leave 0 for Assign TA Hours if you would like to select No Preference, then try again.')
             return HttpResponseRedirect(request.get_full_path())
 
         if assigned_hours > int(self.job.assigned_ta_hours):
             messages.error( request, 'An error occurred. You cannot assign {0} hours because Total Assigned TA Hours is {1}. then try again.'.format( assigned_hours, int(self.job.assigned_ta_hours) ) )
-            return HttpResponseRedirect(request.get_full_path())
-
-        if assigned_hours == 0 and instructor_preference != Application.NO_PREFERENCE:
-            messages.error(request, 'An error occurred. Please assign TA hours, then try again.')
             return HttpResponseRedirect(request.get_full_path())
 
         instructor_app_form = InstructorApplicationForm(request.POST)
@@ -303,7 +290,7 @@ class ShowApplications(LoginRequiredMixin, View):
 
                 # Update Application
                 app = adminApi.get_application(request.POST.get('application'))
-                app.instructor_preference = instructor_preference
+                app.instructor_preference = '0'
                 app.sta_confirmation = instructor_app_form.cleaned_data['sta_confirmation']
                 app.updated_at = datetime.now()
                 app.save(update_fields=['instructor_preference', 'sta_confirmation', 'updated_at'])

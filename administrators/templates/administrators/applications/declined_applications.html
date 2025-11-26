@@ -45,7 +45,6 @@
           <th data-sortable="true">Job</th>
           <th data-sortable="true">Applicant</th>
           <th data-sortable="true">Status</th>
-          <th data-sortable="true">Instructor <br />Preference</th>
           <th data-sortable="true">Classification</th>
           <th data-sortable="true">Note</th>
           <th data-sortable="true">Declined on</th>
@@ -77,7 +76,8 @@
               <a href="{% url 'users:show_user' username=app.applicant.username %}?next={{ new_next }}&p=Declined Applications&t=basic">
                 {{ app.applicant.get_full_name }}
               </a>
-              <div class="text-dark-gray">{{ app.applicant.username }}</div>
+              <br />
+              {% include 'ta_app/applications/_app_sta_confirmation.html' with data=app.sta_confirmation %}
             </td>
             <td>
               {% include 'ta_app/applications/_modal_app_status.html' with data=app %}
@@ -85,7 +85,6 @@
                 <i class="fa fa-asterisk text-danger" aria-hidden="true"></i>
               {% endif %}
             </td>
-            <td>{% include 'ta_app/applications/_app_instructor_preference.html' with data=app.get_instructor_preference_display %}</td>
             <td>{% include 'ta_app/applications/_app_classification.html' with data=app %}</td>
             <td>{% include 'ta_app/applications/_modal_note.html' with data=app %}</td>
             <td>

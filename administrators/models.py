@@ -164,6 +164,7 @@ class Application(models.Model):
         ('5', 'Most')
     ]
 
+    # instructor_preference removed
     NONE = '0'
     NO_PREFERENCE = '1'
     ACCEPTABLE = '2'

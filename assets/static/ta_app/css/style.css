@@ -528,6 +528,11 @@ hr.dotted {
   font-size: 0.8rem !important;
 }
 
+.badge-chocolate {
+  color: #fff !important;
+  background-color: #D2691E;
+}
+
 .badge-orange {
   color: #fff !important;
   background-color: #fd7e14;
@@ -586,7 +591,7 @@ hr.dotted {
 }
 
 .bg-main {
-  background-color: #1560b0; 
+  background-color: #1560b0;
 }
 
 .bg-dark-blue {
