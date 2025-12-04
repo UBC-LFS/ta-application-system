@@ -528,6 +528,39 @@ def delete_job_by_course_ids(session, course_ids):
     result = Job.objects.filter(session_id=session.id, course_id__in=course_ids).delete()
     return True if result else None
 
+def job_filters(request, path):
+    year_q = request.GET.get('year')
+    term_q = request.GET.get('term')
+    code_q = request.GET.get('code')
+    number_q = request.GET.get('number')
+    section_q = request.GET.get('section')
+
+    if path == 'prepare_jobs':
+        instructor_first_name_q = request.GET.get('instructor_first_name')
+        instructor_last_name_q = request.GET.get('instructor_last_name')
+    
+    job_list = get_jobs()
+    
+    if bool(year_q):
+        job_list = job_list.filter(session__year__icontains=year_q)
+    if bool(term_q):
+        job_list = job_list.filter(session__term__code__icontains=term_q)
+    if bool(code_q):
+        job_list = job_list.filter(course__code__name__icontains=code_q)
+    if bool(number_q):
+        job_list = job_list.filter(course__number__name__icontains=number_q)
+    if bool(section_q):
+        job_list = job_list.filter(course__section__name__icontains=section_q)
+    
+    if path == 'prepare_jobs':
+        if bool(instructor_first_name_q):
+            job_list = job_list.filter(instructors__first_name__icontains=instructor_first_name_q)
+        if bool(instructor_last_name_q):
+            job_list = job_list.filter(instructors__last_name__icontains=instructor_last_name_q)
+    
+    return job_list
+
+
 
 # end jobs
 
@@ -750,6 +783,7 @@ def annotate_lfs_grad(apps):
 
 def get_applications_filter_limit(request, status):
     ''' Get filtered and limited applications '''
+    print(request.GET)
 
     apps = None
     num_all_apps = 0
@@ -1722,13 +1756,44 @@ def is_valid_email(email_address):
 def trim(data):
     return None if not data or data.isspace() else data.strip()
 
+
+def convert_date_format(date):
+    return date.strftime('%m/%d/%Y')
+
+
+def compare_two_dicts_by_key(d1, d2):
+    return dict(d1.items()) == dict(d2.items())
+
+
 def strip_html_tags(text):
     text_replaced = text.replace('<br>', '\n').replace('</p>', '\n').replace('&nbsp;', ' ').replace('&amp;', '&').replace('"', "'")
     return strip_tags(text_replaced)
 
 
-def convert_date_format(date):
-    return date.strftime('%m/%d/%Y')
+from bs4 import BeautifulSoup
+import re
 
-def compare_two_dicts_by_key(d1, d2):
-    return dict(d1.items()) == dict(d2.items())
+def extract_text(html_string):
+    soup = BeautifulSoup(html_string, 'html.parser')
+
+    for tag in soup(['style', 'script']):
+        tag.decompose()
+
+    for br in soup.find_all("br"):
+        br.replace_with("\n")
+
+    block_tags = ["p", "div", "section", "article", "header", "footer", "li"]
+    for tag in soup.find_all(block_tags):
+        tag.append("\n")
+
+    text = soup.get_text()
+    
+    text = text.replace("\xa0", " ")
+    text = re.sub(r"<0x[aA]0>", " ", text)
+    
+    text = text.replace("&nbsp;", " ")
+    text = re.sub(r"[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]", "", text)
+    text = re.sub(r"[ \t]+", " ", text)
+    text = re.sub(r"\n\s*\n\s*\n+", "\n\n", text)
+
+    return text.strip()

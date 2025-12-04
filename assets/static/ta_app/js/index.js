@@ -63,6 +63,25 @@ function downloadCSV(data, filename) {
   el.click();
 }
 
+// Download data to a text file
+function downloadText(data, filename) {
+  let el = document.createElement('a');
+  const blob = new Blob([data], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  el.href = url;
+  el.setAttribute('download', filename);
+  el.click();
+}
+
+// Download data to a markdown file
+function downloadText(data, filename) {
+  let el = document.createElement('a');
+  const blob = new Blob([data], { type: 'text/markdown;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  el.href = url;
+  el.setAttribute('download', filename);
+  el.click();
+}
 
 // Download data to an Excel file
 function downloadExcel(data, filename) {

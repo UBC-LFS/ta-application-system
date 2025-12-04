@@ -2,10 +2,26 @@
 {% block content %}
 
 {% include 'administrators/_menu.html' %}
+
 <div>
+  <div id="download-message" class="container"></div>
+
   {% include 'ta_app/pages/_header.html' with title='Jobs in Progress' %}
 
-  {% include 'ta_app/jobs/_search_fields.html' with data=jobs total=total_jobs path='progress_jobs' %}
+  <div class="row">
+    <div class="col-xl-9">
+      {% include 'ta_app/jobs/_search_fields.html' with data=jobs total=total_jobs path='progress_jobs' %}
+    </div>
+    <div class="col-xl-3">
+      <div class="bg-light-gray text-center p-4" style="height:143.1px">
+        <h6>Download Job Report</h6>
+        <p class="font-size-sm">Search first (e.g., year=2025) before download</p>
+        <button id="download-job-report" class="btn btn-sm btn-info font-size-xs" type="button" data-url='{{ download_job_report_url }}' data-next="{{ request.get_full_path }}">
+          Download as Markdown
+        </button>
+      </div>
+    </div>
+  </div>
 
   <table
     class="table table-bordered table-hover table-striped table-responsive-md text-center"
@@ -73,4 +89,9 @@
   {% include 'ta_app/pages/_table_paginator.html' with data=jobs %}
 </div>
 
+{% endblock %}
+
+{% block js %}
+  {% load static %}
+  <script type="text/javascript" src="{% static 'ta_app/js/download_job_report.js' %}"></script>
 {% endblock %}

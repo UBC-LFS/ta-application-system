@@ -1,5 +1,6 @@
 <div class="search-field bg-light-gray p-3 font-size-sm">
   <form method="GET">
+    <input type="hidden" name="page" value="1" />
     <input type="text" name="year" value="{{ request.GET.year }}" placeholder="Year" /> and
     <input type="text" name="term" value="{{ request.GET.term }}" placeholder="Term" /> <br />
     <input type="text" name="code" value="{{ request.GET.code }}" placeholder="Job Code" /> and

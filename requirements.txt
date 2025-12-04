@@ -6,3 +6,4 @@ django-summernote>=0.8.20.0
 django-impersonate>=1.9.1
 apscheduler>=3.10.1
 cryptography>=40.0.1
+beautifulsoup4>=4.1.3

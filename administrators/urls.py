@@ -47,7 +47,9 @@ urlpatterns += [
     path('sessions/<str:session_slug>/jobs/<str:job_slug>/instructors/add/', job_views.add_job_instructors, name='add_job_instructors'),
     path('sessions/<str:session_slug>/jobs/<str:job_slug>/instructors/delete/', job_views.delete_job_instructors, name='delete_job_instructors'),
     path('job/worktag_setting/delete/', job_views.delete_job_worktag_setting, name='delete_job_worktag_setting'),
-    path('app/worktag_setting/delete/', job_views.delete_app_worktag_setting, name='delete_app_worktag_setting')
+    path('app/worktag_setting/delete/', job_views.delete_app_worktag_setting, name='delete_app_worktag_setting'),
+
+    path('func/jobs/report/download/', job_views.download_job_report, name='download_job_report'),
 ]
 
 

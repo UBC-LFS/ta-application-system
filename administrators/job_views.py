@@ -28,29 +28,7 @@ class PrepareJobs(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         request = userApi.has_admin_access(request)
 
-        year_q = request.GET.get('year')
-        term_q = request.GET.get('term')
-        code_q = request.GET.get('code')
-        number_q = request.GET.get('number')
-        section_q = request.GET.get('section')
-        instructor_first_name_q = request.GET.get('instructor_first_name')
-        instructor_last_name_q = request.GET.get('instructor_last_name')
-
-        job_list = adminApi.get_jobs()
-        if bool(year_q):
-            job_list = job_list.filter(session__year__icontains=year_q)
-        if bool(term_q):
-            job_list = job_list.filter(session__term__code__icontains=term_q)
-        if bool(code_q):
-            job_list = job_list.filter(course__code__name__icontains=code_q)
-        if bool(number_q):
-            job_list = job_list.filter(course__number__name__icontains=number_q)
-        if bool(section_q):
-            job_list = job_list.filter(course__section__name__icontains=section_q)
-        if bool(instructor_first_name_q):
-            job_list = job_list.filter(instructors__first_name__icontains=instructor_first_name_q)
-        if bool(instructor_last_name_q):
-            job_list = job_list.filter(instructors__last_name__icontains=instructor_last_name_q)
+        job_list = adminApi.job_filters(request, 'prepare_jobs')
 
         page = request.GET.get('page', 1)
         paginator = Paginator(job_list, utils.TABLE_PAGE_SIZE)
@@ -170,23 +148,7 @@ class ProgressJobs(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         request = userApi.has_admin_access(request)
 
-        year_q = request.GET.get('year')
-        term_q = request.GET.get('term')
-        code_q = request.GET.get('code')
-        number_q = request.GET.get('number')
-        section_q = request.GET.get('section')
-
-        job_list = adminApi.get_jobs()
-        if bool(year_q):
-            job_list = job_list.filter(session__year__icontains=year_q)
-        if bool(term_q):
-            job_list = job_list.filter(session__term__code__icontains=term_q)
-        if bool(code_q):
-            job_list = job_list.filter(course__code__name__icontains=code_q)
-        if bool(number_q):
-            job_list = job_list.filter(course__number__name__icontains=number_q)
-        if bool(section_q):
-            job_list = job_list.filter(course__section__name__icontains=section_q)
+        job_list = adminApi.job_filters(request, 'progress_jobs')
 
         page = request.GET.get('page', 1)
         paginator = Paginator(job_list, utils.TABLE_PAGE_SIZE)
@@ -204,7 +166,8 @@ class ProgressJobs(LoginRequiredMixin, View):
             'loggedin_user': request.user,
             'jobs': jobs,
             'total_jobs': len(job_list),
-            'new_next': adminApi.build_new_next(request)
+            'new_next': adminApi.build_new_next(request),
+            'download_job_report_url': reverse('administrators:download_job_report')
         })
 
 
@@ -232,6 +195,36 @@ def show_job_applications(request, session_slug, job_slug):
 @method_decorator([never_cache], name='dispatch')
 class SummaryApplicants(LoginRequiredMixin, SummaryApplicantsMixin, View):
     pass
+
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def download_job_report(request):
+    jobs = adminApi.job_filters(request, 'progress_jobs')
+    
+    result = ''
+    for job in jobs:
+        result += 'Year & Term: '
+        result += '{0} {1}\n'.format(job.session.year, job.session.term.name)
+        result += '\nCourse Name: '
+        result += '{0} {1} {2}\n'.format(job.course.code.name, job.course.number.name, job.course.section.name)
+
+        result += '\nInstructor(s): '
+        instructors = []
+        if job.instructors.count() > 0:
+            instructors = [ins.get_full_name() for ins in job.instructors.all()]
+            result += ', '.join(instructors) + '\n'
+        else:
+            result += 'None\n'
+        
+        result += '\nCourse Overview:\n'
+        result += adminApi.extract_text(job.course_overview) + '\n'
+        result += '\nDescription:\n'
+        result += adminApi.extract_text(job.description) + '\n'
+        result += '\\newpage \n'
+
+    return JsonResponse({ 'status': 'success', 'data': result })
 
 
 @method_decorator([never_cache], name='dispatch')
