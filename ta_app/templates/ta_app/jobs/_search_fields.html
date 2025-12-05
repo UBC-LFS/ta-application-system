@@ -12,6 +12,10 @@
       <input type="text" name="instructor_last_name" value="{{ request.GET.instructor_last_name }}" placeholder="Instructor Last Name" /> <br />
     {% endif %}
 
+    {% if path == 'prepare_jobs' or path == 'progress_jobs' %}
+      Active? <input class="custom-input-mb-7" type="checkbox" name="exclude_inactive_jobs" value="True" {% if request.GET.exclude_inactive_jobs %}checked{% endif %} />
+    {% endif %}
+
     <div class="mt-1">
       <button class="btn btn-sm btn-secondary" type="submit">Search</button>
 
