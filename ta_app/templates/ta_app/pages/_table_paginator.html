@@ -20,7 +20,7 @@
 {% if request.GET.instructor_last_name %}&instructor_last_name={{ request.GET.instructor_last_name }}{% endif %}
 {% if request.GET.course_name %}&course_name={{ request.GET.course_name }}{% endif %}
 {% if request.GET.exclude_applied_jobs %}&exclude_applied_jobs={{ request.GET.exclude_applied_jobs }}{% endif %}
-{% if request.GET.exclude_inactive_jobs %}&exclude_inactive_jobs={{ request.GET.exclude_inactive_jobs }}{% endif %}
+{% if request.GET.is_active %}&is_active={{ request.GET.is_active }}{% endif %}
 {% if request.GET.offer_status %}&offer_status={{ request.GET.offer_status }}{% endif %}
 {% if request.GET.processed %}&processed={{ request.GET.processed }}{% endif %}
 {% if request.GET.declined_reassigned %}&declined_reassigned={{ request.GET.declined_reassigned }}{% endif %}
@@ -48,7 +48,7 @@
 {% if request.GET.instructor_last_name %}&instructor_last_name={{ request.GET.instructor_last_name }}{% endif %}
 {% if request.GET.course_name %}&course_name={{ request.GET.course_name }}{% endif %}
 {% if request.GET.exclude_applied_jobs %}&exclude_applied_jobs={{ request.GET.exclude_applied_jobs }}{% endif %}
-{% if request.GET.exclude_inactive_jobs %}&exclude_inactive_jobs={{ request.GET.exclude_inactive_jobs }}{% endif %}
+{% if request.GET.is_active %}&is_active={{ request.GET.is_active }}{% endif %}
 {% if request.GET.offer_status %}&offer_status={{ request.GET.offer_status }}{% endif %}
 {% if request.GET.processed %}&processed={{ request.GET.processed }}{% endif %}
 {% if request.GET.declined_reassigned %}&declined_reassigned={{ request.GET.declined_reassigned }}{% endif %}
@@ -93,7 +93,7 @@
 {% if request.GET.instructor_last_name %}&instructor_last_name={{ request.GET.instructor_last_name }}{% endif %}
 {% if request.GET.course_name %}&course_name={{ request.GET.course_name }}{% endif %}
 {% if request.GET.exclude_applied_jobs %}&exclude_applied_jobs={{ request.GET.exclude_applied_jobs }}{% endif %}
-{% if request.GET.exclude_inactive_jobs %}&exclude_inactive_jobs={{ request.GET.exclude_inactive_jobs }}{% endif %}
+{% if request.GET.is_active %}&is_active={{ request.GET.is_active }}{% endif %}
 {% if request.GET.offer_status %}&offer_status={{ request.GET.offer_status }}{% endif %}
 {% if request.GET.processed %}&processed={{ request.GET.processed }}{% endif %}
 {% if request.GET.declined_reassigned %}&declined_reassigned={{ request.GET.declined_reassigned }}{% endif %}
@@ -127,7 +127,7 @@
 {% if request.GET.instructor_last_name %}&instructor_last_name={{ request.GET.instructor_last_name }}{% endif %}
 {% if request.GET.course_name %}&course_name={{ request.GET.course_name }}{% endif %}
 {% if request.GET.exclude_applied_jobs %}&exclude_applied_jobs={{ request.GET.exclude_applied_jobs }}{% endif %}
-{% if request.GET.exclude_inactive_jobs %}&exclude_inactive_jobs={{ request.GET.exclude_inactive_jobs }}{% endif %}
+{% if request.GET.is_active %}&is_active={{ request.GET.is_active }}{% endif %}
 {% if request.GET.offer_status %}&offer_status={{ request.GET.offer_status }}{% endif %}
 {% if request.GET.processed %}&processed={{ request.GET.processed }}{% endif %}
 {% if request.GET.declined_reassigned %}&declined_reassigned={{ request.GET.declined_reassigned }}{% endif %}
@@ -155,7 +155,7 @@
 {% if request.GET.instructor_last_name %}&instructor_last_name={{ request.GET.instructor_last_name }}{% endif %}
 {% if request.GET.course_name %}&course_name={{ request.GET.course_name }}{% endif %}
 {% if request.GET.exclude_applied_jobs %}&exclude_applied_jobs={{ request.GET.exclude_applied_jobs }}{% endif %}
-{% if request.GET.exclude_inactive_jobs %}&exclude_inactive_jobs={{ request.GET.exclude_inactive_jobs }}{% endif %}
+{% if request.GET.is_active %}&is_active={{ request.GET.is_active }}{% endif %}
 {% if request.GET.offer_status %}&offer_status={{ request.GET.offer_status }}{% endif %}
 {% if request.GET.processed %}&processed={{ request.GET.processed }}{% endif %}
 {% if request.GET.declined_reassigned %}&declined_reassigned={{ request.GET.declined_reassigned }}{% endif %}

@@ -20,8 +20,8 @@
         > Exclude applied jobs
       </div>
       <div>
-        <input type="checkbox" name="exclude_inactive_jobs" value="1"
-          {% if request.GET.exclude_inactive_jobs == '1' %} checked {% endif %}
+        <input type="checkbox" name="is_active" value="1"
+          {% if request.GET.is_active == '1' %} checked {% endif %}
         > Exclude inactive jobs
       </div>
 

@@ -720,7 +720,7 @@ def favourite_jobs(request):
         instructor_first_name_q = request.GET.get('instructor_first_name')
         instructor_last_name_q = request.GET.get('instructor_last_name')
         exclude_applied_jobs_q = request.GET.get('exclude_applied_jobs')
-        exclude_inactive_jobs_q = request.GET.get('exclude_inactive_jobs')
+        is_active_q = request.GET.get('is_active')
 
         favourite_list = adminApi.get_favourites(request.user)
         all_favourites = favourite_list
@@ -740,7 +740,7 @@ def favourite_jobs(request):
             favourite_list = favourite_list.filter(job__instructors__last_name__icontains=instructor_last_name_q)
         if exclude_applied_jobs_q == '1':
             favourite_list = favourite_list.exclude(job__application__applicant__id=request.user.id)
-        if exclude_inactive_jobs_q == '1':
+        if is_active_q == '1':
             favourite_list = favourite_list.exclude(job__is_active=False)
 
         page = request.GET.get('page', 1)
@@ -800,7 +800,7 @@ class AvailableJobs(LoginRequiredMixin, View):
         instructor_first_name_q = request.GET.get('instructor_first_name')
         instructor_last_name_q = request.GET.get('instructor_last_name')
         exclude_applied_jobs_q = request.GET.get('exclude_applied_jobs')
-        exclude_inactive_jobs_q = request.GET.get('exclude_inactive_jobs')
+        is_active_q = request.GET.get('is_active')
 
         job_list = adminApi.get_jobs().filter(session__slug=self.session_slug)
         if bool(code_q):
@@ -815,7 +815,7 @@ class AvailableJobs(LoginRequiredMixin, View):
             job_list = job_list.filter(instructors__last_name__icontains=instructor_last_name_q)
         if exclude_applied_jobs_q == '1':
             job_list = job_list.exclude(application__applicant__id=request.user.id)
-        if exclude_inactive_jobs_q == '1':
+        if is_active_q == '1':
             job_list = job_list.exclude(is_active=False)
 
         page = request.GET.get('page', 1)

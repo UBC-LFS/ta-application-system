@@ -534,7 +534,7 @@ def job_filters(request, path):
     code_q = request.GET.get('code')
     number_q = request.GET.get('number')
     section_q = request.GET.get('section')
-    exclude_inactive_jobs_q = request.GET.get('exclude_inactive_jobs')
+    is_active_q = request.GET.get('is_active')
 
     if path == 'prepare_jobs':
         instructor_first_name_q = request.GET.get('instructor_first_name')
@@ -552,8 +552,8 @@ def job_filters(request, path):
         job_list = job_list.filter(course__number__name__icontains=number_q)
     if bool(section_q):
         job_list = job_list.filter(course__section__name__icontains=section_q)
-    if bool(exclude_inactive_jobs_q):
-        job_list = job_list.filter(is_active=exclude_inactive_jobs_q)
+    if bool(is_active_q):
+        job_list = job_list.filter(is_active=is_active_q)
     
     if path == 'prepare_jobs':
         if bool(instructor_first_name_q):
