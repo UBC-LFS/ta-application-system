@@ -9,11 +9,11 @@ $(document).ready(function() {
       url: $(this).data('url'),
       data: $(this).data('next'),
       success: function(res) {
-        $(self).text('Download as Markdown');
+        $(self).text('Download as Excel');
 
         if (res.status === 'success') {
-          const filename = 'TA App - Job Report ' + getToday() + '.md';
-          downloadCSV(res.data, filename);
+          const filename = 'TA App - Job Report ' + getToday() + '.xlsx';
+          downloadExcel(res.data, filename);
         } else {
           const message = '<div class="alert alert-danger alert-dismissible fade show" role="alert">' +
                             'An error occurred while downloading all data' +
@@ -23,7 +23,7 @@ $(document).ready(function() {
         }
       },
       error: function(err) {
-        $(self).text('Download as Markdown');
+        $(self).text('Download as Excel');
 
         const message = '<div class="alert alert-danger alert-dismissible fade show" role="alert">' +
                           'Error: ' + err.statusText + ' (' + err.status + '). ' + err.responseJSON.message +

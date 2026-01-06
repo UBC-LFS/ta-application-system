@@ -203,28 +203,20 @@ class SummaryApplicants(LoginRequiredMixin, SummaryApplicantsMixin, View):
 def download_job_report(request):
     jobs = adminApi.job_filters(request, 'progress_jobs')
     
-    result = ''
+    data = []
     for job in jobs:
-        result += 'Year & Term: '
-        result += '{0} {1}\n'.format(job.session.year, job.session.term.name)
-        result += '\nCourse Name: '
-        result += '{0} {1} {2}\n'.format(job.course.code.name, job.course.number.name, job.course.section.name)
+        data.append({
+            'Year': job.session.year,
+            'Term': job.session.term.code,
+            'Course Code': job.course.code.name,
+            'Course Number': job.course.number.name,
+            'Course Section': job.course.section.name,
+            'Course Title': job.course.name,
+            'Course Overview': adminApi.extract_text(job.course_overview),
+            'Description': adminApi.extract_text(job.description)
+        })
 
-        result += '\nInstructor(s): '
-        instructors = []
-        if job.instructors.count() > 0:
-            instructors = [ins.get_full_name() for ins in job.instructors.all()]
-            result += ', '.join(instructors) + '\n'
-        else:
-            result += 'None\n'
-        
-        result += '\nCourse Overview:\n'
-        result += adminApi.extract_text(job.course_overview) + '\n'
-        result += '\nDescription:\n'
-        result += adminApi.extract_text(job.description) + '\n'
-        result += '\\newpage \n'
-
-    return JsonResponse({ 'status': 'success', 'data': result })
+    return JsonResponse({ 'status': 'success', 'data': data })
 
 
 @method_decorator([never_cache], name='dispatch')

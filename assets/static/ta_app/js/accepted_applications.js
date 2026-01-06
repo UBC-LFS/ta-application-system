@@ -20,7 +20,7 @@ $(document).ready(function() {
         if (res.status === 'success') message = message.replace('STATUS', 'success');
         else message = message.replace('STATUS', 'danger');
 
-        sessionStorage.setItem( 'admin-docs', JSON.stringify({ 'status': res.satus, 'message': message }) );
+        sessionStorage.setItem( 'admin-docs', JSON.stringify({ 'status': res.status, 'message': message }) );
         location.reload();
       },
       error: function(err) {
