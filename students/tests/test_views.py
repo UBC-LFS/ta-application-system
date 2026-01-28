@@ -144,7 +144,7 @@ class StudentTest(TestCase):
         self.assertEqual(user.profile.training_details, data['training_details'])
         self.assertEqual(user.profile.lfs_ta_training, data['lfs_ta_training'])
         self.assertEqual(user.profile.lfs_ta_training_details, data['lfs_ta_training_details'])
-        
+
         self.assertEqual(user.profile.total_academic_years, data2['total_academic_years'])
         self.assertEqual(user.profile.total_terms, data2['total_terms'])
         self.assertEqual(user.profile.total_ta_hours, data2['total_ta_hours'])
@@ -600,7 +600,7 @@ class StudentTest(TestCase):
 
         res = self.client.get( reverse('students:index') )
         self.assertFalse(res.context['can_alert'])
-        
+
         self.delete_document(USERS[2], USER_IDS[2], ['resume'])
 
 
@@ -1445,9 +1445,7 @@ class StudentTest(TestCase):
                 'next': reverse('students:edit_profile') + '?t=summary&session=' + session.slug
             }
             res2 = self.client.post(reverse('students:confirm_profile_reminder'), data=data, content_type=ContentType)
-            print(res2)
             messages = self.messages(res2)
-            #print(session.slug, res2.status_code, res2.url)
 
         self.delete_document(USERS[2], USER_IDS[2], ['resume'])
 

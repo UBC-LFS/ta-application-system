@@ -539,9 +539,9 @@ def job_filters(request, path):
     if path == 'prepare_jobs':
         instructor_first_name_q = request.GET.get('instructor_first_name')
         instructor_last_name_q = request.GET.get('instructor_last_name')
-    
+
     job_list = get_jobs()
-    
+
     if bool(year_q):
         job_list = job_list.filter(session__year__icontains=year_q)
     if bool(term_q):
@@ -554,13 +554,13 @@ def job_filters(request, path):
         job_list = job_list.filter(course__section__name__icontains=section_q)
     if bool(is_active_q):
         job_list = job_list.filter(is_active=is_active_q)
-    
+
     if path == 'prepare_jobs':
         if bool(instructor_first_name_q):
             job_list = job_list.filter(instructors__first_name__icontains=instructor_first_name_q)
         if bool(instructor_last_name_q):
             job_list = job_list.filter(instructors__last_name__icontains=instructor_last_name_q)
-    
+
     return job_list
 
 
@@ -786,7 +786,6 @@ def annotate_lfs_grad(apps):
 
 def get_applications_filter_limit(request, status):
     ''' Get filtered and limited applications '''
-    print(request.GET)
 
     apps = None
     num_all_apps = 0
@@ -1790,10 +1789,10 @@ def extract_text(html_string):
         tag.append("\n")
 
     text = soup.get_text()
-    
+
     text = text.replace("\xa0", " ")
     text = re.sub(r"<0x[aA]0>", " ", text)
-    
+
     text = text.replace("&nbsp;", " ")
     text = re.sub(r"[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]", "", text)
     text = re.sub(r"[ \t]+", " ", text)
