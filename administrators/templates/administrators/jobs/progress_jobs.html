@@ -16,9 +16,15 @@
       <div class="bg-light-gray text-center p-4" style="height:143.12px">
         <h6>Download Job Report</h6>
         <p class="font-size-sm">Search first (e.g., year=2025) before download</p>
-        <button id="download-job-report" class="btn btn-sm btn-info font-size-xs" type="button" data-url='{{ download_job_report_url }}' data-next="{{ request.get_full_path }}">
-          Download as Excel
-        </button>
+
+        <div class="d-flex justify-content-around">
+          <button id="download-job-report-md" class="btn btn-sm btn-info font-size-xs" type="button" data-url='{{ download_job_report_md_url }}' data-next="{{ request.get_full_path }}">
+            Markdown
+          </button>
+          <button id="download-job-report-excel" class="btn btn-sm btn-info font-size-xs" type="button" data-url='{{ download_job_report_excel_url }}' data-next="{{ request.get_full_path }}">
+            Excel
+          </button>
+        </div>
       </div>
     </div>
   </div>

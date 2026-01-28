@@ -167,7 +167,8 @@ class ProgressJobs(LoginRequiredMixin, View):
             'jobs': jobs,
             'total_jobs': len(job_list),
             'new_next': adminApi.build_new_next(request),
-            'download_job_report_url': reverse('administrators:download_job_report')
+            'download_job_report_md_url': reverse('administrators:download_job_report_md'),
+            'download_job_report_excel_url': reverse('administrators:download_job_report_excel')
         })
 
 
@@ -200,7 +201,37 @@ class SummaryApplicants(LoginRequiredMixin, SummaryApplicantsMixin, View):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
-def download_job_report(request):
+def download_job_report_md(request):
+    jobs = adminApi.job_filters(request, 'progress_jobs')
+    
+    result = ''
+    for job in jobs:
+        result += 'Year & Term: '
+        result += '{0} {1}\n'.format(job.session.year, job.session.term.name)
+        result += '\nCourse Name: '
+        result += '{0} {1} {2}\n'.format(job.course.code.name, job.course.number.name, job.course.section.name)
+
+        result += '\nInstructor(s): '
+        instructors = []
+        if job.instructors.count() > 0:
+            instructors = [ins.get_full_name() for ins in job.instructors.all()]
+            result += ', '.join(instructors) + '\n'
+        else:
+            result += 'None\n'
+        
+        result += '\nCourse Overview:\n'
+        result += adminApi.extract_text(job.course_overview) + '\n'
+        result += '\nDescription:\n'
+        result += adminApi.extract_text(job.description) + '\n'
+        result += '\\newpage \n'
+
+    return JsonResponse({ 'status': 'success', 'data': result })
+
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def download_job_report_excel(request):
     jobs = adminApi.job_filters(request, 'progress_jobs')
     
     data = []

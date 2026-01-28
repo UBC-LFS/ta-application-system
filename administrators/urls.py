@@ -49,7 +49,8 @@ urlpatterns += [
     path('job/worktag_setting/delete/', job_views.delete_job_worktag_setting, name='delete_job_worktag_setting'),
     path('app/worktag_setting/delete/', job_views.delete_app_worktag_setting, name='delete_app_worktag_setting'),
 
-    path('func/jobs/report/download/', job_views.download_job_report, name='download_job_report'),
+    path('func/jobs/report/download/pdf/', job_views.download_job_report_md, name='download_job_report_md'),
+    path('func/jobs/report/download/excel/', job_views.download_job_report_excel, name='download_job_report_excel')
 ]
 
 

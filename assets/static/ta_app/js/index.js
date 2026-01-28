@@ -74,7 +74,7 @@ function downloadText(data, filename) {
 }
 
 // Download data to a markdown file
-function downloadText(data, filename) {
+function downloadMarkdown(data, filename) {
   let el = document.createElement('a');
   const blob = new Blob([data], { type: 'text/markdown;charset=utf-8' });
   const url = URL.createObjectURL(blob);
