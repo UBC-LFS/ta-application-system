@@ -1,11 +1,7 @@
-import os
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django.http import Http404
-from django.db.models import Q, Count, OuterRef, Subquery
-
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-
+from django.db.models import Q, OuterRef, Subquery
 from django.contrib.auth.models import User
 from django.core.mail import send_mail, EmailMultiAlternatives
 from django.db import IntegrityError
@@ -14,7 +10,6 @@ from django.urls import resolve
 from urllib.parse import urlparse
 from django.utils.html import strip_tags
 from django.db.models import BooleanField, Case, Value, When, F
-
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 
@@ -24,9 +19,12 @@ from users.models import *
 from users import api as userApi
 from ta_app import utils
 
-from datetime import datetime, timedelta, date
-import math
+import os
+import re
 import csv
+import math
+from datetime import datetime, timedelta, date
+from bs4 import BeautifulSoup
 
 
 def redirect_to_index_page(roles):
@@ -1772,30 +1770,29 @@ def strip_html_tags(text):
     return strip_tags(text_replaced)
 
 
-from bs4 import BeautifulSoup
-import re
-
 def extract_text(html_string):
-    soup = BeautifulSoup(html_string, 'html.parser')
+    if html_string:
+        soup = BeautifulSoup(html_string, 'html.parser')
 
-    for tag in soup(['style', 'script']):
-        tag.decompose()
+        for tag in soup(['style', 'script']):
+            tag.decompose()
 
-    for br in soup.find_all("br"):
-        br.replace_with("\n")
+        for br in soup.find_all("br"):
+            br.replace_with("\n")
 
-    block_tags = ["p", "div", "section", "article", "header", "footer", "li"]
-    for tag in soup.find_all(block_tags):
-        tag.append("\n")
+        block_tags = ["p", "div", "section", "article", "header", "footer", "li"]
+        for tag in soup.find_all(block_tags):
+            tag.append("\n")
 
-    text = soup.get_text()
+        text = soup.get_text()
 
-    text = text.replace("\xa0", " ")
-    text = re.sub(r"<0x[aA]0>", " ", text)
+        text = text.replace("\xa0", " ")
+        text = re.sub(r"<0x[aA]0>", " ", text)
 
-    text = text.replace("&nbsp;", " ")
-    text = re.sub(r"[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]", "", text)
-    text = re.sub(r"[ \t]+", " ", text)
-    text = re.sub(r"\n\s*\n\s*\n+", "\n\n", text)
+        text = text.replace("&nbsp;", " ")
+        text = re.sub(r"[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]", "", text)
+        text = re.sub(r"[ \t]+", " ", text)
+        text = re.sub(r"\n\s*\n\s*\n+", "\n\n", text)
 
-    return text.strip()
+        return text.strip()
+    return ''
