@@ -18,7 +18,7 @@ urlpatterns = [
 
 urlpatterns += [
     path('sessions/create/confirmation/', session_views.CreateSessionConfirmation.as_view(), name='create_session_confirmation'),
-    path('sessions/create/setup-jobs/', session_views.CreateSessionSetupCourses.as_view(), name='create_session_setup_courses'),
+    path('sessions/create/setup-courses/', session_views.CreateSessionSetupCourses.as_view(), name='create_session_setup_courses'),
     path('sessions/create/', session_views.CreateSession.as_view(), name='create_session'),
     path('sessions/<str:session_slug>/delete/confirmation/', session_views.delete_session_confirmation, name='delete_session_confirmation'),
     path('sessions/<str:session_slug>/edit/', session_views.edit_session, name='edit_session'),

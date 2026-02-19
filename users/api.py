@@ -31,7 +31,7 @@ def is_valid_user(user):
 
 
 def is_superadmin(user, option=None):
-    ''' Check if an user is an Admin or Superadmin '''
+    ''' Check if an user is a Superadmin '''
     if option == 'dict':
         if 'Superadmin' in user['roles']: return True
     else:

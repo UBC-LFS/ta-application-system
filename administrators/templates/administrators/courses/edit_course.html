@@ -65,26 +65,7 @@
           </tbody>
         </table>
 
-        <table class="user-data-table table table-borderless">
-          <tbody>
-            {% for field in form.visible_fields  %}
-              <tr>
-                <td>
-                  <div class="field-wrapper">
-                    {{ field.label_tag }}
-                    {% if field.help_text %}
-                      <div class="help">{{ field.help_text|safe }}</div>
-                    {% endif %}
-                </td>
-                <td>{{ field }}</td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-
-        {% for field in form.hidden_fields %}
-          {{ field }}
-        {% endfor %}
+        {% include 'administrators/subpages/form.html' %}
 
         <input type="hidden" name="next" value="{{ next }}" />
         <a class="btn btn-outline-secondary" href="{{ next }}">Cancel</a>

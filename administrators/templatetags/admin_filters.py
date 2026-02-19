@@ -1,10 +1,15 @@
 from django import template
-from users import api as userApi
+
 from administrators import api as adminApi
-from administrators.models import ApplicationStatus
-from django.utils.html import strip_tags
 
 register = template.Library()
+
+
+@register.filter
+def previous_job(course, year):
+    job = course.job_set.filter(session__year=int(year)-1)
+    return job.first() if job.exists() else None
+
 
 
 @register.filter

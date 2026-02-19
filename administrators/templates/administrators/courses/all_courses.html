@@ -40,6 +40,7 @@
         <th>Course <br /> Overview</th>
         <th>Job <br /> Description</th>
         <th>Note</th>
+        <th>Active?</th>
         <th>Actions</th>
       </tr>
     </thead>
@@ -115,6 +116,7 @@
               </div>
             {% endif %}
           </td>
+          <td>{% include 'ta_app/icons/true_or_false.html' with data=course.is_active %}</td>
           <td>
             <div class="btn-toolbar">
               <a class="btn btn-xs btn-link mr-2" href="{% url 'administrators:edit_course' course.slug %}?next={{ request.get_full_path }}">Edit</a>

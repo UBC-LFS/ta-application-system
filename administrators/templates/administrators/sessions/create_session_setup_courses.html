@@ -1,5 +1,6 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
+{% load admin_filters %}
 
 {% include 'administrators/_menu.html' %}
 <div class="row">
@@ -74,36 +75,38 @@
                 <th>Instructors</th>
                 <th>Total Assigned <br /> TA Hours</th>
                 <th>Job Details</th>
-                <th>Is active</th>
+                <th>Active?</th>
                 <th>Copy <br /> Job Info</th>
               </tr>
             </thead>
             <tbody>
               {% for course in courses %}
                 <tr>
-                  <td>
-                    <input name="is_course_selected" value="{{ course.id }}" type="checkbox" checked />
-                  </td>
-                  <td>{{ course }}</td>
-
-                  {% if course.prev_job %}
-                    <td class="text-left">{% include 'ta_app/jobs/_job_instructor_list.html' with data=course.prev_job %}</td>
-                    <td>{{ course.prev_job.assigned_ta_hours }}</td>
+                  {% with prev_job=course|previous_job:year %}
                     <td>
-                      {% if course.prev_job.course_overview or course.prev_job.description or course.prev_job.note %}
-                        {% include 'ta_app/jobs/_modal_prev_job_info.html' with data=course.prev_job %}
-                      {% else %}
-                        None
-                      {% endif %}
+                      <input name="is_course_selected" value="{{ course.id }}" type="checkbox" checked />
                     </td>
-                    <td>{% include 'ta_app/jobs/_job_is_active.html' with data=course.prev_job %}</td>
-                  {% else  %}
-                    <td colspan="4">No information found</td>
-                  {% endif %}
+                    <td>{{ course }}</td>
 
-                  <td>
-                    <input name="is_copied" value="{{ course.id }}" type="checkbox" {% if course.prev_job %}checked{% else %}disabled{% endif %} />
-                  </td>
+                    {% if prev_job %}
+                      <td class="text-left">{% include 'ta_app/jobs/_job_instructor_list.html' with data=prev_job %}</td>
+                      <td>{{ prev_job.assigned_ta_hours }}</td>
+                      <td>
+                        {% if prev_job.course_overview or prev_job.description or prev_job.note %}
+                          {% include 'ta_app/jobs/_modal_prev_job_info.html' with data=prev_job %}
+                        {% else %}
+                          None
+                        {% endif %}
+                      </td>
+                      <td>{% include 'ta_app/jobs/_job_is_active.html' with data=prev_job %}</td>
+                    {% else  %}
+                      <td colspan="4">No information found</td>
+                    {% endif %}
+
+                    <td>
+                      <input name="is_copied" value="{{ course.id }}" type="checkbox" {% if prev_job %}checked{% else %}disabled{% endif %} />
+                    </td>
+                  {% endwith %}
                 </tr>
               {% endfor %}
             </tbody>

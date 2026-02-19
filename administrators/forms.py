@@ -84,7 +84,7 @@ class CourseForm(forms.ModelForm):
     ''' Create a model form for a course '''
     class Meta:
         model = Course
-        fields = ['term', 'code', 'number', 'section', 'name', 'overview', 'job_description', 'job_note']
+        fields = ['term', 'code', 'number', 'section', 'name', 'overview', 'job_description', 'job_note', 'is_active']
         widgets = {
             'term': forms.Select(attrs={ 'class': 'form-control' }),
             'code': forms.Select(attrs={ 'class': 'form-control' }),
@@ -108,14 +108,14 @@ class CourseForm(forms.ModelForm):
             'name': 'This field is required. Maximum 256 characters allowed.'
         }
 
-    field_order = ['term', 'code', 'number','section', 'name', 'overview', 'job_description', 'job_note']
+    field_order = ['term', 'code', 'number','section', 'name', 'overview', 'job_description', 'job_note', 'is_active']
 
 
 class CourseEditForm(forms.ModelForm):
     ''' Create a model form for a course '''
     class Meta:
         model = Course
-        fields = ['name', 'overview', 'job_description', 'job_note']
+        fields = ['name', 'overview', 'job_description', 'job_note', 'is_active']
         widgets = {
             'name': forms.TextInput(attrs={ 'class': 'form-control' }),
             'overview': SummernoteWidget(),
@@ -131,7 +131,7 @@ class CourseEditForm(forms.ModelForm):
             'name': 'This field is required. Maximum 256 characters allowed.'
         }
 
-    field_order = ['name', 'overview', 'job_description', 'job_note']
+    field_order = ['name', 'overview', 'job_description', 'job_note', 'is_active']
 
 
 class SessionForm(forms.ModelForm):

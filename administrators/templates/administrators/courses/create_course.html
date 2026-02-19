@@ -25,25 +25,7 @@
       <form action="" method="post">
         {% csrf_token %}
 
-        <table class="user-data-table table table-borderless">
-          <tbody>
-            {% for field in form.visible_fields  %}
-              <tr>
-                <td>
-                  {{ field.label_tag }}
-                  {% if field.help_text %}
-                    <div class="help">{{ field.help_text|safe }}</div>
-                  {% endif %}
-                </td>
-                <td>{{ field }}</td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-
-        {% for field in form.hidden_fields %}
-          {{ field }}
-        {% endfor %}
+        {% include 'administrators/subpages/form.html' %}
 
         <a class="btn btn-outline-secondary" href="{{ next }}">Cancel</a>
         <input type="hidden" name="next" value="{{ next }}" />

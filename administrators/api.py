@@ -12,6 +12,7 @@ from django.utils.html import strip_tags
 from django.db.models import BooleanField, Case, Value, When, F
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
+from django.contrib import messages
 
 from administrators.models import *
 from administrators.forms import AdminDocumentsForm
@@ -180,13 +181,6 @@ def get_course(data, option=None):
     ''' Get a course '''
     if option == 'slug': return get_object_or_404(Course, slug=data)
     return get_object_or_404(Course, id=data)
-
-def get_courses_by_term(term_id):
-    ''' Get courses by term '''
-    try:
-        return Course.objects.filter(term__id=term_id)
-    except Course.DoesNotExist:
-        return None
 
 def delete_course(course_id):
     ''' Delete a course '''
@@ -1424,9 +1418,6 @@ def get_accepted_hours_from_previous_year(user, year):
     return prev_year_assigned_hours
 
 
-from django.contrib import messages
-
-
 def valid_worktag_setting(request):
     valid_programs = [
         ('program1', 'Program 1'),
@@ -1796,3 +1787,12 @@ def extract_text(html_string):
 
         return text.strip()
     return ''
+
+
+# To be removed
+
+# def get_courses_by_term(term_id):
+#     try:
+#         return Course.objects.filter(term__id=term_id)
+#     except Course.DoesNotExist:
+#         return None

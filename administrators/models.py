@@ -65,6 +65,7 @@ class Course(models.Model):
     overview = models.TextField(null=True, blank=True)
     job_description = models.TextField(null=True, blank=True)
     job_note = models.TextField(null=True, blank=True)
+    is_active = models.BooleanField(default=True)
     slug = models.SlugField(max_length=256, unique=True)
 
     class Meta:
@@ -151,6 +152,7 @@ class Classification(models.Model):
     class Meta:
         unique_together = ['year', 'name']
         ordering = ['-year', '-wage']
+
 
 class Application(models.Model):
     """ This is a model for applications of students """

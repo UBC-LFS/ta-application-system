@@ -14,7 +14,7 @@ from datetime import date, datetime
 import copy
 
 from ta_app import utils
-from administrators.models import Session, Job
+from administrators.models import Session, Course, Job
 from administrators.forms import SessionForm, SessionConfirmationForm
 from administrators import api as adminApi
 from users import api as userApi
@@ -122,8 +122,6 @@ class ShowSession(LoginRequiredMixin, View):
 class CreateSession(LoginRequiredMixin, View):
     ''' Create a session '''
 
-    form_class = SessionForm
-
     @method_decorator(require_GET)
     def get(self, request, *args, **kwargs):
         request = userApi.has_admin_access(request)
@@ -133,7 +131,7 @@ class CreateSession(LoginRequiredMixin, View):
             'loggedin_user': request.user,
             'current_sessions': sessions.filter(is_archived=False),
             'archived_sessions': sessions.filter(is_archived=True),
-            'form': self.form_class(initial={
+            'form': SessionForm(initial={
                 'year': date.today().year,
                 'title': 'TA Application'
             })
@@ -141,7 +139,7 @@ class CreateSession(LoginRequiredMixin, View):
 
     @method_decorator(require_POST)
     def post(self, request, *args, **kwargs):
-        form = self.form_class(request.POST)
+        form = SessionForm(request.POST)
         if form.is_valid():
             data = form.cleaned_data
             data['term'] = data['term'].id
@@ -158,7 +156,6 @@ class CreateSession(LoginRequiredMixin, View):
 
 @method_decorator([never_cache], name='dispatch')
 class CreateSessionSetupCourses(LoginRequiredMixin, View):
-    form_class = SessionConfirmationForm
 
     @method_decorator(require_GET)
     def get(self, request, *args, **kwargs):
@@ -171,14 +168,11 @@ class CreateSessionSetupCourses(LoginRequiredMixin, View):
 
         year = data['year']
         term = adminApi.get_term(data['term'])
-        courses = adminApi.get_courses_by_term(data['term'])
-
-        for course in courses:
-            job = course.job_set.filter(session__year=int(year)-1)
-            course.prev_job = job.first() if job.exists() else None
+        courses = Course.objects.filter(term__id=term.id, is_active=True)
 
         return render(request, 'administrators/sessions/create_session_setup_courses.html', context={
             'loggedin_user': request.user,
+            'year': year,
             'session': adminApi.make_session_info(data, term),
             'term': term,
             'courses': courses
@@ -333,7 +327,6 @@ class CreateSessionConfirmation(LoginRequiredMixin, View):
         if data['is_archived']:
             return redirect('administrators:archived_sessions')
         return redirect('administrators:current_sessions')
-
 
 
 @method_decorator([never_cache], name='dispatch')
