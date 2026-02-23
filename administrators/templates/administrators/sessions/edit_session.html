@@ -1,5 +1,6 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
+{% load admin_filters %}
 
 {% include 'administrators/_menu.html' %}
 <div class="row">
@@ -37,6 +38,24 @@
         {% csrf_token %}
 
         {% include 'administrators/subpages/form.html' %}
+
+        <table class="user-data-table table table-borderless">
+          <tbody>
+            <tr>
+              <td>Jobs</td>
+              <td>
+                {% for job in session.job_set.all %}
+                  <div>
+                    <input name="jobs[]" value="{{ job.id }}" type="checkbox" {% if job.is_active %}checked{% endif %} />
+                    {{ job|job_full_name }}
+                  </div>
+                {% empty %}
+                  No jobs found.
+                {% endfor %}
+              </td>
+            </tr>
+          </tbody>
+        </table>
 
         <input type="hidden" name="next" value="{{ next }}" />
 

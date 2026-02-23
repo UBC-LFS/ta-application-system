@@ -7,6 +7,7 @@ from django.http import HttpResponseRedirect
 from django.core.exceptions import SuspiciousOperation
 from django.contrib.auth import logout
 
+from ta_app import functions as func
 from administrators import api as adminApi
 from users import api as userApi
 
@@ -21,19 +22,12 @@ def landing_page(request):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
 def app_home(request):
-    ''' App Home '''
-
-    roles = userApi.get_user_roles(request.user)
-    if not roles:
-        raise SuspiciousOperation
-
-    request.session['loggedin_user'] = {
-        'id': request.user.id,
-        'username': request.user.username,
-        'roles': roles
-    }
-    redirect_to = adminApi.redirect_to_index_page(roles)
-    return HttpResponseRedirect(redirect_to)
+    if hasattr(request.user, 'profile'):
+        profile = request.user.profile
+        if profile.roles.exists():
+            redirect_to = func.redirect_index(profile.roles)
+            return HttpResponseRedirect(redirect_to)
+    raise SuspiciousOperation
 
 
 @login_required(login_url=settings.LOGIN_URL)

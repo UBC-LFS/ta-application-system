@@ -27,41 +27,41 @@
 
 					<div class="collapse navbar-collapse" id="navbarSupportedContent">
 						<ul class="navbar-nav mr-auto">
-							{% if 'Admin' in request.user.roles or 'Superadmin' in request.user.roles or 'HR' in request.user.roles %}
+							{% if 'Admin' in user_roles or 'Superadmin' in user_roles or 'HR' in user_roles %}
 								<li class="nav-item">
 									<a id="nav-administrator" class="nav-link" href="{% url 'administrators:index' %}">
 										<i class="fa fa-home" aria-hidden="true"></i>
-										{% if request.user.roles|length > 1 %} Admin {% endif %}
+										{% if user_roles|length > 1 %} Admin {% endif %}
 										Home
 									</a>
 								</li>
 							{% endif %}
 
-							{% if 'Instructor' in request.user.roles %}
+							{% if 'Instructor' in user_roles %}
 								<li class="nav-item">
 									<a id="nav-instructor" class="nav-link" href="{% url 'instructors:index' %}">
 										<i class="fa fa-home" aria-hidden="true"></i>
-										{% if request.user.roles|length > 1 %} Instructor {% endif %}
+										{% if user_roles|length > 1 %} Instructor {% endif %}
 										Home
 									</a>
 								</li>
 							{% endif %}
 
-							{% if 'Student' in request.user.roles %}
+							{% if 'Student' in user_roles %}
 								<li class="nav-item">
 									<a id="nav-student" class="nav-link" href="{% url 'students:index' %}">
 										<i class="fa fa-home" aria-hidden="true"></i>
-										{% if request.user.roles|length > 1 %} Student {% endif %}
+										{% if user_roles|length > 1 %} Student {% endif %}
 										Home
 									</a>
 								</li>
 							{% endif %}
 
-							{% if 'Observer' in request.user.roles %}
+							{% if 'Observer' in user_roles %}
 								<li class="nav-item">
 									<a id="nav-observer" class="nav-link" href="{% url 'observers:index' %}">
 										<i class="fa fa-home" aria-hidden="true"></i>
-										{% if request.user.roles|length > 1 %} Observer {% endif %}
+										{% if user_roles|length > 1 %} Observer {% endif %}
 										Home
 									</a>
 								</li>

@@ -1,6 +1,6 @@
 <nav class="container menu">
 
-  {% if 'Admin' in request.user.roles or 'Superadmin' in request.user.roles %}
+  {% if 'Admin' in user_roles or 'Superadmin' in user_roles %}
     <div class="dropdown">
       <button class="btn btn-sm btn-light dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
         Sessions
@@ -88,7 +88,7 @@
       </div>
     </div>
 
-  {% elif 'HR' in request.user.roles %}
+  {% elif 'HR' in user_roles %}
     <div class="dropdown">
       <button class="btn btn-sm btn-light dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
         Applications

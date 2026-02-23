@@ -16,6 +16,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils.decorators import method_decorator
 from django.views.decorators.http import require_http_methods, require_GET, require_POST
 
+from ta_app.permissions import access_student
 from ta_app import utils
 from administrators.forms import *
 from administrators import api as adminApi
@@ -29,13 +30,11 @@ from datetime import datetime
 IMPORTANT_MESSAGE = '<strong>Important:</strong> Please complete all items in your <strong>Additional Information</strong> tab. If you have not already done so, also upload your <strong>Resume</strong>. <br />When these tabs are complete, you will be able to <strong>Explore Jobs</strong> when the TA Application is open.<br />No official TA offer can be sent to you unless these two sections are completed.  Thanks.'
 
 
-@method_decorator([never_cache], name='dispatch')
+@method_decorator([never_cache, access_student], name='dispatch')
 class Index(LoginRequiredMixin, View):
-    ''' Index page of Stusent's portal '''
 
     @method_decorator(require_GET)
-    def get(self, request, *args, **kwargs):
-        request = userApi.has_user_access(request, utils.STUDENT)
+    def get(self, request, *args, **kwargs):        
 
         # To check whether a student has competed an additional information and resume
         can_apply = userApi.can_apply(request.user)
@@ -80,13 +79,11 @@ class Index(LoginRequiredMixin, View):
         return redirect("students:index")
 
 
-@method_decorator([never_cache], name='dispatch')
+@method_decorator([never_cache, access_student], name='dispatch')
 class ShowProfile(LoginRequiredMixin, View):
-    ''' Display user profile '''
 
     @method_decorator(require_GET)
     def get(self, request, *args, **kwargs):
-        request = userApi.has_user_access(request, utils.STUDENT)
         adminApi.can_req_parameters_access(request, 'student', ['next', 'p', 't'])
 
         loggedin_user = userApi.add_resume(request.user)
@@ -104,13 +101,11 @@ class ShowProfile(LoginRequiredMixin, View):
         })
 
 
-@method_decorator([never_cache], name='dispatch')
+@method_decorator([never_cache, access_student], name='dispatch')
 class EditProfile(LoginRequiredMixin, View):
-    ''' Edit user's profile '''
 
     def setup(self, request, *args, **kwargs):
         setup = super().setup(request, *args, **kwargs)
-        request = userApi.has_user_access(request, utils.STUDENT)
 
         tab = request.GET.get('t', None)
         if not tab or tab not in ['general', 'graduate', 'undergraduate', 'summary']:
@@ -226,9 +221,8 @@ class EditProfile(LoginRequiredMixin, View):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['POST'])
+@access_student
 def update_profile_ta(request):
-    ''' Update profile ta information '''
-
     path = request.POST.get('path', None)
     if not path:
         raise SuspiciousOperation
@@ -271,8 +265,8 @@ def update_profile_ta(request):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['POST'])
+@access_student
 def confirm_profile_reminder(request):
-    ''' Confirm profile reminder '''
     user_id = request.POST.get('user', None)
     session_slug = request.POST.get('session', None)
     if not user_id or not session_slug:
@@ -290,9 +284,8 @@ def confirm_profile_reminder(request):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['POST'])
+@access_student
 def upload_resume(request):
-    ''' Upload user's resume '''
-    request = userApi.has_user_access(request, utils.STUDENT)
     adminApi.can_req_parameters_access(request, 'student', ['next', 'p'])
 
     loggedin_user = userApi.add_resume(request.user)
@@ -325,9 +318,8 @@ def upload_resume(request):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['POST'])
+@access_student
 def delete_resume(request):
-    ''' Delete user's resume '''
-    request = userApi.has_user_access(request, utils.STUDENT)
     adminApi.can_req_parameters_access(request, 'student', ['next', 'p'])
 
     if request.method == 'POST':
@@ -347,10 +339,8 @@ def delete_resume(request):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
+@access_student
 def show_confidentiality(request):
-    ''' Display user's confidentiality '''
-    request = userApi.has_user_access(request, utils.STUDENT)
-
     template = 'choose'
     if userApi.has_user_confidentiality_created(request.user) and request.user.confidentiality and request.user.confidentiality.nationality != None:
         template = 'detail'
@@ -361,13 +351,12 @@ def show_confidentiality(request):
         'template': template
     })
 
+
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['POST'])
+@access_student
 def check_confidentiality(request):
-    ''' Check whether an international student or not '''
-    request = userApi.has_user_access(request, utils.STUDENT)
-
     if request.method == 'POST':
         form = None
         if userApi.has_user_confidentiality_created(request.user):
@@ -390,13 +379,12 @@ def check_confidentiality(request):
 
     return redirect('students:submit_confidentiality')
 
+
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET', 'POST'])
+@access_student
 def submit_confidentiality(request):
-    ''' Submit user's confidentiality '''
-    request = userApi.has_user_access(request, utils.STUDENT)
-
     loggedin_user = request.user
     form = None
     confidentiality = userApi.has_user_confidentiality_created(loggedin_user)
@@ -461,13 +449,11 @@ def submit_confidentiality(request):
     })
 
 
-@method_decorator([never_cache], name='dispatch')
+@method_decorator([never_cache, access_student], name='dispatch')
 class EditConfidentiality(LoginRequiredMixin, View):
     
     @method_decorator(require_GET)
     def get(self, request, *args, **kwargs):
-        request = userApi.has_user_access(request, utils.STUDENT)
-
         form = None
         sin_file = None
         study_permit_file = None
@@ -602,10 +588,8 @@ class EditConfidentiality(LoginRequiredMixin, View):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['POST'])
+@access_student
 def delete_confidential_information(request):
-    ''' Delete a confidential information '''
-    request = userApi.has_user_access(request, utils.STUDENT)
-
     if request.method == 'POST':
         data = []
         if request.POST.get('date_of_birth') != None: data.append('date_of_birth')
@@ -660,15 +644,12 @@ def download_file(request, username, item, filename):
 
 # Jobs
 
-@method_decorator([never_cache], name='dispatch')
+@method_decorator([never_cache, access_student], name='dispatch')
 class ExploreJobs(LoginRequiredMixin, View):
     ''' Index page of Stusent's portal '''
 
     @method_decorator(require_GET)
     def get(self, request, *args, **kwargs):
-        ''' Display all lists of session terms '''
-        request = userApi.has_user_access(request, utils.STUDENT)
-
         can_apply = userApi.can_apply(request.user)
         if not can_apply:
             messages.warning(request, IMPORTANT_MESSAGE)
@@ -693,10 +674,8 @@ class ExploreJobs(LoginRequiredMixin, View):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET', 'POST'])
+@access_student
 def favourite_jobs(request):
-    ''' Display all lists of session terms '''
-    request = userApi.has_user_access(request, utils.STUDENT)
-
     if request.method == 'POST':
         form = FavouriteForm(request.POST)
         if form.is_valid():
@@ -763,7 +742,7 @@ def favourite_jobs(request):
     })
 
 
-@method_decorator([never_cache], name='dispatch')
+@method_decorator([never_cache, access_student], name='dispatch')
 class AvailableJobs(LoginRequiredMixin, View):
 
     def setup(self, request, *args, **kwargs):
@@ -776,8 +755,6 @@ class AvailableJobs(LoginRequiredMixin, View):
         confirm_profile_reminder = userApi.confirm_profile_reminder(request.user, session_slug)
         if not confirm_profile_reminder:
             raise PermissionDenied
-
-        request = userApi.has_user_access(request, utils.STUDENT)
 
         can_apply = userApi.can_apply(request.user)
         if can_apply == False:
@@ -838,7 +815,7 @@ class AvailableJobs(LoginRequiredMixin, View):
         })
 
 
-@method_decorator([never_cache], name='dispatch')
+@method_decorator([never_cache, access_student], name='dispatch')
 class ApplyJob(LoginRequiredMixin, View):
 
     def setup(self, request, *args, **kwargs):
@@ -853,7 +830,6 @@ class ApplyJob(LoginRequiredMixin, View):
         if not confirm_profile_reminder:
             raise PermissionDenied
         
-        request = userApi.has_user_access(request, utils.STUDENT)
         adminApi.can_req_parameters_access(request, 'none', ['next'])
 
         next = adminApi.get_next(request)
@@ -932,10 +908,8 @@ class ApplyJob(LoginRequiredMixin, View):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['POST'])
+@access_student
 def select_favourite_job(request, session_slug, job_slug):
-    ''' Select favourite jobs '''
-    request = userApi.has_user_access(request, utils.STUDENT)
-
     if request.method == 'POST':
 
         # Check whether a next url is valid or not
@@ -968,10 +942,8 @@ def select_favourite_job(request, session_slug, job_slug):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
+@access_student
 def history_jobs(request):
-    ''' Display History of Jobs and total accepted assigned hours '''
-    request = userApi.has_user_access(request, utils.STUDENT)
-
     year_q = request.GET.get('year')
     term_q = request.GET.get('term')
     code_q = request.GET.get('code')
@@ -1039,9 +1011,8 @@ def history_jobs(request):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET', 'POST'])
+@access_student
 def terminate_job(request, session_slug, job_slug):
-    ''' Cancel/terminate an accepted job '''
-    request = userApi.has_user_access(request, utils.STUDENT)
     adminApi.can_req_parameters_access(request, 'none', ['next'])
 
     apps = request.user.application_set.all()
@@ -1088,9 +1059,8 @@ def terminate_job(request, session_slug, job_slug):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
+@access_student
 def accept_decline_job(request, session_slug, job_slug):
-    ''' Display a job to select accept or decline a job offer '''
-    request = userApi.has_user_access(request, utils.STUDENT)
     adminApi.can_req_parameters_access(request, 'none', ['next'])
 
     apps = request.user.application_set.all()
@@ -1110,12 +1080,12 @@ def accept_decline_job(request, session_slug, job_slug):
         'job_offer_details': adminApi.get_job_offer_details(request.user, app, 'offered')
     })
 
+
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['POST'])
+@access_student
 def make_decision(request, session_slug, job_slug):
-    ''' Students accept a job offer '''
-    request = userApi.has_user_access(request, utils.STUDENT)
     if request.method == 'POST':
 
         # Check whether a next url is valid or not
@@ -1211,10 +1181,8 @@ def make_decision(request, session_slug, job_slug):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET','POST'])
+@access_student
 def reaccept_application(request, app_slug):
-    ''' Re-accept an accepted application after declined '''
-    request = userApi.has_user_access(request, utils.STUDENT)
-
     app = adminApi.get_application(app_slug, 'slug')
     app = adminApi.add_app_info_into_application(app, ['accepted','declined'])
     if app.job.session.is_archived == True or app.is_declined_reassigned != True:
@@ -1311,9 +1279,8 @@ def reaccept_application(request, app_slug):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
+@access_student
 def show_job(request, session_slug, job_slug):
-    ''' Display job details '''
-    request = userApi.has_user_access(request, utils.STUDENT)
     adminApi.can_req_parameters_access(request, 'student-job', ['next', 'p'])
 
     return render(request, 'students/jobs/show_job.html', {
@@ -1321,12 +1288,12 @@ def show_job(request, session_slug, job_slug):
         'job': adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
     })
 
+
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET', 'POST'])
+@access_student
 def show_application(request, app_slug):
-    ''' Display job details '''
-    request = userApi.has_user_access(request, utils.STUDENT)
     adminApi.can_req_parameters_access(request, 'none', ['next'])
 
     return render(request, 'students/jobs/show_application.html', {

@@ -4,7 +4,7 @@
 {% include "observers/_menu.html" %}
 <div class="row">
   <div class="col-md-4">
-    {% if loggedin_user.roles|length > 1 %}
+    {% if user_roles|length > 1 %}
       {% include 'ta_app/pages/_left_aside.html' with view_name='users' title='Observer Home' data=loggedin_user %}
     {% else %}
       {% include 'ta_app/pages/_left_aside.html' with view_name='users' title='Home' data=loggedin_user %}

@@ -37,14 +37,6 @@ class SummaryApplicantsMixin:
 
     @method_decorator(require_GET)
     def get(self, request, *args, **kwargs):
-        if self.app_name == 'instructors':
-            request = userApi.has_user_access(request, utils.INSTRUCTOR)
-        elif self.app_name == 'administrators':
-            request = userApi.has_admin_access(request)
-
-        # session_term = session.year + '_' + session.term.code
-        # course = job.course.code.name + '_' + job.course.number.name + '_' + job.course.section.name
-
         applicants = adminApi.get_applicants_in_session(self.session)
         total_applicants = applicants.count()
 

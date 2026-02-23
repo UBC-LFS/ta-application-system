@@ -13,6 +13,7 @@ from django.db.models import Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from datetime import datetime
 
+from ta_app.permissions import access_admin, access_admin_or_hr
 from ta_app import utils
 from administrators.forms import AdminJobEditForm, InstructorUpdateForm, WorktagSetting
 from administrators import api as adminApi
@@ -20,14 +21,11 @@ from instructors.mixins import SummaryApplicantsMixin
 from users import api as userApi
 
 
-@method_decorator([never_cache], name='dispatch')
+@method_decorator([never_cache, access_admin], name='dispatch')
 class PrepareJobs(LoginRequiredMixin, View):
-    ''' Display preparing jobs '''
 
     @method_decorator(require_GET)
     def get(self, request, *args, **kwargs):
-        request = userApi.has_admin_access(request)
-
         job_list = adminApi.job_filters(request, 'prepare_jobs')
 
         page = request.GET.get('page', 1)
@@ -112,6 +110,7 @@ class PrepareJobs(LoginRequiredMixin, View):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['POST'])
+@access_admin
 def delete_job_worktag_setting(request):
     jid = request.POST['job']
     job = adminApi.get_job(jid)
@@ -130,6 +129,7 @@ def delete_job_worktag_setting(request):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['POST'])
+@access_admin
 def delete_app_worktag_setting(request):
     aid = request.POST['application']
     deleted = WorktagSetting.objects.filter(application_id=aid).delete()
@@ -140,14 +140,11 @@ def delete_app_worktag_setting(request):
     return HttpResponseRedirect(request.POST.get('next'))
 
 
-@method_decorator([never_cache], name='dispatch')
+@method_decorator([never_cache, access_admin], name='dispatch')
 class ProgressJobs(LoginRequiredMixin, View):
-    ''' See jobs in progress '''
     
     @method_decorator(require_GET)
     def get(self, request, *args, **kwargs):
-        request = userApi.has_admin_access(request)
-
         job_list = adminApi.job_filters(request, 'progress_jobs')
 
         page = request.GET.get('page', 1)
@@ -175,10 +172,8 @@ class ProgressJobs(LoginRequiredMixin, View):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
+@access_admin
 def show_job_applications(request, session_slug, job_slug):
-    ''' Display a job's applications '''
-
-    request = userApi.has_admin_access(request)
     job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
     request.session['summary_applicants_next'] = request.get_full_path()
 
@@ -193,7 +188,7 @@ def show_job_applications(request, session_slug, job_slug):
     })
 
 
-@method_decorator([never_cache], name='dispatch')
+@method_decorator([never_cache, access_admin], name='dispatch')
 class SummaryApplicants(LoginRequiredMixin, SummaryApplicantsMixin, View):
     pass
 
@@ -201,6 +196,7 @@ class SummaryApplicants(LoginRequiredMixin, SummaryApplicantsMixin, View):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
+@access_admin
 def download_job_report_md(request):
     jobs = adminApi.job_filters(request, 'progress_jobs')
     
@@ -231,6 +227,7 @@ def download_job_report_md(request):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
+@access_admin
 def download_job_report_excel(request):
     jobs = adminApi.job_filters(request, 'progress_jobs')
     
@@ -250,9 +247,8 @@ def download_job_report_excel(request):
     return JsonResponse({ 'status': 'success', 'data': data })
 
 
-@method_decorator([never_cache], name='dispatch')
+@method_decorator([never_cache, access_admin], name='dispatch')
 class InstructorJobs(LoginRequiredMixin, View):
-    ''' Display jobs by instructor '''
 
     @method_decorator(require_GET)
     def get(self, request, *args, **kwargs):    
@@ -294,9 +290,8 @@ class InstructorJobs(LoginRequiredMixin, View):
         })
 
 
-@method_decorator([never_cache], name='dispatch')
+@method_decorator([never_cache, access_admin], name='dispatch')
 class InstructorJobsDetails(LoginRequiredMixin, View):
-    ''' Display jobs that an instructor has '''
     
     def setup(self, request, *args, **kwargs):
         setup = super().setup(request, *args, **kwargs)
@@ -333,9 +328,8 @@ class InstructorJobsDetails(LoginRequiredMixin, View):
         })
 
 
-@method_decorator([never_cache], name='dispatch')
+@method_decorator([never_cache, access_admin], name='dispatch')
 class StudentJobs(LoginRequiredMixin, View):
-    ''' Display jobs by student '''
 
     @method_decorator(require_GET)
     def get(self, request, *args, **kwargs):
@@ -379,9 +373,8 @@ class StudentJobs(LoginRequiredMixin, View):
         })
 
 
-@method_decorator([never_cache], name='dispatch')
+@method_decorator([never_cache, access_admin], name='dispatch')
 class StudentJobsDetails(LoginRequiredMixin, View):
-    ''' Display jobs that an student has '''
     
     def setup(self, request, *args, **kwargs):
         setup = super().setup(request, *args, **kwargs)
@@ -434,9 +427,8 @@ class StudentJobsDetails(LoginRequiredMixin, View):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET', 'POST'])
+@access_admin
 def edit_job(request, session_slug, job_slug):
-    ''' Edit a job '''
-    request = userApi.has_admin_access(request)
     adminApi.can_req_parameters_access(request, 'job', ['next', 'p'])
 
     job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
@@ -474,10 +466,8 @@ def edit_job(request, session_slug, job_slug):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
+@access_admin
 def search_instructors(request):
-    ''' Search job instructors '''
-    request = userApi.has_admin_access(request)
-
     if request.method == 'GET':
         instructors = userApi.get_instructors()
         username = request.GET.get('username')
@@ -499,9 +489,8 @@ def search_instructors(request):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['POST'])
+@access_admin
 def add_job_instructors(request, session_slug, job_slug):
-    ''' Add job instructors '''
-    request = userApi.has_admin_access(request)
     if request.method == 'POST':
         job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
 
@@ -538,13 +527,11 @@ def add_job_instructors(request, session_slug, job_slug):
     return JsonResponse({ 'status': 'error', 'message': 'Request method is not POST.' })
 
 
-
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['POST'])
+@access_admin
 def delete_job_instructors(request, session_slug, job_slug):
-    ''' Delete job instructors '''
-    request = userApi.has_admin_access(request)
     if request.method == 'POST':
         job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
 
@@ -574,9 +561,9 @@ def delete_job_instructors(request, session_slug, job_slug):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
+@access_admin_or_hr
 def show_job(request, session_slug, job_slug):
-    ''' Display job details '''
-    request = userApi.has_admin_access(request, utils.HR)
+    # request = userApi.has_admin_access(request, utils.HR)
     adminApi.can_req_parameters_access(request, 'job-app', ['next', 'p'])
 
     return render(request, 'administrators/jobs/show_job.html', {

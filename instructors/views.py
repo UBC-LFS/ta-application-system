@@ -14,6 +14,8 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.mail import EmailMultiAlternatives
 from django.db.models import Q
 
+from ta_app.permissions import access_instructor
+from ta_app import functions as func
 from ta_app import utils
 from administrators.models import Application
 from administrators.forms import InstructorJobForm, InstructorApplicationForm, ApplicationStatusForm, ApplicationNoteForm
@@ -26,27 +28,22 @@ from users import api as userApi
 from datetime import datetime
 
 
-@method_decorator([never_cache], name='dispatch')
+@method_decorator([never_cache, access_instructor], name='dispatch')
 class Index(LoginRequiredMixin, View):
-    ''' Index page of an instructor's portal '''
 
     @method_decorator(require_GET)
     def get(self, request, *args, **kwargs):
-        request = userApi.has_user_access(request, utils.INSTRUCTOR)
-
         return render(request, 'instructors/index.html', {
             'loggedin_user': userApi.add_avatar(request.user)
         })
 
 
-@method_decorator([never_cache], name='dispatch')
+@method_decorator([never_cache, access_instructor], name='dispatch')
 class EditUser(LoginRequiredMixin, View):
-    ''' Edit user '''
 
     def setup(self, request, *args, **kwargs):
         setup = super().setup(request, *args, **kwargs)
 
-        request = userApi.has_user_access(request, utils.INSTRUCTOR)
         confidentiality = userApi.has_user_confidentiality_created(request.user)
 
         # Create a confiential information if it's None
@@ -108,13 +105,11 @@ class EditUser(LoginRequiredMixin, View):
         return redirect('instructors:edit_user')
 
 
-@method_decorator([never_cache], name='dispatch')
+@method_decorator([never_cache, access_instructor], name='dispatch')
 class ShowJobs(LoginRequiredMixin, View):
-    ''' Display jobs by instructors '''
 
     @method_decorator(require_GET)
     def get(self, request, *args, **kwargs):
-        request = userApi.has_user_access(request, utils.INSTRUCTOR)
         request.session['next_first'] = adminApi.build_new_next(request)
 
         year_q = request.GET.get('year')
@@ -152,9 +147,8 @@ class ShowJobs(LoginRequiredMixin, View):
         })
 
 
-@method_decorator([never_cache], name='dispatch')
+@method_decorator([never_cache, access_instructor], name='dispatch')
 class EditJob(LoginRequiredMixin, View):
-    ''' Update job details of instructors '''
 
     def setup(self, request, *args, **kwargs):
         setup = super().setup(request, *args, **kwargs)
@@ -164,7 +158,6 @@ class EditJob(LoginRequiredMixin, View):
         if not session_slug or not job_slug:
             raise Http404
 
-        request = userApi.has_user_access(request, utils.INSTRUCTOR)
         job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
 
         self.session_slug = session_slug
@@ -200,9 +193,8 @@ class EditJob(LoginRequiredMixin, View):
         return HttpResponseRedirect(request.get_full_path())
 
 
-@method_decorator([never_cache], name='dispatch')
+@method_decorator([never_cache, access_instructor], name='dispatch')
 class ShowJob(LoginRequiredMixin, View):
-    ''' Display job details '''
 
     def setup(self, request, *args, **kwargs):
         setup = super().setup(request, *args, **kwargs)
@@ -212,7 +204,6 @@ class ShowJob(LoginRequiredMixin, View):
         if not session_slug or not job_slug:
             raise Http404
 
-        request = userApi.has_user_access(request, utils.INSTRUCTOR)
         job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
 
         self.job = job
@@ -227,9 +218,8 @@ class ShowJob(LoginRequiredMixin, View):
         })
 
 
-@method_decorator([never_cache], name='dispatch')
+@method_decorator([never_cache, access_instructor], name='dispatch')
 class ShowApplications(LoginRequiredMixin, View):
-    ''' Display applications applied by students '''
 
     def setup(self, request, *args, **kwargs):
         setup = super().setup(request, *args, **kwargs)
@@ -238,8 +228,6 @@ class ShowApplications(LoginRequiredMixin, View):
 
         if not session_slug or not job_slug:
             raise Http404
-
-        request = userApi.has_user_access(request, utils.INSTRUCTOR)
 
         self.job = adminApi.get_job_by_session_slug_job_slug(session_slug, job_slug)
         self.session_slug = session_slug
@@ -274,7 +262,7 @@ class ShowApplications(LoginRequiredMixin, View):
             return HttpResponseRedirect(request.get_full_path())
 
         assigned_hours = int( float(assigned_hours) )
-        
+
         if assigned_hours <= 0:
             messages.error(request, 'An error occurred. Please check assigned hours. Assign TA Hours must be greater than 0.')
             return HttpResponseRedirect(request.get_full_path())
@@ -312,10 +300,8 @@ class ShowApplications(LoginRequiredMixin, View):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET', 'POST'])
+@access_instructor
 def write_note(request, app_slug):
-    ''' Write a note to administraotors '''
-    request = userApi.has_user_access(request, utils.INSTRUCTOR)
-
     app = adminApi.get_application(app_slug, 'slug')
     if request.method == 'POST':
         adminApi.can_req_parameters_access(request, 'none', ['next'], 'POST')
@@ -347,7 +333,7 @@ def write_note(request, app_slug):
     })
 
 
-@method_decorator([never_cache], name='dispatch')
+@method_decorator([never_cache, access_instructor], name='dispatch')
 class SummaryApplicants(LoginRequiredMixin, SummaryApplicantsMixin, View):
     pass
 
@@ -355,9 +341,8 @@ class SummaryApplicants(LoginRequiredMixin, SummaryApplicantsMixin, View):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['POST'])
+@access_instructor
 def applicants_send_email(request):
-    ''' Send an email for selected applicants '''
-    request = userApi.has_user_access(request, utils.INSTRUCTOR)
     adminApi.can_req_parameters_access(request, 'none', ['next'], 'POST')
 
     if request.method == 'POST':
@@ -378,10 +363,8 @@ def applicants_send_email(request):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET', 'POST'])
+@access_instructor
 def applicants_send_email_confirmation(request):
-    ''' Display the selected appliants '''
-    request = userApi.has_user_access(request, utils.INSTRUCTOR)
-
     applicants = []
     receiver_list = []
     email_form = None
@@ -499,10 +482,8 @@ def applicants_send_email_confirmation(request):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
+@access_instructor
 def show_email_history(request):
-    ''' Display a list of email history '''
-    request = userApi.has_user_access(request, utils.INSTRUCTOR)
-
     email_list = request.user.alertemail_set.all()
     if bool(request.GET.get('year')):
         email_list = email_list.filter(year__icontains=request.GET.get('year'))

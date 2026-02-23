@@ -1,8 +1,13 @@
 from django import template
 
-from administrators import api as adminApi
+from ta_app import functions as func
 
 register = template.Library()
+
+
+@register.filter
+def job_full_name(job):
+    return func.get_job_full_name(job)
 
 
 @register.filter
