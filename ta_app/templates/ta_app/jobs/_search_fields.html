@@ -9,7 +9,7 @@
 
     {% if path == 'prepare_jobs' or path == 'progress_jobs' %}
       and
-      Active? <input class="custom-input-mb-7" type="checkbox" name="is_active" value="True" {% if request.GET.is_active %}checked{% endif %} />
+      Is active <input class="custom-input-mb-7" type="checkbox" name="is_active" value="True" {% if request.GET.is_active %}checked{% endif %} />
     {% endif %}
 
     {% if path == 'prepare_jobs' %}

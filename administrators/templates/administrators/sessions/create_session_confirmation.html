@@ -65,7 +65,7 @@
               <th>Instructors</th>
               <th>Total Assigned <br /> TA Hours</th>
               <th>Job Details</th>
-              <th>Active?</th>
+              <th>Is active</th>
               <th>Copied</th>
             </tr>
           </thead>
@@ -96,7 +96,7 @@
           {% csrf_token %}
 
           <div class="my-5">
-            <a class="btn btn-outline-secondary" href="{% url 'administrators:create_session_setup_courses' %}">Cancel</a>
+            <a class="btn btn-outline-secondary" href="{% url 'administrators:create_session_setup_courses' %}">Back</a>
             <input class="btn btn-primary" type="submit" value="Confirm Create" />
           </div>
         </form>

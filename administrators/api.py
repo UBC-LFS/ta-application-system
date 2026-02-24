@@ -555,7 +555,8 @@ def job_filters(request, path):
 
     return job_list
 
-
+def get_job_full_name(job):
+    return '{0} {1} {2}'.format(job.course.code.name, job.course.number.name, job.course.section.name)
 
 # end jobs
 

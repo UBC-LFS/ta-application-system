@@ -156,6 +156,18 @@ class SessionForm(forms.ModelForm):
 
     field_order = ['year', 'term', 'title', 'description', 'note', 'is_visible', 'is_archived']
 
+
+class SessionEditForm(forms.ModelForm):
+    class Meta:
+        model = Session
+        fields = ['title', 'description', 'note', 'is_visible', 'is_archived']
+        widgets = {
+            'title': forms.TextInput(attrs={'class':'form-control'}),
+            'description': SummernoteWidget(),
+            'note': SummernoteWidget()
+        }
+
+
 class SessionConfirmationForm(forms.ModelForm):
     ''' Create a model form for a Session '''
 
