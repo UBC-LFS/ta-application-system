@@ -2,28 +2,42 @@
 
 {% with gta=user|gta %}
 
-  {% if gta %}
-    <button class="btn btn-xs {% if gta == 'GTA 1' %}btn-success{% elif gta == 'GTA 2' %}btn-orange{% else %}btn-secondary{% endif %}" type="button" data-toggle="modal" data-target="#gta-info-modal-{{ user.id }}">
-      {{ gta }}
-    </button>
+  {% if app.sta_confirmation %}
+    <button class="btn btn-xs btn-secondary" type="button" data-toggle="modal" data-target="#gta-info-modal-{{ app.id }}">REVIEW</button>
   {% else %}
-    None
+    {% if gta %}
+      <button class="btn btn-xs {% if gta == 'GTA 1' %}btn-success{% elif gta == 'GTA 2' %}btn-orange{% else %}btn-secondary{% endif %}" type="button" data-toggle="modal" data-target="#gta-info-modal-{{ app.id }}">{{ gta }}</button>
+    {% else %}
+      None
+    {% endif %}
   {% endif %}
 
-  <div class="modal fade" id="gta-info-modal-{{ user.id }}" tabindex="-1" role="dialog" aria-labelledby="gta-info-modal-label-{{ user.id }}" aria-hidden="true">
+  <div class="modal fade" id="gta-info-modal-{{ app.id }}" tabindex="-1" role="dialog" aria-labelledby="gta-info-modal-label-{{ app.id }}" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title text-info" id="gta-info-modal-label-{{ user.id }}">GTA Information - Completed Jobs</h5>
+          <h5 class="modal-title text-info" id="gta-info-modal-label-{{ app.id }}">GTA Information - Completed Jobs</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
         </div>
         <div class="modal-body text-left">
           <div class="modal-item">
+            {% if app.sta_confirmation %}
+              <p class="font-weight-bold font-size-1">
+                This application was selected as a <span class="text-chocolate">STA</span> and therefore requires review.
+              </p>
+            {% endif %}
+
             <h5 class="mb-4">
               {{ user.get_full_name }}
 
               {% if gta %}
                 {% include 'ta_app/users/_gta_badge.html' %}
+              {% endif %}
+
+              {% include 'ta_app/applications/_app_sta_confirmation.html' with data=app.sta_confirmation %}
+
+              {% if app.sta_confirmation %}
+                <span class="badge badge-secondary">REVIEW</span>
               {% endif %}
             </h5>
             {% include 'ta_app/users/_display_profile_info.html' with data=user %}

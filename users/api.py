@@ -847,6 +847,7 @@ def can_apply(user):
 
 
 def get_gta_flag(user):
+    
     undergrad = is_undergraduate(user)
     profile = has_user_profile_created(user)
     if not undergrad and profile:
@@ -858,7 +859,7 @@ def get_gta_flag(user):
                 return 'GTA 2'
             if years >= 2 and terms >= 5 and ta_hours >= 192:
                 return 'GTA 1'
-            return 'Review'
+            return 'REVIEW'
     return None
 
 
