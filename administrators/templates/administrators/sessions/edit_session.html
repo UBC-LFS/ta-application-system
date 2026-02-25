@@ -44,7 +44,7 @@
             <tr>
               <td>Jobs</td>
               <td>
-                {% for job in session.job_set.all %}
+                {% for job in jobs %}
                   <div>
                     <input name="jobs[]" value="{{ job.id }}" type="checkbox" {% if job.is_active %}checked{% endif %} />
                     {{ job|job_full_name }}
