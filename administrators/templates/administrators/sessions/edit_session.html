@@ -13,8 +13,52 @@
 
     <div class="col-10 mx-auto">
       {% include 'ta_app/pages/_session_note.html' %}
-    </div>
 
+      {% if extra_courses|length > 0 %}
+        <div class="text-center">
+          <button type="button" class="btn btn-info mt-2" data-toggle="modal" data-target="#add-extra-courses-modal">
+            Add Extra Courses ({{ extra_courses|length }})
+          </button>
+        </div>
+
+        <div class="modal fade" id="add-extra-courses-modal" tabindex="-1" aria-labelledby="add-extra-courses-modal-label" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="add-extra-courses-modal-label">Add Extra Courses</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body font-weight-normal">
+                <p>Here is the list of courses not included in the current job postings.</p>
+
+                <form action="{% url 'administrators:add_extra_courses' %}" method="post">
+                  {% csrf_token %}
+
+                  <ul class="no-bullet list-no-ml">
+                    {% for course in extra_courses %}
+                      <li>
+                        <input type="checkbox" name="courses[]" value="{{ course.id }}" />
+                        {{ course|course_name }}
+                      </li>
+                    {% endfor %}
+                  </ul>
+
+                  <input type="hidden" name="next" value="{{ request.get_full_path }}" />
+                  <input type="hidden" name="session_slug" value="{{ session.slug }}" />
+                  <button class="btn btn-primary mt-4" type="submit">Add</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% else %}
+        <div class="text-center">
+          <button type="button" class="btn btn-info mt-2" disabled>Add Extra Courses (0)</button>
+        </div>
+      {% endif %}
+    </div>
   </div>
 
   <div class="col-md-8">
@@ -50,7 +94,7 @@
                 {% for job in jobs %}
                   <div>
                     <input name="jobs[]" value="{{ job.id }}" type="checkbox" {% if job.is_active %}checked{% endif %} />
-                    {{ job|job_full_name }}
+                    {{ job|job_name }}
                   </div>
                 {% empty %}
                   No jobs found.

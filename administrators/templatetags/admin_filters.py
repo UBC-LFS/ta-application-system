@@ -6,8 +6,14 @@ register = template.Library()
 
 
 @register.filter
-def job_full_name(job):
-    return adminApi.get_job_full_name(job)
+def course_name(course):
+    print(course)
+    return adminApi.get_course_name(course)
+
+
+@register.filter
+def job_name(job):
+    return adminApi.get_job_name(job)
 
 
 @register.filter

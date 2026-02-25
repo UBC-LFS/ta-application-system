@@ -116,7 +116,7 @@
               </div>
             {% endif %}
           </td>
-          <td>{% include 'ta_app/icons/true_or_false.html' with data=course.is_active %}</td>
+          <td>{% include 'ta_app/jobs/_job_is_active.html' with data=course %}</td>
           <td>
             <div class="btn-toolbar">
               <a class="btn btn-xs btn-link mr-2" href="{% url 'administrators:edit_course' course.slug %}?next={{ request.get_full_path }}">Edit</a>

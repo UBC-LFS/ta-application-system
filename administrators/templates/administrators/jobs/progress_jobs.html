@@ -73,11 +73,7 @@
           <td>{{ job.assigned_ta_hours }}</td>
           <td>{{ job.accumulated_ta_hours }}</td>
           <td>
-            {% if job.is_active %}
-              <span class="badge badge-success">{{ job.is_active }} <i class="fa fa-check-circle" aria-hidden="true"></i></span>
-            {% else %}
-              <span class="badge badge-danger">{{ job.is_active }} <i class="fa fa-stop-circle" aria-hidden="true"></i></span>
-            {% endif %}
+            {% include 'ta_app/jobs/_job_is_active.html' with data=job %}
           </td>
           <td>
             <span class="d-none">{{ job.created_at|date:"Y m d z" }}</span>

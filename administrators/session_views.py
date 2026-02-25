@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect, Http404
@@ -10,16 +10,16 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.http import require_http_methods, require_GET, require_POST
 from django.db.models import Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from datetime import date, datetime
+from django.core.exceptions import SuspiciousOperation
+
 import copy
+from datetime import date, datetime
 
 from ta_app import utils
-
 from administrators.mixins import SessionMixin
 from administrators.models import Session, Course, Job
 from administrators.forms import SessionForm, SessionEditForm, SessionConfirmationForm
 from administrators import api as adminApi
-
 from users import api as userApi
 
 
@@ -423,16 +423,18 @@ class EditSession(LoginRequiredMixin, View):
         request = userApi.has_admin_access(request)
         adminApi.can_req_parameters_access(request, 'session', ['next', 'p'])
 
-        self.session = adminApi.get_session(session_slug, 'slug')
+        self.session = get_object_or_404(Session, slug=session_slug)
         return setup
     
     @method_decorator(require_GET)
     def get(self, request, *args, **kwargs):
+        jobs = [job for job in self.session.job_set.all() if job.course.is_active]
         
         return render(request, 'administrators/sessions/edit_session.html', {
             'loggedin_user': request.user,
             'session': self.session,
-            'jobs': [job for job in self.session.job_set.all() if job.course.is_active],
+            'jobs': jobs,
+            'extra_courses': Course.objects.filter(term=self.session.term, is_active=True).exclude(id__in=[job.course.id for job in jobs]),
             'form': SessionEditForm(instance=self.session),
             'next': adminApi.get_next(request)
         })
@@ -482,11 +484,75 @@ class EditSession(LoginRequiredMixin, View):
                 messages.error(request, 'An error occurred while updating a session.')
         else:
             errors = form.errors.get_json_data()
-            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.get_error_messages(errors) ))
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format(userApi.get_error_messages(errors)))
 
         return HttpResponseRedirect(request.get_full_path())
 
 
+@method_decorator([never_cache], name='dispatch')
+class AddExtraCourses(LoginRequiredMixin, View):
+
+    @method_decorator(require_POST)
+    def post(self, request, *args, **kwargs):    
+        request = userApi.has_admin_access(request)        
+
+        session_slug = request.POST.get('session_slug', None)
+        course_ids = request.POST.getlist('courses[]', [])
+
+        if not session_slug:
+            raise SuspiciousOperation
+
+        session = get_object_or_404(Session, slug=session_slug)
+        if len(course_ids) > 0:
+            jobs = []
+            for id in course_ids:
+                job = Job(
+                    session_id = session.id,
+                    course_id = id,
+                    is_active = True
+                )
+                jobs.append(job)
+            
+            created_jobs = Job.objects.bulk_create(jobs)
+            messages.success(request, 'Success! {0} extra course(s) added.'.format(len(created_jobs)))
+        else:
+            messages.warning(request, 'Warning! No extra courses selected. Please try again.')
+
+        return HttpResponseRedirect(request.POST.get('next'))
+
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET', 'POST'])
+def delete_session_confirmation(request, session_slug):
+    ''' Confirmation to delete a Session '''
+    request = userApi.has_admin_access(request)
+    adminApi.can_req_parameters_access(request, 'session', ['next', 'p'])
+
+    sessions = adminApi.get_sessions()
+    if request.method == 'POST':
+        adminApi.can_req_parameters_access(request, 'session', ['next'], 'POST')
+
+        session_id = request.POST.get('session')
+        deleted_session = adminApi.delete_session(session_id)
+        if deleted_session:
+            messages.success(request, 'Success! {0} {1} {2} deleted'.format(deleted_session.year, deleted_session.term.code, deleted_session.title))
+            return HttpResponseRedirect(request.POST.get('next'))
+        else:
+            messages.error(request, 'An error occurred. Failed to delete {0} {1} {2}'.format(deleted_session.year, deleted_session.term.code, deleted_session.title))
+        return HttpResponseRedirect(request.get_full_path())
+
+    return render(request, 'administrators/sessions/delete_session_confirmation.html', {
+        'loggedin_user': request.user,
+        'current_sessions': sessions.filter(is_archived=False),
+        'archived_sessions': sessions.filter(is_archived=True),
+        'session': adminApi.get_session(session_slug, 'slug'),
+        'next': adminApi.get_next(request)
+    })
+
+
+
+"""
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET', 'POST'])
@@ -542,33 +608,4 @@ def edit_session(request, session_slug):
         }),
         'next': adminApi.get_next(request)
     })
-
-
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET', 'POST'])
-def delete_session_confirmation(request, session_slug):
-    ''' Confirmation to delete a Session '''
-    request = userApi.has_admin_access(request)
-    adminApi.can_req_parameters_access(request, 'session', ['next', 'p'])
-
-    sessions = adminApi.get_sessions()
-    if request.method == 'POST':
-        adminApi.can_req_parameters_access(request, 'session', ['next'], 'POST')
-
-        session_id = request.POST.get('session')
-        deleted_session = adminApi.delete_session(session_id)
-        if deleted_session:
-            messages.success(request, 'Success! {0} {1} {2} deleted'.format(deleted_session.year, deleted_session.term.code, deleted_session.title))
-            return HttpResponseRedirect(request.POST.get('next'))
-        else:
-            messages.error(request, 'An error occurred. Failed to delete {0} {1} {2}'.format(deleted_session.year, deleted_session.term.code, deleted_session.title))
-        return HttpResponseRedirect(request.get_full_path())
-
-    return render(request, 'administrators/sessions/delete_session_confirmation.html', {
-        'loggedin_user': request.user,
-        'current_sessions': sessions.filter(is_archived=False),
-        'archived_sessions': sessions.filter(is_archived=True),
-        'session': adminApi.get_session(session_slug, 'slug'),
-        'next': adminApi.get_next(request)
-    })
+"""

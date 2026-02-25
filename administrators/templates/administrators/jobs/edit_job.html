@@ -44,7 +44,7 @@
             {% endfor %}
           </div>
 
-          <input id="input-instructor" class="form-control mt-3" type="text" placeholder="Enter a CWL here" data-url="{% url 'administrators:search_instructors' %}" data-session="{{ job.session.slug }}" data-job="{{ job.course.slug }}"  />
+          <input id="input-instructor" class="form-control mt-3" type="text" placeholder="Enter CWL" data-url="{% url 'administrators:search_instructors' %}" data-session="{{ job.session.slug }}" data-job="{{ job.course.slug }}" />
           <div id="display-instructors" data-add-url="{% url 'administrators:add_job_instructors' session_slug=job.session.slug job_slug=job.course.slug %}" data-form="{{ csrf_token }}"></div>
         </div>
 

@@ -26,7 +26,8 @@ urlpatterns += [
     path('sessions/<str:session_slug>/report/summary/', session_views.ShowReportSummary.as_view(), name='show_report_summary'),
     path('sessions/<str:session_slug>/report/applicants/', session_views.ShowReportApplicants.as_view(), name='show_report_applicants'),
     path('sessions/current/', session_views.CurrentSessions.as_view(), name='current_sessions'),
-    path('sessions/archived/', session_views.ArchivedSessions.as_view(), name='archived_sessions')
+    path('sessions/archived/', session_views.ArchivedSessions.as_view(), name='archived_sessions'),
+    path('sessions/extra-courses/add/', session_views.AddExtraCourses.as_view(), name='add_extra_courses'),
 ]
 
 
