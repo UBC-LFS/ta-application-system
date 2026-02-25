@@ -428,10 +428,11 @@ class EditSession(LoginRequiredMixin, View):
     
     @method_decorator(require_GET)
     def get(self, request, *args, **kwargs):
+        
         return render(request, 'administrators/sessions/edit_session.html', {
             'loggedin_user': request.user,
             'session': self.session,
-            'jobs': self.session.job_set.filter(is_active=True),
+            'jobs': [job for job in self.session.job_set.all() if job.course.is_active],
             'form': SessionEditForm(instance=self.session),
             'next': adminApi.get_next(request)
         })
