@@ -42,7 +42,10 @@
         <table class="user-data-table table table-borderless">
           <tbody>
             <tr>
-              <td>Jobs</td>
+              <td>
+                Jobs <br />
+                (Total: {{ jobs|length }})
+              </td>
               <td>
                 {% for job in jobs %}
                   <div>
