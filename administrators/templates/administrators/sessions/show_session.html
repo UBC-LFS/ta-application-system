@@ -65,6 +65,8 @@
     <small class="text-dark-gray">(Total: {{ session.job_set.all|length }})</small>
   </h4>
 
+  {% include 'administrators/jobs/_course_not_active_note.html' %}
+  
   <table
     class="table table-bordered table-hover table-striped table-responsive-md text-center"
     data-toggle="table"
@@ -95,7 +97,10 @@
     <tbody>
       {% for job in session.job_set.all %}
         <tr>
-          <td>{{ job.id }}</td>
+          <td>
+            {{ job.id }} <br />
+            {% include 'ta_app/icons/closed.html' with data=job.course %}
+          </td>
           <td>{{ job.session.year }}</td>
           <td>{{ job.course.term.code }}</td>
           <td>
