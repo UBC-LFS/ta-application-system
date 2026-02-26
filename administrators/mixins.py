@@ -5,12 +5,13 @@ from django.urls import resolve
 from urllib.parse import urlparse
 from django.core.exceptions import SuspiciousOperation
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.db.models import Count
 
 from ta_app import utils
 from administrators import api as adminApi
 from users import api as userApi
 
-
+ 
 class SessionMixin:
     def setup(self, request, *args, **kwargs):
         setup = super().setup(request, *args, **kwargs)
@@ -42,16 +43,8 @@ class SessionMixin:
         is_archived = False if self.url_name == 'current_sessions' else True
         session_list = session_list.filter(is_archived=is_archived)
         for session in session_list:
-            num_jobs = 0
-            num_instructors = 0
-            for job in session.job_set.all():
-                if job.course.is_active:
-                    num_jobs += 1
-                    if job.instructors.count() > 0:
-                        num_instructors += 1
-                
-            session.num_jobs = num_jobs
-            session.num_instructors = num_instructors
+            session.num_jobs = session.job_set.filter(course__is_active=True).count()
+            session.num_instructors = session.job_set.filter(course__is_active=True).annotate(num_instructors=Count('instructors')).filter(num_instructors__gt=0).count()
 
         page = request.GET.get('page', 1)
         paginator = Paginator(session_list, utils.TABLE_PAGE_SIZE)
