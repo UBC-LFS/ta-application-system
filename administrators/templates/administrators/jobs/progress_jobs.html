@@ -29,6 +29,8 @@
     </div>
   </div>
 
+  {% include 'administrators/jobs/_course_not_active_note.html' %}
+
   <table
     class="table table-bordered table-hover table-striped table-responsive-md text-center"
     data-toggle="table"
@@ -58,6 +60,8 @@
         <tr>
           <td>
             <a class="btn btn-xs btn-info" href="{% url 'administrators:show_job' session_slug=job.session.slug job_slug=job.course.slug %}?next={{ new_next }}&p=Jobs in Progress">{{ job.id }}</a>
+            <br />
+            {% include 'ta_app/icons/closed.html' with data=job.course %}
           </td>
           <td>{{ job.session.year }}</td>
           <td>{{ job.session.term.code }}</td>
