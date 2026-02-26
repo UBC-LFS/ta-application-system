@@ -42,7 +42,6 @@ class SessionMixin:
         is_archived = False if self.url_name == 'current_sessions' else True
         
         session_list = session_list.filter(is_archived=is_archived)
-        session_list = adminApi.add_num_instructors(session_list)
 
         page = request.GET.get('page', 1)
         paginator = Paginator(session_list, utils.TABLE_PAGE_SIZE)

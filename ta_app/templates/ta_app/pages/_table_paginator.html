@@ -1,10 +1,9 @@
-{% if data.has_other_pages %}
-  <nav class="table-paginator" aria-label="Page navigation Search results pages">
-    <ul class="pagination justify-content-center">
+<nav class="table-paginator" aria-label="Page navigation Search results pages">
+  <ul class="pagination justify-content-center">
 
-      {% if data.has_previous %}
-        <li class="page-item">
-          <a class="page-link" href="?page=1
+    {% if data.has_previous %}
+      <li class="page-item">
+        <a class="page-link" href="?page=1
 {% if request.GET.first_name %}&first_name={{ request.GET.first_name }}{% endif %}
 {% if request.GET.last_name %}&last_name={{ request.GET.last_name }}{% endif %}
 {% if request.GET.preferred_name %}&preferred_name={{ request.GET.preferred_name }}{% endif %}
@@ -29,10 +28,10 @@
 {% if request.GET.sort_by_job %}&sort_by_job={{ request.GET.sort_by_job }}{% endif %}
 {% if request.GET.no_offers %}&no_offers={{ request.GET.no_offers }}{% endif %}
 {% if request.GET.exact_search %}&exact_search={{ request.GET.exact_search }}{% endif %}"
-          ><i class="fa fa-angle-double-left" aria-hidden="true"></i></a>
-        </li>
-        <li class="page-item">
-          <a class="page-link" href="?page={{ data.previous_page_number }}
+        ><i class="fa fa-angle-double-left" aria-hidden="true"></i></a>
+      </li>
+      <li class="page-item">
+        <a class="page-link" href="?page={{ data.previous_page_number }}
 {% if request.GET.first_name %}&first_name={{ request.GET.first_name }}{% endif %}
 {% if request.GET.last_name %}&last_name={{ request.GET.last_name }}{% endif %}
 {% if request.GET.preferred_name %}&preferred_name={{ request.GET.preferred_name }}{% endif %}
@@ -57,27 +56,61 @@
 {% if request.GET.sort_by_job %}&sort_by_job={{ request.GET.sort_by_job }}{% endif %}
 {% if request.GET.no_offers %}&no_offers={{ request.GET.no_offers }}{% endif %}
 {% if request.GET.exact_search %}&exact_search={{ request.GET.exact_search }}{% endif %}"
-          ><i class="fa fa-angle-left" aria-hidden="true"></i></a>
+        ><i class="fa fa-angle-left" aria-hidden="true"></i></a>
+      </li>
+    {% else %}
+      <li class="page-item disabled">
+        <span class="page-link"><i class="fa fa-angle-double-left" aria-hidden="true"></i></span>
+      </li>
+      <li class="page-item disabled">
+        <span class="page-link"><i class="fa fa-angle-left" aria-hidden="true"></i></span>
+      </li>
+    {% endif %}
+
+    {% for i in data.paginator.page_range %}
+      {% if data.number == i %}
+        <li class="page-item active">
+          <span class="page-link" >{{ i }} <span class="sr-only">(current)</span></span>
         </li>
       {% else %}
-        <li class="page-item disabled">
-          <span class="page-link"><i class="fa fa-angle-double-left" aria-hidden="true"></i></span>
-        </li>
-        <li class="page-item disabled">
-          <span class="page-link"><i class="fa fa-angle-left" aria-hidden="true"></i></span>
+        <li class="page-item">
+
+          {% if i|add:"-3" <= data.number and data.number <= i|add:"3" %}
+            <a class="page-link" href="?page={{ i }}
+{% if request.GET.first_name %}&first_name={{ request.GET.first_name }}{% endif %}
+{% if request.GET.last_name %}&last_name={{ request.GET.last_name }}{% endif %}
+{% if request.GET.preferred_name %}&preferred_name={{ request.GET.preferred_name }}{% endif %}
+{% if request.GET.cwl %}&cwl={{ request.GET.cwl }}{% endif %}
+{% if request.GET.student_number %}&student_number={{ request.GET.student_number }}{% endif %}
+{% if request.GET.employee_number %}&employee_number={{ request.GET.employee_number }}{% endif %}
+{% if request.GET.year %}&year={{ request.GET.year }}{% endif %}
+{% if request.GET.term %}&term={{ request.GET.term }}{% endif %}
+{% if request.GET.code %}&code={{ request.GET.code }}{% endif %}
+{% if request.GET.number %}&number={{ request.GET.number }}{% endif %}
+{% if request.GET.section %}&section={{ request.GET.section }}{% endif %}
+{% if request.GET.instructor_first_name %}&instructor_first_name={{ request.GET.instructor_first_name }}{% endif %}
+{% if request.GET.instructor_last_name %}&instructor_last_name={{ request.GET.instructor_last_name }}{% endif %}
+{% if request.GET.course_name %}&course_name={{ request.GET.course_name }}{% endif %}
+{% if request.GET.exclude_applied_jobs %}&exclude_applied_jobs={{ request.GET.exclude_applied_jobs }}{% endif %}
+{% if request.GET.is_active %}&is_active={{ request.GET.is_active }}{% endif %}
+{% if request.GET.offer_status %}&offer_status={{ request.GET.offer_status }}{% endif %}
+{% if request.GET.processed %}&processed={{ request.GET.processed }}{% endif %}
+{% if request.GET.declined_reassigned %}&declined_reassigned={{ request.GET.declined_reassigned }}{% endif %}
+{% if request.GET.accepted_in_today %}&accepted_in_today={{ request.GET.accepted_in_today }}{% endif %}
+{% if request.GET.no_response %}&no_response={{ request.GET.no_response }}{% endif %}
+{% if request.GET.sort_by_job %}&sort_by_job={{ request.GET.sort_by_job }}{% endif %}
+{% if request.GET.no_offers %}&no_offers={{ request.GET.no_offers }}{% endif %}
+{% if request.GET.exact_search %}&exact_search={{ request.GET.exact_search }}{% endif %}"
+            >{{ i }}</a>
+          {% endif %}
+
         </li>
       {% endif %}
+    {% endfor %}
 
-      {% for i in data.paginator.page_range %}
-        {% if data.number == i %}
-          <li class="page-item active">
-            <span class="page-link" >{{ i }} <span class="sr-only">(current)</span></span>
-          </li>
-        {% else %}
-          <li class="page-item">
-
-            {% if i|add:"-3" <= data.number and data.number <= i|add:"3" %}
-              <a class="page-link" href="?page={{ i }}
+    {% if data.has_next %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ data.next_page_number }}
 {% if request.GET.first_name %}&first_name={{ request.GET.first_name }}{% endif %}
 {% if request.GET.last_name %}&last_name={{ request.GET.last_name }}{% endif %}
 {% if request.GET.preferred_name %}&preferred_name={{ request.GET.preferred_name }}{% endif %}
@@ -102,16 +135,10 @@
 {% if request.GET.sort_by_job %}&sort_by_job={{ request.GET.sort_by_job }}{% endif %}
 {% if request.GET.no_offers %}&no_offers={{ request.GET.no_offers }}{% endif %}
 {% if request.GET.exact_search %}&exact_search={{ request.GET.exact_search }}{% endif %}"
-              >{{ i }}</a>
-            {% endif %}
-
-          </li>
-        {% endif %}
-      {% endfor %}
-
-      {% if data.has_next %}
-        <li class="page-item">
-          <a class="page-link" href="?page={{ data.next_page_number }}
+        ><i class="fa fa-angle-right" aria-hidden="true"></i></a>
+      </li>
+      <li class="page-item">
+        <a class="page-link" href="?page={{ data.paginator.num_pages }}
 {% if request.GET.first_name %}&first_name={{ request.GET.first_name }}{% endif %}
 {% if request.GET.last_name %}&last_name={{ request.GET.last_name }}{% endif %}
 {% if request.GET.preferred_name %}&preferred_name={{ request.GET.preferred_name }}{% endif %}
@@ -136,46 +163,16 @@
 {% if request.GET.sort_by_job %}&sort_by_job={{ request.GET.sort_by_job }}{% endif %}
 {% if request.GET.no_offers %}&no_offers={{ request.GET.no_offers }}{% endif %}
 {% if request.GET.exact_search %}&exact_search={{ request.GET.exact_search }}{% endif %}"
-          ><i class="fa fa-angle-right" aria-hidden="true"></i></a>
-        </li>
-        <li class="page-item">
-          <a class="page-link" href="?page={{ data.paginator.num_pages }}
-{% if request.GET.first_name %}&first_name={{ request.GET.first_name }}{% endif %}
-{% if request.GET.last_name %}&last_name={{ request.GET.last_name }}{% endif %}
-{% if request.GET.preferred_name %}&preferred_name={{ request.GET.preferred_name }}{% endif %}
-{% if request.GET.cwl %}&cwl={{ request.GET.cwl }}{% endif %}
-{% if request.GET.student_number %}&student_number={{ request.GET.student_number }}{% endif %}
-{% if request.GET.employee_number %}&employee_number={{ request.GET.employee_number }}{% endif %}
-{% if request.GET.year %}&year={{ request.GET.year }}{% endif %}
-{% if request.GET.term %}&term={{ request.GET.term }}{% endif %}
-{% if request.GET.code %}&code={{ request.GET.code }}{% endif %}
-{% if request.GET.number %}&number={{ request.GET.number }}{% endif %}
-{% if request.GET.section %}&section={{ request.GET.section }}{% endif %}
-{% if request.GET.instructor_first_name %}&instructor_first_name={{ request.GET.instructor_first_name }}{% endif %}
-{% if request.GET.instructor_last_name %}&instructor_last_name={{ request.GET.instructor_last_name }}{% endif %}
-{% if request.GET.course_name %}&course_name={{ request.GET.course_name }}{% endif %}
-{% if request.GET.exclude_applied_jobs %}&exclude_applied_jobs={{ request.GET.exclude_applied_jobs }}{% endif %}
-{% if request.GET.is_active %}&is_active={{ request.GET.is_active }}{% endif %}
-{% if request.GET.offer_status %}&offer_status={{ request.GET.offer_status }}{% endif %}
-{% if request.GET.processed %}&processed={{ request.GET.processed }}{% endif %}
-{% if request.GET.declined_reassigned %}&declined_reassigned={{ request.GET.declined_reassigned }}{% endif %}
-{% if request.GET.accepted_in_today %}&accepted_in_today={{ request.GET.accepted_in_today }}{% endif %}
-{% if request.GET.no_response %}&no_response={{ request.GET.no_response }}{% endif %}
-{% if request.GET.sort_by_job %}&sort_by_job={{ request.GET.sort_by_job }}{% endif %}
-{% if request.GET.no_offers %}&no_offers={{ request.GET.no_offers }}{% endif %}
-{% if request.GET.exact_search %}&exact_search={{ request.GET.exact_search }}{% endif %}"
-          ><i class="fa fa-angle-double-right" aria-hidden="true"></i></a>
-        </li>
-      {% else %}
-        <li class="page-item disabled">
-          <span class="page-link"><i class="fa fa-angle-right" aria-hidden="true"></i></span>
-        </li>
-        <li class="page-item disabled">
-          <span class="page-link"><i class="fa fa-angle-double-right" aria-hidden="true"></i></span>
-        </li>
-      {% endif %}
+        ><i class="fa fa-angle-double-right" aria-hidden="true"></i></a>
+      </li>
+    {% else %}
+      <li class="page-item disabled">
+        <span class="page-link"><i class="fa fa-angle-right" aria-hidden="true"></i></span>
+      </li>
+      <li class="page-item disabled">
+        <span class="page-link"><i class="fa fa-angle-double-right" aria-hidden="true"></i></span>
+      </li>
+    {% endif %}
 
-    </ul>
-  </nav>
-
-{% endif %}
+  </ul>
+</nav>

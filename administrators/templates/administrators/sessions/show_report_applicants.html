@@ -49,7 +49,7 @@
               <td>{{ applicant.last_name }}</td>
               <td>{{ applicant.username }}</td>
               <td>{{ applicant.profile.student_number }}</td>
-              <td>{% include 'ta_app/users/_display_gta_info.html' with user=applicant %}</td>
+              <td>{% include 'ta_app/users/_display_gta_info_user.html' with user=applicant %}</td>
               <td>{{ applicant.accepted_apps|length }}</td>
               <td class="text-left">
                 <ul class="list-no-ml">

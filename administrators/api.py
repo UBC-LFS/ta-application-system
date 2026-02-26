@@ -257,14 +257,6 @@ def update_session_jobs(session, courses):
         else:
             return None
 
-def add_num_instructors(sessions):
-    ''' Add a number of instructors to sessions'''
-    for session in sessions:
-        count = 0
-        for job in session.job_set.all():
-            if job.instructors.count() > 0: count += 1
-        session.num_instructors = count
-    return sessions
 
 def make_session_info(data, term):
     session = []

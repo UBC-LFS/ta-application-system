@@ -1,0 +1,76 @@
+{% load admin_filters %}
+
+<div class="row">
+  <div class="col-md-6">
+    {% include 'administrators/sessions/_search_fields.html' with data=sessions total=total_sessions path=path %}
+  </div>
+  <div class="col-md-6">
+    <div class="bg-prompt">
+      <div class="prompt p-3 text-center" style="height:104.8px">
+        <p class="font-size-sm">If you would like to create a new session, please click on the botton below.</p>
+        <a class="btn btn-outline-primary btn-sm" href="{% url 'administrators:create_session' %}">Create Session</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<table
+  class="table table-bordered table-hover table-striped table-responsive-md text-center"
+  data-toggle="table"
+  data-sortable="true"
+  data-classes=""
+  data-show-export="true"
+  data-show-columns="true"
+  data-export-types="['csv']"
+>
+  <thead>
+    <tr>
+      <th data-sortable="true">ID</th>
+      <th data-sortable="true">Year</th>
+      <th data-sortable="true">Term</th>
+      <th data-sortable="true">Jobs</th>
+      <th data-sortable="true">Count<br />Instructors added</th>
+      <th data-sortable="true">Is visible</th>
+      <th data-sortable="true">Is archived</th>
+      <th data-sortable="true">Created Date</th>
+      <th data-sortable="true">Updated Date</th>
+      <th>Reports</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for session in sessions %}
+      <tr>
+        <td>
+          <a class="btn btn-xs btn-info" href="{% url 'administrators:show_session' session_slug=session.slug %}?next={{ new_next }}&p={{ title }}">{{ session.id }}</a>
+        </td>
+        <td>{{ session.year }}</td>
+        <td>{{ session.term.code }}</td>
+        <td>{{ session|num_jobs }}</td>
+        <td>{{ session|num_instructors }}</td>
+        <td>{% include 'ta_app/sessions/_session_is_visible.html' with data=session %}</td>
+        <td>{% include 'ta_app/sessions/_session_is_archived.html' with data=session %}</td>
+        <td>
+          <span class="d-none">{{ session.created_at|date:"Y m d z" }}</span>
+          {{ session.created_at }}
+        </td>
+        <td>
+          <span class="d-none">{{ session.updated_at|date:"Y m d z" }}</span>
+          {{ session.updated_at }}
+        </td>
+        <td>
+          <a href="{% url 'administrators:show_report_applicants' session_slug=session.slug %}">Applicants</a> |
+          <a href="{% url 'administrators:show_report_summary' session_slug=session.slug %}">Summary</a>
+        </td>
+        <td>
+          <div class="btn-toolbar">
+            <a class="btn btn-xs btn-link mr-2" href="{% url 'administrators:edit_session' session_slug=session.slug %}?next={{ new_next }}&p={{ title }}">Edit</a>
+            <a class="btn btn-xs btn-danger" href="{% url 'administrators:delete_session_confirmation' session_slug=session.slug %}?next={{ new_next }}&p={{ title }}">Delete</a>
+          </div>
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% include 'ta_app/pages/_table_paginator.html' with data=sessions %}

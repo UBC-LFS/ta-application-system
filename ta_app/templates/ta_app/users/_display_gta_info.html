@@ -1,7 +1,6 @@
 {% load user_filters %}
 
 {% with gta=user|gta %}
-
   {% if app.sta_confirmation %}
     <button class="btn btn-xs btn-secondary" type="button" data-toggle="modal" data-target="#gta-info-modal-{{ app.id }}">REVIEW</button>
   {% else %}
