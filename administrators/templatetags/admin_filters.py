@@ -17,24 +17,6 @@ def job_name(job):
 
 
 @register.filter
-def num_jobs(session):
-    count = 0
-    for job in session.job_set.all():
-        if job.course.is_active: 
-            count += 1
-    return count
-
-
-@register.filter
-def num_instructors(session):
-    count = 0
-    for job in session.job_set.all():
-        if job.course.is_active and job.instructors.count() > 0: 
-            count += 1
-    return count
-
-
-@register.filter
 def previous_job(course, year):
     job = course.job_set.filter(session__year=int(year)-1)
     return job.first() if job.exists() else None

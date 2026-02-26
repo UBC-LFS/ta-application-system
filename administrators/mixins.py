@@ -40,8 +40,18 @@ class SessionMixin:
             session_list = session_list.filter(term__code__icontains=term_q)
 
         is_archived = False if self.url_name == 'current_sessions' else True
-        
         session_list = session_list.filter(is_archived=is_archived)
+        for session in session_list:
+            num_jobs = 0
+            num_instructors = 0
+            for job in session.job_set.all():
+                if job.course.is_active:
+                    num_jobs += 1
+                    if job.instructors.count() > 0:
+                        num_instructors += 1
+                
+            session.num_jobs = num_jobs
+            session.num_instructors = num_instructors
 
         page = request.GET.get('page', 1)
         paginator = Paginator(session_list, utils.TABLE_PAGE_SIZE)

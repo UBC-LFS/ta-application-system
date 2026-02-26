@@ -1,5 +1,3 @@
-{% load admin_filters %}
-
 <div class="row">
   <div class="col-md-6">
     {% include 'administrators/sessions/_search_fields.html' with data=sessions total=total_sessions path=path %}
@@ -28,8 +26,8 @@
       <th data-sortable="true">ID</th>
       <th data-sortable="true">Year</th>
       <th data-sortable="true">Term</th>
-      <th data-sortable="true">Jobs</th>
-      <th data-sortable="true">Count<br />Instructors added</th>
+      <th data-sortable="true">Num of <br /> Jobs</th>
+      <th data-sortable="true">Num of <br /> Instructors</th>
       <th data-sortable="true">Is visible</th>
       <th data-sortable="true">Is archived</th>
       <th data-sortable="true">Created Date</th>
@@ -46,8 +44,8 @@
         </td>
         <td>{{ session.year }}</td>
         <td>{{ session.term.code }}</td>
-        <td>{{ session|num_jobs }}</td>
-        <td>{{ session|num_instructors }}</td>
+        <td>{{ session.num_jobs }}</td>
+        <td>{{ session.num_instructors }}</td>
         <td>{% include 'ta_app/sessions/_session_is_visible.html' with data=session %}</td>
         <td>{% include 'ta_app/sessions/_session_is_archived.html' with data=session %}</td>
         <td>
