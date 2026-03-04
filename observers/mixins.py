@@ -1,6 +1,5 @@
 from django.conf import settings
 from django.shortcuts import render
-from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.decorators.http import require_GET
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -9,8 +8,8 @@ from django.urls import resolve
 from urllib.parse import urlparse
 from django.http import Http404
 from datetime import date
-from users.models import Role
 
+from ta_app import utils
 from administrators import api as adminApi
 from users import api as userApi
 

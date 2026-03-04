@@ -50,14 +50,18 @@
         <p class="text-secondary font-size-sm">Note: there are <span class="font-weight-bold text-chocolate">{{ courses.count }}</span> courses available in this term.</p>
 
         <div class="bd-callout bd-callout-warning font-size-sm bg-light-gray">
-          <p class="mb-0">If the following job information can be found in last year's session term, the information will show up in the table; otherwise, no information found.</p>
+          <p class="mb-0">
+            If the job information exists in last year's session term, it will appear in the table; otherwise, no information will be shown.
+          </p>
           <ul class="font-weight-bold mt-0">
             <li>Instructors</li>
             <li>Total Assigned TA Hours</li>
             <li>Job Details - Course Overview, Job Description, Note</li>
             <li>Is active</li>
           </ul>
-          <p>Also, if you would like to copy the job information from last year's, please select the checkbox in the <span class="font-weight-bold">Copy Job Info</span> column.</p>
+          <p>
+            If you would like to copy the job information from last year's session, please select the checkbox in the <span class="font-weight-bold">Copy Job Info</span> column.
+          </p>
         </div>
 
         <form action="" method="post">
@@ -123,10 +127,10 @@
       <div class="bd-callout bd-callout-warning">
         <ul>
           <li>
-            <span class="font-weight-bold">Save Changes:</span> the job information would be copied from last year's.
+            <span class="font-weight-bold">Save Changes:</span> This action copies the job information from last year's session.
           </li>
           <li>
-            <span class="font-weight-bold">Save with Copy:</span> the job information would be coming from an initial course under the Course tab.
+            <span class="font-weight-bold">Save without Copy:</span> The job information will come from the initial course listed under the Course tab.
           </li>
         </ul>
       </div>
