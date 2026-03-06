@@ -512,41 +512,6 @@ def delete_job_by_course_ids(session, course_ids):
     result = Job.objects.filter(session_id=session.id, course_id__in=course_ids).delete()
     return True if result else None
 
-def job_filters(request, path):
-    year_q = request.GET.get('year')
-    term_q = request.GET.get('term')
-    code_q = request.GET.get('code')
-    number_q = request.GET.get('number')
-    section_q = request.GET.get('section')
-    is_active_q = request.GET.get('is_active')
-
-    if path == 'prepare_jobs':
-        instructor_first_name_q = request.GET.get('instructor_first_name')
-        instructor_last_name_q = request.GET.get('instructor_last_name')
-
-    job_list = get_jobs()
-
-    if bool(year_q):
-        job_list = job_list.filter(session__year__icontains=year_q)
-    if bool(term_q):
-        job_list = job_list.filter(session__term__code__icontains=term_q)
-    if bool(code_q):
-        job_list = job_list.filter(course__code__name__icontains=code_q)
-    if bool(number_q):
-        job_list = job_list.filter(course__number__name__icontains=number_q)
-    if bool(section_q):
-        job_list = job_list.filter(course__section__name__icontains=section_q)
-    if bool(is_active_q):
-        job_list = job_list.filter(is_active=is_active_q)
-
-    if path == 'prepare_jobs':
-        if bool(instructor_first_name_q):
-            job_list = job_list.filter(instructors__first_name__icontains=instructor_first_name_q)
-        if bool(instructor_last_name_q):
-            job_list = job_list.filter(instructors__last_name__icontains=instructor_last_name_q)
-
-    return job_list
-
 
 def get_course_name(course):
     return '{0} {1} {2}'.format(course.code.name, course.number.name, course.section.name)

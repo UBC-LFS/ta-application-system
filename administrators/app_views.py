@@ -140,8 +140,7 @@ class AllApplications(LoginRequiredMixin, View):
             'num_filtered_apps': info['num_filtered_apps'],
             'app_status': utils.APP_STATUS,
             'new_next': adminApi.build_new_next(request),
-            'this_year': utils.THIS_YEAR,
-            'download_preferred_candidates_url': reverse('administrators:download_preferred_candidates')
+            'this_year': utils.THIS_YEAR
         })
 
 
@@ -628,7 +627,6 @@ class AcceptedAppsReportWorkday(LoginRequiredMixin, View):
         return render(request, 'administrators/applications/accepted_apps_report_workday.html', {
             'total_apps': total_apps,
             'apps': apps,
-            'download_accepted_apps_workday_url': reverse('administrators:download_accepted_apps_workday'),
             'workday_costing_alloc_level': settings.WORKDAY_COSTING_ALLOCATION_LEVEL,
             'workday_mcml_location': settings.WORKDAY_MCML_LOCATION,
             'workday_fnh_location': settings.WORKDAY_FNH_LOCATION,
@@ -1262,8 +1260,7 @@ class AcceptedAppsReportAdmin(LoginRequiredMixin, View):
 
         return render(request, 'administrators/applications/accepted_apps_report_admin.html', context={
             'total_apps': total_apps,
-            'apps': apps,
-            'download_all_accepted_apps_report_admin_url': reverse('administrators:download_all_accepted_apps_report_admin')
+            'apps': apps
         })
 
 

@@ -29,7 +29,7 @@
     <br />
 
     <div class="float-right">
-      <button id="download-accepted-apps-workday" class="btn btn-sm btn-info font-size-xs" type="button" data-url='{{ download_accepted_apps_workday_url }}' data-next='{{ request.get_full_path }}'>
+      <button id="download-accepted-apps-workday" class="btn btn-sm btn-info font-size-xs" type="button" data-url="{% url 'administrators:download_accepted_apps_workday' %}" data-next="{{ request.get_full_path }}">
         Download All as Excel
       </button>
     </div>

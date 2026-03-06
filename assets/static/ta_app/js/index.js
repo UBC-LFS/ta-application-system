@@ -108,3 +108,12 @@ function getToday() {
 function replaceNewLine(str) {
   return str.trim().replace(/\n/g, ' ');
 }
+
+
+function displayErrorMessage(err, id_tag) {
+  const message = '<div class="alert alert-danger alert-dismissible fade show" role="alert">' +
+                    'Error: ' + err.statusText + ' (' + err.status + '). ' + err.responseJSON.message +
+                    '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>' +
+                  '</div>';
+  $(id_tag).html(message);
+}

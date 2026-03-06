@@ -694,6 +694,12 @@ input[type=radio] {
   vertical-align: middle;
 }
 
+.div-vertical-middle {
+  display: grid;
+  align-content: center;
+  justify-content: center;
+}
+
 .recent-applied-jobs {
   max-height: 400px;
   overflow-y: auto;

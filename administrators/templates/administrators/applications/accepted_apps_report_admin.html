@@ -33,7 +33,7 @@
     <br />
 
     <div class="float-right">
-      <button id="download-all-accepted-apps-report-admin" class="btn btn-sm btn-info font-size-xs" type="button" data-url='{{ download_all_accepted_apps_report_admin_url }}' data-next='{{ request.get_full_path }}'>
+      <button id="download-all-accepted-apps-report-admin" class="btn btn-sm btn-info font-size-xs" type="button" data-url="{% url 'administrators:download_all_accepted_apps_report_admin' %}" data-next="{{ request.get_full_path }}">
         Download All as CSV
       </button>
     </div>

@@ -14,47 +14,16 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from datetime import datetime
 
 from ta_app import utils
-from administrators.forms import AdminJobEditForm, InstructorUpdateForm, WorktagSetting
+from administrators.mixins import JobMixin, job_filters
+from administrators.models import WorktagSetting
+from administrators.forms import AdminJobEditForm, InstructorUpdateForm
 from administrators import api as adminApi
 from instructors.mixins import SummaryApplicantsMixin
 from users import api as userApi
 
 
 @method_decorator([never_cache], name='dispatch')
-class PrepareJobs(LoginRequiredMixin, View):
-    ''' Display preparing jobs '''
-
-    @method_decorator(require_GET)
-    def get(self, request, *args, **kwargs):
-        request = userApi.has_admin_access(request)
-
-        job_list = adminApi.job_filters(request, 'prepare_jobs')
-
-        page = request.GET.get('page', 1)
-        paginator = Paginator(job_list, utils.TABLE_PAGE_SIZE)
-
-        try:
-            jobs = paginator.page(page)
-        except PageNotAnInteger:
-            jobs = paginator.page(1)
-        except EmptyPage:
-            jobs = paginator.page(paginator.num_pages)
-
-        for job in jobs:
-            job.worktag_setting = None
-            worktag_settings_filtered = WorktagSetting.objects.filter(application_id__in=[app.id for app in job.application_set.all()]).order_by('-updated_at')
-            if not job.worktag_setting and worktag_settings_filtered.exists():
-                job.worktag_setting = worktag_settings_filtered.first()
-
-        return render(request, 'administrators/jobs/prepare_jobs.html', {
-            'loggedin_user': request.user,
-            'jobs': jobs,
-            'total_jobs': len(job_list),
-            'new_next': adminApi.build_new_next(request),
-            'worktags': settings.WORKTAGS,
-            'save_worktag_setting_url': request.get_full_path(),
-            'delete_worktag_setting_url': reverse('administrators:delete_job_worktag_setting')
-        })
+class PrepareJobs(LoginRequiredMixin, JobMixin, View):
 
     @method_decorator(require_POST)
     def post(self, request, *args, **kwargs):
@@ -76,37 +45,82 @@ class PrepareJobs(LoginRequiredMixin, View):
                     if not adminApi.compare_two_dicts_by_key(ws.program_info, program_info):
                         ws.program_info = program_info
                         update_fields.append('program_info')
-                    
+
                     if ws.worktag != worktag:
                         ws.worktag = worktag
                         update_fields.append('worktag')
-                    
+
                     if len(update_fields) > 0:
                         update_objs.append(ws)
                         success = True
                 else:
                     create_objs.append(WorktagSetting(application_id=app.id, job_id=jid, program_info=program_info, worktag=worktag))
                     success = True
-                
+
                 if success:
                     adminApi.update_worktag_in_admin_docs(app, worktag, None)
-            
+
             has_submitted = False
             if len(create_objs) > 0:
                 WorktagSetting.objects.bulk_create(create_objs)
                 has_submitted = True
-            
+
             if len(update_objs) > 0:
                 WorktagSetting.objects.bulk_update(update_objs, update_fields)
                 has_submitted = True
 
             if has_submitted:
-                
                 messages.success(request, 'Success! Updated the Worktag Setting of applications in this Job (Job ID: {0})'.format(jid))
+            else:
+                messages.warning(request, 'Warning! No update due to zero applications.')
         else:
             messages.error(request, 'An error occurred. Your input values are not valid. Please try again.')
 
         return HttpResponseRedirect(request.POST.get('next'))
+
+
+@method_decorator([never_cache], name='dispatch')
+class DownloadJobTotalTAHours(LoginRequiredMixin, View):
+
+    @method_decorator(require_GET)
+    def get(self, request, *args, **kwargs):
+        jobs = job_filters(request)
+
+        data = []
+        for job in jobs:
+            data.append({
+                'Year': job.session.year,
+                'Term': job.session.term.code,
+                'Course Code': job.course.code.name,
+                'Course Number': job.course.number.name,
+                'Course Section': job.course.section.name,
+                'Total TA Hours': job.assigned_ta_hours
+            })
+
+        return JsonResponse({ 'status': 'success', 'data': data })
+
+
+@method_decorator([never_cache], name='dispatch')
+class DownloadJobInstructors(LoginRequiredMixin, View):
+
+    @method_decorator(require_GET)
+    def get(self, request, *args, **kwargs):
+        jobs = job_filters(request)
+
+        data = []
+        for job in jobs:
+            instructors = [instructor.get_full_name() for instructor in job.instructors.all()]
+
+            data.append({
+                'Year': job.session.year,
+                'Term': job.session.term.code,
+                'Course Code': job.course.code.name,
+                'Course Number': job.course.number.name,
+                'Course Section': job.course.section.name,
+                'Instructors': ', '.join(instructors)
+            })
+
+        return JsonResponse({ 'status': 'success', 'data': data })
 
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -123,7 +137,7 @@ def delete_job_worktag_setting(request):
         messages.warning(request, 'Warning! There are some undeleted applications in this Job (Job ID: {0})'.format(jid))
     else:
         messages.error(request, 'An error occurred. Failed to delete the Worktag Setting of applications in this Job (Job ID: {0}). Please try again.'.format(jid))
-    
+
     return HttpResponseRedirect(request.POST.get('next'))
 
 
@@ -141,35 +155,8 @@ def delete_app_worktag_setting(request):
 
 
 @method_decorator([never_cache], name='dispatch')
-class ProgressJobs(LoginRequiredMixin, View):
-    ''' See jobs in progress '''
-    
-    @method_decorator(require_GET)
-    def get(self, request, *args, **kwargs):
-        request = userApi.has_admin_access(request)
-
-        job_list = adminApi.job_filters(request, 'progress_jobs')
-
-        page = request.GET.get('page', 1)
-        paginator = Paginator(job_list, utils.TABLE_PAGE_SIZE)
-
-        try:
-            jobs = paginator.page(page)
-        except PageNotAnInteger:
-            jobs = paginator.page(1)
-        except EmptyPage:
-            jobs = paginator.page(paginator.num_pages)
-
-        request.session['progress_jobs_next'] = request.get_full_path()
-
-        return render(request, 'administrators/jobs/progress_jobs.html', {
-            'loggedin_user': request.user,
-            'jobs': jobs,
-            'total_jobs': len(job_list),
-            'new_next': adminApi.build_new_next(request),
-            'download_job_report_md_url': reverse('administrators:download_job_report_md'),
-            'download_job_report_excel_url': reverse('administrators:download_job_report_excel')
-        })
+class ProgressJobs(LoginRequiredMixin, JobMixin, View):
+    pass
 
 
 @login_required(login_url=settings.LOGIN_URL)
@@ -198,56 +185,58 @@ class SummaryApplicants(LoginRequiredMixin, SummaryApplicantsMixin, View):
     pass
 
 
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
-def download_job_report_md(request):
-    jobs = adminApi.job_filters(request, 'progress_jobs')
-    
-    result = ''
-    for job in jobs:
-        result += 'Year & Term: '
-        result += '{0} {1}\n'.format(job.session.year, job.session.term.name)
-        result += '\nCourse Name: '
-        result += '{0} {1} {2}\n'.format(job.course.code.name, job.course.number.name, job.course.section.name)
+@method_decorator([never_cache], name='dispatch')
+class DownloadJobReportMD(LoginRequiredMixin, View):
 
-        result += '\nInstructor(s): '
-        instructors = []
-        if job.instructors.count() > 0:
-            instructors = [ins.get_full_name() for ins in job.instructors.all()]
-            result += ', '.join(instructors) + '\n'
-        else:
-            result += 'None\n'
-        
-        result += '\nCourse Overview:\n'
-        result += adminApi.extract_text(job.course_overview) + '\n'
-        result += '\nDescription:\n'
-        result += adminApi.extract_text(job.description) + '\n'
-        result += '\\newpage \n'
+    @method_decorator(require_GET)
+    def get(self, request, *args, **kwargs):
+        jobs = job_filters(request)
 
-    return JsonResponse({ 'status': 'success', 'data': result })
+        result = ''
+        for job in jobs:
+            result += 'Year & Term: '
+            result += '{0} {1}\n'.format(job.session.year, job.session.term.name)
+            result += '\nCourse Name: '
+            result += '{0} {1} {2}\n'.format(job.course.code.name, job.course.number.name, job.course.section.name)
+
+            result += '\nInstructor(s): '
+            instructors = []
+            if job.instructors.count() > 0:
+                instructors = [ins.get_full_name() for ins in job.instructors.all()]
+                result += ', '.join(instructors) + '\n'
+            else:
+                result += 'None\n'
+
+            result += '\nCourse Overview:\n'
+            result += adminApi.extract_text(job.course_overview) + '\n'
+            result += '\nDescription:\n'
+            result += adminApi.extract_text(job.description) + '\n'
+            result += '\\newpage \n'
+
+        return JsonResponse({ 'status': 'success', 'data': result })
 
 
-@login_required(login_url=settings.LOGIN_URL)
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@require_http_methods(['GET'])
-def download_job_report_excel(request):
-    jobs = adminApi.job_filters(request, 'progress_jobs')
-    
-    data = []
-    for job in jobs:
-        data.append({
-            'Year': job.session.year,
-            'Term': job.session.term.code,
-            'Course Code': job.course.code.name,
-            'Course Number': job.course.number.name,
-            'Course Section': job.course.section.name,
-            'Course Title': job.course.name,
-            'Course Overview': adminApi.extract_text(job.course_overview),
-            'Description': adminApi.extract_text(job.description)
-        })
+@method_decorator([never_cache], name='dispatch')
+class DownloadJobReportExcel(LoginRequiredMixin, View):
 
-    return JsonResponse({ 'status': 'success', 'data': data })
+    @method_decorator(require_GET)
+    def get(self, request, *args, **kwargs):
+        jobs = job_filters(request)
+
+        data = []
+        for job in jobs:
+            data.append({
+                'Year': job.session.year,
+                'Term': job.session.term.code,
+                'Course Code': job.course.code.name,
+                'Course Number': job.course.number.name,
+                'Course Section': job.course.section.name,
+                'Course Title': job.course.name,
+                'Course Overview': adminApi.extract_text(job.course_overview),
+                'Description': adminApi.extract_text(job.description)
+            })
+
+        return JsonResponse({ 'status': 'success', 'data': data })
 
 
 @method_decorator([never_cache], name='dispatch')
@@ -255,7 +244,7 @@ class InstructorJobs(LoginRequiredMixin, View):
     ''' Display jobs by instructor '''
 
     @method_decorator(require_GET)
-    def get(self, request, *args, **kwargs):    
+    def get(self, request, *args, **kwargs):
         request = userApi.has_admin_access(request)
 
         first_name_q = request.GET.get('first_name')
@@ -297,16 +286,16 @@ class InstructorJobs(LoginRequiredMixin, View):
 @method_decorator([never_cache], name='dispatch')
 class InstructorJobsDetails(LoginRequiredMixin, View):
     ''' Display jobs that an instructor has '''
-    
+
     def setup(self, request, *args, **kwargs):
         setup = super().setup(request, *args, **kwargs)
         username = kwargs.get('username', None)
         if not username:
             raise Http404
-        
+
         self.username = username
         return setup
-    
+
     @method_decorator(require_GET)
     def get(self, request, *args, **kwargs):
         request = userApi.has_admin_access(request)
@@ -314,7 +303,7 @@ class InstructorJobsDetails(LoginRequiredMixin, View):
 
         user = userApi.get_user(self.username, 'username')
         user.total_applicants = adminApi.add_total_applicants(user)
-        
+
         jobs = []
         for job in user.job_set.all():
             apps = []
@@ -324,12 +313,12 @@ class InstructorJobsDetails(LoginRequiredMixin, View):
             job.apps = apps
             jobs.append(job)
         user.jobs =jobs
-        
+
         return render(request, 'administrators/jobs/instructor_jobs_details.html', {
             'loggedin_user': request.user,
             'user': userApi.add_avatar(user),
             'next': adminApi.get_next(request),
-            'undergrad_status_id': userApi.get_undergraduate_status_id() 
+            'undergrad_status_id': userApi.get_undergraduate_status_id()
         })
 
 
@@ -382,16 +371,16 @@ class StudentJobs(LoginRequiredMixin, View):
 @method_decorator([never_cache], name='dispatch')
 class StudentJobsDetails(LoginRequiredMixin, View):
     ''' Display jobs that an student has '''
-    
+
     def setup(self, request, *args, **kwargs):
         setup = super().setup(request, *args, **kwargs)
         username = kwargs.get('username', None)
         if not username:
             raise Http404
-        
+
         self.username = username
         return setup
-    
+
     @method_decorator(require_GET)
     def get(self, request, *args, **kwargs):
         request = userApi.has_admin_access(request)

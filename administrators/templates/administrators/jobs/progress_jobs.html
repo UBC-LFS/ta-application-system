@@ -9,19 +9,19 @@
   {% include 'ta_app/pages/_header.html' with title='Jobs in Progress' %}
 
   <div class="row">
-    <div class="col-xl-9">
-      {% include 'ta_app/jobs/_search_fields.html' with data=jobs total=total_jobs path='progress_jobs' %}
+    <div class="col-xl-8">
+      {% include 'administrators/jobs/_search_fields.html' with data=jobs total=total_jobs path='progress_jobs' %}
     </div>
-    <div class="col-xl-3">
-      <div class="bg-light-gray text-center p-4" style="height:143.12px">
-        <h6>Download Job Report</h6>
+    <div class="col-xl-4">
+      <div class="bg-light-gray text-center p-4 div-vertical-middle" style="height:181.49px">
+        <h6>Download Job Details</h6>
         <p class="font-size-sm">Search first (e.g., year=2025) before download</p>
 
         <div class="d-flex justify-content-around">
-          <button id="download-job-report-md" class="btn btn-sm btn-info font-size-xs" type="button" data-url='{{ download_job_report_md_url }}' data-next="{{ request.get_full_path }}">
+          <button id="download-job-report-md" class="btn btn-sm btn-info font-size-xs" type="button" data-url="{% url 'administrators:download_job_report_md' %}" data-next="{{ request.get_full_path }}">
             Markdown
           </button>
-          <button id="download-job-report-excel" class="btn btn-sm btn-info font-size-xs" type="button" data-url='{{ download_job_report_excel_url }}' data-next="{{ request.get_full_path }}">
+          <button id="download-job-report-excel" class="btn btn-sm btn-info font-size-xs" type="button" data-url="{% url 'administrators:download_job_report_excel' %}" data-next="{{ request.get_full_path }}">
             Excel
           </button>
         </div>

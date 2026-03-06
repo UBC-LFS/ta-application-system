@@ -12,6 +12,11 @@ from users import api as userApi
 
 
 def landing_page(request):
+    if request.user.is_authenticated:
+        roles = userApi.get_user_roles(request.user)
+        redirect_to = adminApi.redirect_to_index_page(roles)
+        return HttpResponseRedirect(redirect_to)
+    
     return render(request, 'ta_app/landing_page.html', {
         'landing_page': adminApi.get_visible_landing_page()
     })
