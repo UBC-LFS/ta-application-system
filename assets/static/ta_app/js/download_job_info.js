@@ -9,7 +9,7 @@ $(document).ready(function() {
        url: $(this).data('url'),
        data: $(this).data('next'),
        success: function(res) {
-         $(self).text('Total TA Hours');
+         $(self).text('Download');
 
          if (res.status === 'success') {
            const filename = 'TA App - Job Info - Total TA Hours ' + getToday() + '.xlsx';
@@ -19,32 +19,7 @@ $(document).ready(function() {
          }
        },
        error: function(err) {
-         $(self).text('Total TA Hours');
-         displayErrorMessage(err, 'download-message');
-       }
-     });
-  });
-
-  $('#download-job-instructors').on('click', function() {
-     $(this).text('Downloading...');
-     const self = this;
-
-     $.ajax({
-       method: 'GET',
-       url: $(this).data('url'),
-       data: $(this).data('next'),
-       success: function(res) {
-         $(self).text('Instructors');
-
-         if (res.status === 'success') {
-           const filename = 'TA App - Job Info - Instructors ' + getToday() + '.xlsx';
-           downloadExcel(res.data, filename);
-         } else {
-           displayMessage('#download-message');
-         }
-       },
-       error: function(err) {
-         $(self).text('Instructors');
+         $(self).text('Download');
          displayErrorMessage(err, 'download-message');
        }
      });

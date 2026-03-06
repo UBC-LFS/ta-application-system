@@ -88,27 +88,6 @@ class DownloadJobTotalTAHours(LoginRequiredMixin, View):
 
         data = []
         for job in jobs:
-            data.append({
-                'Year': job.session.year,
-                'Term': job.session.term.code,
-                'Course Code': job.course.code.name,
-                'Course Number': job.course.number.name,
-                'Course Section': job.course.section.name,
-                'Total TA Hours': job.assigned_ta_hours
-            })
-
-        return JsonResponse({ 'status': 'success', 'data': data })
-
-
-@method_decorator([never_cache], name='dispatch')
-class DownloadJobInstructors(LoginRequiredMixin, View):
-
-    @method_decorator(require_GET)
-    def get(self, request, *args, **kwargs):
-        jobs = job_filters(request)
-
-        data = []
-        for job in jobs:
             instructors = [instructor.get_full_name() for instructor in job.instructors.all()]
 
             data.append({
@@ -117,6 +96,7 @@ class DownloadJobInstructors(LoginRequiredMixin, View):
                 'Course Code': job.course.code.name,
                 'Course Number': job.course.number.name,
                 'Course Section': job.course.section.name,
+                'Total TA Hours': job.assigned_ta_hours,
                 'Instructors': ', '.join(instructors)
             })
 

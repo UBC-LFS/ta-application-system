@@ -51,7 +51,6 @@ urlpatterns += [
     path('app/worktag_setting/delete/', job_views.delete_app_worktag_setting, name='delete_app_worktag_setting'),
 
     path('func/jobs/total-ta-hours/download/', job_views.DownloadJobTotalTAHours.as_view(), name='download_job_total_ta_hours'),
-    path('func/jobs/instructors/download/', job_views.DownloadJobInstructors.as_view(), name='download_job_instructors'),
     path('func/jobs/report/download/pdf/', job_views.DownloadJobReportMD.as_view(), name='download_job_report_md'),
     path('func/jobs/report/download/excel/', job_views.DownloadJobReportExcel.as_view(), name='download_job_report_excel')
 ]

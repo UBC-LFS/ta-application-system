@@ -14,15 +14,12 @@
     </div>
     <div class="col-xl-4">
       <div class="bg-light-gray text-center p-4 div-vertical-middle" style="height:181.49px">
-        <h6>Download Job Info</h6>
+        <h6>Download Total TA Hours</h6>
         <p class="font-size-sm">Search first (e.g., year=2025) before download</p>
 
         <div class="d-flex justify-content-around">
           <button id="download-job-total-ta-hours" class="btn btn-sm btn-info font-size-xs" type="button" data-url="{% url 'administrators:download_job_total_ta_hours' %}" data-next="{{ request.get_full_path }}">
-            Total TA Hours
-          </button>
-          <button id="download-job-instructors" class="btn btn-sm btn-info font-size-xs" type="button" data-url="{% url 'administrators:download_job_instructors' %}" data-next="{{ request.get_full_path }}">
-            Instructors
+            Download
           </button>
         </div>
       </div>
