@@ -128,24 +128,46 @@ def job_filters(request):
     is_active_q = request.GET.get('is_active')
     instructor_first_name_q = request.GET.get('instructor_first_name')
     instructor_last_name_q = request.GET.get('instructor_last_name')
+    exact_search_q = request.GET.get('exact_search')
 
     job_list = Job.objects.all()
 
     if bool(year_q):
-        job_list = job_list.filter(session__year__icontains=year_q)
+        if bool(exact_search_q):
+            job_list = job_list.filter(session__year__iexact=year_q)
+        else:
+            job_list = job_list.filter(session__year__icontains=year_q)
     if bool(term_q):
-        job_list = job_list.filter(session__term__code__icontains=term_q)
+        if bool(exact_search_q):
+            job_list = job_list.filter(session__term__code__iexact=term_q)
+        else:
+            job_list = job_list.filter(session__term__code__icontains=term_q)
     if bool(code_q):
-        job_list = job_list.filter(course__code__name__icontains=code_q)
+        if bool(exact_search_q):
+            job_list = job_list.filter(course__code__name__iexact=code_q)
+        else:
+            job_list = job_list.filter(course__code__name__icontains=code_q)
     if bool(number_q):
-        job_list = job_list.filter(course__number__name__icontains=number_q)
+        if bool(exact_search_q):
+            job_list = job_list.filter(course__number__name__iexact=number_q)
+        else:
+            job_list = job_list.filter(course__number__name__icontains=number_q)
     if bool(section_q):
-        job_list = job_list.filter(course__section__name__icontains=section_q)
+        if bool(exact_search_q):
+            job_list = job_list.filter(course__section__name__iexact=section_q)
+        else:
+            job_list = job_list.filter(course__section__name__icontains=section_q)
+    if bool(instructor_first_name_q):
+        if bool(exact_search_q):
+            job_list = job_list.filter(instructors__first_name__iexact=instructor_first_name_q)
+        else:
+            job_list = job_list.filter(instructors__first_name__icontains=instructor_first_name_q)
+    if bool(instructor_last_name_q):
+        if bool(exact_search_q):
+            job_list = job_list.filter(instructors__last_name__iexact=instructor_last_name_q)
+        else:
+            job_list = job_list.filter(instructors__last_name__icontains=instructor_last_name_q)
     if bool(is_active_q):
         job_list = job_list.filter(is_active=is_active_q)
-    if bool(instructor_first_name_q):
-        job_list = job_list.filter(instructors__first_name__icontains=instructor_first_name_q)
-    if bool(instructor_last_name_q):
-        job_list = job_list.filter(instructors__last_name__icontains=instructor_last_name_q)
-
+    
     return job_list

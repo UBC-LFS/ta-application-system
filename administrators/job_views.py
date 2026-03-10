@@ -86,19 +86,41 @@ class DownloadJobTotalTAHours(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         jobs = job_filters(request)
 
-        data = []
+        years = set()
+        dic = {}
         for job in jobs:
-            instructors = [instructor.get_full_name() for instructor in job.instructors.all()]
+            year = job.session.year
+            years.add(year)
 
-            data.append({
-                'Year': job.session.year,
-                'Term': job.session.term.code,
-                'Course Code': job.course.code.name,
-                'Course Number': job.course.number.name,
-                'Course Section': job.course.section.name,
-                'Total TA Hours': job.assigned_ta_hours,
-                'Instructors': ', '.join(instructors)
-            })
+            name = '{0} {1}'.format(job.session.term.code, adminApi.get_job_name(job)).replace(' ', '_')
+            if name not in dic:
+                dic[name] = {}
+
+            dic[name][year] = job.assigned_ta_hours
+        
+        job_list = list(dic.keys())
+        job_list.sort()
+
+        year_list = list(years)
+        year_list.sort()
+
+        data = []
+        for job in job_list:
+            job_split = job.split('_')
+            temp = {
+                'Term': job_split[0],
+                'Course Code': job_split[1],
+                'Course Number': job_split[2],
+                'Course Section': ' '.join(job_split[3:])
+            }
+
+            for year in year_list:
+                year_name = '{0} TA Hours'.format(year)
+                temp[year_name] = ''
+                if year in dic[job].keys():
+                    temp[year_name] = dic[job][year]
+
+            data.append(temp)
 
         return JsonResponse({ 'status': 'success', 'data': data })
 

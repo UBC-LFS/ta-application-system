@@ -10,6 +10,8 @@
     {% if path == 'prepare_jobs' or path == 'progress_jobs' %}
       and
       Is active <input class="custom-input-mb-7" type="checkbox" name="is_active" value="True" {% if request.GET.is_active %}checked{% endif %} />
+
+      and Exact Search: <input class="custom-input-mb-7" type="checkbox" name="exact_search" value="True" {% if request.GET.exact_search %}checked{% endif %} />
       <br />
       <input type="text" name="instructor_first_name" value="{{ request.GET.instructor_first_name }}" placeholder="Instructor First Name" /> and
       <input type="text" name="instructor_last_name" value="{{ request.GET.instructor_last_name }}" placeholder="Instructor Last Name" /> <br />
