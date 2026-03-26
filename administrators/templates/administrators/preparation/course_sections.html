@@ -35,11 +35,19 @@
 
   <div class="col-md-7">
 
-    <table class="table table-bordered table-hover table-striped table-responsive-md text-center font-size-1">
+    <table
+      class="table table-bordered table-hover table-striped table-responsive-md text-center font-size-1"
+      data-toggle="table"
+      data-sortable="true"
+      data-search="true"
+      data-pagination="true"
+      data-page-size="25"
+      data-page-list="[25, 50, all]"
+    >
       <thead>
         <tr>
-          <th>ID</th>
-          <th>Name</th>
+          <th data-sortable="true">ID</th>
+          <th data-sortable="true">Name</th>
           <th>Actions</th>
         </tr>
       </thead>
@@ -50,7 +58,7 @@
             <td>{{ section.name }}</td>
             <td>
               <div class="btn-toolbar">
-                <button class="btn btn-xs btn-primary mr-2" type="button" data-toggle="modal" data-target="#course-section-edit-modal-{{ section.id }}">Edit</button>
+                <button class="btn btn-xs btn-warning mr-2" type="button" data-toggle="modal" data-target="#course-section-edit-modal-{{ section.id }}">Edit</button>
 
                 <div class="modal fade" id="course-section-edit-modal-{{ section.id }}" tabindex="-1" role="dialog" aria-labelledby="course-section-edit-modal-label-{{ section.id }}" aria-hidden="true">
                   <div class="modal-dialog modal-lg" role="document">
@@ -72,7 +80,7 @@
                               <input id="id_name_{{ section.id }}" type="text" name="name" maxlength="12" value="{{ section.name }}" class="form-control" />
                             </div>
 
-                            <input class="btn btn-primary" type="submit" value="Update"/>
+                            <input class="btn btn-warning" type="submit" value="Update"/>
                           </form>
                         </div>
                       </div>
