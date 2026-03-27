@@ -1,5 +1,6 @@
 {% extends 'ta_app/base.html' %}
 {% block content %}
+{% load user_filters %}
 
 {% include 'administrators/_menu.html' %}
 
@@ -17,10 +18,8 @@
       <div class="bg-light-gray p-4" style="height:180.8px">
         <h5>Note:</h5>
         <ul class="font-size-sm">
-          <li>
-            {% include 'ta_app/applications/_declined_reassigned_note.html' %}
-          </li>
-          <li><span class="font-weight-bold">Preferred Students</span> (<i class="fa fa-star text-warning" aria-hidden="true"></i>) indicate applicants have both <strong>LFS Graduate</strong> and <strong>Previous TA Experience in UBC</strong></li>
+          <li>{% include 'ta_app/applications/_declined_reassigned_note.html' %}</li>
+          <li>{% include 'ta_app/pages/_preferred_candidate.html' with column='ID' %}</li>
           <li><span class="font-weight-bold">LFS Graduate:</span> includes LFS Master’s and LFS PhD students</li>
           <li><span class="font-weight-bold">Others:</span> includes non-LFS Graduate students and all Undergraduate students</li>
         </ul>
@@ -52,7 +51,7 @@
         <th>SIN / Study Permit <br /> Expiry Date</th>
         <th>Admin <br /> Docs</th>
         <th>Previous <br /> TA Experience <br /> Details</th>
-        <th>Previous <br /> TA Experience <br /> in UBC</th>
+        <th>Previous <br /> TA Experience <br /> in LFS</th>
         <th>Previous Year <br /> TA Experience<br /> in Same Term</th>
         <th>Accepted Date</th>
       </tr>
@@ -62,10 +61,8 @@
         <tr>
           <td>
             {{ app.id }}
-            {% if app.is_preferred_student %}
-              <br />
-              <i class="fa fa-star text-warning" aria-hidden="true"></i>
-            {% endif %}
+            <br />
+            {% include 'users/subpages/display_preferred_candidate.html' with user=app.applicant year=app.job.session.year %}
           </td>
           <td>
             {{ app.job.session.year }} {{ app.job.session.term.code }} <br />
@@ -94,14 +91,13 @@
           </td>
           <td>
             {{ app.applicant.profile.status.name }}
-            {% if app.lfs_grad_or_others %}
-              <br />
-              {% if app.lfs_grad_or_others == 'LFS GRAD' %}
-                <span class="badge badge-primary">{{ app.lfs_grad_or_others }}</span>
-              {% else %}
-                <span class="badge badge-secondary">{{ app.lfs_grad_or_others }}</span>
+
+            {% with lfs_grad_or_others=app.applicant|lfs_grad_or_others %}
+              {% if lfs_grad_or_others %}
+                <br />
+                <span class="badge badge-{% if lfs_grad_or_others == 'LFS GRAD' %}primary{% else %}secondary{% endif %}">{{ lfs_grad_or_others }}</span>
               {% endif %}
-            {% endif %}
+            {% endwith %}
           </td>
           <td>
             {% if app.applicant.confidentiality.get_nationality_display == 'International Student' %}
@@ -226,7 +222,7 @@
                 <div class="modal-dialog modal-lg" role="document">
                   <div class="modal-content">
                     <div class="modal-header">
-                      <h5 class="modal-title text-info" id="prev-accepted-apps-modal-label-{{ app.id }}">Previous TA Experience in UBC</h5>
+                      <h5 class="modal-title text-info" id="prev-accepted-apps-modal-label-{{ app.id }}">Previous TA Experience in LFS</h5>
                       <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                     </div>
                     <div class="modal-body">

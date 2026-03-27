@@ -23,6 +23,11 @@ def preferred_candidate(user, year):
 
 
 @register.filter
+def lfs_grad_or_others(user):
+    return userApi.get_lfs_grad_or_others(user)
+
+
+@register.filter
 def applicant_status_program(user):
     return userApi.get_applicant_status_program(user)
 

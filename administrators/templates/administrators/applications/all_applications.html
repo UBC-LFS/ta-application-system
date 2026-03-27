@@ -41,7 +41,7 @@
 
       <div>
         <button id="download-preferred-candidates" class="btn btn-sm btn-info font-size-xs" type="button" data-url="{% url 'administrators:download_preferred_candidates' %}" data-next="{{ request.get_full_path }}">
-          Download Preferred Candidates
+          Download LFS TAs
         </button>
       </div>
     </div>
@@ -77,9 +77,9 @@
       {% for app in apps %}
         <tr>
           <td>
-            {% include 'users/subpages/display_preferred_candidate.html' with user=app.applicant year=app.job.session.year %}
-
             <a class="btn btn-xs btn-info" href="{% url 'administrators:show_application' app_slug=app.slug %}?next={{ new_next }}&p=All Applications">{{ app.id }}</a>
+            <br />
+            {% include 'users/subpages/display_preferred_candidate.html' with user=app.applicant year=app.job.session.year %}
           </td>
           <td>{{ app.job.session.year }}</td>
           <td>{{ app.job.session.term.code }}</td>

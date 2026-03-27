@@ -1243,12 +1243,6 @@ class AcceptedAppsReportAdmin(LoginRequiredMixin, View):
             lfs_grad_or_others = userApi.get_lfs_grad_or_others(app.applicant)
             app.lfs_grad_or_others = lfs_grad_or_others
 
-            is_preferred_student = False
-            if total_assigned_hours > 0 and lfs_grad_or_others == 'LFS GRAD':
-                is_preferred_student = True
-
-            app.is_preferred_student = is_preferred_student
-
             confi_info_expiry_status = { 'sin': None, 'study_permit': None }
             for st in userApi.get_confidential_info_expiry_status(app.applicant):
                 if st['doc'] == 'SIN':
@@ -1366,7 +1360,7 @@ def download_all_accepted_apps_report_admin(request):
     apps, _ = adminApi.get_accepted_app_report(request)
     apps = adminApi.add_app_info_into_applications(apps, ['accepted'])
 
-    result = 'ID,Preferred Student,Year,Term,Job,Instructor(s),First Name,Last Name,CWL,Student Number,Employee Number,Domestic or International Student,Status,LFS Grad or Others,SIN Expiry Date,Study Permit Expiry Date,Accepted on,Assigned Hours,Classification,Monthly Salary,P/T (%),Weekly Hours,PIN,TASM,Processed,Worktag,Processing Note,Previous TA Experience Details,Previous TA Experience in UBC,Total Assigned Hours - Previous TA Experience in UBC,Previous Year TA Experience in Same Term,Total Previous Year Assigned Hours in Same Term\n'
+    result = 'ID,LFS TA,Year,Term,Job,Instructor(s),First Name,Last Name,CWL,Student Number,Employee Number,Domestic or International Student,Status,LFS Grad or Others,SIN Expiry Date,Study Permit Expiry Date,Accepted on,Assigned Hours,Classification,Monthly Salary,P/T (%),Weekly Hours,PIN,TASM,Processed,Worktag,Processing Note,Previous TA Experience Details,Previous TA Experience in LFS,Total Assigned Hours - Previous TA Experience in LFS,Previous Year TA Experience in Same Term,Total Previous Year Assigned Hours in Same Term\n'
 
     for app in apps:
         year = app.job.session.year
@@ -1496,13 +1490,13 @@ def download_all_accepted_apps_report_admin(request):
                     ap.accepted.created_at
                 )
 
-        preferred_student = ''
-        if total_assigned_hours > 0 and lfs_grad_or_others == 'LFS GRAD':
-            preferred_student = 'YES'
+        preferred_candidate = ''
+        if userApi.get_preferred_candidate(app.applicant, app.job.session.year):
+            preferred_candidate = 'YES'
 
         result += '{0},{1},{2},{3},"{4}",{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15},{16},{17},{18},{19},{20},{21},{22},{23},{24},{25},{26},{27},{28},{29},{30},{31}\n'.format(
             app.id,
-            preferred_student,
+            preferred_candidate,
             year,
             term,
             job,
