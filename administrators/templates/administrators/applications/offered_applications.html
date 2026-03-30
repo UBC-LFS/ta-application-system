@@ -12,11 +12,12 @@
 
     <div class="col-md-6">
       <div class="bg-light-gray p-4" style="height:204.6px">
-        <h5>Note:</h5>
+        <h6>Note:</h6>
         <ul class="font-size-sm">
           <li>{% include 'ta_app/applications/_no_response_note.html' %}</li>
           <li>{% include 'ta_app/users/_note_confi_info_expiry_status.html' %}</li>
-          <li>{% include 'ta_app/pages/_preferred_candidate.html' with column='ID' %}</li>
+          <li>{% include 'instructors/subpages/lfs_ta.html' with column='ID' %}</li>
+          <li>{% include 'instructors/subpages/preferred_candidate.html' with column='ID' %}</li>
         </ul>
       </div>
     </div>
@@ -56,12 +57,20 @@
           <tr>
             <td>
               <input type="checkbox" name="application" value="{{ app.id }}" />
-              {{ app.email_set.all|length }}
+              <br />
+              {% if app.email_set.all|length > 0 %}
+                <a href="{% url 'administrators:email_history' %}?aid={{ app.id }}">
+                  {{ app.email_set.all|length }}
+                </a>
+              {% else %}
+                0
+              {% endif %}
             </td>
             <td>
-              {% include 'users/subpages/display_preferred_candidate.html' with user=app.applicant year=app.job.session.year %}
-
-              <a class="btn btn-xs btn-info" href="{% url 'administrators:show_application' app_slug=app.slug %}?next={{ new_next }}&p=Offered Applications">{{ app.id }}</a>
+              <a href="{% url 'administrators:show_application' app_slug=app.slug %}?next={{ new_next }}&p=Offered Applications">{{ app.id }}</a>
+              <br />
+              {% include 'instructors/subpages/display_lfs_ta.html' with user=app.applicant year=app.job.session.year %}
+              {% include 'instructors/subpages/display_preferred_candidate.html' with user=app.applicant %}
             </td>
             <td>{{ app.job.session.year }}</td>
             <td>{{ app.job.session.term.code }}</td>

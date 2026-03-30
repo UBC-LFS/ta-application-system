@@ -863,7 +863,7 @@ def get_gta_flag(user):
     return None
 
 
-def get_preferred_candidate(user, year):
+def get_lfs_ta(user, year):
     profile = has_user_profile_created(user)
     if profile and is_lfs_student(user) and not is_undergraduate(user) and adminApi.get_accepted_hours_from_previous_year(user, year) > 0:
         if is_master(user) and (1 <= int(profile.student_year) <= 2):

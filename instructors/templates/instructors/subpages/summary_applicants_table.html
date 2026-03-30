@@ -37,9 +37,11 @@
             {% endif %}
           </td>
           <td>
-            {% include 'users/subpages/display_preferred_candidate.html' with user=applicant year=session.year %}
-
             {{ applicant.get_full_name }}
+
+            <br />
+            {% include 'instructors/subpages/display_lfs_ta.html' with user=applicant year=session.year %}
+            {% include 'instructors/subpages/display_preferred_candidate.html' with user=applicant %}
           </td>
           <td>
             {{ applicant.username }}

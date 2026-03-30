@@ -44,6 +44,14 @@
 {% endif %}
 
 {% include 'students/_menu.html' %}
+
+<div class="container p-0">
+  <p class="alert alert-warning text-left" role="alert">
+    <i class="fa fa-bullhorn mr-2" aria-hidden="true"></i>
+    A new field titled <strong class="text-dark-gray">Preferred Candidate Status</strong> has been added to the <a href="{% url 'students:show_profile' %}?next=/app/students/&p=Home&t=additional">Additional Information</a> section for recent graduates.
+  </p>
+</div>
+
 <div class="row">
   <div class="col-md-4">
     {% if loggedin_user.roles|length > 1 %}

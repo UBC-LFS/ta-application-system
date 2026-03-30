@@ -327,10 +327,18 @@ ta_error_messages = {
 class StudentProfileGraduateForm(forms.ModelForm):
     class Meta:
         model = Profile
-        fields = ['total_academic_years', 'total_terms', 'total_ta_hours'] + student_profile_ta_fields
+        fields = ['total_academic_years', 'total_terms', 'total_ta_hours', 'preferred_candidate_status'] + student_profile_ta_fields
         widgets = {**ta_total_widgets, **student_profile_ta_widgets}
-        labels = {**ta_total_labels, **student_profile_ta_labels}
-        help_texts = {**ta_total_ta_hours, **student_profile_ta_help_texts}
+        labels = {
+            **ta_total_labels, 
+            **student_profile_ta_labels,
+            'preferred_candidate_status': 'Preferred Candidate Status'
+        }
+        help_texts = {
+            **ta_total_ta_hours, 
+            **student_profile_ta_help_texts,
+            'preferred_candidate_status': 'If yes, please select the checkbox.'
+        }
         error_messages = {
             'total_academic_years': {
                 'required': required_error.format('Total number of academic years'),

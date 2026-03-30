@@ -161,7 +161,7 @@
       {% for app in apps %}
         <tr>
           <td>
-            <a class="btn btn-xs btn-info" href="{% url 'administrators:show_application' app_slug=app.slug %}?next={{ new_next }}&p=Accepted Applications">{{ app.id }}</a>
+            <a href="{% url 'administrators:show_application' app_slug=app.slug %}?next={{ new_next }}&p=Accepted Applications">{{ app.id }}</a>
             <br />
             {% if app.admindocuments.processed %}
               <i class="fa fa-check text-success mt-2 font-size-1" aria-hidden="true"></i>

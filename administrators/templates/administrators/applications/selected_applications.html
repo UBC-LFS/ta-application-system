@@ -37,7 +37,8 @@
 
   <div class="mb-5">
     <div class="font-size-sm float-right">
-      {% include 'ta_app/pages/_preferred_candidate.html' with column='ID' %}
+      {% include 'instructors/subpages/lfs_ta.html' with column='ID' %} <br />
+      {% include 'instructors/subpages/preferred_candidate.html' with column='ID' %}
     </div>
   </div>
 
@@ -73,9 +74,11 @@
         {% for app in apps %}
           <tr>
             <td>
-              {% include 'users/subpages/display_preferred_candidate.html' with user=app.applicant year=app.job.session.year %}
+              <a href="{% url 'administrators:show_application' app_slug=app.slug %}?next={{ new_next }}&p=Selected Applications">{{ app.id }}</a>
 
-              <a class="btn btn-xs btn-info" href="{% url 'administrators:show_application' app_slug=app.slug %}?next={{ new_next }}&p=Selected Applications">{{ app.id }}</a>
+              <br />
+              {% include 'instructors/subpages/display_lfs_ta.html' with user=app.applicant year=app.job.session.year %}
+              {% include 'instructors/subpages/display_preferred_candidate.html' with user=app.applicant %}
             </td>
             <td>{{ app.job.session.year }}</td>
             <td>{{ app.job.session.term.code }}</td>
@@ -270,7 +273,7 @@
                             {% include 'ta_app/applications/_app_sta_confirmation.html' with data=app.sta_confirmation %}
                           </div>
 
-                          {% if app.applicant|preferred_candidate:app.job.session.year %}
+                          {% if app.applicant|lfs_ta:app.job.session.year %}
                             <div class="border bg-light-blue p-3 font-size-1">
                               <span class="font-weight-bold text-danger">Preferred Candidate</span>
                               (<i class="fa fa-flag text-danger" aria-hidden="true"></i>) <br />

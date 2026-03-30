@@ -11,13 +11,11 @@
     </div>
     <div class="col-md-6">
       <div class="bg-light-gray p-4" style="height:180.8px">
-        <p class="h5 text-primary text-center">This table shows you the latest application status of applicants.</p>
-
-        <h5>Note:</h5>
+        <h6>Note:</h6>
         <ul class="font-size-sm">
-          <li>
-            {% include 'ta_app/applications/_contract_read_note.html' %}
-          </li>
+          <li>{% include 'ta_app/applications/_contract_read_note.html' %}</li>
+          <li>{% include 'instructors/subpages/lfs_ta.html' with column='ID' %}</li>
+          <li>{% include 'instructors/subpages/preferred_candidate.html' with column='ID' %}</li>
         </ul>
       </div>
     </div>
@@ -48,7 +46,12 @@
     <tbody>
       {% for st in statuses %}
         <tr>
-          <td>{{ st.id }}</td>
+          <td>
+            {{ st.id }}
+            <br />
+            {% include 'instructors/subpages/display_lfs_ta.html' with user=st.application.applicant year=st.application.job.session.year %}
+            {% include 'instructors/subpages/display_preferred_candidate.html' with user=st.application.applicant %}
+          </td>
           <td>
 
             {% if st.parent_id %}
@@ -83,9 +86,7 @@
             </a>
           </td>
           <td>
-            <a class="btn btn-xs btn-info" href="{% url 'administrators:show_application' app_slug=st.application.slug %}?next={{ new_next }}&p=Dashboard">
-              {{ st.application.id }}
-            </a>
+            <a href="{% url 'administrators:show_application' app_slug=st.application.slug %}?next={{ new_next }}&p=Dashboard">{{ st.application.id }}</a>
 
             {% if st.has_contract_read %}
               <div><span class="badge badge-success">READ</span></div>

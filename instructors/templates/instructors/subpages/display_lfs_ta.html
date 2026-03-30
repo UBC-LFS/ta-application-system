@@ -1,0 +1,5 @@
+{% load user_filters %}
+
+{% if user|lfs_ta:year %}
+  <i class="fa fa-flag text-success" aria-hidden="true"></i>
+{% endif %}

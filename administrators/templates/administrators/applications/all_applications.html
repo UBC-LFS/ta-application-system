@@ -14,7 +14,7 @@
 
     <div class="col-xl-6">
       <div class="bg-light-gray p-4" style="height:210px">
-        <h5>Note:</h5>
+        <h6>Note:</h6>
         <ul class="font-size-sm">
           <li>
             Reset buttons will appear in the Actions column when the latest application status is
@@ -32,15 +32,15 @@
 
   <div class="mb-5">
     <div class="font-size-sm float-right">
-      {% include 'ta_app/pages/_preferred_candidate.html' with column='ID' %}
+      {% include 'instructors/subpages/lfs_ta.html' with column='ID' %} <br />
+      {% include 'instructors/subpages/preferred_candidate.html' with column='ID' %}
     </div>
 
     <div class="mt-3" style="position:absolute;">
       <small>Search first (e.g., year=2025) before download</small>
       <br />
-
       <div>
-        <button id="download-preferred-candidates" class="btn btn-sm btn-info font-size-xs" type="button" data-url="{% url 'administrators:download_preferred_candidates' %}" data-next="{{ request.get_full_path }}">
+        <button id="download-lfs-tas" class="btn btn-sm btn-info font-size-xs" type="button" data-url="{% url 'administrators:download_lfs_tas' %}" data-next="{{ request.get_full_path }}">
           Download LFS TAs
         </button>
       </div>
@@ -77,9 +77,10 @@
       {% for app in apps %}
         <tr>
           <td>
-            <a class="btn btn-xs btn-info" href="{% url 'administrators:show_application' app_slug=app.slug %}?next={{ new_next }}&p=All Applications">{{ app.id }}</a>
+            <a href="{% url 'administrators:show_application' app_slug=app.slug %}?next={{ new_next }}&p=All Applications">{{ app.id }}</a>
             <br />
-            {% include 'users/subpages/display_preferred_candidate.html' with user=app.applicant year=app.job.session.year %}
+            {% include 'instructors/subpages/display_lfs_ta.html' with user=app.applicant year=app.job.session.year %}
+            {% include 'instructors/subpages/display_preferred_candidate.html' with user=app.applicant %}
           </td>
           <td>{{ app.job.session.year }}</td>
           <td>{{ app.job.session.term.code }}</td>
@@ -213,5 +214,5 @@
 
 {% block js %}
   {% load static %}
-  <script type="text/javascript" src="{% static 'ta_app/js/download_preferred_candidates.js' %}"></script>
+  <script type="text/javascript" src="{% static 'ta_app/js/download_lfs_tas.js' %}"></script>
 {% endblock %}

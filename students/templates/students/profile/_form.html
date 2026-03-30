@@ -1,8 +1,10 @@
+{% load static %}
+
 <tr>
   <td>
     <label for="{{ field.id_for_label }}" {% if field.name == 'total_academic_years' or field.name == 'total_terms' or field.name == 'total_ta_hours' %}class="text-primary"{% endif %}>
       {{ field.label }}
-      {% if field.name == 'preferred_name' or field.name == 'program_others' or field.name == 'special_considerations' or field.name == 'prior_employment' %}
+      {% if field.name == 'preferred_name' or field.name == 'program_others' or field.name == 'preferred_candidate_status' or field.name == 'special_considerations' or field.name == 'prior_employment' %}
         <small></small>
       {% else %}
         <small class="text-danger"><i class="fa fa-asterisk" aria-hidden="true"></i></small>
@@ -12,5 +14,16 @@
       <div class="help">{{ field.help_text|safe }}</div>
     {% endif %}
   </td>
-  <td>{{ field }}</td>
+  <td>
+    {% if field.name == 'preferred_candidate_status' %}
+      <span style="font-weight:500;">I qualify for Preferred Candidate status.</span>
+    {% endif %}
+
+    {{ field }}
+
+    {% if field.name == 'preferred_candidate_status' %}
+      <br />
+      Please see Article B 3, section B3.01 (c) in the <a href="{% static 'ta_app/files/UBC-CUPE+2278+Component+1+Agreement+2022-25.pdf' %}" target="_blank">CUPE 2278 Collective Agreement</a>.
+    {% endif %}
+  </td>
 </tr>

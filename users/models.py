@@ -265,6 +265,9 @@ class Profile(models.Model):
     total_academic_years = models.PositiveIntegerField(null=True, blank=True)
     total_terms = models.PositiveIntegerField(null=True, blank=True)
     total_ta_hours = models.PositiveIntegerField(null=True, blank=True)
+
+    preferred_candidate_status = models.BooleanField(default=False)
+
     ta_experience = models.CharField(max_length=1, choices=LFS_TA_TRAINING_CHOICES, null=True, blank=True)
     ta_experience_details = models.TextField(null=True, blank=True)
     qualifications = models.TextField(null=True, blank=True)

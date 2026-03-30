@@ -147,13 +147,13 @@ class AllApplications(LoginRequiredMixin, View):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
-def download_preferred_candidates(request):
+def download_lfs_tas(request):
     app_list, _ = adminApi.get_applications_filter_limit(request, 'all')
 
     apps = []
     usernames = []
     for app in app_list:
-        if userApi.get_preferred_candidate(app.applicant, app.job.session.year) and app.applicant.username not in usernames:
+        if userApi.get_lfs_ta(app.applicant, app.job.session.year) and app.applicant.username not in usernames:
             apps.append(app)
             usernames.append(app.applicant.username)
 
@@ -749,6 +749,7 @@ def email_history(request):
     ''' Display all of email sent by admins to let them know job offers '''
     request = userApi.has_admin_access(request)
 
+    app_q = request.GET.get('aid')
     receiver_q = request.GET.get('receiver')
     title_q = request.GET.get('title')
     message_q = request.GET.get('message')
@@ -756,6 +757,8 @@ def email_history(request):
     no_response_q = request.GET.get('no_response')
 
     email_list = adminApi.get_emails()
+    if bool(app_q):
+        email_list = email_list.filter(application_id=app_q)
     if bool(receiver_q):
         email_list = email_list.filter(receiver__icontains=receiver_q)
     if bool(title_q):
@@ -1360,7 +1363,7 @@ def download_all_accepted_apps_report_admin(request):
     apps, _ = adminApi.get_accepted_app_report(request)
     apps = adminApi.add_app_info_into_applications(apps, ['accepted'])
 
-    result = 'ID,LFS TA,Year,Term,Job,Instructor(s),First Name,Last Name,CWL,Student Number,Employee Number,Domestic or International Student,Status,LFS Grad or Others,SIN Expiry Date,Study Permit Expiry Date,Accepted on,Assigned Hours,Classification,Monthly Salary,P/T (%),Weekly Hours,PIN,TASM,Processed,Worktag,Processing Note,Previous TA Experience Details,Previous TA Experience in LFS,Total Assigned Hours - Previous TA Experience in LFS,Previous Year TA Experience in Same Term,Total Previous Year Assigned Hours in Same Term\n'
+    result = 'ID,LFS TA,Preferred Candidate,Year,Term,Job,Instructor(s),First Name,Last Name,CWL,Student Number,Employee Number,Domestic or International Student,Status,LFS Grad or Others,SIN Expiry Date,Study Permit Expiry Date,Accepted on,Assigned Hours,Classification,Monthly Salary,P/T (%),Weekly Hours,PIN,TASM,Processed,Worktag,Processing Note,Previous TA Experience Details,Previous TA Experience in LFS,Total Assigned Hours - Previous TA Experience in LFS,Previous Year TA Experience in Same Term,Total Previous Year Assigned Hours in Same Term\n'
 
     for app in apps:
         year = app.job.session.year
@@ -1490,12 +1493,12 @@ def download_all_accepted_apps_report_admin(request):
                     ap.accepted.created_at
                 )
 
-        preferred_candidate = ''
-        if userApi.get_preferred_candidate(app.applicant, app.job.session.year):
-            preferred_candidate = 'YES'
+        lfs_ta = 'YES 'if userApi.get_lfs_ta(app.applicant, app.job.session.year) else ''
+        preferred_candidate = 'YES' if app.applicant.profile.preferred_candidate_status else ''
 
         result += '{0},{1},{2},{3},"{4}",{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15},{16},{17},{18},{19},{20},{21},{22},{23},{24},{25},{26},{27},{28},{29},{30},{31}\n'.format(
             app.id,
+            lfs_ta,
             preferred_candidate,
             year,
             term,

@@ -59,7 +59,7 @@
       {% for job in jobs %}
         <tr>
           <td>
-            <a class="btn btn-xs btn-info" href="{% url 'administrators:show_job' session_slug=job.session.slug job_slug=job.course.slug %}?next={{ new_next }}&p=Jobs in Progress">{{ job.id }}</a>
+            <a href="{% url 'administrators:show_job' session_slug=job.session.slug job_slug=job.course.slug %}?next={{ new_next }}&p=Jobs in Progress">{{ job.id }}</a>
             <br />
             {% include 'ta_app/icons/closed.html' with data=job.course %}
           </td>

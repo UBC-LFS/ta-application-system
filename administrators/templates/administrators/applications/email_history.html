@@ -9,8 +9,9 @@
     <div class="col-md-6">
       <div class="search-field bg-light-gray p-3 font-size-sm">
         <form method="GET">
-          <input type="text" name="receiver" value="{{ request.GET.receiver }}" placeholder="Receiver" /> and
-          <input type="text" name="title" value="{{ request.GET.title }}" placeholder="Title" /> <br />
+          <input type="text" name="aid" value="{{ request.GET.aid }}" placeholder="Application ID" /> and
+          <input type="text" name="receiver" value="{{ request.GET.receiver }}" placeholder="Receiver" />  <br />
+          <input type="text" name="title" value="{{ request.GET.title }}" placeholder="Title" /> and
           <input type="text" name="message" value="{{ request.GET.message }}" placeholder="Message" /> and
           <input type="text" name="type" value="{{ request.GET.type }}" placeholder="Type" /> <br />
           No response: <input type="checkbox" name="no_response" value="True" {% if request.GET.no_response %}checked{% endif %} />
@@ -28,7 +29,7 @@
 
     <div class="col-md-6">
       <div class="bg-light-gray p-4" style="height:168.6px">
-        <h5>Note:</h5>
+        <h6>Note:</h6>
         <ul class="font-size-sm">
           <li>
             {% include 'ta_app/applications/_no_response_note.html' %}
@@ -102,7 +103,7 @@
           </td>
           <td>{{ email.type }}</td>
           <td>
-            <a class="btn btn-xs btn-info" href="{% url 'administrators:show_application' app_slug=email.application.slug %}?next={{ new_next }}&p=Email History">
+            <a href="{% url 'administrators:show_application' app_slug=email.application.slug %}?next={{ new_next }}&p=Email History">
               {{ email.application.id }}
             </a>
           </td>
@@ -125,94 +126,94 @@
     </tbody>
   </table>
 
+  <nav class="table-paginator" aria-label="Page navigation Search results pages">
+    <ul class="pagination justify-content-center">
 
-  {% if emails.has_other_pages %}
-    <nav class="table-paginator" aria-label="Page navigation Search results pages">
-      <ul class="pagination justify-content-center">
-
-        {% if emails.has_previous %}
-          <li class="page-item">
-            <a class="page-link" href="?page=1
+      {% if emails.has_previous %}
+        <li class="page-item">
+          <a class="page-link" href="?page=1
+{% if request.GET.aid %}&aid={{ request.GET.aid }}{% endif %}
 {% if request.GET.receiver %}&receiver={{ request.GET.receiver }}{% endif %}
 {% if request.GET.title %}&title={{ request.GET.title }}{% endif %}
 {% if request.GET.message %}&message={{ request.GET.message }}{% endif %}
 {% if request.GET.type %}&type={{ request.GET.type }}{% endif %}
 {% if request.GET.no_response %}&no_response={{ request.GET.no_response }}{% endif %}"
-            ><i class="fa fa-angle-double-left" aria-hidden="true"></i></a>
-          </li>
-          <li class="page-item">
-            <a class="page-link" href="?page={{ emails.previous_page_number }}
+          ><i class="fa fa-angle-double-left" aria-hidden="true"></i></a>
+        </li>
+        <li class="page-item">
+          <a class="page-link" href="?page={{ emails.previous_page_number }}
+{% if request.GET.aid %}&aid={{ request.GET.aid }}{% endif %}
 {% if request.GET.receiver %}&receiver={{ request.GET.receiver }}{% endif %}
 {% if request.GET.title %}&title={{ request.GET.title }}{% endif %}
 {% if request.GET.message %}&message={{ request.GET.message }}{% endif %}
 {% if request.GET.type %}&type={{ request.GET.type }}{% endif %}
 {% if request.GET.no_response %}&no_response={{ request.GET.no_response }}{% endif %}"
-            ><i class="fa fa-angle-left" aria-hidden="true"></i></a>
+          ><i class="fa fa-angle-left" aria-hidden="true"></i></a>
+        </li>
+      {% else %}
+        <li class="page-item disabled">
+          <span class="page-link"><i class="fa fa-angle-double-left" aria-hidden="true"></i></span>
+        </li>
+        <li class="page-item disabled">
+          <span class="page-link"><i class="fa fa-angle-left" aria-hidden="true"></i></span>
+        </li>
+      {% endif %}
+
+      {% for i in emails.paginator.page_range %}
+        {% if emails.number == i %}
+          <li class="page-item active">
+            <span class="page-link" >{{ i }} <span class="sr-only">(current)</span></span>
           </li>
         {% else %}
-          <li class="page-item disabled">
-            <span class="page-link"><i class="fa fa-angle-double-left" aria-hidden="true"></i></span>
-          </li>
-          <li class="page-item disabled">
-            <span class="page-link"><i class="fa fa-angle-left" aria-hidden="true"></i></span>
+          <li class="page-item">
+
+            {% if i|add:"-3" <= emails.number and emails.number <= i|add:"3" %}
+              <a class="page-link" href="?page={{ i }}
+{% if request.GET.aid %}&aid={{ request.GET.aid }}{% endif %}
+{% if request.GET.receiver %}&receiver={{ request.GET.receiver }}{% endif %}
+{% if request.GET.title %}&title={{ request.GET.title }}{% endif %}
+{% if request.GET.message %}&message={{ request.GET.message }}{% endif %}
+{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}
+{% if request.GET.no_response %}&no_response={{ request.GET.no_response }}{% endif %}"
+              >{{ i }}</a>
+            {% endif %}
+
           </li>
         {% endif %}
+      {% endfor %}
 
-        {% for i in emails.paginator.page_range %}
-          {% if emails.number == i %}
-            <li class="page-item active">
-              <span class="page-link" >{{ i }} <span class="sr-only">(current)</span></span>
-            </li>
-          {% else %}
-            <li class="page-item">
-
-              {% if i|add:"-3" <= emails.number and emails.number <= i|add:"3" %}
-                <a class="page-link" href="?page={{ i }}
+      {% if emails.has_next %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ emails.next_page_number }}
+{% if request.GET.aid %}&aid={{ request.GET.aid }}{% endif %}
 {% if request.GET.receiver %}&receiver={{ request.GET.receiver }}{% endif %}
 {% if request.GET.title %}&title={{ request.GET.title }}{% endif %}
 {% if request.GET.message %}&message={{ request.GET.message }}{% endif %}
 {% if request.GET.type %}&type={{ request.GET.type }}{% endif %}
 {% if request.GET.no_response %}&no_response={{ request.GET.no_response }}{% endif %}"
-                >{{ i }}</a>
-              {% endif %}
-
-            </li>
-          {% endif %}
-        {% endfor %}
-
-        {% if emails.has_next %}
-          <li class="page-item">
-            <a class="page-link" href="?page={{ emails.next_page_number }}
+          ><i class="fa fa-angle-right" aria-hidden="true"></i></a>
+        </li>
+        <li class="page-item">
+          <a class="page-link" href="?page={{ emails.paginator.num_pages }}
+{% if request.GET.aid %}&aid={{ request.GET.aid }}{% endif %}
 {% if request.GET.receiver %}&receiver={{ request.GET.receiver }}{% endif %}
 {% if request.GET.title %}&title={{ request.GET.title }}{% endif %}
 {% if request.GET.message %}&message={{ request.GET.message }}{% endif %}
 {% if request.GET.type %}&type={{ request.GET.type }}{% endif %}
 {% if request.GET.no_response %}&no_response={{ request.GET.no_response }}{% endif %}"
-            ><i class="fa fa-angle-right" aria-hidden="true"></i></a>
-          </li>
-          <li class="page-item">
-            <a class="page-link" href="?page={{ emails.paginator.num_pages }}
-{% if request.GET.receiver %}&receiver={{ request.GET.receiver }}{% endif %}
-{% if request.GET.title %}&title={{ request.GET.title }}{% endif %}
-{% if request.GET.message %}&message={{ request.GET.message }}{% endif %}
-{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}
-{% if request.GET.no_response %}&no_response={{ request.GET.no_response }}{% endif %}"
-            ><i class="fa fa-angle-double-right" aria-hidden="true"></i></a>
-          </li>
-        {% else %}
-          <li class="page-item disabled">
-            <span class="page-link"><i class="fa fa-angle-right" aria-hidden="true"></i></span>
-          </li>
-          <li class="page-item disabled">
-            <span class="page-link"><i class="fa fa-angle-double-right" aria-hidden="true"></i></span>
-          </li>
-        {% endif %}
+          ><i class="fa fa-angle-double-right" aria-hidden="true"></i></a>
+        </li>
+      {% else %}
+        <li class="page-item disabled">
+          <span class="page-link"><i class="fa fa-angle-right" aria-hidden="true"></i></span>
+        </li>
+        <li class="page-item disabled">
+          <span class="page-link"><i class="fa fa-angle-double-right" aria-hidden="true"></i></span>
+        </li>
+      {% endif %}
 
-      </ul>
-    </nav>
-
-  {% endif %}
-
+    </ul>
+  </nav>
 </div>
 
 {% endblock %}

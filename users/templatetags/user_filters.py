@@ -18,8 +18,8 @@ def resume(user):
 
 
 @register.filter
-def preferred_candidate(user, year):
-    return userApi.get_preferred_candidate(user, year)
+def lfs_ta(user, year):
+    return userApi.get_lfs_ta(user, year)
 
 
 @register.filter

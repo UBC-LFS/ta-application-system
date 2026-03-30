@@ -7,6 +7,7 @@
 
 <table class="user-data-table table {% if striped == 'True' %}table-bordered table-striped{% else %}table-borderless{% endif %}">
   <tbody>
+
     {% if data.profile.status and data.profile.status.id != undergrad_status_id %}
       <tr>
         <td><span class="text-primary">Total number of academic years worked as a GTA:</span></td>
@@ -31,6 +32,7 @@
         </td>
       </tr>
     {% endif %}
+
     <tr>
       <td>Preferred Name:</td>
       <td>
@@ -175,6 +177,23 @@
         {% endif %}
       </td>
     </tr>
+
+    {% if data.profile.status and data.profile.status.id != undergrad_status_id %}
+      <tr>
+        <td>
+          Preferred Candidate Status:
+          <span class="badge badge-danger">NEW</span>
+        </td>
+        <td>
+          {% if data.profile.preferred_candidate_status %}
+            <span class="badge badge-success">YES <i class="fa fa-check-circle" aria-hidden="true"></i></span>
+          {% else %}
+            None
+          {% endif %}
+        </td>
+      </tr>
+    {% endif %}
+
     <tr>
       <td>Previous TA Experience:</td>
       <td>

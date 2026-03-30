@@ -99,14 +99,17 @@
               {% for field in form.visible_fields %}
                 {% include 'students/profile/_form.html' %}
               {% endfor %}
+
             {% elif path == 'graduate' and current_tab == 'graduate' %}
               {% for field in form.visible_fields %}
                 {% include 'students/profile/_form.html' %}
               {% endfor %}
+
             {% elif path == 'undergraduate' and current_tab == 'undergraduate' %}
               {% for field in form.visible_fields %}
                 {% include 'students/profile/_form.html' %}
               {% endfor %}
+              
             {% else %}
               <p>No forms exist</p>
             {% endif %}
