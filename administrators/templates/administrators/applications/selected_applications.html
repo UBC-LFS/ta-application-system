@@ -273,20 +273,26 @@
                             {% include 'ta_app/applications/_app_sta_confirmation.html' with data=app.sta_confirmation %}
                           </div>
 
-                          {% if app.applicant|lfs_ta:app.job.session.year %}
-                            <div class="border bg-light-blue p-3 font-size-1">
-                              <span class="font-weight-bold text-danger">Preferred Candidate</span>
-                              (<i class="fa fa-flag text-danger" aria-hidden="true"></i>) <br />
+                          <div class="border bg-light-blue p-3 font-size-1">
+                            Total number of GTA hours worked:
+                            <span class="text-chocolate font-weight-bold">
+                            {% if app.applicant.profile.total_ta_hours > 0 %}
+                              {{ app.applicant.profile.total_ta_hours }}
+                            {% else %}
+                                0
+                            {% endif %}
+                            </span> hours <br />
 
-                              Total number of GTA hours worked: <span class="text-chocolate font-weight-bold">
-                                {% if app.applicant.profile.total_ta_hours %}
-                                  {{ app.applicant.profile.total_ta_hours }}
-                                {% else %}
-                                  0
-                                {% endif %}
-                              </span> hours
-                            </div>
-                          {% endif %}
+                            {% if app.applicant|lfs_ta:app.job.session.year %}
+                              <span class="font-weight-bold text-success">LFS TA</span>
+                              (<i class="fa fa-flag text-success" aria-hidden="true"></i>)
+                            {% endif %}
+
+                            {% if app.applicant.profile.preferred_candidate_status %}
+                              <span class="font-weight-bold text-primary">Preferred Candidate</span>
+                              (<i class="fa fa-flag text-primary" aria-hidden="true"></i>)
+                            {% endif %}
+                          </div>
 
                           <form action="{{ app.offer_modal.form_url }}" method="post">
                             {% csrf_token %}
