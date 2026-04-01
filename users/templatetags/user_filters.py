@@ -1,7 +1,6 @@
 from django import template
+from administrators.models import ApplicationReset
 from users import api as userApi
-from administrators import api as adminApi
-from administrators.models import ApplicationStatus
 from ta_app import utils
 
 register = template.Library()
@@ -9,7 +8,8 @@ register = template.Library()
 
 @register.filter
 def selected(app):
-    return app.applicationstatus_set.filter(assigned=utils.SELECTED).last()
+    if app.applicationstatus_set.last().assigned != utils.NONE:
+        return app.applicationstatus_set.filter(assigned=utils.SELECTED).last()
 
 
 @register.filter
