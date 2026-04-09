@@ -148,6 +148,47 @@ class AllApplications(LoginRequiredMixin, View):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
+def download_all_apps(request):
+    apps, _ = adminApi.get_applications_filter_limit(request, 'all')
+
+    data = []
+    for app in apps:
+        year = app.job.session.year
+
+        latest_status = app.applicationstatus_set.last()
+
+        confi_info_expiry_status = userApi.get_confidential_info_expiry_status(app.applicant)
+        confi = []
+        if len(confi_info_expiry_status) > 0:
+            for item in confi_info_expiry_status:
+                confi.append('{0}: {1} ({2})'.format(item['doc'], item['status'], adminApi.convert_date_format(item['date'])))
+
+        reset_log = []
+        if app.applicationreset_set.count() > 0:
+            for app_reset in app.applicationreset_set.all():
+                reset_log.append('Date: {0} by {1}'.format(app_reset.created_at, app_reset.user))
+        
+        data.append({
+            'Preferred Candidate': 'YES' if userApi.get_preferred_candidate(app.applicant, year) else '',
+            'Year': year,
+            'Term': app.job.session.term.code,
+            'Job': '{0} {1} {2}'.format(app.job.course.code.name, app.job.course.number.name, app.job.course.section.name),
+            'Applicant': app.applicant.get_full_name(),
+            'Latest Status': '{0} (Assigned Hours: {1})'.format(latest_status.get_assigned_display(), latest_status.assigned_hours),
+            'Classification': '{0} {1}'.format(app.classification.year, app.classification.name) if app.classification else '',
+            'GTA Info': userApi.get_gta_flag(app.applicant),
+            'Confidential Info': ', '.join(confi),
+            'Note': adminApi.extract_text(app.note),
+            'Created Date': adminApi.convert_date_format(app.created_at),
+            'Updated Date': adminApi.convert_date_format(app.updated_at),
+            'Reset Log': ', '.join(reset_log)
+        })
+    return JsonResponse({ 'status': 'success', 'data': data })
+
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
 def download_preferred_candidates(request):
     app_list, _ = adminApi.get_applications_filter_limit(request, 'all')
 
