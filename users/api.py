@@ -847,7 +847,6 @@ def can_apply(user):
 
 
 def get_gta_flag(user):
-    
     undergrad = is_undergraduate(user)
     profile = has_user_profile_created(user)
     if not undergrad and profile:

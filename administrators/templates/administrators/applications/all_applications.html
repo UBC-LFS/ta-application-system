@@ -3,7 +3,7 @@
 {% include 'administrators/_menu.html' %}
 
 <div>
-  <div id="download-csv-message" class="container"></div>
+  <div id="download-message" class="container"></div>
 
   {% include 'ta_app/pages/_header.html' with title='All Applications' %}
 
@@ -39,11 +39,13 @@
     <div class="mt-3" style="position:absolute;">
       <small>Search first (e.g., year=2025) before download</small>
       <br />
-      <div>
-        <button id="download-lfs-tas" class="btn btn-sm btn-info font-size-xs" type="button" data-url="{% url 'administrators:download_lfs_tas' %}" data-next="{{ request.get_full_path }}">
-          Download LFS TAs
-        </button>
-      </div>
+
+      <button id="download-all-apps" class="btn btn-sm btn-info font-size-xs" type="button" data-url="{% url 'administrators:download_all_apps' %}" data-next='{{ request.get_full_path }}'>
+        Download All
+      </button>
+      <button id="download-lfs-tas" class="btn btn-sm btn-info font-size-xs" type="button" data-url="{% url 'administrators:download_lfs_tas' %}" data-next="{{ request.get_full_path }}">
+        Download LFS TAs
+      </button>
     </div>
   </div>
 
