@@ -166,7 +166,10 @@ def download_all_apps(request):
         reset_log = []
         if app.applicationreset_set.count() > 0:
             for app_reset in app.applicationreset_set.all():
-                reset_log.append('Date: {0} by {1}'.format(app_reset.created_at, app_reset.user))
+                reset_log.append('Date: {0} by {1}'.format(
+                    adminApi.convert_date_format(app_reset.created_at),
+                    app_reset.user
+                ))
         
         data.append({
             'Preferred Candidate': 'YES' if userApi.get_preferred_candidate(app.applicant, year) else '',
