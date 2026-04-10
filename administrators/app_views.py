@@ -170,8 +170,13 @@ def download_all_apps(request):
                     app_reset.user
                 ))
         
+        pref_candi = ''
+        if userApi.profile_exists(app.applicant):
+            pref_candi = 'YES' if app.applicant.profile.preferred_candidate_status else ''
+        
         data.append({
-            'Preferred Candidate': 'YES' if userApi.get_lfs_ta(app.applicant, year) else '',
+            'LFS TA': 'YES' if userApi.get_lfs_ta(app.applicant, year) else '',
+            'Preferred Candidate': pref_candi,
             'Year': year,
             'Term': app.job.session.term.code,
             'Job': '{0} {1} {2}'.format(app.job.course.code.name, app.job.course.number.name, app.job.course.section.name),
