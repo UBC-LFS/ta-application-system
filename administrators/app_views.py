@@ -156,6 +156,9 @@ def download_all_apps(request):
         year = app.job.session.year
 
         latest_status = app.applicationstatus_set.last()
+        assigned_display = latest_status.get_assigned_display()
+        if assigned_display == 'None':
+            assigned_display = 'Applied'
 
         confi_info_expiry_status = userApi.get_confidential_info_expiry_status(app.applicant)
         confi = []
@@ -177,7 +180,8 @@ def download_all_apps(request):
             'Term': app.job.session.term.code,
             'Job': '{0} {1} {2}'.format(app.job.course.code.name, app.job.course.number.name, app.job.course.section.name),
             'Applicant': app.applicant.get_full_name(),
-            'Latest Status': '{0} (Assigned Hours: {1})'.format(latest_status.get_assigned_display(), latest_status.assigned_hours),
+            'Latest Status': assigned_display,
+            'Assigned Hours': latest_status.assigned_hours,
             'Classification': '{0} {1}'.format(app.classification.year, app.classification.name) if app.classification else '',
             'GTA Info': userApi.get_gta_flag(app.applicant),
             'Confidential Info': ', '.join(confi),
