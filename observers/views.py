@@ -9,8 +9,8 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
 
 from users.models import Role
-
 from users import api as userApi
+from ta_app import utils
 from observers.mixins import AcceptedAppsReportMixin
 
 @login_required(login_url=settings.LOGIN_URL)
