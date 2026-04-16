@@ -750,9 +750,10 @@ def get_applications_filter_limit(request, status):
     today = None
 
     if status == 'selected':
-        apps = Application.objects.filter(applicationstatus__assigned=utils.SELECTED).order_by('-id').distinct()
+        apps = Application.objects.filter(applicationstatus__assigned=utils.SELECTED, applicationreset__isnull=True).order_by('-id').distinct()
 
         num_all_apps = apps.count()
+
         # adminApi.get_latest_status_in_app(app)
         # count_offered_apps = Count('applicationstatus', filter=Q(applicationstatus__assigned=utils.OFFERED))
         # offered_apps = Application.objects.annotate(count_offered_apps=count_offered_apps).filter(count_offered_apps__gt=0)
