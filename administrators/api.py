@@ -68,7 +68,7 @@ def can_req_parameters_access(request, domain, params, option=None):
 
     SESSION_PATH = ['Current Sessions', 'Archived Sessions']
     JOB_PATH = ['Prepare Jobs', 'Jobs in Progress', 'Jobs by Instructor', 'Jobs by Student',
-                'Jobs']
+                'Jobs', 'Dashboard', 'All Applications', 'Selected Applications', 'Offered Applications']
     APP_PATH = ['Dashboard', 'All Applications', 'Selected Applications',
                 'Offered Applications', 'Accepted Applications',
                 'Declined Applications', 'Terminated Applications',

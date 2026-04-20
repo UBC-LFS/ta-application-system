@@ -86,6 +86,9 @@
                 {{ app.applicant.get_full_name }}
               </a>
               <br />
+              <a href="{% url 'administrators:student_jobs_details' username=app.applicant.username %}?next={{ request.get_full_path }}&p=Offered Applications&t=all">Jobs</a>
+              
+              <br />
               {% include 'ta_app/applications/_app_sta_confirmation.html' with data=app.sta_confirmation %}
             </td>
             <td>

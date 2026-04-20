@@ -53,7 +53,6 @@
             {% include 'instructors/subpages/display_preferred_candidate.html' with user=st.application.applicant %}
           </td>
           <td>
-
             {% if st.parent_id %}
 
               {% if st.assigned == app_status.cancelled %}
@@ -72,12 +71,14 @@
 
             {% endif %}
           </td>
-          <td>{{ st.application.applicant.first_name }} {{ st.application.applicant.last_name }}</td>
           <td>
             <a href="{% url 'users:show_user' username=st.application.applicant.username %}?next={{ new_next }}&p=Dashboard&t=basic">
-              {{ st.application.applicant.username }}
+              {{ st.application.applicant.get_full_name }}
             </a>
+            <br />
+            <a href="{% url 'administrators:student_jobs_details' username=st.application.applicant.username %}?next={{ request.get_full_path }}&p=Dashboard&t=all">Jobs</a>
           </td>
+          <td>{{ st.application.applicant.username }}</td>
           <td>{{ st.application.job.session.year }}</td>
           <td>{{ st.application.job.session.term.code }}</td>
           <td>

@@ -95,6 +95,9 @@
             <a class="d-block" href="{% url 'users:show_user' username=app.applicant.username %}?next={{ new_next }}&p=All Applications&t=basic">
               {{ app.applicant.get_full_name }}
             </a>
+
+            <a href="{% url 'administrators:student_jobs_details' username=app.applicant.username %}?next={{ request.get_full_path }}&p=All Applications&t=all">Jobs</a>
+            <br />
             {% include 'ta_app/users/_display_special_master_program.html' with data=app.applicant.profile.program.slug %}
             {% include 'ta_app/applications/_app_sta_confirmation.html' with data=app.sta_confirmation %}
           </td>
