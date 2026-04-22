@@ -9,59 +9,58 @@
     <div class="left-aside-btn-groups">
       <a class="btn btn-outline-primary" href="{{ next }}">Back to {{ request.GET.p }}</a>
     </div>
-
-    <div class="board col-10 mx-auto mt-5 text-center">
-
-      <h5 class="text-info">Offered Jobs</h5>
-      <table class="table font-size-1">
-        <thead>
-          <tr>
-            <th>Year-Term</th>
-            <th>Total Assigned Hours</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for year_term, assigned_hours in total_assigned_hours.offered.items %}
-            <tr>
-              <td>{{ year_term }}</td>
-              <td>{{ assigned_hours }} hours</td>
-            </tr>
-          {% empty %}
-            <tr>
-              <td colspan="2">No total assigned hours</td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-
-      <br />
-
-      <h5 class="text-info">Accepted Jobs</h5>
-      <table class="table font-size-1">
-        <thead>
-          <tr>
-            <th>Year-Term</th>
-            <th>Total Assigned Hours</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for year_term, assigned_hours in total_assigned_hours.accepted.items %}
-            <tr>
-              <td>{{ year_term }}</td>
-              <td>{{ assigned_hours }} hours</td>
-            </tr>
-          {% empty %}
-            <tr>
-              <td colspan="2">No total assigned hours</td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-
-    </div>
   </div>
 
   <div class="col-md-9">
+
+    <div class="two-columns board mb-4 px-3 py-0 text-center">
+      <div class="column left-50 mt-3">
+        <h6 class="text-primary">Offered Jobs</h6>
+        <table class="table table-sm">
+          <thead>
+            <tr>
+              <th>Year-Term</th>
+              <th>Total Assigned Hours</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for year_term, assigned_hours in total_assigned_hours.offered.items %}
+              <tr>
+                <td>{{ year_term }}</td>
+                <td>{{ assigned_hours }} hours</td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="2">No total assigned hours</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="column right-50 mt-3">
+        <h6 class="text-primary">Accepted Jobs</h6>
+        <table class="table table-sm">
+          <thead>
+            <tr>
+              <th>Year-Term</th>
+              <th>Total Assigned Hours</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for year_term, assigned_hours in total_assigned_hours.accepted.items %}
+              <tr>
+                <td>{{ year_term }}</td>
+                <td>{{ assigned_hours }} hours</td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="2">No total assigned hours</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
 
     <nav>
       <div class="nav nav-tabs">
@@ -80,7 +79,7 @@
     {% if current_tab == 'offered' %}
 
       <div>
-        <h4 class="mt-5 mb-3">
+        <h4 class="my-3">
           Offered Jobs
           <small class="text-dark-gray">(Total: {{ offered_apps|length }})</small>
         </h4>
@@ -131,7 +130,7 @@
     {% elif current_tab == 'accepted' %}
 
       <div>
-        <h4 class="mt-5 mb-3">
+        <h4 class="my-3">
           Accepted Jobs
           <small class="text-dark-gray">(Total: {{ accepted_apps|length }})</small>
         </h4>
@@ -185,7 +184,7 @@
     {% else %}
 
       <div>
-        <h4 class="mt-5 mb-3">
+        <h4 class="my-3">
           All Jobs
           <small class="text-dark-gray">(Total: {{ apps|length }})</small>
         </h4>
@@ -208,8 +207,6 @@
               <th data-sortable="true">Year</th>
               <th data-sortable="true">Term</th>
               <th data-sortable="true">Job</th>
-              <th data-sortable="true">Total Assigned<br /> TA Hours</th>
-              <th data-sortable="true">Accumulated<br /> TA Hours</th>
               <th data-sortable="true">Application</th>
               <th>Application <br />Status</th>
               <th data-sortable="true">Created Date</th>
@@ -222,8 +219,6 @@
                 <td>{{ app.job.session.year }}</td>
                 <td>{{ app.job.session.term.code }}</td>
                 <td>{{ app.job.course.code.name }} {{ app.job.course.number.name }} {{ app.job.course.section.name }}</td>
-                <td>{{ app.job.assigned_ta_hours }}</td>
-                <td>{{ app.job.accumulated_ta_hours }}</td>
                 <td>
                   {% include 'ta_app/applications/_modal_app_details.html' with data=app display='id' pin_display='True' striped='True' %}
                 </td>

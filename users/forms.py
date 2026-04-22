@@ -111,6 +111,19 @@ class UserInstructorForm(forms.ModelForm):
         }
 
 
+class UserEmailForm(forms.ModelForm):
+    email = forms.EmailField(
+        required=True,
+        widget=forms.EmailInput(attrs={ 'required': True, 'class': 'form-control' }),
+        help_text='Maximum length is 254 characters.',
+        error_messages={'required': 'Please provide an email address.'}
+    )
+
+    class Meta:
+        model = User
+        fields = ['email']
+
+
 class UserProfileForm(forms.ModelForm):
     roles = forms.ModelMultipleChoiceField(
         required=True,

@@ -68,7 +68,7 @@ def can_req_parameters_access(request, domain, params, option=None):
 
     SESSION_PATH = ['Current Sessions', 'Archived Sessions']
     JOB_PATH = ['Prepare Jobs', 'Jobs in Progress', 'Jobs by Instructor', 'Jobs by Student',
-                'Jobs', 'Dashboard', 'All Applications', 'Selected Applications', 'Offered Applications']
+                'Jobs', 'Dashboard', 'All Applications', 'Selected Applications', 'Offered Applications', 'All Users']
     APP_PATH = ['Dashboard', 'All Applications', 'Selected Applications',
                 'Offered Applications', 'Accepted Applications',
                 'Declined Applications', 'Terminated Applications',
@@ -1626,17 +1626,24 @@ def delete_admin_email(admin_email_id):
     admin_email.delete()
     return admin_email if admin_email else False
 
-def get_admin_email_by_type(type):
-    ''' Get an admin email with an offer email type '''
-    admin_email = AdminEmail.objects.filter(type=type)
-    return admin_email.first() if admin_email.exists() else None
 
 def get_job_offer_details(user, app, type):
     ''' Get job offer details '''
 
-    offer_email = get_admin_email_by_type('Offer email')
-    if offer_email == None:
-        return 'No Job Offer Details document'
+    term = app.job.session.term.name.split(' ')[0]
+    admin_email_filtered = AdminEmail.objects.filter(type__icontains=term)
+
+    term_name = '{0} offer email'.format(term)
+    admin_email = None
+    if admin_email_filtered.exists():
+        found_admin_email = admin_email_filtered.first()
+        if found_admin_email.type.lower() == term_name.lower():
+            admin_email = admin_email_filtered.first()
+    else:
+        admin_email = AdminEmail.objects.filter(type__iexact='offer email').first()
+    
+    if not admin_email:
+        return 'No job offer document found.'
 
     instructors = []
     for instructor in app.job.instructors.all():
@@ -1648,7 +1655,7 @@ def get_job_offer_details(user, app, type):
     elif type == 'reassigned':
         assigned_hours = app.declined.assigned_hours
 
-    return offer_email.message.format(
+    return admin_email.message.format(
         user.get_full_name(),
         user.profile.student_number,
         app.job.session.year + ' ' + app.job.session.term.code,

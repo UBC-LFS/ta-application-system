@@ -51,7 +51,7 @@
       {% for user in users %}
         <tr>
           <td>
-            <a class="btn btn-xs btn-info" href="{% url 'users:show_user' username=user.username %}?next={{ new_next }}&p=All Users&t=basic">{{ user.id }}</a>
+            <a href="{% url 'users:show_user' username=user.username %}?next={{ new_next }}&p=All Users&t=basic">{{ user.id }}</a>
           </td>
           <td>{{ user.first_name }}</td>
           <td>{{ user.last_name }}</td>
@@ -60,7 +60,11 @@
               {{ user.profile.preferred_name }}
             {% endif %}
           </td>
-          <td>{{ user.username }}</td>
+          <td>
+            {{ user.username }}
+            <br />
+            <a href="{% url 'administrators:student_jobs_details' username=user.username %}?next={{ request.get_full_path }}&p=All Users&t=all">Jobs</a>
+          </td>
           <td>
             {% if user.profile.student_number %}
               {{ user.profile.student_number }}

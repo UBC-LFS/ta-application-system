@@ -20,7 +20,7 @@ from ta_app import utils
 from administrators.forms import *
 from administrators import api as adminApi
 
-from users.models import Role, Alert
+from users.models import Alert
 from users.forms import *
 from users import api as userApi
 
@@ -156,6 +156,7 @@ class EditProfile(LoginRequiredMixin, View):
         }
         
         if self.tab == 'general':
+            context['user_email_form'] = UserEmailForm(instance=self.user)
             context['form'] = StudentProfileGeneralForm(instance=self.profile)
         elif self.path == 'graduate' and self.tab == 'graduate':
             context['form'] = StudentProfileGraduateForm(instance=self.profile)
@@ -171,7 +172,16 @@ class EditProfile(LoginRequiredMixin, View):
         PROGRAM_OTHERS = userApi.get_program_others_id()
         if not PROGRAM_OTHERS:
             raise SuspiciousOperation
-
+        
+        user_email = self.user.email
+        user_email_form = UserEmailForm(request.POST, instance=self.user)
+        if user_email_form.is_valid():
+            if user_email != user_email_form.cleaned_data['email']:
+                user_email_form.save()
+        else:
+            messages.error(request, 'An error occurred. Form is invalid. {0}'.format( userApi.display_error_messages(user_email_form.errors.get_json_data()) ))
+            return HttpResponseRedirect(reverse('students:edit_profile') + '?t=general')
+        
         profile_degrees = self.profile.degrees.all()
         profile_trainings = self.profile.trainings.all()
         
@@ -1164,13 +1174,13 @@ def make_decision(request, session_slug, job_slug):
                                 ad_filtered.update(worktag=worktag)
                             else:
                                 AdminDocuments.objects.create(application_id=app.id, worktag=worktag)
-                        else:
-                            if app.job.course.code.name in settings.WORKTAG_MAP.keys():
-                                worktag = settings.WORKTAG_MAP[app.job.course.code.name]
-                                if ad_filtered.exists():
-                                    ad_filtered.update(worktag=worktag)
-                                else:
-                                    AdminDocuments.objects.create(application_id=app.id, worktag=worktag)
+                        # else:
+                        #     if app.job.course.code.name in settings.WORKTAG_MAP.keys():
+                        #         worktag = settings.WORKTAG_MAP[app.job.course.code.name]
+                        #         if ad_filtered.exists():
+                        #             ad_filtered.update(worktag=worktag)
+                        #         else:
+                        #             AdminDocuments.objects.create(application_id=app.id, worktag=worktag)
 
                         messages.success(request, 'Success! You accepted the job offer - {0} {1}: {2} {3} {4}'.format(app.job.session.year, app.job.session.term.code, app.job.course.code.name, app.job.course.number.name, app.job.course.section.name))
                         return HttpResponseRedirect(request.POST.get('next'))

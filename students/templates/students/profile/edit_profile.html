@@ -91,11 +91,26 @@
 
       {% else %}
 
-        <form action="{{ submit_url }}" method="post">
+        <form action="{{ submit_url }}" method="post" novalidate>
           {% csrf_token %}
 
           <table class="user-data-table table table-borderless">
             {% if current_tab == 'general' %}
+              {% for field in user_email_form.visible_fields %}
+                <tr>
+                  <td>
+                    <label for="{{ field.id_for_label }}">
+                      {{ field.label }}
+                      <small class="text-danger"><i class="fa fa-asterisk" aria-hidden="true"></i></small>
+                    </label>
+                    {% if field.help_text %}
+                      <div class="help">{{ field.help_text|safe }}</div>
+                    {% endif %}
+                  </td>
+                  <td>{{ field }}</td>
+                </tr>
+              {% endfor %}
+
               {% for field in form.visible_fields %}
                 {% include 'students/profile/_form.html' %}
               {% endfor %}
@@ -109,7 +124,7 @@
               {% for field in form.visible_fields %}
                 {% include 'students/profile/_form.html' %}
               {% endfor %}
-              
+
             {% else %}
               <p>No forms exist</p>
             {% endif %}
