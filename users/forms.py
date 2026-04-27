@@ -276,7 +276,7 @@ class StudentProfileGeneralForm(forms.ModelForm):
 
         self.fields['program'].queryset = Program.objects.all().order_by('name')
         self.fields['trainings'].queryset = Training.objects.filter(is_active=True)
-    
+
     field_order = [
         'preferred_name', 'status', 'student_year', 'has_graduated', 'graduation_date', 'faculty', 'program', 'program_others',
         'degrees', 'degree_details', 'trainings', 'training_details', 'lfs_ta_training', 'lfs_ta_training_details'
@@ -340,17 +340,15 @@ ta_error_messages = {
 class StudentProfileGraduateForm(forms.ModelForm):
     class Meta:
         model = Profile
-        fields = ['total_academic_years', 'total_terms', 'total_ta_hours', 'preferred_candidate_status'] + student_profile_ta_fields
+        fields = ['total_academic_years', 'total_terms', 'total_ta_hours'] + student_profile_ta_fields
         widgets = {**ta_total_widgets, **student_profile_ta_widgets}
         labels = {
-            **ta_total_labels, 
-            **student_profile_ta_labels,
-            'preferred_candidate_status': 'Preferred Candidate Status'
+            **ta_total_labels,
+            **student_profile_ta_labels
         }
         help_texts = {
-            **ta_total_ta_hours, 
-            **student_profile_ta_help_texts,
-            'preferred_candidate_status': 'If yes, please select the checkbox.'
+            **ta_total_ta_hours,
+            **student_profile_ta_help_texts
         }
         error_messages = {
             'total_academic_years': {
@@ -367,7 +365,7 @@ class StudentProfileGraduateForm(forms.ModelForm):
             },
             **ta_error_messages
         }
-    
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['total_academic_years'].required = True
@@ -386,7 +384,7 @@ class StudentProfileUndergraduateForm(forms.ModelForm):
         labels = student_profile_ta_labels
         help_texts = student_profile_ta_help_texts
         error_messages = ta_error_messages
-    
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['ta_experience'].required = True
@@ -470,7 +468,7 @@ confidentiality_widgets = {
 }
 
 confidentiality_labels = {
-    'nationality': 'Am I a domestic or international student?', 
+    'nationality': 'Am I a domestic or international student?',
     'date_of_birth': 'Date of Birth:',
     'is_new_employee': 'I am a new employee:',
     'employee_number': 'Employee Number:',
@@ -515,7 +513,7 @@ class ConfidentialityDomesticForm(forms.ModelForm):
 
     field_order = confidentiality_field_order
 
-    
+
 class ConfidentialityInternationalForm(forms.ModelForm):
     class Meta:
         model = Confidentiality
@@ -529,7 +527,7 @@ class ConfidentialityInternationalForm(forms.ModelForm):
         self.fields['nationality'].choices = Confidentiality.NATIONALITY_CHOICES
 
     field_order = confidentiality_field_order + ['sin_expiry_date', 'study_permit', 'study_permit_expiry_date']
-    
+
 
 class ConfidentialityForm(forms.ModelForm):
     class Meta:
@@ -538,11 +536,11 @@ class ConfidentialityForm(forms.ModelForm):
         widgets = {**confidentiality_widgets, **international_widgets}
         labels = {**confidentiality_labels, **international_labels}
         help_texts = {**confidentiality_help_texts, **international_help_texts}
-    
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['nationality'].choices = Confidentiality.NATIONALITY_CHOICES
-    
+
     field_order = confidentiality_field_order + ['sin_expiry_date', 'study_permit', 'study_permit_expiry_date']
 
 
