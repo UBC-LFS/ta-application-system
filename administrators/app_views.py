@@ -181,7 +181,7 @@ def download_all_apps(request):
                 ))
         
         data.append({
-            'LFS GRAD': 'YES' if userApi.get_lfs_grad(app.applicant) else '',
+            'LFS Grad': 'YES' if userApi.get_lfs_grad(app.applicant) else '',
             'Year': year,
             'Term': app.job.session.term.code,
             'Job': '{0} {1} {2}'.format(app.job.course.code.name, app.job.course.number.name, app.job.course.section.name),

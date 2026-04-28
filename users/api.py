@@ -863,10 +863,7 @@ def get_gta_flag(user):
 
 
 def get_lfs_grad(user):
-    profile = has_user_profile_created(user)
-    if profile and is_lfs_student(user) and not is_undergraduate(user):
-        return True
-    return False
+    return True if get_lfs_grad_or_others(user) == 'LFS GRAD' else False
 
 
 def get_lfs_ta(user, year):
