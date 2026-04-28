@@ -14,8 +14,7 @@
         <h6>Note:</h6>
         <ul class="font-size-sm">
           <li>{% include 'ta_app/applications/_contract_read_note.html' %}</li>
-          <li>{% include 'instructors/subpages/lfs_ta.html' with column='ID' %}</li>
-          <li>{% include 'instructors/subpages/preferred_candidate.html' with column='ID' %}</li>
+          <li>{% include 'instructors/subpages/lfs_grad.html' with column='ID' %}</li>
         </ul>
       </div>
     </div>
@@ -49,8 +48,7 @@
           <td>
             {{ st.id }}
             <br />
-            {% include 'instructors/subpages/display_lfs_ta.html' with user=st.application.applicant year=st.application.job.session.year %}
-            {% include 'instructors/subpages/display_preferred_candidate.html' with user=st.application.applicant %}
+            {% include 'instructors/subpages/display_lfs_grad.html' with user=st.application.applicant year=st.application.job.session.year %}
           </td>
           <td>
             {% if st.parent_id %}

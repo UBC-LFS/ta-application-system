@@ -19,8 +19,7 @@
         <h6>Note:</h6>
         <ul class="font-size-sm">
           <li>{% include 'ta_app/applications/_declined_reassigned_note.html' %}</li>
-          <li>{% include 'instructors/subpages/lfs_ta.html' with column='ID' %}</li>
-          <li>{% include 'instructors/subpages/preferred_candidate.html' with column='ID' %}</li>
+          <li>{% include 'instructors/subpages/lfs_grad.html' with column='ID' %}</li>
           <li><span class="font-weight-bold">LFS Graduate:</span> includes LFS Master’s and LFS PhD students</li>
           <li><span class="font-weight-bold">Others:</span> includes non-LFS Graduate students and all Undergraduate students</li>
         </ul>
@@ -63,8 +62,7 @@
           <td>
             {{ app.id }}
             <br />
-            {% include 'instructors/subpages/display_lfs_ta.html' with user=app.applicant year=app.job.session.year %}
-            {% include 'instructors/subpages/display_preferred_candidate.html' with user=app.applicant %}
+            {% include 'instructors/subpages/display_lfs_grad.html' with user=app.applicant %}
           </td>
           <td>
             {{ app.job.session.year }} {{ app.job.session.term.code }} <br />

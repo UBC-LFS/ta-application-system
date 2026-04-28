@@ -154,9 +154,9 @@ def download_all_apps(request):
     for app in apps:
         year = app.job.session.year
         
-        pref_candi = ''
-        if userApi.profile_exists(app.applicant):
-            pref_candi = 'YES' if app.applicant.profile.preferred_candidate_status else ''
+        # pref_candi = ''
+        # if userApi.profile_exists(app.applicant):
+        #     pref_candi = 'YES' if app.applicant.profile.preferred_candidate_status else ''
 
         latest_status = app.applicationstatus_set.last()
         assigned_display = latest_status.get_assigned_display()
@@ -167,7 +167,10 @@ def download_all_apps(request):
         confi = []
         if len(confi_info_expiry_status) > 0:
             for item in confi_info_expiry_status:
-                confi.append('{0}: {1} ({2})'.format(item['doc'], item['status'], adminApi.convert_date_format(item['date'])))
+                if item['date']:
+                    confi.append('{0}: {1} ({2})'.format(item['doc'], item['status'], adminApi.convert_date_format(item['date'])))
+                else:
+                    confi.append('{0}: {1}'.format(item['doc'], item['status']))
 
         reset_log = []
         if app.applicationreset_set.count() > 0:
@@ -178,8 +181,7 @@ def download_all_apps(request):
                 ))
         
         data.append({
-            'LFS TA': 'YES' if userApi.get_lfs_ta(app.applicant, year) else '',
-            'Preferred Candidate': pref_candi,
+            'LFS GRAD': 'YES' if userApi.get_lfs_grad(app.applicant) else '',
             'Year': year,
             'Term': app.job.session.term.code,
             'Job': '{0} {1} {2}'.format(app.job.course.code.name, app.job.course.number.name, app.job.course.section.name),

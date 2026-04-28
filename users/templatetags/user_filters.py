@@ -23,6 +23,11 @@ def lfs_ta(user, year):
 
 
 @register.filter
+def lfs_grad(user):
+    return userApi.get_lfs_grad(user)
+
+
+@register.filter
 def lfs_grad_or_others(user):
     return userApi.get_lfs_grad_or_others(user)
 

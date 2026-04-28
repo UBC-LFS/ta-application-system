@@ -1631,9 +1631,10 @@ def get_job_offer_details(user, app, type):
     ''' Get job offer details '''
 
     term = app.job.session.term.name.split(' ')[0]
-    admin_email_filtered = AdminEmail.objects.filter(type__icontains=term)
 
     term_name = '{0} offer email'.format(term)
+    admin_email_filtered = AdminEmail.objects.filter(type__iexact=term_name)
+
     admin_email = None
     if admin_email_filtered.exists():
         found_admin_email = admin_email_filtered.first()
