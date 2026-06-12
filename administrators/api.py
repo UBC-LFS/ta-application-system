@@ -826,14 +826,13 @@ def get_applications_filter_limit(request, status):
 
         offer_status = request.GET.get('offer_status')
         if bool(offer_status):
+            latest_status = ApplicationStatus.objects.filter(application=OuterRef('pk')).order_by('-id')
             if offer_status == 'offered':
-                # apps = apps.filter(applicationstatus__assigned=utils.OFFERED)
-                apps = apps.annotate(latest_app_status=Subquery(latest.values('assigned')[:1]))
+                apps = apps.annotate(latest_app_status=Subquery(latest_status.values('assigned')[:1]))
                 apps = apps.difference(not_offered_apps).order_by('-id')
 
             if offer_status == 'not_offered':
-                # apps = apps.filter( ~Q(applicationstatus__assigned=utils.OFFERED) )
-                apps = apps.annotate(latest_app_status=Subquery(latest.values('assigned')[:1])).filter(latest_app_status=utils.SELECTED).order_by('-id')
+                apps = apps.annotate(latest_app_status=Subquery(latest_status.values('assigned')[:1])).filter(latest_app_status=utils.SELECTED).order_by('-id')
 
     elif status == 'offered':
         if bool( request.GET.get('no_response') ):
