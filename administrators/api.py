@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django.http import Http404
-from django.db.models import Q, OuterRef, Subquery
+from django.db.models import Q, OuterRef, Subquery, Exists
 from django.contrib.auth.models import User
 from django.core.mail import send_mail, EmailMultiAlternatives
 from django.db import IntegrityError
@@ -750,17 +750,18 @@ def get_applications_filter_limit(request, status):
     today = None
 
     if status == 'selected':
-        apps = Application.objects.filter(applicationstatus__assigned=utils.SELECTED, applicationreset__isnull=True).order_by('-id').distinct()
+        latest_status = ApplicationStatus.objects.filter(application=OuterRef('pk')).order_by('-id')
+        reset_exists = ApplicationReset.objects.filter(application=OuterRef("pk"))
 
+        selected_stage_statuses = [utils.SELECTED, utils.OFFERED, utils.ACCEPTED, utils.DECLINED, utils.CANCELLED]
+            
+        apps = Application.objects.annotate(
+                latest_assigned=Subquery(latest_status.values('assigned')[:1]),
+                has_reset=Exists(reset_exists),
+            ).filter(latest_assigned__in=selected_stage_statuses).select_related('applicant').order_by('-id')
+        
         num_all_apps = apps.count()
-
-        # adminApi.get_latest_status_in_app(app)
-        # count_offered_apps = Count('applicationstatus', filter=Q(applicationstatus__assigned=utils.OFFERED))
-        # offered_apps = Application.objects.annotate(count_offered_apps=count_offered_apps).filter(count_offered_apps__gt=0)
-        # num_offered_apps = offered_apps.count()
-
-        latest = ApplicationStatus.objects.filter(application=OuterRef('pk')).order_by('-id')
-        not_offered_apps = apps.annotate(latest_app_status=Subquery(latest.values('assigned')[:1])).filter(latest_app_status=utils.SELECTED).order_by('-id')
+        not_offered_apps = apps.annotate(latest_app_status=Subquery(latest_status.values('assigned')[:1])).filter(latest_app_status=utils.SELECTED).order_by('-id')
         num_not_offered_apps = not_offered_apps.count()
 
     elif status == 'accepted':
