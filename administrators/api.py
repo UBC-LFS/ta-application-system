@@ -751,14 +751,9 @@ def get_applications_filter_limit(request, status):
 
     latest_status = ApplicationStatus.objects.filter(application=OuterRef('pk')).order_by('-id')
     if status == 'selected':
-        reset_exists = ApplicationReset.objects.filter(application=OuterRef("pk"))
-
         selected_stage_statuses = [utils.SELECTED, utils.OFFERED, utils.ACCEPTED, utils.DECLINED, utils.CANCELLED]
             
-        apps = Application.objects.annotate(
-                latest_assigned=Subquery(latest_status.values('assigned')[:1]),
-                has_reset=Exists(reset_exists),
-            ).filter(latest_assigned__in=selected_stage_statuses).select_related('applicant').order_by('-id')
+        apps = Application.objects.annotate(latest_assigned=Subquery(latest_status.values('assigned')[:1])).filter(latest_assigned__in=selected_stage_statuses).select_related('applicant').order_by('-id')
         
         num_all_apps = apps.count()
         not_offered_apps = apps.annotate(latest_app_status=Subquery(latest_status.values('assigned')[:1])).filter(latest_app_status=utils.SELECTED).order_by('-id')
