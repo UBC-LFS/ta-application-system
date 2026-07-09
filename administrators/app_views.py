@@ -153,11 +153,6 @@ def download_all_apps(request):
     data = []
     for app in apps:
         year = app.job.session.year
-        
-        # pref_candi = ''
-        # if userApi.profile_exists(app.applicant):
-        #     pref_candi = 'YES' if app.applicant.profile.preferred_candidate_status else ''
-
         latest_status = app.applicationstatus_set.last()
         assigned_display = latest_status.get_assigned_display()
         if assigned_display == 'None':
@@ -182,6 +177,7 @@ def download_all_apps(request):
         
         data.append({
             'LFS Grad': 'YES' if userApi.get_lfs_grad(app.applicant) else '',
+            'past LFS TA': 'YES' if userApi.get_lfs_ta(app.applicant, app.job.session.year) else '',
             'Year': year,
             'Term': app.job.session.term.code,
             'Job': '{0} {1} {2}'.format(app.job.course.code.name, app.job.course.number.name, app.job.course.section.name),
@@ -202,7 +198,70 @@ def download_all_apps(request):
 @login_required(login_url=settings.LOGIN_URL)
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @require_http_methods(['GET'])
-def download_lfs_tas(request):
+def download_lfs_grad(request):
+    app_list, _ = adminApi.get_applications_filter_limit(request, 'all')
+
+    apps = []
+    usernames = []
+    for app in app_list:
+        if userApi.get_lfs_grad(app.applicant) and app.applicant.username not in usernames:
+            apps.append(app)
+            usernames.append(app.applicant.username)
+
+    result = 'Year,First Name,Last Name,CWL,Student Number,Status,LFS Grad or Others,Program,Other Program,Faculty,Student Year,Previous Year - Accepted Hours\n'
+
+    sorted_apps = sorted(apps, key=lambda x: x.applicant.first_name)
+    for app in sorted_apps:
+        student_number = ''
+        status = ''
+        student_year = ''
+        program = ''
+        program_others = ''
+        if userApi.profile_exists(app.applicant):
+            if app.applicant.profile.student_number:
+                student_number = app.applicant.profile.student_number
+
+            if app.applicant.profile.status:
+                status = app.applicant.profile.status.name
+
+            if app.applicant.profile.student_year:
+                student_year = app.applicant.profile.student_year
+
+            if app.applicant.profile.program:
+                program = app.applicant.profile.program.name
+
+            if app.applicant.profile.program_others:
+                program_others = app.applicant.profile.program_others.replace('&nbsp;', ' ').replace(',', "")
+                program_others = strip_tags(program_others)
+
+            if app.applicant.profile.faculty:
+                faculty = app.applicant.profile.faculty.name
+
+        lfs_grad_or_others = userApi.get_lfs_grad_or_others(app.applicant)
+        prev_year_accepted_hours = adminApi.get_accepted_hours_from_previous_year(app.applicant, app.job.session.year)
+
+        result += '{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11}\n'.format(
+            app.job.session.year,
+            app.applicant.first_name,
+            app.applicant.last_name,
+            app.applicant.username,
+            student_number,
+            status,
+            lfs_grad_or_others,
+            program,
+            program_others,
+            faculty,
+            student_year,
+            float(prev_year_accepted_hours)
+        )
+
+    return JsonResponse({ 'status': 'success', 'data': result })
+
+
+@login_required(login_url=settings.LOGIN_URL)
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+@require_http_methods(['GET'])
+def download_past_lfs_ta(request):
     app_list, _ = adminApi.get_applications_filter_limit(request, 'all')
 
     apps = []

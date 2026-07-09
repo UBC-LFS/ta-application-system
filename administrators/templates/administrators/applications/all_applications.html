@@ -32,18 +32,21 @@
 
   <div class="mb-5">
     <div class="font-size-sm float-right">
-      {% include 'instructors/subpages/lfs_grad.html' with column='ID' %}
+      {% include 'instructors/subpages/lfs_grad.html' with column='ID' %} <br />
+      {% include 'instructors/subpages/past_lfs_ta.html' with column='ID' %}
     </div>
 
     <div class="mt-3" style="position:absolute;">
-      <small>Search first (e.g., year=2025) before download</small>
+      <small><strong>Download:</strong> Search first (e.g., year=2025) before download</small>
       <br />
-
       <button id="download-all-apps" class="btn btn-sm btn-info font-size-xs" type="button" data-url="{% url 'administrators:download_all_apps' %}" data-next='{{ request.get_full_path }}'>
-        Download All
+        All
       </button>
-      <button id="download-lfs-tas" class="btn btn-sm btn-info font-size-xs" type="button" data-url="{% url 'administrators:download_lfs_tas' %}" data-next="{{ request.get_full_path }}">
-        Download LFS TAs
+      <button id="download-lfs-grad" class="btn btn-sm btn-info font-size-xs" type="button" data-url="{% url 'administrators:download_lfs_grad' %}" data-next="{{ request.get_full_path }}">
+        LFS Grad
+      </button>
+      <button id="download-past-lfs-ta" class="btn btn-sm btn-info font-size-xs" type="button" data-url="{% url 'administrators:download_past_lfs_ta' %}" data-next="{{ request.get_full_path }}">
+        past LFS TA
       </button>
     </div>
   </div>
@@ -81,6 +84,7 @@
             <a href="{% url 'administrators:show_application' app_slug=app.slug %}?next={{ new_next }}&p=All Applications">{{ app.id }}</a>
             <br />
             {% include 'instructors/subpages/display_lfs_grad.html' with user=app.applicant %}
+            {% include 'instructors/subpages/display_past_lfs_ta.html' with user=app.applicant year=app.job.session.year %}
           </td>
           <td>{{ app.job.session.year }}</td>
           <td>{{ app.job.session.term.code }}</td>
@@ -217,5 +221,5 @@
 
 {% block js %}
   {% load static %}
-  <script type="text/javascript" src="{% static 'ta_app/js/download_lfs_tas.js' %}"></script>
+  <script type="text/javascript" src="{% static 'ta_app/js/download_all_apps.js' %}"></script>
 {% endblock %}

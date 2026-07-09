@@ -89,7 +89,8 @@ urlpatterns += [
     path('func/applications/accepted/download/all/', app_views.download_all_accepted_apps, name='download_all_accepted_apps'),
     path('func/applications/accepted/report/admin/download/all/', app_views.download_all_accepted_apps_report_admin, name='download_all_accepted_apps_report_admin'),
     path('func/applications/all/download/', app_views.download_all_apps, name='download_all_apps'),
-    path('func/applications/all/lfs-tas/download/', app_views.download_lfs_tas, name='download_lfs_tas')
+    path('func/applications/all/lfs-grad/download/', app_views.download_lfs_grad, name='download_lfs_grad'),
+    path('func/applications/all/lfs-ta/download/', app_views.download_past_lfs_ta, name='download_past_lfs_ta')
 ]
 
 

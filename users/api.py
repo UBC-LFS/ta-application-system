@@ -8,8 +8,24 @@ from django.db.models import Q
 import base64
 
 from ta_app import utils
-from users.models import *
-from users.forms import *
+from users.models import (
+    Confidentiality,
+    Resume,
+    Avatar,
+    ProfileReminder,
+    Role,
+    Status,
+    Faculty,
+    Program,
+    Degree,
+    Training,
+    AlertEmail,
+    decrypt_image
+)
+from users.forms import (
+    Profile, 
+    UserProfileForm
+)
 from administrators.models import *
 from administrators.forms import ROLES
 from administrators import api as adminApi

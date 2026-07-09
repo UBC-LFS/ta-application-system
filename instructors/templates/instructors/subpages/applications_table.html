@@ -30,8 +30,9 @@
       {% with status_program=app.applicant|applicant_status_program %}
         <tr class="bg-{{ status_program.highlight }}">
           <td>
-            {% if app.applicant|lfs_grad %}
+            {% if app.applicant|lfs_grad or app.applicant|lfs_ta:app.job.session.year %}
               {% include 'instructors/subpages/display_lfs_grad.html' with user=app.applicant %}
+              {% include 'instructors/subpages/display_past_lfs_ta.html' with user=app.applicant year=app.job.session.year %}
               <br />
             {% endif %}
 
