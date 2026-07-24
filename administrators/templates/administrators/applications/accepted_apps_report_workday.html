@@ -36,9 +36,9 @@
   <table class="table table-bordered table-hover table-striped table-responsive-md text-center">
     <thead>
       <tr>
-        <th>ID <br /> Year Term</th>
+        <th>ID / <br /> Year Term</th>
         <th>Student <br /> ID</th>
-        <th>Last Name/Mono Name</th>
+        <th>Last Name / <br /> Mono Name</th>
         <th>Hire/Effective Date <br /> (Start Date1)</th>
         <th>Position <br /> Number</th>
         <th>Time <br /> Type</th>
@@ -59,7 +59,7 @@
     <tbody>
       {% for app in apps %}
         <tr>
-          <td>{{ app.id }} <br /> {{ app.job.session.year }} {{ app.job.session.term.code }}</td>
+          <td>{{ app.id }} / <br /> {{ app.job.session.year }} {{ app.job.session.term.code }}</td>
           <td>{{ app.student_number }}</td>
           <td>{{ app.applicant.last_name }}</td>
           <td>{{ app.start_date1 }}</td>
