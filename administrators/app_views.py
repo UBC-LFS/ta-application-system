@@ -765,60 +765,41 @@ def download_accepted_apps_workday(request):
 
         data.append({
             'Fields': '',
-            'Bot Action': '',
-            'Primary Initiator': '',
-            'Secondary Initiator': '',
-            'Three Jobs Rule (Bypass/Leave Blank)': '',
-            'Bot Status': '',
-            'Bot Timestamp': '',
-            'Bot Comments': '',
             'Student ID': app.student_number,
-            'Hire Date': app.start_date1,
-            'Hire Reason': '',
+            'Last Name/Mono Name': app.applicant.last_name,
+            'Hire/Effective Date': app.start_date1,
+            'Reason': '',
             'Position Number': app.position_number,
             'Time Type': app.time_type,
             'Job Title': app.job_title,
-            'Instructor(s)': instructors,
             'Default Weekly Hours': app.default_weekly_hours,
             'Scheduled Weekly Hours': app.scheduled_weekly_hours,
             'Additional Job Classifications': app.job_class,
             'End Employment Date': app.end_date1,
-            'Comments': '',
-            'Attachment 1': '',
-            'Attachment 1 Category': '',
+            'Compensation Frequency': app.compensation_freq,
+            'Compensation Amount': app.monthly_salary,
+            'Hire BP Comment': '',
+            'Vacating Position': '',
             'SIN Number': '',
             'Expiration Date of SIN': app.sin_expiry_date,
             'Visa ID Type': app.visa_type,
-            'Identification #': '',
             'Issued Date of Visa': '',
             'Expiration Date of Visa': app.study_permit_expiry_date,
-            'Permit Validated': app.permit_validated,
-            'Attachment (NHI)': '',
+            'Identification Number': '',
             'Description of Upload (NHI)': '',
-            'Location': app.location,
-            'Vacating Position': '',
-            'Cost Centre': '',
-            'Functional Unit Hierarchy': '',
-            'Amount (Monthly)': app.monthly_salary,
-            'Amount (Hourly)': '',
-            'Comments for Costing allocation': '',
-            'Costing Allocation Level': app.costing_alloc_level,
+            'Attachment (NHI)': '',
             'Start Date1': app.start_date1,
             'End Date1': app.end_date1,
-            'Worktag1': app.worktag1,
-            'Distribution Percent1': app.dist_per1,
+            'Worktag 1': app.worktag1,
+            'Distribution Percentage 1': app.dist_per1,
             'Start Date2': app.start_date2,
             'End Date2': app.end_date2,
-            'Worktag2': app.worktag2,
-            'Distribution Percent2': app.dist_per2,
-            'Start Date3': app.start_date3,
-            'End Date3': app.end_date3,
-            'Worktag3': app.worktag3,
-            'Distribution Percent3': app.dist_per3,
-            'Start Date4': app.start_date4,
-            'End Date4': app.end_date4,
-            'Worktag4': app.worktag4,
-            'Distribution Percent4': app.dist_per4
+            'Worktag 2': app.worktag2,
+            'Distribution Percentage 2': app.dist_per2,
+            'Attachment 1 Category': '',
+            'Attachment 1': '',
+            'Attachment 2 Category': '',
+            'Attachment 2': ''   
         })
 
     return JsonResponse({ 'status': 'success', 'data': data })
@@ -1390,11 +1371,18 @@ def download_all_accepted_apps(request):
     apps, info = adminApi.get_applications_filter_limit(request, 'accepted')
     apps = adminApi.add_app_info_into_applications(apps, ['accepted'])
 
-    result = 'ID,Year,Term,Job,First Name,Last Name,Full Name,CWL,Email,Student Number,Employee Number,Classification,Monthly Salary,P/T (%),Positin Number,PIN,TASM,Processed,Worktag,Processing Note,Accepted on,Assigned Hours\n'
+    result = 'ID,Year,Term,Job,Instructor(s),First Name,Last Name,Full Name,CWL,Email,Student Number,Employee Number,Classification,Monthly Salary,P/T (%),Positin Number,PIN,TASM,Processed,Worktag,Processing Note,Accepted on,Assigned Hours\n'
     for app in apps:
         year = app.job.session.year
         term = app.job.session.term.code
         job = '{0} {1} {2}'.format(app.job.course.code.name, app.job.course.number.name, app.job.course.section.name)
+        instructors = ''
+        if app.job.instructors.count() > 0:
+            for i, ins in enumerate(app.job.instructors.all()):
+                instructors += ins.get_full_name()
+                if i < app.job.instructors.count() - 1:
+                    instructors += ', '
+
         first_name = app.applicant.first_name
         last_name = app.applicant.last_name
         full_name = f'{app.applicant.first_name} {app.applicant.last_name}'
@@ -1445,6 +1433,7 @@ def download_all_accepted_apps(request):
             year,
             term,
             job,
+            '\"' + instructors + '\"',
             first_name,
             last_name,
             full_name,
@@ -1488,7 +1477,7 @@ def download_all_accepted_apps_report_admin(request):
             for i, ins in enumerate(app.job.instructors.all()):
                 instructors += ins.get_full_name()
                 if i < app.job.instructors.count() - 1:
-                    instructors += '\n'
+                    instructors += ', '
 
         first_name = app.applicant.first_name
         last_name = app.applicant.last_name

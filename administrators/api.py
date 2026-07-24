@@ -1164,6 +1164,7 @@ def count_number_tas(job):
 def make_workday_data(app):
     app = add_app_info_into_application(app, ['accepted'])
 
+    app.compensation_freq = 'Monthly'
     app.permit_validated = 'n/a'
     if hasattr(app.applicant, 'confidentiality') and app.applicant.confidentiality:
         app.employee_number = app.applicant.confidentiality.employee_number if app.applicant.confidentiality.employee_number else ''

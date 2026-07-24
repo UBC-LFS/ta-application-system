@@ -17,8 +17,6 @@
         <h5>Note:</h5>
         <ul class="font-size-sm">
           <li><code>Time Type</code> is Full_time if P/T (%) >= 100; otherwise, Part_time</li>
-          <li><code>Costing Allocation Level</code> = {{ workday_costing_alloc_level }}</li>
-          <li><code>Location:</code> FNH, HUNU, and FOOD courses are set at {{ workday_fnh_location }}; otherwise, {{ workday_mcml_location }}</li>
         </ul>
       </div>
     </div>
@@ -39,51 +37,58 @@
     <thead>
       <tr>
         <th>ID <br /> Year Term</th>
-        <th>Job Title</th>
-        <th>Instructor(s)</th>
         <th>Student <br /> ID</th>
+        <th>Last Name/Mono Name</th>
+        <th>Hire/Effective Date <br /> (Start Date1)</th>
         <th>Position <br /> Number</th>
         <th>Time <br /> Type</th>
+        <th>Job Title</th>
         <th>Default <br /> Weekly Hours</th>
         <th>Scheduled <br /> Weekly Hours</th>
         <th>Additional Job <br /> Classifications</th>
-        <th>Hire Date <br /> (Start Date1)</th>
         <th>End Empl. Date <br /> (End Date1)</th>
-        <th>SIN Expiry Date / <br /> Study Permit Expiry Date</th>
-        <th>Permit <br /> Validated</th>
-        <th>Monthly <br /> Salary</th>
-        <th>Worktag1</th>
-        <th>Worktag2</th>
+        <th>Compensation <br /> Frequency</th>
+        <th>Compensation <br /> Amount</th>
+        <th>Visa ID Type</th>
+        <th>Expiration Date of SIN / <br /> Expiration Date of Visa</th>
+        <th>Worktag1 / <br /> Distribution <br /> Percentage 1</th>
+        <th>Start Date2 <br /> End Date2</th>
+        <th>Worktag2 / <br />Distribution <br /> Percentage 2</th>
       </tr>
     </thead>
     <tbody>
       {% for app in apps %}
         <tr>
           <td>{{ app.id }} <br /> {{ app.job.session.year }} {{ app.job.session.term.code }}</td>
-          <td>{{ app.job_title }}</td>
-          <td class="text-left">{% include 'ta_app/jobs/_job_instructor_list.html' with data=app.job %}</td>
-          <td>{{ app.applicant.profile.student_number }}</td>
+          <td>{{ app.student_number }}</td>
+          <td>{{ app.applicant.last_name }}</td>
+          <td>{{ app.start_date1 }}</td>
           <td>{{ app.position_number }}</td>
           <td>{{ app.time_type }}</td>
+          <td>{{ app.job_title }}</td>
           <td>{{ app.default_weekly_hours }}</td>
           <td>{{ app.scheduled_weekly_hours }}</td>
           <td>{{ app.job_class }}</td>
-          <td>{{ app.start_date1 }}</td>
           <td>{{ app.end_date1 }}</td>
+          <td>{{ app.compensation_freq }}</td>
+          <td>${{ app.monthly_salary|floatformat:2 }}</td>
+          <td>{{ app.visa_type }}</td>
           <td>
             {{ app.sin_expiry_date }} <br />
             {{ app.study_permit_expiry_date }}
           </td>
-          <td>{{ app.permit_validated }}</td>
-          <td>${{ app.monthly_salary|floatformat:2 }}</td>
           <td>
             {% if app.worktag1 %}
-              {{ app.worktag1 }}, {{ app.dist_per1 }}
+              {{ app.worktag1 }} / <br /> {{ app.dist_per1 }}
             {% endif %}
           </td>
           <td>
+            {{ app.start_date2 }} <br />
+            {{ app.end_date2 }}
+          </td>
+          <td>
             {% if app.worktag2 %}
-              {{ app.worktag2 }}, {{ app.dist_per2 }}
+              {{ app.worktag2 }} / <br /> {{ app.dist_per2 }}
             {% endif %}
           </td>
         </tr>
