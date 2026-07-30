@@ -38,7 +38,7 @@
   <div class="mb-5">
     <div class="font-size-sm float-right">
       {% include 'instructors/subpages/lfs_grad.html' with column='ID' %} <br />
-      {% include 'instructors/subpages/past_lfs_ta.html' with column='ID' %}
+      {% comment %}{% include 'instructors/subpages/past_lfs_ta.html' with column='ID' %}{% endcomment %}
     </div>
   </div>
 
@@ -77,7 +77,7 @@
               <a href="{% url 'administrators:show_application' app_slug=app.slug %}?next={{ new_next }}&p=Selected Applications">{{ app.id }}</a>
               <br />
               {% include 'instructors/subpages/display_lfs_grad.html' with user=app.applicant year=app.job.session.year %}
-              {% include 'instructors/subpages/display_past_lfs_ta.html' with user=app.applicant year=app.job.session.year %}
+              {% comment %}{% include 'instructors/subpages/display_past_lfs_ta.html' with user=app.applicant year=app.job.session.year %}{% comment %}
             </td>
             <td>{{ app.job.session.year }}</td>
             <td>{{ app.job.session.term.code }}</td>

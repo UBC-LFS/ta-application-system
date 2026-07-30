@@ -17,7 +17,7 @@
           <li>{% include 'ta_app/applications/_no_response_note.html' %}</li>
           <li>{% include 'ta_app/users/_note_confi_info_expiry_status.html' %}</li>
           <li>{% include 'instructors/subpages/lfs_grad.html' with column='ID' %}</li>
-          <li>{% include 'instructors/subpages/past_lfs_ta.html' with column='ID' %}</li>
+          {% comment %}<li>{% include 'instructors/subpages/past_lfs_ta.html' with column='ID' %}</li>{% endcomment %}
         </ul>
       </div>
     </div>
@@ -70,7 +70,7 @@
               <a href="{% url 'administrators:show_application' app_slug=app.slug %}?next={{ new_next }}&p=Offered Applications">{{ app.id }}</a>
               <br />
               {% include 'instructors/subpages/display_lfs_grad.html' with user=app.applicant year=app.job.session.year %}
-              {% include 'instructors/subpages/display_past_lfs_ta.html' with user=app.applicant year=app.job.session.year %}
+              {% comment %}{% include 'instructors/subpages/display_past_lfs_ta.html' with user=app.applicant year=app.job.session.year %}{% endcomment %}
             </td>
             <td>{{ app.job.session.year }}</td>
             <td>{{ app.job.session.term.code }}</td>
