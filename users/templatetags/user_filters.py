@@ -18,8 +18,8 @@ def resume(user):
 
 
 @register.filter
-def lfs_ta(user, year):
-    return userApi.get_lfs_ta(user, year)
+def past_lfs_ta(user, year):
+    return userApi.get_past_lfs_ta(user, year)
 
 
 @register.filter

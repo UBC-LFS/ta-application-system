@@ -1,5 +1,5 @@
 {% load user_filters %}
 
-{% if user|lfs_ta:year %}
+{% if user|past_lfs_ta:year %}
   <i class="fa fa-flag text-primary" aria-hidden="true"></i>
 {% endif %}

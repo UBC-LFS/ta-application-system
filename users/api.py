@@ -878,17 +878,54 @@ def get_gta_flag(user):
     return None
 
 
+def get_lfs_grad_or_others(user):
+    other_program = get_program_by_slug('other')
+
+    lfs_grad_or_others = ''
+    if profile_exists(user) and user.profile.status and user.profile.program:
+        if (is_master(user) or is_phd(user)) and is_lfs_student(user) and user.profile.program.id != other_program.id:
+            lfs_grad_or_others = 'LFS GRAD'
+        else:
+            lfs_grad_or_others = 'OTHERS'
+
+    return lfs_grad_or_others
+
+
 def get_lfs_grad(user):
     return True if get_lfs_grad_or_others(user) == 'LFS GRAD' else False
 
+from django.db.models import F, Count, Min
 
-def get_lfs_ta(user, year):
+def get_past_lfs_ta(user, year):
     profile = has_user_profile_created(user)
-    if profile and not is_undergraduate(user) and adminApi.get_accepted_hours_from_previous_year(user, year) > 0:
-        if is_master(user) and (1 <= int(profile.student_year) <= 2):
-            return True
-        if is_phd(user) and (1 <= int(profile.student_year) <= 5):
-            return True
+    if profile:
+        first_accepted_year = (
+            ApplicationStatus.objects
+            .filter(
+                application__applicant=user,
+                assigned=utils.ACCEPTED
+            )
+            .aggregate(
+                year=Min('application__job__session__year')
+            )['year']
+        )
+
+        if first_accepted_year:
+            target_year = 4 if is_phd(user) else 2
+
+            app_years = (
+                Application.objects
+                .filter(
+                    applicant=user,
+                    job__session__year__gt=int(first_accepted_year),
+                )
+                .values_list('job__session__year', flat=True)
+                .distinct()
+                .order_by('job__session__year')[:target_year]
+            )
+
+            if year in list(app_years):
+                return True
     return False
 
 
@@ -1114,19 +1151,6 @@ def delete_training(training_id):
 def get_alertemails():
     ''' Get all alertemails '''
     return AlertEmail.objects.all()
-
-
-def get_lfs_grad_or_others(user):
-    other_program = get_program_by_slug('other')
-
-    lfs_grad_or_others = ''
-    if profile_exists(user) and user.profile.status and user.profile.program:
-        if (is_master(user) or is_phd(user)) and is_lfs_student(user) and user.profile.program.id != other_program.id:
-            lfs_grad_or_others = 'LFS GRAD'
-        else:
-            lfs_grad_or_others = 'OTHERS'
-
-    return lfs_grad_or_others
 
 
 # Helper methods

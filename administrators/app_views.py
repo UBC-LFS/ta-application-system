@@ -177,7 +177,7 @@ def download_all_apps(request):
         
         data.append({
             'LFS Grad': 'YES' if userApi.get_lfs_grad(app.applicant) else '',
-            'past LFS TA': 'YES' if userApi.get_lfs_ta(app.applicant, app.job.session.year) else '',
+            'past LFS TA': 'YES' if userApi.get_past_lfs_ta(app.applicant, app.job.session.year) else '',
             'Year': year,
             'Term': app.job.session.term.code,
             'Job': '{0} {1} {2}'.format(app.job.course.code.name, app.job.course.number.name, app.job.course.section.name),
@@ -204,7 +204,8 @@ def download_lfs_grad(request):
     apps = []
     usernames = []
     for app in app_list:
-        if userApi.get_lfs_grad(app.applicant) and app.applicant.username not in usernames:
+        lfs_grad = userApi.get_lfs_grad(app.applicant)
+        if lfs_grad and app.applicant.username not in usernames:
             apps.append(app)
             usernames.append(app.applicant.username)
 
@@ -267,7 +268,8 @@ def download_past_lfs_ta(request):
     apps = []
     usernames = []
     for app in app_list:
-        if userApi.get_lfs_ta(app.applicant, app.job.session.year) and app.applicant.username not in usernames:
+        pas_lfs_ta = userApi.get_past_lfs_ta(app.applicant, app.job.session.year)
+        if pas_lfs_ta and app.applicant.username not in usernames:
             apps.append(app)
             usernames.append(app.applicant.username)
 
@@ -1596,7 +1598,7 @@ def download_all_accepted_apps_report_admin(request):
                     ap.accepted.created_at
                 )
 
-        lfs_ta = 'YES 'if userApi.get_lfs_ta(app.applicant, app.job.session.year) else ''
+        lfs_ta = 'YES 'if userApi.get_past_lfs_ta(app.applicant, app.job.session.year) else ''
         preferred_candidate = 'YES' if app.applicant.profile.preferred_candidate_status else ''
 
         result += '{0},{1},{2},{3},"{4}",{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15},{16},{17},{18},{19},{20},{21},{22},{23},{24},{25},{26},{27},{28},{29},{30},{31}\n'.format(

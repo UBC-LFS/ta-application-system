@@ -70,7 +70,7 @@ INSTALLED_APPS = [
     'observers',
     'django_summernote',
     'impersonate',
-    'scheduler.apps.SchedulerConfig'
+    # 'scheduler.apps.SchedulerConfig'
 ]
 
 MIDDLEWARE = [

@@ -726,18 +726,18 @@ def get_applications(option=None):
     return Application.objects.all().order_by('-id')
 
 
-def annotate_lfs_grad(apps):
-    master = userApi.get_status_by_slug('master-student')
-    phd = userApi.get_status_by_slug('phd-student')
-    other_program = userApi.get_program_by_slug('other')
+# def annotate_lfs_grad(apps):
+#     master = userApi.get_status_by_slug('master-student')
+#     phd = userApi.get_status_by_slug('phd-student')
+#     other_program = userApi.get_program_by_slug('other')
 
-    return apps.annotate(
-        is_lfs_grad=Case(
-            When( (Q(applicant__profile__status_id=master.id) | Q(applicant__profile__status_id=phd.id)) & (~Q(applicant__profile__program_id=other_program.id)), then=Value(True) ),
-            default = Value(False),
-            output_field = BooleanField()
-        )
-    )
+#     return apps.annotate(
+#         is_lfs_grad=Case(
+#             When( (Q(applicant__profile__status_id=master.id) | Q(applicant__profile__status_id=phd.id)) & (~Q(applicant__profile__program_id=other_program.id)), then=Value(True) ),
+#             default = Value(False),
+#             output_field = BooleanField()
+#         )
+#     )
 
 
 def get_applications_filter_limit(request, status):
