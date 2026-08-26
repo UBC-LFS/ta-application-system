@@ -52,6 +52,10 @@
         <tr>
           <td>
             <a href="{% url 'users:show_user' username=user.username %}?next={{ new_next }}&p=All Users&t=basic">{{ user.id }}</a>
+            {% if not user.is_active %}
+              <br />
+              <i class="fa fa-lock text-danger font-size-1" aria-hidden="true"></i>
+            {% endif %}
           </td>
           <td>{{ user.first_name }}</td>
           <td>{{ user.last_name }}</td>

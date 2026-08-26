@@ -67,12 +67,14 @@ class UserForm(forms.ModelForm):
     ''' User model form '''
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'email', 'username', 'is_superuser']
+        fields = ['first_name', 'last_name', 'email', 'username', 'is_superuser', 'is_active']
         labels = {
             'first_name': 'First Name',
             'last_name': 'Last Name',
             'email': 'Email',
-            'username': 'CWL'
+            'username': 'CWL',
+            'is_superuser': 'Superuser Status',
+            'is_active': 'Active Status'
         }
         widgets = {
             'first_name': forms.TextInput(attrs={ 'required': True, 'class': 'form-control' }),
